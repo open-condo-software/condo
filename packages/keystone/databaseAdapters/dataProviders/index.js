@@ -7,12 +7,12 @@ const { KvDataProvider } = require('./kv')
  *
  * ## Add a new provider
  *
- * 1. Create `dataProviders/<name>.js` with `canFind` / `find`.
+ * 1. Create `dataProviders/<name>.js` with read/write provider methods.
  * 2. Register in `SOURCE_PROVIDERS` below.
  * 3. Add a pool in `DATABASE_POOLS` and route tables via `DATABASE_ROUTING_RULES`.
  *
  * @example
- * DATABASE_POOLS={"main":{"databases":["main"],"writable":true},"kv":{"provider":"kv","writable":false}}
+ * DATABASE_POOLS={"main":{"databases":["main"],"writable":true},"kv":{"provider":"kv","writable":true}}
  * DATABASE_ROUTING_RULES=[{"tableName":"CachedUser","target":"kv"},{"target":"main"}]
  */
 const SOURCE_PROVIDERS = {

@@ -99,11 +99,11 @@ const routingRules = [
 Register the provider in `dataProviders/index.js`, then add a provider pool and routing rule:
 
 ```dotenv
-DATABASE_POOLS={"main":{"databases":["main"],"writable":true},"kv":{"provider":"kv","writable":false}}
+DATABASE_POOLS={"main":{"databases":["main"],"writable":true},"kv":{"provider":"kv","writable":true}}
 DATABASE_ROUTING_RULES=[{"tableName":"CachedUser","target":"kv"},{"target":"main"}]
 ```
 
-Only `find` with `{ id }` / `{ id_in }` is supported.
+Only `find` with `{ id }` / `{ id_in }` is supported for KV reads. Writes use full row JSON documents.
 
 ## Adding features
 

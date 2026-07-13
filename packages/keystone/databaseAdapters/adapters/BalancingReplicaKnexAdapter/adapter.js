@@ -15,7 +15,9 @@ const { isRuleMatching } = require('./utils/rules')
 const { extractCRUDQueryData } = require('./utils/sql')
 
 const { validateCrossSourceReferences } = require('../../crossDb/validateCrossSourceReferences')
-const { getDataProvider, resolvePoolProvider } = require('../../dataProviders')
+const { getDataProvider, isDataProviderPool, resolvePoolProvider } = require('../../dataProviders')
+const { executeProviderSqlMutation, executeProviderSqlSelect } = require('../../dataProviders/executeProviderSql')
+const { providerSupportsCreate, providerSupportsDelete, providerSupportsFind, providerSupportsUpdate } = require('../../dataProviders/providerMethods')
 const { createPoolBasedSourceRegistry } = require('../../sourceRegistry')
 const { createKmigratorKnexAdapter } = require('../../utils/kmigratorKnexAdapter')
 
@@ -216,9 +218,71 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
         return directResult.rows || directResult
     }
 
+    /** @returns {import('../../dataProviders/kv').KvDataProvider|null} */
+    _getProviderForSchema (schemaName) {
+        if (!this._sourceRegistry) return null
+
+        const poolName = this._sourceRegistry.resolveSource(schemaName)
+        if (!isDataProviderPool(poolName, this._replicaPoolsConfig)) return null
+
+        return getDataProvider(resolvePoolProvider(poolName, this._replicaPoolsConfig))
+    }
+
+    _createProviderSqlRunner ({
+        providerPool,
+        finalTableName,
+        finalSqlOperationName,
+        sqlObject,
+        sqlQueryWithPositionalBindings,
+        needsCrossSourceValidation,
+        gqlOperationType,
+        gqlOperationName,
+    }) {
+        const provider = getDataProvider(providerPool.providerName)
+        if (!provider) {
+            throw new Error(`Unknown data provider "${providerPool.providerName}"`)
+        }
+
+        const runner = { options: {} }
+        runner.run = async () => {
+            if (finalSqlOperationName === 'select') {
+                return executeProviderSqlSelect({
+                    provider,
+                    schemaName: finalTableName,
+                    sql: sqlQueryWithPositionalBindings,
+                    bindings: sqlObject.bindings,
+                })
+            }
+
+            if (!providerPool.writable) {
+                throw new Error(`Provider pool "${providerPool.providerName}" is read-only`)
+            }
+
+            if (needsCrossSourceValidation) {
+                await this._tryValidateCrossSourceReferences({
+                    sqlObject,
+                    finalTableName,
+                    finalSqlOperationName,
+                    gqlOperationType,
+                    gqlOperationName,
+                })
+            }
+
+            return executeProviderSqlMutation({
+                provider,
+                schemaName: finalTableName,
+                sqlOperationName: finalSqlOperationName,
+                sql: sqlQueryWithPositionalBindings,
+                bindings: sqlObject.bindings,
+            })
+        }
+
+        return runner
+    }
+
     /**
      * Keystone calls `this.knex` for every query. We replace `knex.client.runner` so
-     * routing and cross-pool SELECT rewrite happen transparently.
+     * routing, cross-pool SELECT rewrite, and provider-pool CRUD happen transparently.
      */
     _patchKnexRunner () {
         this.knex.client.runner = (builder) => {
@@ -238,6 +302,23 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
                     extractCRUDQueryData(sqlQueryWithPositionalBindings)
 
                 const selectedPool = this._selectTargetPool(sqlQueryWithPositionalBindings)
+
+                if (selectedPool instanceof ProviderPool) {
+                    const needsCrossSourceValidation = ['insert', 'update'].includes(finalSqlOperationName)
+                        && Boolean(this.listAdapters?.[finalTableName])
+
+                    return this._createProviderSqlRunner({
+                        providerPool: selectedPool,
+                        finalTableName,
+                        finalSqlOperationName,
+                        sqlObject,
+                        sqlQueryWithPositionalBindings,
+                        needsCrossSourceValidation,
+                        gqlOperationType,
+                        gqlOperationName,
+                    })
+                }
+
                 const primaryRunner = selectedPool.getQueryRunner(builder)
                 const needsCrossSourceValidation = ['insert', 'update'].includes(finalSqlOperationName)
                     && Boolean(this.listAdapters?.[finalTableName])
@@ -344,17 +425,48 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
     }
 
     /**
-     * Delegates find to a registered data provider (`dataProviders/index.js`) when the table
-     * source is not a postgres pool (e.g. `kv`). Otherwise uses the Keystone list adapter.
+     * Delegates find to a registered data provider when the table is on a provider pool.
      */
     async executeFind ({ schemaName, condition, listAdapter }) {
-        const poolName = this._sourceRegistry.resolveSource(schemaName)
-        const providerName = resolvePoolProvider(poolName, this._replicaPoolsConfig)
-        const provider = getDataProvider(providerName)
-        if (provider?.canFind({ condition })) {
+        const provider = this._getProviderForSchema(schemaName)
+        if (providerSupportsFind(provider, condition)) {
             return provider.find({ schemaName, condition })
         }
         return listAdapter.find(condition)
+    }
+
+    async executeItemsQuery ({ schemaName, args, meta, from, listAdapter }) {
+        const provider = this._getProviderForSchema(schemaName)
+        const where = args?.where || {}
+        if (providerSupportsFind(provider, where)) {
+            const rows = await provider.find({ schemaName, condition: where })
+            return meta ? { count: rows.length } : rows
+        }
+        return listAdapter.itemsQuery(args, { meta, from })
+    }
+
+    async executeCreate ({ schemaName, data, listAdapter }) {
+        const provider = this._getProviderForSchema(schemaName)
+        if (providerSupportsCreate(provider)) {
+            return provider.create({ schemaName, data })
+        }
+        return listAdapter._create(data)
+    }
+
+    async executeUpdate ({ schemaName, id, data, listAdapter }) {
+        const provider = this._getProviderForSchema(schemaName)
+        if (providerSupportsUpdate(provider)) {
+            return provider.update({ schemaName, id, data })
+        }
+        return listAdapter._update(id, data)
+    }
+
+    async executeDelete ({ schemaName, id, listAdapter }) {
+        const provider = this._getProviderForSchema(schemaName)
+        if (providerSupportsDelete(provider)) {
+            return provider.delete({ schemaName, id })
+        }
+        return listAdapter._delete(id)
     }
 
     /**

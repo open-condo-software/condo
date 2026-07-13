@@ -14,6 +14,7 @@
  */
 
 const fs = require('fs')
+
 const { Client } = require('pg')
 
 const { prepareAppEnv } = require('../packages/cli')

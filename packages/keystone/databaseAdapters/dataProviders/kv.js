@@ -3,7 +3,10 @@ const get = require('lodash/get')
 const { getKVClient } = require('@open-condo/keystone/kv')
 
 /**
- * Find-by-id reads for tables routed to a `kv` provider pool in `DATABASE_POOLS`.
+ * Document CRUD for tables routed to a `kv` provider pool in `DATABASE_POOLS`.
+ *
+ * Storage: Redis key `{SchemaName}:<id>` → JSON row.
+ * Reads: `id`, `id_in`, optional `deletedAt: null`.
  */
 class KvDataProvider {
     /**
@@ -15,7 +18,11 @@ class KvDataProvider {
         return `{${schemaName}}:${id}`
     }
 
-    canFind ({ condition = {} } = {}) {
+    _getKv () {
+        return getKVClient('cross-db')
+    }
+
+    matchFind ({ condition = {} } = {}) {
         return Boolean(this._resolveFindByIdQuery(condition))
     }
 
@@ -28,7 +35,7 @@ class KvDataProvider {
         }
         if (findQuery.ids.length === 0) return []
 
-        const kv = getKVClient('cross-db-find')
+        const kv = this._getKv()
         const keys = findQuery.ids.map(id => this._getObjectKey(schemaName, id))
         const rawValues = await kv.mget(keys)
         const objects = rawValues
@@ -43,6 +50,52 @@ class KvDataProvider {
 
         if (!findQuery.requireDeletedAtNull) return objects
         return objects.filter(item => get(item, 'deletedAt', null) === null)
+    }
+
+    async create ({ schemaName, data }) {
+        if (!data?.id) {
+            throw new Error(`KV create for ${schemaName} requires data.id`)
+        }
+
+        const kv = this._getKv()
+        const key = this._getObjectKey(schemaName, data.id)
+        const existing = await kv.get(key)
+        if (existing) {
+            throw new Error(`KV object already exists for ${schemaName} id ${data.id}`)
+        }
+
+        await kv.set(key, JSON.stringify(data))
+        return data
+    }
+
+    async update ({ schemaName, id, data }) {
+        if (!id) {
+            throw new Error(`KV update for ${schemaName} requires id`)
+        }
+
+        const kv = this._getKv()
+        const key = this._getObjectKey(schemaName, id)
+        const existingRaw = await kv.get(key)
+        if (!existingRaw) {
+            throw new Error(`KV object not found for ${schemaName} id ${id}`)
+        }
+
+        let existing
+        try {
+            existing = JSON.parse(existingRaw)
+        } catch (err) {
+            throw new Error(`Invalid JSON in KV object for ${schemaName}`)
+        }
+
+        const merged = { ...existing, ...data, id }
+        await kv.set(key, JSON.stringify(merged))
+        return merged
+    }
+
+    /** Soft-delete: sets `deletedAt` on the stored document. */
+    async delete ({ schemaName, id }) {
+        const deletedAt = new Date().toISOString()
+        return this.update({ schemaName, id, data: { deletedAt } })
     }
 
     _resolveFindByIdQuery (condition = {}) {

@@ -1,3 +1,5 @@
+const { BalancingReplicaKnexAdapter } = require('./adapters/BalancingReplicaKnexAdapter/adapter')
+const { KnexPool } = require('./adapters/BalancingReplicaKnexAdapter/pool')
 const {
     createPoolBasedSourceRegistry,
     isCrossDbPlannerEnabled,
@@ -94,5 +96,111 @@ describe('source registry', () => {
         expect(isCrossDbPlannerEnabled('true')).toEqual(true)
         expect(isCrossDbPlannerEnabled('false')).toEqual(false)
         expect(isCrossDbPlannerEnabled(null)).toEqual(false)
+    })
+})
+
+describe('BalancingReplicaKnexAdapter routing with CI-like config', () => {
+    const ciLikePoolTables = {
+        main: new Set(['User', 'Ticket', 'Organization', 'RemoteClient']),
+        message: new Set(['Message', 'MessageHistoryRecord']),
+        replicas: new Set(['User', 'Ticket', 'Organization', 'RemoteClient']),
+    }
+
+    const ciLikeRoutingRules = [
+        { tableName: /^(Message|MessageHistoryRecord)$/, target: 'message' },
+        { target: 'main', gqlOperationType: 'mutation' },
+        { target: 'replicas', sqlOperationName: 'select' },
+        { target: 'main' },
+    ]
+
+    const ciLikePoolsConfig = {
+        main: { databases: ['main'], writable: true },
+        message: { databases: ['message'], writable: true },
+        replicas: { databases: ['replica'], writable: false },
+    }
+
+    function createCiLikeAdapter () {
+        const mainPool = new KnexPool({
+            knexClients: [{ poolTag: 'main' }],
+            writable: true,
+            balancer: 'RoundRobin',
+            balancerOptions: {},
+        })
+        const messagePool = new KnexPool({
+            knexClients: [{ poolTag: 'message' }],
+            writable: true,
+            balancer: 'RoundRobin',
+            balancerOptions: {},
+        })
+        const replicaPool = new KnexPool({
+            knexClients: [{ poolTag: 'replica' }],
+            writable: false,
+            balancer: 'RoundRobin',
+            balancerOptions: {},
+        })
+
+        const adapter = new BalancingReplicaKnexAdapter({
+            databaseUrl: 'custom:{"main":"postgresql://postgres:postgres@127.0.0.1:5432/main","message":"postgresql://postgres:postgres@127.0.0.1:5432/message","replica":"postgresql://postgres:postgres@127.0.0.1:5433/replica"}',
+            replicaPools: ciLikePoolsConfig,
+            routingRules: [
+                { tableName: '^(Message|MessageHistoryRecord)$', target: 'message' },
+                { target: 'main', gqlOperationType: 'mutation' },
+                { target: 'replicas', sqlOperationName: 'select' },
+                { target: 'main' },
+            ],
+        })
+
+        adapter._replicaPools = { main: mainPool, message: messagePool, replicas: replicaPool }
+        adapter._replicaPoolsConfig = ciLikePoolsConfig
+        adapter._poolTables = ciLikePoolTables
+        adapter._sourceRegistry = createPoolBasedSourceRegistry({
+            poolTables: ciLikePoolTables,
+            routingRules: ciLikeRoutingRules,
+            replicaPoolsConfig: ciLikePoolsConfig,
+        })
+
+        return { adapter, mainPool, messagePool, replicaPool }
+    }
+
+    test.each([
+        [
+            'User SELECT uses async replica',
+            'select "t0".* from "public"."User" as "t0" where true and ("t0"."deletedAt" is null) and ("t0"."id" = $1) limit $2',
+            'replicaPool',
+        ],
+        [
+            'User INSERT uses writable main',
+            'insert into "public"."User" ("createdAt", "createdBy", "dv", "id", "name", "sender", "updatedAt", "updatedBy", "v") values ($1, $2, $3, $4, $5, $6, $7, $8, $9) returning *',
+            'mainPool',
+        ],
+        [
+            'Message SELECT uses dedicated message pool',
+            'select "t0".* from "public"."Message" as "t0" where true and ("t0"."deletedAt" is null) and ("t0"."id" = $1) limit $2',
+            'messagePool',
+        ],
+        [
+            'Message INSERT uses message pool owner',
+            'insert into "public"."Message" ("id", "type", "status") values ($1, $2, $3) returning *',
+            'messagePool',
+        ],
+    ])('%s', (_, sql, expectedPoolKey) => {
+        const pools = createCiLikeAdapter()
+        expect(pools.adapter._selectTargetPool(sql)).toBe(pools[expectedPoolKey])
+    })
+
+    test('executeFind on postgres table delegates to list adapter (replica routing stays in knex runner)', async () => {
+        const { adapter } = createCiLikeAdapter()
+        const listAdapter = {
+            find: jest.fn().mockResolvedValue([{ id: 'user-1', name: 'Alice' }]),
+        }
+
+        const rows = await adapter.executeFind({
+            schemaName: 'User',
+            condition: { id: 'user-1' },
+            listAdapter,
+        })
+
+        expect(rows).toEqual([{ id: 'user-1', name: 'Alice' }])
+        expect(listAdapter.find).toHaveBeenCalledWith({ id: 'user-1' })
     })
 })
