@@ -6,7 +6,7 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 
 import { useOrganization } from '@open-condo/next/organization'
-import { Button, Checkbox, Modal, Radio, Typography } from '@open-condo/ui'
+import { Button, Checkbox, Modal, Radio, Typography, Tooltip } from '@open-condo/ui'
 
 import { CONTEXT_FINISHED_STATUS as ACQUIRING_CONTEXT_FINISHED_STATUS, CONTEXT_IN_PROGRESS_STATUS as ACQUIRING_CONTEXT_IN_PROGRESS_STATUS } from '@condo/domains/acquiring/constants/context'
 import { useIntegrationContexts } from '@condo/domains/acquiring/hooks/useIntegrationContexts'
@@ -123,6 +123,8 @@ export const ChooseChannels: React.FC = () => {
 
     const ChooseAcquiringChannels = 'Куда будем публиковать начисления'//intl.formatMessage({ id: 'miniapps.appCard.notConnected.label' })
     const ChooseBillingChannel = 'Откуда будете получать данные по начислениям'//intl.formatMessage({ id: 'miniapps.appCard.notConnected.label' })
+    const NextButtonLabel = 'Далее'//intl.formatMessage({ id: 'miniapps.appCard.notConnected.label' })
+    const ChooseAcquiringChannelsMessage = 'Укажите куда будут публиковаться начисления'//intl.formatMessage({ id: 'miniapps.appCard.notConnected.label' })
 
     const orgId = get(organization, 'id', null)
 
@@ -325,15 +327,20 @@ export const ChooseChannels: React.FC = () => {
                     </Row>
                 </Space>
                 <Row>
-                    <Button
-                        key='submit'
-                        type='primary'
-                        htmlType='submit'
-                        loading={billingLoading || acquiringLoading}
-                        onClick={moveToTheNextStep}
-                    >
-                        Далее
-                    </Button>
+                    <Tooltip title={ chosenAcquirings.length === 0 ? ChooseAcquiringChannelsMessage : 'муму' }>
+                        <Col span={4}>
+                            <Button
+                                key='submit'
+                                type='primary'
+                                htmlType='submit'
+                                loading={billingLoading || acquiringLoading}
+                                onClick={moveToTheNextStep}
+                                disabled={chosenAcquirings.length === 0}
+                            >
+                                {NextButtonLabel}
+                            </Button>
+                        </Col>
+                    </Tooltip>
                 </Row>
             </Space>
             {SetupBillingModal}
