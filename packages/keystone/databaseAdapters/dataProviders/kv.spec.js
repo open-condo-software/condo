@@ -32,12 +32,38 @@ function createKvStore (entries = USER_FIXTURE, schemaName = 'User') {
     const store = new Map(
         Object.entries(entries).map(([id, object]) => [`{${schemaName}}:${id}`, JSON.stringify(object)]),
     )
+    const watchedKeys = new Set()
+
     return {
         mget: async (keys) => keys.map((key) => store.get(key) ?? null),
         get: async (key) => store.get(key) ?? null,
-        set: async (key, value) => {
+        set: async (key, value, mode) => {
+            if (mode === 'NX' && store.has(key)) return null
             store.set(key, value)
             return 'OK'
+        },
+        watch: async (key) => {
+            watchedKeys.add(key)
+        },
+        unwatch: async () => {
+            watchedKeys.clear()
+        },
+        multi: () => {
+            const ops = []
+            const multi = {
+                set: (key, value) => {
+                    ops.push({ key, value })
+                    return multi
+                },
+                exec: async () => {
+                    for (const op of ops) {
+                        store.set(op.key, op.value)
+                    }
+                    watchedKeys.clear()
+                    return ops.map(() => [null, 'OK'])
+                },
+            }
+            return multi
         },
         _store: store,
     }
@@ -342,5 +368,23 @@ describe('BalancingReplicaKnexAdapter KV delegation', () => {
         })
 
         expect(result).toEqual({ count: 2 })
+    })
+
+    test('executeItemsQuery applies first and skip on provider rows', async () => {
+        getKVClient.mockReturnValue(createKvStore({
+            u1: { id: 'u1', name: 'Alice', deletedAt: null },
+            u2: { id: 'u2', name: 'Bob', deletedAt: null },
+            u3: { id: 'u3', name: 'Carol', deletedAt: null },
+        }, 'CachedUser'))
+
+        const rows = await adapter.executeItemsQuery({
+            schemaName: 'CachedUser',
+            args: { where: { id_in: ['u1', 'u2', 'u3'] }, sortBy: ['id_ASC'], skip: 1, first: 1 },
+            meta: false,
+            from: {},
+            listAdapter,
+        })
+
+        expect(rows).toEqual([{ id: 'u2', name: 'Bob', deletedAt: null }])
     })
 })
