@@ -9643,9 +9643,7 @@ __metadata:
   resolution: "@open-condo/files@workspace:packages/files"
   dependencies:
     "@faker-js/faker": "npm:^7.6.0"
-    "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
-    "@open-condo/keystone": "workspace:^"
     "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/tsconfig": "workspace:^"
     "@types/jsonwebtoken": "npm:^9.0.0"
