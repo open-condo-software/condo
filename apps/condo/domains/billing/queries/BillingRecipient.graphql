@@ -3,6 +3,7 @@ query getOrganizationBillingRecipients($organization: OrganizationWhereInput!) {
         where: {
             context: {
                 organization: $organization
+                status: "Finished"
             }
         }
         first: 100

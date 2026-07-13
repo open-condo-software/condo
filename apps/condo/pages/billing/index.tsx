@@ -50,8 +50,11 @@ const AccrualsAndPaymentsPage: PageComponentType = () => {
     const onlineProcessingAcquiringContext = useMemo(() => {
         return acquiringContexts.find(({ integration }) => integration?.type === ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE)
     }, [acquiringContexts])
+    const hasNotFinishedAcquiringContexts = useMemo(() => {
+        return !!acquiringContexts.some(({ status }) => status !== CONTEXT_FINISHED_STATUS && status !== CONTEXT_VERIFICATION_STATUS)
+    }, [acquiringContexts])
     const hasFinishedBillingContext = useMemo(() => {
-        return billingContexts.some(({ status }) => status === BILLING_FINISHED_STATUS)
+        return !!billingContexts.some(({ status }) => status === BILLING_FINISHED_STATUS)
     }, [billingContexts])
 
     const providerValue = useMemo(() => ({
@@ -61,7 +64,7 @@ const AccrualsAndPaymentsPage: PageComponentType = () => {
     }), [acquiringContexts, billingContexts, refetchBilling])
 
     const canShowBillingPage = isCombinedPageEnabled
-        ? hasFinishedBillingContext
+        ? hasFinishedBillingContext && !hasNotFinishedAcquiringContexts
         : billingContexts.length > 0 && acquiringContexts.length > 0
 
     if (acquiringLoading || billingLoading || acquiringError || billingError) {
@@ -74,7 +77,7 @@ const AccrualsAndPaymentsPage: PageComponentType = () => {
         )
     }
 
-    if (canShowBillingPage) {
+    if (canShowBillingPage || isCombinedPageEnabled) {
         return (
             <BillingAndAcquiringContext.Provider value={providerValue}>
                 <BillingPageContent/>
