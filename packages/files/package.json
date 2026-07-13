@@ -46,7 +46,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@faker-js/faker": "catalog:",
+    "@faker-js/faker": "^7.6.0",
     "@open-condo/tsconfig": "workspace:^",
     "@types/jsonwebtoken": "^9.0.0",
     "form-data": "^4.0.4",
