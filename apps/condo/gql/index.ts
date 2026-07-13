@@ -1218,7 +1218,7 @@ export type GetBillingReceiptsByPropertyCountQueryResult = Apollo.QueryResult<Ty
 export const GetOrganizationBillingRecipientsDocument = gql`
     query getOrganizationBillingRecipients($organization: OrganizationWhereInput!) {
   recipients: allBillingRecipients(
-    where: {context: {organization: $organization}}
+    where: {context: {organization: $organization, status: "Finished"}}
     first: 100
     sortBy: [createdAt_ASC]
   ) {
