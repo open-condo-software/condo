@@ -59,12 +59,11 @@ class KvDataProvider {
 
         const kv = this._getKv()
         const key = this._getObjectKey(schemaName, data.id)
-        const existing = await kv.get(key)
-        if (existing) {
+        const wasCreated = await kv.set(key, JSON.stringify(data), 'NX')
+        if (wasCreated !== 'OK') {
             throw new Error(`KV object already exists for ${schemaName} id ${data.id}`)
         }
 
-        await kv.set(key, JSON.stringify(data))
         return data
     }
 
@@ -75,21 +74,34 @@ class KvDataProvider {
 
         const kv = this._getKv()
         const key = this._getObjectKey(schemaName, id)
-        const existingRaw = await kv.get(key)
-        if (!existingRaw) {
-            throw new Error(`KV object not found for ${schemaName} id ${id}`)
+        const maxAttempts = 5
+
+        for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+            await kv.watch(key)
+            const existingRaw = await kv.get(key)
+            if (!existingRaw) {
+                await kv.unwatch()
+                throw new Error(`KV object not found for ${schemaName} id ${id}`)
+            }
+
+            let existing
+            try {
+                existing = JSON.parse(existingRaw)
+            } catch (err) {
+                await kv.unwatch()
+                throw new Error(`Invalid JSON in KV object for ${schemaName}`)
+            }
+
+            const merged = { ...existing, ...data, id }
+            const tx = kv.multi()
+            tx.set(key, JSON.stringify(merged))
+            const execResult = await tx.exec()
+            if (execResult) {
+                return merged
+            }
         }
 
-        let existing
-        try {
-            existing = JSON.parse(existingRaw)
-        } catch (err) {
-            throw new Error(`Invalid JSON in KV object for ${schemaName}`)
-        }
-
-        const merged = { ...existing, ...data, id }
-        await kv.set(key, JSON.stringify(merged))
-        return merged
+        throw new Error(`KV update conflict for ${schemaName} id ${id}`)
     }
 
     /** Soft-delete: sets `deletedAt` on the stored document. */

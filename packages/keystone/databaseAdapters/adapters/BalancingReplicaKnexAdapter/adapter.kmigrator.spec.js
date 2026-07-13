@@ -138,4 +138,26 @@ describe('BalancingReplicaKnexAdapter.__kmigratorKnexAdapters', () => {
         expect(stubs[0].dbName).toBe('main')
         expect(stubs[0].knex).toBe(mainKnex)
     })
+
+    test('skips writable provider pools without databases', () => {
+        const adapter = new BalancingReplicaKnexAdapter({
+            databaseUrl: 'custom:{"main":"postgresql://u:p@127.0.0.1:5432/main"}',
+            replicaPools: '{"main":{"databases":["main"],"writable":true},"kv":{"provider":"kv","writable":true}}',
+            routingRules: '[{"target":"main"}]',
+        })
+
+        adapter.listAdapters = {}
+        adapter.getListAdapterByKey = jest.fn()
+        adapter._knexClients = { main: mainKnex }
+        adapter._routingRules = [{ target: 'main' }]
+        adapter._replicaPoolsConfig = {
+            main: { databases: ['main'], writable: true },
+            kv: { provider: 'kv', writable: true },
+        }
+
+        const stubs = adapter.__kmigratorKnexAdapters()
+
+        expect(stubs).toHaveLength(1)
+        expect(stubs[0].dbName).toBe('main')
+    })
 })

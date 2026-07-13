@@ -198,6 +198,24 @@ function extractSimpleSelectCondition (sql, bindings = []) {
     return null
 }
 
+async function _rollbackProviderCreates ({ provider, schemaName, rows }) {
+    await Promise.allSettled(rows.map(row => provider.delete({ schemaName, id: row.id })))
+}
+
+async function _rollbackProviderUpdates ({ provider, schemaName, snapshots }) {
+    await Promise.allSettled(snapshots.map(({ id, before }) => {
+        if (!before) return Promise.resolve()
+        return provider.update({ schemaName, id, data: before })
+    }))
+}
+
+async function _rollbackProviderDeletes ({ provider, schemaName, snapshots }) {
+    await Promise.allSettled(snapshots.map(({ before }) => {
+        if (!before) return Promise.resolve()
+        return provider.create({ schemaName, data: before })
+    }))
+}
+
 /**
  * Execute a provider-backed SQL mutation (GraphQL / knex path).
  *
@@ -207,35 +225,56 @@ function extractSimpleSelectCondition (sql, bindings = []) {
  * @param {string} options.sqlOperationName
  * @param {string} options.sql
  * @param {Array} options.bindings
- * @returns {Promise<{ rows: Array }>}
+ * @returns {Promise<{ rows: Array, rowCount: number }>}
  */
 async function executeProviderSqlMutation ({ provider, schemaName, sqlOperationName, sql, bindings = [] }) {
     if (sqlOperationName === 'insert') {
         const rows = extractMutationColumnValues(sql, bindings)
         const created = []
-        for (const data of rows) {
-            created.push(await provider.create({ schemaName, data }))
+        try {
+            const inserted = await Promise.all(rows.map(async (data) => {
+                const row = await provider.create({ schemaName, data })
+                created.push(row)
+                return row
+            }))
+            return { rowCount: inserted.length, rows: inserted }
+        } catch (err) {
+            await _rollbackProviderCreates({ provider, schemaName, rows: created })
+            throw err
         }
-        return { rows: created }
     }
 
     if (sqlOperationName === 'update') {
         const [patch] = extractMutationColumnValues(sql, bindings)
         const ids = extractMutationWhereIds(sql, bindings)
-        const updated = []
-        for (const id of ids) {
-            updated.push(await provider.update({ schemaName, id, data: patch }))
+        const snapshots = []
+        try {
+            const updated = await Promise.all(ids.map(async (id) => {
+                const [before] = await provider.find({ schemaName, condition: { id } })
+                snapshots.push({ id, before })
+                return provider.update({ schemaName, id, data: patch })
+            }))
+            return { rowCount: updated.length, rows: updated }
+        } catch (err) {
+            await _rollbackProviderUpdates({ provider, schemaName, snapshots })
+            throw err
         }
-        return { rows: updated }
     }
 
     if (sqlOperationName === 'delete') {
         const ids = extractMutationWhereIds(sql, bindings)
-        const deleted = []
-        for (const id of ids) {
-            deleted.push(await provider.delete({ schemaName, id }))
+        const snapshots = []
+        try {
+            const deleted = await Promise.all(ids.map(async (id) => {
+                const [before] = await provider.find({ schemaName, condition: { id } })
+                snapshots.push({ id, before })
+                return provider.delete({ schemaName, id })
+            }))
+            return { rowCount: deleted.length, rows: deleted }
+        } catch (err) {
+            await _rollbackProviderDeletes({ provider, schemaName, snapshots })
+            throw err
         }
-        return { rowCount: deleted.length, rows: deleted }
     }
 
     throw new Error(`Unsupported provider SQL operation: ${sqlOperationName}`)

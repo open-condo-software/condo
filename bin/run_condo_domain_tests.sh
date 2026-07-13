@@ -24,6 +24,10 @@ setup_and_start_services() {
     # 1. Single-DB migrate + base .env (standard CI bootstrap)
     node bin/prepare.js -f condo -c condo
 
+    # Migration drift check while condo is still on the canonical single-DB layout.
+    # Must run before configure-message-db-storage.js rewrites routing to multi-DB.
+    yarn workspace @app/condo makemigrations --check
+
     # 2. Create message DB, copy Message table schemas, enable multi-DB routing in .env.
     #    See bin/configure-message-db-storage.js (main DB is unchanged).
     node bin/configure-message-db-storage.js
