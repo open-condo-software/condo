@@ -32,7 +32,6 @@ function createKvStore (entries = USER_FIXTURE, schemaName = 'User') {
     const store = new Map(
         Object.entries(entries).map(([id, object]) => [`{${schemaName}}:${id}`, JSON.stringify(object)]),
     )
-    const watchedKeys = new Set()
 
     return {
         mget: async (keys) => keys.map((key) => store.get(key) ?? null),
@@ -42,28 +41,16 @@ function createKvStore (entries = USER_FIXTURE, schemaName = 'User') {
             store.set(key, value)
             return 'OK'
         },
-        watch: async (key) => {
-            watchedKeys.add(key)
-        },
-        unwatch: async () => {
-            watchedKeys.clear()
-        },
-        multi: () => {
-            const ops = []
-            const multi = {
-                set: (key, value) => {
-                    ops.push({ key, value })
-                    return multi
-                },
-                exec: async () => {
-                    for (const op of ops) {
-                        store.set(op.key, op.value)
-                    }
-                    watchedKeys.clear()
-                    return ops.map(() => [null, 'OK'])
-                },
-            }
-            return multi
+        // Mirrors UPDATE_SCRIPT semantics used by KvDataProvider.update
+        eval: async (_script, _numKeys, key, patchJson, id) => {
+            const existingRaw = store.get(key)
+            if (existingRaw == null) return false
+            const existing = JSON.parse(existingRaw)
+            const patch = JSON.parse(patchJson)
+            const merged = { ...existing, ...patch, id }
+            const mergedJson = JSON.stringify(merged)
+            store.set(key, mergedJson)
+            return mergedJson
         },
         _store: store,
     }
