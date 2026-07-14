@@ -45,6 +45,7 @@ function applyItemsQueryToRows (rows, args = {}) {
                 const leftValue = left?.[field]
                 const rightValue = right?.[field]
 
+                if (leftValue == null && rightValue == null) continue
                 if (leftValue === rightValue) continue
                 // PostgreSQL default: NULLS LAST for ASC, NULLS FIRST for DESC
                 if (leftValue == null) return direction === 'ASC' ? 1 : -1
