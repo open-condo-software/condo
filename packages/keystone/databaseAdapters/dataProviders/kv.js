@@ -3,6 +3,29 @@ const get = require('lodash/get')
 const { getKVClient } = require('@open-condo/keystone/kv')
 
 /**
+ * Atomically GET → merge patch + id → SET.
+ * KEYS[1] = object key
+ * ARGV[1] = JSON patch object
+ * ARGV[2] = id (always written onto the merged document)
+ * Returns merged JSON string, or false when the key is missing.
+ */
+const UPDATE_SCRIPT = `
+local raw = redis.call("GET", KEYS[1])
+if not raw then
+    return false
+end
+local existing = cjson.decode(raw)
+local patch = cjson.decode(ARGV[1])
+for k, v in pairs(patch) do
+    existing[k] = v
+end
+existing["id"] = ARGV[2]
+local merged = cjson.encode(existing)
+redis.call("SET", KEYS[1], merged)
+return merged
+`
+
+/**
  * Document CRUD for tables routed to a `kv` provider pool in `DATABASE_POOLS`.
  *
  * Storage: Redis key `{SchemaName}:<id>` → JSON row.
@@ -74,34 +97,27 @@ class KvDataProvider {
 
         const kv = this._getKv()
         const key = this._getObjectKey(schemaName, id)
-        const maxAttempts = 5
 
-        for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
-            await kv.watch(key)
-            const existingRaw = await kv.get(key)
-            if (!existingRaw) {
-                await kv.unwatch()
-                throw new Error(`KV object not found for ${schemaName} id ${id}`)
-            }
-
-            let existing
-            try {
-                existing = JSON.parse(existingRaw)
-            } catch (err) {
-                await kv.unwatch()
+        let mergedRaw
+        try {
+            mergedRaw = await kv.eval(UPDATE_SCRIPT, 1, key, JSON.stringify(data || {}), String(id))
+        } catch (err) {
+            const message = String(err?.message || err)
+            if (/cjson|invalid|json/i.test(message)) {
                 throw new Error(`Invalid JSON in KV object for ${schemaName}`)
             }
-
-            const merged = { ...existing, ...data, id }
-            const tx = kv.multi()
-            tx.set(key, JSON.stringify(merged))
-            const execResult = await tx.exec()
-            if (execResult) {
-                return merged
-            }
+            throw err
         }
 
-        throw new Error(`KV update conflict for ${schemaName} id ${id}`)
+        if (mergedRaw === false || mergedRaw == null) {
+            throw new Error(`KV object not found for ${schemaName} id ${id}`)
+        }
+
+        try {
+            return JSON.parse(mergedRaw)
+        } catch (err) {
+            throw new Error(`Invalid JSON in KV object for ${schemaName}`)
+        }
     }
 
     /** Soft-delete: sets `deletedAt` on the stored document. */
