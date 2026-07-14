@@ -66,16 +66,10 @@ function isDataProviderPool (poolName, poolsConfig) {
     return isRegisteredDataProvider(resolvePoolProvider(poolName, poolsConfig))
 }
 
-/** @deprecated use isDataProviderPool */
-function isDataProviderSource (sourceName, poolsConfig) {
-    return isDataProviderPool(sourceName, poolsConfig)
-}
-
 module.exports = {
     getDataProvider,
     isRegisteredDataProvider,
     isDataProviderPool,
-    isDataProviderSource,
     resolvePoolProvider,
     SOURCE_PROVIDERS,
     REGISTERED_DATA_PROVIDER_NAMES,

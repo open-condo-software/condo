@@ -6,26 +6,27 @@ const {
     resolveTablePool,
 } = require('./sourceRegistry')
 
-const ciLikePoolTables = {
+const multiPoolTables = {
     main: new Set(['User', 'Ticket', 'Organization', 'RemoteClient']),
     message: new Set(['Message', 'MessageHistoryRecord']),
     replicas: new Set(['User', 'Ticket', 'Organization', 'RemoteClient']),
 }
 
-const ciLikeRoutingRulesRaw = [
+const multiPoolRoutingRulesRaw = [
     { tableName: '^(Message|MessageHistoryRecord)$', target: 'message' },
     { target: 'main', gqlOperationType: 'mutation' },
     { target: 'replicas', sqlOperationName: 'select' },
     { target: 'main' },
 ]
 
-const ciLikeRoutingRules = ciLikeRoutingRulesRaw.map((rule) => (
-    rule.tableName
-        ? { ...rule, tableName: new RegExp(rule.tableName) }
-        : rule
-))
+const multiPoolRoutingRules = [
+    { tableName: /^(Message|MessageHistoryRecord)$/, target: 'message' },
+    { target: 'main', gqlOperationType: 'mutation' },
+    { target: 'replicas', sqlOperationName: 'select' },
+    { target: 'main' },
+]
 
-const ciLikePoolsConfig = {
+const multiPoolsConfig = {
     main: { databases: ['main'], writable: true },
     message: { databases: ['message'], writable: true },
     replicas: { databases: ['replica'], writable: false },
@@ -34,9 +35,9 @@ const ciLikePoolsConfig = {
 describe('source registry', () => {
     test('derives Message pool from DATABASE_POOLS introspection', () => {
         const registry = createPoolBasedSourceRegistry({
-            poolTables: ciLikePoolTables,
-            routingRules: ciLikeRoutingRules,
-            replicaPoolsConfig: ciLikePoolsConfig,
+            poolTables: multiPoolTables,
+            routingRules: multiPoolRoutingRules,
+            replicaPoolsConfig: multiPoolsConfig,
         })
 
         expect(registry.resolveSource('Message')).toEqual('message')
@@ -45,9 +46,9 @@ describe('source registry', () => {
 
     test('resolves User to writable main pool when table exists in main and replicas', () => {
         const registry = createPoolBasedSourceRegistry({
-            poolTables: ciLikePoolTables,
-            routingRules: ciLikeRoutingRules,
-            replicaPoolsConfig: ciLikePoolsConfig,
+            poolTables: multiPoolTables,
+            routingRules: multiPoolRoutingRules,
+            replicaPoolsConfig: multiPoolsConfig,
         })
 
         expect(registry.resolveSource('User')).toEqual('main')
@@ -61,7 +62,7 @@ describe('source registry', () => {
                 { tableName: 'Message', target: 'message' },
                 { target: 'main' },
             ],
-            replicaPoolsConfig: ciLikePoolsConfig,
+            replicaPoolsConfig: multiPoolsConfig,
         })
 
         expect(registry.resolveSource('Message')).toEqual('message')
@@ -91,9 +92,9 @@ describe('source registry', () => {
     test('resolveTablePool picks writable pool for mirrored tables', () => {
         expect(resolveTablePool({
             tableName: 'User',
-            poolTables: ciLikePoolTables,
-            routingRules: ciLikeRoutingRules,
-            replicaPoolsConfig: ciLikePoolsConfig,
+            poolTables: multiPoolTables,
+            routingRules: multiPoolRoutingRules,
+            replicaPoolsConfig: multiPoolsConfig,
             defaultPool: 'main',
         })).toEqual('main')
     })
@@ -105,8 +106,8 @@ describe('source registry', () => {
     })
 })
 
-describe('BalancingReplicaKnexAdapter routing with CI-like config', () => {
-    function createCiLikeAdapter () {
+describe('BalancingReplicaKnexAdapter routing with main/message/replicas pools', () => {
+    function createMultiPoolAdapter () {
         const mainPool = new KnexPool({
             knexClients: [{ poolTag: 'main' }],
             writable: true,
@@ -128,17 +129,17 @@ describe('BalancingReplicaKnexAdapter routing with CI-like config', () => {
 
         const adapter = new BalancingReplicaKnexAdapter({
             databaseUrl: 'custom:{"main":"postgresql://postgres:postgres@127.0.0.1:5432/main","message":"postgresql://postgres:postgres@127.0.0.1:5432/message","replica":"postgresql://postgres:postgres@127.0.0.1:5433/replica"}',
-            replicaPools: ciLikePoolsConfig,
-            routingRules: ciLikeRoutingRulesRaw,
+            replicaPools: multiPoolsConfig,
+            routingRules: multiPoolRoutingRulesRaw,
         })
 
         adapter._replicaPools = { main: mainPool, message: messagePool, replicas: replicaPool }
-        adapter._replicaPoolsConfig = ciLikePoolsConfig
-        adapter._poolTables = ciLikePoolTables
+        adapter._replicaPoolsConfig = multiPoolsConfig
+        adapter._poolTables = multiPoolTables
         adapter._sourceRegistry = createPoolBasedSourceRegistry({
-            poolTables: ciLikePoolTables,
-            routingRules: ciLikeRoutingRules,
-            replicaPoolsConfig: ciLikePoolsConfig,
+            poolTables: multiPoolTables,
+            routingRules: multiPoolRoutingRules,
+            replicaPoolsConfig: multiPoolsConfig,
         })
 
         return { adapter, mainPool, messagePool, replicaPool }
@@ -166,12 +167,12 @@ describe('BalancingReplicaKnexAdapter routing with CI-like config', () => {
             'messagePool',
         ],
     ])('%s', (_, sql, expectedPoolKey) => {
-        const pools = createCiLikeAdapter()
+        const pools = createMultiPoolAdapter()
         expect(pools.adapter._selectTargetPool(sql)).toBe(pools[expectedPoolKey])
     })
 
     test('executeFind on postgres table delegates to list adapter (replica routing stays in knex runner)', async () => {
-        const { adapter } = createCiLikeAdapter()
+        const { adapter } = createMultiPoolAdapter()
         const listAdapter = {
             find: jest.fn().mockResolvedValue([{ id: 'user-1', name: 'Alice' }]),
         }
