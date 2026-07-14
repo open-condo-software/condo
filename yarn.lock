@@ -1059,12 +1059,22 @@ __metadata:
     "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
+<<<<<<< HEAD
     "@types/react": "catalog:"
     cross-env: "catalog:"
     express: "catalog:"
     graphql: "catalog:"
     jest: "catalog:"
     lodash: "catalog:"
+=======
+    "@types/react": "npm:^18.3.1"
+    big.js: "npm:^6.2.2"
+    cross-env: "npm:^7.0.3"
+    express: "npm:^4.21.2"
+    graphql: "npm:^16.10.0"
+    jest: "npm:^29.7.0"
+    lodash: "npm:^4.17.21"
+>>>>>>> c7a5bc912 (feat(ecom-gateway): DOMA-13433 update submodule)
     mkdirp: "npm:^3.0.1"
     openid-client: "catalog:"
     pluralize: "catalog:"
