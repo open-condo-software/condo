@@ -9,8 +9,8 @@
 }
 
 .iframe-loader {
-  position: absolute;
-  display: flex;
+  position: absolute !important;
+  display: flex !important;
   align-items: center;
   justify-content: center;
   width: 100%;
