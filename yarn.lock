@@ -9976,7 +9976,6 @@ __metadata:
     postcss-loader: "npm:^7.0.1"
     postcss-preset-env: "npm:^7.8.1"
     quicktype-core: "npm:^6.0.71"
-    rc-menu: "npm:^9.8.4"
     react: "npm:^18.3.1"
     react-dom: "npm:^18.3.1"
     react-markdown: "npm:^6"
@@ -34957,7 +34956,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rc-menu@npm:^9.8.4, rc-menu@npm:~9.16.0, rc-menu@npm:~9.16.1":
+"rc-menu@npm:~9.16.0, rc-menu@npm:~9.16.1":
   version: 9.16.1
   resolution: "rc-menu@npm:9.16.1"
   dependencies:
