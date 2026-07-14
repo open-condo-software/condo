@@ -149,7 +149,7 @@
     "antd": "^4.24.12",
     "classnames": "^2.5.1",
     "emoji-mart": "^5.6.0",
-    "rc-menu": "~9.8.4",
+    "rc-menu": "^9.8.4",
     "react-markdown": "^6",
     "react-phone-input-2": "^2.15.1",
     "remark-gfm": "^1",
