@@ -27,14 +27,17 @@ DATABASE_URL=custom:{"main":"postgresql://user:pass@127.0.0.1:5432/main","replic
 ### `DATABASE_POOLS`
 
 ```dotenv
-DATABASE_POOLS={"main":{"databases":["main"],"writable":true},"replicas":{"databases":["replica"],"writable":false}}
+DATABASE_POOLS={"main":{"databases":["main"],"writable":true},"replicas":{"databases":["replica"],"writable":false},"kv":{"provider":"kv","writable":true}}
 ```
 
 | Field | Description |
 |-------|-------------|
-| `databases` | Names from `DATABASE_URL` |
+| `databases` | Names from `DATABASE_URL` (Postgres pools) |
+| `provider` | Registered data provider name, e.g. `kv` (non-SQL pools; no `databases`) |
 | `writable` | `true` if pool accepts insert/update/delete |
-| `balancer` | Optional, default `RoundRobin` |
+| `balancer` | Optional for Postgres pools, default `RoundRobin` |
+
+Provider pools are **Knex-only** (`BalancingReplicaKnexAdapter`). Do not use `provider` with `prisma-custom:`.
 
 ### `DATABASE_ROUTING_RULES`
 
@@ -71,8 +74,8 @@ const routingRules = [
 
 | File | Role |
 |------|------|
-| `adapter.js` | Connect pools, patch knex runner, `executeFind` via dataProviders |
-| `pool.js` | `KnexPool` — pick a client inside a pool |
+| `adapter.js` | Connect pools, patch knex runner, `execute*` hooks, ProviderPool SQL bridge |
+| `pool.js` | `KnexPool` + `ProviderPool` |
 | `utils/crossSourceSelectSql.js` | SQL AST helpers + `planCrossPoolSelect` (cross-pool JOIN rewrite) |
 | `utils/env.js` | Parse and validate config |
 | `utils/rules.js` | Rule matching |
@@ -103,7 +106,7 @@ DATABASE_POOLS={"main":{"databases":["main"],"writable":true},"kv":{"provider":"
 DATABASE_ROUTING_RULES=[{"tableName":"CachedUser","target":"kv"},{"target":"main"}]
 ```
 
-Only `find` with `{ id }` / `{ id_in }` is supported for KV reads. Writes use full row JSON documents.
+Reads: `find` / `itemsQuery` with `{ id }` / `{ id_in }` (optional `deletedAt: null`). Writes store full row JSON. GraphQL/knex SQL is translated via `executeProviderSql*`. Capability is inferred from method presence (`create` / `update` / `delete` / `find`); optional `matchFind` narrows supported filters.
 
 ## Adding features
 
