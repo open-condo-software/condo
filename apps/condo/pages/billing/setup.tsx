@@ -6,11 +6,8 @@ import { useOrganization } from '@open-condo/next/organization'
 
 
 import { CONTEXT_FINISHED_STATUS, CONTEXT_VERIFICATION_STATUS } from '@condo/domains/acquiring/constants/context'
-import { ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE } from '@condo/domains/acquiring/constants/integration'
 import { AcquiringIntegrationContext as AcquiringContext } from '@condo/domains/acquiring/utils/clientSchema'
-import { BillingPageContent } from '@condo/domains/billing/components/BillingPageContent'
 import { BillingAndAcquiringContext } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
-import { BillingOnboardingPage } from '@condo/domains/billing/components/OnBoarding'
 import { BillingOnboardingCombinedFlowPage } from '@condo/domains/billing/components/OnBoarding/BillingOnboardingCombinedFlowPage'
 import { BillingIntegrationOrganizationContext as BillingContext } from '@condo/domains/billing/utils/clientSchema'
 import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
@@ -19,7 +16,6 @@ import { UI_BILLING_SPP_COMBINED_PAGE } from '@condo/domains/common/constants/fe
 import { PageComponentType } from '@condo/domains/common/types'
 import { CONTEXT_FINISHED_STATUS as BILLING_FINISHED_STATUS } from '@condo/domains/miniapp/constants'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
 
 const SetupBillingPage: PageComponentType = () => {
     const intl = useIntl()
@@ -28,20 +24,22 @@ const SetupBillingPage: PageComponentType = () => {
     const { useFlag } = useFeatureFlags()
     const isCombinedFlow = useFlag(UI_BILLING_SPP_COMBINED_PAGE)
 
-
     const userOrganization = useOrganization()
     const orgId = userOrganization?.organization?.id ?? null
-    const orgType = userOrganization?.organization?.type ?? MANAGING_COMPANY_TYPE
+
     const { objs: billingContexts, loading: billingLoading, error: billingError, refetch: refetchBilling } = BillingContext.useObjects({
         where: {
             status: BILLING_FINISHED_STATUS,
             organization: { id: orgId },
+            deletedAt: null,
         },
     })
+
     const { objs: acquiringContexts, loading: acquiringLoading, error: acquiringError, refetch: refetchAcquiring } = AcquiringContext.useObjects({
         where: {
             status_in: [CONTEXT_FINISHED_STATUS, CONTEXT_VERIFICATION_STATUS],
             organization: { id: orgId },
+            deletedAt: null,
         },
     })
 
@@ -49,11 +47,8 @@ const SetupBillingPage: PageComponentType = () => {
         refetchBilling().then(() => refetchAcquiring())
     }, [refetchBilling, refetchAcquiring])
 
-    const onlineProcessingAcquiringContext = useMemo(() => {
-        return acquiringContexts.find(({ integration }) => integration?.type === ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE)
-    }, [acquiringContexts])
-
     const providerValue = useMemo(() => ({ billingContexts: billingContexts, acquiringContexts: acquiringContexts, refetchBilling }), [acquiringContexts, billingContexts, refetchBilling])
+
     if (!isCombinedFlow) {
         return <AccessDeniedPage /> 
     }
@@ -67,13 +62,11 @@ const SetupBillingPage: PageComponentType = () => {
             />
         )
     }
-
-    const withVerification = (onlineProcessingAcquiringContext && onlineProcessingAcquiringContext.status === CONTEXT_VERIFICATION_STATUS) ||
-        orgType === SERVICE_PROVIDER_TYPE
-
     
     return (
-        <BillingOnboardingCombinedFlowPage onFinish={handleFinishSetup} withVerification={withVerification}/>
+        <BillingAndAcquiringContext.Provider value={providerValue}>
+            <BillingOnboardingCombinedFlowPage onFinish={handleFinishSetup}/>
+        </BillingAndAcquiringContext.Provider>
     )
 }
 
