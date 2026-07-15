@@ -1,28 +1,51 @@
 import { useRouter } from 'next/router'
-import React, { useCallback, useMemo } from 'react'
+import React, { ReactElement, useCallback, useMemo, useState } from 'react'
 import { z } from 'zod'
 
-import bridge, { type GetLaunchParamsData, type GetLaunchParamsParams } from '@open-condo/bridge'
-import type { CloseApplicationData, CloseApplicationParams, RequestAuthData, RequestAuthParams } from '@open-condo/bridge'
+import bridge, { type IncomingEventData } from '@open-condo/bridge'
+import type {
+    CloseApplicationParams,
+    CloseApplicationData,
+    GetLaunchParamsParams,
+    GetLaunchParamsData,
+    RequestAuthParams,
+    RequestAuthData,
+    SetPageActionsParams,
+    SetPageActionsData,
+} from '@open-condo/bridge'
 import { usePostMessageContext, zodSchemaToValidator } from '@open-condo/miniapp-utils/helpers/messaging'
 import { getClientSideFingerprint } from '@open-condo/miniapp-utils/helpers/sender'
 import { replaceDomain } from '@open-condo/miniapp-utils/helpers/urls'
+import { generateUUIDv4 } from '@open-condo/miniapp-utils/helpers/uuid'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { ActionBar, Button } from '@open-condo/ui'
 
 import { IFrame } from '@condo/domains/common/components/IFrame'
 
+import { DynamicIcon, IconName } from '../../common/components/DynamicIcon'
+
 import type { IFrameProps } from '@condo/domains/common/components/IFrame'
 
-type B2BAppFrameProps = Pick<IFrameProps, 'src' | 'metadata' | 'initialHeight'>
+const MAX_ACTIONS_COUNT = 3
 
-export const B2BAppFrame: React.FC<B2BAppFrameProps>  = ({ src, metadata, initialHeight }) => {
+type ActionParams = SetPageActionsParams['actions'][number] & {
+    id: string
+    onClick: () => void
+}
+
+type B2BAppFrameProps = Pick<IFrameProps, 'src' | 'metadata' | 'initialHeight'> & {
+    actions: boolean
+}
+
+export const B2BAppFrame: React.FC<B2BAppFrameProps>  = ({ src, metadata, initialHeight, actions }) => {
     const intl = useIntl()
     const { addHandler, addMiddleware } = usePostMessageContext()
     const router = useRouter()
     const { user } = useAuth()
     const { organization } = useOrganization()
+    const [activeActions, setActiveActions] = useState<Array<ActionParams>>([])
 
     const mappedSrc = useMemo(() => {
         let result = src
@@ -99,7 +122,89 @@ export const B2BAppFrame: React.FC<B2BAppFrameProps>  = ({ src, metadata, initia
                 }
             }
         )
-    }, [addHandler, addMiddleware, intl.locale, metadata?.domainsMapping, organization?.id, router, src, user?.id, user?.type])
+
+        if (actions) {
+            addHandler<SetPageActionsParams, SetPageActionsData>(
+                'condo-bridge',
+                'CondoWebAppSetPageActions',
+                frameId,
+                zodSchemaToValidator(z.strictObject({
+                    actions: z.array(z.object({
+                        label: z.string().optional(),
+                        icon: z.string().optional(),
+                        disabled: z.boolean().optional(),
+                        loading: z.boolean().optional(),
+                    })),
+                })),
+                ({ params, source }) => {
+                    if (source.type !== 'frame') {
+                        throw new Error('Invalid source type')
+                    }
+                    if (params.actions.length > MAX_ACTIONS_COUNT) {
+                        throw new Error('Too many actions')
+                    }
+
+                    const newActions = params.actions.map(action => {
+                        const id = generateUUIDv4()
+                        const response: IncomingEventData<'CondoWebAppActionClick'> = {
+                            actionId: id,
+                        }
+                        const onClick = () => {
+                            frameRef.current?.contentWindow?.postMessage({
+                                type: 'CondoWebAppActionClickEvent',
+                                data: response,
+                            }, frameOrigin)
+                        }
+
+                        return {
+                            ...action,
+                            id,
+                            onClick,
+                        }
+                    })
+
+                    setActiveActions(newActions)
+
+                    return {
+                        actionIds: newActions.map(action => action.id),
+                    }
+                }
+            )
+        }
+    }, [
+        actions,
+        addHandler,
+        addMiddleware,
+        intl.locale,
+        metadata?.domainsMapping,
+        organization?.id,
+        router,
+        src,
+        user?.id,
+        user?.type,
+    ])
+
+    const ActionsBar = useMemo(() => {
+        if (!actions || !activeActions.length) {
+            return null
+        }
+
+        const buttons = activeActions.map((action, idx) => (
+            <Button
+                key={action.id}
+                id={action.id}
+                type={idx === 0 ? 'primary' : 'secondary'}
+                loading={action.loading}
+                disabled={action.disabled}
+                onClick={action.onClick}
+                icon={action.icon ? <DynamicIcon name={action.icon as IconName} /> : undefined}
+            >
+                {action.label}
+            </Button>
+        ))
+
+        return <ActionBar actions={buttons as [ReactElement, ...ReactElement[]]}/>
+    }, [actions, activeActions])
 
 
     return (
@@ -110,6 +215,7 @@ export const B2BAppFrame: React.FC<B2BAppFrameProps>  = ({ src, metadata, initia
                 metadata={metadata}
                 initialHeight={initialHeight}
             />
+            {ActionsBar}
         </>
     )
 }
