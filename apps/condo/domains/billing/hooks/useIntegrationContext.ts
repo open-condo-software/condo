@@ -12,22 +12,27 @@ import { PromoAppConfig } from '@condo/domains/billing/hooks/useSelectBillingPro
 
 type IntegrationType = typeof INTEGRATION_TYPE_BILLING | typeof INTEGRATION_TYPE_B2B_APP
 
-
-const { publicRuntimeConfig: { globalHints } } = getConfig()
+const { publicRuntimeConfig: { globalHints, registryUploadIntegrationId, sppConfig } } = getConfig()
 
 type UseIntegrationContextType = {
     integrationType: IntegrationType
     integrationId: string
+    isSppFlow: boolean
 }
 
 // NOTE(@abshnko): we plan on migrating BillingIntegrations to B2BApps, hence for now
 // based on integrationType we return either BillingIntegrationOrganizationContext or B2BAppContext
-export const useIntegrationContext = ({ integrationType, integrationId }: UseIntegrationContextType) => {
+export const useIntegrationContext = ({ integrationType, integrationId, isSppFlow }: UseIntegrationContextType) => {
     const router = useRouter()
     const { organization } = useOrganization()
     const persistor = useCachePersistor()
     const { route } = router
-
+    if (isSppFlow && integrationId === registryUploadIntegrationId) {
+        integrationId = sppConfig.BillingIntegrationId
+    }
+    if (!isSppFlow && integrationId === sppConfig.BillingIntegrationId) {
+        integrationId = registryUploadIntegrationId
+    }
     const orgId = organization?.id
     const promoB2BAppConfig: PromoAppConfig = useMemo(() => {
         return globalHints?.pages?.find(page => page?.routeTemplate === route)?.promoB2BApp || {}
