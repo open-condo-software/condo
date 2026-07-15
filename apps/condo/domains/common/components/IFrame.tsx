@@ -104,8 +104,13 @@ const IFrame = React.memo<IFrameProps>(({
                 cleanFn()
             }
             removeFrame(frameId)
+            setIsFrameReady(false)
+            setSrc(undefined)
+            setPrefetchFailed(false)
+            setLoading(true)
         }
-    }, [addFrame, initialHeight, metadata, onRegister, propsSrc, removeFrame])
+    // NOTE: include iframe key to force iframe registration on rerendering
+    }, [addFrame, initialHeight, metadata, onRegister, propsSrc, removeFrame, iframeKey])
 
     const prefetchFn = useCallback(async (src: string) => {
         try {

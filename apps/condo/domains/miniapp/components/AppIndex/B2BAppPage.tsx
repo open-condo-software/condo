@@ -71,7 +71,7 @@ export const B2BAppPage: React.FC<B2BAppPageProps> = ({ id }) => {
     ])
 
     const metadata = useMemo(() => {
-        return extractMiniappMetadata(context.app)
+        return extractMiniappMetadata(context?.app)
     }, [context.app])
     
     const shouldSendAnalytics =

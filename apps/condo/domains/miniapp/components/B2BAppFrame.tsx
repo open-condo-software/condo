@@ -60,6 +60,9 @@ export const B2BAppFrame: React.FC<B2BAppFrameProps>  = ({ src, metadata, initia
     }, [metadata?.domainsMapping, src])
 
     const onB2BAppFrameRegister: NonNullable<IFrameProps['onRegister']> = useCallback((event) => {
+        // NOTE: Clear previous state if needed
+        setActiveActions([])
+
         const { frameId, frameRef, frameOrigin } = event
 
         if (user?.id && user?.type &&  organization?.id) {
@@ -171,10 +174,10 @@ export const B2BAppFrame: React.FC<B2BAppFrameProps>  = ({ src, metadata, initia
                     }
                 }
             )
+        }
 
-            if (onRegister) {
-                return onRegister(event)
-            }
+        if (onRegister) {
+            return onRegister(event)
         }
     }, [
         actions,
