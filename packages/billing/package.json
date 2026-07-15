@@ -55,16 +55,15 @@
     "big.js": "^6.2.2"
   },
   "devDependencies": {
-    "@faker-js/faker": "^7.6.0",
+    "@faker-js/faker": "catalog:",
     "@open-condo/tsconfig": "workspace:^",
     "@types/big.js": "^6.2.2",
-    "@types/jest": "^29.5.14",
-    "@types/node": "^24",
+    "@types/node": "catalog:",
     "execa": "^5",
-    "jest": "^29.7.0",
-    "jest-jasmine2": "^29.7.0",
-    "ts-jest": "^29.4.0",
+    "jest": "catalog:",
+    "jest-jasmine2": "catalog:",
+    "ts-jest": "catalog:",
     "tsup": "^8.4.0",
-    "typescript": "^5.8.3"
+    "typescript": "catalog:"
   }
 }

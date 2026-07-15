@@ -327,7 +327,8 @@ export function generateReactHooks<
 
         const count = (data && data.meta) ? data.meta.count : null
         const typedRefetch: IRefetchType<GQLObject, QueryVariables> = refetch
-        const typedFetchMore: IFetchMoreType<GQLObject, QueryVariables> = fetchMore
+        // NOTE: Cast through 'unknown' because @apollo/client >=3.12 wraps fetchMore's updateQuery param in Unmasked<TData>, which is incompatible with our IFetchMoreType for generic GQLObject
+        const typedFetchMore: IFetchMoreType<GQLObject, QueryVariables> = fetchMore as unknown as IFetchMoreType<GQLObject, QueryVariables>
         const typedStopPolling: IStopPollingType = stopPolling
 
         let readableError
@@ -362,7 +363,8 @@ export function generateReactHooks<
         const objs: GQLObject[] = useMemo(() => (data && data.objs) ? data.objs.filter(nonNull) : [], [data])
         const count = (data && data.meta) ? data.meta.count : null
         const typedRefetch: IRefetchType<GQLObject, QueryVariables> = refetch
-        const typedFetchMore: IFetchMoreType<GQLObject, QueryVariables> = fetchMore
+        // NOTE: Cast through 'unknown' because @apollo/client >=3.12 wraps fetchMore's updateQuery param in Unmasked<TData>, which is incompatible with our IFetchMoreType for generic GQLObject
+        const typedFetchMore: IFetchMoreType<GQLObject, QueryVariables> = fetchMore as unknown as IFetchMoreType<GQLObject, QueryVariables>
         const typedStopPolling: IStopPollingType = stopPolling
 
         let readableError

@@ -1,40 +1,40 @@
 {
-    "name": "@open-condo/codegen",
-    "main": "index.js",
-    "version": "1.0.0",
-    "repository": "https://github.com/open-condo-software/condo/tree/main/packages/codegen",
-    "dependencies": {
-        "@apollo/client": "^3.11.8",
-        "@faker-js/faker": "^7.6.0",
-        "@graphql-typed-document-node/core": "^3.1.1",
-        "@open-condo/config": "workspace:^",
-        "@open-condo/keystone": "workspace:^",
-        "@open-condo/miniapp-utils": "workspace:^",
-        "@open-condo/next": "workspace:^",
-        "boxen": "^4.2.0",
-        "chalk": "4.1.2",
-        "dayjs": "^1.11.10",
-        "graphql": "^16.10.0",
-        "graphql-tag": "^2.12.6",
-        "lodash": "^4.17.21",
-        "ncp": "^2.0.0",
-        "nunjucks": "^3.2.4",
-        "pluralize": "^8.0.0",
-        "yargs": "^16.2.0"
-    },
-    "eslintConfig": {
-        "ignorePatterns": [
-            "templates/**/*"
-        ]
-    },
-    "peerDependencies": {
-        "@graphql-tools/graphql-file-loader": "^7.5.17",
-        "@graphql-tools/load": "^8.1.0",
-        "react": ">=16",
-        "react-dom": ">=16"
-    },
-    "devDependencies": {
-        "react": "^18.3.1",
-        "react-dom": "^18.3.1"
-    }
+  "name": "@open-condo/codegen",
+  "main": "index.js",
+  "version": "1.0.0",
+  "repository": "https://github.com/open-condo-software/condo/tree/main/packages/codegen",
+  "dependencies": {
+    "@apollo/client": "catalog:",
+    "@faker-js/faker": "catalog:",
+    "@graphql-typed-document-node/core": "^3.1.1",
+    "@open-condo/config": "workspace:^",
+    "@open-condo/keystone": "workspace:^",
+    "@open-condo/miniapp-utils": "workspace:^",
+    "@open-condo/next": "workspace:^",
+    "boxen": "^4.2.0",
+    "chalk": "4.1.2",
+    "dayjs": "catalog:",
+    "graphql": "catalog:",
+    "graphql-tag": "catalog:",
+    "lodash": "catalog:",
+    "ncp": "^2.0.0",
+    "nunjucks": "^3.2.4",
+    "pluralize": "catalog:",
+    "yargs": "^16.2.0"
+  },
+  "eslintConfig": {
+    "ignorePatterns": [
+      "templates/**/*"
+    ]
+  },
+  "peerDependencies": {
+    "@graphql-tools/graphql-file-loader": "^7.5.17",
+    "@graphql-tools/load": "^8.1.0",
+    "react": ">=16",
+    "react-dom": ">=16"
+  },
+  "devDependencies": {
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  }
 }

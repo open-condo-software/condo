@@ -3,21 +3,21 @@
   "main": "./index.js",
   "version": "1.0.0",
   "dependencies": {
-    "@apollo/client": "^3.11.8",
+    "@apollo/client": "catalog:",
     "@graphql-typed-document-node/core": "3.2.0",
     "@open-condo/apollo": "workspace:^",
     "@open-condo/miniapp-utils": "workspace:^",
     "apollo-upload-client": "^17.0.0",
     "eventemitter3": "^4.0.0",
-    "graphql": "^16.10.0",
-    "graphql-tag": "^2.12.6",
+    "graphql": "catalog:",
+    "graphql-tag": "catalog:",
     "isomorphic-unfetch": "^3.0.0",
     "js-cookie": "^3.0.8",
-    "lodash": "^4.17.21",
-    "next": "^15.5.15",
+    "lodash": "catalog:",
+    "next": "catalog:",
     "next-cookies": "^2.0.3",
     "pino": "^6.13.3",
-    "react-intl": "^7.1.11"
+    "react-intl": "catalog:"
   },
   "devDependencies": {
     "@open-condo/tsconfig": "workspace:^"

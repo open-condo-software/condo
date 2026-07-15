@@ -151,6 +151,7 @@ describe('SQL parsing utils', () => {
                 'ALTER TABLE "Ticket_executors_many" RENAME TO "Ticket_watchers_many";',
                 'ALTER TABLE "OrganizationEmployeeRole" ALTER COLUMN "canManageOrganization" DROP DEFAULT;',
                 'ALTER TABLE "TicketStatus" ALTER COLUMN "organization" SET NOT NULL;',
+                'ALTER TABLE "TicketClassifier" DROP CONSTRAINT "TicketClassifier_organization_1327189b_fk_Organization_id";',
                 'DROP TABLE "BillingIntegrationLog" CASCADE;',
                 'CREATE INDEX "BillingAccount_bindingId_e1c2fc88_like" ON "BillingAccount" ("bindingId" text_pattern_ops);',
                 'CREATE TABLE "BillingAccount" ("dv" integer NOT NULL, "sender" jsonb NOT NULL, "importId" text NULL, "bindingId" text NULL UNIQUE, "number" text NOT NULL, "unit" text NOT NULL, "raw" jsonb NOT NULL, "meta" jsonb NOT NULL, "id" uuid NOT NULL PRIMARY KEY, "v" integer NOT NULL, "createdAt" timestamp with time zone NULL, "updatedAt" timestamp with time zone NULL, "deletedAt" timestamp with time zone NULL, "newId" uuid NULL);',
@@ -162,7 +163,6 @@ describe('SQL parsing utils', () => {
         })
         describe('Must throw if operation cannot be parsed by node-sql-parser', () => {
             const cases = [
-                'ALTER TABLE "TicketClassifier" DROP CONSTRAINT "TicketClassifier_organization_1327189b_fk_Organization_id";',
                 'SET CONSTRAINTS "BillingAccountMeter_property_44558673_fk_BillingProperty_id" IMMEDIATE;',
                 'ALTER TABLE "OrganizationEmployeeRole" RENAME COLUMN "canManageUsers" TO "canManageEmployees";',
             ]
