@@ -564,6 +564,36 @@ describe('Email adapters', () => {
             }])
         })
 
+        it('accepts in-memory buffer attachments without downloading', async () => {
+            fetch.mockResolvedValue(createJsonResponse(200, {
+                status: 'success',
+                job_id: 'job-buffer',
+                emails: ['user@example.com'],
+            }))
+
+            const adapter = new EmailAdapter()
+            const [isOk] = await adapter.send({
+                to: 'user@example.com',
+                subject: 'With buffer',
+                text: 'See file',
+                meta: {
+                    attachments: [{
+                        buffer: Buffer.from('csv-rows'),
+                        mimetype: 'text/csv',
+                        originalFilename: 'export.csv',
+                    }],
+                },
+            })
+
+            expect(isOk).toBe(true)
+            const body = JSON.parse(fetch.mock.calls[0][1].body)
+            expect(body.message.attachments).toEqual([{
+                type: 'text/csv',
+                name: 'export.csv',
+                content: Buffer.from('csv-rows').toString('base64'),
+            }])
+        })
+
         it('fails send when attachment download returns status >= 400', async () => {
             mockHttpsGetWithStream({ statusCode: 503 })
 

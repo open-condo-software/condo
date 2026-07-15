@@ -14,7 +14,6 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const logger = getLogger()
 
 const HTTPX_REGEXP = /^http:/
-const NAMED_EMAIL_REGEXP = /^(.+?)\s*<\s*([^>]+)\s*>$/
 const DEFAULT_ATTACHMENT_DOWNLOAD_TIMEOUT_MS = 30000
 const DEFAULT_MAX_ATTACHMENT_SIZE_BYTES = 10 * 1024 * 1024
 
@@ -39,11 +38,16 @@ const parseNamedEmail = (value) => {
         return { email: null, name: null }
     }
 
-    const namedMatch = trimmed.match(NAMED_EMAIL_REGEXP)
-    if (namedMatch) {
-        return {
-            name: namedMatch[1].trim().replace(/^["']|["']$/g, ''),
-            email: namedMatch[2].trim(),
+    const openIdx = trimmed.indexOf('<')
+    const closeIdx = trimmed.lastIndexOf('>')
+    if (openIdx !== -1 && closeIdx > openIdx) {
+        const email = trimmed.slice(openIdx + 1, closeIdx).trim()
+        if (email.includes('@') && !email.includes('<') && !email.includes('>')) {
+            const name = trimmed.slice(0, openIdx).trim().replace(/^["']|["']$/g, '')
+            return {
+                email,
+                name: name || null,
+            }
         }
     }
 
@@ -157,6 +161,26 @@ const downloadAttachment = async (publicUrl, { timeoutMs, maxSizeBytes } = {}) =
     return await streamToBuffer(stream, maxSizeBytes)
 }
 
+const resolveAttachmentBuffer = async (attachment, options = {}) => {
+    const maxSizeBytes = options.maxSizeBytes || DEFAULT_MAX_ATTACHMENT_SIZE_BYTES
+
+    if (attachment.buffer != null) {
+        const buffer = Buffer.isBuffer(attachment.buffer)
+            ? attachment.buffer
+            : Buffer.from(attachment.buffer)
+        if (buffer.length > maxSizeBytes) {
+            throw new Error(`Attachment exceeds maximum size of ${maxSizeBytes} bytes`)
+        }
+        return buffer
+    }
+
+    if (attachment.publicUrl) {
+        return await downloadAttachment(attachment.publicUrl, options)
+    }
+
+    throw new Error('attachment must provide publicUrl or buffer')
+}
+
 class MailgunEmail {
     static type = 'mailgun'
 
@@ -225,8 +249,8 @@ class MailgunEmail {
 
         if (meta && meta.attachments) {
             const attachmentsData = await Promise.all(meta.attachments.map(async (attachment) => {
-                const { publicUrl, mimetype, originalFilename } = attachment
-                const buffer = await downloadAttachment(publicUrl, this.attachmentOptions)
+                const { mimetype, originalFilename } = attachment
+                const buffer = await resolveAttachmentBuffer(attachment, this.attachmentOptions)
                 return { originalFilename, mimetype, buffer }
             }))
             attachmentsData.forEach((attachmentData) => {
@@ -391,8 +415,8 @@ class UnisenderGoEmail {
 
         if (meta && meta.attachments) {
             message.attachments = await Promise.all(meta.attachments.map(async (attachment) => {
-                const { publicUrl, mimetype, originalFilename } = attachment
-                const buffer = await downloadAttachment(publicUrl, this.attachmentOptions)
+                const { mimetype, originalFilename } = attachment
+                const buffer = await resolveAttachmentBuffer(attachment, this.attachmentOptions)
                 return {
                     type: mimetype || 'application/octet-stream',
                     name: originalFilename || 'attachment',
@@ -476,6 +500,12 @@ const getEmailApiConfig = () => {
 
 const resolveAdapterType = (config) => {
     return get(config, 'type') || DEFAULT_EMAIL_ADAPTER_TYPE
+}
+
+const isEmailAdapterConfigured = () => {
+    const config = getEmailApiConfig()
+    if (!config) return false
+    return Boolean(EMAIL_ADAPTERS[resolveAdapterType(config)])
 }
 
 class EmailAdapter {
@@ -572,6 +602,7 @@ class EmailAdapter {
 
 module.exports = {
     EmailAdapter,
+    isEmailAdapterConfigured,
     EMAIL_ADAPTER_TYPE_MAILGUN: MailgunEmail.type,
     EMAIL_ADAPTER_TYPE_UNISENDER_GO: UnisenderGoEmail.type,
 }
