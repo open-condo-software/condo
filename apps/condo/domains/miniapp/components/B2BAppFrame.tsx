@@ -35,11 +35,12 @@ type ActionParams = SetPageActionsParams['actions'][number] & {
     onClick: () => void
 }
 
-type B2BAppFrameProps = Pick<IFrameProps, 'src' | 'metadata' | 'initialHeight'> & {
+export type B2BAppFrameProps = Pick<IFrameProps,
+'src' | 'metadata' | 'initialHeight' | 'onRegister' | 'hidden' | 'reloadScope' | 'onLoad'> & {
     actions?: boolean
 }
 
-export const B2BAppFrame: React.FC<B2BAppFrameProps>  = ({ src, metadata, initialHeight, actions }) => {
+export const B2BAppFrame: React.FC<B2BAppFrameProps>  = ({ src, metadata, initialHeight, actions, onRegister, hidden, reloadScope, onLoad }) => {
     const intl = useIntl()
     const { addHandler, addMiddleware } = usePostMessageContext()
     const router = useRouter()
@@ -170,6 +171,10 @@ export const B2BAppFrame: React.FC<B2BAppFrameProps>  = ({ src, metadata, initia
                     }
                 }
             )
+
+            if (onRegister) {
+                return onRegister(event)
+            }
         }
     }, [
         actions,
@@ -177,6 +182,7 @@ export const B2BAppFrame: React.FC<B2BAppFrameProps>  = ({ src, metadata, initia
         addMiddleware,
         intl.locale,
         metadata?.domainsMapping,
+        onRegister,
         organization?.id,
         router,
         src,
@@ -210,12 +216,15 @@ export const B2BAppFrame: React.FC<B2BAppFrameProps>  = ({ src, metadata, initia
     return (
         <>
             <IFrame
+                reloadScope={reloadScope}
                 onRegister={onB2BAppFrameRegister}
                 src={mappedSrc}
                 metadata={metadata}
                 initialHeight={initialHeight}
+                hidden={hidden}
+                onLoad={onLoad}
             />
-            {ActionsBar}
+            {!hidden && ActionsBar}
         </>
     )
 }

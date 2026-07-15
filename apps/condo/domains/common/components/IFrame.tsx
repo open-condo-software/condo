@@ -36,18 +36,22 @@ type IFrameReloadScope = 'user' | 'organization'
 
 export type IFrameProps = {
     src: string
+    hidden?: boolean
     metadata?: IFrameMetadata
     initialHeight?: number
     onRegister?: IFrameRegistrationHandler
+    onLoad?: () => void
     prefetch?: boolean
     reloadScope?: IFrameReloadScope
 }
 
 const IFrame = React.memo<IFrameProps>(({
     src: propsSrc,
+    hidden,
     metadata,
     initialHeight,
     onRegister,
+    onLoad,
     prefetch = true,
     reloadScope = 'organization',
 }) => {
@@ -141,12 +145,13 @@ const IFrame = React.memo<IFrameProps>(({
     // NOTE: will be triggered only after src is set
     const handleLoad = useCallback(() => {
         setLoading(false)
-    }, [])
+        onLoad?.()
+    }, [onLoad])
 
     return (
         <div className={styles.iframeContainer}>
-            {loading && !prefetchFailed && (<Spin size='large' className={styles.iframeLoader}/>)}
-            {prefetchFailed && (
+            {!hidden && loading && !prefetchFailed && (<Spin size='large' className={styles.iframeLoader}/>)}
+            {!hidden && prefetchFailed && (
                 <BasicEmptyListView {...EMPTY_LIST_PROPS}>
                     <Typography.Title level={4}>
                         {LoadingErrorOccurredTitle}
@@ -157,6 +162,7 @@ const IFrame = React.memo<IFrameProps>(({
                 </BasicEmptyListView>
             )}
             <iframe
+                hidden={hidden}
                 onLoad={handleLoad}
                 allow={allowString}
                 key={iframeKey}

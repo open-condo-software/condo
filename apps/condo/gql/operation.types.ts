@@ -433,10 +433,14 @@ export type GetB2BAppsWithMessageSettingsQueryVariables = Types.Exact<{
 
 export type GetB2BAppsWithMessageSettingsQuery = { __typename?: 'Query', settings?: Array<{ __typename?: 'AppMessageSetting', type?: Types.MessageType | null, b2bApp?: { __typename?: 'B2BApp', id: string } | null } | null> | null };
 
+export type B2BAppPermissionsFragment = { __typename?: 'B2BApp', isMicrophoneAllowed?: boolean | null, isCameraAllowed?: boolean | null, isSpeakerSelectionAllowed?: boolean | null, isFullscreenAllowed?: boolean | null, isClipboardWriteAllowed?: boolean | null };
+
+export type B2BAppInfoFragment = { __typename?: 'B2BApp', id: string, name?: string | null, appUrl?: string | null, isMicrophoneAllowed?: boolean | null, isCameraAllowed?: boolean | null, isSpeakerSelectionAllowed?: boolean | null, isFullscreenAllowed?: boolean | null, isClipboardWriteAllowed?: boolean | null, domains?: { __typename?: 'MiniappDomains', mapping: Array<{ __typename?: 'MiniappDomainMapping', from: string, to: string }> } | null };
+
 export type GetGlobalB2BAppsQueryVariables = Types.Exact<{ [key: string]: never; }>;
 
 
-export type GetGlobalB2BAppsQuery = { __typename?: 'Query', b2bApps?: Array<{ __typename?: 'B2BApp', id: string, appUrl?: string | null, features?: Array<Types.B2BAppGlobalFeature> | null } | null> | null };
+export type GetGlobalB2BAppsQuery = { __typename?: 'Query', b2bApps?: Array<{ __typename?: 'B2BApp', features?: Array<Types.B2BAppGlobalFeature> | null, id: string, name?: string | null, appUrl?: string | null, isMicrophoneAllowed?: boolean | null, isCameraAllowed?: boolean | null, isSpeakerSelectionAllowed?: boolean | null, isFullscreenAllowed?: boolean | null, isClipboardWriteAllowed?: boolean | null, domains?: { __typename?: 'MiniappDomains', mapping: Array<{ __typename?: 'MiniappDomainMapping', from: string, to: string }> } | null } | null> | null };
 
 export type GetCountB2BAppsWithNewsSharingConfigQueryVariables = Types.Exact<{ [key: string]: never; }>;
 
@@ -448,26 +452,26 @@ export type GetB2BAppQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetB2BAppQuery = { __typename?: 'Query', b2bApp?: Array<{ __typename?: 'B2BApp', id: string, name?: string | null } | null> | null };
+export type GetB2BAppQuery = { __typename?: 'Query', b2bApp?: Array<{ __typename?: 'B2BApp', id: string, name?: string | null, appUrl?: string | null, isMicrophoneAllowed?: boolean | null, isCameraAllowed?: boolean | null, isSpeakerSelectionAllowed?: boolean | null, isFullscreenAllowed?: boolean | null, isClipboardWriteAllowed?: boolean | null, domains?: { __typename?: 'MiniappDomains', mapping: Array<{ __typename?: 'MiniappDomainMapping', from: string, to: string }> } | null } | null> | null };
 
 export type GetB2BAppsByIdsQueryVariables = Types.Exact<{
   ids: Array<Types.Scalars['ID']['input']> | Types.Scalars['ID']['input'];
 }>;
 
 
-export type GetB2BAppsByIdsQuery = { __typename?: 'Query', b2bApps?: Array<{ __typename?: 'B2BApp', id: string, name?: string | null } | null> | null };
+export type GetB2BAppsByIdsQuery = { __typename?: 'Query', b2bApps?: Array<{ __typename?: 'B2BApp', id: string, name?: string | null, appUrl?: string | null, isMicrophoneAllowed?: boolean | null, isCameraAllowed?: boolean | null, isSpeakerSelectionAllowed?: boolean | null, isFullscreenAllowed?: boolean | null, isClipboardWriteAllowed?: boolean | null, domains?: { __typename?: 'MiniappDomains', mapping: Array<{ __typename?: 'MiniappDomainMapping', from: string, to: string }> } | null } | null> | null };
 
 export type GetPublicB2BAppsByIdsQueryVariables = Types.Exact<{
   ids: Array<Types.Scalars['ID']['input']> | Types.Scalars['ID']['input'];
 }>;
 
 
-export type GetPublicB2BAppsByIdsQuery = { __typename?: 'Query', b2bApps?: Array<{ __typename?: 'B2BApp', id: string, name?: string | null } | null> | null };
+export type GetPublicB2BAppsByIdsQuery = { __typename?: 'Query', b2bApps?: Array<{ __typename?: 'B2BApp', id: string, name?: string | null, appUrl?: string | null, isMicrophoneAllowed?: boolean | null, isCameraAllowed?: boolean | null, isSpeakerSelectionAllowed?: boolean | null, isFullscreenAllowed?: boolean | null, isClipboardWriteAllowed?: boolean | null, domains?: { __typename?: 'MiniappDomains', mapping: Array<{ __typename?: 'MiniappDomainMapping', from: string, to: string }> } | null } | null> | null };
 
 export type GetB2BAppsWithBillingTabEmbeddingConfigQueryVariables = Types.Exact<{ [key: string]: never; }>;
 
 
-export type GetB2BAppsWithBillingTabEmbeddingConfigQuery = { __typename?: 'Query', b2bApps?: Array<{ __typename?: 'B2BApp', id: string, name?: string | null, shortDescription?: string | null, billingEmbeddingConfig?: { __typename?: 'B2BAppBillingEmbeddingConfig', tabUrl?: string | null } | null } | null> | null };
+export type GetB2BAppsWithBillingTabEmbeddingConfigQuery = { __typename?: 'Query', b2bApps?: Array<{ __typename?: 'B2BApp', shortDescription?: string | null, id: string, name?: string | null, appUrl?: string | null, isMicrophoneAllowed?: boolean | null, isCameraAllowed?: boolean | null, isSpeakerSelectionAllowed?: boolean | null, isFullscreenAllowed?: boolean | null, isClipboardWriteAllowed?: boolean | null, billingEmbeddingConfig?: { __typename?: 'B2BAppBillingEmbeddingConfig', tabUrl?: string | null } | null, domains?: { __typename?: 'MiniappDomains', mapping: Array<{ __typename?: 'MiniappDomainMapping', from: string, to: string }> } | null } | null> | null };
 
 export type GetEmployeeB2BAppRolesForSpecificAppsQueryVariables = Types.Exact<{
   employeeRoleId?: Types.InputMaybe<Types.Scalars['ID']['input']>;
