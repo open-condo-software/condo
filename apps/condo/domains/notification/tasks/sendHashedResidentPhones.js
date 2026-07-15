@@ -1,6 +1,7 @@
 const crypto = require('crypto')
 const fs = require('fs')
 const os = require('os')
+const { finished } = require('stream/promises')
 const { promisify } = require('util')
 
 const { stringify } = require('csv-stringify')
@@ -13,8 +14,9 @@ const { createTask } = require('@open-condo/keystone/tasks')
 
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
-const { isEmailAdapterConfigured } = require('../adapters/emailAdapter')
 const { getHashedResidentsAndContactsPhones, sendFileByEmail } = require('./helpers/sendHashedResidentPhones')
+
+const { isEmailAdapterConfigured } = require('../adapters/emailAdapter')
 
 
 const rmfile = promisify(fs.unlink)
@@ -90,6 +92,7 @@ async function sendHashedResidentPhones (userId) {
         })
 
         stringifier.end()
+        await finished(writeStream)
 
         taskLogger.info({
             msg: 'success load residents data',
