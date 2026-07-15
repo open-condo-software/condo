@@ -87,31 +87,43 @@ const fetchAttachmentStream = (publicUrl, timeoutMs = DEFAULT_ATTACHMENT_DOWNLOA
     return new Promise((resolve, reject) => {
         const httpx = HTTPX_REGEXP.test(publicUrl) ? http : https
         let settled = false
+        let timeoutId = null
 
-        const settle = (handler) => (value) => {
+        const clearDownloadTimeout = () => {
+            if (timeoutId !== null) {
+                clearTimeout(timeoutId)
+                timeoutId = null
+            }
+        }
+
+        const settleReject = (error) => {
             if (settled) return
             settled = true
-            clearTimeout(timeoutId)
-            handler(value)
+            clearDownloadTimeout()
+            reject(error)
         }
 
         const request = httpx.get(publicUrl, (stream) => {
             const statusCode = stream.statusCode
             if (statusCode && statusCode >= 400) {
                 stream.resume()
-                settle(reject)(new Error(`Failed to download attachment: ${statusCode}`))
+                settleReject(new Error(`Failed to download attachment: ${statusCode}`))
                 return
             }
-            settle(resolve)(stream)
+            if (settled) return
+            settled = true
+            // Keep timeout active until the stream body is fully buffered.
+            stream.clearDownloadTimeout = clearDownloadTimeout
+            resolve(stream)
         })
 
-        const timeoutId = setTimeout(() => {
+        timeoutId = setTimeout(() => {
             const err = new Error(`Attachment download timed out after ${timeoutMs}ms`)
             request.destroy(err)
-            settle(reject)(err)
+            settleReject(err)
         }, timeoutMs)
 
-        request.on('error', settle(reject))
+        request.on('error', settleReject)
     })
 }
 
@@ -119,19 +131,25 @@ const streamToBuffer = async (stream, maxSize = DEFAULT_MAX_ATTACHMENT_SIZE_BYTE
     const chunks = []
     let totalSize = 0
 
-    for await (const chunk of stream) {
-        const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)
-        totalSize += buffer.length
-        if (totalSize > maxSize) {
-            if (typeof stream.destroy === 'function') {
-                stream.destroy()
+    try {
+        for await (const chunk of stream) {
+            const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)
+            totalSize += buffer.length
+            if (totalSize > maxSize) {
+                if (typeof stream.destroy === 'function') {
+                    stream.destroy()
+                }
+                throw new Error(`Attachment exceeds maximum size of ${maxSize} bytes`)
             }
-            throw new Error(`Attachment exceeds maximum size of ${maxSize} bytes`)
+            chunks.push(buffer)
         }
-        chunks.push(buffer)
-    }
 
-    return Buffer.concat(chunks)
+        return Buffer.concat(chunks)
+    } finally {
+        if (typeof stream.clearDownloadTimeout === 'function') {
+            stream.clearDownloadTimeout()
+        }
+    }
 }
 
 const downloadAttachment = async (publicUrl, { timeoutMs, maxSizeBytes } = {}) => {
@@ -161,18 +179,22 @@ class MailgunEmail {
     async checkIsAvailable () {
         if (!this.isConfigured) return false
 
-        const auth = `api:${this.token}`
-        const result = await fetch(
-            this.api_url,
-            {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Basic ${Buffer.from(auth).toString('base64')}`,
+        try {
+            const auth = `api:${this.token}`
+            const result = await fetch(
+                this.api_url,
+                {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Basic ${Buffer.from(auth).toString('base64')}`,
+                    },
                 },
-            },
-        )
-        // Messages endpoint typically rejects GET; auth failures are 401/403.
-        return result.status !== 401 && result.status !== 403
+            )
+            // Messages endpoint typically rejects GET; auth failures are 401/403.
+            return result.status !== 401 && result.status !== 403
+        } catch (error) {
+            return false
+        }
     }
 
     async send ({ to, emailFrom = null, cc, bcc, subject, text, html, meta, messageType } = {}, extendedParams = {}) {
@@ -213,8 +235,8 @@ class MailgunEmail {
                     'attachment',
                     buffer,
                     {
-                        filename: originalFilename,
-                        contentType: mimetype,
+                        filename: originalFilename || 'attachment',
+                        contentType: mimetype || 'application/octet-stream',
                     },
                 )
             })
@@ -233,20 +255,22 @@ class MailgunEmail {
             },
         )
         const status = result.status
+        const responseText = await result.text()
 
-        let context, isSent
-        if (status === 200) {
-            isSent = true
-            context = await result.json()
-        } else {
-            const responseText = await result.text()
-            isSent = false
-            context = { text: responseText, status }
+        let context
+        try {
+            context = JSON.parse(responseText)
+        } catch (error) {
+            return [false, { text: responseText, status }]
         }
-        return [isSent, context]
+
+        if (status !== 200) {
+            return [false, { text: responseText, status }]
+        }
+
+        return [true, context]
     }
 }
-
 /**
  * Unisender Go transactional email API adapter.
  * @see https://godocs.unisender.ru/web-api-ref#email-send
@@ -291,17 +315,17 @@ class UnisenderGoEmail {
     async checkIsAvailable () {
         if (!this.isConfigured) return false
 
-        const result = await fetch(
-            `${this.api_url}/email-validation/single.json`,
-            {
-                method: 'POST',
-                headers: this._headers(),
-                body: JSON.stringify({ email: this.fromEmail }),
-            },
-        )
-        if (!result.ok) return false
-
         try {
+            const result = await fetch(
+                `${this.api_url}/email-validation/single.json`,
+                {
+                    method: 'POST',
+                    headers: this._headers(),
+                    body: JSON.stringify({ email: this.fromEmail }),
+                },
+            )
+            if (!result.ok) return false
+
             const json = await result.json()
             // Validation endpoint returns result for a single email; any non-auth JSON means API is reachable.
             return Boolean(json) && json.status !== 'error'
