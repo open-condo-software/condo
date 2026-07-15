@@ -1,6 +1,6 @@
 import { SortBillingIntegrationOrganizationContextsBy, SortBillingIntegrationsBy, SortAcquiringIntegrationsBy, type BillingIntegration as BillingIntegrationType } from '@app/condo/schema'
-import styled from '@emotion/styled'
 import { Row, Col, Space } from 'antd'
+import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -20,36 +20,19 @@ import { Loader } from '@condo/domains/common/components/Loader'
 import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
 import { MIN_CARD_WIDTH, AppCard } from '@condo/domains/miniapp/components/AppCard'
 
+import styles from './ChooseChannels.module.css'
+
 import type { RowProps  } from 'antd'
 
+const { publicRuntimeConfig: { sppConfig, registryUploadIntegrationId  } } = getConfig()
+
+const billingGroup = [sppConfig.BillingIntegrationId, registryUploadIntegrationId]
 
 const CARD_GAP = 40
 const MAX_CARDS = 4
 const FULL_SPAN = 24
 const ROW_GUTTER: RowProps['gutter'] = [CARD_GAP, CARD_GAP]
 const EMPTY_ACQUIRINGS_QUERY_VALUE = 'none'
-
-const AcquiringCardWrapper = styled.div`
-  position: relative;
-`
-
-const AcquiringCardCheckboxWrapper = styled.div`
-  position: absolute;
-  inset-block-start: 0.75rem;
-  inset-inline-end: 0.75rem;
-  z-index: 1;
-`
-
-const BillingCardWrapper = styled.div`
-  position: relative;
-`
-
-const BillingCardRadioWrapper = styled.div`
-  position: absolute;
-  inset-block-start: 0.75rem;
-  inset-inline-end: 0.75rem;
-  z-index: 1;
-`
 
 type AcquiringCardProps = Pick<React.ComponentProps<typeof AppCard>, 'logoUrl' | 'name' | 'description' > & {
     checked: boolean
@@ -58,21 +41,22 @@ type AcquiringCardProps = Pick<React.ComponentProps<typeof AppCard>, 'logoUrl' |
 
 const AcquiringCard: React.FC<AcquiringCardProps> = ({ checked, onClick, ...appCardProps }) => {
     return (
-        <AcquiringCardWrapper>
-            <AcquiringCardCheckboxWrapper
+        <div className={styles['acquiring-card-wrapper']}>
+            <div
+                className={styles['acquiring-card-checkbox-wrapper']}
                 onClick={(event) => {
                     event.stopPropagation()
                     onClick()
                 }}
             >
                 <Checkbox checked={checked} />
-            </AcquiringCardCheckboxWrapper>
+            </div>
             <AppCard
                 {...appCardProps}
                 onClick={onClick}
                 noExtendedInfo
             />
-        </AcquiringCardWrapper>
+        </div>
     )
 }
 
@@ -95,19 +79,20 @@ const BillingCard: React.FC<BillingCardProps> = ({ checked, onSelect, onOpen, ..
     }, [onOpen, onSelect])
 
     return (
-        <BillingCardWrapper onClick={handleCardClick}>
-            <BillingCardRadioWrapper
+        <div className={styles['billing-card-wrapper']} onClick={handleCardClick}>
+            <div
+                className={styles['billing-card-radio-wrapper']}
                 onClick={(event) => {
                     event.stopPropagation()
                     onSelect()
                 }}
             >
                 <Radio checked={checked} />
-            </BillingCardRadioWrapper>
+            </div>
             <AppCard
                 {...appCardProps }
             />
-        </BillingCardWrapper>
+        </div>
     )
 }
 
@@ -137,16 +122,26 @@ export const ChooseChannels: React.FC = () => {
 
     const [chosenAcquirings, setChosenAcquirings] = useState<string[]>([])
     const [chosenBillingId, setChosenBillingId] = useState<string | null>(null)
+    const [isSppFlow, setIsSppFlow] = useState(false)
+
     const isDefaultSelectionsApplied = useRef(false)
+    const updateChosenAcquirings = useCallback((chosenAcquirings: string[]) => {
+        setChosenAcquirings(chosenAcquirings)
+        if (chosenAcquirings.indexOf(sppConfig.AcquiringIntegrationId) !== -1) {
+            setIsSppFlow(true)
+        } else {
+            setIsSppFlow(false)
+        }
+    }, [setChosenAcquirings, setIsSppFlow])
 
     const handleToggleAcquiring = useCallback((acquiringId: string) => {
-        setChosenAcquirings((prev) => {
-            return prev.includes(acquiringId)
-                ? prev.filter(id => id !== acquiringId)
-                : [...prev, acquiringId]
-        })
-    }, [])
-    const { loading: billingLoading, handleSetupClick: handleBillingSetupClick } = useIntegrationContext({ integrationType: INTEGRATION_TYPE_BILLING, integrationId: chosenBillingId })
+        updateChosenAcquirings(chosenAcquirings.includes(acquiringId)
+            ? chosenAcquirings.filter(id => id !== acquiringId)
+            : [...chosenAcquirings, acquiringId])
+    }, [chosenAcquirings, updateChosenAcquirings])
+
+
+    const { loading: billingLoading, handleSetupClick: handleBillingSetupClick } = useIntegrationContext({ integrationType: INTEGRATION_TYPE_BILLING, integrationId: chosenBillingId, isSppFlow })
     const { loading: acquiringLoading, handleSetupClick: handleAcquiringSetupClick } = useIntegrationContexts({ integrationIds: chosenAcquirings })
 
 
@@ -216,10 +211,10 @@ export const ChooseChannels: React.FC = () => {
             : acquirings.map(({ id }) => id)
         const chosenBillingIntegrationId = activeBillingContexts[0]?.integration?.id || billings[0]?.id || null
 
-        setChosenAcquirings(chosenAcquiringIds)
+        updateChosenAcquirings(chosenAcquiringIds)
         setChosenBillingId(chosenBillingIntegrationId)
         isDefaultSelectionsApplied.current = true
-    }, [acquirings, activeAcquiringContexts, activeAcquiringContextsLoading, activeBillingContexts, activeBillingContextsLoading, billings])
+    }, [acquirings, activeAcquiringContexts, activeAcquiringContextsLoading, activeBillingContexts, activeBillingContextsLoading, billings, updateChosenAcquirings])
 
     useEffect(() => {
         if (!isDefaultSelectionsApplied.current) return
@@ -284,8 +279,8 @@ export const ChooseChannels: React.FC = () => {
 
     return (
         <>
-            <Space direction='vertical' size={40} style={{ width: '100%' }}>
-                <Space direction='vertical' size={24} style={{ width: '100%' }}>
+            <Space className={styles['full-width-space']} direction='vertical' size={40}>
+                <Space className={styles['full-width-space']} direction='vertical' size={24}>
                     <Row>
                         <Typography.Title level={2}>{ChooseAcquiringChannels}</Typography.Title>
                     </Row>
@@ -303,7 +298,7 @@ export const ChooseChannels: React.FC = () => {
                         ))}
                     </Row>
                 </Space>
-                <Space direction='vertical' size={24} style={{ width: '100%' }}>
+                <Space className={styles['full-width-space']} direction='vertical' size={24}>
                     <Row>
                         <Typography.Title level={2}>{ChooseBillingChannel}</Typography.Title>
                     </Row>
@@ -318,7 +313,7 @@ export const ChooseChannels: React.FC = () => {
                                 <BillingCard
                                     logoUrl={billing.logo?.publicUrl}
                                     connected={false}
-                                    checked={chosenBillingId === billing.id}
+                                    checked={chosenBillingId === billing.id || billingGroup.indexOf(billing.id) !== -1 && billingGroup.indexOf(chosenBillingId) !== -1}
                                     onSelect={() => setChosenBillingId(billing.id)}
                                     onOpen={handleCardClick(billing)}
                                     name={billing.name}

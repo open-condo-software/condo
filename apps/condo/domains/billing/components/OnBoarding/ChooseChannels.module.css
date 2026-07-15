@@ -1,0 +1,25 @@
+.acquiring-card-wrapper {
+  position: relative;
+}
+
+.acquiring-card-checkbox-wrapper {
+  position: absolute;
+  inset-block-start: 0.75rem;
+  inset-inline-end: 0.75rem;
+  z-index: 1;
+}
+
+.billing-card-wrapper {
+  position: relative;
+}
+
+.billing-card-radio-wrapper {
+  position: absolute;
+  inset-block-start: 0.75rem;
+  inset-inline-end: 0.75rem;
+  z-index: 1;
+}
+
+.full-width-space {
+  width: 100%;
+}
