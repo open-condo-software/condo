@@ -69,8 +69,8 @@ export const useIntegrationContext = ({ integrationType, integrationId }: UseInt
     const [createBillingContextMutation] = useCreateBillingIntegrationOrganizationContextMutation({
         variables: {
             data: {
-                organization: { connect: { id: orgId } }, 
-                integration: { connect: { id: integrationId } }, 
+                organization: { connect: { id: orgId } },
+                integration: { connect: { id: integrationId } },
                 settings: { dv: 1 },
                 state: { dv: 1 },
                 dv: 1,
@@ -101,7 +101,7 @@ export const useIntegrationContext = ({ integrationType, integrationId }: UseInt
             // to not redirect if it is promo banner
             if (isBilling){
                 await createBillingContextMutation()
-                router.push({ query: { ...router.query, step: 1, billing: integrationId } }, undefined, { shallow: true })
+                router.push({ query: { step: 1, billing: integrationId } }, undefined, { shallow: true })
             }
         } else if (ctxId && integrationId !== ctxIntegrationId) {
             await deleteMutation({
@@ -113,7 +113,7 @@ export const useIntegrationContext = ({ integrationType, integrationId }: UseInt
             })
             if (isBilling) {
                 await createBillingContextMutation()
-                router.push({ query: { ...router.query, step: 1, billing: integrationId } }, undefined, { shallow: true })
+                router.push({ query: { step: 1, billing: integrationId } }, undefined, { shallow: true })
             }
             if (isB2BApp) {
                 await createB2BAppContextMutation()
@@ -121,7 +121,7 @@ export const useIntegrationContext = ({ integrationType, integrationId }: UseInt
 
         } else {
             if (isBilling) {
-                router.push({ query: { ...router.query, step: 1, billing: integrationId } }, undefined, { shallow: true })
+                router.push({ query: { step: 1, billing: integrationId } }, undefined, { shallow: true })
             }
         }
     }, [ctx, ctxId, integrationId, ctxIntegrationId, isB2BApp, promoB2BAppConfig?.appId, isBilling, createB2BAppContextMutation, createBillingContextMutation, router, deleteMutation])

@@ -1,10 +1,10 @@
 import { SortBillingIntegrationOrganizationContextsBy, SortBillingIntegrationsBy, SortAcquiringIntegrationsBy, type BillingIntegration as BillingIntegrationType } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Row, Col, Space } from 'antd'
-import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 
+import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Button, Checkbox, Modal, Radio, Typography, Tooltip } from '@open-condo/ui'
 
@@ -120,13 +120,15 @@ const getCardsAmount = (width: number) => {
 export const ChooseChannels: React.FC = () => {
     const router = useRouter()
     const { organization } = useOrganization()
+    const intl = useIntl()
 
-    const ChooseAcquiringChannels = 'Куда будем публиковать начисления'//intl.formatMessage({ id: 'miniapps.appCard.notConnected.label' })
-    const ChooseBillingChannel = 'Откуда будете получать данные по начислениям'//intl.formatMessage({ id: 'miniapps.appCard.notConnected.label' })
-    const NextButtonLabel = 'Далее'//intl.formatMessage({ id: 'miniapps.appCard.notConnected.label' })
-    const ChooseAcquiringChannelsMessage = 'Укажите куда будут публиковаться начисления'//intl.formatMessage({ id: 'miniapps.appCard.notConnected.label' })
 
-    const orgId = get(organization, 'id', null)
+    const ChooseAcquiringChannels = intl.formatMessage({ id: 'pages.billing.setup.chooseAcquirings.title' })
+    const ChooseBillingChannel = intl.formatMessage({ id: 'pages.billing.setup.chooseBillings.title' })
+    const NextButtonLabel = intl.formatMessage({ id: 'pages.billing.setup.chooseNext.button.label' })
+    const ChooseAcquiringChannelsMessage = intl.formatMessage({ id: 'pages.billing.setup.chooseAcquirings.tooltip' })
+
+    const orgId = organization?.id
 
     const [spawnModal, SetupBillingModal] = Modal.useModal()
     const [{ width }, setRef] = useContainerSize<HTMLDivElement>()
@@ -240,7 +242,7 @@ export const ChooseChannels: React.FC = () => {
     }, [chosenAcquirings, router])
 
     const connectedCtx = connectedContexts[0] || null
-    const connectedContextId = get(connectedCtx, 'id', null)
+    const connectedContextId = connectedCtx?.id
 
     const handleCardClick = useCallback((billing: BillingIntegrationType) => {
         return function openModal () {
@@ -253,7 +255,7 @@ export const ChooseChannels: React.FC = () => {
                         bannerColor={billing.bannerColor}
                         bannerTextColor={billing.bannerTextColor}
                         targetDescription={billing.targetDescription}
-                        bannerPromoImageUrl={get(billing, ['bannerPromoImage', 'publicUrl'])}
+                        bannerPromoImageUrl={billing.bannerPromoImage?.publicUrl}
                         receiptsLoadingTime={billing.receiptsLoadingTime}
                         detailedDescription={billing.detailedDescription}
                         integrationType={INTEGRATION_TYPE_BILLING}
@@ -291,7 +293,7 @@ export const ChooseChannels: React.FC = () => {
                         {acquirings.map((acquiring) => (
                             <Col key={acquiring.id} span={FULL_SPAN / cardsPerRow}>
                                 <AcquiringCard
-                                    logoUrl={get(acquiring, ['logo', 'publicUrl'])}
+                                    logoUrl={acquiring.logo?.publicUrl}
                                     checked={chosenAcquirings.includes(acquiring.id)}
                                     onClick={() => handleToggleAcquiring(acquiring.id)}
                                     name={acquiring.name}
@@ -314,7 +316,7 @@ export const ChooseChannels: React.FC = () => {
                         {billings.map((billing) => (
                             <Col key={billing.id} span={FULL_SPAN / cardsPerRow}>
                                 <BillingCard
-                                    logoUrl={get(billing, ['logo', 'publicUrl'])}
+                                    logoUrl={billing.logo?.publicUrl}
                                     connected={false}
                                     checked={chosenBillingId === billing.id}
                                     onSelect={() => setChosenBillingId(billing.id)}
@@ -327,7 +329,7 @@ export const ChooseChannels: React.FC = () => {
                     </Row>
                 </Space>
                 <Row>
-                    <Tooltip title={ chosenAcquirings.length === 0 ? ChooseAcquiringChannelsMessage : 'муму' }>
+                    <Tooltip title={ chosenAcquirings.length === 0 ? ChooseAcquiringChannelsMessage : undefined }>
                         <Col span={4}>
                             <Button
                                 key='submit'
