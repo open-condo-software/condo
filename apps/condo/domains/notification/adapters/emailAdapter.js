@@ -190,8 +190,8 @@ class MailgunEmail {
                     },
                 },
             )
-            // Messages endpoint typically rejects GET; auth failures are 401/403.
-            return result.status !== 401 && result.status !== 403
+            // Messages endpoint rejects GET with 405 when auth is valid.
+            return result.status === 405
         } catch (error) {
             return false
         }
@@ -257,18 +257,15 @@ class MailgunEmail {
         const status = result.status
         const responseText = await result.text()
 
-        let context
-        try {
-            context = JSON.parse(responseText)
-        } catch (error) {
-            return [false, { text: responseText, status }]
-        }
-
         if (status !== 200) {
             return [false, { text: responseText, status }]
         }
 
-        return [true, context]
+        try {
+            return [true, JSON.parse(responseText)]
+        } catch (error) {
+            return [true, { text: responseText }]
+        }
     }
 }
 /**

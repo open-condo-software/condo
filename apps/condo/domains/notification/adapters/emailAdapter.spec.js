@@ -200,11 +200,36 @@ describe('Email adapters', () => {
             await expect(adapter.checkIsAvailable()).resolves.toBe(false)
         })
 
-        it('checkIsAvailable returns true when auth is accepted', async () => {
+        it('checkIsAvailable returns true when endpoint responds with 405', async () => {
             fetch.mockResolvedValue({ ok: false, status: 405 })
 
             const adapter = new EmailAdapter()
             await expect(adapter.checkIsAvailable()).resolves.toBe(true)
+        })
+
+        it('checkIsAvailable returns false for unexpected statuses', async () => {
+            fetch.mockResolvedValue({ ok: false, status: 404 })
+
+            const adapter = new EmailAdapter()
+            await expect(adapter.checkIsAvailable()).resolves.toBe(false)
+        })
+
+        it('treats HTTP 200 as sent even when Mailgun body is not JSON', async () => {
+            fetch.mockResolvedValue({
+                ok: true,
+                status: 200,
+                text: jest.fn().mockResolvedValue('Queued. Thank you.'),
+            })
+
+            const adapter = new EmailAdapter()
+            const [isOk, context] = await adapter.send({
+                to: 'user@example.com',
+                subject: 'Hello',
+                text: 'Plain text',
+            })
+
+            expect(isOk).toBe(true)
+            expect(context).toEqual({ text: 'Queued. Thank you.' })
         })
 
         it('downloads meta.attachments and includes them in the Mailgun request', async () => {
