@@ -1,5 +1,9 @@
 jest.mock('@open-condo/keystone/fetch', () => ({ fetch: jest.fn() }))
 
+const { EventEmitter } = require('events')
+const https = require('https')
+const { Readable } = require('stream')
+
 const { fetch } = require('@open-condo/keystone/fetch')
 
 const {
@@ -26,6 +30,8 @@ const UNISENDER_GO_CONFIG = {
 }
 
 const ENV_KEYS = ['EMAIL_API_CONFIG']
+const ATTACHMENT_URL = 'https://files.example.com/doc.txt'
+const ATTACHMENT_CONTENT = 'attachment-body'
 
 const createJsonResponse = (status, body) => ({
     ok: status >= 200 && status < 300,
@@ -33,6 +39,50 @@ const createJsonResponse = (status, body) => ({
     json: jest.fn().mockResolvedValue(body),
     text: jest.fn().mockResolvedValue(JSON.stringify(body)),
 })
+
+const mockHttpsGetWithStream = ({ content = ATTACHMENT_CONTENT, statusCode = 200, error } = {}) => {
+    return jest.spyOn(https, 'get').mockImplementation((url, callback) => {
+        const request = new EventEmitter()
+        request.destroy = jest.fn((err) => {
+            if (err) {
+                process.nextTick(() => request.emit('error', err))
+            }
+        })
+
+        process.nextTick(() => {
+            if (error) {
+                request.emit('error', error)
+                return
+            }
+            const stream = Readable.from([Buffer.from(content)])
+            stream.statusCode = statusCode
+            callback(stream)
+        })
+
+        return request
+    })
+}
+
+const mockHttpsGetOversizedStream = () => {
+    return jest.spyOn(https, 'get').mockImplementation((url, callback) => {
+        const request = new EventEmitter()
+        request.destroy = jest.fn()
+
+        process.nextTick(() => {
+            const chunk = Buffer.alloc(1024 * 1024)
+            async function * oversized () {
+                for (let i = 0; i < 11; i++) {
+                    yield chunk
+                }
+            }
+            const stream = Readable.from(oversized())
+            stream.statusCode = 200
+            callback(stream)
+        })
+
+        return request
+    })
+}
 
 describe('Email adapters', () => {
     const originalEnv = {}
@@ -45,6 +95,7 @@ describe('Email adapters', () => {
 
     afterEach(() => {
         jest.clearAllMocks()
+        jest.restoreAllMocks()
         ENV_KEYS.forEach((key) => {
             if (originalEnv[key] === undefined) {
                 delete process.env[key]
@@ -154,6 +205,106 @@ describe('Email adapters', () => {
 
             const adapter = new EmailAdapter()
             await expect(adapter.checkIsAvailable()).resolves.toBe(true)
+        })
+
+        it('downloads meta.attachments and includes them in the Mailgun request', async () => {
+            mockHttpsGetWithStream({ content: ATTACHMENT_CONTENT })
+            fetch.mockResolvedValue(createJsonResponse(200, { id: '<mailgun-id>', message: 'Queued. Thank you.' }))
+
+            const adapter = new EmailAdapter()
+            const [isOk] = await adapter.send({
+                to: 'user@example.com',
+                subject: 'With attachment',
+                text: 'See file',
+                meta: {
+                    attachments: [{
+                        publicUrl: ATTACHMENT_URL,
+                        mimetype: 'text/plain',
+                        originalFilename: 'doc.txt',
+                    }],
+                },
+            })
+
+            expect(isOk).toBe(true)
+            expect(https.get).toHaveBeenCalledWith(ATTACHMENT_URL, expect.any(Function))
+            expect(fetch).toHaveBeenCalledTimes(1)
+            expect(fetch.mock.calls[0][1].body).toBeDefined()
+        })
+
+        it('fails send when attachment download returns status >= 400', async () => {
+            mockHttpsGetWithStream({ statusCode: 404 })
+
+            const adapter = new EmailAdapter()
+            await expect(adapter.send({
+                to: 'user@example.com',
+                subject: 'With attachment',
+                text: 'See file',
+                meta: {
+                    attachments: [{
+                        publicUrl: ATTACHMENT_URL,
+                        mimetype: 'text/plain',
+                        originalFilename: 'doc.txt',
+                    }],
+                },
+            })).rejects.toThrow('Failed to download attachment: 404')
+        })
+
+        it('fails send when attachment download request errors', async () => {
+            mockHttpsGetWithStream({ error: new Error('socket hang up') })
+
+            const adapter = new EmailAdapter()
+            await expect(adapter.send({
+                to: 'user@example.com',
+                subject: 'With attachment',
+                text: 'See file',
+                meta: {
+                    attachments: [{
+                        publicUrl: ATTACHMENT_URL,
+                        mimetype: 'text/plain',
+                        originalFilename: 'doc.txt',
+                    }],
+                },
+            })).rejects.toThrow('socket hang up')
+        })
+
+        it('fails send when attachment exceeds maximum size', async () => {
+            mockHttpsGetOversizedStream()
+
+            const adapter = new EmailAdapter()
+            await expect(adapter.send({
+                to: 'user@example.com',
+                subject: 'With attachment',
+                text: 'See file',
+                meta: {
+                    attachments: [{
+                        publicUrl: ATTACHMENT_URL,
+                        mimetype: 'application/octet-stream',
+                        originalFilename: 'big.bin',
+                    }],
+                },
+            })).rejects.toThrow('Attachment exceeds maximum size')
+        })
+
+        it('applies maxAttachmentSizeBytes from EMAIL_API_CONFIG', async () => {
+            process.env.EMAIL_API_CONFIG = JSON.stringify({
+                ...MAILGUN_CONFIG,
+                maxAttachmentSizeBytes: 4,
+            })
+            mockHttpsGetWithStream({ content: 'too-big' })
+
+            const adapter = new EmailAdapter()
+            await expect(adapter.send({
+                to: 'user@example.com',
+                subject: 'With attachment',
+                text: 'See file',
+                meta: {
+                    attachments: [{
+                        publicUrl: ATTACHMENT_URL,
+                        mimetype: 'text/plain',
+                        originalFilename: 'doc.txt',
+                    }],
+                },
+            })).rejects.toThrow('Attachment exceeds maximum size of 4 bytes')
         })
     })
 
@@ -354,6 +505,74 @@ describe('Email adapters', () => {
 
             const adapter = new EmailAdapter()
             await expect(adapter.checkIsAvailable()).resolves.toBe(false)
+        })
+
+        it('downloads meta.attachments and sends them as base64 content', async () => {
+            mockHttpsGetWithStream({ content: ATTACHMENT_CONTENT })
+            fetch.mockResolvedValue(createJsonResponse(200, {
+                status: 'success',
+                job_id: 'job-attach',
+                emails: ['user@example.com'],
+            }))
+
+            const adapter = new EmailAdapter()
+            const [isOk] = await adapter.send({
+                to: 'user@example.com',
+                subject: 'With attachment',
+                text: 'See file',
+                meta: {
+                    attachments: [{
+                        publicUrl: ATTACHMENT_URL,
+                        mimetype: 'text/plain',
+                        originalFilename: 'doc.txt',
+                    }],
+                },
+            })
+
+            expect(isOk).toBe(true)
+            expect(https.get).toHaveBeenCalledWith(ATTACHMENT_URL, expect.any(Function))
+            const body = JSON.parse(fetch.mock.calls[0][1].body)
+            expect(body.message.attachments).toEqual([{
+                type: 'text/plain',
+                name: 'doc.txt',
+                content: Buffer.from(ATTACHMENT_CONTENT).toString('base64'),
+            }])
+        })
+
+        it('fails send when attachment download returns status >= 400', async () => {
+            mockHttpsGetWithStream({ statusCode: 503 })
+
+            const adapter = new EmailAdapter()
+            await expect(adapter.send({
+                to: 'user@example.com',
+                subject: 'With attachment',
+                html: '<p>See file</p>',
+                meta: {
+                    attachments: [{
+                        publicUrl: ATTACHMENT_URL,
+                        mimetype: 'text/plain',
+                        originalFilename: 'doc.txt',
+                    }],
+                },
+            })).rejects.toThrow('Failed to download attachment: 503')
+        })
+
+        it('fails send when attachment download request errors', async () => {
+            mockHttpsGetWithStream({ error: new Error('ECONNRESET') })
+
+            const adapter = new EmailAdapter()
+            await expect(adapter.send({
+                to: 'user@example.com',
+                subject: 'With attachment',
+                html: '<p>See file</p>',
+                meta: {
+                    attachments: [{
+                        publicUrl: ATTACHMENT_URL,
+                        mimetype: 'text/plain',
+                        originalFilename: 'doc.txt',
+                    }],
+                },
+            })).rejects.toThrow('ECONNRESET')
         })
     })
 

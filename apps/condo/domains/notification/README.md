@@ -88,7 +88,7 @@ Zod validates only common required fields (`api_url`, `token`, `from`); any addi
 
 Required: `api_url`, `token`, `from`.
 
-```
+```bash
 EMAIL_API_CONFIG='{"api_url":"https://api.mailgun.net/v3/<domain>/messages","token":"<api-key>","from":"Condo <noreply@example.com>","useTags":true,"useAttachingData":true}'
 ```
 
@@ -101,7 +101,7 @@ Required: `type`, `api_url`, `token`, `from`.
 Pick `api_url` for the data center where the account is registered (for example `go1` or `go2`).
 Wrong data center typically returns API error code `114` (“User with id … not found”).
 
-```
+```bash
 EMAIL_API_CONFIG='{"type":"unisendergo","api_url":"https://go1.unisender.ru/ru/transactional/api/v1","token":"<api-key>","from":"Condo <noreply@example.com>","useTags":true,"useAttachingData":true}'
 ```
 

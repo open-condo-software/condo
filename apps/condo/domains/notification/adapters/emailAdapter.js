@@ -15,6 +15,8 @@ const logger = getLogger()
 
 const HTTPX_REGEXP = /^http:/
 const NAMED_EMAIL_REGEXP = /^(.+?)\s*<\s*([^>]+)\s*>$/
+const DEFAULT_ATTACHMENT_DOWNLOAD_TIMEOUT_MS = 30000
+const DEFAULT_MAX_ATTACHMENT_SIZE_BYTES = 10 * 1024 * 1024
 
 const EmailApiConfigSchema = z.object({
     api_url: z.string().min(1),
@@ -71,26 +73,70 @@ const normalizeApiUrl = (apiUrl) => {
     return apiUrl.replace(/\/+$/, '')
 }
 
-const fetchAttachmentStream = (publicUrl) => {
+const resolveAttachmentOptions = (config = {}) => {
+    const timeoutMs = Number(config.attachmentDownloadTimeoutMs)
+    const maxSizeBytes = Number(config.maxAttachmentSizeBytes)
+
+    return {
+        timeoutMs: timeoutMs > 0 ? timeoutMs : DEFAULT_ATTACHMENT_DOWNLOAD_TIMEOUT_MS,
+        maxSizeBytes: maxSizeBytes > 0 ? maxSizeBytes : DEFAULT_MAX_ATTACHMENT_SIZE_BYTES,
+    }
+}
+
+const fetchAttachmentStream = (publicUrl, timeoutMs = DEFAULT_ATTACHMENT_DOWNLOAD_TIMEOUT_MS) => {
     return new Promise((resolve, reject) => {
         const httpx = HTTPX_REGEXP.test(publicUrl) ? http : https
-        httpx.get(publicUrl, (stream) => {
+        let settled = false
+
+        const settle = (handler) => (value) => {
+            if (settled) return
+            settled = true
+            clearTimeout(timeoutId)
+            handler(value)
+        }
+
+        const request = httpx.get(publicUrl, (stream) => {
             const statusCode = stream.statusCode
             if (statusCode && statusCode >= 400) {
-                reject(new Error(`Failed to download attachment: ${statusCode}`))
+                stream.resume()
+                settle(reject)(new Error(`Failed to download attachment: ${statusCode}`))
                 return
             }
-            resolve(stream)
-        }).on('error', reject)
+            settle(resolve)(stream)
+        })
+
+        const timeoutId = setTimeout(() => {
+            const err = new Error(`Attachment download timed out after ${timeoutMs}ms`)
+            request.destroy(err)
+            settle(reject)(err)
+        }, timeoutMs)
+
+        request.on('error', settle(reject))
     })
 }
 
-const streamToBuffer = async (stream) => {
+const streamToBuffer = async (stream, maxSize = DEFAULT_MAX_ATTACHMENT_SIZE_BYTES) => {
     const chunks = []
+    let totalSize = 0
+
     for await (const chunk of stream) {
-        chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk))
+        const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)
+        totalSize += buffer.length
+        if (totalSize > maxSize) {
+            if (typeof stream.destroy === 'function') {
+                stream.destroy()
+            }
+            throw new Error(`Attachment exceeds maximum size of ${maxSize} bytes`)
+        }
+        chunks.push(buffer)
     }
+
     return Buffer.concat(chunks)
+}
+
+const downloadAttachment = async (publicUrl, { timeoutMs, maxSizeBytes } = {}) => {
+    const stream = await fetchAttachmentStream(publicUrl, timeoutMs)
+    return await streamToBuffer(stream, maxSizeBytes)
 }
 
 class MailgunEmail {
@@ -104,6 +150,7 @@ class MailgunEmail {
         this.from = config.from
         this.useTags = Boolean(config.useTags)
         this.useAttachingData = Boolean(config.useAttachingData)
+        this.attachmentOptions = resolveAttachmentOptions(config)
         this.isConfigured = true
     }
 
@@ -155,16 +202,16 @@ class MailgunEmail {
         })
 
         if (meta && meta.attachments) {
-            const streamsData = await Promise.all(meta.attachments.map(async (attachment) => {
+            const attachmentsData = await Promise.all(meta.attachments.map(async (attachment) => {
                 const { publicUrl, mimetype, originalFilename } = attachment
-                const stream = await fetchAttachmentStream(publicUrl)
-                return { originalFilename, mimetype, stream }
+                const buffer = await downloadAttachment(publicUrl, this.attachmentOptions)
+                return { originalFilename, mimetype, buffer }
             }))
-            streamsData.forEach((streamData) => {
-                const { originalFilename, mimetype, stream } = streamData
+            attachmentsData.forEach((attachmentData) => {
+                const { originalFilename, mimetype, buffer } = attachmentData
                 form.append(
                     'attachment',
-                    stream,
+                    buffer,
                     {
                         filename: originalFilename,
                         contentType: mimetype,
@@ -225,6 +272,7 @@ class UnisenderGoEmail {
         this.fromName = fromName
         this.useTags = Boolean(config.useTags)
         this.useAttachingData = Boolean(config.useAttachingData)
+        this.attachmentOptions = resolveAttachmentOptions(config)
         this.isConfigured = true
     }
 
@@ -323,8 +371,7 @@ class UnisenderGoEmail {
         if (meta && meta.attachments) {
             message.attachments = await Promise.all(meta.attachments.map(async (attachment) => {
                 const { publicUrl, mimetype, originalFilename } = attachment
-                const stream = await fetchAttachmentStream(publicUrl)
-                const buffer = await streamToBuffer(stream)
+                const buffer = await downloadAttachment(publicUrl, this.attachmentOptions)
                 return {
                     type: mimetype || 'application/octet-stream',
                     name: originalFilename || 'attachment',
