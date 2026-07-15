@@ -36,7 +36,7 @@ type ActionParams = SetPageActionsParams['actions'][number] & {
 }
 
 type B2BAppFrameProps = Pick<IFrameProps, 'src' | 'metadata' | 'initialHeight'> & {
-    actions: boolean
+    actions?: boolean
 }
 
 export const B2BAppFrame: React.FC<B2BAppFrameProps>  = ({ src, metadata, initialHeight, actions }) => {

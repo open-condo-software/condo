@@ -7,7 +7,7 @@ import { useOrganization } from '@open-condo/next/organization'
 
 import { BlockedB2BAppTab } from '@condo/domains/billing/components/BillingPageContent/BlockedB2BAppTab'
 import { Loader } from '@condo/domains/common/components/Loader'
-import { IFrame } from '@condo/domains/miniapp/components/IFrame'
+import { B2BAppFrame } from '@condo/domains/miniapp/components/B2BAppFrame'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 
 
@@ -72,7 +72,7 @@ export const B2BAppBillingTab: React.FC<B2BAppBillingTabProps> = ({ appId, appUr
 
     return (
         <div style={{ minHeight: '100%' }}>
-            <IFrame src={appUrl} reloadScope='organization' withPrefetch withLoader withResize />
+            <B2BAppFrame src={appUrl} actions/>
         </div>
     )
 }

@@ -19,7 +19,7 @@ import { ACCRUALS_TAB_KEY, CONTEXT_FINISHED_STATUS, EXTENSION_TAB_KEY, PAYMENTS_
 import { DEFAULT_COMBINED_VIEW_TYPES, useCombinedViewAvailability } from '@condo/domains/billing/hooks/useCombinedViewAvailability'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { IFrame } from '@condo/domains/miniapp/components/IFrame'
+import { B2BAppFrame } from '@condo/domains/miniapp/components/B2BAppFrame'
 
 import type { BillingIntegrationOrganizationContext } from '@app/condo/schema'
 
@@ -61,7 +61,7 @@ const IframeTab: React.FC<RegistryIframeProps> = ({ appUrl, shortDescription, is
         return <B2BAppBillingTab appId={appId} appUrl={appUrl} shortDescription={shortDescription} />
     }
 
-    return <IFrame src={appUrl} reloadScope='organization' withPrefetch withLoader withResize/>
+    return <B2BAppFrame src={appUrl} actions={true} />
 }
 
 export const CombinedViewSwitch: React.FC<{ activeTab: string, availableTypes: ViewTypes[] }> = ({ activeTab, availableTypes }) => {

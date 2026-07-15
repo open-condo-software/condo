@@ -9,7 +9,7 @@ import { Typography } from '@open-condo/ui'
 
 import { BillingIntegrationOrganizationContext } from '@condo/domains/billing/utils/clientSchema'
 import { PageContent, PageWrapper, PageHeader } from '@condo/domains/common/components/containers/BaseLayout'
-import { IFrame } from '@condo/domains/miniapp/components/IFrame'
+import { B2BAppFrame } from '@condo/domains/miniapp/components/B2BAppFrame'
 
 
 type BillingAppPageProps = {
@@ -52,12 +52,8 @@ export const BillingAppPage: React.FC<BillingAppPageProps> = ({ id, children }) 
                 <PageHeader title={<Typography.Title level={1}>{appName || FallbackPageTitle}</Typography.Title>} spaced/>
                 <PageContent>
                     {appUrl && (
-                        <IFrame
+                        <B2BAppFrame
                             src={appUrl}
-                            reloadScope='organization'
-                            withLoader
-                            withPrefetch
-                            withResize
                         />
                     )}
                 </PageContent>
