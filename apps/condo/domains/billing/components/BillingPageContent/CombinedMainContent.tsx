@@ -109,9 +109,9 @@ export const CombinedMainContent: React.FC = () => {
     const AccrualsSetupTabTitle = intl.formatMessage({ id: 'pages.billing.setup.paymentsAndAccruals.title' })
 
     const userOrganization = useOrganization()
-    const canReadBillingReceipts = get(userOrganization, ['link', 'role', 'canReadBillingReceipts'], false)
-    const canReadPayments = get(userOrganization, ['link', 'role', 'canReadPayments'], false)
-    const canManageIntegrations = get(userOrganization, ['link', 'role', 'canManageIntegrations'], false)
+    const canReadBillingReceipts = userOrganization?.role?.canReadBillingReceipts || false
+    const canReadPayments = userOrganization?.role?.canReadPayments || false
+    const canManageIntegrations = userOrganization?.role?.canManageIntegrations || false
 
     const router = useRouter()
     const { tab, type } = parseQuery(router.query)
