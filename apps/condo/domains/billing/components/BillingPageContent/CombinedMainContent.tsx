@@ -16,7 +16,7 @@ import { useBillingAndAcquiringContexts } from '@condo/domains/billing/component
 import { EmptyContent } from '@condo/domains/billing/components/BillingPageContent/EmptyContent'
 import { PaymentsTab } from '@condo/domains/billing/components/BillingPageContent/PaymentsTab'
 import { SetupTab } from '@condo/domains/billing/components/BillingPageContent/SetupTab'
-import { ACCRUALS_TAB_KEY, CONTEXT_FINISHED_STATUS, EXTENSION_TAB_KEY, PAYMENTS_TAB_KEY } from '@condo/domains/billing/constants/constants'
+import { ACCRUALS_TAB_KEY, CONTEXT_FINISHED_STATUS, EXTENSION_TAB_KEY, PAYMENTS_TAB_KEY, SETUP_TAB_KEY } from '@condo/domains/billing/constants/constants'
 import { DEFAULT_COMBINED_VIEW_TYPES, useCombinedViewAvailability } from '@condo/domains/billing/hooks/useCombinedViewAvailability'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
@@ -120,6 +120,12 @@ export const CombinedMainContent: React.FC = () => {
     const activeBillingContexts = useMemo(() => {
         return billingContexts.filter(({ status }) => status === CONTEXT_FINISHED_STATUS)
     }, [billingContexts])
+    const inactiveAcquiringContexts = useMemo(() => {
+        return acquiringContexts.filter(({ status }) => status !== CONTEXT_FINISHED_STATUS)
+    }, [acquiringContexts])
+    const isSetupCompleted = useMemo(() => {
+        return activeBillingContexts.length > 0 && inactiveAcquiringContexts.length === 0
+    }, [activeBillingContexts, inactiveAcquiringContexts])
 
     const billingIntegrationsExtensionTabs: ExtensionTabType[] = useMemo(() => {
         return activeBillingContexts
@@ -130,7 +136,6 @@ export const CombinedMainContent: React.FC = () => {
     const { data } = useGetB2BAppsWithBillingTabEmbeddingConfigQuery()
     const b2bAppsExtensionTabs: ExtensionTabType[] = useMemo(() => {
         if (!data?.b2bApps) return []
-
         return data.b2bApps.filter(Boolean).map((b2bApp) => ({
             id: b2bApp.id,
             label: b2bApp.name || '',
@@ -147,11 +152,11 @@ export const CombinedMainContent: React.FC = () => {
     const extensionTabKeys = useMemo(() => extensionAppTabs.map(({ id }) => `${EXTENSION_TAB_KEY}-${id}`), [extensionAppTabs])
 
     const availableTabs = useMemo(() => [
-        activeBillingContexts.length === 0 && ACCRUALS_TAB_KEY,
-        canReadPayments && activeBillingContexts.length !== 0 && PAYMENTS_TAB_KEY,
-        canReadBillingReceipts && activeBillingContexts.length !== 0 &&  ACCRUALS_TAB_KEY,
+        !isSetupCompleted && SETUP_TAB_KEY,
+        canReadPayments && isSetupCompleted && PAYMENTS_TAB_KEY,
+        canReadBillingReceipts && isSetupCompleted &&  ACCRUALS_TAB_KEY,
         ...extensionTabKeys,
-    ].filter(Boolean), [activeBillingContexts.length, canReadBillingReceipts, canReadPayments, extensionTabKeys])
+    ].filter(Boolean), [canReadBillingReceipts, canReadPayments, extensionTabKeys, isSetupCompleted])
     const activeTab = useMemo(() => availableTabs.includes(tab) ? tab : availableTabs[0], [availableTabs, tab])
 
     const {
@@ -216,17 +221,17 @@ export const CombinedMainContent: React.FC = () => {
 
     const items = useMemo<Array<TabItem>>(() => {
         const result: Array<TabItem> = [
-            canManageIntegrations && activeBillingContexts.length === 0 && {
+            canManageIntegrations && !isSetupCompleted && {
                 label: AccrualsSetupTabTitle,
-                key: ACCRUALS_TAB_KEY,
+                key: SETUP_TAB_KEY,
                 children:  <SetupTab />,
             },
-            canReadPayments && activeBillingContexts.length !== 0 && {
+            canReadPayments && isSetupCompleted && {
                 label: PaymentsTabTitle,
                 key: PAYMENTS_TAB_KEY,
                 children: <PaymentsTab type={activeType as ViewTypes} />,
             },
-            canReadBillingReceipts && activeBillingContexts.length !== 0 && {
+            canReadBillingReceipts && isSetupCompleted && {
                 label: AccrualsTabTitle,
                 key: ACCRUALS_TAB_KEY,
                 children: accrualsTabContent,
@@ -251,7 +256,7 @@ export const CombinedMainContent: React.FC = () => {
         })
 
         return result
-    }, [AccrualsSetupTabTitle, AccrualsTabTitle, PaymentsTabTitle, accrualsTabContent, activeBillingContexts.length, activeType, canManageIntegrations, canReadBillingReceipts, canReadPayments, extensionAppTabs])
+    }, [AccrualsSetupTabTitle, AccrualsTabTitle, PaymentsTabTitle, accrualsTabContent, activeType, canManageIntegrations, canReadBillingReceipts, canReadPayments, extensionAppTabs, isSetupCompleted])
 
     return (
         <Tabs
