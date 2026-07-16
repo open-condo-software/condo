@@ -4,6 +4,7 @@ query getOrganizationBillingRecipients($organization: OrganizationWhereInput!) {
             context: {
                 organization: $organization
                 status: "Finished"
+                deletedAt: null
             }
         }
         first: 100
@@ -13,5 +14,7 @@ query getOrganizationBillingRecipients($organization: OrganizationWhereInput!) {
         bankAccount
         bic
         tin
+        category { id name }
+        addressKey
     }
 }

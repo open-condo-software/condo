@@ -17,7 +17,7 @@ const { publicRuntimeConfig: { globalHints, registryUploadIntegrationId, sppConf
 type UseIntegrationContextType = {
     integrationType: IntegrationType
     integrationId: string
-    isSppFlow: boolean
+    isSppFlow?: boolean
 }
 
 // NOTE(@abshnko): we plan on migrating BillingIntegrations to B2BApps, hence for now

@@ -4,7 +4,6 @@ import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
-
 import { CONTEXT_FINISHED_STATUS, CONTEXT_VERIFICATION_STATUS } from '@condo/domains/acquiring/constants/context'
 import { AcquiringIntegrationContext as AcquiringContext } from '@condo/domains/acquiring/utils/clientSchema'
 import { BillingAndAcquiringContext } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
@@ -47,11 +46,11 @@ const SetupBillingPage: PageComponentType = () => {
         refetchBilling().then(() => refetchAcquiring())
     }, [refetchBilling, refetchAcquiring])
 
-    const providerValue = useMemo(() => ({ billingContexts: billingContexts, acquiringContexts: acquiringContexts, refetchBilling }), [acquiringContexts, billingContexts, refetchBilling])
-
-    if (!isCombinedFlow) {
-        return <AccessDeniedPage /> 
-    }
+    const providerValue = useMemo(() => ({
+        billingContexts: billingContexts,
+        acquiringContexts: acquiringContexts,
+        refetchBilling,
+    }), [acquiringContexts, billingContexts, refetchBilling])
 
     if (acquiringLoading || billingLoading || acquiringError || acquiringLoading) {
         return (
@@ -62,7 +61,10 @@ const SetupBillingPage: PageComponentType = () => {
             />
         )
     }
-    
+    if (!isCombinedFlow) {
+        return <AccessDeniedPage />
+    }
+
     return (
         <BillingAndAcquiringContext.Provider value={providerValue}>
             <BillingOnboardingCombinedFlowPage onFinish={handleFinishSetup}/>

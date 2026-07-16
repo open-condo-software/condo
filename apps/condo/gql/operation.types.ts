@@ -198,7 +198,7 @@ export type GetOrganizationBillingRecipientsQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetOrganizationBillingRecipientsQuery = { __typename?: 'Query', recipients?: Array<{ __typename?: 'BillingRecipient', id: string, bankAccount?: string | null, bic?: string | null, tin?: string | null } | null> | null };
+export type GetOrganizationBillingRecipientsQuery = { __typename?: 'Query', recipients?: Array<{ __typename?: 'BillingRecipient', id: string, bankAccount?: string | null, bic?: string | null, tin?: string | null, addressKey?: string | null, category?: { __typename?: 'BillingCategory', id: string, name?: string | null } | null } | null> | null };
 
 export type GetActiveSppBillingContextQueryVariables = Types.Exact<{
   organization: Types.OrganizationWhereInput;

@@ -4,19 +4,19 @@ import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Typography, Markdown, Space, Button } from '@open-condo/ui'
 
 import { BillingIntegrationOrganizationContext as BillingContext } from '@condo/domains/billing/utils/clientSchema'
 import { Loader } from '@condo/domains/common/components/Loader'
+import { UI_BILLING_SPP_COMBINED_PAGE } from '@condo/domains/common/constants/featureflags'
 import { extractOrigin } from '@condo/domains/common/utils/url.utils'
 import { B2BAppFrame } from '@condo/domains/miniapp/components/B2BAppFrame'
 import { CONTEXT_FINISHED_STATUS } from '@condo/domains/miniapp/constants'
 
-
 import type { RowProps } from 'antd'
-
 
 const INSTRUCTION_FOOTER_GUTTER: RowProps['gutter'] = [0, 40]
 const COL_FULL_SPAN = 24
@@ -24,18 +24,28 @@ const COL_FULL_SPAN = 24
 type SetupInstructionBillingProps = {
     instruction: string
     instructionExtraLink?: string
+    setupId: string
 }
 
-const SetupInstructionBilling: React.FC<SetupInstructionBillingProps> = ({ instruction, instructionExtraLink }) => {
+const SetupInstructionBilling: React.FC<SetupInstructionBillingProps> = ({ instruction, instructionExtraLink, setupId }) => {
     const intl = useIntl()
     const DoneButtonMessage = intl.formatMessage({ id:'accrualsAndPayments.setupBilling.instruction.doneButtonLabel' })
     const InstructionButtonMessage = intl.formatMessage({ id:'accrualsAndPayments.setupBilling.instruction.instructionButtonLabel' })
 
+    const { useFlag } = useFeatureFlags()
+    const shouldShowCombinedBilling = useFlag(UI_BILLING_SPP_COMBINED_PAGE)
+    const updateBillingAction = BillingContext.useUpdate({
+        status: CONTEXT_FINISHED_STATUS,
+    })
+
     const router = useRouter()
 
-    const handleDoneClick = useCallback(() => {
-        router.push({ query: { ...router.query, step: 2 } }, undefined, { shallow: true })
-    }, [router])
+    const handleDoneClick = useCallback(async () => {
+        if (shouldShowCombinedBilling) {
+            await updateBillingAction({ status: CONTEXT_FINISHED_STATUS }, { id: setupId })
+        }
+        await router.push({ query: { ...router.query, step: 2 } }, undefined, { shallow: true })
+    }, [router, setupId, shouldShowCombinedBilling, updateBillingAction])
 
     return (
         <Row gutter={INSTRUCTION_FOOTER_GUTTER}>
@@ -62,16 +72,27 @@ const SetupInstructionBilling: React.FC<SetupInstructionBillingProps> = ({ instr
 
 type SetupInteractiveBillingProps = {
     setupUrl: string
+    setupId: string
 }
 
-const SetupInteractiveBilling: React.FC<SetupInteractiveBillingProps> = ({ setupUrl }) => {
+const SetupInteractiveBilling: React.FC<SetupInteractiveBillingProps> = ({ setupUrl, setupId }) => {
     const router = useRouter()
     const frameOrigin = useMemo(() => extractOrigin(setupUrl), [setupUrl])
-    const handleDoneMessage = useCallback((event: MessageEvent) => {
+    const { useFlag } = useFeatureFlags()
+    const shouldShowCombinedBilling = useFlag(UI_BILLING_SPP_COMBINED_PAGE)
+
+    const updateBillingAction = BillingContext.useUpdate({
+        status: CONTEXT_FINISHED_STATUS,
+    })
+
+    const handleDoneMessage = useCallback(async (event: MessageEvent) => {
         if (event.origin === frameOrigin && get(event.data, 'success') === true) {
-            router.push({ query: { ...router.query, step: 2 } }, undefined, { shallow: true })
+            if (shouldShowCombinedBilling) {
+                await updateBillingAction({ status: CONTEXT_FINISHED_STATUS }, { id: setupId })
+            }
+            await router.push({ query: { ...router.query, step: 2 } }, undefined, { shallow: true })
         }
-    }, [frameOrigin, router])
+    }, [frameOrigin, router, setupId, shouldShowCombinedBilling, updateBillingAction])
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -143,15 +164,17 @@ export const SetupBilling: React.FC = ()=> {
     }
 
     const setupUrl = get(currentCtx, ['integration', 'setupUrl'])
+    const setupId = get(currentCtx, ['id'])
 
     if (setupUrl) {
-        return <SetupInteractiveBilling setupUrl={setupUrl}/>
+        return <SetupInteractiveBilling setupUrl={setupUrl} setupId={setupId}/>
     }
 
     return (
         <SetupInstructionBilling
             instruction={get(currentCtx, ['integration', 'instruction'], '')}
             instructionExtraLink={get(currentCtx, ['integration', 'instructionExtraLink'])}
+            setupId={setupId}
         />
     )
 }
