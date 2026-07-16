@@ -50,7 +50,7 @@ const ActiveCallContextProvider: FC<PropsWithChildren> = ({ children }) => {
         }
 
         addHandler<SetActiveCallParams, SetActiveCallData>(
-            'condo-bridge',
+            'telephony',
             'CondoWebSetActiveCall',
             '*',
             zodSchemaToValidator(ActiveCallParamsSchema),
