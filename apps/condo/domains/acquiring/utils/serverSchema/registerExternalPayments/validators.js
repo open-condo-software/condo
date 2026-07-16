@@ -13,6 +13,9 @@ dayjs.extend(customParseFormat)
 function validatePayments (payments, context) {
     for (const payment of payments) {
         const {
+            accountNumber,
+            bankAccount,
+            routingNumber,
             transactionId,
             amount,
             period,
@@ -21,15 +24,75 @@ function validatePayments (payments, context) {
             currencyCode,
             explicitFee,
             implicitFee,
+            paymentOrder,
         } = payment
 
         validateTransactionId(transactionId, context)
+
+        validateAccountNumber(accountNumber, transactionId, context)
+        validateRoutingNumber(routingNumber, transactionId, context)
+        validateBankAccount(bankAccount, transactionId, context)
+        validatePaymentOrder(paymentOrder, transactionId, context)
+
         validateCurrencyCode(currencyCode, transactionId, context)
         validatePeriodFormat(period, transactionId, context)
         validateDateFormat(transactionDate, transactionId, context)
         validateDateFormat(depositedDate, transactionId, context)
         validateNumericValues(amount, explicitFee, implicitFee, transactionId, context)
         validatePositiveAmount(amount, transactionId, context)
+    }
+}
+
+//  Find out can we find a country for this input or leave it simple as it is
+//  validateNumber(bankAccount, routingNumber, 'ru')
+
+function validateBankAccount (bankAccount, transactionId, context) {
+    if (!bankAccount) {
+        throw new GQLError(
+            { ...ERRORS.BANK_ACCOUNT_REQUIRED, messageInterpolation: { transactionId } },
+            context
+        )
+    }
+
+    if (bankAccount.length !== 20 || !/^[0-9]*$/.test(bankAccount)) {
+        throw new GQLError(
+            { ...ERRORS.INVALID_BANK_ACCOUNT, messageInterpolation: { transactionId } },
+            context
+        )
+    }
+}
+
+function validateRoutingNumber (routingNumber, transactionId, context) {
+    if (!routingNumber) {
+        throw new GQLError(
+            { ...ERRORS.ROUTING_NUMBER_REQUIRED, messageInterpolation: { transactionId } },
+            context
+        )
+    }
+
+    if (routingNumber.length !== 9 || !/^[0-9]*$/.test(routingNumber)) {
+        throw new GQLError(
+            { ...ERRORS.INVALID_ROUTING_NUMBER, messageInterpolation: { transactionId } },
+            context
+        )
+    }
+}
+
+function validateAccountNumber (accountNumber, transactionId, context) {
+    if (!accountNumber) {
+        throw new GQLError(
+            { ...ERRORS.ACCOUNT_NUMBER_REQUIRED, messageInterpolation: { transactionId } },
+            context
+        )
+    }
+}
+
+function validatePaymentOrder (paymentOrder, transactionId, context) {
+    if (!paymentOrder) {
+        throw new GQLError(
+            { ...ERRORS.PAYMENT_ORDER_REQUIRED, messageInterpolation: { transactionId } },
+            context
+        )
     }
 }
 
@@ -140,4 +203,8 @@ module.exports = {
     validateDuplicatedTransactionIds,
     validatePaymentsNumberLimits,
     validateExistingMultiPayments,
+    validateAccountNumber,
+    validateRoutingNumber,
+    validatePaymentOrder,
+    validateBankAccount,
 }
