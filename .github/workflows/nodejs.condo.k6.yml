@@ -59,8 +59,8 @@ jobs:
           --package @babel/core \
           --package babel-loader \
           --package @babel/preset-typescript \
-          --package typescript \
-          webpack --config ./apps/condo/k6/webpack.config.js
+          --package typescript@5.8.3 \
+          webpack --config ./apps/condo/k6/webpack.config.js # NOTE: typescript is pinned to match .yarnrc.yml catalog; newer versions break Yarn's built-in TS patch
           
           export K6_BROWSER_HEADLESS=true
           export K6_PROMETHEUS_RW_SERVER_URL=${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }} 
