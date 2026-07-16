@@ -150,6 +150,20 @@ const REGISTER_EXTERNAL_PAYMENTS_ERRORS = {
         type: 'INVALID_VALUE',
         message: 'Payment order is required for payment. Empty value for payment: {transactionId}',
     },
+    TIN_REQUIRED: {
+        mutation: 'registerExternalPayments',
+        variable: ['data', 'payments'],
+        code: BAD_USER_INPUT,
+        type: 'INVALID_VALUE',
+        message: 'TIN is required for payment. Empty value for payment: {transactionId}',
+    },
+    ADDRESS_REQUIRED: {
+        mutation: 'registerExternalPayments',
+        variable: ['data', 'payments'],
+        code: BAD_USER_INPUT,
+        type: 'INVALID_VALUE',
+        message: 'Address is required for payment. Empty value for payment: {transactionId}',
+    },
 }
 
 module.exports = {

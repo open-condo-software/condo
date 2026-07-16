@@ -14,6 +14,8 @@ function validatePayments (payments, context) {
     for (const payment of payments) {
         const {
             accountNumber,
+            tin,
+            address,
             bankAccount,
             routingNumber,
             transactionId,
@@ -27,12 +29,15 @@ function validatePayments (payments, context) {
             paymentOrder,
         } = payment
 
+        // Should be the first. Used to identify payments with wrong format.
         validateTransactionId(transactionId, context)
 
         validateAccountNumber(accountNumber, transactionId, context)
         validateRoutingNumber(routingNumber, transactionId, context)
         validateBankAccount(bankAccount, transactionId, context)
         validatePaymentOrder(paymentOrder, transactionId, context)
+        validateTin(tin, transactionId, context)
+        validateAddress(address, transactionId, context)
 
         validateCurrencyCode(currencyCode, transactionId, context)
         validatePeriodFormat(period, transactionId, context)
@@ -43,8 +48,23 @@ function validatePayments (payments, context) {
     }
 }
 
-//  Find out can we find a country for this input or leave it simple as it is
-//  validateNumber(bankAccount, routingNumber, 'ru')
+function validateAddress (address, transactionId, context) {
+    if (!address) {
+        throw new GQLError(
+            { ...ERRORS.ADDRESS_REQUIRED, messageInterpolation: { transactionId } },
+            context
+        )
+    }
+}
+
+function validateTin (tin, transactionId, context) {
+    if (!tin) {
+        throw new GQLError(
+            { ...ERRORS.TIN_REQUIRED, messageInterpolation: { transactionId } },
+            context
+        )
+    }
+}
 
 function validateBankAccount (bankAccount, transactionId, context) {
     if (!bankAccount) {
@@ -207,4 +227,6 @@ module.exports = {
     validateRoutingNumber,
     validatePaymentOrder,
     validateBankAccount,
+    validateTin,
+    validateAddress,
 }

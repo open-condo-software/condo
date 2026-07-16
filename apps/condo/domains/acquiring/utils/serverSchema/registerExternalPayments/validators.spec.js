@@ -15,11 +15,29 @@ const {
     validatePaymentOrder,
     validateBankAccount,
     validateRoutingNumber,
+    validateTin,
+    validateAddress,
 } = require('@condo/domains/acquiring/utils/serverSchema/registerExternalPayments/validators')
 const { ISO_CODES } = require('@condo/domains/common/constants/currencies')
 
 describe('RegisterExternalPayments Validators', () => {
     const tId = 'txn-123'
+
+    describe('validateAddress', () => {
+        test('should throw for empty tin', () => {
+            const address = ''
+
+            expect(() => validateAddress(address, tId, {})).toThrow()
+        })
+    })
+
+    describe('validateTin', () => {
+        test('should throw for empty tin', () => {
+            const tin = ''
+
+            expect(() => validateTin(tin, tId, {})).toThrow()
+        })
+    })
 
     describe('validateAccountNumber', () => {
         test('should throw for empty accountNumber', () => {
