@@ -14,7 +14,7 @@ import { BillingIntegrationOrganizationContext as BillingContext } from '@condo/
 import { Loader } from '@condo/domains/common/components/Loader'
 import { LoginWithSBBOLButton } from '@condo/domains/common/components/LoginWithSBBOLButton'
 import { extractOrigin } from '@condo/domains/common/utils/url.utils'
-import { IFrame } from '@condo/domains/miniapp/components/IFrame'
+import { B2BAppFrame } from '@condo/domains/miniapp/components/B2BAppFrame'
 import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
 import { SBBOL_IMPORT_NAME } from '@condo/domains/organization/integrations/sbbol/constants'
 
@@ -216,13 +216,10 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
     }
 
     return (
-        <IFrame
+        <B2BAppFrame
             src={setupUrl}
-            reloadScope='organization'
-            withPrefetch
-            withLoader
-            withResize
             initialHeight={400}
+            actions={true}
         />
     )
 }

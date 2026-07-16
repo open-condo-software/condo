@@ -20,7 +20,7 @@ import { useAIConfig, useAIFlow } from '@condo/domains/ai/hooks/useAIFlow'
 import { UI_NEWS_MARKDOWN } from '@condo/domains/common/constants/featureflags'
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { stripMarkdown } from '@condo/domains/common/utils/stripMarkdown'
-import { IFrame } from '@condo/domains/miniapp/components/IFrame'
+import { B2BAppFrame } from '@condo/domains/miniapp/components/B2BAppFrame'
 import { getBodyTemplateChangedRule, getTitleTemplateChangedRule, type TemplatesType } from '@condo/domains/news/components/NewsForm/BaseNewsForm'
 import { TemplatesSelect } from '@condo/domains/news/components/TemplatesSelect'
 import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
@@ -418,7 +418,7 @@ export const InputStepForm: React.FC<InputStepFormProps> = ({
             {
                 isCustomForm ? (
                     <Col className={styles.customForm} span={formFieldsColSpan}>
-                        <IFrame
+                        <B2BAppFrame
                             src={
                                 `${newsSharingConfig.customFormUrl}?${[
                                     `ctxId=${sharingAppId}`,
@@ -430,9 +430,6 @@ export const InputStepForm: React.FC<InputStepFormProps> = ({
                                 ].join('&')
                                 }`}
                             reloadScope='organization'
-                            withLoader
-                            withPrefetch
-                            withResize
                         />
                     </Col>
                 ) : (

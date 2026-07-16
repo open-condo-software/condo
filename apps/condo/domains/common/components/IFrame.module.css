@@ -1,0 +1,23 @@
+.iframe {
+  width: 100%;
+  overflow: hidden;
+  border: none;
+}
+
+.iframe-container {
+  position: relative;
+}
+
+.iframe-loader {
+  position: absolute !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background-color: var(--condo-global-color-white);
+}
+
+.iframe-loader :global(.ant-spin-dot-item) {
+  background-color: var(--condo-global-color-blue-5);
+}

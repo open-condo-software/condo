@@ -11,7 +11,7 @@ import { Typography, Markdown, Space, Button } from '@open-condo/ui'
 import { BillingIntegrationOrganizationContext as BillingContext } from '@condo/domains/billing/utils/clientSchema'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { extractOrigin } from '@condo/domains/common/utils/url.utils'
-import { IFrame } from '@condo/domains/miniapp/components/IFrame'
+import { B2BAppFrame } from '@condo/domains/miniapp/components/B2BAppFrame'
 import { CONTEXT_FINISHED_STATUS } from '@condo/domains/miniapp/constants'
 
 
@@ -82,13 +82,10 @@ const SetupInteractiveBilling: React.FC<SetupInteractiveBillingProps> = ({ setup
     }, [handleDoneMessage])
 
     return (
-        <IFrame
+        <B2BAppFrame
             src={setupUrl}
-            reloadScope='organization'
-            withLoader
-            withPrefetch
-            withResize
             initialHeight={400}
+            actions={true}
         />
     )
 }

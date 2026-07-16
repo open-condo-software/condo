@@ -3,7 +3,7 @@ import { useCallback, useMemo, useState } from 'react'
 
 import { useOrganization } from '@open-condo/next/organization'
 
-import { IFrame } from '@condo/domains/miniapp/components/IFrame'
+import { B2BAppFrame } from '@condo/domains/miniapp/components/B2BAppFrame'
 
 export function usePosIntegrationAlert () {
     const { organization } = useOrganization()
@@ -27,12 +27,9 @@ export function usePosIntegrationAlert () {
     const paymentsAlertPageUrl = b2bAppContextsResult?.contexts?.[0]?.app?.posIntegrationConfig?.paymentsAlertPageUrl
 
     const Component = useMemo(() => paymentsAlertPageUrl ? (
-        <IFrame
+        <B2BAppFrame
             src={paymentsAlertPageUrl}
             onLoad={onLoadHandler}
-            reloadScope='organization'
-            withPrefetch
-            withResize
             hidden={isIFrameHidden}
             initialHeight={50}
         />

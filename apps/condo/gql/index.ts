@@ -9,6 +9,29 @@ import * as Apollo from '@apollo/client';
 export * from '@app/condo/gql/operation.types'
 
 const defaultOptions = {} as const;
+export const B2BAppPermissionsFragmentDoc = gql`
+    fragment B2BAppPermissions on B2BApp {
+  isMicrophoneAllowed
+  isCameraAllowed
+  isSpeakerSelectionAllowed
+  isFullscreenAllowed
+  isClipboardWriteAllowed
+}
+    `;
+export const B2BAppInfoFragmentDoc = gql`
+    fragment B2BAppInfo on B2BApp {
+  id
+  name
+  appUrl
+  domains {
+    mapping {
+      from
+      to
+    }
+  }
+  ...B2BAppPermissions
+}
+    ${B2BAppPermissionsFragmentDoc}`;
 export const FloorInfoFragmentDoc = gql`
     fragment FloorInfo on BuildingFloor {
   id
@@ -2857,12 +2880,11 @@ export type GetB2BAppsWithMessageSettingsQueryResult = Apollo.QueryResult<Types.
 export const GetGlobalB2BAppsDocument = gql`
     query getGlobalB2BApps {
   b2bApps: allB2BApps(where: {isGlobal: true, isHidden: false}, first: 100) {
-    id
-    appUrl
+    ...B2BAppInfo
     features
   }
 }
-    `;
+    ${B2BAppInfoFragmentDoc}`;
 
 /**
  * __useGetGlobalB2BAppsQuery__
@@ -2945,11 +2967,10 @@ export type GetCountB2BAppsWithNewsSharingConfigQueryResult = Apollo.QueryResult
 export const GetB2BAppDocument = gql`
     query getB2BApp($id: ID!) {
   b2bApp: allB2BApps(where: {id: $id}, first: 1) {
-    id
-    name
+    ...B2BAppInfo
   }
 }
-    `;
+    ${B2BAppInfoFragmentDoc}`;
 
 /**
  * __useGetB2BAppQuery__
@@ -2989,11 +3010,10 @@ export type GetB2BAppQueryResult = Apollo.QueryResult<Types.GetB2BAppQuery, Type
 export const GetB2BAppsByIdsDocument = gql`
     query getB2BAppsByIds($ids: [ID!]!) {
   b2bApps: allB2BApps(where: {id_in: $ids}, first: 100) {
-    id
-    name
+    ...B2BAppInfo
   }
 }
-    `;
+    ${B2BAppInfoFragmentDoc}`;
 
 /**
  * __useGetB2BAppsByIdsQuery__
@@ -3036,11 +3056,10 @@ export const GetPublicB2BAppsByIdsDocument = gql`
     where: {id_in: $ids, isPublic: true, isHidden: false, deletedAt: null}
     first: 100
   ) {
-    id
-    name
+    ...B2BAppInfo
   }
 }
-    `;
+    ${B2BAppInfoFragmentDoc}`;
 
 /**
  * __useGetPublicB2BAppsByIdsQuery__
@@ -3083,15 +3102,14 @@ export const GetB2BAppsWithBillingTabEmbeddingConfigDocument = gql`
     where: {billingEmbeddingConfig: {tabUrl_not: null}}
     first: 100
   ) {
-    id
-    name
+    ...B2BAppInfo
     shortDescription
     billingEmbeddingConfig {
       tabUrl
     }
   }
 }
-    `;
+    ${B2BAppInfoFragmentDoc}`;
 
 /**
  * __useGetB2BAppsWithBillingTabEmbeddingConfigQuery__

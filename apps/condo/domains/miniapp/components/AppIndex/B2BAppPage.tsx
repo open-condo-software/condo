@@ -2,8 +2,9 @@ import dayjs from 'dayjs'
 import get from 'lodash/get'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import React, { useEffect } from 'react'
+import React, { useEffect, useMemo } from 'react'
 
+import { extractMiniappMetadata } from '@open-condo/miniapp-utils/helpers/iframe'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -12,7 +13,7 @@ import { Typography } from '@open-condo/ui'
 import { PageContent, PageWrapper, PageHeader } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { analytics } from '@condo/domains/common/utils/analytics'
-import { IFrame } from '@condo/domains/miniapp/components/IFrame'
+import { B2BAppFrame } from '@condo/domains/miniapp/components/B2BAppFrame'
 import { B2BAppContext, B2BAppRole } from '@condo/domains/miniapp/utils/clientSchema'
 
 
@@ -69,6 +70,10 @@ export const B2BAppPage: React.FC<B2BAppPageProps> = ({ id }) => {
         router,
     ])
 
+    const metadata = useMemo(() => {
+        return extractMiniappMetadata(context?.app)
+    }, [context.app])
+    
     const shouldSendAnalytics =
         !(contextLoading || contextError || appRoleLoading || appRoleError || isSupport || isAdmin)
         && Boolean(appUrl && appRole && context)
@@ -111,13 +116,10 @@ export const B2BAppPage: React.FC<B2BAppPageProps> = ({ id }) => {
                     we need to prevent iframe loading in cases where everything is (not) loaded fine,
                     but redirect is still happening*/}
                     {Boolean(appUrl && appRole && context) && (
-                        <IFrame
+                        <B2BAppFrame
                             src={appUrl}
-                            reloadScope='organization'
-                            withLoader
-                            withPrefetch
-                            withResize
-                            allowFullscreen
+                            metadata={metadata}
+                            actions={true}
                         />
                     )}
                 </PageContent>

@@ -4,13 +4,18 @@ import { useHotkeys } from 'react-hotkeys-hook'
 
 import { useCachePersistor } from '@open-condo/apollo'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
+import { nonNull } from '@open-condo/miniapp-utils/helpers/collections'
+import { extractMiniappMetadata } from '@open-condo/miniapp-utils/helpers/iframe'
 import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
 
 import { extractOrigin } from '@condo/domains/common/utils/url.utils'
-import { IFrame } from '@condo/domains/miniapp/components/IFrame'
+import { B2BAppFrame } from '@condo/domains/miniapp/components/B2BAppFrame'
 
 import { IRequestFeatureHandler, useGlobalAppsFeaturesContext } from './GlobalAppsFeaturesContext'
+
+import type { B2BAppFrameProps } from '@condo/domains/miniapp/components/B2BAppFrame'
+
 
 
 const REQUEST_FEATURE_MESSAGE_NAME = 'CondoWebAppFeatureRequest'
@@ -18,33 +23,55 @@ const ORGANIZATION_CHANGE_MESSAGE_NAME = 'CondoWebAppOrganizationChange'
 
 export const GlobalAppsContainer: React.FC = () => {
     // TODO(DOMA-5194): Clean this mess:
-    //  1. refs are using only for sending messages...It should be part of PostMessageProvider
-    //  (Provider addOrigin must be changed to addFrame or something like that)
-    //  2. Move constants like REQUEST_FEATURE_MESSAGE_NAME, ORGANIZATION_CHANGE_MESSAGE_NAME to incoming bridge events
+    //  1. Move constants like REQUEST_FEATURE_MESSAGE_NAME, ORGANIZATION_CHANGE_MESSAGE_NAME to incoming bridge events
     //  so miniapps can use bridge.subscribe with Type safety on them!
     const { user, isLoading } = useAuth()
     const { organization, isLoading: organizationLoading } = useOrganization()
     const organizationId = organization?.id || null
     const { persistor } = useCachePersistor()
+    const iframeRefs = useRef<Record<string, React.RefObject<HTMLIFrameElement>>>({})
 
     const {
         data: b2bAppsData,
     } = useGetGlobalB2BAppsQuery({
         skip: !user || !organizationId || organizationLoading || isLoading || !persistor,
     })
-    const b2bApps = useMemo(() => b2bAppsData?.b2bApps?.filter(Boolean) || [], [b2bAppsData?.b2bApps])
+    const b2bApps = useMemo(() => {
+        const apps = (b2bAppsData?.b2bApps?.filter(nonNull) || []).filter(app => app.appUrl)
 
-    const appUrls = b2bApps.map(app => app?.appUrl)
+        return apps.map(app => ({
+            id: app.id,
+            appUrl: app.appUrl,
+            metadata: extractMiniappMetadata(app),
+            features: app.features,
+        }))
+    }, [b2bAppsData?.b2bApps])
 
-    const iframeRefs = useRef<Array<HTMLIFrameElement>>([])
     const [isDebug, setIsDebug] = useState(false)
     const { registerFeatures, addFeatureHandler, removeFeatureHandler, features } = useGlobalAppsFeaturesContext()
 
     useHotkeys('d+e+b+u+g', () => setIsDebug(!isDebug), {}, [isDebug])
 
-    useEffect(() => {
-        iframeRefs.current = iframeRefs.current.slice(0, appUrls.length)
-    }, [appUrls])
+    const onFrameRegister: Required<B2BAppFrameProps>['onRegister'] = useCallback((event) => {
+        const { frameId, frameRef } = event
+        iframeRefs.current[frameId] = frameRef
+
+        return () => {
+            delete iframeRefs.current[frameId]
+        }
+    }, [])
+
+    const GlobalApps = useMemo(() => {
+        return b2bApps.map(app => (
+            <B2BAppFrame
+                key={app.id}
+                src={app.appUrl}
+                reloadScope='user'
+                onRegister={onFrameRegister}
+                hidden={!isDebug}
+            />
+        ))
+    }, [b2bApps, isDebug, onFrameRegister])
 
     useDeepCompareEffect(() => {
         const globalFeatures = b2bApps.reduce((registeredFeatures, app) => {
@@ -63,7 +90,7 @@ export const GlobalAppsContainer: React.FC = () => {
     const handleFeatureRequest: IRequestFeatureHandler = useCallback((context) => {
         const receiverOrigin = features[context.feature] || null
         if (receiverOrigin) {
-            for (const iframe of iframeRefs.current) {
+            for (const { current: iframe } of Object.values(iframeRefs.current)) {
                 if (iframe) {
                     const origin = extractOrigin(iframe.src)
                     if (receiverOrigin === origin) {
@@ -94,7 +121,7 @@ export const GlobalAppsContainer: React.FC = () => {
 
     useEffect(() => {
         if (organizationId) {
-            for (const iframe of iframeRefs.current) {
+            for (const { current: iframe } of Object.values(iframeRefs.current)) {
                 if (iframe) {
                     const iframeWindow = iframe?.contentWindow || null
                     const iframeOrigin = extractOrigin(iframe.src)
@@ -117,17 +144,5 @@ export const GlobalAppsContainer: React.FC = () => {
         return null
     }
 
-    return (
-        <>
-            {appUrls.map((url, index) => (  
-                <IFrame
-                    key={url || index}
-                    src={url || ''}
-                    reloadScope='user'
-                    ref={el => void (iframeRefs.current[index] = el as HTMLIFrameElement)}
-                    hidden={!isDebug}
-                />
-            ))}
-        </>
-    )
+    return GlobalApps
 }

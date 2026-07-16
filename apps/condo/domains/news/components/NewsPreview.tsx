@@ -8,12 +8,15 @@ import { colors } from '@open-condo/ui/colors'
 
 import { DEFAULT_BORDER_RADIUS } from '@condo/domains/common/constants/style'
 import { stripMarkdown } from '@condo/domains/common/utils/stripMarkdown'
-import { IFrame } from '@condo/domains/miniapp/components/IFrame'
+import { B2BAppFrame } from '@condo/domains/miniapp/components/B2BAppFrame'
+
+
 
 import { DocumentsPreview } from './FilesPreview/DocumentsPreview'
 import { ImageOrVideoPreview } from './FilesPreview/ImageOrVideoPreview'
 import { UploadFileType } from './FilesUploadList'
 
+import type  { B2BAppFrameProps } from '@condo/domains/miniapp/components/B2BAppFrame'
 import type { RowProps } from 'antd'
 
 enum NewsPreviewTabTypes {
@@ -313,7 +316,7 @@ interface ISharingAppNewsPreview {
     appIcon: string
 
     iFrameUrl: string
-    iFrameRef: React.Ref<HTMLIFrameElement>
+    iFrameRef: React.MutableRefObject<HTMLIFrameElement>
 
     title: string
     body: string
@@ -324,24 +327,26 @@ interface ISharingAppNewsPreview {
 const SharingNewsPreview: React.FC<ISharingAppNewsPreview> = ({ hasPush = true, appName, appIcon, iFrameUrl, iFrameRef, title, body, ctxId, newsType, validBefore }) => {
     const intl = useIntl()
     const PushNotificationTitle = intl.formatMessage({ id: 'pages.condo.news.preview.push' })
+    // iFrameRef
+    const onFrameRegister: Required<B2BAppFrameProps>['onRegister'] = useCallback((event) => {
+        const { frameRef } = event
+        iFrameRef.current = frameRef.current
+    }, [iFrameRef])
 
     const appPreview = useMemo(() => {
 
         return (
             <SharingAppPreviewContainer>
-                <IFrame
-                    // el => iFrameRef.current = el is used here to support IFrame API
-                    // @ts-ignore
-                    ref={el => iFrameRef.current = el}
+                <B2BAppFrame
                     src={`${iFrameUrl}?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}&ctxId=${ctxId}&validBefore=${validBefore}&newsType=${newsType}`}
-                    reloadScope='organization'
                     initialHeight={660}
+                    onRegister={onFrameRegister}
                 />
                 <SharingAppOverflowContainer/>
             </SharingAppPreviewContainer>
         )
     // title and body not included here by design as they are used only as initial values
-    }, [ iFrameUrl, iFrameRef ])
+    }, [ iFrameUrl, onFrameRegister ])
 
     return (
         <NewsPreview

@@ -85,6 +85,7 @@ type MiniappType = {
     isMicrophoneAllowed?: boolean | null
     isCameraAllowed?: boolean | null
     isSpeakerSelectionAllowed?: boolean | null
+    isClipboardWriteAllowed?: boolean | null
 }
 
 export type MiniappMetaData = {
@@ -104,6 +105,7 @@ export function extractMiniappMetadata (app: MiniappType): MiniappMetaData | nul
         isMicrophoneAllowed: app.isMicrophoneAllowed,
         isCameraAllowed: app.isCameraAllowed,
         isSpeakerSelectionAllowed: app.isSpeakerSelectionAllowed,
+        isClipboardWriteAllowed: app.isClipboardWriteAllowed,
     })
 
     return {

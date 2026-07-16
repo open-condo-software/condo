@@ -20,7 +20,7 @@ import { ACCRUALS_TAB_KEY, PAYMENTS_TAB_KEY, EXTENSION_TAB_KEY } from '@condo/do
 import { useQueryParams } from '@condo/domains/billing/hooks/useQueryParams'
 import { useTourStepsConfig } from '@condo/domains/common/hooks/useTourStepsConfig'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
-import { IFrame } from '@condo/domains/miniapp/components/IFrame'
+import { B2BAppFrame } from '@condo/domains/miniapp/components/B2BAppFrame'
 
 
 type PaymentTypeSwitchProps = {
@@ -181,7 +181,7 @@ export const MainContent: React.FC<MainContentProps> = ({
                 children: isB2BApp ? (
                     <B2BAppBillingTab appId={id} appUrl={appUrl} shortDescription={shortDescription} />
                 ) : (
-                    <IFrame src={appUrl} reloadScope='organization' withPrefetch withLoader withResize/>
+                    <B2BAppFrame src={appUrl}/>
                 ),
                 icon: renderTabIcon(iconUrl),
             })

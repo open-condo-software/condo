@@ -1,11 +1,12 @@
 import { notification } from 'antd'
 import isUndefined from 'lodash/isUndefined'
 import { createContext, useContext, useEffect, useState } from 'react'
+import { z } from 'zod'
 
+import { usePostMessageContext, zodSchemaToValidator } from '@open-condo/miniapp-utils/helpers/messaging'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 
-import { usePostMessageContext } from '@condo/domains/common/components/PostMessageProvider'
 
 import type { FC, PropsWithChildren } from 'react'
 
@@ -13,6 +14,15 @@ interface IActiveCallContext {
     isCallActive: boolean
     connectedTickets: Array<string>
 }
+
+const ActiveCallParamsSchema = z.object({
+    isCallActive: z.boolean(),
+    connectedTickets: z.array(z.string()),
+    error: z.string().optional(),
+})
+
+type SetActiveCallParams = z.infer<typeof ActiveCallParamsSchema>
+type SetActiveCallData = { sent: boolean }
 
 const ActiveCallContext = createContext<IActiveCallContext>({
     isCallActive: false,
@@ -29,7 +39,7 @@ const ActiveCallContextProvider: FC<PropsWithChildren> = ({ children }) => {
     const SaveErrorNotificationMessage = inlt.formatMessage({ id: 'callRecord.saveErrorNotification.message' })
     const SaveErrorNotificationDescription = inlt.formatMessage({ id: 'callRecord.saveErrorNotification.description' })
 
-    const { addEventHandler } = usePostMessageContext()
+    const { addHandler } = usePostMessageContext()
 
     const [isCallActive, setIsCallActive] = useState(false)
     const [connectedTickets, setConnectedTickets] = useState([])
@@ -39,32 +49,37 @@ const ActiveCallContextProvider: FC<PropsWithChildren> = ({ children }) => {
             return
         }
 
-        addEventHandler('CondoWebSetActiveCall', '*', ({
-            isCallActive: newCallState, connectedTickets, error,
-        }) => {
-            setIsCallActive(newCallState)
-            setConnectedTickets(connectedTickets)
+        addHandler<SetActiveCallParams, SetActiveCallData>(
+            'telephony',
+            'CondoWebSetActiveCall',
+            '*',
+            zodSchemaToValidator(ActiveCallParamsSchema),
+            ({ params }) => {
+                const { isCallActive: newCallState, connectedTickets, error } = params
+                setIsCallActive(newCallState)
+                setConnectedTickets(connectedTickets)
 
-            if (isCallActive && !newCallState) {
-                error ?
-                    notification.warning({
-                        message: SaveErrorNotificationMessage,
-                        description: SaveErrorNotificationDescription,
-                    }) :
-                    notification.info({
-                        message: SavedNotificationMessage,
-                        description: (
-                            <Typography.Text size='medium'>
-                                {SavedNotificationDescription}&nbsp;
-                                <Typography.Link href='/callRecord'>{SavedNotificationDescriptionLink}</Typography.Link>
-                            </Typography.Text>
-                        ),
-                    })
+                if (isCallActive && !newCallState) {
+                    error ?
+                        notification.warning({
+                            message: SaveErrorNotificationMessage,
+                            description: SaveErrorNotificationDescription,
+                        }) :
+                        notification.info({
+                            message: SavedNotificationMessage,
+                            description: (
+                                <Typography.Text size='medium'>
+                                    {SavedNotificationDescription}&nbsp;
+                                    <Typography.Link href='/callRecord'>{SavedNotificationDescriptionLink}</Typography.Link>
+                                </Typography.Text>
+                            ),
+                        })
+                }
+
+                return { sent: !!error }
             }
-
-            return { sent: !!error }
-        })
-    }, [SaveErrorNotificationDescription, SaveErrorNotificationMessage, SavedNotificationDescription, SavedNotificationDescriptionLink, SavedNotificationMessage, addEventHandler, isCallActive])
+        )
+    }, [SaveErrorNotificationDescription, SaveErrorNotificationMessage, SavedNotificationDescription, SavedNotificationDescriptionLink, SavedNotificationMessage, addHandler, isCallActive])
 
     return (
         <ActiveCallContext.Provider

@@ -7,7 +7,7 @@ import { useOrganization } from '@open-condo/next/organization'
 import { Space, Typography, Button } from '@open-condo/ui'
 
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
-import { IFrame } from '@condo/domains/miniapp/components/IFrame'
+import { B2BAppFrame } from '@condo/domains/miniapp/components/B2BAppFrame'
 
 import { useBillingAndAcquiringContexts } from './ContextProvider'
 
@@ -44,7 +44,7 @@ export const EmptyContent: React.FC<EmptyContentProps> = ({
     const mascotImg = currentProblem ? ERROR_MASCOT_IMG : SEARCHING_MASCOT_IMG
 
     if (connectedUrl && !connectedMessage) {
-        return <IFrame src={connectedUrl} reloadScope='organization' withPrefetch withLoader withResize initialHeight={400}/>
+        return <B2BAppFrame src={connectedUrl} initialHeight={400}/>
     }
 
     return (

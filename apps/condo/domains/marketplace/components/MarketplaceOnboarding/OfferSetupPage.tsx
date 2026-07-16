@@ -10,7 +10,7 @@ import { AcquiringIntegrationContext as AcquiringIntegrationContextApi } from '@
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { extractOrigin } from '@condo/domains/common/utils/url.utils'
 import { MARKETPLACE_SETUP_URL_PATH } from '@condo/domains/marketplace/constants'
-import { IFrame } from '@condo/domains/miniapp/components/IFrame'
+import { B2BAppFrame } from '@condo/domains/miniapp/components/B2BAppFrame'
 
 
 type SetupAcquiringProps = {
@@ -72,5 +72,5 @@ export const OfferSetupPage: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
         return <LoadingOrErrorPage loading={acquiringContextLoading} error={acquiringContextError}/>
     }
 
-    return <IFrame src={setupUrl} reloadScope='organization' withPrefetch withLoader withResize initialHeight={400}/>
+    return <B2BAppFrame src={setupUrl} initialHeight={400}/>
 }
