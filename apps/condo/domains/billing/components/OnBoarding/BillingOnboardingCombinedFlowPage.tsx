@@ -5,7 +5,6 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Typography, Steps } from '@open-condo/ui'
@@ -17,17 +16,14 @@ import { useOnboardingProgress } from '@condo/domains/billing/hooks/useOnboardin
 import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import { PageHeader, PageWrapper, TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { Loader } from '@condo/domains/common/components/Loader'
-import { UI_BILLING_SPP_COMBINED_PAGE } from '@condo/domains/common/constants/featureflags'
 
 import { ChooseChannels } from './ChooseChannels'
 import styles from './index.module.css'
 import { SetupAcquiring } from './SetupAcquiring'
 import { SetupBilling } from './SetupBilling'
-import { Verification } from './Verification'
 import { WelcomeModal } from './WelcomeModal'
 
 import type { RowProps } from 'antd'
-
 
 const STEPS_GUTTER: RowProps['gutter'] = [60, 60]
 const FULL_COL_SPAN = 24
@@ -36,28 +32,18 @@ const EMPTY_ACQUIRINGS_QUERY_VALUE = 'none'
 
 type BillingOnboardingPageProps = {
     onFinish: () => void
-    withVerification?: boolean
 }
 
-export const BillingOnboardingCombinedFlowPage: React.FC<BillingOnboardingPageProps> = ({ onFinish, withVerification }) => {
+export const BillingOnboardingCombinedFlowPage: React.FC<BillingOnboardingPageProps> = ({ onFinish }) => {
     const intl = useIntl()
-    const PageTitleCombinedFlow = 'Настройка платежей для физлиц'
-    const PageTitleOrdinaryFlow = intl.formatMessage({ id: 'accrualsAndPayments.setup.title' })
-
-    const VerificationTitle = intl.formatMessage({ id: 'accrualsAndPayments.setup.verificationStep.title' })
+    const PageTitle = intl.formatMessage({ id: 'pages.billing.setup.chooseChannels.title' })
     const StepNoReturnMessage = intl.formatMessage({ id: 'accrualsAndPayments.setup.noReturn' })
-    const ChooseChannelsTitle = 'Каналы для публикации' //intl.formatMessage({ id: 'accrualsAndPayments.setup.chooseChannelsTitle' })
-    const IntegrationSetupTitle = 'Настройка интеграции' //intl.formatMessage({ id: 'accrualsAndPayments.setup.chooseChannelsTitle' })
-
-    const { useFlag } = useFeatureFlags()
-
-    const isCombinedFlow = useFlag(UI_BILLING_SPP_COMBINED_PAGE)
-
-    const PageTitle = isCombinedFlow ? PageTitleCombinedFlow : PageTitleOrdinaryFlow
+    const ChooseChannelsTitle = intl.formatMessage({ id: 'pages.billing.setup.chooseChannels.chooseChannels.title' })
+    const IntegrationSetupTitle = intl.formatMessage({ id: 'pages.billing.setup.chooseChannels.integrtion.setup.title' })
 
     const userOrganization = useOrganization()
-    const orgId = get(userOrganization, ['organization', 'id'], null)
-    const canManageIntegrations = get(userOrganization, ['link', 'role', 'canManageIntegrations'], false)
+    const orgId = userOrganization?.organization?.id
+    const canManageIntegrations = userOrganization?.role?.canManageIntegrations || false
 
     const router = useRouter()
     const [welcomeShown, setWelcomeShown] = useState(false)
@@ -90,38 +76,32 @@ export const BillingOnboardingCombinedFlowPage: React.FC<BillingOnboardingPagePr
             if (acquiringsQueryValue === EMPTY_ACQUIRINGS_QUERY_VALUE) {
                 return []
             }
-
             return Array.from(new Set(acquiringsQueryValue.split(',').filter(Boolean)))
         }
-
         return Array.from(new Set(activeAcquiringContexts.map(({ integration }) => integration?.id).filter(Boolean)))
     }, [activeAcquiringContexts, router.query.acquirings])
+
     const selectedAcquiringIntegrations = useMemo(() => {
         const selectedIds = new Set(selectedAcquiringIntegrationIds)
         return acquiringIntegrations.filter(({ id }) => selectedIds.has(id))
     }, [acquiringIntegrations, selectedAcquiringIntegrationIds])
 
     const acquiringStepsStart = 2
-    const verificationStep = acquiringStepsStart + selectedAcquiringIntegrations.length
     const totalSteps = (activeAcquiringContextsLoading || acquiringIntegrationsLoading)
         ? 10
-        : 2 + selectedAcquiringIntegrations.length + (withVerification ? 1 : 0)
-    const [currentStep] = useOnboardingProgress(withVerification, totalSteps)
+        : 2 + selectedAcquiringIntegrations.length
+    const [currentStep] = useOnboardingProgress(false, totalSteps)
 
     const stepItems: Array<StepItem> = useMemo(() => {
         const steps: Array<StepItem> = [
             { title: ChooseChannelsTitle },
-            { title: IntegrationSetupTitle, breakPoint: true  },
+            { title: IntegrationSetupTitle  },
             ...selectedAcquiringIntegrations.map((integration) => ({
                 title: integration.setupTitle || integration.name,
-                breakPoint: true,
             })),
         ]
-        if (withVerification) {
-            steps.push({ title: VerificationTitle })
-        }
         return steps
-    }, [ChooseChannelsTitle, IntegrationSetupTitle, selectedAcquiringIntegrations, withVerification, VerificationTitle])
+    }, [ChooseChannelsTitle, IntegrationSetupTitle, selectedAcquiringIntegrations])
 
     const handleReturn = useCallback((newStep: number) => {
         router.push({ query: { ...router.query, step: newStep } }, undefined, { shallow: true })
@@ -133,26 +113,27 @@ export const BillingOnboardingCombinedFlowPage: React.FC<BillingOnboardingPagePr
     }, [])
 
     const handleAcquiringDone = useCallback(() => {
-        const isLastAcquiringStep = currentStep >= verificationStep - 1
-
-        if (withVerification && isLastAcquiringStep) {
-            router.push({ query: { ...router.query, step: verificationStep } }, undefined, { shallow: true })
-            return
-        }
+        const isLastAcquiringStep = currentStep >= totalSteps - 1
 
         if (!isLastAcquiringStep) {
             router.push({ query: { ...router.query, step: currentStep + 1 } }, undefined, { shallow: true })
             return
+        } else {
+            router.push('/billing')
         }
-
         onFinish()
-    }, [currentStep, onFinish, router, verificationStep, withVerification])
+    }, [currentStep, onFinish, router, totalSteps])
 
     const currentScreen = useMemo(() => {
+        if (activeAcquiringContextsLoading || acquiringIntegrationsLoading) {
+            return <Loader fill size='large'/>
+        }
+        if (!currentStep || currentStep === 0) {
+            return <ChooseChannels/>
+        }
         if (currentStep === 1) {
             return <SetupBilling/>
         }
-
         const currentAcquiringIntegration = selectedAcquiringIntegrations[currentStep - acquiringStepsStart]
         if (currentAcquiringIntegration) {
             return (
@@ -160,20 +141,9 @@ export const BillingOnboardingCombinedFlowPage: React.FC<BillingOnboardingPagePr
                     integrationId={currentAcquiringIntegration.id}
                     onFinish={onFinish}
                     onDone={handleAcquiringDone}
-                    verificationStep={verificationStep}
                 />
             )
         }
-
-        if (withVerification && currentStep === verificationStep) {
-            return <Verification/>
-        }
-
-        if (activeAcquiringContextsLoading || acquiringIntegrationsLoading) {
-            return <Loader fill size='large'/>
-        }
-
-        return <ChooseChannels/>
     }, [
         activeAcquiringContextsLoading,
         acquiringIntegrationsLoading,
@@ -181,16 +151,10 @@ export const BillingOnboardingCombinedFlowPage: React.FC<BillingOnboardingPagePr
         handleAcquiringDone,
         onFinish,
         selectedAcquiringIntegrations,
-        verificationStep,
-        withVerification,
     ])
 
     if (!canManageIntegrations) {
         return <AccessDeniedPage />
-    }
-
-    if (activeAcquiringContextsError || acquiringIntegrationsError) {
-        return <Typography.Title>{activeAcquiringContextsError || acquiringIntegrationsError}</Typography.Title>
     }
 
     return (
@@ -208,7 +172,7 @@ export const BillingOnboardingCombinedFlowPage: React.FC<BillingOnboardingPagePr
                                 items={stepItems}
                                 current={currentStep}
                                 noReturnMessage={StepNoReturnMessage}
-                                className={isCombinedFlow ? styles['compact-steps'] : ''}
+                                className={styles['compact-steps']}
                             />
                         </Col>
                         <Col span={FULL_COL_SPAN}>
