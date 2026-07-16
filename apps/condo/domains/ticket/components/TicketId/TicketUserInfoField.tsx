@@ -36,50 +36,56 @@ export const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = (props) 
     const nameLink = useMemo(() => props?.nameLink, [props])
     const phone = useMemo(() => props?.user?.phone, [props])
     const email = useMemo(() => props?.user?.email, [props])
-    const userInfo = useMemo(() => [], [])
+    const phonePrefix = useMemo(() => props?.phonePrefix, [props])
 
-    if (name) {
-        userInfo.push(
-            <UserNameField user={{ name, id }}>
-                {({ name: userName, postfix }) => {
-                    if (nameLink) {
+    const userInfo = useMemo(() => {
+        const items = []
+
+        if (name) {
+            items.push(
+                <UserNameField user={{ name, id }}>
+                    {({ name: userName, postfix }) => {
+                        if (nameLink) {
+                            return (
+                                <Link href={nameLink}>
+                                    <>
+                                        {userName}
+                                        {postfix && (
+                                            <Typography.Text type='secondary'>&nbsp;{postfix}</Typography.Text>
+                                        )}
+                                    </>
+                                </Link>
+                            )
+                        }
                         return (
-                            <Link href={nameLink}>
-                                <>
-                                    {userName}
-                                    {postfix && (
-                                        <Typography.Text type='secondary'>&nbsp;{postfix}</Typography.Text>
-                                    )}
-                                </>
-                            </Link>
+                            <Typography.Text>
+                                {userName}
+                                {postfix && (<Typography.Text type='secondary'>&nbsp;{postfix}</Typography.Text>)}
+                            </Typography.Text>
                         )
-                    }
-                    return (
-                        <Typography.Text>
-                            {userName}
-                            {postfix && (<Typography.Text type='secondary'>&nbsp;{postfix}</Typography.Text>)}
-                        </Typography.Text>
-                    )
-                }}
-            </UserNameField>
-        )
-    }
+                    }}
+                </UserNameField>
+            )
+        }
 
-    if (phone) {
-        userInfo.push(
-            <UserInfoLink href={`tel:${props.phonePrefix ? `${props.phonePrefix}${phone}` : `${phone}`}`}>
-                {formatPhone(phone)}
-            </UserInfoLink>
-        )
-    }
+        if (phone) {
+            items.push(
+                <UserInfoLink href={`tel:${phonePrefix ? `${phonePrefix}${phone}` : `${phone}`}`}>
+                    {formatPhone(phone)}
+                </UserInfoLink>
+            )
+        }
 
-    if (email) {
-        userInfo.push(
-            <UserInfoLink href={`mailto:${email}`}>
-                {email}
-            </UserInfoLink>
-        )
-    }
+        if (email) {
+            items.push(
+                <UserInfoLink href={`mailto:${email}`}>
+                    {email}
+                </UserInfoLink>
+            )
+        }
+
+        return items
+    }, [email, id, name, nameLink, phone, phonePrefix])
 
     const renderUserInfo = useMemo(() => {
         return userInfo.map((item, i) => (
