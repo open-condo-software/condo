@@ -1,5 +1,11 @@
 const { CrossDbPlanner, GLOBAL_QUERY_LIMIT, isUnsatisfiableWhere, prepareCrossDbWhere } = require('./planner')
 const {
+    normalizeColumnName,
+    normalizePositionalBindings,
+    parseLiteralNode,
+    resolveSqlValue,
+} = require('./sqlAstUtils')
+const {
     collectCrossSourceForeignKeys,
     extractMutationColumnValues,
     validateCrossSourceReferences,
@@ -13,4 +19,8 @@ module.exports = {
     collectCrossSourceForeignKeys,
     extractMutationColumnValues,
     validateCrossSourceReferences,
+    normalizeColumnName,
+    normalizePositionalBindings,
+    parseLiteralNode,
+    resolveSqlValue,
 }

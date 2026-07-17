@@ -1,14 +1,20 @@
 const get = require('lodash/get')
 const { Parser } = require('node-sql-parser/build/postgresql')
 
-const { getFkJoinMetadata } = require('./crossSourceSelectSql')
 const { logger } = require('./logger')
 
 const SUPPORTED_PG_OPERATIONS = new Set(['insert', 'select', 'update', 'delete', 'show'])
 
 const parser = new Parser()
 
-function _normalizeTableName (tableName) {
+/**
+ * Strip schema/quote wrappers and return the bare table name.
+ * `"public"."User"` → `User`, `User` → `User`.
+ *
+ * @param {string} tableName
+ * @returns {string}
+ */
+function normalizeTableName (tableName) {
     if (!tableName || typeof tableName !== 'string') return tableName
     const withoutQuotes = tableName.replace(/"/g, '')
     const parts = withoutQuotes.split('.')
@@ -35,7 +41,7 @@ function _extractTableByFromArgument (sqlString, ast) {
 
     // "SELECT * FROM t1 JOIN t2 ..." case
     if (nonJoinedItem.table) {
-        return _normalizeTableName(nonJoinedItem.table)
+        return normalizeTableName(nonJoinedItem.table)
     }
 
     // "SELECT COUNT(*) FROM (SELECT ...)" case
@@ -60,7 +66,7 @@ function _extractTableByTableArgument (sqlString, ast) {
     const tables = get(ast, 'table', [])
 
     if (!Array.isArray(tables)) {
-        return _normalizeTableName(tables.table)
+        return normalizeTableName(tables.table)
     }
 
     if (tables.length !== 1) {
@@ -68,7 +74,7 @@ function _extractTableByTableArgument (sqlString, ast) {
         throw new Error(`Unexpected table argument length. ${JSON.stringify({ sqlString, tables })}`)
     }
 
-    return _normalizeTableName(tables[0].table)
+    return normalizeTableName(tables[0].table)
 }
 
 /**
@@ -121,5 +127,5 @@ function extractCRUDQueryData (sqlString) {
 module.exports = {
     SUPPORTED_PG_OPERATIONS,
     extractCRUDQueryData,
-    getFkJoinMetadata,
+    normalizeTableName,
 }
