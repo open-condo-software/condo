@@ -2,10 +2,8 @@ const SUGGESTIONS_OPEN_PREFIX = '[[SUGGESTIONS'
 const SUGGESTIONS_CLOSE_PREFIX = '[[/SUGGESTIONS'
 const SUGGESTIONS_BLOCK_REGEX = /\[\[SUGGESTIONS\]\]([\s\S]*?)\[\[\/SUGGESTIONS\]\]/m
 
-/** n8n / LangChain tool traces: any "Calling ..." junk until Cyrillic/newline. */
 const CALLING_PREFIX = 'Calling'
-// Stop before Cyrillic so glued cases work:
-// "Calling getTickets with current month period.За текущий месяц..."
+/** Stop before Cyrillic so "Calling ….За текущий месяц" still strips the tool line. */
 const CALLING_SERVICE_REGEX = /Calling\b[^\n\u0400-\u04FF]*/g
 
 export type SuggestionsFailureReason = 'missing_block' | 'empty_after_parse' | 'service_text_leaked'
@@ -16,17 +14,12 @@ export type ParsedAssistantAnswer = {
     suggestionsFailureReason?: SuggestionsFailureReason
 }
 
-/**
- * Index where a suggestions marker starts, including a trailing partial marker
- * like "[[", "[[S", "[[SUGGESTIONS" while tokens are still arriving.
- */
 function indexOfSuggestionsMarkerStart (text: string): number {
     const completeOpenIndex = text.indexOf(SUGGESTIONS_OPEN_PREFIX)
     if (completeOpenIndex >= 0) {
         return completeOpenIndex
     }
 
-    // Hide a trailing partial open marker: "...answer\n[[SUGG"
     for (let size = SUGGESTIONS_OPEN_PREFIX.length - 1; size >= 2; size--) {
         const partial = SUGGESTIONS_OPEN_PREFIX.slice(0, size)
         if (text.endsWith(partial)) {
@@ -61,10 +54,6 @@ function isCallingPrefix (line: string): boolean {
     return false
 }
 
-/**
- * Removes any "Calling ..." service traces (own line or glued before the real answer)
- * and hides a trailing incomplete "Call…" while tokens are still arriving.
- */
 function stripServiceToolCallLines (text: string): string {
     let result = text.replace(CALLING_SERVICE_REGEX, '')
     result = result.replace(/^\n+/, '').replace(/\n{3,}/g, '\n\n')
@@ -92,10 +81,6 @@ function stripSuggestionsForDisplay (text: string): string {
     return text
 }
 
-/**
- * Prepares answer text for on-screen display.
- * Hides tool-call traces and [[SUGGESTIONS]] blocks (complete or still streaming).
- */
 export function toDisplayText (rawAnswer: string): string {
     if (!rawAnswer || typeof rawAnswer !== 'string') {
         return ''
@@ -104,9 +89,6 @@ export function toDisplayText (rawAnswer: string): string {
     return stripSuggestionsForDisplay(stripServiceToolCallLines(rawAnswer)).trimEnd()
 }
 
-/**
- * Parses the final assistant answer: visible text + up to 3 follow-up suggestions.
- */
 export function parseAssistantAnswer (answer: string): ParsedAssistantAnswer {
     if (!answer || typeof answer !== 'string') {
         return { text: '', suggestions: [], suggestionsFailureReason: 'missing_block' }

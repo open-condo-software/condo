@@ -10,7 +10,6 @@ export type AIChatSuggestionItem = {
     onClick: () => void
     disabled?: boolean
     tooltip?: string
-    /** Staggered fade-in delay for follow-up chips. */
     animationDelayMs?: number
 }
 

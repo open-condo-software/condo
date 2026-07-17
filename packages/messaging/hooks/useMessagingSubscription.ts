@@ -3,7 +3,6 @@ import { useEffect, useRef, useCallback, useState } from 'react'
 
 const RELAY_SUBSCRIBE_PREFIX = '_MESSAGING.subscribe'
 const RELAY_UNSUBSCRIBE_PREFIX = '_MESSAGING.unsubscribe'
-/** Replay recent JetStream messages so a late first subscribe does not miss them (UTC ISO). */
 const DEFAULT_START_TIME_SKEW_MS = 5000
 
 interface UseMessagingSubscriptionOptions<T> {
@@ -25,21 +24,8 @@ interface MessagingSubscriptionState {
 }
 
 /**
- * Uses a PUB-gated subscription relay for secure cross-organization isolation.
- *
- * The broker does not enforce SUB permissions in auth_callout non-operator mode,
- * but PUB permissions ARE enforced. This hook uses PUB to request a
- * server-side relay that forwards messages to the client's unique INBOX.
- *
- * Flow:
- * 1. Client subscribes to a unique delivery INBOX
- * 2. Client publishes to `_MESSAGING.subscribe.<topic>` (PUB-gated)
- * 3. Server-side relay subscribes to actual topic and forwards to client INBOX
- * 4. On cleanup, client publishes `_MESSAGING.unsubscribe.{relayId}`
- *
- * First subscribe (and new topic) sends `startTime = now - skew` (UTC ISO) so JetStream
- * replays recent messages instead of `deliverNew` (avoids missing early publishes).
- * After a message was received, reconnect uses `lastMessageTime` for gap replay.
+ * PUB-gated subscription relay: client INBOX + `_MESSAGING.subscribe.<topic>`.
+ * First subscribe uses `startTime = now - skew` for JetStream replay; later reconnects use `lastMessageTime`.
  */
 export const useMessagingSubscription = <T = unknown>(options: UseMessagingSubscriptionOptions<T>) => {
     const {
@@ -95,7 +81,6 @@ export const useMessagingSubscription = <T = unknown>(options: UseMessagingSubsc
         if (!enabled || !isConnected || !connection || !topic || !userId) {
             return
         }
-        // New topic must not reuse another topic's lastMessageTime as replay cursor.
         if (subscribedTopicRef.current !== topic) {
             lastMessageTimeRef.current = null
             subscribedTopicRef.current = topic
@@ -215,7 +200,6 @@ export const useMessagingSubscription = <T = unknown>(options: UseMessagingSubsc
                 try {
                     connection.publish(`${RELAY_UNSUBSCRIBE_PREFIX}.${userId}.${currentRelayId}`)
                 } catch {
-                    // connection may be closed
                 }
             }
             if (inboxSub) {

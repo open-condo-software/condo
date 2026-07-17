@@ -1,13 +1,14 @@
-/* Custom AI Drawer */
 .ai-drawer {
-  --ai-chat-header-height: calc(var(--condo-global-spacing-24) + var(--condo-global-spacing-12) + var(--condo-global-spacing-48));
-  /*
-   * Space below the header before message content.
-   * Must match the messages list gap: then previous-turn suggestion chips sit
-   * exactly under the opaque header when the next turn is pinned (not in a
-   * visible band between header and user bubble).
-   */
+  --ai-chat-header-height:
+    calc(
+      var(--condo-global-spacing-24)
+      + var(--condo-global-spacing-12)
+      + var(--condo-global-spacing-48)
+    );
+
+  /* Keep equal to .messages-container gap so previous-turn chips pin under the header. */
   --ai-chat-chrome-gap: var(--condo-global-spacing-12);
+
   position: fixed;
   top: 0;
   right: 0;
@@ -18,7 +19,6 @@
   background: var(--condo-global-color-gray-1);
 }
 
-/* Header overlays the messages scroller. Opaque so scrolled content is hidden. */
 .header {
   position: absolute;
   top: 0;
@@ -30,7 +30,8 @@
   justify-content: space-between;
   height: var(--ai-chat-header-height);
   padding: var(--condo-global-spacing-24) var(--condo-global-spacing-24) var(--condo-global-spacing-12);
-  background: var(--condo-global-color-gray-1);
+  background: color-mix(in srgb, var(--condo-global-color-gray-1) 88%, transparent);
+  backdrop-filter: blur(20px);
 }
 
 .left-section {
@@ -77,7 +78,7 @@
   background-color: var(--condo-global-color-gray-3);
 }
 
-/* Resize handle - full height like VSCode/Windsurf */
+/* Resize handle */
 .resize-handle {
   position: absolute;
   top: 0;
@@ -110,11 +111,10 @@
   cursor: e-resize;
 }
 
-/* Full drawer height — header/input overlay on top, they do not consume flex space */
 .content {
   display: flex;
   flex: 1;
   flex-direction: column;
-  min-height: 0;
   height: 100%;
+  min-height: 0;
 }

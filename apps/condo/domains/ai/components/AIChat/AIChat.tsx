@@ -55,8 +55,6 @@ type ExecuteAIMessageOptions = {
 
 type AIChatProps = {
     aiSessionId: string
-    onSessionChange?: (sessionId: string) => void
-    onDownloadText?: (messages: Message[]) => void
 }
 
 export const AIChat: React.FC<AIChatProps> = ({
@@ -99,7 +97,7 @@ export const AIChat: React.FC<AIChatProps> = ({
     const shouldScrollActiveTurnRef = useRef(false)
 
     const [{ execute, resume }, { loading, currentTaskId, data }] = useAIFlow<{ answer: string }>({
-        aiSessionId: aiSessionId,
+        aiSessionId,
         flowType: CHAT_WITH_CONDO_FLOW_TYPE,
         timeout: AI_FLOW_TIMEOUT_MS,
         defaultContext: {
@@ -109,11 +107,9 @@ export const AIChat: React.FC<AIChatProps> = ({
         },
     })
 
-    // Live answer while the assistant message is still sending (streaming or polling).
     useEffect(() => {
         if (!loading) return
 
-        // Empty text keeps the rotating "thinking" UI until the first tokens arrive.
         const rawAnswer = data?.result?.answer ?? ''
         const displayText = rawAnswer ? toDisplayText(rawAnswer) : ''
 
@@ -130,10 +126,7 @@ export const AIChat: React.FC<AIChatProps> = ({
             const updated = [...prev]
             updated[index] = {
                 ...current,
-                content: {
-                    text: displayText,
-                    // Suggestions only after finalize — never while loading
-                },
+                content: { text: displayText },
             }
             return updated
         })
@@ -183,7 +176,6 @@ export const AIChat: React.FC<AIChatProps> = ({
         })
     }, [aiSessionId, changeMessage, failedToGetResponseMessage, noResponseMessage])
 
-    // Load messages from localStorage when aiSessionId changes
     useEffect(() => {
         const savedHistory = historyStorageManager.getItem(STORAGE_KEY)
 
@@ -208,7 +200,6 @@ export const AIChat: React.FC<AIChatProps> = ({
             return
         }
 
-        // Convert timestamp strings back to Date objects
         const historyWithDates = historyArray.map((msg: any) => ({
             ...msg,
             timestamp: new Date(msg.timestamp),
@@ -222,7 +213,6 @@ export const AIChat: React.FC<AIChatProps> = ({
             }
         })
 
-        // Check for active task in the last message and resume if needed
         const lastMessage = historyWithDates[historyWithDates.length - 1]
 
         if (lastMessage?.status === 'sending' && lastMessage?.executionAIFlowTaskId) {
@@ -276,28 +266,20 @@ export const AIChat: React.FC<AIChatProps> = ({
     }, [aiSessionId, messages, organization?.id])
 
     useEffect(() => {
-        if (aiSessionId && messages.length >= 0) {
+        if (aiSessionId) {
             saveMessagesToLocalStorage()
         }
     }, [aiSessionId, messages, saveMessagesToLocalStorage])
 
-    // Update message with executionAIFlowTaskId when currentTaskId changes
     useEffect(() => {
-        if (currentTaskId) {
-            // Find the last assistant message with 'sending' status and update it with currentTaskId
-            setMessages(prev => {
-                const updated = prev.map(msg => {
-                    if (msg.role === 'assistant' && msg.status === 'sending' && !msg.executionAIFlowTaskId) {
-                        return {
-                            ...msg,
-                            executionAIFlowTaskId: currentTaskId,
-                        }
-                    }
-                    return msg
-                })
-                return updated
-            })
-        }
+        if (!currentTaskId) return
+
+        setMessages(prev => prev.map(msg => {
+            if (msg.role === 'assistant' && msg.status === 'sending' && !msg.executionAIFlowTaskId) {
+                return { ...msg, executionAIFlowTaskId: currentTaskId }
+            }
+            return msg
+        }))
     }, [currentTaskId])
 
     const chatTurns = useMemo(() => {
@@ -328,15 +310,13 @@ export const AIChat: React.FC<AIChatProps> = ({
         }
     }, [])
 
-    /** ScrollTop that puts the turn under the header with previous chips fully covered. */
     const getTurnPinScrollTop = useCallback((container: HTMLElement, turnElement: HTMLElement) => {
         const { padTop, listGap } = getMessagesPadding(container)
         const containerRect = container.getBoundingClientRect()
         const turnRect = turnElement.getBoundingClientRect()
         const alignDelta = turnRect.top - (containerRect.top + padTop)
-
-        // After align, previous siblings move up by alignDelta — hide anything still past the header edge.
         const headerBottomY = containerRect.top + padTop - listGap
+
         let peekAfterAlign = 0
         let sibling = turnElement.previousElementSibling as HTMLElement | null
         while (sibling) {
@@ -360,10 +340,6 @@ export const AIChat: React.FC<AIChatProps> = ({
         container.scrollTop = getTurnPinScrollTop(container, turnElement)
     }, [getTurnPinScrollTop])
 
-    /**
-     * Active turn min-height creates empty space; do not let that space be scrollable
-     * (keeps user + assistant moving together).
-     */
     const getActiveTurnMaxScrollTop = useCallback(() => {
         const container = messagesContainerRef.current
         const userMessageId = activeTurnUserMessageId
@@ -380,7 +356,6 @@ export const AIChat: React.FC<AIChatProps> = ({
 
         const { padTop, padBottom } = getMessagesPadding(container)
         const pinScrollTop = getTurnPinScrollTop(container, turnElement)
-
         const gap = Number.parseFloat(getComputedStyle(turnElement).rowGap || getComputedStyle(turnElement).gap) || 0
         const messageElements = Array.from(
             turnElement.querySelectorAll<HTMLElement>('[data-message-id]'),
@@ -388,9 +363,9 @@ export const AIChat: React.FC<AIChatProps> = ({
         const contentHeight = messageElements.reduce((total, element, index) => {
             return total + element.offsetHeight + (index > 0 ? gap : 0)
         }, 0)
-
         const visibleHeight = Math.max(0, container.clientHeight - padTop - padBottom)
         const contentOverflow = Math.max(0, contentHeight - visibleHeight)
+
         return pinScrollTop + contentOverflow
     }, [activeTurnUserMessageId, getMessagesPadding, getTurnPinScrollTop])
 
@@ -450,47 +425,43 @@ export const AIChat: React.FC<AIChatProps> = ({
     }, [])
 
     useEffect(() => {
-        const container = messagesContainerRef.current
-        if (!container) return
-
-        const syncScrollportHeight = () => {
+        const syncScrollportHeight = (container: HTMLElement) => {
             const { padTop, padBottom } = getMessagesPadding(container)
             const visibleHeight = Math.max(0, container.clientHeight - padTop - padBottom)
             container.style.setProperty('--ai-chat-scrollport-height', `${visibleHeight}px`)
             clampActiveTurnScroll()
         }
 
-        syncScrollportHeight()
-        const observer = new ResizeObserver(syncScrollportHeight)
-        observer.observe(container)
-        return () => observer.disconnect()
-    }, [clampActiveTurnScroll, getMessagesPadding])
+        const messagesContainer = messagesContainerRef.current
+        if (!messagesContainer) return
 
-    useEffect(() => {
+        syncScrollportHeight(messagesContainer)
+        const messagesObserver = new ResizeObserver(() => syncScrollportHeight(messagesContainer))
+        messagesObserver.observe(messagesContainer)
+
         const chatContainer = chatContainerRef.current
         const inputContainer = inputContainerRef.current
-        const messagesContainer = messagesContainerRef.current
-        if (!chatContainer || !inputContainer) return
+        if (!chatContainer || !inputContainer) {
+            return () => messagesObserver.disconnect()
+        }
 
         const syncInputHeight = () => {
-            chatContainer.style.setProperty(
-                '--ai-chat-input-height',
-                `${inputContainer.offsetHeight}px`,
-            )
-            // Padding-bottom depends on this variable — refresh scrollport after layout.
+            chatContainer.style.setProperty('--ai-chat-input-height', `${inputContainer.offsetHeight}px`)
             requestAnimationFrame(() => {
-                if (!messagesContainer) return
-                const { padTop, padBottom } = getMessagesPadding(messagesContainer)
-                const visibleHeight = Math.max(0, messagesContainer.clientHeight - padTop - padBottom)
-                messagesContainer.style.setProperty('--ai-chat-scrollport-height', `${visibleHeight}px`)
-                clampActiveTurnScroll()
+                if (messagesContainerRef.current) {
+                    syncScrollportHeight(messagesContainerRef.current)
+                }
             })
         }
 
         syncInputHeight()
-        const observer = new ResizeObserver(syncInputHeight)
-        observer.observe(inputContainer)
-        return () => observer.disconnect()
+        const inputObserver = new ResizeObserver(syncInputHeight)
+        inputObserver.observe(inputContainer)
+
+        return () => {
+            messagesObserver.disconnect()
+            inputObserver.disconnect()
+        }
     }, [clampActiveTurnScroll, getMessagesPadding])
 
     const startUserTurn = useCallback((
@@ -505,7 +476,6 @@ export const AIChat: React.FC<AIChatProps> = ({
             status: 'sending',
         }
 
-        // One state update: user + assistant together, then scroll the turn to the top.
         setMessages((prev) => [...prev, userMessage, assistantMessage])
         pendingScrollToMessageIdRef.current = userMessage.id
 
