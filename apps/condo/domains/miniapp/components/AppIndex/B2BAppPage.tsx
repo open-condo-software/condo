@@ -72,7 +72,7 @@ export const B2BAppPage: React.FC<B2BAppPageProps> = ({ id }) => {
 
     const metadata = useMemo(() => {
         return extractMiniappMetadata(context?.app)
-    }, [context.app])
+    }, [context?.app])
     
     const shouldSendAnalytics =
         !(contextLoading || contextError || appRoleLoading || appRoleError || isSupport || isAdmin)
