@@ -22,48 +22,62 @@ async function canReadB2BAppAccessRightSets (args) {
     return canReadAppLinkedModelAsOwner(args)
 }
 
+// async function canManageB2BAppAccessRightSets (args) {
+//     const { authentication: { item: user }, operation, itemId, itemIds, originalInput } = args
+//
+//     if (!user) return throwAuthenticationError()
+//     if (user.deletedAt) return false
+//     if (user.isAdmin || user.isSupport) return true
+//
+//     if (operation === 'create') {
+//         const appIds = Array.isArray(originalInput)
+//             ? originalInput.map(input => get(input, ['data', 'app', 'connect', 'id']))
+//             : [get(originalInput, ['app', 'connect', 'id'])]
+//         const environments = Array.isArray(originalInput)
+//             ? originalInput.map(input => get(input, ['data', 'environment']))
+//             : get(originalInput, ['environment'])
+//         if (!appIds.every(Boolean) || !environments.every(Boolean) || appIds.length !== environments.length) return false
+//         const productionRelatedAppsIds = appIds.filter((id, idx) => environments[idx] === PROD_ENVIRONMENT)
+//         const apps = await find('B2BApp', { id_in: appIds, deletedAt: null })
+//         if (apps.length !== new Set(appIds).size) return false
+//         if (!apps.every(app => app.createdBy === user.id)) return false
+//         // NOTE: Dev-related right sets can be created anytime
+//         if (!productionRelatedAppsIds.length) return true
+//         const productionRelatedApps = apps.filter(app => productionRelatedAppsIds.includes(app.id))
+//         const exportFieldName = getEnvironmentalFieldName(PROD_ENVIRONMENT, 'exportId')
+//
+//         // NOTE: Allow creation only before publishing
+//         return productionRelatedApps.some(app => app[exportFieldName])
+//     } else if (operation === 'update') {
+//         const ids = itemIds || [itemId]
+//         if (!ids || !Array.isArray(ids) || !ids.every(Boolean)) return false
+//         const uniqueIds = [...new Set(ids)]
+//
+//         const items = await find('B2BAppAccessRightSet', { id_in: uniqueIds, deletedAt: null })
+//         if (items.length !== uniqueIds.length) return false
+//         if (items.some(item => item.envronment === PROD_ENVIRONMENT)) return false
+//
+//         const appIds = items.map(item => item.app)
+//         if (!appIds.every(Boolean)) return false
+//         const uniqueAppIds = [...new Set(items.map(item => item.appId))]
+//         const apps = await find('B2BApp', { id_in: uniqueAppIds, deletedAt: null })
+//         if (apps.length !== uniqueAppIds.length) return false
+//
+//         return apps.every(app => app.createdBy === user.id)
+//     }
+//
+//     return false
+// }
+
 async function canManageB2BAppAccessRightSets (args) {
-    const { authentication: { item: user }, operation, itemId, itemIds, originalInput } = args
+    const { authentication: { item: user }, operation } = args
 
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
 
     if (operation === 'create') {
-        const appIds = Array.isArray(originalInput)
-            ? originalInput.map(input => get(input, ['data', 'app', 'connect', 'id']))
-            : [get(originalInput, ['app', 'connect', 'id'])]
-        const environments = Array.isArray(originalInput)
-            ? originalInput.map(input => get(input, ['data', 'environment']))
-            : get(originalInput, ['environment'])
-        if (!appIds.every(Boolean) || !environments.every(Boolean) || appIds.length !== environments.length) return false
-        const productionRelatedAppsIds = appIds.filter((id, idx) => environments[idx] === PROD_ENVIRONMENT)
-        const apps = await find('B2BApp', { id_in: appIds, deletedAt: null })
-        if (apps.length !== new Set(appIds).size) return false
-        if (!apps.every(app => app.createdBy === user.id)) return false
-        // NOTE: Dev-related right sets can be created anytime
-        if (!productionRelatedAppsIds.length) return true
-        const productionRelatedApps = apps.filter(app => productionRelatedAppsIds.includes(app.id))
-        const exportFieldName = getEnvironmentalFieldName(PROD_ENVIRONMENT, 'exportId')
-
-        // NOTE: Allow creation only before publishing
-        return productionRelatedApps.some(app => app[exportFieldName])
-    } else if (operation === 'update') {
-        const ids = itemIds || [itemId]
-        if (!ids || !Array.isArray(ids) || !ids.every(Boolean)) return false
-        const uniqueIds = [...new Set(ids)]
-
-        const items = await find('B2BAppAccessRightSet', { id_in: uniqueIds, deletedAt: null })
-        if (items.length !== uniqueIds.length) return false
-        if (items.some(item => item.envronment === PROD_ENVIRONMENT)) return false
-
-        const appIds = items.map(item => item.app)
-        if (!appIds.every(Boolean)) return false
-        const uniqueAppIds = [...new Set(items.map(item => item.appId))]
-        const apps = await find('B2BApp', { id_in: uniqueAppIds, deletedAt: null })
-        if (apps.length !== uniqueAppIds.length) return false
-
-        return apps.every(app => app.createdBy === user.id)
+        return await canCreateB2BAppLinkedModelAsOwner(args)
     }
 
     return false
