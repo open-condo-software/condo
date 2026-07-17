@@ -81,9 +81,7 @@ const SetupInteractiveBilling: React.FC<SetupInteractiveBillingProps> = ({ setup
     const { useFlag } = useFeatureFlags()
     const shouldShowCombinedBilling = useFlag(UI_BILLING_SPP_COMBINED_PAGE)
 
-    const updateBillingAction = BillingContext.useUpdate({
-        status: CONTEXT_FINISHED_STATUS,
-    })
+    const updateBillingAction = BillingContext.useUpdate({ status: CONTEXT_FINISHED_STATUS })
 
     const handleDoneMessage = useCallback(async (event: MessageEvent) => {
         if (event.origin === frameOrigin && get(event.data, 'success') === true) {
@@ -102,6 +100,8 @@ const SetupInteractiveBilling: React.FC<SetupInteractiveBillingProps> = ({ setup
         }
     }, [handleDoneMessage])
 
+    console.log('B2BAppFrame', 'setupUrl', setupUrl)
+
     return (
         <B2BAppFrame
             src={setupUrl}
@@ -114,7 +114,7 @@ const SetupInteractiveBilling: React.FC<SetupInteractiveBillingProps> = ({ setup
 export const SetupBilling: React.FC = ()=> {
     const router = useRouter()
     const { organization } = useOrganization()
-    const orgId = get(organization, 'id', null)
+    const orgId = organization?.id
 
     const { objs: connectedContexts, loading: connectedCtxLoading, error: connectedCtxError } = BillingContext.useObjects({
         where: {
@@ -163,8 +163,8 @@ export const SetupBilling: React.FC = ()=> {
         return <Typography.Title>{currentCtxError || connectedCtxError}</Typography.Title>
     }
 
-    const setupUrl = get(currentCtx, ['integration', 'setupUrl'])
-    const setupId = get(currentCtx, ['id'])
+    const setupUrl = currentCtx.integration?.setupUrl
+    const setupId = currentCtx?.id
 
     if (setupUrl) {
         return <SetupInteractiveBilling setupUrl={setupUrl} setupId={setupId}/>
