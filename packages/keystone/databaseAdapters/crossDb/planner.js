@@ -352,7 +352,7 @@ class CrossDbPlanner {
             const fkValues = [...new Set(mainTableObjects.map(object => {
                 if (relation.fieldName in object) return object[relation.fieldName]
                 return get(fkById, [object.id, relation.dbColumn], null)
-            }).filter(Boolean))]
+            }).filter(value => value !== null && value !== undefined))]
 
             if (fkValues.length === 0) continue
 
@@ -361,14 +361,18 @@ class CrossDbPlanner {
                 columns: ['id', relation.value],
                 values: fkValues,
             })
-            const lookup = Object.fromEntries(rows.map(row => [row.id, row[relation.value]]))
+            const lookup = new Map(rows.map(row => [row.id, row[relation.value]]))
 
             for (const object of mainTableObjects) {
                 const fk = relation.fieldName in object
                     ? object[relation.fieldName]
                     : get(fkById, [object.id, relation.dbColumn], null)
                 if (!relationPayload[object.id]) relationPayload[object.id] = {}
-                relationPayload[object.id][relation.alias] = fk ? (lookup[fk] || null) : null
+                if (fk === null || fk === undefined) {
+                    relationPayload[object.id][relation.alias] = null
+                } else {
+                    relationPayload[object.id][relation.alias] = lookup.has(fk) ? lookup.get(fk) : null
+                }
             }
         }
 
@@ -410,6 +414,8 @@ function isUnsatisfiableWhere (where) {
 
     for (const [key, value] of Object.entries(where)) {
         if (key === 'AND' || key === 'OR' || key === 'NOT') continue
+        // Negated relation/filters (`user_not`, `id_not_in`, …) are satisfiable even with empty id_in
+        if (key.endsWith('_not') || key.endsWith('_not_in')) continue
         if (value && typeof value === 'object' && isUnsatisfiableWhere(value)) {
             return true
         }

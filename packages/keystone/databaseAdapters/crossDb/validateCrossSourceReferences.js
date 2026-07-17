@@ -134,20 +134,37 @@ async function validateCrossSourceReferences ({
     const columnValueRows = extractMutationColumnValues(sql, bindings)
     if (!columnValueRows.length) return
 
+    const idsByRefListKey = new Map()
     for (const columnValues of columnValueRows) {
         for (const { columnName, refListKey } of crossSourceFields) {
             const fkValue = columnValues[columnName]
             if (!_isPresentFkValue(fkValue)) continue
 
-            const relatedPoolName = sourceRegistry.resolveSource(refListKey)
-            const relatedPool = getPoolByName(relatedPoolName)
-            const relatedClient = relatedPool.getKnexClient()
-            const relatedRow = await relatedClient(refListKey)
-                .select('id')
-                .where({ id: fkValue })
-                .first()
+            if (!idsByRefListKey.has(refListKey)) {
+                idsByRefListKey.set(refListKey, new Set())
+            }
+            idsByRefListKey.get(refListKey).add(fkValue)
+        }
+    }
 
-            if (!relatedRow) {
+    const foundIdsByRefListKey = new Map()
+    for (const [refListKey, ids] of idsByRefListKey) {
+        const relatedPoolName = sourceRegistry.resolveSource(refListKey)
+        const relatedPool = getPoolByName(relatedPoolName)
+        const relatedClient = relatedPool.getKnexClient()
+        const relatedRows = await relatedClient(refListKey)
+            .select('id')
+            .whereIn('id', [...ids])
+        foundIdsByRefListKey.set(refListKey, new Set(relatedRows.map(row => row.id)))
+    }
+
+    for (const columnValues of columnValueRows) {
+        for (const { columnName, refListKey } of crossSourceFields) {
+            const fkValue = columnValues[columnName]
+            if (!_isPresentFkValue(fkValue)) continue
+
+            const foundIds = foundIdsByRefListKey.get(refListKey)
+            if (!foundIds || !foundIds.has(fkValue)) {
                 throw new Error(
                     `Cross-database foreign key violation: ${tableName}.${columnName} ` +
                     `references missing ${refListKey} id "${fkValue}"`,

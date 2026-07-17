@@ -133,11 +133,12 @@ async function executeProviderSqlMutation ({ provider, schemaName, sqlOperationN
         const rows = extractMutationColumnValues(sql, bindings)
         const created = []
         try {
-            const inserted = await Promise.all(rows.map(async (data) => {
+            const inserted = []
+            for (const data of rows) {
                 const row = await provider.create({ schemaName, data })
                 created.push(row)
-                return row
-            }))
+                inserted.push(row)
+            }
             return { rowCount: inserted.length, rows: inserted }
         } catch (err) {
             await _rollbackProviderCreates({ provider, schemaName, rows: created })
@@ -150,11 +151,12 @@ async function executeProviderSqlMutation ({ provider, schemaName, sqlOperationN
         const ids = extractMutationWhereIds(sql, bindings)
         const snapshots = []
         try {
-            const updated = await Promise.all(ids.map(async (id) => {
+            const updated = []
+            for (const id of ids) {
                 const [before] = await provider.find({ schemaName, condition: { id } })
                 snapshots.push({ id, before })
-                return provider.update({ schemaName, id, data: patch })
-            }))
+                updated.push(await provider.update({ schemaName, id, data: patch }))
+            }
             return { rowCount: updated.length, rows: updated }
         } catch (err) {
             await _rollbackProviderUpdates({ provider, schemaName, snapshots })
@@ -166,11 +168,12 @@ async function executeProviderSqlMutation ({ provider, schemaName, sqlOperationN
         const ids = extractMutationWhereIds(sql, bindings)
         const snapshots = []
         try {
-            const deleted = await Promise.all(ids.map(async (id) => {
+            const deleted = []
+            for (const id of ids) {
                 const [before] = await provider.find({ schemaName, condition: { id } })
                 snapshots.push({ id, before })
-                return provider.delete({ schemaName, id })
-            }))
+                deleted.push(await provider.delete({ schemaName, id }))
+            }
             return { rowCount: deleted.length, rows: deleted }
         } catch (err) {
             await _rollbackProviderDeletes({ provider, schemaName, snapshots })
