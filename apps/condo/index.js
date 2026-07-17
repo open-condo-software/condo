@@ -26,6 +26,7 @@ const { getWebhookTasks } = require('@open-condo/webhooks/tasks')
 
 const { PaymentLinkMiddleware } = require('@condo/domains/acquiring/PaymentLinkMiddleware')
 const { WEBHOOK_EVENTS } = require('@condo/domains/common/constants/webhooks')
+const { MultiPartMiddleware } = require('@condo/domains/common/multipart')
 const { VersioningMiddleware } = require('@condo/domains/common/utils/VersioningMiddleware')
 const { ACCESS_TOKEN_SESSION_ID_PREFIX } = require('@condo/domains/miniapp/constants')
 const { VoIPMiddleware } = require('@condo/domains/miniapp/VoIPMiddleware')
@@ -132,6 +133,7 @@ const apps = () => {
         FileAdapter.makeFileAdapterMiddleware(),
         new UserExternalIdentityMiddleware(),
         new VoIPMiddleware(),
+        new MultiPartMiddleware(),
     ]
 }
 
