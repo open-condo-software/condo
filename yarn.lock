@@ -601,7 +601,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@app/asterisk-bot@workspace:apps/asterisk-bot"
   dependencies:
-    "@maxhub/max-bot-api": "npm:^0.2.2"
+    "@maxhub/max-bot-api": "npm:^0.2.5"
     "@types/node": "catalog:"
     dotenv: "npm:^16.4.7"
     https-proxy-agent: "npm:^6"
@@ -1046,6 +1046,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+<<<<<<< HEAD
 "@app/ecom-gateway@workspace:apps/ecom-gateway":
   version: 0.0.0-use.local
   resolution: "@app/ecom-gateway@workspace:apps/ecom-gateway"
@@ -1077,6 +1078,8 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+=======
+>>>>>>> 68a056804d (hotfix(condo): update messenger api)
 "@app/employee-bot@workspace:apps/employee-bot":
   version: 0.0.0-use.local
   resolution: "@app/employee-bot@workspace:apps/employee-bot"
@@ -1084,7 +1087,7 @@ __metadata:
     "@employee-bot/domains": "link:./domains"
     "@graphql-tools/graphql-file-loader": "catalog:"
     "@graphql-tools/load": "catalog:"
-    "@maxhub/max-bot-api": "npm:^0.2.2"
+    "@maxhub/max-bot-api": "npm:^0.2.5"
     "@open-condo/cli": "workspace:^"
     "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
@@ -1891,7 +1894,7 @@ __metadata:
     "@faker-js/faker": "catalog:"
     "@graphql-tools/graphql-file-loader": "catalog:"
     "@graphql-tools/load": "catalog:"
-    "@maxhub/max-bot-api": "npm:^0.2.2"
+    "@maxhub/max-bot-api": "npm:^0.2.5"
     "@open-condo/apollo-server-client": "workspace:^"
     "@open-condo/cli": "workspace:^"
     "@open-condo/codegen": "workspace:^"
@@ -4281,12 +4284,6 @@ __metadata:
   checksum: 10/6cfe46a5fcdaced943982e7ae66b08b89235493e106eb5bc833737c25905e13375c6ecc3aa0c357d136cb21dae3966213dba063f19b7a60b1235a29a7b05ff84
   languageName: node
   linkType: hard
-
-"@ecom-gateway/domains@link:./domains::locator=%40app%2Fecom-gateway%40workspace%3Aapps%2Fecom-gateway":
-  version: 0.0.0-use.local
-  resolution: "@ecom-gateway/domains@link:./domains::locator=%40app%2Fecom-gateway%40workspace%3Aapps%2Fecom-gateway"
-  languageName: node
-  linkType: soft
 
 "@emnapi/runtime@npm:^1.7.0":
   version: 1.11.2
@@ -8353,13 +8350,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@maxhub/max-bot-api@npm:^0.2.2":
-  version: 0.2.4
-  resolution: "@maxhub/max-bot-api@npm:0.2.4"
+"@maxhub/max-bot-api@npm:^0.2.5":
+  version: 0.2.5
+  resolution: "@maxhub/max-bot-api@npm:0.2.5"
   dependencies:
     debug: "npm:^4.3.7"
     vcf: "npm:^2.1.2"
-  checksum: 10/b70c1f39811280e98b52e5e1c7e581f462aca18fa3e54ba9d5e143e31f82f3a3fa0c63d4015f4e0f3c71209852670b77ca01e57f40620951abd3e4757c8b0b67
+  checksum: 10/d98fbc2c3d5cb385e82f59b58b61fd310ca8a503d4962d68a8bfebeb39b62dcb7e6ca480f8e980817ed4e1262c099e163f1e143979101682987b81b2fd90e1ff
   languageName: node
   linkType: hard
 
