@@ -3,21 +3,18 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  min-height: 0;
   height: 100%;
+  min-height: 0;
 }
 
-/*
- * Single scroller under absolute header/input.
- * Padding (not spacer nodes) reserves space so content is reachable under the chrome.
- */
 .messages-container {
   position: absolute;
   inset: 0;
   display: flex;
   flex-direction: column;
   gap: var(--condo-global-spacing-12);
-  padding: calc(var(--ai-chat-header-height) + var(--ai-chat-chrome-gap, var(--condo-global-spacing-12)))
+  padding:
+    calc(var(--ai-chat-header-height) + var(--ai-chat-chrome-gap, var(--condo-global-spacing-12)))
     var(--condo-global-spacing-24)
     calc(var(--ai-chat-input-height, 5rem) + var(--ai-chat-chrome-gap, var(--condo-global-spacing-12)));
   overflow-y: auto;
@@ -25,8 +22,7 @@
   -ms-overflow-style: none;
 }
 
-/* Prevent flex shrink inside a scroll container — otherwise long messages clip
-   and suggestion buttons at the bottom become unreachable. */
+/* Without this, long flex children shrink and clip inside the scroller. */
 .messages-container > * {
   flex-shrink: 0;
 }
@@ -41,8 +37,7 @@
   gap: var(--condo-global-spacing-12);
 }
 
-/* Active turn fills the visible area between header and input. */
-.turn[data-active='true'] {
+.turn[data-active="true"] {
   box-sizing: border-box;
   min-height: var(--ai-chat-scrollport-height, 100%);
 }

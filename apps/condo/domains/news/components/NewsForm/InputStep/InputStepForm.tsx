@@ -177,8 +177,6 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
         }
     }, [rewriteNewsTextData?.result?.answer])
 
-    // Same as ticket comments: show panel only when there is answer/error.
-    // While waiting, loading stays on the improve button in the input.
     useEffect(() => {
         if (rewriteNewsText || rewriteNewsTextError) {
             setNewsTextAiNotificationShow(true)

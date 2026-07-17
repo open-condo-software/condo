@@ -44,7 +44,7 @@ type UseAIFlowPropsType = {
     modelName?: string
     defaultContext?: object
     timeout?: number
-    aiSessionId?: string // Optional session id to group AI requests in one session
+    aiSessionId?: string
 }
 
 type AIFlowTaskData<T> = {
@@ -79,11 +79,6 @@ type UseAIFlowResultType<T> = [
     },
     {
         loading: boolean
-        /**
-         * Apollo-like reactive result. Updates during streaming (partial `result`);
-         * treat as final only after `await execute`/`resume` (or when `loading` becomes false).
-         * Task status lives on `data.status` (ExecutionAiFlowTask).
-         */
         data: AIFlowTaskData<T> | null
         error: Error | null
         currentTaskId: string | null
@@ -135,9 +130,7 @@ export function useAIFlow<T = object> ({
     const pollingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
     const pollingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
     const streamTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-    /** Invalidates in-flight stream/poll work when bumped (new execute, session change, unmount). */
     const runIdRef = useRef(0)
-    /** Bridges stream onMessage / timeout → await execute/resume for the active run. */
     const pendingCompletionRef = useRef<PendingCompletion<T> | null>(null)
     const displayBufferRef = useRef<AnswerDisplayBuffer | null>(null)
 
@@ -192,7 +185,6 @@ export function useAIFlow<T = object> ({
                     })
                 },
             })
-            // New buffer is empty; clear reactive data too (dispose does not flush).
             if (recreate) {
                 setData(null)
             }
@@ -271,10 +263,7 @@ export function useAIFlow<T = object> ({
                 localizedErrorText: null,
             }
 
-            // Keep loading=true and continue smooth reveal until UI catches up.
-            // Jumping with buffer.set() here made the whole answer appear at once.
             buffer.finish(() => {
-                // Run may have moved to poll (stream timeout) or been invalidated.
                 if (!isActiveRun(runId) || pendingCompletionRef.current?.runId !== runId) return
                 completeFlow(combinedResult)
                 settlePendingCompletion(runId, combinedResult)
@@ -409,7 +398,6 @@ export function useAIFlow<T = object> ({
                 streamTimeoutRef.current = setTimeout(() => {
                     const pending = pendingCompletionRef.current
                     if (!pending || pending.settled || pending.runId !== runId || !isActiveRun(runId)) return
-                    // Give up on stream; caller will poll. Same run stays active.
                     pending.settled = true
                     pendingCompletionRef.current = null
                     streamTimeoutRef.current = null
@@ -423,7 +411,6 @@ export function useAIFlow<T = object> ({
             if (streamWait.type === 'cancelled') {
                 return { data: null, error: new Error('Flow cancelled'), localizedErrorText: null }
             }
-            // timeout → fall through to poll
         }
 
         return startPollingForResult(taskId, runId)

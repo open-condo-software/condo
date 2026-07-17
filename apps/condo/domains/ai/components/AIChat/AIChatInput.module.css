@@ -1,7 +1,3 @@
-/*
- * Composer overlays the scroller. Height is published as --ai-chat-input-height
- * on the chat root (measured). Opaque so scrolled content is fully covered.
- */
 .input-container {
   position: absolute;
   right: 0;
@@ -9,7 +5,8 @@
   left: 0;
   z-index: 2;
   padding: var(--condo-global-spacing-16) var(--condo-global-spacing-24);
-  background: var(--condo-global-color-gray-1);
+  background: color-mix(in srgb, var(--condo-global-color-gray-1) 88%, transparent);
+  backdrop-filter: blur(20px);
 }
 
 .text-area-container {

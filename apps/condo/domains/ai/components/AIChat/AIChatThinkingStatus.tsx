@@ -8,9 +8,6 @@ import styles from './AIChatThinkingStatus.module.css'
 const DOTS_INTERVAL_MS = 400
 const MAX_DOTS = 3
 
-/**
- * "Thinking" label with cycling ellipsis while waiting for the first tokens.
- */
 export const AIChatThinkingStatus: React.FC = () => {
     const intl = useIntl()
     const label = intl.formatMessage({ id: 'ai.chat.loading' })
