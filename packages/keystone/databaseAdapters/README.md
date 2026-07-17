@@ -16,7 +16,7 @@ Selection happens in `packages/keystone/setup.utils.js` → `getAdapter()`.
 
 ## Mental model
 
-```
+```text
 GraphQL resolver / schema.find|create|…
     ↓
 Keystone list adapter (find / itemsQuery / _create / …)
@@ -50,7 +50,7 @@ Detailed env var reference: [`adapters/BalancingReplicaKnexAdapter/README.md`](.
 
 ## File map
 
-```
+```text
 databaseAdapters/
 ├── README.md                          ← you are here
 ├── index.js                           ← re-exports adapters + sourceRegistry + dataProviders
@@ -132,7 +132,7 @@ Dual entry points:
 
 ## Read path (sequence)
 
-```
+```text
 resolver sets graphqlCtx
   → listAdapter builds knex query
   → runner hook: extractCRUDQueryData(sql)
@@ -144,7 +144,7 @@ resolver sets graphqlCtx
 
 ## Write path (sequence)
 
-```
+```text
 mutation SQL
   → _selectTargetPool (routing rules + table owner)
   → ProviderPool? executeProviderSqlMutation

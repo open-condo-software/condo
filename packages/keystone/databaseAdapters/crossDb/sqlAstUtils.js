@@ -41,34 +41,62 @@ function _appendBlockCommentChar (char, nextChar, index, state) {
 
 /**
  * Append one character while inside a quoted string (`'` or `"`).
- * Handles escaped quote pairs (`''` / `""`) and closes the quote on an unpaired delimiter.
+ * Handles escaped quote pairs (`''` / `""`), and backslash escapes for E-strings.
  *
  * @param {string} char
  * @param {string|undefined} nextChar
- * @param {{ normalizedSql: string, quoteChar: string|null, index: number }} state
+ * @param {{ normalizedSql: string, quoteChar: string|null, eString: boolean, index: number }} state
  */
 function _appendQuotedChar (char, nextChar, state) {
     state.normalizedSql += char
+    if (state.eString && char === '\\' && nextChar !== undefined) {
+        state.normalizedSql += nextChar
+        state.index += 1
+        return
+    }
     if (char === state.quoteChar) {
         if (nextChar === state.quoteChar) {
             state.normalizedSql += nextChar
             state.index += 1
         } else {
             state.quoteChar = null
+            state.eString = false
         }
     }
 }
 
 /**
- * Detect and enter a line comment, block comment, or quoted string at the current position.
+ * Copy a PostgreSQL dollar-quoted string (`$$...$$` / `$tag$...$tag$`) unchanged.
+ *
+ * @param {string} sql
+ * @param {number} index
+ * @param {{ normalizedSql: string, index: number }} state
+ * @returns {boolean}
+ */
+function _tryCopyDollarQuotedString (sql, index, state) {
+    if (sql[index] !== '$') return false
+    const openMatch = sql.slice(index).match(/^\$([A-Za-z_]*)\$/)
+    if (!openMatch) return false
+    const tag = openMatch[0]
+    const contentStart = index + tag.length
+    const closeIdx = sql.indexOf(tag, contentStart)
+    if (closeIdx === -1) return false
+    state.normalizedSql += sql.slice(index, closeIdx + tag.length)
+    state.index = closeIdx + tag.length - 1
+    return true
+}
+
+/**
+ * Detect and enter a line comment, block comment, dollar-quoted string, or quoted string.
  *
  * @param {string} char
  * @param {string|undefined} nextChar
  * @param {number} index
- * @param {{ normalizedSql: string, quoteChar: string|null, lineComment: boolean, blockCommentDepth: number, index: number }} state
+ * @param {string} sql
+ * @param {{ normalizedSql: string, quoteChar: string|null, eString: boolean, lineComment: boolean, blockCommentDepth: number, index: number }} state
  * @returns {boolean} `true` when a comment or quote was started
  */
-function _tryStartCommentOrQuote (char, nextChar, index, state) {
+function _tryStartCommentOrQuote (char, nextChar, index, sql, state) {
     if (char === '-' && nextChar === '-') {
         state.normalizedSql += char + nextChar
         state.index = index + 1
@@ -81,9 +109,21 @@ function _tryStartCommentOrQuote (char, nextChar, index, state) {
         state.blockCommentDepth = 1
         return true
     }
+    if (_tryCopyDollarQuotedString(sql, index, state)) return true
+    if ((char === 'E' || char === 'e') && nextChar === '\'') {
+        const prev = index > 0 ? sql[index - 1] : ''
+        if (!/[A-Za-z0-9_]/.test(prev)) {
+            state.normalizedSql += char + nextChar
+            state.index = index + 1
+            state.quoteChar = '\''
+            state.eString = true
+            return true
+        }
+    }
     if (char === '\'' || char === '"') {
         state.normalizedSql += char
         state.quoteChar = char
+        state.eString = false
         return true
     }
     return false
@@ -92,7 +132,8 @@ function _tryStartCommentOrQuote (char, nextChar, index, state) {
 /**
  * Convert Knex `?` placeholders into PostgreSQL-style `$1`, `$2`, ... placeholders
  * so `node-sql-parser` can parse mutation SQL produced before `positionBindings()`.
- * Keeps placeholders inside quoted strings/comments untouched.
+ * Keeps placeholders inside quoted strings/comments untouched, preserves JSON operators
+ * `?|` / `?&`, and leaves question marks inside dollar-quoted and E-prefixed strings.
  *
  * @param {string} sql
  * @returns {string}
@@ -104,6 +145,7 @@ function normalizePositionalBindings (sql) {
         bindingIndex: 0,
         normalizedSql: '',
         quoteChar: null,
+        eString: false,
         lineComment: false,
         blockCommentDepth: 0,
         index: 0,
@@ -128,9 +170,13 @@ function normalizePositionalBindings (sql) {
             continue
         }
 
-        if (_tryStartCommentOrQuote(char, nextChar, state.index, state)) continue
+        if (_tryStartCommentOrQuote(char, nextChar, state.index, sql, state)) continue
 
         if (char === '?') {
+            if (nextChar === '|' || nextChar === '&') {
+                state.normalizedSql += char
+                continue
+            }
             state.bindingIndex += 1
             state.normalizedSql += `$${state.bindingIndex}`
             continue
@@ -143,8 +189,62 @@ function normalizePositionalBindings (sql) {
 }
 
 /**
+ * Decode PostgreSQL `E'...'` backslash escapes (and doubled single quotes).
+ *
+ * @param {string} content string body without the `E'` / `'` wrappers
+ * @returns {string}
+ */
+function _decodePostgresEStringContent (content) {
+    let result = ''
+    for (let i = 0; i < content.length; i++) {
+        const char = content[i]
+        if (char === '\'' && content[i + 1] === '\'') {
+            result += '\''
+            i += 1
+            continue
+        }
+        if (char !== '\\' || i === content.length - 1) {
+            result += char
+            continue
+        }
+        const next = content[++i]
+        switch (next) {
+            case 'n':
+                result += '\n'
+                break
+            case 't':
+                result += '\t'
+                break
+            case 'r':
+                result += '\r'
+                break
+            case 'b':
+                result += '\b'
+                break
+            case 'f':
+                result += '\f'
+                break
+            case '\\':
+                result += '\\'
+                break
+            case '\'':
+                result += '\''
+                break
+            case '"':
+                result += '"'
+                break
+            default:
+                result += next
+                break
+        }
+    }
+    return result
+}
+
+/**
  * Convert a SQL AST literal node to a JavaScript value.
  * Supports null, bool, numbers, quoted strings, bare `string`, and Postgres `E'...'` escapes.
+ * Bigint values are returned as-is (no `Number()` coercion) to preserve precision.
  *
  * @param {object|null} node
  * @returns {string|number|boolean|null|undefined} `undefined` when the node is not a supported literal
@@ -153,14 +253,15 @@ function parseLiteralNode (node) {
     if (!node) return null
     if (node.type === 'null') return null
     if (node.type === 'bool') return node.value
-    if (node.type === 'number' || node.type === 'bigint') return Number(node.value)
+    if (node.type === 'bigint') return node.value
+    if (node.type === 'number') return Number(node.value)
     if (node.type === 'string' || node.type === 'single_quote_string' || node.type === 'double_quote_string') {
         return node.value
     }
     if (node.type === 'origin') {
         const raw = String(node.value || '')
-        if (raw.startsWith('E\'') && raw.endsWith('\'')) {
-            return raw.slice(2, -1).replace(/''/g, '\'')
+        if (/^E'/i.test(raw) && raw.endsWith('\'')) {
+            return _decodePostgresEStringContent(raw.slice(2, -1))
         }
         return raw
     }
