@@ -7,159 +7,13 @@
  */
 const { Parser } = require('node-sql-parser/build/postgresql')
 
+const {
+    normalizeColumnName,
+    normalizePositionalBindings,
+    resolveSqlValue,
+} = require('./sqlAstUtils')
+
 const parser = new Parser()
-
-function _appendLineCommentChar (char, state) {
-    state.normalizedSql += char
-    if (char === '\n') state.lineComment = false
-}
-
-function _appendBlockCommentChar (char, nextChar, sql, index, state) {
-    state.normalizedSql += char
-    if (char === '*' && nextChar === '/') {
-        state.normalizedSql += nextChar
-        state.index = index + 1
-        state.blockCommentDepth -= 1
-        return
-    }
-    if (char === '/' && nextChar === '*') {
-        state.normalizedSql += nextChar
-        state.index = index + 1
-        state.blockCommentDepth += 1
-    }
-}
-
-function _appendQuotedChar (char, nextChar, state) {
-    state.normalizedSql += char
-    if (char === state.quoteChar) {
-        if (nextChar === state.quoteChar) {
-            state.normalizedSql += nextChar
-            state.index += 1
-        } else {
-            state.quoteChar = null
-        }
-    }
-}
-
-function _tryStartCommentOrQuote (char, nextChar, index, state) {
-    if (char === '-' && nextChar === '-') {
-        state.normalizedSql += char + nextChar
-        state.index = index + 1
-        state.lineComment = true
-        return true
-    }
-    if (char === '/' && nextChar === '*') {
-        state.normalizedSql += char + nextChar
-        state.index = index + 1
-        state.blockCommentDepth = 1
-        return true
-    }
-    if (char === '\'' || char === '"') {
-        state.normalizedSql += char
-        state.quoteChar = char
-        return true
-    }
-    return false
-}
-
-/**
- * Convert Knex `?` placeholders into PostgreSQL-style `$1`, `$2`, ... placeholders
- * so `node-sql-parser` can parse mutation SQL produced before `positionBindings()`.
- * Keeps placeholders inside quoted strings/comments untouched.
- *
- * @param {string} sql
- * @returns {string}
- */
-function _normalizePositionalBindings (sql) {
-    if (!sql || !sql.includes('?')) return sql
-
-    const state = {
-        bindingIndex: 0,
-        normalizedSql: '',
-        quoteChar: null,
-        lineComment: false,
-        blockCommentDepth: 0,
-        index: 0,
-    }
-
-    for (state.index = 0; state.index < sql.length; state.index++) {
-        const char = sql[state.index]
-        const nextChar = sql[state.index + 1]
-
-        if (state.lineComment) {
-            _appendLineCommentChar(char, state)
-            continue
-        }
-
-        if (state.blockCommentDepth > 0) {
-            _appendBlockCommentChar(char, nextChar, sql, state.index, state)
-            continue
-        }
-
-        if (state.quoteChar) {
-            _appendQuotedChar(char, nextChar, state)
-            continue
-        }
-
-        if (_tryStartCommentOrQuote(char, nextChar, state.index, state)) continue
-
-        if (char === '?') {
-            state.bindingIndex += 1
-            state.normalizedSql += `$${state.bindingIndex}`
-            continue
-        }
-
-        state.normalizedSql += char
-    }
-
-    return state.normalizedSql
-}
-
-/**
- * @param {object|null} node
- * @returns {string|number|boolean|null|undefined}
- */
-function _parseLiteralNode (node) {
-    if (!node) return null
-    if (node.type === 'null') return null
-    if (node.type === 'bool') return node.value
-    if (node.type === 'number' || node.type === 'bigint') return Number(node.value)
-    if (node.type === 'string' || node.type === 'single_quote_string' || node.type === 'double_quote_string') {
-        return node.value
-    }
-    return undefined
-}
-
-/**
- * @param {object|null} node
- * @param {Array} bindings
- * @returns {*}
- */
-function _resolveSqlValue (node, bindings) {
-    if (!node) return null
-    if (node.type === 'var' && node.prefix === '$') {
-        return bindings[Number(node.name) - 1]
-    }
-    return _parseLiteralNode(node)
-}
-
-/**
- * @param {*} columnNode
- * @returns {string|null}
- */
-function _normalizeColumnName (columnNode) {
-    if (!columnNode) return null
-    if (typeof columnNode === 'string') return columnNode
-    if (columnNode.type === 'double_quote_string' || columnNode.type === 'single_quote_string') {
-        return columnNode.value
-    }
-    if (columnNode.expr) {
-        return _normalizeColumnName(columnNode.expr)
-    }
-    if (typeof columnNode.column === 'string') return columnNode.column
-    if (columnNode.column?.expr) return _normalizeColumnName(columnNode.column.expr)
-    return null
-}
 
 /**
  * @param {object} valueRow
@@ -172,7 +26,7 @@ function _mapInsertValueRow (valueRow, columns, bindings) {
 
     const result = {}
     for (let i = 0; i < columns.length; i++) {
-        result[columns[i]] = _resolveSqlValue(valueRow[i], bindings)
+        result[columns[i]] = resolveSqlValue(valueRow[i], bindings)
     }
     return result
 }
@@ -183,14 +37,14 @@ function _mapInsertValueRow (valueRow, columns, bindings) {
  * @returns {Array<Record<string, *>>}
  */
 function extractMutationColumnValues (sql, bindings = []) {
-    let ast = parser.astify(_normalizePositionalBindings(sql))
+    let ast = parser.astify(normalizePositionalBindings(sql))
     if (Array.isArray(ast)) {
         if (ast.length !== 1) return []
         ast = ast[0]
     }
 
     if (ast.type === 'insert') {
-        const columns = (ast.columns || []).map(_normalizeColumnName).filter(Boolean)
+        const columns = (ast.columns || []).map(normalizeColumnName).filter(Boolean)
         return (ast.values || [])
             .map(valueGroup => _mapInsertValueRow(valueGroup?.value, columns, bindings))
             .filter(Boolean)
@@ -199,9 +53,9 @@ function extractMutationColumnValues (sql, bindings = []) {
     if (ast.type === 'update') {
         const result = {}
         for (const item of ast.set || []) {
-            const columnName = _normalizeColumnName(item.column)
+            const columnName = normalizeColumnName(item.column)
             if (!columnName) continue
-            result[columnName] = _resolveSqlValue(item.value, bindings)
+            result[columnName] = resolveSqlValue(item.value, bindings)
         }
         return Object.keys(result).length ? [result] : []
     }

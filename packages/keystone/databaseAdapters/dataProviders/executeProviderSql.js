@@ -2,128 +2,29 @@ const { Parser } = require('node-sql-parser/build/postgresql')
 
 const { providerSupportsFind } = require('./providerMethods')
 
+const {
+    normalizeColumnName,
+    normalizePositionalBindings,
+    resolveSqlValue,
+} = require('../crossDb/sqlAstUtils')
 const { extractMutationColumnValues } = require('../crossDb/validateCrossSourceReferences')
 
 const parser = new Parser()
-
-function _normalizePositionalBindings (sql) {
-    if (!sql || !sql.includes('?')) return sql
-
-    let bindingIndex = 0
-    let normalizedSql = ''
-    let quoteChar = null
-    let lineComment = false
-    let blockCommentDepth = 0
-
-    for (let index = 0; index < sql.length; index += 1) {
-        const char = sql[index]
-        const nextChar = sql[index + 1]
-
-        if (lineComment) {
-            normalizedSql += char
-            if (char === '\n') lineComment = false
-            continue
-        }
-
-        if (blockCommentDepth > 0) {
-            normalizedSql += char
-            if (char === '*' && nextChar === '/') {
-                normalizedSql += nextChar
-                index += 1
-                blockCommentDepth -= 1
-            } else if (char === '/' && nextChar === '*') {
-                normalizedSql += nextChar
-                index += 1
-                blockCommentDepth += 1
-            }
-            continue
-        }
-
-        if (!quoteChar) {
-            if (char === '-' && nextChar === '-') {
-                normalizedSql += char + nextChar
-                index += 1
-                lineComment = true
-                continue
-            }
-            if (char === '/' && nextChar === '*') {
-                normalizedSql += char + nextChar
-                index += 1
-                blockCommentDepth = 1
-                continue
-            }
-            if (char === '?') {
-                bindingIndex += 1
-                normalizedSql += `$${bindingIndex}`
-                continue
-            }
-            if (char === '\'' || char === '"') {
-                quoteChar = char
-                normalizedSql += char
-                continue
-            }
-            normalizedSql += char
-            continue
-        }
-
-        normalizedSql += char
-        if (char === quoteChar && nextChar !== quoteChar) {
-            quoteChar = null
-        } else if (char === quoteChar && nextChar === quoteChar) {
-            normalizedSql += nextChar
-            index += 1
-        }
-    }
-
-    return normalizedSql
-}
-
-function _resolveSqlValue (node, bindings) {
-    if (!node || typeof node !== 'object') return node
-    if (node.type === 'var' && node.prefix === '$') {
-        const index = Number(node.name) - 1
-        return bindings[index]
-    }
-    if (node.type === 'null') return null
-    if (node.type === 'bool') return node.value
-    if (node.type === 'number') return Number(node.value)
-    if (node.type === 'single_quote_string' || node.type === 'double_quote_string') {
-        return node.value
-    }
-    return node.value
-}
-
-function _normalizeColumnName (columnNode) {
-    if (!columnNode) return null
-    if (typeof columnNode === 'string') return columnNode.replace(/"/g, '')
-    if (columnNode.type === 'column_ref') {
-        return _normalizeColumnName(columnNode.column)
-    }
-    if (columnNode.type === 'double_quote_string' || columnNode.type === 'single_quote_string') {
-        return columnNode.value
-    }
-    if (columnNode.expr) {
-        return _normalizeColumnName(columnNode.expr)
-    }
-    if (typeof columnNode.column === 'string') return columnNode.column.replace(/"/g, '')
-    if (columnNode.column?.expr) return _normalizeColumnName(columnNode.column.expr)
-    return null
-}
 
 function _collectWhereIds (whereNode, bindings, ids = []) {
     if (!whereNode) return ids
 
     if (whereNode.type === 'binary_expr') {
-        const leftColumn = _normalizeColumnName(whereNode.left)
+        const leftColumn = normalizeColumnName(whereNode.left)
         if (leftColumn === 'id' && whereNode.operator === '=') {
-            const value = _resolveSqlValue(whereNode.right, bindings)
+            const value = resolveSqlValue(whereNode.right, bindings)
             if (value != null) ids.push(value)
             return ids
         }
         if (leftColumn === 'id' && whereNode.operator === 'IN') {
             const values = whereNode.right?.value || whereNode.right?.list || []
             for (const item of values) {
-                const value = _resolveSqlValue(item, bindings)
+                const value = resolveSqlValue(item, bindings)
                 if (value != null) ids.push(value)
             }
             return ids
@@ -144,7 +45,7 @@ function _collectWhereIds (whereNode, bindings, ids = []) {
 }
 
 function _parseMutationAst (sql) {
-    let ast = parser.astify(_normalizePositionalBindings(sql))
+    let ast = parser.astify(normalizePositionalBindings(sql))
     if (Array.isArray(ast)) {
         if (ast.length !== 1) return null
         ast = ast[0]

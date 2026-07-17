@@ -13,24 +13,21 @@ const { Parser } = require('node-sql-parser/build/postgresql')
 
 const conf = require('@open-condo/config')
 
+const { normalizeTableName } = require('./sql')
+
+const { parseLiteralNode } = require('../../../crossDb/sqlAstUtils')
+
 const parser = new Parser()
 
 /**
- * Strip schema/quote wrappers and return the bare table name.
- * `"public"."User"` → `User`, `User` → `User`.
- *
- * @param {string} tableName
- * @returns {string}
- */
-function _normalizeTableName (tableName) {
-    if (!tableName || typeof tableName !== 'string') return tableName
-    const withoutQuotes = tableName.replace(/"/g, '')
-    const parts = withoutQuotes.split('.')
-    return parts[parts.length - 1]
-}
-
-/**
  * Read `{ table, column }` from a SQL AST `column_ref` node.
+ *
+ * With `node-sql-parser` (postgresql build) the column name is usually nested:
+ * `node.column` is an object `{ expr: { type, value } }`, not a string —
+ * quoted (`t0."id"`) → `expr.type = 'double_quote_string'`,
+ * unquoted (`t0.id`) → `expr.type = 'default'`.
+ * The actual name is `node.column.expr.value`. Older / other shapes may still
+ * put a plain string on `node.column`; both are handled.
  *
  * @param {object|null} node AST node
  * @returns {{ table: string, column: string }|null}
@@ -67,31 +64,6 @@ function _nodeReferencesAlias (node, alias) {
 }
 
 /**
- * Convert a SQL AST literal node to a JavaScript value.
- * Supports null, bool, numbers, quoted strings, and Postgres `E'...'` escapes.
- *
- * @param {object|null} node
- * @returns {string|number|boolean|null|undefined} `undefined` when the node is not a supported literal
- */
-function _parseLiteralNode (node) {
-    if (!node) return null
-    if (node.type === 'null') return null
-    if (node.type === 'bool') return node.value
-    if (node.type === 'number' || node.type === 'bigint') return Number(node.value)
-    if (node.type === 'single_quote_string' || node.type === 'double_quote_string') {
-        return node.value
-    }
-    if (node.type === 'origin') {
-        const raw = String(node.value || '')
-        if (raw.startsWith('E\'') && raw.endsWith('\'')) {
-            return raw.slice(2, -1).replace(/''/g, '\'')
-        }
-        return raw
-    }
-    return null
-}
-
-/**
  * Turn a comparison AST node into a Knex-friendly predicate descriptor.
  *
  * Supported shapes:
@@ -109,7 +81,7 @@ function _nodeToPredicate (node) {
         const leftParts = _getColumnRefParts(node.left)
         if (!leftParts) return null
         const values = (node.right?.type === 'expr_list' ? node.right.value : [])
-            .map(_parseLiteralNode)
+            .map(parseLiteralNode)
             .filter(value => value !== undefined)
         return {
             type: 'in',
@@ -121,7 +93,7 @@ function _nodeToPredicate (node) {
 
     const leftParts = _getColumnRefParts(node.left)
     if (!leftParts) return null
-    const value = _parseLiteralNode(node.right)
+    const value = parseLiteralNode(node.right)
     return {
         type: 'binary',
         column: leftParts.column,
@@ -232,7 +204,7 @@ function _getFkJoinMetadataFromParsedQuery (parsedQuery) {
     const baseFrom = from.find(item => !item.join)
     if (!baseFrom) return null
 
-    const baseTable = _normalizeTableName(baseFrom.table)
+    const baseTable = normalizeTableName(baseFrom.table)
     const baseAlias = baseFrom.as || baseTable
     const joins = []
 
@@ -245,7 +217,7 @@ function _getFkJoinMetadataFromParsedQuery (parsedQuery) {
         if (!leftParts || !rightParts) continue
 
         const joinAlias = item.as
-        const joinTable = _normalizeTableName(item.table)
+        const joinTable = normalizeTableName(item.table)
 
         if (leftParts.table === joinAlias && leftParts.column === 'id' && rightParts.table === baseAlias) {
             joins.push({
