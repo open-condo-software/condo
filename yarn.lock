@@ -1047,6 +1047,9 @@ __metadata:
   linkType: soft
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> eae70d9bc2 (hotfix(condo): update messenger api)
 "@app/ecom-gateway@workspace:apps/ecom-gateway":
   version: 0.0.0-use.local
   resolution: "@app/ecom-gateway@workspace:apps/ecom-gateway"
@@ -1061,6 +1064,7 @@ __metadata:
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     "@types/react": "catalog:"
+<<<<<<< HEAD
     big.js: "npm:^6.2.2"
     cross-env: "catalog:"
     express: "catalog:"
@@ -1069,6 +1073,12 @@ __metadata:
     ip-range-check: "npm:^0.2.0"
     jest: "catalog:"
     jest-jasmine2: "catalog:"
+=======
+    cross-env: "catalog:"
+    express: "catalog:"
+    graphql: "catalog:"
+    jest: "catalog:"
+>>>>>>> eae70d9bc2 (hotfix(condo): update messenger api)
     lodash: "catalog:"
     mkdirp: "npm:^3.0.1"
     openid-client: "catalog:"
@@ -1078,8 +1088,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+<<<<<<< HEAD
 =======
 >>>>>>> 68a056804d (hotfix(condo): update messenger api)
+=======
+>>>>>>> eae70d9bc2 (hotfix(condo): update messenger api)
 "@app/employee-bot@workspace:apps/employee-bot":
   version: 0.0.0-use.local
   resolution: "@app/employee-bot@workspace:apps/employee-bot"
@@ -4284,6 +4297,12 @@ __metadata:
   checksum: 10/6cfe46a5fcdaced943982e7ae66b08b89235493e106eb5bc833737c25905e13375c6ecc3aa0c357d136cb21dae3966213dba063f19b7a60b1235a29a7b05ff84
   languageName: node
   linkType: hard
+
+"@ecom-gateway/domains@link:./domains::locator=%40app%2Fecom-gateway%40workspace%3Aapps%2Fecom-gateway":
+  version: 0.0.0-use.local
+  resolution: "@ecom-gateway/domains@link:./domains::locator=%40app%2Fecom-gateway%40workspace%3Aapps%2Fecom-gateway"
+  languageName: node
+  linkType: soft
 
 "@emnapi/runtime@npm:^1.7.0":
   version: 1.11.2
