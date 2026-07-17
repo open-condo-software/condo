@@ -68,7 +68,7 @@ function stripServiceToolCallLines (text: string): string {
 }
 
 function stripSuggestionsForDisplay (text: string): string {
-    const completeBlockMatch = text.match(SUGGESTIONS_BLOCK_REGEX)
+    const completeBlockMatch = SUGGESTIONS_BLOCK_REGEX.exec(text)
     if (completeBlockMatch) {
         return text.replace(SUGGESTIONS_BLOCK_REGEX, '').trimEnd()
     }
@@ -94,7 +94,7 @@ export function parseAssistantAnswer (answer: string): ParsedAssistantAnswer {
         return { text: '', suggestions: [], suggestionsFailureReason: 'missing_block' }
     }
 
-    const match = answer.match(SUGGESTIONS_BLOCK_REGEX)
+    const match = SUGGESTIONS_BLOCK_REGEX.exec(answer)
     if (!match) {
         const hasSuggestionMarkers = answer.includes(SUGGESTIONS_OPEN_PREFIX) || answer.includes(SUGGESTIONS_CLOSE_PREFIX)
         return {
@@ -120,11 +120,16 @@ export function parseAssistantAnswer (answer: string): ParsedAssistantAnswer {
         || textWithoutSuggestions.includes(SUGGESTIONS_CLOSE_PREFIX)
     const parsedSuggestions = suggestions.slice(0, 3)
 
+    let suggestionsFailureReason: SuggestionsFailureReason | undefined
+    if (hasLeakedServiceText) {
+        suggestionsFailureReason = 'service_text_leaked'
+    } else if (parsedSuggestions.length === 0) {
+        suggestionsFailureReason = 'empty_after_parse'
+    }
+
     return {
         text: textWithoutSuggestions,
         suggestions: parsedSuggestions,
-        suggestionsFailureReason: hasLeakedServiceText
-            ? 'service_text_leaked'
-            : (parsedSuggestions.length === 0 ? 'empty_after_parse' : undefined),
+        suggestionsFailureReason,
     }
 }

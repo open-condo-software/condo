@@ -172,9 +172,7 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
     })
 
     useEffect(() => {
-        if (rewriteNewsTextData?.result?.answer) {
-            setRewriteNewsText(rewriteNewsTextData.result.answer)
-        }
+        setRewriteNewsText(rewriteNewsTextData?.result?.answer ?? '')
     }, [rewriteNewsTextData?.result?.answer])
 
     useEffect(() => {

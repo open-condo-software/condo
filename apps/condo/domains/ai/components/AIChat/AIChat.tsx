@@ -151,9 +151,11 @@ export const AIChat: React.FC<AIChatProps> = ({
             return
         }
 
+        const rawAnswer = result.data.result?.answer
         const { text: assistantAnswerText, suggestions, suggestionsFailureReason } = parseAssistantAnswer(
-            result.data.result?.answer ?? noResponseMessage,
+            rawAnswer?.trim() ? rawAnswer : noResponseMessage,
         )
+
         if (suggestionsFailureReason) {
             void analytics.track('ai_suggestions_failure', {
                 reason: suggestionsFailureReason,
@@ -406,16 +408,14 @@ export const AIChat: React.FC<AIChatProps> = ({
         if (!activeTurnUserMessageId) return
 
         const container = messagesContainerRef.current
-        if (!container) return
-
         const onScroll = () => {
             clampActiveTurnScroll()
         }
 
-        container.addEventListener('scroll', onScroll, { passive: true })
+        container?.addEventListener('scroll', onScroll, { passive: true })
         clampActiveTurnScroll()
 
-        return () => container.removeEventListener('scroll', onScroll)
+        return () => container?.removeEventListener('scroll', onScroll)
     }, [activeTurnUserMessageId, clampActiveTurnScroll, messages])
 
     useEffect(() => {
@@ -652,7 +652,7 @@ export const AIChat: React.FC<AIChatProps> = ({
                 inputValue={inputValue}
                 onInputChange={setInputValue}
                 onInputKeyDown={handleComposerKeyDown}
-                onSendMessage={() => void handleSendMessage()}
+                onSendMessage={handleSendMessage}
                 placeholder={placeholder}
             />
         </div>

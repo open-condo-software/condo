@@ -50,5 +50,5 @@
 /* Match textarea line breaks after "Apply" (plain text with \n, not Markdown). */
 .result-text {
   white-space: pre-wrap;
-  word-break: break-word;
+  overflow-wrap: break-word;
 }

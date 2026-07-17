@@ -200,6 +200,7 @@ export const useMessagingSubscription = <T = unknown>(options: UseMessagingSubsc
                 try {
                     connection.publish(`${RELAY_UNSUBSCRIBE_PREFIX}.${userId}.${currentRelayId}`)
                 } catch {
+                    // connection may already be closed
                 }
             }
             if (inboxSub) {
