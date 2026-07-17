@@ -368,7 +368,7 @@ async function send ({ notification, message, data, user, remoteClient } = {}, i
     })))
 
     const pushTokensWhichDidNotPassValidation = pushTokens
-        .filter(pushToken => PUSH_DATA_VALIDATORS_BY_APP_ID[pushToken.appId]?.[message.type]?.safeParse(validatorPayload)?.success === false)
+        .filter(pushToken => PUSH_DATA_VALIDATORS_BY_APP_ID[pushToken.appId]?.[messageType]?.safeParse(validatorPayload)?.success === false)
 
     pushTokens = pushTokens.filter(pushToken => !pushTokensWhichDidNotPassValidation.includes(pushToken))
 
