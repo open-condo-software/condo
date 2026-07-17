@@ -259,7 +259,17 @@ describe('crossSourceSelectSql', () => {
 
             expect(() => rewriteCrossSourceSelectSql(inputSql, {
                 joinRewrites: [userJoinRewrite(['user-ann-1'])],
-            })).toThrow('Unsupported cross-pool JOIN rewrite: OR condition on alias "t0__user"')
+            })).toThrow('Unsupported cross-pool JOIN rewrite for alias "t0__user"')
+        })
+
+        test('throws when join-alias predicate cannot be converted to a remote filter', () => {
+            const inputSql = keystoneSelectWithFkJoin({
+                extraWhere: '"t0__user"."id" = "t0"."user"',
+            })
+
+            expect(() => rewriteCrossSourceSelectSql(inputSql, {
+                joinRewrites: [userJoinRewrite(['user-1'])],
+            })).toThrow('Unsupported cross-pool JOIN rewrite for alias "t0__user"')
         })
 
         test('rewrites count(*) subselect and drops User JOIN', () => {

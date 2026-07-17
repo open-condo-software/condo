@@ -201,6 +201,14 @@ describe('isUnsatisfiableWhere', () => {
     test('returns false for id_not_in []', () => {
         expect(isUnsatisfiableWhere({ user: { id_not_in: [] } })).toEqual(false)
     })
+
+    test('returns false for empty id_in under user_not', () => {
+        expect(isUnsatisfiableWhere({ user_not: { id_in: [] } })).toEqual(false)
+    })
+
+    test('detects empty id_in nested under AND', () => {
+        expect(isUnsatisfiableWhere({ AND: [{ user: { id_in: [] } }] })).toEqual(true)
+    })
 })
 
 describe('prepareCrossDbWhere', () => {

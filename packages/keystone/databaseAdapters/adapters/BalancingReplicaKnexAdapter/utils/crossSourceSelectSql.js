@@ -80,9 +80,13 @@ function _nodeToPredicate (node) {
     if (operator === 'IN' || operator === 'NOT IN') {
         const leftParts = _getColumnRefParts(node.left)
         if (!leftParts) return null
-        const values = (node.right?.type === 'expr_list' ? node.right.value : [])
-            .map(parseLiteralNode)
-            .filter(value => value !== undefined)
+        if (node.right?.type !== 'expr_list' || !Array.isArray(node.right.value)) return null
+        const values = []
+        for (const item of node.right.value) {
+            const parsed = parseLiteralNode(item)
+            if (parsed === undefined) return null
+            values.push(parsed)
+        }
         return {
             type: 'in',
             column: leftParts.column,
@@ -94,6 +98,7 @@ function _nodeToPredicate (node) {
     const leftParts = _getColumnRefParts(node.left)
     if (!leftParts) return null
     const value = parseLiteralNode(node.right)
+    if (value === undefined) return null
     return {
         type: 'binary',
         column: leftParts.column,
@@ -393,6 +398,7 @@ function _extractAliasPredicates (where, alias) {
 /**
  * Extract alias predicates for the remote query and remove them from the base SELECT WHERE.
  * Replaced predicate nodes become `true` so the remaining WHERE stays valid.
+ * If any alias-backed node cannot be converted, abort and leave the original WHERE unchanged.
  *
  * @param {object|null} where WHERE AST root
  * @param {string} alias join alias
@@ -404,12 +410,20 @@ function _extractAndRemoveAliasPredicates (where, alias) {
     }
 
     const predicates = []
+    let unsupported = false
     const nextWhere = _simplifyWhere(_mutateWhere(where, (node) => {
         if (_isLogicalBinaryExpr(node) || !_nodeReferencesAlias(node, alias)) return undefined
         const predicate = _nodeToPredicate(node)
-        if (predicate) predicates.push(predicate)
+        if (!predicate) {
+            unsupported = true
+            return undefined
+        }
+        predicates.push(predicate)
         return { type: 'bool', value: true }
     }))
+    if (unsupported) {
+        return { predicates: [], where, unsupported: true }
+    }
     return { predicates, where: nextWhere, unsupported: false }
 }
 
@@ -460,7 +474,7 @@ function rewriteCrossSourceSelectSql (sqlString, { joinRewrites = [] } = {}) {
         const { alias, fkExpression, ids } = rewrite
         const { predicates, where, unsupported } = _extractAndRemoveAliasPredicates(targetQuery.where, alias)
         if (unsupported) {
-            throw new Error(`Unsupported cross-pool JOIN rewrite: OR condition on alias "${alias}"`)
+            throw new Error(`Unsupported cross-pool JOIN rewrite for alias "${alias}"`)
         }
         if (!predicates.length) continue
 
