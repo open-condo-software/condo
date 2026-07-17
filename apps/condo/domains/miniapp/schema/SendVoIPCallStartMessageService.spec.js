@@ -40,6 +40,7 @@ const {
     setFakeClientMode,
 } = require('@open-condo/keystone/test.utils')
 
+const { SEND_VOIP_CALL_CANCEL_MESSAGE_CANCEL_REASON_ANSWERED } = require('@condo/domains/miniapp/constants')
 const {
     createTestB2CApp,
     sendVoIPCallStartMessageByTestClient,
@@ -49,7 +50,9 @@ const {
     createTestAppMessageSetting,
     prepareVoIPUser,
 } = require('@condo/domains/miniapp/utils/testSchema')
+const { sendVoIPCallCancelMessageByTestClient } = require('@condo/domains/miniapp/utils/testSchema')
 const { VOIP_INCOMING_CALL_MESSAGE_TYPE, MESSAGE_SENT_STATUS, DEVICE_PLATFORM_TYPES, PUSH_TRANSPORT_APPLE, PUSH_TRANSPORT_FIREBASE } = require('@condo/domains/notification/constants/constants')
+const { CANCELED_CALL_MESSAGE_PUSH_TYPE } = require('@condo/domains/notification/constants/constants')
 const { Message, syncRemoteClientByTestClient } = require('@condo/domains/notification/utils/testSchema')
 const { getRandomPushTokenData, getRandomFakeSuccessToken } = require('@condo/domains/notification/utils/testSchema/utils')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
@@ -58,9 +61,6 @@ const { makeClientWithServiceUser } = require('@condo/domains/user/utils/testSch
 
 // eslint-disable-next-line import/order
 const index = require('@app/condo')
-const { CANCELED_CALL_MESSAGE_PUSH_TYPE } = require('../../notification/constants/constants')
-const { SEND_VOIP_CALL_CANCEL_MESSAGE_CANCEL_REASON_ANSWERED } = require('../constants')
-const { sendVoIPCallCancelMessageByTestClient } = require('../utils/testSchema')
 
 
 async function waitForMessageResponses ({ admin, messageId, successResponseAppIds, failureResponseAppIds }) {
