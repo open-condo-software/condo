@@ -1,13 +1,13 @@
 const {
+    normalizePositionalBindings,
+    parseLiteralNode,
+} = require('./sqlAstUtils')
+const {
     collectCrossSourceForeignKeys,
     extractMutationColumnValues,
     validateCrossSourceReferences,
 } = require('./validateCrossSourceReferences')
 
-const {
-    normalizePositionalBindings,
-    parseLiteralNode,
-} = require('./sqlAstUtils')
 
 const { createPoolBasedSourceRegistry } = require('../sourceRegistry')
 
