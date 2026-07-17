@@ -40,7 +40,7 @@ const logger = getLogger()
  * @property {Record<string, string> | undefined} encryption - appId to encryptionVersion
  * @property {Record<string, string[]> | undefined} groups - groupName to ordered appIds in group
  * @property {Record<string, string[] | undefined>} transportPriorityByAppId - appId to transports array, if appId needs to be restricted to use specific transports
- * @property {Record<string, Record<string, Parameters<typeof z.fromJSONSchema>[0]>>} pushDataValidatorsByAppId
+ * @property {Record<string, Record<'_global' | string, Parameters<typeof z.fromJSONSchema>[0]>>} pushDataValidatorsByAppId
  */
 
 /** @type {PushAdapterSettings} */
@@ -60,7 +60,7 @@ const PUSH_DATA_VALIDATORS_BY_APP_ID = Object.fromEntries(
                         } catch (err) {
                             logger.error({ msg: 'parse PUSH_ADAPTER_SETTINGS.pushDataValidatorsByAppId error', err, data: { appId, messageType } })
                         }
-                        return [messageType, zodValidator]
+                        return [messageType, zodValidator] // here "messageType" could be "_global"
                     })
                 ),
             ]
@@ -352,9 +352,24 @@ async function send ({ notification, message, data, user, remoteClient } = {}, i
 
     let container = { failureCount: 0, successCount: 0, responses: [] }
 
-    const pushTokensWhichDidNotPassValidation = !message.type
-        ? []
-        : pushTokens.filter(pushToken => PUSH_DATA_VALIDATORS_BY_APP_ID[pushToken.appId]?.[message.type]?.safeParse(data)?.success === false)
+    const validatorPayload = { message, data }
+    const pushTokensWhichDidNotPassGlobalValidation = pushTokens
+        .filter(pushToken => PUSH_DATA_VALIDATORS_BY_APP_ID[pushToken.appId]?._global?.safeParse(validatorPayload)?.success === false)
+
+    pushTokens = pushTokens.filter(pushToken => !pushTokensWhichDidNotPassGlobalValidation.includes(pushToken))
+
+    container.failureCount += pushTokensWhichDidNotPassGlobalValidation.length
+    container.responses.push(...pushTokensWhichDidNotPassGlobalValidation.map(pushToken => ({
+        success: false,
+        pushToken: pushToken.token,
+        appId: pushToken.appId,
+        pushType: pushToken.pushType,
+        error: 'message data global validation by appId error', // NOTE(YEgorLu): not putting here actual error, as it will be big. Take config and Message.meta.data to find what went wrong if error is unexpected
+    })))
+
+    const pushTokensWhichDidNotPassValidation = pushTokens
+        .filter(pushToken => PUSH_DATA_VALIDATORS_BY_APP_ID[pushToken.appId]?.[messageType]?.safeParse(validatorPayload)?.success === false)
+
     pushTokens = pushTokens.filter(pushToken => !pushTokensWhichDidNotPassValidation.includes(pushToken))
 
     container.failureCount += pushTokensWhichDidNotPassValidation.length
@@ -363,7 +378,7 @@ async function send ({ notification, message, data, user, remoteClient } = {}, i
         pushToken: pushToken.token,
         appId: pushToken.appId,
         pushType: pushToken.pushType,
-        error: 'message data validation error', // NOTE(YEgorLu): not putting here actual error, as it will be big. Take config and Message.meta.data to find what went wrong if error is unexpected
+        error: 'message data validation by appId error', // NOTE(YEgorLu): not putting here actual error, as it will be big. Take config and Message.meta.data to find what went wrong if error is unexpected
     })))
 
     let { recipients, statsInfo } = await prepareRecipients({ pushTokens, originalNotification: notification, originalData: data, message })
