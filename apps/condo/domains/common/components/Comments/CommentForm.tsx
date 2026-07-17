@@ -359,7 +359,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                 >
                     <AIInputNotification
                         targetRef={commentTextAreaRef}
-                        updateLoading={isUpdateLoading}
+                        updateLoading={isUpdateLoading || generateCommentLoading || rewriteTextLoading}
                         result={generateCommentAnswer || rewriteTextAnswer}
                         onApply={handleApplyGeneratedMessage}
                         errorMessage={errorMessage}

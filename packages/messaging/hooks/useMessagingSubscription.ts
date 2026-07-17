@@ -3,6 +3,8 @@ import { useEffect, useRef, useCallback, useState } from 'react'
 
 const RELAY_SUBSCRIBE_PREFIX = '_MESSAGING.subscribe'
 const RELAY_UNSUBSCRIBE_PREFIX = '_MESSAGING.unsubscribe'
+/** Replay recent JetStream messages so a late first subscribe does not miss them (UTC ISO). */
+const DEFAULT_START_TIME_SKEW_MS = 5000
 
 interface UseMessagingSubscriptionOptions<T> {
     topic: string
@@ -34,6 +36,10 @@ interface MessagingSubscriptionState {
  * 2. Client publishes to `_MESSAGING.subscribe.<topic>` (PUB-gated)
  * 3. Server-side relay subscribes to actual topic and forwards to client INBOX
  * 4. On cleanup, client publishes `_MESSAGING.unsubscribe.{relayId}`
+ *
+ * First subscribe (and new topic) sends `startTime = now - skew` (UTC ISO) so JetStream
+ * replays recent messages instead of `deliverNew` (avoids missing early publishes).
+ * After a message was received, reconnect uses `lastMessageTime` for gap replay.
  */
 export const useMessagingSubscription = <T = unknown>(options: UseMessagingSubscriptionOptions<T>) => {
     const {
@@ -58,6 +64,7 @@ export const useMessagingSubscription = <T = unknown>(options: UseMessagingSubsc
     const isActiveRef = useRef(true)
     const onMessageRef = useRef(onMessage)
     const lastMessageTimeRef = useRef<string | null>(null)
+    const subscribedTopicRef = useRef<string | null>(null)
 
     useEffect(() => {
         onMessageRef.current = onMessage
@@ -88,6 +95,11 @@ export const useMessagingSubscription = <T = unknown>(options: UseMessagingSubsc
         if (!enabled || !isConnected || !connection || !topic || !userId) {
             return
         }
+        // New topic must not reuse another topic's lastMessageTime as replay cursor.
+        if (subscribedTopicRef.current !== topic) {
+            lastMessageTimeRef.current = null
+            subscribedTopicRef.current = topic
+        }
         isActiveRef.current = true
         let inboxSub: Subscription | null = null
         let currentRelayId: string | null = null
@@ -113,9 +125,10 @@ export const useMessagingSubscription = <T = unknown>(options: UseMessagingSubsc
                 subscriptionRef.current = inboxSub
 
                 const relayTopic = `${RELAY_SUBSCRIBE_PREFIX}.${userId}.${topic}`
-                const requestBody: Record<string, string> = { deliverInbox }
-                if (lastMessageTimeRef.current) {
-                    requestBody.startTime = lastMessageTimeRef.current
+                const requestBody: Record<string, string> = {
+                    deliverInbox,
+                    startTime: lastMessageTimeRef.current
+                        ?? new Date(Date.now() - DEFAULT_START_TIME_SKEW_MS).toISOString(),
                 }
 
                 const response = await connection.request(
@@ -209,7 +222,7 @@ export const useMessagingSubscription = <T = unknown>(options: UseMessagingSubsc
                 inboxSub.unsubscribe()
             }
         }
-    }, [enabled, isConnected, connection, topic, userId, state.retryCount])
+    }, [enabled, isConnected, connection, topic, userId, state.retryCount, resubscribeDelay])
 
     return {
         isSubscribed: state.isSubscribed,

@@ -245,8 +245,8 @@ The relay creates **ephemeral JetStream push consumers** (not core NATS subscrip
    ```javascript
    connection.request(relayTopic, JSON.stringify({ deliverInbox, startTime: '2025-01-01T12:00:00.000Z' }))
    ```
-3. If `startTime` is omitted, the consumer uses `deliver_policy: new` (only future messages)
-4. The `useMessagingSubscription` hook tracks `lastMessageTime` automatically and passes it on re-subscribe after a relay-closed sentinel
+3. If `startTime` is omitted in a raw relay request, the consumer uses `deliver_policy: new` (only future messages)
+4. The `useMessagingSubscription` hook always sends `startTime`: `lastMessageTime` after messages were received (gap replay on re-subscribe), otherwise `now - 5s` (UTC ISO) on first subscribe / new topic so early publishes are not missed
 
 ### JetStream consumer cleanup
 

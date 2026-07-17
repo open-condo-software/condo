@@ -1,0 +1,28 @@
+.suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--condo-global-spacing-8);
+  margin-top: var(--condo-global-spacing-12);
+}
+
+.suggestion-item {
+  display: inline-flex;
+  animation: suggestion-fade-in 0.28s ease-in-out both;
+}
+
+.tooltip-wrap {
+  display: inline-block;
+  max-width: 100%;
+}
+
+@keyframes suggestion-fade-in {
+  from {
+    transform: translateY(4px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

@@ -1,16 +1,31 @@
+.wrapper {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+
+.panel {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 8px);
+  left: 0;
+  z-index: 5;
+  width: 100%;
+  overflow: hidden;
+  background-color: var(--condo-global-color-white);
+  border: 1px solid var(--condo-global-color-gray-3);
+  border-radius: var(--condo-global-border-radius-large);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 8%);
+}
+
 .notification {
   width: 100%;
-  background-color: white;
+  padding: var(--condo-global-spacing-12);
+  background-color: var(--condo-global-color-white);
 }
 
 .notification > div {
   width: 100%;
-}
-
-.wrapper {
-  display: inline-block;
-  width: 100%;
-  height: fit-content;
 }
 
 .header {
@@ -32,12 +47,8 @@
   width: 100%;
 }
 
-.smooth-blinking-text {
-  animation: smooth-blink 2s ease-in-out infinite;
-}
-
-@keyframes smooth-blink {
-  0%,
-  100% { opacity: 0.3; }
-  50% { opacity: 1; }
+/* Match textarea line breaks after "Apply" (plain text with \n, not Markdown). */
+.result-text {
+  white-space: pre-wrap;
+  word-break: break-word;
 }

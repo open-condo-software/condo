@@ -1,5 +1,13 @@
 /* Custom AI Drawer */
 .ai-drawer {
+  --ai-chat-header-height: calc(var(--condo-global-spacing-24) + var(--condo-global-spacing-12) + var(--condo-global-spacing-48));
+  /*
+   * Space below the header before message content.
+   * Must match the messages list gap: then previous-turn suggestion chips sit
+   * exactly under the opaque header when the next turn is pinned (not in a
+   * visible band between header and user bubble).
+   */
+  --ai-chat-chrome-gap: var(--condo-global-spacing-12);
   position: fixed;
   top: 0;
   right: 0;
@@ -10,7 +18,7 @@
   background: var(--condo-global-color-gray-1);
 }
 
-/* Header */
+/* Header overlays the messages scroller. Opaque so scrolled content is hidden. */
 .header {
   position: absolute;
   top: 0;
@@ -20,9 +28,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 84px;
-  padding: 24px 24px 12px;
-  backdrop-filter: blur(20px);
+  height: var(--ai-chat-header-height);
+  padding: var(--condo-global-spacing-24) var(--condo-global-spacing-24) var(--condo-global-spacing-12);
+  background: var(--condo-global-color-gray-1);
 }
 
 .left-section {
@@ -102,10 +110,11 @@
   cursor: e-resize;
 }
 
-/* Content area */
+/* Full drawer height — header/input overlay on top, they do not consume flex space */
 .content {
   display: flex;
   flex: 1;
   flex-direction: column;
+  min-height: 0;
   height: 100%;
 }

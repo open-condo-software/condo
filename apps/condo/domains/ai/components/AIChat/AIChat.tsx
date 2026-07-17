@@ -1,22 +1,22 @@
-import { useApolloClient } from '@apollo/client'
-import React, { useCallback, useEffect, useRef, useState, useMemo } from 'react'
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState, useMemo } from 'react'
 import { v4 as uuidV4 } from 'uuid'
 
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Button, Tooltip } from '@open-condo/ui'
 
 import { CHAT_WITH_CONDO_FLOW_TYPE, TASK_STATUSES } from '@condo/domains/ai/constants'
 import { useAIChatAttachments, type AIChatAttachmentMeta } from '@condo/domains/ai/hooks/useAIChatAttachments'
 import { useAIFlow } from '@condo/domains/ai/hooks/useAIFlow'
 import { useChatWithCondoButtonConfig } from '@condo/domains/ai/hooks/useChatWithCondoButtonConfig'
+import { parseAssistantAnswer, toDisplayText } from '@condo/domains/ai/utils/aiAnswerPresenter'
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { LocalStorageManager } from '@condo/domains/common/utils/localStorageManager'
 
 import styles from './AIChat.module.css'
 import { AIChatInput } from './AIChatInput'
 import { AIChatMessage } from './AIChatMessage'
+import { AIChatSuggestions } from './AIChatSuggestions'
 
 const STORAGE_KEY = 'condo-ai-chat-history'
 const WELCOME_UI_MESSAGE_ID = 'welcome-ui-message'
@@ -24,49 +24,6 @@ const WELCOME_UI_MESSAGE_ID = 'welcome-ui-message'
 const AI_FLOW_TIMEOUT_MS = 3 * 60 * 1000
 
 const historyStorageManager = new LocalStorageManager<Record<string, { history: any[], organizationId: string }>>()
-
-const SUGGESTIONS_BLOCK_REGEX = /\[\[SUGGESTIONS\]\]([\s\S]*?)\[\[\/SUGGESTIONS\]\]/m
-
-type ParsedAssistantAnswer = {
-    text: string
-    suggestions: string[]
-    suggestionsFailureReason?: 'missing_block' | 'empty_after_parse' | 'service_text_leaked'
-}
-
-function parseAssistantAnswer (answer: string): ParsedAssistantAnswer {
-    if (!answer || typeof answer !== 'string') {
-        return { text: '', suggestions: [], suggestionsFailureReason: 'missing_block' }
-    }
-
-    const match = answer.match(SUGGESTIONS_BLOCK_REGEX)
-    if (!match) {
-        const hasSuggestionMarkers = answer.includes('[[SUGGESTIONS') || answer.includes('[[/SUGGESTIONS')
-        return {
-            text: answer.trim(),
-            suggestions: [],
-            suggestionsFailureReason: hasSuggestionMarkers ? 'service_text_leaked' : 'missing_block',
-        }
-    }
-
-    const suggestions = match[1]
-        .split('\n')
-        .map((line) => line.trim())
-        .filter((line) => line.startsWith('& '))
-        .map((line) => line.slice(2).trim())
-        .filter(Boolean)
-
-    const textWithoutSuggestions = answer.replace(SUGGESTIONS_BLOCK_REGEX, '').trim()
-    const hasLeakedServiceText = textWithoutSuggestions.includes('[[SUGGESTIONS') || textWithoutSuggestions.includes('[[/SUGGESTIONS')
-    const parsedSuggestions = suggestions.slice(0, 3)
-
-    return {
-        text: textWithoutSuggestions,
-        suggestions: parsedSuggestions,
-        suggestionsFailureReason: hasLeakedServiceText
-            ? 'service_text_leaked'
-            : (parsedSuggestions.length === 0 ? 'empty_after_parse' : undefined),
-    }
-}
 
 export type MessageAttachmentDisplay = {
     name: string
@@ -92,7 +49,6 @@ export type Message = {
 
 type ExecuteAIMessageOptions = {
     additionalContext?: Record<string, unknown>
-    messageId?: string | null
     scenarioButtonId?: string | null
     attachments?: AIChatAttachmentMeta[]
 }
@@ -107,7 +63,6 @@ export const AIChat: React.FC<AIChatProps> = ({
     aiSessionId,
 }) => {
     const intl = useIntl()
-    const loadingLabel = intl.formatMessage({ id: 'ai.chat.loading' })
     const welcomeMessage = intl.formatMessage({ id: 'ai.chat.welcome' })
     const errorMessage = intl.formatMessage({ id: 'ai.chat.error' })
     const failedToGetResponseMessage = intl.formatMessage({ id: 'ai.chat.failedToGetResponse' })
@@ -132,17 +87,18 @@ export const AIChat: React.FC<AIChatProps> = ({
         }
     }, [buttonConfig?.welcomeMessage, welcomeMessage])
 
-    const client = useApolloClient()
-
     const [inputValue, setInputValue] = useState('')
     const [messages, setMessages] = useState<Message[]>([])
+    const [activeTurnUserMessageId, setActiveTurnUserMessageId] = useState<string | null>(null)
 
-    const messagesEndRef = useRef<HTMLDivElement>(null)
-    const inputRef = useRef<any>(null)
+    const messagesContainerRef = useRef<HTMLDivElement>(null)
+    const chatContainerRef = useRef<HTMLDivElement>(null)
     const inputContainerRef = useRef<HTMLDivElement>(null)
-    const [inputContainerHeight, setInputContainerHeight] = useState(0)
+    const inputRef = useRef<any>(null)
+    const pendingScrollToMessageIdRef = useRef<string | null>(null)
+    const shouldScrollActiveTurnRef = useRef(false)
 
-    const [{ execute, resume }, { loading, currentTaskId }] = useAIFlow<{ answer: string }>({
+    const [{ execute, resume }, { loading, currentTaskId, data }] = useAIFlow<{ answer: string }>({
         aiSessionId: aiSessionId,
         flowType: CHAT_WITH_CONDO_FLOW_TYPE,
         timeout: AI_FLOW_TIMEOUT_MS,
@@ -153,18 +109,94 @@ export const AIChat: React.FC<AIChatProps> = ({
         },
     })
 
+    // Live answer while the assistant message is still sending (streaming or polling).
+    useEffect(() => {
+        if (!loading) return
+
+        // Empty text keeps the rotating "thinking" UI until the first tokens arrive.
+        const rawAnswer = data?.result?.answer ?? ''
+        const displayText = rawAnswer ? toDisplayText(rawAnswer) : ''
+
+        setMessages(prev => {
+            const lastSendingIndex = [...prev].reverse().findIndex(
+                msg => msg.role === 'assistant' && msg.status === 'sending',
+            )
+            if (lastSendingIndex < 0) return prev
+
+            const index = prev.length - 1 - lastSendingIndex
+            const current = prev[index]
+            if (current.content.text === displayText) return prev
+
+            const updated = [...prev]
+            updated[index] = {
+                ...current,
+                content: {
+                    text: displayText,
+                    // Suggestions only after finalize — never while loading
+                },
+            }
+            return updated
+        })
+    }, [data?.result?.answer, loading])
+
+    const changeMessage = useCallback((messageId: string, updatedMessage: Message) => {
+        setMessages(prev => {
+            return prev.map(msg => msg.id === messageId ? updatedMessage : msg)
+        })
+    }, [])
+
+    const finalizeAssistantMessage = useCallback((
+        assistantMessage: Message,
+        result: { data: { status?: string, result?: { answer?: string } } | null, error?: object, localizedErrorText?: string },
+    ) => {
+        if (!result.data || result.error) {
+            changeMessage(assistantMessage.id, {
+                ...assistantMessage,
+                content: { text: result.localizedErrorText || failedToGetResponseMessage },
+                status: 'sent',
+            })
+            return
+        }
+
+        const { text: assistantAnswerText, suggestions, suggestionsFailureReason } = parseAssistantAnswer(
+            result.data.result?.answer ?? noResponseMessage,
+        )
+        if (suggestionsFailureReason) {
+            void analytics.track('ai_suggestions_failure', {
+                reason: suggestionsFailureReason,
+                session_id: aiSessionId,
+                message_id: assistantMessage.id,
+                suggestions_count_parsed: suggestions.length,
+            })
+        }
+
+        const isFinalAssistantReply = result.data?.status === TASK_STATUSES.COMPLETED
+
+        changeMessage(assistantMessage.id, {
+            ...assistantMessage,
+            content: {
+                text: assistantAnswerText,
+                suggestions,
+            },
+            status: 'sent',
+            copyable: isFinalAssistantReply,
+        })
+    }, [aiSessionId, changeMessage, failedToGetResponseMessage, noResponseMessage])
+
     // Load messages from localStorage when aiSessionId changes
     useEffect(() => {
         const savedHistory = historyStorageManager.getItem(STORAGE_KEY)
 
         if (!savedHistory || typeof savedHistory !== 'object') {
             setMessages([])
+            setActiveTurnUserMessageId(null)
             return
         }
 
         const sessionData = savedHistory[aiSessionId]
         if (!sessionData || !sessionData.history) {
             setMessages([])
+            setActiveTurnUserMessageId(null)
             return
         }
 
@@ -172,6 +204,7 @@ export const AIChat: React.FC<AIChatProps> = ({
 
         if (historyArray.length === 0) {
             setMessages([])
+            setActiveTurnUserMessageId(null)
             return
         }
 
@@ -181,14 +214,33 @@ export const AIChat: React.FC<AIChatProps> = ({
             timestamp: new Date(msg.timestamp),
         }))
         setMessages(historyWithDates)
+        setActiveTurnUserMessageId(null)
+        requestAnimationFrame(() => {
+            const container = messagesContainerRef.current
+            if (container) {
+                container.scrollTop = container.scrollHeight
+            }
+        })
 
         // Check for active task in the last message and resume if needed
         const lastMessage = historyWithDates[historyWithDates.length - 1]
 
         if (lastMessage?.status === 'sending' && lastMessage?.executionAIFlowTaskId) {
-            resume(lastMessage.executionAIFlowTaskId)
+            void (async () => {
+                try {
+                    const result = await resume(lastMessage.executionAIFlowTaskId)
+                    finalizeAssistantMessage(lastMessage, result)
+                } catch (error) {
+                    console.error('Error resuming AI flow:', error)
+                    changeMessage(lastMessage.id, {
+                        ...lastMessage,
+                        content: { text: errorMessage },
+                        status: 'sent',
+                    })
+                }
+            })()
         }
-    }, [aiSessionId, resume])
+    }, [aiSessionId, resume, finalizeAssistantMessage, changeMessage, errorMessage])
 
     const canExecuteAIFlow = useMemo(() => {
         return !(currentTaskId && loading)
@@ -203,24 +255,6 @@ export const AIChat: React.FC<AIChatProps> = ({
     const canSendMessage = useMemo(() => {
         return Boolean(inputValue.trim() || canSendWithAttachments) && !attachmentsUploading
     }, [inputValue, canSendWithAttachments, attachmentsUploading])
-
-    const addMessage = useCallback((newMessage: Message) => {
-        setMessages(prev => {
-            return [...prev, newMessage]
-        })
-    }, [])
-
-    const changeMessage = useCallback((messageId: string, updatedMessage: Message) => {
-        setMessages(prev => {
-            return prev.map(msg => msg.id === messageId ? updatedMessage : msg)
-        })
-    }, [])
-
-    const removeMessage = useCallback((messageId: string) => {
-        setMessages(prev => {
-            return prev.filter(msg => msg.id !== messageId)
-        })
-    }, [])
 
     const saveMessagesToLocalStorage = useCallback(() => {
         try {
@@ -266,17 +300,148 @@ export const AIChat: React.FC<AIChatProps> = ({
         }
     }, [currentTaskId])
 
-    const scrollToBottom = useCallback(() => {
-        const messagesContainer = messagesEndRef.current?.parentElement
-        if (messagesContainer) {
-            messagesContainer.scrollTop = messagesContainer.scrollHeight
-            messagesEndRef.current?.scrollIntoView({ behavior: 'auto' })
+    const chatTurns = useMemo(() => {
+        const turns: Array<{ user: Message, assistant?: Message }> = []
+
+        for (let index = 0; index < messages.length; index++) {
+            const message = messages[index]
+            if (message.role !== 'user') continue
+
+            const nextMessage = messages[index + 1]
+            if (nextMessage?.role === 'assistant') {
+                turns.push({ user: message, assistant: nextMessage })
+                index += 1
+            } else {
+                turns.push({ user: message })
+            }
+        }
+
+        return turns
+    }, [messages])
+
+    const getMessagesPadding = useCallback((container: HTMLElement) => {
+        const style = getComputedStyle(container)
+        return {
+            padTop: Number.parseFloat(style.paddingTop) || 0,
+            padBottom: Number.parseFloat(style.paddingBottom) || 0,
+            listGap: Number.parseFloat(style.rowGap || style.gap) || 0,
         }
     }, [])
 
+    /** ScrollTop that puts the turn under the header with previous chips fully covered. */
+    const getTurnPinScrollTop = useCallback((container: HTMLElement, turnElement: HTMLElement) => {
+        const { padTop, listGap } = getMessagesPadding(container)
+        const containerRect = container.getBoundingClientRect()
+        const turnRect = turnElement.getBoundingClientRect()
+        const alignDelta = turnRect.top - (containerRect.top + padTop)
+
+        // After align, previous siblings move up by alignDelta — hide anything still past the header edge.
+        const headerBottomY = containerRect.top + padTop - listGap
+        let peekAfterAlign = 0
+        let sibling = turnElement.previousElementSibling as HTMLElement | null
+        while (sibling) {
+            const bottomAfterAlign = sibling.getBoundingClientRect().bottom - alignDelta
+            peekAfterAlign = Math.max(peekAfterAlign, bottomAfterAlign - headerBottomY)
+            sibling = sibling.previousElementSibling as HTMLElement | null
+        }
+
+        return Math.max(0, container.scrollTop + alignDelta + Math.max(0, peekAfterAlign))
+    }, [getMessagesPadding])
+
+    const scrollTurnToTop = useCallback((userMessageId: string) => {
+        const container = messagesContainerRef.current
+        if (!container) return
+
+        const turnElement = container.querySelector(
+            `[data-turn-user-id="${userMessageId}"]`,
+        ) as HTMLElement | null
+        if (!turnElement) return
+
+        container.scrollTop = getTurnPinScrollTop(container, turnElement)
+    }, [getTurnPinScrollTop])
+
+    /**
+     * Active turn min-height creates empty space; do not let that space be scrollable
+     * (keeps user + assistant moving together).
+     */
+    const getActiveTurnMaxScrollTop = useCallback(() => {
+        const container = messagesContainerRef.current
+        const userMessageId = activeTurnUserMessageId
+        if (!container || !userMessageId) {
+            return Math.max(0, container ? container.scrollHeight - container.clientHeight : 0)
+        }
+
+        const turnElement = container.querySelector(
+            `[data-turn-user-id="${userMessageId}"]`,
+        ) as HTMLElement | null
+        if (!turnElement) {
+            return Math.max(0, container.scrollHeight - container.clientHeight)
+        }
+
+        const { padTop, padBottom } = getMessagesPadding(container)
+        const pinScrollTop = getTurnPinScrollTop(container, turnElement)
+
+        const gap = Number.parseFloat(getComputedStyle(turnElement).rowGap || getComputedStyle(turnElement).gap) || 0
+        const messageElements = Array.from(
+            turnElement.querySelectorAll<HTMLElement>('[data-message-id]'),
+        )
+        const contentHeight = messageElements.reduce((total, element, index) => {
+            return total + element.offsetHeight + (index > 0 ? gap : 0)
+        }, 0)
+
+        const visibleHeight = Math.max(0, container.clientHeight - padTop - padBottom)
+        const contentOverflow = Math.max(0, contentHeight - visibleHeight)
+        return pinScrollTop + contentOverflow
+    }, [activeTurnUserMessageId, getMessagesPadding, getTurnPinScrollTop])
+
+    const clampActiveTurnScroll = useCallback(() => {
+        const container = messagesContainerRef.current
+        if (!container || !activeTurnUserMessageId) return
+
+        const maxScrollTop = getActiveTurnMaxScrollTop()
+        if (container.scrollTop > maxScrollTop + 1) {
+            container.scrollTop = maxScrollTop
+        }
+    }, [activeTurnUserMessageId, getActiveTurnMaxScrollTop])
+
+    useLayoutEffect(() => {
+        const messageId = pendingScrollToMessageIdRef.current
+        if (!messageId) return
+
+        const userIndex = messages.findIndex((message) => message.id === messageId)
+        if (userIndex < 0) return
+
+        const turnAssistant = messages[userIndex + 1]
+        if (!turnAssistant || turnAssistant.role !== 'assistant') return
+
+        pendingScrollToMessageIdRef.current = null
+        shouldScrollActiveTurnRef.current = true
+        setActiveTurnUserMessageId(messageId)
+    }, [messages])
+
+    useLayoutEffect(() => {
+        if (!activeTurnUserMessageId || !shouldScrollActiveTurnRef.current) return
+
+        shouldScrollActiveTurnRef.current = false
+        scrollTurnToTop(activeTurnUserMessageId)
+        clampActiveTurnScroll()
+    }, [activeTurnUserMessageId, clampActiveTurnScroll, scrollTurnToTop])
+
     useEffect(() => {
-        scrollToBottom()
-    }, [messages, scrollToBottom])
+        if (!activeTurnUserMessageId) return
+
+        const container = messagesContainerRef.current
+        if (!container) return
+
+        const onScroll = () => {
+            clampActiveTurnScroll()
+        }
+
+        container.addEventListener('scroll', onScroll, { passive: true })
+        clampActiveTurnScroll()
+
+        return () => container.removeEventListener('scroll', onScroll)
+    }, [activeTurnUserMessageId, clampActiveTurnScroll, messages])
 
     useEffect(() => {
         setTimeout(() => {
@@ -285,98 +450,91 @@ export const AIChat: React.FC<AIChatProps> = ({
     }, [])
 
     useEffect(() => {
-        if (!inputContainerRef.current) return
+        const container = messagesContainerRef.current
+        if (!container) return
 
-        const observer = new ResizeObserver((entries) => {
-            for (const entry of entries) {
-                setInputContainerHeight(entry.contentRect.height)
-            }
-        })
+        const syncScrollportHeight = () => {
+            const { padTop, padBottom } = getMessagesPadding(container)
+            const visibleHeight = Math.max(0, container.clientHeight - padTop - padBottom)
+            container.style.setProperty('--ai-chat-scrollport-height', `${visibleHeight}px`)
+            clampActiveTurnScroll()
+        }
 
-        observer.observe(inputContainerRef.current)
+        syncScrollportHeight()
+        const observer = new ResizeObserver(syncScrollportHeight)
+        observer.observe(container)
         return () => observer.disconnect()
-    }, [])
+    }, [clampActiveTurnScroll, getMessagesPadding])
 
-    const executeAIMessage = useCallback(async (
-        userInput: string,
+    useEffect(() => {
+        const chatContainer = chatContainerRef.current
+        const inputContainer = inputContainerRef.current
+        const messagesContainer = messagesContainerRef.current
+        if (!chatContainer || !inputContainer) return
+
+        const syncInputHeight = () => {
+            chatContainer.style.setProperty(
+                '--ai-chat-input-height',
+                `${inputContainer.offsetHeight}px`,
+            )
+            // Padding-bottom depends on this variable — refresh scrollport after layout.
+            requestAnimationFrame(() => {
+                if (!messagesContainer) return
+                const { padTop, padBottom } = getMessagesPadding(messagesContainer)
+                const visibleHeight = Math.max(0, messagesContainer.clientHeight - padTop - padBottom)
+                messagesContainer.style.setProperty('--ai-chat-scrollport-height', `${visibleHeight}px`)
+                clampActiveTurnScroll()
+            })
+        }
+
+        syncInputHeight()
+        const observer = new ResizeObserver(syncInputHeight)
+        observer.observe(inputContainer)
+        return () => observer.disconnect()
+    }, [clampActiveTurnScroll, getMessagesPadding])
+
+    const startUserTurn = useCallback((
+        userMessage: Message,
         options: ExecuteAIMessageOptions = {},
     ) => {
-        const {
-            additionalContext,
-            messageId = null,
-            scenarioButtonId = null,
-            attachments: attachmentsForRequest,
-        } = options
-
         const assistantMessage: Message = {
             id: uuidV4(),
-            content: { text: loadingLabel },
+            content: { text: '' },
             role: 'assistant',
             timestamp: new Date(),
             status: 'sending',
         }
 
-        if (!messageId) {
-            addMessage(assistantMessage)
-        } else {
-            changeMessage(messageId, assistantMessage)
-        }
+        // One state update: user + assistant together, then scroll the turn to the top.
+        setMessages((prev) => [...prev, userMessage, assistantMessage])
+        pendingScrollToMessageIdRef.current = userMessage.id
 
-        try {
-            const result = await execute({
-                userInput,
-                userData: {
-                    userId: user.id,
-                    organizationId: organization?.id,
-                    ...additionalContext,
-                },
-                ...(attachmentsForRequest?.length ? { attachments: attachmentsForRequest } : {}),
-                ...(scenarioButtonId ? { button_id: scenarioButtonId } : {}),
-            })
+        return (async () => {
+            try {
+                const result = await execute({
+                    userInput: userMessage.content.text,
+                    userData: {
+                        userId: user.id,
+                        organizationId: organization?.id,
+                        ...options.additionalContext,
+                    },
+                    ...(options.attachments?.length ? { attachments: options.attachments } : {}),
+                    ...(options.scenarioButtonId ? { button_id: options.scenarioButtonId } : {}),
+                })
 
-            // If no data returned or there's an error - show error and return
-            if (!result.data || result.error) {
+                finalizeAssistantMessage(assistantMessage, result)
+            } catch (error) {
+                console.error('Error in startUserTurn:', error)
                 changeMessage(assistantMessage.id, {
                     ...assistantMessage,
-                    content: { text: result.localizedErrorText || failedToGetResponseMessage },
+                    content: { text: errorMessage },
                     status: 'sent',
                 })
-                return
             }
+        })()
+    }, [user, organization, execute, finalizeAssistantMessage, changeMessage, errorMessage])
 
-            const { text: assistantAnswerText, suggestions, suggestionsFailureReason } = parseAssistantAnswer(result.data.result?.answer ?? noResponseMessage)
-            if (suggestionsFailureReason) {
-                void analytics.track('ai_suggestions_failure', {
-                    reason: suggestionsFailureReason,
-                    session_id: aiSessionId,
-                    message_id: assistantMessage.id,
-                    suggestions_count_parsed: suggestions.length,
-                })
-            }
-
-            const isFinalAssistantReply = result.data?.status === TASK_STATUSES.COMPLETED
-
-            // Show copy button only for final assistant replies, not intermediate statuses.
-            changeMessage(assistantMessage.id, {
-                ...assistantMessage,
-                content: {
-                    text: assistantAnswerText,
-                    suggestions,
-                },
-                status: 'sent',
-                copyable: isFinalAssistantReply,
-            })
-        } catch (error) {
-            console.error('Error in executeAIMessage:', error)
-            changeMessage(assistantMessage.id, {
-                ...assistantMessage,
-                content: { text: errorMessage },
-                status: 'sent',
-            })
-        }
-    }, [aiSessionId, currentTaskId, loadingLabel, errorMessage, failedToGetResponseMessage, organization, user, client, intl, addMessage, changeMessage, removeMessage, execute, noResponseMessage])
-
-    const handleSendMessage = async () => {
+    const handleSendMessage = useCallback(async () => {
         const trimmedInput = inputValue.trim()
         const canSend = (trimmedInput || canSendWithAttachments) && !loading && !attachmentsUploading && user
         if (!canSend) return
@@ -391,7 +549,7 @@ export const AIChat: React.FC<AIChatProps> = ({
         })
 
         const userMessage: Message = {
-            id: Date.now().toString(),
+            id: uuidV4(),
             content: {
                 text: trimmedInput,
                 ...(attachmentsToSend.length ? {
@@ -404,13 +562,11 @@ export const AIChat: React.FC<AIChatProps> = ({
             copyable: true,
         }
 
-        addMessage(userMessage)
-
         setInputValue('')
         attachments?.resetAttachments()
 
-        await executeAIMessage(trimmedInput, { attachments: attachmentsToSend })
-    }
+        await startUserTurn(userMessage, { attachments: attachmentsToSend })
+    }, [inputValue, canSendWithAttachments, loading, attachmentsUploading, user, attachments, messages, startUserTurn])
 
     const handleScenarioButtonClick = useCallback(async (buttonId: string, buttonName: string) => {
         if (!buttonName.trim() || loading || !user || !canExecuteAIFlow) return
@@ -426,7 +582,7 @@ export const AIChat: React.FC<AIChatProps> = ({
         })
 
         const userMessage: Message = {
-            id: Date.now().toString(),
+            id: uuidV4(),
             content: { text: buttonName },
             role: 'user',
             timestamp: new Date(),
@@ -434,9 +590,8 @@ export const AIChat: React.FC<AIChatProps> = ({
             copyable: true,
         }
 
-        addMessage(userMessage)
-        await executeAIMessage(buttonName, { scenarioButtonId: buttonId })
-    }, [loading, user, canExecuteAIFlow, messages, addMessage, executeAIMessage])
+        await startUserTurn(userMessage, { scenarioButtonId: buttonId })
+    }, [loading, user, canExecuteAIFlow, messages, startUserTurn])
 
     const handleSuggestionButtonClick = useCallback(async (suggestedText: string) => {
         if (!suggestedText.trim() || loading || !user || !canExecuteAIFlow) return
@@ -451,7 +606,7 @@ export const AIChat: React.FC<AIChatProps> = ({
         })
 
         const userMessage: Message = {
-            id: Date.now().toString(),
+            id: uuidV4(),
             content: { text: suggestedText },
             role: 'user',
             timestamp: new Date(),
@@ -459,9 +614,8 @@ export const AIChat: React.FC<AIChatProps> = ({
             copyable: true,
         }
 
-        addMessage(userMessage)
-        await executeAIMessage(suggestedText)
-    }, [loading, user, canExecuteAIFlow, messages, addMessage, executeAIMessage])
+        await startUserTurn(userMessage)
+    }, [loading, user, canExecuteAIFlow, messages, startUserTurn])
 
     const handleComposerKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if (e.key !== 'Enter' || e.shiftKey) return
@@ -474,9 +628,8 @@ export const AIChat: React.FC<AIChatProps> = ({
     }, [canExecuteAIFlow, canSendMessage, handleSendMessage])
 
     return (
-        <div className={styles.chatContainer}>
-            <div className={`${styles.messagesContainer} comment-body`}>
-                <div className={styles.headerSpacer} />
+        <div ref={chatContainerRef} className={styles.chatContainer}>
+            <div ref={messagesContainerRef} className={`${styles.messagesContainer} comment-body`}>
                 {welcomeDisplayMessage && (
                     <AIChatMessage
                         message={welcomeDisplayMessage}
@@ -484,44 +637,40 @@ export const AIChat: React.FC<AIChatProps> = ({
                     />
                 )}
                 {scenarioButtons.length > 0 && (
-                    <div className={styles.assistantSuggestions}>
-                        {scenarioButtons.map((btn) => {
-                            const scenarioButton = (
-                                <Button
-                                    type='primary'
-                                    size='medium'
-                                    disabled={!canExecuteAIFlow}
-                                    onClick={() => void handleScenarioButtonClick(btn.buttonId, btn.buttonName)}
-                                >
-                                    {btn.buttonName}
-                                </Button>
-                            )
-                            return btn.buttonDescription ? (
-                                <Tooltip
-                                    key={btn.buttonId}
-                                    title={btn.buttonDescription}
-                                    getPopupContainer={(trigger) => trigger.parentElement || trigger}
-                                >
-                                    <span className={styles.scenarioButtonTooltipWrap}>
-                                        {scenarioButton}
-                                    </span>
-                                </Tooltip>
-                            ) : (
-                                <React.Fragment key={btn.buttonId}>{scenarioButton}</React.Fragment>
-                            )
-                        })}
-                    </div>
-                )}
-                {messages.map((message) => (
-                    <AIChatMessage
-                        key={message.id}
-                        message={message}
-                        onSuggestionClick={handleSuggestionButtonClick}
-                        canExecuteAIFlow={canExecuteAIFlow}
+                    <AIChatSuggestions
+                        items={scenarioButtons.map((btn) => ({
+                            key: btn.buttonId,
+                            label: btn.buttonName,
+                            tooltip: btn.buttonDescription || undefined,
+                            disabled: !canExecuteAIFlow,
+                            onClick: () => void handleScenarioButtonClick(btn.buttonId, btn.buttonName),
+                        }))}
                     />
-                ))}
-                <div ref={messagesEndRef} />
-                <div className={styles.inputSpacer} style={{ height: inputContainerHeight }} />
+                )}
+                {chatTurns.map(({ user: userMessage, assistant: assistantMessage }) => {
+                    const isActiveTurn = userMessage.id === activeTurnUserMessageId
+
+                    return (
+                        <div
+                            key={userMessage.id}
+                            className={styles.turn}
+                            data-turn-user-id={userMessage.id}
+                            data-active={isActiveTurn ? 'true' : undefined}
+                        >
+                            <AIChatMessage
+                                message={userMessage}
+                                canExecuteAIFlow={canExecuteAIFlow}
+                            />
+                            {assistantMessage && (
+                                <AIChatMessage
+                                    message={assistantMessage}
+                                    onSuggestionClick={handleSuggestionButtonClick}
+                                    canExecuteAIFlow={canExecuteAIFlow}
+                                />
+                            )}
+                        </div>
+                    )
+                })}
             </div>
 
             <AIChatInput
