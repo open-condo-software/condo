@@ -8,7 +8,9 @@ import { AIChatDocument } from '@condo/domains/ai/components/AIChatFile'
 import { exportAIMessage, type ExportAIMessageFormat, type ExportAIMessageOptions } from '@condo/domains/ai/utils/exportAIMessage'
 import { stripMarkdown } from '@condo/domains/common/utils/stripMarkdown'
 
-import styles from './AIChat.module.css'
+import styles from './AIChatMessage.module.css'
+import { AIChatSuggestions } from './AIChatSuggestions'
+import { AIChatThinkingStatus } from './AIChatThinkingStatus'
 
 import type { Message } from './AIChat'
 
@@ -127,7 +129,10 @@ export const AIChatMessage: React.FC<AIChatMessageProps> = ({
     )
 
     return (
-        <div className={`${styles.messageWrapper} ${message.role === 'user' ? styles.userMessage : styles.assistantMessage}`}>
+        <div
+            data-message-id={message.id}
+            className={`${styles.messageWrapper} ${message.role === 'user' ? styles.userMessage : styles.assistantMessage}`}
+        >
             {message.role === 'user' ? (
                 <div className={styles.userMessageContainer}>
                     <div className={styles.userMessageRow}>
@@ -155,9 +160,16 @@ export const AIChatMessage: React.FC<AIChatMessageProps> = ({
                 </div>
             ) : (
                 <div className={styles.assistantMessageContainer}>
-                    <div ref={assistantMarkdownRef} className={styles.assistantMarkdown}>
-                        <Markdown type='inline'>{message.content.text}</Markdown>
-                    </div>
+                    {message.status === 'sending' && !message.content.text?.trim() ? (
+                        <AIChatThinkingStatus />
+                    ) : (
+                        <div
+                            ref={assistantMarkdownRef}
+                            className={styles.assistantMarkdown}
+                        >
+                            <Markdown type='inline'>{message.content.text}</Markdown>
+                        </div>
+                    )}
                     {message.copyable === true && message.status !== 'sending' && (
                         <div className={styles.assistantMessageActions}>
                             {copyButton}
@@ -165,19 +177,15 @@ export const AIChatMessage: React.FC<AIChatMessageProps> = ({
                         </div>
                     )}
                     {message.content.suggestions?.length > 0 && (
-                        <div className={styles.assistantSuggestions}>
-                            {message.content.suggestions.map((suggestion) => (
-                                <Button
-                                    key={`${message.id}-${suggestion}`}
-                                    type='primary'
-                                    size='medium'
-                                    disabled={!canExecuteAIFlow}
-                                    onClick={() => onSuggestionClick?.(suggestion)}
-                                >
-                                    {suggestion}
-                                </Button>
-                            ))}
-                        </div>
+                        <AIChatSuggestions
+                            items={message.content.suggestions.map((suggestion, index) => ({
+                                key: `${message.id}-${suggestion}`,
+                                label: suggestion,
+                                disabled: !canExecuteAIFlow,
+                                animationDelayMs: index * 70,
+                                onClick: () => onSuggestionClick?.(suggestion),
+                            }))}
+                        />
                     )}
                 </div>
             )}
