@@ -73,7 +73,8 @@ const BillingReceiptFile = new GQLListSchema('BillingReceiptFile', {
                     return
                 }
 
-                const publicUrl = Adapter.publicUrl(file, { id: authedItem.id })
+                const { filename } = file
+                const publicUrl = Adapter.publicUrl({ filename })
                 return {
                     ...file,
                     publicUrl,
