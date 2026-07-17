@@ -22,6 +22,7 @@ function buildPaymentCreateInput (input, acquiringContext, sender) {
         currencyCode: input.currencyCode,
         accountNumber: input.accountNumber,
         period: input.period,
+        recipient: { tin: input.tin, bic: input.routingNumber, bankAccount: input.bankAccount },
         recipientBic: input.routingNumber,
         recipientBankAccount: input.bankAccount,
         transferDate: dayjs(input.transactionDate).toISOString(),

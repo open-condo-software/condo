@@ -13,16 +13,17 @@ const {
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE } = require('@condo/domains/acquiring/constants/integration')
-const { PAYMENT_DONE_STATUS, MULTIPAYMENT_DONE_STATUS } = require('@condo/domains/acquiring/constants/payment')
+const { PAYMENT_DONE_STATUS, MULTIPAYMENT_DONE_STATUS, PAYMENT_ERROR_STATUS, MULTIPAYMENT_ERROR_STATUS } = require('@condo/domains/acquiring/constants/payment')
 const { PAYMENTS_LIMIT } = require('@condo/domains/acquiring/constants/registerExternalPayments')
+const { STATUS_OK_RESPONSE } = require('@condo/domains/acquiring/constants/registerExternalPayments')
 const { REGISTER_EXTERNAL_PAYMENTS_ERRORS: ERRORS } = require('@condo/domains/acquiring/constants/registerExternalPaymentsErrors')
 const {
     registerExternalPaymentsByTestClient,
     createTestAcquiringIntegrationContext,
     createTestAcquiringIntegration,
     createTestAcquiringIntegrationAccessRight,
+    MultiPayment, Payment,
 } = require('@condo/domains/acquiring/utils/testSchema')
-const { MultiPayment, Payment } = require('@condo/domains/acquiring/utils/testSchema')
 const {
     createTestB2BApp,
     createTestB2BAppContext,
@@ -41,7 +42,7 @@ describe('RegisterExternalPaymentsService', () => {
         return {
             accountNumber: faker.finance.account(),
             tin: organization.tin,
-            bankAccount: faker.finance.account(),
+            bankAccount: '40647859100000003330',
             routingNumber: '044525225',
             address: faker.address.streetAddress(true),
             period: '2026-04-01',
@@ -326,6 +327,88 @@ describe('RegisterExternalPaymentsService', () => {
             await expectToThrowGQLErrorToResult(async () => {
                 await registerExternalPaymentsByTestClient(admin, payload)
             }, ERRORS.TRANSACTION_ID_REQUIRED)
+        })
+
+        test('Deduplication should properly work with deleted payments', async () => {
+            const transactionId = faker.datatype.uuid()
+
+            const payload = {
+                ...DV_SENDER,
+                acquiringIntegrationContext: { id: context.id },
+                payments: [getExternalPayment({ transactionId })],
+            }
+
+            await registerExternalPaymentsByTestClient(admin, payload)
+
+            const multiPayment = await MultiPayment.getOne(admin, { transactionId })
+
+            await MultiPayment.update(admin, multiPayment.id, { deletedAt: new Date(), status: MULTIPAYMENT_ERROR_STATUS })
+            await Payment.update(admin, multiPayment.payments[0].id, { deletedAt: new Date(), status: PAYMENT_ERROR_STATUS })
+
+            const [{ status }] = await registerExternalPaymentsByTestClient(admin, payload)
+
+            expect(status).toBe(STATUS_OK_RESPONSE)
+
+            const recreatedMultiPayment = await MultiPayment.getOne(admin, { transactionId })
+
+            expect(recreatedMultiPayment).toBeDefined()
+            expect(recreatedMultiPayment.status).toBe(MULTIPAYMENT_DONE_STATUS)
+        })
+
+        test('Should not allow empty bankAccount', async () => {
+            const bankAccount = ''
+
+            const payload = {
+                ...DV_SENDER,
+                acquiringIntegrationContext: { id: context.id },
+                payments: [getExternalPayment({ bankAccount })],
+            }
+
+            await expectToThrowGQLErrorToResult(async () => {
+                await registerExternalPaymentsByTestClient(admin, payload)
+            }, ERRORS.BANK_ACCOUNT_REQUIRED)
+        })
+
+        test('Should not allow incorrect bankAccount', async () => {
+            const bankAccount = 'ABC12345678901234567'
+
+            const payload = {
+                ...DV_SENDER,
+                acquiringIntegrationContext: { id: context.id },
+                payments: [getExternalPayment({ bankAccount })],
+            }
+
+            await expectToThrowGQLErrorToResult(async () => {
+                await registerExternalPaymentsByTestClient(admin, payload)
+            }, ERRORS.INVALID_BANK_ACCOUNT)
+        })
+
+        test('Should not allow empty routingNumber', async () => {
+            const routingNumber = ''
+
+            const payload = {
+                ...DV_SENDER,
+                acquiringIntegrationContext: { id: context.id },
+                payments: [getExternalPayment({ routingNumber })],
+            }
+
+            await expectToThrowGQLErrorToResult(async () => {
+                await registerExternalPaymentsByTestClient(admin, payload)
+            }, ERRORS.ROUTING_NUMBER_REQUIRED)
+        })
+
+        test('Should not allow incorrect routingNumber', async () => {
+            const routingNumber = 'ABC123456789'
+
+            const payload = {
+                ...DV_SENDER,
+                acquiringIntegrationContext: { id: context.id },
+                payments: [getExternalPayment({ routingNumber })],
+            }
+
+            await expectToThrowGQLErrorToResult(async () => {
+                await registerExternalPaymentsByTestClient(admin, payload)
+            }, ERRORS.INVALID_ROUTING_NUMBER)
         })
     })
 

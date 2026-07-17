@@ -85,7 +85,12 @@ describe('AllResidentBillingReceiptsService', () => {
         test('should correctly calculate paid field', async () => {
             const amount = '1000'
             const accountNumber = faker.random.alphaNumeric(12)
-            const jsonReceipt = utils.createJSONReceipt({ accountNumber, toPay: amount })
+            const jsonReceipt = utils.createJSONReceipt({
+                accountNumber,
+                toPay: amount,
+                bankAccount: '40647859100000003330',
+                routingNumber: '044525225',
+            })
             const [[{ id: receiptId }]] = await utils.createReceipts([jsonReceipt])
             const resident = await utils.createResident()
             const [{ id: consumerId }] = await utils.createServiceConsumer(resident, accountNumber)

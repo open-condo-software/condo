@@ -108,6 +108,62 @@ const REGISTER_EXTERNAL_PAYMENTS_ERRORS = {
         type: 'INVALID_VALUE',
         message: 'Transaction ID is required for payment',
     },
+    BANK_ACCOUNT_REQUIRED: {
+        mutation: 'registerExternalPayments',
+        variable: ['data', 'payments'],
+        code: BAD_USER_INPUT,
+        type: 'INVALID_VALUE',
+        message: 'Bank account is required for payment. Empty value for payment: {transactionId}',
+    },
+    INVALID_BANK_ACCOUNT: {
+        mutation: 'registerExternalPayments',
+        variable: ['data', 'payments'],
+        code: BAD_USER_INPUT,
+        type: 'INVALID_VALUE',
+        message: 'Invalid bank account field value. Invalid value for payment: {transactionId}',
+    },
+    ROUTING_NUMBER_REQUIRED: {
+        mutation: 'registerExternalPayments',
+        variable: ['data', 'payments'],
+        code: BAD_USER_INPUT,
+        type: 'INVALID_VALUE',
+        message: 'Routing number is required for payment. Empty value for payment: {transactionId}',
+    },
+    INVALID_ROUTING_NUMBER: {
+        mutation: 'registerExternalPayments',
+        variable: ['data', 'payments'],
+        code: BAD_USER_INPUT,
+        type: 'INVALID_VALUE',
+        message: 'Invalid routing number field value. Invalid value for payment: {transactionId}',
+    },
+    ACCOUNT_NUMBER_REQUIRED: {
+        mutation: 'registerExternalPayments',
+        variable: ['data', 'payments'],
+        code: BAD_USER_INPUT,
+        type: 'INVALID_VALUE',
+        message: 'Account number is required for payment. Empty value for payment: {transactionId}',
+    },
+    PAYMENT_ORDER_REQUIRED: {
+        mutation: 'registerExternalPayments',
+        variable: ['data', 'payments'],
+        code: BAD_USER_INPUT,
+        type: 'INVALID_VALUE',
+        message: 'Payment order is required for payment. Empty value for payment: {transactionId}',
+    },
+    TIN_REQUIRED: {
+        mutation: 'registerExternalPayments',
+        variable: ['data', 'payments'],
+        code: BAD_USER_INPUT,
+        type: 'INVALID_VALUE',
+        message: 'TIN is required for payment. Empty value for payment: {transactionId}',
+    },
+    ADDRESS_REQUIRED: {
+        mutation: 'registerExternalPayments',
+        variable: ['data', 'payments'],
+        code: BAD_USER_INPUT,
+        type: 'INVALID_VALUE',
+        message: 'Address is required for payment. Empty value for payment: {transactionId}',
+    },
 }
 
 module.exports = {

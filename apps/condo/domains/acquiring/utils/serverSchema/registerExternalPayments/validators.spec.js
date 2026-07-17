@@ -1,3 +1,5 @@
+const { faker } = require('@faker-js/faker')
+
 const { PAYMENTS_LIMIT } = require('@condo/domains/acquiring/constants/registerExternalPayments')
 const {
     validatePayments,
@@ -9,13 +11,99 @@ const {
     validateDuplicatedTransactionIds,
     validatePaymentsNumberLimits,
     validateExistingMultiPayments,
+    validateAccountNumber,
+    validatePaymentOrder,
+    validateBankAccount,
+    validateRoutingNumber,
+    validateTin,
+    validateAddress,
 } = require('@condo/domains/acquiring/utils/serverSchema/registerExternalPayments/validators')
 const { ISO_CODES } = require('@condo/domains/common/constants/currencies')
 
 describe('RegisterExternalPayments Validators', () => {
-    describe('validateCurrencyCode', () => {
-        const tId = 'txn-123'
+    const tId = 'txn-123'
 
+    describe('validateAddress', () => {
+        test('should throw for empty tin', () => {
+            const address = ''
+
+            expect(() => validateAddress(address, tId, {})).toThrow()
+        })
+    })
+
+    describe('validateTin', () => {
+        test('should throw for empty tin', () => {
+            const tin = ''
+
+            expect(() => validateTin(tin, tId, {})).toThrow()
+        })
+    })
+
+    describe('validateAccountNumber', () => {
+        test('should throw for empty accountNumber', () => {
+            const accountNumber = ''
+
+            expect(() => validateAccountNumber(accountNumber, tId, {})).toThrow()
+        })
+    })
+
+    describe('validatePaymentOrder', () => {
+        test('should throw for empty paymentOrder', () => {
+            const paymentOrder = ''
+
+            expect(() => validatePaymentOrder(paymentOrder, tId, {})).toThrow()
+        })
+    })
+
+    describe('validateBankAccount', () => {
+        test.each([
+            ['12345678901234567890', true],
+            ['00000000000000000000', true],
+            ['', false],
+            [null, false],
+            [undefined, false],
+            ['1234567890123456789', false],
+            ['123456789012345678901', false],
+            ['1234567890123456789a', false],
+            ['1234-5678901234567890', false],
+            ['1234 567890123456789', false],
+            ['abcdefghijklmnopqrst', false],
+        ])('bankAccount: %p -> valid: %s', (bankAccount, isValid) => {
+            const fn = () => validateBankAccount(bankAccount, tId, {})
+
+            if (isValid) {
+                expect(fn).not.toThrow()
+            } else {
+                expect(fn).toThrow()
+            }
+        })
+    })
+
+    describe('validateRoutingNumber', () => {
+        test.each([
+            ['123456789', true],
+            ['000000000', true],
+            ['', false],
+            [null, false],
+            [undefined, false],
+            ['12345678', false],
+            ['1234567890', false],
+            ['12345678a', false],
+            ['1234-6789', false],
+            ['1234 6789', false],
+            ['abcdefghi', false],
+        ])('routingNumber: %p -> valid: %s', (routingNumber, isValid) => {
+            const fn = () => validateRoutingNumber(routingNumber, tId, {})
+
+            if (isValid) {
+                expect(fn).not.toThrow()
+            } else {
+                expect(fn).toThrow()
+            }
+        })
+    })
+
+    describe('validateCurrencyCode', () => {
         test.each([
             ['RUB', true],
             ['USD', true],
@@ -40,8 +128,6 @@ describe('RegisterExternalPayments Validators', () => {
     })
 
     describe('validatePeriodFormat', () => {
-        const tId = 'txn-123'
-
         test.each([
             ['2024-01-01', true],
             ['2024-12-01', true],
@@ -72,8 +158,6 @@ describe('RegisterExternalPayments Validators', () => {
     })
 
     describe('validateDateFormat', () => {
-        const tId = 'txn-123'
-
         test.each([
             ['2024-01-01T00:00:00.000Z', true],
             ['2024-12-31T23:59:59.999Z', true],
@@ -97,8 +181,6 @@ describe('RegisterExternalPayments Validators', () => {
     })
 
     describe('validateNumericValues', () => {
-        const tId = 'txn-123'
-
         test.each([
             ['100.00', null, null, true],
             ['100.00', '10.00', '5.00', true],
@@ -127,8 +209,6 @@ describe('RegisterExternalPayments Validators', () => {
     })
 
     describe('validatePositiveAmount', () => {
-        const tId = 'txn-123'
-
         test.each([
             ['100.00', true],
             ['0.01', true],
@@ -219,11 +299,17 @@ describe('RegisterExternalPayments Validators', () => {
 
     describe('validatePayments (integration)', () => {
         const validPayment = {
+            accountNumber: faker.finance.account(),
             transactionId: 'txn-123',
             amount: '100.00',
             period: '2024-01-01',
             transactionDate: new Date().toISOString(),
             currencyCode: 'RUB',
+            tin: '1234567890',
+            bankAccount: '40647859100000003330',
+            routingNumber: '044525225',
+            address: faker.address.streetAddress(true),
+            paymentOrder: '1',
         }
 
         test('should validate all fields successfully', () => {
