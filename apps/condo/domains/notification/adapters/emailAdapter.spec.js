@@ -9,6 +9,7 @@ const { fetch } = require('@open-condo/keystone/fetch')
 const {
     EmailAdapter,
     EMAIL_ADAPTER_TYPE_MAILGUN,
+    EMAIL_ADAPTER_TYPE_SENDSAY,
     EMAIL_ADAPTER_TYPE_UNISENDER_GO,
 } = require('./emailAdapter')
 
@@ -24,6 +25,17 @@ const UNISENDER_GO_CONFIG = {
     type: EMAIL_ADAPTER_TYPE_UNISENDER_GO,
     api_url: 'https://go1.unisender.ru/ru/transactional/api/v1',
     token: 'test-unisender-api-key',
+    from: 'Condo <noreply@example.com>',
+    useTags: true,
+    useAttachingData: true,
+}
+
+const SENDSAY_CONFIG = {
+    type: EMAIL_ADAPTER_TYPE_SENDSAY,
+    api_url: 'https://api.sendsay.ru/general/api/v100/json',
+    login: 'shared-login',
+    sublogin: 'project-sublogin',
+    passwd: 'super-secret',
     from: 'Condo <noreply@example.com>',
     useTags: true,
     useAttachingData: true,
@@ -628,6 +640,181 @@ describe('Email adapters', () => {
                     }],
                 },
             })).rejects.toThrow('ECONNRESET')
+        })
+    })
+
+    describe('Sendsay adapter', () => {
+        beforeEach(() => {
+            process.env.EMAIL_API_CONFIG = JSON.stringify(SENDSAY_CONFIG)
+        })
+
+        it('marks adapter as configured when EMAIL_API_CONFIG type is sendsay', () => {
+            const adapter = new EmailAdapter()
+            expect(adapter.isConfigured).toBe(true)
+            expect(adapter.provider).toBe(EMAIL_ADAPTER_TYPE_SENDSAY)
+        })
+
+        it('marks adapter as not configured when sendsay auth fields are missing', () => {
+            process.env.EMAIL_API_CONFIG = JSON.stringify({
+                type: EMAIL_ADAPTER_TYPE_SENDSAY,
+                api_url: SENDSAY_CONFIG.api_url,
+                from: SENDSAY_CONFIG.from,
+            })
+
+            const adapter = new EmailAdapter()
+            expect(adapter.isConfigured).toBe(false)
+        })
+
+        it('sends transactional email via issue.send personal payload', async () => {
+            fetch.mockResolvedValue(createJsonResponse(200, {
+                session: 'abc',
+                'track.id': 12345,
+            }))
+
+            const adapter = new EmailAdapter()
+            const [isOk, context] = await adapter.send({
+                to: 'user@example.com',
+                emailFrom: 'Support <support@example.com>',
+                subject: 'Hello from Sendsay',
+                text: 'Plain text',
+                html: '<b>HTML</b>',
+                messageType: 'SHARE_TICKET',
+                meta: { attachingData: { organizationId: 'org-1' } },
+            })
+
+            expect(isOk).toBe(true)
+            expect(context['track.id']).toBe(12345)
+
+            const [calledUrl, calledOpts] = fetch.mock.calls[0]
+            expect(calledUrl).toBe(`${SENDSAY_CONFIG.api_url}/${SENDSAY_CONFIG.login}`)
+            expect(calledOpts.method).toBe('POST')
+            expect(calledOpts.headers).toEqual({
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            })
+
+            const body = JSON.parse(calledOpts.body)
+            expect(body).toMatchObject({
+                action: 'issue.send',
+                group: 'personal',
+                sendwhen: 'now',
+                'users.list': 'user@example.com',
+                one_time_auth: {
+                    login: SENDSAY_CONFIG.login,
+                    sublogin: SENDSAY_CONFIG.sublogin,
+                    passwd: SENDSAY_CONFIG.passwd,
+                },
+                letter: {
+                    subject: 'Hello from Sendsay',
+                    'from.email': 'noreply@example.com',
+                    'from.name': 'Condo',
+                    'reply.email': 'support@example.com',
+                    'reply.name': 'Support',
+                    label: ['SHARE_TICKET'],
+                    'customer.id': JSON.stringify({ organizationId: 'org-1' }),
+                    message: {
+                        html: '<b>HTML</b>',
+                        text: 'Plain text',
+                    },
+                },
+            })
+            expect(body.login).toBeUndefined()
+            expect(body.passwd).toBeUndefined()
+        })
+
+        it('uses apikey auth when token is provided', async () => {
+            process.env.EMAIL_API_CONFIG = JSON.stringify({
+                ...SENDSAY_CONFIG,
+                token: 'sendsay-api-key',
+                passwd: undefined,
+            })
+            fetch.mockResolvedValue(createJsonResponse(200, { 'track.id': 99 }))
+
+            const adapter = new EmailAdapter()
+            const [isOk] = await adapter.send({
+                to: 'user@example.com',
+                subject: 'Hello',
+                text: 'Body',
+            })
+
+            expect(isOk).toBe(true)
+            const body = JSON.parse(fetch.mock.calls[0][1].body)
+            expect(body.apikey).toBe('sendsay-api-key')
+            expect(body.one_time_auth).toBeUndefined()
+        })
+
+        it('downloads attachments and maps them to letter.attaches', async () => {
+            mockHttpsGetWithStream({ content: ATTACHMENT_CONTENT })
+            fetch.mockResolvedValue(createJsonResponse(200, { 'track.id': 7 }))
+
+            const adapter = new EmailAdapter()
+            const [isOk] = await adapter.send({
+                to: 'user@example.com',
+                subject: 'With attachment',
+                text: 'See file',
+                meta: {
+                    attachments: [{
+                        publicUrl: ATTACHMENT_URL,
+                        mimetype: 'text/plain',
+                        originalFilename: 'doc.txt',
+                    }],
+                },
+            })
+
+            expect(isOk).toBe(true)
+            const body = JSON.parse(fetch.mock.calls[0][1].body)
+            expect(body.letter.attaches).toEqual([{
+                name: 'doc.txt',
+                content: Buffer.from(ATTACHMENT_CONTENT).toString('base64'),
+                encoding: 'base64',
+                'mime-type': 'text/plain',
+            }])
+        })
+
+        it('checkIsAvailable uses authenticated sys.settings.get', async () => {
+            fetch.mockResolvedValue(createJsonResponse(200, { list: { 'about.id': 123 } }))
+
+            const adapter = new EmailAdapter()
+            await expect(adapter.checkIsAvailable()).resolves.toBe(true)
+
+            expect(fetch.mock.calls[0][0]).toBe(`${SENDSAY_CONFIG.api_url}/${SENDSAY_CONFIG.login}`)
+            const body = JSON.parse(fetch.mock.calls[0][1].body)
+            expect(body).toEqual({
+                action: 'sys.settings.get',
+                list: ['about.id'],
+                one_time_auth: {
+                    login: SENDSAY_CONFIG.login,
+                    sublogin: SENDSAY_CONFIG.sublogin,
+                    passwd: SENDSAY_CONFIG.passwd,
+                },
+            })
+        })
+
+        it('does not duplicate login when api_url already includes account path', async () => {
+            process.env.EMAIL_API_CONFIG = JSON.stringify({
+                ...SENDSAY_CONFIG,
+                api_url: `${SENDSAY_CONFIG.api_url}/${SENDSAY_CONFIG.login}`,
+            })
+            fetch.mockResolvedValue(createJsonResponse(200, { 'track.id': 1 }))
+
+            const adapter = new EmailAdapter()
+            await adapter.send({
+                to: 'user@example.com',
+                subject: 'Hello',
+                text: 'Body',
+            })
+
+            expect(fetch.mock.calls[0][0]).toBe(`${SENDSAY_CONFIG.api_url}/${SENDSAY_CONFIG.login}`)
+        })
+
+        it('rejects cc and bcc because sendsay semantics differ', async () => {
+            const adapter = new EmailAdapter()
+            await expect(adapter.send({
+                to: 'user@example.com',
+                cc: 'copy@example.com',
+                subject: 'Hello',
+                text: 'Body',
+            })).rejects.toThrow('Sendsay adapter does not support cc or bcc')
         })
     })
 

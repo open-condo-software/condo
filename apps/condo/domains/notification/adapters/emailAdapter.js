@@ -19,9 +19,20 @@ const DEFAULT_MAX_ATTACHMENT_SIZE_BYTES = 10 * 1024 * 1024
 
 const EmailApiConfigSchema = z.object({
     api_url: z.string().min(1),
-    token: z.string().min(1),
     from: z.string().min(1),
 }).loose()
+
+const validateConfig = (config, required, type) => {
+    const missedFields = required.filter(field => !get(config, field))
+    if (!isEmpty(missedFields)) {
+        logger.error({
+            msg: 'missing fields in EMAIL_API_CONFIG',
+            data: { type, missedFields },
+        })
+        return false
+    }
+    return true
+}
 
 /**
  * Parses "Name <email@example.com>" or bare "email@example.com" into parts.
@@ -70,11 +81,6 @@ const parseEmailList = (value) => {
         .split(',')
         .map((part) => parseNamedEmail(part).email)
         .filter(Boolean)
-}
-
-const normalizeApiUrl = (apiUrl) => {
-    if (!apiUrl || typeof apiUrl !== 'string') return ''
-    return apiUrl.replace(/\/+$/, '')
 }
 
 const resolveAttachmentOptions = (config = {}) => {
@@ -187,6 +193,8 @@ class MailgunEmail {
     isConfigured = false
 
     constructor (config) {
+        this.isConfigured = validateConfig(config, ['api_url', 'token', 'from'], MailgunEmail.type)
+        if (!this.isConfigured) return
         this.api_url = config.api_url
         this.token = config.token
         this.from = config.from
@@ -301,7 +309,14 @@ class UnisenderGoEmail {
 
     isConfigured = false
 
+    static normalizeApiUrl (apiUrl) {
+        if (!apiUrl || typeof apiUrl !== 'string') return ''
+        return apiUrl.replace(/\/+$/, '')
+    }
+
     constructor (config) {
+        this.isConfigured = validateConfig(config, ['api_url', 'token', 'from'], UnisenderGoEmail.type)
+        if (!this.isConfigured) return
         const { email: fromEmail, name: fromName } = parseNamedEmail(config.from)
         if (!fromEmail) {
             logger.error({
@@ -311,7 +326,7 @@ class UnisenderGoEmail {
             return
         }
 
-        this.api_url = normalizeApiUrl(config.api_url)
+        this.api_url = UnisenderGoEmail.normalizeApiUrl(config.api_url)
         this.apiKey = config.token
         this.fromEmail = fromEmail
         this.fromName = fromName
@@ -455,6 +470,204 @@ class UnisenderGoEmail {
 }
 
 /**
+ * Sendsay transactional email adapter.
+ * Uses `issue.send` with `group: "personal"`.
+ * Auth: `apikey`/`token`, or `one_time_auth` with `login` / optional `sublogin` / `passwd`.
+ * `api_url` may be the base JSON endpoint (`.../json`) — account login is appended automatically.
+ * @see https://sendsay.ru/api/api.html
+ */
+class SendsayEmail {
+    static type = 'sendsay'
+
+    isConfigured = false
+
+    /**
+     * Sendsay JSON API requires account code in the path:
+     * `https://api.sendsay.ru/general/api/v100/json/ACCOUNT`
+     */
+    static buildApiUrl (apiUrl, login) {
+        const base = (!apiUrl || typeof apiUrl !== 'string') ? '' : apiUrl.replace(/\/+$/, '')
+        if (!base || !login) return base
+
+        const encodedLogin = encodeURIComponent(login)
+        const suffix = `/${login}`
+        const encodedSuffix = `/${encodedLogin}`
+        if (base.endsWith(suffix) || base.endsWith(encodedSuffix)) {
+            return base
+        }
+
+        return `${base}${encodedSuffix}`
+    }
+
+    constructor (config) {
+        const hasApiKey = Boolean(config.apikey || config.token)
+        const required = hasApiKey
+            ? ['api_url', 'from', 'login']
+            : ['api_url', 'from', 'login', 'passwd']
+        this.isConfigured = validateConfig(config, required, SendsayEmail.type)
+        if (!this.isConfigured) return
+
+        const { email: fromEmail, name: fromName } = parseNamedEmail(config.from)
+        if (!fromEmail) {
+            logger.error({
+                msg: 'invalid from field in EMAIL_API_CONFIG',
+                data: { type: SendsayEmail.type },
+            })
+            return
+        }
+
+        this.login = config.login
+        this.sublogin = config.sublogin
+        this.passwd = config.passwd
+        this.apikey = config.apikey || config.token || null
+        this.api_url = SendsayEmail.buildApiUrl(config.api_url, this.login)
+        this.fromEmail = fromEmail
+        this.fromName = fromName
+        this.useTags = Boolean(config.useTags)
+        this.useAttachingData = Boolean(config.useAttachingData)
+        this.attachmentOptions = resolveAttachmentOptions(config)
+        this.isConfigured = true
+    }
+
+    _buildAuthPayload (payload) {
+        if (this.apikey) {
+            return {
+                ...payload,
+                apikey: this.apikey,
+            }
+        }
+
+        return {
+            ...payload,
+            one_time_auth: {
+                login: this.login,
+                passwd: this.passwd,
+                ...(this.sublogin ? { sublogin: this.sublogin } : {}),
+            },
+        }
+    }
+
+    isEmailSupported (email) {
+        return typeof email === 'string' && email.includes('@')
+    }
+
+    async checkIsAvailable () {
+        if (!this.isConfigured) return false
+
+        try {
+            const result = await fetch(
+                this.api_url,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify(this._buildAuthPayload({
+                        action: 'sys.settings.get',
+                        list: ['about.id'],
+                    })),
+                },
+            )
+            if (!result.ok) return false
+
+            const json = await result.json()
+            return !get(json, 'errors') && Boolean(get(json, ['list', 'about.id']))
+        } catch (error) {
+            return false
+        }
+    }
+
+    async send ({ to, emailFrom = null, cc, bcc, subject, text, html, meta, messageType } = {}, extendedParams = {}) {
+        if (cc || bcc) {
+            throw new Error('Sendsay adapter does not support cc or bcc')
+        }
+
+        const toEmails = parseEmailList(to)
+        if (isEmpty(toEmails)) {
+            throw new Error('unsupported to argument format')
+        }
+
+        const { email: replyEmail, name: replyName } = parseNamedEmail(emailFrom)
+        const letter = {
+            subject,
+            'from.email': this.fromEmail,
+            message: {},
+        }
+
+        if (this.fromName) {
+            letter['from.name'] = this.fromName
+        }
+        if (replyEmail) {
+            letter['reply.email'] = replyEmail
+        }
+        if (replyName) {
+            letter['reply.name'] = replyName
+        }
+        if (html) {
+            letter.message.html = html
+        }
+        if (text) {
+            letter.message.text = text
+        }
+        if (this.useTags && messageType && typeof messageType === 'string') {
+            letter.label = [messageType]
+        }
+        if (this.useAttachingData && meta && !isEmpty(meta.attachingData)) {
+            letter['customer.id'] = typeof meta.attachingData === 'string'
+                ? meta.attachingData
+                : JSON.stringify(meta.attachingData)
+        }
+        if (meta && meta.attachments) {
+            letter.attaches = await Promise.all(meta.attachments.map(async (attachment) => {
+                const { mimetype, originalFilename } = attachment
+                const buffer = await resolveAttachmentBuffer(attachment, this.attachmentOptions)
+                return {
+                    name: originalFilename || 'attachment',
+                    content: buffer.toString('base64'),
+                    encoding: 'base64',
+                    'mime-type': mimetype || 'application/octet-stream',
+                }
+            }))
+        }
+
+        const result = await fetch(
+            this.api_url,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify(this._buildAuthPayload({
+                    action: 'issue.send',
+                    group: 'personal',
+                    sendwhen: 'now',
+                    letter,
+                    'users.list': toEmails.join('\n'),
+                    ...extendedParams,
+                })),
+            },
+        )
+
+        const responseText = await result.text()
+        let context
+        try {
+            context = JSON.parse(responseText)
+        } catch (error) {
+            return [false, { text: responseText, status: result.status }]
+        }
+
+        const isSent = result.ok && !get(context, 'errors')
+        if (!isSent && !get(context, 'status')) {
+            return [false, { ...context, status: result.status, text: responseText }]
+        }
+
+        return [isSent, context]
+    }
+}
+
+/**
  * Register email providers here.
  *
  * To add a new provider:
@@ -465,6 +678,7 @@ class UnisenderGoEmail {
  */
 const EMAIL_ADAPTERS = {
     [MailgunEmail.type]: MailgunEmail,
+    [SendsayEmail.type]: SendsayEmail,
     [UnisenderGoEmail.type]: UnisenderGoEmail,
 }
 
@@ -505,7 +719,9 @@ const resolveAdapterType = (config) => {
 const isEmailAdapterConfigured = () => {
     const config = getEmailApiConfig()
     if (!config) return false
-    return Boolean(EMAIL_ADAPTERS[resolveAdapterType(config)])
+    const AdapterClass = EMAIL_ADAPTERS[resolveAdapterType(config)]
+    if (!AdapterClass) return false
+    return Boolean(new AdapterClass(config).isConfigured)
 }
 
 class EmailAdapter {
@@ -604,5 +820,6 @@ module.exports = {
     EmailAdapter,
     isEmailAdapterConfigured,
     EMAIL_ADAPTER_TYPE_MAILGUN: MailgunEmail.type,
+    EMAIL_ADAPTER_TYPE_SENDSAY: SendsayEmail.type,
     EMAIL_ADAPTER_TYPE_UNISENDER_GO: UnisenderGoEmail.type,
 }
