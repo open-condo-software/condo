@@ -98,7 +98,9 @@ GraphQL-side cross-db hydration: `packages/keystone/databaseAdapters/crossDb/` (
 | `CROSS_DB_RELATION_FILTER_IDS_LIMIT` | `50000` | Max ids for GraphQL relation filters |
 | `CROSS_DB_RELATION_FILTER_MAX_PAGES` | `ceil(IDS_LIMIT / 1000) + 1` | Pagination cap for relation id collection |
 
-**Write path:** `validateCrossSourceReferences` runs on INSERT/UPDATE when relationship fields point to a table on another pool (pools derived from `DATABASE_POOLS`).
+**Main-pool fast path:** lists with no relationship to another pool skip CrossDbPlanner rewrite, SELECT JOIN rewrite wrapping, and mutation FK validation (cached hints in `crossDb/crossSourceHints.js`). Remaining cost is only `DATABASE_ROUTING_RULES` matching in the knex runner — same as BalancingReplica before external tables.
+
+**Write path:** `validateCrossSourceReferences` runs on INSERT/UPDATE when relationship fields point to a table on another pool. `enforceCrossSourceDeleteConstraints` restores inbound `on_delete` (PROTECT / CASCADE / SET_NULL) when deleting a parent on another pool (soft-delete only enforces PROTECT).
 
 ## How to add a new data provider (KV, Mongo, …)
 
