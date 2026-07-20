@@ -18,11 +18,13 @@ import type { CodeInputStepProps } from './CodeInputStep'
 import type { EmailInputStepProps } from './EmailInputStep'
 
 import {
+    AppType,
     AppEnvironment,
     useStartConfirmEmailActionMutation,
     StartConfirmEmailActionMutation,
     useCompleteConfirmEmailActionMutation,
     useRegisterAppUserServiceMutation,
+    AllB2BAppAccessRightsDocument,
     AllB2CAppAccessRightsDocument,
 } from '@/gql'
 
@@ -33,6 +35,7 @@ const RESET_TIMEOUT_IN_SEC = Math.min(RESET_MAX_TIMEOUT_IN_SEC, CONFIRM_EMAIL_AC
 type RegisterUserModalProps = Pick<ModalProps, 'open'> & {
     id: string
     environment: AppEnvironment
+    appType: AppType
     onClose: () => void
 }
 
@@ -50,7 +53,7 @@ const CODE_FORM_ERRORS_TO_FIELDS_MAP = {
     [INVALID_CODE]: 'code',
 }
 
-export const RegisterUserModal: React.FC<RegisterUserModalProps> = ({ onClose, open, id, environment }) => {
+export const RegisterUserModal: React.FC<RegisterUserModalProps> = ({ onClose, open, id, environment, appType }) => {
     const intl = useIntl()
     const ModalTitle = intl.formatMessage({ id: 'pages.apps.any.id.sections.serviceUser.userSettings.registerUserForm.modal.title' })
     const ContinueActionLabel = intl.formatMessage({ id: 'pages.apps.any.id.sections.serviceUser.userSettings.registerUserForm.actions.continue' })
@@ -118,12 +121,14 @@ export const RegisterUserModal: React.FC<RegisterUserModalProps> = ({ onClose, o
         notification.success({ message: SuccessNotificationTitle, description: SuccessNotificationDescription, duration: 15 })
         onClose()
     }, [SuccessNotificationDescription, SuccessNotificationTitle, onClose])
+    const refetchQueries = useMemo(() => appType === 'B2C'
+        ? [{ query: AllB2CAppAccessRightsDocument, variables: { environment, appId: id } }]
+        : [{ query: AllB2BAppAccessRightsDocument, variables: { environment, appId: id } }]
+    , [appType, environment, id])
     const [registerServiceUserMutation] = useRegisterAppUserServiceMutation({
         onError: onRegisterServiceUserError,
         onCompleted: onRegisterServiceUserCompleted,
-        refetchQueries: [
-            { query: AllB2CAppAccessRightsDocument, variables: { environment, appId: id } },
-        ],
+        refetchQueries,
     })
 
     const onCompleteConfirmEmailActionError = useMutationErrorHandler({

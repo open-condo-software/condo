@@ -7598,6 +7598,14 @@ export type UpdateB2BAppMutationVariables = Exact<{
 
 export type UpdateB2BAppMutation = { __typename?: 'Mutation', app?: { __typename: 'B2BApp', id: string, name?: string | null, developer?: string | null, developerUrl?: string | null, category?: B2BAppCategoryType | null, shortDescription?: string | null, detailedDescription?: string | null, developmentExportId?: string | null, productionExportId?: string | null, developmentAppUrl?: string | null, productionAppUrl?: string | null, developmentFullscreenAllowed?: boolean | null, productionFullscreenAllowed?: boolean | null, developmentMicrophoneAllowed?: boolean | null, productionMicrophoneAllowed?: boolean | null, developmentCameraAllowed?: boolean | null, productionCameraAllowed?: boolean | null, developmentSpeakerSelectionAllowed?: boolean | null, productionSpeakerSelectionAllowed?: boolean | null, developmentClipboardWriteAllowed?: boolean | null, productionClipboardWriteAllowed?: boolean | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null };
 
+export type AllB2BAppAccessRightsQueryVariables = Exact<{
+  appId: Scalars['ID']['input'];
+  environment: AppEnvironment;
+}>;
+
+
+export type AllB2BAppAccessRightsQuery = { __typename?: 'Query', rights?: Array<{ __typename?: 'B2BAppAccessRight', condoUserEmail?: string | null } | null> | null };
+
 export type AllB2BAppContextsQueryVariables = Exact<{
   data: AllB2BAppContextsInput;
 }>;
@@ -8141,6 +8149,54 @@ export function useUpdateB2BAppMutation(baseOptions?: Apollo.MutationHookOptions
 export type UpdateB2BAppMutationHookResult = ReturnType<typeof useUpdateB2BAppMutation>;
 export type UpdateB2BAppMutationResult = Apollo.MutationResult<UpdateB2BAppMutation>;
 export type UpdateB2BAppMutationOptions = Apollo.BaseMutationOptions<UpdateB2BAppMutation, UpdateB2BAppMutationVariables>;
+export const AllB2BAppAccessRightsDocument = gql`
+    query allB2BAppAccessRights($appId: ID!, $environment: AppEnvironment!) {
+  rights: allB2BAppAccessRights(
+    where: {app: {id: $appId}, environment: $environment}
+    first: 1
+    skip: 0
+  ) {
+    condoUserEmail
+  }
+}
+    `;
+
+/**
+ * __useAllB2BAppAccessRightsQuery__
+ *
+ * To run a query within a React component, call `useAllB2BAppAccessRightsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAllB2BAppAccessRightsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAllB2BAppAccessRightsQuery({
+ *   variables: {
+ *      appId: // value for 'appId'
+ *      environment: // value for 'environment'
+ *   },
+ * });
+ */
+export function useAllB2BAppAccessRightsQuery(baseOptions: Apollo.QueryHookOptions<AllB2BAppAccessRightsQuery, AllB2BAppAccessRightsQueryVariables> & ({ variables: AllB2BAppAccessRightsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<AllB2BAppAccessRightsQuery, AllB2BAppAccessRightsQueryVariables>(AllB2BAppAccessRightsDocument, options);
+      }
+export function useAllB2BAppAccessRightsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<AllB2BAppAccessRightsQuery, AllB2BAppAccessRightsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<AllB2BAppAccessRightsQuery, AllB2BAppAccessRightsQueryVariables>(AllB2BAppAccessRightsDocument, options);
+        }
+// @ts-ignore
+export function useAllB2BAppAccessRightsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<AllB2BAppAccessRightsQuery, AllB2BAppAccessRightsQueryVariables>): Apollo.UseSuspenseQueryResult<AllB2BAppAccessRightsQuery, AllB2BAppAccessRightsQueryVariables>;
+export function useAllB2BAppAccessRightsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AllB2BAppAccessRightsQuery, AllB2BAppAccessRightsQueryVariables>): Apollo.UseSuspenseQueryResult<AllB2BAppAccessRightsQuery | undefined, AllB2BAppAccessRightsQueryVariables>;
+export function useAllB2BAppAccessRightsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AllB2BAppAccessRightsQuery, AllB2BAppAccessRightsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<AllB2BAppAccessRightsQuery, AllB2BAppAccessRightsQueryVariables>(AllB2BAppAccessRightsDocument, options);
+        }
+export type AllB2BAppAccessRightsQueryHookResult = ReturnType<typeof useAllB2BAppAccessRightsQuery>;
+export type AllB2BAppAccessRightsLazyQueryHookResult = ReturnType<typeof useAllB2BAppAccessRightsLazyQuery>;
+export type AllB2BAppAccessRightsSuspenseQueryHookResult = ReturnType<typeof useAllB2BAppAccessRightsSuspenseQuery>;
+export type AllB2BAppAccessRightsQueryResult = Apollo.QueryResult<AllB2BAppAccessRightsQuery, AllB2BAppAccessRightsQueryVariables>;
 export const AllB2BAppContextsDocument = gql`
     query allB2BAppContexts($data: AllB2BAppContextsInput!) {
   contexts: allB2BAppContexts(data: $data) {

@@ -15,6 +15,7 @@ import { InfoSection } from '@/domains/miniapp/components/B2BApp/edit/info/InfoS
 import { OrganizationsSection } from '@/domains/miniapp/components/B2BApp/edit/organizations/OrganizationsSection'
 import { AppPermissionsSection } from '@/domains/miniapp/components/B2BApp/edit/permissions/AppPermissionsSection'
 import { PublishingSection } from '@/domains/miniapp/components/B2BApp/edit/publishing/PublishingSection'
+import { ServiceUserSection } from '@/domains/miniapp/components/B2BApp/edit/service-user/ServiceUserSection'
 import { OIDCClientSection } from '@/domains/miniapp/components/OIDC/edit/OIDCClientSection'
 import { useB2BMenuItems } from '@/domains/miniapp/hooks/useB2BMenuItems'
 import { prefetchAuth } from '@/domains/user/utils/auth'
@@ -37,6 +38,7 @@ const SECTIONS: { [key in SectionType]: React.FC<{ id: string }> } = {
     'organizations': OrganizationsSection,
     'oidc': OIDCClientSection,
     'permissions': AppPermissionsSection,
+    'service-user': ServiceUserSection,
     'publishing': PublishingSection,
 }
 

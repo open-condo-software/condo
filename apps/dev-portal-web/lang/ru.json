@@ -219,7 +219,6 @@
   "pages.apps.any.id.sections.permissions.permission.voipNotifications.title": "Получение звонков",
   "pages.apps.any.id.sections.permissions.permission.voipNotifications.hint": "Позволяет устройству получать звонки, инициированные мини-приложением",
 
-
   "pages.apps.any.id.sections.serviceUser.userSettings.registerUserForm.emptyView.message": "У данного приложения пока нет учетной записи на выбранном стенде",
   "pages.apps.any.id.sections.serviceUser.userSettings.registerUserForm.emptyView.description": "Создать сервисного пользователя сейчас?",
   "pages.apps.any.id.sections.serviceUser.userSettings.registerUserForm.emptyView.actions.register": "Создать",
@@ -272,7 +271,6 @@
   "pages.apps.b2b.id.sections.info.media.items.main.title": "Главная иконка приложения",
   "pages.apps.b2b.id.sections.info.media.items.main.description": "Используется для карточки приложения в разделе «Сервисы»",
 
-
   "pages.apps.b2b.id.sections.organizations.title": "Подключенные организации",
   "pages.apps.b2b.id.sections.organizations.waitingView.title": "Управление организациями пока недоступно",
   "pages.apps.b2b.id.sections.organizations.waitingView.text": "Для просмотра и управления организациями опубликуйте данное приложение на соответствующем стенде",
@@ -297,6 +295,8 @@
 
   "pages.apps.b2b.id.sections.permissions.title": "Возможности приложения",
   "pages.apps.b2b.id.sections.permissions.table.columns.permission.title": "Разрешение",
+
+  "pages.apps.b2b.id.sections.serviceUser.title": "Сервисная учетная запись",
 
   "pages.apps.b2b.id.sections.publishing.title": "Публикация",
   "pages.apps.b2b.id.sections.publishing.publishForm.items.stand.label": "Выберите окружение",
