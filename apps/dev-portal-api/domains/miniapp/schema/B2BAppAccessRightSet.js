@@ -10,6 +10,7 @@ const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { B2B_PERMISSION_FIELDS } = require('@condo/domains/miniapp/schema/fields/b2bAccessRightSet')
 const access = require('@dev-portal-api/domains/miniapp/access/B2BAppAccessRightSet')
 const { B2B_APP_ACCESS_RIGHT_SET_APPROVED_STATUS, B2B_APP_ACCESS_RIGHT_SET_STATUS_OPTIONS, B2B_APP_ACCESS_RIGHT_SET_PENDING_STATUS } = require('@dev-portal-api/domains/miniapp/constants/b2bAppAccessRightSet')
+const { B2B_APP_ACCESS_RIGHT_SET_UNIQUE_APP_STATUS_CONSTRAINT } = require('@dev-portal-api/domains/miniapp/constants/constraints')
 const { AVAILABLE_ENVIRONMENTS, PROD_ENVIRONMENT } = require('@dev-portal-api/domains/miniapp/constants/publishing')
 const { exportable } = require('@dev-portal-api/domains/miniapp/plugins/exportable')
 const { B2BAppAccessRightSet: B2BAppAccessRightSetUtils } = require('@dev-portal-api/domains/miniapp/utils/serverSchema')
@@ -54,7 +55,7 @@ const B2BAppAccessRightSet = new GQLListSchema('B2BAppAccessRightSet', {
         ...Object.fromEntries(Object.entries(B2B_PERMISSION_FIELDS).filter(([, value]) => !value.access)),
     },
     hooks: {
-        beforeChange: async ({ existingItem, resolvedData, context, operation, originalInput }) => {
+        beforeChange: async ({ existingItem, resolvedData, context, originalInput }) => {
             const item = { ...existingItem, ...resolvedData }
             const appId = item.app
             const environment = item.environment
@@ -80,7 +81,7 @@ const B2BAppAccessRightSet = new GQLListSchema('B2BAppAccessRightSet', {
                         status,
                         deletedAt: null,
                     })
-                    if (rightSet) {
+                    if (rightSet && rightSet.id !== existingItem?.id) {
                         await B2BAppAccessRightSetUtils.softDelete(context, rightSet.id, 'id', {
                             dv: 1,
                             sender: { dv: 1, fingerprint: 'clear-existing-right-set' },
@@ -97,9 +98,9 @@ const B2BAppAccessRightSet = new GQLListSchema('B2BAppAccessRightSet', {
         constraints: [
             {
                 type: 'models.UniqueConstraint',
-                fields: ['app', 'environment', 'status'],
+                fields: ['environment', 'app', 'status'],
                 condition: 'Q(deletedAt__isnull=True)',
-                name: 'b2b_app_access_right_set_unique_app_env_status',
+                name: B2B_APP_ACCESS_RIGHT_SET_UNIQUE_APP_STATUS_CONSTRAINT,
             },
         ],
     },

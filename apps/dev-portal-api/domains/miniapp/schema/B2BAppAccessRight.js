@@ -10,6 +10,7 @@ const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { GET_USER_EMAIL_QUERY } = require('@dev-portal-api/domains/common/gql')
 const { productionClient, developmentClient } = require('@dev-portal-api/domains/common/utils/serverClients')
 const access = require('@dev-portal-api/domains/miniapp/access/B2BAppAccessRight')
+const { B2B_APP_ACCESS_RIGHT_UNIQUE_APP_CONSTRAINT } = require('@dev-portal-api/domains/miniapp/constants/constraints')
 const { AVAILABLE_ENVIRONMENTS, PROD_ENVIRONMENT } = require('@dev-portal-api/domains/miniapp/constants/publishing')
 const { exportable } = require('@dev-portal-api/domains/miniapp/plugins/exportable')
 
@@ -64,9 +65,9 @@ const B2BAppAccessRight = new GQLListSchema('B2BAppAccessRight', {
         constraints: [
             {
                 type: 'models.UniqueConstraint',
-                fields: ['app'],
+                fields: ['environment', 'app'],
                 condition: 'Q(deletedAt__isnull=True)',
-                name: 'b2b_app_access_right_unique_app',
+                name: B2B_APP_ACCESS_RIGHT_UNIQUE_APP_CONSTRAINT,
             },
         ],
     },

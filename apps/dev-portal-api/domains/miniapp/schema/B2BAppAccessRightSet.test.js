@@ -114,7 +114,7 @@ describe('B2BAppAccessRightSet', () => {
                 expect(readRightSets).toHaveLength(1)
             })
             test('Support can read any accessRightSet', async () => {
-                const readRightSets = await B2BAppAccessRightSet.getAll(admin, {
+                const readRightSets = await B2BAppAccessRightSet.getAll(support, {
                     id_in: [accessRightSet.id],
                 })
                 expect(readRightSets).toHaveLength(1)
