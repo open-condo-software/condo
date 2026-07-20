@@ -16,7 +16,7 @@ const { productionClient, developmentClient } = require('@dev-portal-api/domains
 const access = require('@dev-portal-api/domains/miniapp/access/RegisterAppServiceUserService')
 const { APP_NOT_FOUND, ACCESS_RIGHT_ALREADY_EXISTS } = require('@dev-portal-api/domains/miniapp/constants/errors')
 const { PROD_ENVIRONMENT } = require('@dev-portal-api/domains/miniapp/constants/publishing')
-const { B2CAppAccessRight } = require('@dev-portal-api/domains/miniapp/utils/serverSchema')
+const { B2CAppAccessRight, B2BAppAccessRight } = require('@dev-portal-api/domains/miniapp/utils/serverSchema')
 const { ACTION_NOT_FOUND, CONDO_USER_ALREADY_EXISTS } = require('@dev-portal-api/domains/user/constants/errors')
 const { ConfirmEmailAction } = require('@dev-portal-api/domains/user/utils/serverSchema')
 
@@ -95,7 +95,8 @@ const RegisterAppServiceUserService = new GQLCustomSchema('RegisterAppServiceUse
                 const { data: { dv, sender, app: { id: appId }, environment, confirmEmailAction: { id: actionId } } } = args
 
                 const b2cApp = await getByCondition('B2CApp', { id: appId, deletedAt: null })
-                if (!b2cApp) {
+                const b2bApp = await getByCondition('B2BApp', { id: appId, deletedAt: null })
+                if (!b2cApp && !b2bApp) {
                     throw new GQLError(ERRORS.APP_NOT_FOUND, context)
                 }
 
@@ -125,10 +126,12 @@ const RegisterAppServiceUserService = new GQLCustomSchema('RegisterAppServiceUse
                     ? productionClient
                     : developmentClient
 
-                const appType = 'B2C'
-                const appName = b2cApp.name
+                const appType = b2cApp ? 'B2C' : 'B2B'
+                const app = b2cApp || b2bApp
+                const appName = app.name
+                const accessRightModel = appType === 'B2C' ? B2CAppAccessRight : B2BAppAccessRight
 
-                const existingAccessRights = await B2CAppAccessRight.getOne(context, {
+                const existingAccessRights = await accessRightModel.getOne(context, {
                     deletedAt: null,
                     app: { id: appId },
                     environment,
@@ -149,7 +152,7 @@ const RegisterAppServiceUserService = new GQLCustomSchema('RegisterAppServiceUse
                     },
                 }, context)
 
-                await B2CAppAccessRight.create(context, {
+                await accessRightModel.create(context, {
                     dv,
                     sender,
                     condoUserId: condoUser.id,

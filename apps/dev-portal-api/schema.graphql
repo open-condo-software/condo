@@ -2396,6 +2396,509 @@ input B2BAppsCreateInput {
   data: B2BAppCreateInput
 }
 
+enum B2BAppAccessRightHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type B2BAppAccessRightHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the B2BAppAccessRightHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the B2BAppAccessRightHistoryRecord List config, or
+   3. As an alias to a 'name' field on the B2BAppAccessRightHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the B2BAppAccessRightHistoryRecord List.
+  """
+  _label_: String
+  app: String
+  condoUserId: ID
+  environment: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  developmentExportId: String
+  productionExportId: String
+  history_date: String
+  history_action: B2BAppAccessRightHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input B2BAppAccessRightHistoryRecordWhereInput {
+  AND: [B2BAppAccessRightHistoryRecordWhereInput]
+  OR: [B2BAppAccessRightHistoryRecordWhereInput]
+  app: String
+  app_not: String
+  app_in: [String]
+  app_not_in: [String]
+  condoUserId: ID
+  condoUserId_not: ID
+  condoUserId_in: [ID]
+  condoUserId_not_in: [ID]
+  environment: String
+  environment_not: String
+  environment_contains: String
+  environment_not_contains: String
+  environment_starts_with: String
+  environment_not_starts_with: String
+  environment_ends_with: String
+  environment_not_ends_with: String
+  environment_i: String
+  environment_not_i: String
+  environment_contains_i: String
+  environment_not_contains_i: String
+  environment_starts_with_i: String
+  environment_not_starts_with_i: String
+  environment_ends_with_i: String
+  environment_not_ends_with_i: String
+  environment_in: [String]
+  environment_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  developmentExportId: String
+  developmentExportId_not: String
+  developmentExportId_contains: String
+  developmentExportId_not_contains: String
+  developmentExportId_starts_with: String
+  developmentExportId_not_starts_with: String
+  developmentExportId_ends_with: String
+  developmentExportId_not_ends_with: String
+  developmentExportId_i: String
+  developmentExportId_not_i: String
+  developmentExportId_contains_i: String
+  developmentExportId_not_contains_i: String
+  developmentExportId_starts_with_i: String
+  developmentExportId_not_starts_with_i: String
+  developmentExportId_ends_with_i: String
+  developmentExportId_not_ends_with_i: String
+  developmentExportId_in: [String]
+  developmentExportId_not_in: [String]
+  productionExportId: String
+  productionExportId_not: String
+  productionExportId_contains: String
+  productionExportId_not_contains: String
+  productionExportId_starts_with: String
+  productionExportId_not_starts_with: String
+  productionExportId_ends_with: String
+  productionExportId_not_ends_with: String
+  productionExportId_i: String
+  productionExportId_not_i: String
+  productionExportId_contains_i: String
+  productionExportId_not_contains_i: String
+  productionExportId_starts_with_i: String
+  productionExportId_not_starts_with_i: String
+  productionExportId_ends_with_i: String
+  productionExportId_not_ends_with_i: String
+  productionExportId_in: [String]
+  productionExportId_not_in: [String]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: B2BAppAccessRightHistoryRecordHistoryActionType
+  history_action_not: B2BAppAccessRightHistoryRecordHistoryActionType
+  history_action_in: [B2BAppAccessRightHistoryRecordHistoryActionType]
+  history_action_not_in: [B2BAppAccessRightHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input B2BAppAccessRightHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortB2BAppAccessRightHistoryRecordsBy {
+  condoUserId_ASC
+  condoUserId_DESC
+  environment_ASC
+  environment_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  developmentExportId_ASC
+  developmentExportId_DESC
+  productionExportId_ASC
+  productionExportId_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input B2BAppAccessRightHistoryRecordUpdateInput {
+  app: String
+  condoUserId: ID
+  environment: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  developmentExportId: String
+  productionExportId: String
+  history_date: String
+  history_action: B2BAppAccessRightHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input B2BAppAccessRightHistoryRecordsUpdateInput {
+  id: ID!
+  data: B2BAppAccessRightHistoryRecordUpdateInput
+}
+
+input B2BAppAccessRightHistoryRecordCreateInput {
+  app: String
+  condoUserId: ID
+  environment: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  developmentExportId: String
+  productionExportId: String
+  history_date: String
+  history_action: B2BAppAccessRightHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input B2BAppAccessRightHistoryRecordsCreateInput {
+  data: B2BAppAccessRightHistoryRecordCreateInput
+}
+
+input B2BAppRelateToOneInput {
+  create: B2BAppCreateInput
+  connect: B2BAppWhereUniqueInput
+  disconnect: B2BAppWhereUniqueInput
+  disconnectAll: Boolean
+}
+
+""" Link between service user and B2B App. The existence of this connection means that this condo user will have the rights to perform actions on behalf of the B2BApp and read/modify some organization-related models for all connected organizations, depending on B2BAppAccessRightSetas soon as app will be published to specified environment 
+"""
+type B2BAppAccessRight {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the B2BAppAccessRight List config, or
+   2. As an alias to the field set on 'labelField' in the B2BAppAccessRight List config, or
+   3. As an alias to a 'name' field on the B2BAppAccessRight List (if one exists), or
+   4. As an alias to the 'id' field on the B2BAppAccessRight List.
+  """
+  _label_: String
+
+  """ Link to B2BApp """
+  app: B2BApp
+
+  """ ID of condo user, which will be linked to the published app """
+  condoUserId: ID
+
+  """ Condo environment """
+  environment: AppEnvironment
+
+  """ Email of service condo user linked to the published app """
+  condoUserEmail: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+
+  """ ID of this entity in the development environment. If set, subsequent publications to this environment will update the entity with the specified ID. 
+  """
+  developmentExportId: String
+
+  """ ID of this entity in the production environment. If set, subsequent publications to this environment will update the entity with the specified ID. 
+  """
+  productionExportId: String
+}
+
+input B2BAppAccessRightWhereInput {
+  AND: [B2BAppAccessRightWhereInput]
+  OR: [B2BAppAccessRightWhereInput]
+  app: B2BAppWhereInput
+  app_is_null: Boolean
+  condoUserId: ID
+  condoUserId_not: ID
+  condoUserId_in: [ID]
+  condoUserId_not_in: [ID]
+  environment: AppEnvironment
+  environment_not: AppEnvironment
+  environment_in: [AppEnvironment]
+  environment_not_in: [AppEnvironment]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+  developmentExportId: String
+  developmentExportId_not: String
+  developmentExportId_contains: String
+  developmentExportId_not_contains: String
+  developmentExportId_starts_with: String
+  developmentExportId_not_starts_with: String
+  developmentExportId_ends_with: String
+  developmentExportId_not_ends_with: String
+  developmentExportId_i: String
+  developmentExportId_not_i: String
+  developmentExportId_contains_i: String
+  developmentExportId_not_contains_i: String
+  developmentExportId_starts_with_i: String
+  developmentExportId_not_starts_with_i: String
+  developmentExportId_ends_with_i: String
+  developmentExportId_not_ends_with_i: String
+  developmentExportId_in: [String]
+  developmentExportId_not_in: [String]
+  productionExportId: String
+  productionExportId_not: String
+  productionExportId_contains: String
+  productionExportId_not_contains: String
+  productionExportId_starts_with: String
+  productionExportId_not_starts_with: String
+  productionExportId_ends_with: String
+  productionExportId_not_ends_with: String
+  productionExportId_i: String
+  productionExportId_not_i: String
+  productionExportId_contains_i: String
+  productionExportId_not_contains_i: String
+  productionExportId_starts_with_i: String
+  productionExportId_not_starts_with_i: String
+  productionExportId_ends_with_i: String
+  productionExportId_not_ends_with_i: String
+  productionExportId_in: [String]
+  productionExportId_not_in: [String]
+}
+
+input B2BAppAccessRightWhereUniqueInput {
+  id: ID!
+}
+
+enum SortB2BAppAccessRightsBy {
+  app_ASC
+  app_DESC
+  condoUserId_ASC
+  condoUserId_DESC
+  environment_ASC
+  environment_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  developmentExportId_ASC
+  developmentExportId_DESC
+  productionExportId_ASC
+  productionExportId_DESC
+}
+
+input B2BAppAccessRightUpdateInput {
+  app: B2BAppRelateToOneInput
+  condoUserId: ID
+  environment: AppEnvironment
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+  developmentExportId: String
+  productionExportId: String
+}
+
+input B2BAppAccessRightsUpdateInput {
+  id: ID!
+  data: B2BAppAccessRightUpdateInput
+}
+
+input B2BAppAccessRightCreateInput {
+  app: B2BAppRelateToOneInput
+  condoUserId: ID
+  environment: AppEnvironment
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+  developmentExportId: String
+  productionExportId: String
+}
+
+input B2BAppAccessRightsCreateInput {
+  data: B2BAppAccessRightCreateInput
+}
+
 enum B2BAppPublishRequestHistoryRecordHistoryActionType {
   c
   u
@@ -2619,13 +3122,6 @@ input B2BAppPublishRequestHistoryRecordCreateInput {
 
 input B2BAppPublishRequestHistoryRecordsCreateInput {
   data: B2BAppPublishRequestHistoryRecordCreateInput
-}
-
-input B2BAppRelateToOneInput {
-  create: B2BAppCreateInput
-  connect: B2BAppWhereUniqueInput
-  disconnect: B2BAppWhereUniqueInput
-  disconnectAll: Boolean
 }
 
 enum B2BAppPublishRequestStatusType {
@@ -5416,6 +5912,1120 @@ input B2CAppPublishRequestsCreateInput {
   data: B2CAppPublishRequestCreateInput
 }
 
+enum B2BAppAccessRightSetHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type B2BAppAccessRightSetHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the B2BAppAccessRightSetHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the B2BAppAccessRightSetHistoryRecord List config, or
+   3. As an alias to a 'name' field on the B2BAppAccessRightSetHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the B2BAppAccessRightSetHistoryRecord List.
+  """
+  _label_: String
+  app: String
+  environment: String
+  status: String
+  canReadB2BAccessTokens: Boolean
+  canManageB2BAccessTokens: Boolean
+  canReadBillingIntegrationOrganizationContexts: Boolean
+  canManageBillingIntegrationOrganizationContexts: Boolean
+  canReadBillingReceipts: Boolean
+  canReadBillingReceiptFiles: Boolean
+  canReadBillingAccounts: Boolean
+  canReadBillingProperties: Boolean
+  canReadBillingRecipients: Boolean
+  canReadContacts: Boolean
+  canManageContacts: Boolean
+  canReadInvoices: Boolean
+  canManageInvoices: Boolean
+  canReadMeters: Boolean
+  canManageMeters: Boolean
+  canReadMeterReadings: Boolean
+  canManageMeterReadings: Boolean
+  canReadMeterReportingPeriods: Boolean
+  canManageMeterReportingPeriods: Boolean
+  canReadOrganizations: Boolean
+  canReadOrganizationEmployees: Boolean
+  canReadOrganizationEmployeeRoles: Boolean
+  canReadPayments: Boolean
+  canReadProperties: Boolean
+  canManageProperties: Boolean
+  canReadCustomValues: Boolean
+  canManageCustomValues: Boolean
+  canReadTickets: Boolean
+  canManageTickets: Boolean
+  canReadTicketComments: Boolean
+  canManageTicketComments: Boolean
+  canReadTicketFiles: Boolean
+  canManageTicketFiles: Boolean
+  canReadTicketCommentFiles: Boolean
+  canManageTicketCommentFiles: Boolean
+  canReadNewsItemFiles: Boolean
+  canExecuteRegisterExternalPayments: Boolean
+  canExecuteRegisterMetersReadings: Boolean
+  canExecuteSendB2BAppPushMessage: Boolean
+  canExecuteRegisterPropertyMetersReadings: Boolean
+  canExecuteRegisterBillingReceipts: Boolean
+  canExecuteRegisterBillingReceiptFile: Boolean
+  canExecuteSetPaymentPosReceiptUrl: Boolean
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  developmentExportId: String
+  productionExportId: String
+  history_date: String
+  history_action: B2BAppAccessRightSetHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input B2BAppAccessRightSetHistoryRecordWhereInput {
+  AND: [B2BAppAccessRightSetHistoryRecordWhereInput]
+  OR: [B2BAppAccessRightSetHistoryRecordWhereInput]
+  app: String
+  app_not: String
+  app_in: [String]
+  app_not_in: [String]
+  environment: String
+  environment_not: String
+  environment_contains: String
+  environment_not_contains: String
+  environment_starts_with: String
+  environment_not_starts_with: String
+  environment_ends_with: String
+  environment_not_ends_with: String
+  environment_i: String
+  environment_not_i: String
+  environment_contains_i: String
+  environment_not_contains_i: String
+  environment_starts_with_i: String
+  environment_not_starts_with_i: String
+  environment_ends_with_i: String
+  environment_not_ends_with_i: String
+  environment_in: [String]
+  environment_not_in: [String]
+  status: String
+  status_not: String
+  status_contains: String
+  status_not_contains: String
+  status_starts_with: String
+  status_not_starts_with: String
+  status_ends_with: String
+  status_not_ends_with: String
+  status_i: String
+  status_not_i: String
+  status_contains_i: String
+  status_not_contains_i: String
+  status_starts_with_i: String
+  status_not_starts_with_i: String
+  status_ends_with_i: String
+  status_not_ends_with_i: String
+  status_in: [String]
+  status_not_in: [String]
+  canReadB2BAccessTokens: Boolean
+  canReadB2BAccessTokens_not: Boolean
+  canManageB2BAccessTokens: Boolean
+  canManageB2BAccessTokens_not: Boolean
+  canReadBillingIntegrationOrganizationContexts: Boolean
+  canReadBillingIntegrationOrganizationContexts_not: Boolean
+  canManageBillingIntegrationOrganizationContexts: Boolean
+  canManageBillingIntegrationOrganizationContexts_not: Boolean
+  canReadBillingReceipts: Boolean
+  canReadBillingReceipts_not: Boolean
+  canReadBillingReceiptFiles: Boolean
+  canReadBillingReceiptFiles_not: Boolean
+  canReadBillingAccounts: Boolean
+  canReadBillingAccounts_not: Boolean
+  canReadBillingProperties: Boolean
+  canReadBillingProperties_not: Boolean
+  canReadBillingRecipients: Boolean
+  canReadBillingRecipients_not: Boolean
+  canReadContacts: Boolean
+  canReadContacts_not: Boolean
+  canManageContacts: Boolean
+  canManageContacts_not: Boolean
+  canReadInvoices: Boolean
+  canReadInvoices_not: Boolean
+  canManageInvoices: Boolean
+  canManageInvoices_not: Boolean
+  canReadMeters: Boolean
+  canReadMeters_not: Boolean
+  canManageMeters: Boolean
+  canManageMeters_not: Boolean
+  canReadMeterReadings: Boolean
+  canReadMeterReadings_not: Boolean
+  canManageMeterReadings: Boolean
+  canManageMeterReadings_not: Boolean
+  canReadMeterReportingPeriods: Boolean
+  canReadMeterReportingPeriods_not: Boolean
+  canManageMeterReportingPeriods: Boolean
+  canManageMeterReportingPeriods_not: Boolean
+  canReadOrganizations: Boolean
+  canReadOrganizations_not: Boolean
+  canReadOrganizationEmployees: Boolean
+  canReadOrganizationEmployees_not: Boolean
+  canReadOrganizationEmployeeRoles: Boolean
+  canReadOrganizationEmployeeRoles_not: Boolean
+  canReadPayments: Boolean
+  canReadPayments_not: Boolean
+  canReadProperties: Boolean
+  canReadProperties_not: Boolean
+  canManageProperties: Boolean
+  canManageProperties_not: Boolean
+  canReadCustomValues: Boolean
+  canReadCustomValues_not: Boolean
+  canManageCustomValues: Boolean
+  canManageCustomValues_not: Boolean
+  canReadTickets: Boolean
+  canReadTickets_not: Boolean
+  canManageTickets: Boolean
+  canManageTickets_not: Boolean
+  canReadTicketComments: Boolean
+  canReadTicketComments_not: Boolean
+  canManageTicketComments: Boolean
+  canManageTicketComments_not: Boolean
+  canReadTicketFiles: Boolean
+  canReadTicketFiles_not: Boolean
+  canManageTicketFiles: Boolean
+  canManageTicketFiles_not: Boolean
+  canReadTicketCommentFiles: Boolean
+  canReadTicketCommentFiles_not: Boolean
+  canManageTicketCommentFiles: Boolean
+  canManageTicketCommentFiles_not: Boolean
+  canReadNewsItemFiles: Boolean
+  canReadNewsItemFiles_not: Boolean
+  canExecuteRegisterExternalPayments: Boolean
+  canExecuteRegisterExternalPayments_not: Boolean
+  canExecuteRegisterMetersReadings: Boolean
+  canExecuteRegisterMetersReadings_not: Boolean
+  canExecuteSendB2BAppPushMessage: Boolean
+  canExecuteSendB2BAppPushMessage_not: Boolean
+  canExecuteRegisterPropertyMetersReadings: Boolean
+  canExecuteRegisterPropertyMetersReadings_not: Boolean
+  canExecuteRegisterBillingReceipts: Boolean
+  canExecuteRegisterBillingReceipts_not: Boolean
+  canExecuteRegisterBillingReceiptFile: Boolean
+  canExecuteRegisterBillingReceiptFile_not: Boolean
+  canExecuteSetPaymentPosReceiptUrl: Boolean
+  canExecuteSetPaymentPosReceiptUrl_not: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  developmentExportId: String
+  developmentExportId_not: String
+  developmentExportId_contains: String
+  developmentExportId_not_contains: String
+  developmentExportId_starts_with: String
+  developmentExportId_not_starts_with: String
+  developmentExportId_ends_with: String
+  developmentExportId_not_ends_with: String
+  developmentExportId_i: String
+  developmentExportId_not_i: String
+  developmentExportId_contains_i: String
+  developmentExportId_not_contains_i: String
+  developmentExportId_starts_with_i: String
+  developmentExportId_not_starts_with_i: String
+  developmentExportId_ends_with_i: String
+  developmentExportId_not_ends_with_i: String
+  developmentExportId_in: [String]
+  developmentExportId_not_in: [String]
+  productionExportId: String
+  productionExportId_not: String
+  productionExportId_contains: String
+  productionExportId_not_contains: String
+  productionExportId_starts_with: String
+  productionExportId_not_starts_with: String
+  productionExportId_ends_with: String
+  productionExportId_not_ends_with: String
+  productionExportId_i: String
+  productionExportId_not_i: String
+  productionExportId_contains_i: String
+  productionExportId_not_contains_i: String
+  productionExportId_starts_with_i: String
+  productionExportId_not_starts_with_i: String
+  productionExportId_ends_with_i: String
+  productionExportId_not_ends_with_i: String
+  productionExportId_in: [String]
+  productionExportId_not_in: [String]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: B2BAppAccessRightSetHistoryRecordHistoryActionType
+  history_action_not: B2BAppAccessRightSetHistoryRecordHistoryActionType
+  history_action_in: [B2BAppAccessRightSetHistoryRecordHistoryActionType]
+  history_action_not_in: [B2BAppAccessRightSetHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input B2BAppAccessRightSetHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortB2BAppAccessRightSetHistoryRecordsBy {
+  environment_ASC
+  environment_DESC
+  status_ASC
+  status_DESC
+  canReadB2BAccessTokens_ASC
+  canReadB2BAccessTokens_DESC
+  canManageB2BAccessTokens_ASC
+  canManageB2BAccessTokens_DESC
+  canReadBillingIntegrationOrganizationContexts_ASC
+  canReadBillingIntegrationOrganizationContexts_DESC
+  canManageBillingIntegrationOrganizationContexts_ASC
+  canManageBillingIntegrationOrganizationContexts_DESC
+  canReadBillingReceipts_ASC
+  canReadBillingReceipts_DESC
+  canReadBillingReceiptFiles_ASC
+  canReadBillingReceiptFiles_DESC
+  canReadBillingAccounts_ASC
+  canReadBillingAccounts_DESC
+  canReadBillingProperties_ASC
+  canReadBillingProperties_DESC
+  canReadBillingRecipients_ASC
+  canReadBillingRecipients_DESC
+  canReadContacts_ASC
+  canReadContacts_DESC
+  canManageContacts_ASC
+  canManageContacts_DESC
+  canReadInvoices_ASC
+  canReadInvoices_DESC
+  canManageInvoices_ASC
+  canManageInvoices_DESC
+  canReadMeters_ASC
+  canReadMeters_DESC
+  canManageMeters_ASC
+  canManageMeters_DESC
+  canReadMeterReadings_ASC
+  canReadMeterReadings_DESC
+  canManageMeterReadings_ASC
+  canManageMeterReadings_DESC
+  canReadMeterReportingPeriods_ASC
+  canReadMeterReportingPeriods_DESC
+  canManageMeterReportingPeriods_ASC
+  canManageMeterReportingPeriods_DESC
+  canReadOrganizations_ASC
+  canReadOrganizations_DESC
+  canReadOrganizationEmployees_ASC
+  canReadOrganizationEmployees_DESC
+  canReadOrganizationEmployeeRoles_ASC
+  canReadOrganizationEmployeeRoles_DESC
+  canReadPayments_ASC
+  canReadPayments_DESC
+  canReadProperties_ASC
+  canReadProperties_DESC
+  canManageProperties_ASC
+  canManageProperties_DESC
+  canReadCustomValues_ASC
+  canReadCustomValues_DESC
+  canManageCustomValues_ASC
+  canManageCustomValues_DESC
+  canReadTickets_ASC
+  canReadTickets_DESC
+  canManageTickets_ASC
+  canManageTickets_DESC
+  canReadTicketComments_ASC
+  canReadTicketComments_DESC
+  canManageTicketComments_ASC
+  canManageTicketComments_DESC
+  canReadTicketFiles_ASC
+  canReadTicketFiles_DESC
+  canManageTicketFiles_ASC
+  canManageTicketFiles_DESC
+  canReadTicketCommentFiles_ASC
+  canReadTicketCommentFiles_DESC
+  canManageTicketCommentFiles_ASC
+  canManageTicketCommentFiles_DESC
+  canReadNewsItemFiles_ASC
+  canReadNewsItemFiles_DESC
+  canExecuteRegisterExternalPayments_ASC
+  canExecuteRegisterExternalPayments_DESC
+  canExecuteRegisterMetersReadings_ASC
+  canExecuteRegisterMetersReadings_DESC
+  canExecuteSendB2BAppPushMessage_ASC
+  canExecuteSendB2BAppPushMessage_DESC
+  canExecuteRegisterPropertyMetersReadings_ASC
+  canExecuteRegisterPropertyMetersReadings_DESC
+  canExecuteRegisterBillingReceipts_ASC
+  canExecuteRegisterBillingReceipts_DESC
+  canExecuteRegisterBillingReceiptFile_ASC
+  canExecuteRegisterBillingReceiptFile_DESC
+  canExecuteSetPaymentPosReceiptUrl_ASC
+  canExecuteSetPaymentPosReceiptUrl_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  developmentExportId_ASC
+  developmentExportId_DESC
+  productionExportId_ASC
+  productionExportId_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input B2BAppAccessRightSetHistoryRecordUpdateInput {
+  app: String
+  environment: String
+  status: String
+  canReadB2BAccessTokens: Boolean
+  canManageB2BAccessTokens: Boolean
+  canReadBillingIntegrationOrganizationContexts: Boolean
+  canManageBillingIntegrationOrganizationContexts: Boolean
+  canReadBillingReceipts: Boolean
+  canReadBillingReceiptFiles: Boolean
+  canReadBillingAccounts: Boolean
+  canReadBillingProperties: Boolean
+  canReadBillingRecipients: Boolean
+  canReadContacts: Boolean
+  canManageContacts: Boolean
+  canReadInvoices: Boolean
+  canManageInvoices: Boolean
+  canReadMeters: Boolean
+  canManageMeters: Boolean
+  canReadMeterReadings: Boolean
+  canManageMeterReadings: Boolean
+  canReadMeterReportingPeriods: Boolean
+  canManageMeterReportingPeriods: Boolean
+  canReadOrganizations: Boolean
+  canReadOrganizationEmployees: Boolean
+  canReadOrganizationEmployeeRoles: Boolean
+  canReadPayments: Boolean
+  canReadProperties: Boolean
+  canManageProperties: Boolean
+  canReadCustomValues: Boolean
+  canManageCustomValues: Boolean
+  canReadTickets: Boolean
+  canManageTickets: Boolean
+  canReadTicketComments: Boolean
+  canManageTicketComments: Boolean
+  canReadTicketFiles: Boolean
+  canManageTicketFiles: Boolean
+  canReadTicketCommentFiles: Boolean
+  canManageTicketCommentFiles: Boolean
+  canReadNewsItemFiles: Boolean
+  canExecuteRegisterExternalPayments: Boolean
+  canExecuteRegisterMetersReadings: Boolean
+  canExecuteSendB2BAppPushMessage: Boolean
+  canExecuteRegisterPropertyMetersReadings: Boolean
+  canExecuteRegisterBillingReceipts: Boolean
+  canExecuteRegisterBillingReceiptFile: Boolean
+  canExecuteSetPaymentPosReceiptUrl: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  developmentExportId: String
+  productionExportId: String
+  history_date: String
+  history_action: B2BAppAccessRightSetHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input B2BAppAccessRightSetHistoryRecordsUpdateInput {
+  id: ID!
+  data: B2BAppAccessRightSetHistoryRecordUpdateInput
+}
+
+input B2BAppAccessRightSetHistoryRecordCreateInput {
+  app: String
+  environment: String
+  status: String
+  canReadB2BAccessTokens: Boolean
+  canManageB2BAccessTokens: Boolean
+  canReadBillingIntegrationOrganizationContexts: Boolean
+  canManageBillingIntegrationOrganizationContexts: Boolean
+  canReadBillingReceipts: Boolean
+  canReadBillingReceiptFiles: Boolean
+  canReadBillingAccounts: Boolean
+  canReadBillingProperties: Boolean
+  canReadBillingRecipients: Boolean
+  canReadContacts: Boolean
+  canManageContacts: Boolean
+  canReadInvoices: Boolean
+  canManageInvoices: Boolean
+  canReadMeters: Boolean
+  canManageMeters: Boolean
+  canReadMeterReadings: Boolean
+  canManageMeterReadings: Boolean
+  canReadMeterReportingPeriods: Boolean
+  canManageMeterReportingPeriods: Boolean
+  canReadOrganizations: Boolean
+  canReadOrganizationEmployees: Boolean
+  canReadOrganizationEmployeeRoles: Boolean
+  canReadPayments: Boolean
+  canReadProperties: Boolean
+  canManageProperties: Boolean
+  canReadCustomValues: Boolean
+  canManageCustomValues: Boolean
+  canReadTickets: Boolean
+  canManageTickets: Boolean
+  canReadTicketComments: Boolean
+  canManageTicketComments: Boolean
+  canReadTicketFiles: Boolean
+  canManageTicketFiles: Boolean
+  canReadTicketCommentFiles: Boolean
+  canManageTicketCommentFiles: Boolean
+  canReadNewsItemFiles: Boolean
+  canExecuteRegisterExternalPayments: Boolean
+  canExecuteRegisterMetersReadings: Boolean
+  canExecuteSendB2BAppPushMessage: Boolean
+  canExecuteRegisterPropertyMetersReadings: Boolean
+  canExecuteRegisterBillingReceipts: Boolean
+  canExecuteRegisterBillingReceiptFile: Boolean
+  canExecuteSetPaymentPosReceiptUrl: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  developmentExportId: String
+  productionExportId: String
+  history_date: String
+  history_action: B2BAppAccessRightSetHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input B2BAppAccessRightSetHistoryRecordsCreateInput {
+  data: B2BAppAccessRightSetHistoryRecordCreateInput
+}
+
+enum B2BAppAccessRightSetStatusType {
+  pending
+  approved
+}
+
+""" Set of permissions for B2BApp service user. Controls with lists can be read or/and managed and which mutations or queries can be executed for connected organizations. Can be freely edited for any non-production environment, production changes requires additional validation 
+"""
+type B2BAppAccessRightSet {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the B2BAppAccessRightSet List config, or
+   2. As an alias to the field set on 'labelField' in the B2BAppAccessRightSet List config, or
+   3. As an alias to a 'name' field on the B2BAppAccessRightSet List (if one exists), or
+   4. As an alias to the 'id' field on the B2BAppAccessRightSet List.
+  """
+  _label_: String
+
+  """ Link to B2BApp """
+  app: B2BApp
+
+  """ Condo environment """
+  environment: AppEnvironment
+
+  """ Status of consideration of the current right set """
+  status: B2BAppAccessRightSetStatusType
+  canReadB2BAccessTokens: Boolean
+  canManageB2BAccessTokens: Boolean
+  canReadBillingIntegrationOrganizationContexts: Boolean
+  canManageBillingIntegrationOrganizationContexts: Boolean
+  canReadBillingReceipts: Boolean
+  canReadBillingReceiptFiles: Boolean
+  canReadBillingAccounts: Boolean
+  canReadBillingProperties: Boolean
+  canReadBillingRecipients: Boolean
+  canReadContacts: Boolean
+  canManageContacts: Boolean
+  canReadInvoices: Boolean
+  canManageInvoices: Boolean
+  canReadMeters: Boolean
+  canManageMeters: Boolean
+  canReadMeterReadings: Boolean
+  canManageMeterReadings: Boolean
+  canReadMeterReportingPeriods: Boolean
+  canManageMeterReportingPeriods: Boolean
+  canReadOrganizations: Boolean
+  canReadOrganizationEmployees: Boolean
+  canReadOrganizationEmployeeRoles: Boolean
+  canReadPayments: Boolean
+  canReadProperties: Boolean
+  canManageProperties: Boolean
+  canReadCustomValues: Boolean
+  canManageCustomValues: Boolean
+  canReadTickets: Boolean
+  canManageTickets: Boolean
+  canReadTicketComments: Boolean
+  canManageTicketComments: Boolean
+  canReadTicketFiles: Boolean
+  canManageTicketFiles: Boolean
+  canReadTicketCommentFiles: Boolean
+  canManageTicketCommentFiles: Boolean
+  canReadNewsItemFiles: Boolean
+  canExecuteRegisterExternalPayments: Boolean
+  canExecuteRegisterMetersReadings: Boolean
+  canExecuteSendB2BAppPushMessage: Boolean
+  canExecuteRegisterPropertyMetersReadings: Boolean
+  canExecuteRegisterBillingReceipts: Boolean
+  canExecuteRegisterBillingReceiptFile: Boolean
+  canExecuteSetPaymentPosReceiptUrl: Boolean
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+
+  """ ID of this entity in the development environment. If set, subsequent publications to this environment will update the entity with the specified ID. 
+  """
+  developmentExportId: String
+
+  """ ID of this entity in the production environment. If set, subsequent publications to this environment will update the entity with the specified ID. 
+  """
+  productionExportId: String
+}
+
+input B2BAppAccessRightSetWhereInput {
+  AND: [B2BAppAccessRightSetWhereInput]
+  OR: [B2BAppAccessRightSetWhereInput]
+  app: B2BAppWhereInput
+  app_is_null: Boolean
+  environment: AppEnvironment
+  environment_not: AppEnvironment
+  environment_in: [AppEnvironment]
+  environment_not_in: [AppEnvironment]
+  status: B2BAppAccessRightSetStatusType
+  status_not: B2BAppAccessRightSetStatusType
+  status_in: [B2BAppAccessRightSetStatusType]
+  status_not_in: [B2BAppAccessRightSetStatusType]
+  canReadB2BAccessTokens: Boolean
+  canReadB2BAccessTokens_not: Boolean
+  canManageB2BAccessTokens: Boolean
+  canManageB2BAccessTokens_not: Boolean
+  canReadBillingIntegrationOrganizationContexts: Boolean
+  canReadBillingIntegrationOrganizationContexts_not: Boolean
+  canManageBillingIntegrationOrganizationContexts: Boolean
+  canManageBillingIntegrationOrganizationContexts_not: Boolean
+  canReadBillingReceipts: Boolean
+  canReadBillingReceipts_not: Boolean
+  canReadBillingReceiptFiles: Boolean
+  canReadBillingReceiptFiles_not: Boolean
+  canReadBillingAccounts: Boolean
+  canReadBillingAccounts_not: Boolean
+  canReadBillingProperties: Boolean
+  canReadBillingProperties_not: Boolean
+  canReadBillingRecipients: Boolean
+  canReadBillingRecipients_not: Boolean
+  canReadContacts: Boolean
+  canReadContacts_not: Boolean
+  canManageContacts: Boolean
+  canManageContacts_not: Boolean
+  canReadInvoices: Boolean
+  canReadInvoices_not: Boolean
+  canManageInvoices: Boolean
+  canManageInvoices_not: Boolean
+  canReadMeters: Boolean
+  canReadMeters_not: Boolean
+  canManageMeters: Boolean
+  canManageMeters_not: Boolean
+  canReadMeterReadings: Boolean
+  canReadMeterReadings_not: Boolean
+  canManageMeterReadings: Boolean
+  canManageMeterReadings_not: Boolean
+  canReadMeterReportingPeriods: Boolean
+  canReadMeterReportingPeriods_not: Boolean
+  canManageMeterReportingPeriods: Boolean
+  canManageMeterReportingPeriods_not: Boolean
+  canReadOrganizations: Boolean
+  canReadOrganizations_not: Boolean
+  canReadOrganizationEmployees: Boolean
+  canReadOrganizationEmployees_not: Boolean
+  canReadOrganizationEmployeeRoles: Boolean
+  canReadOrganizationEmployeeRoles_not: Boolean
+  canReadPayments: Boolean
+  canReadPayments_not: Boolean
+  canReadProperties: Boolean
+  canReadProperties_not: Boolean
+  canManageProperties: Boolean
+  canManageProperties_not: Boolean
+  canReadCustomValues: Boolean
+  canReadCustomValues_not: Boolean
+  canManageCustomValues: Boolean
+  canManageCustomValues_not: Boolean
+  canReadTickets: Boolean
+  canReadTickets_not: Boolean
+  canManageTickets: Boolean
+  canManageTickets_not: Boolean
+  canReadTicketComments: Boolean
+  canReadTicketComments_not: Boolean
+  canManageTicketComments: Boolean
+  canManageTicketComments_not: Boolean
+  canReadTicketFiles: Boolean
+  canReadTicketFiles_not: Boolean
+  canManageTicketFiles: Boolean
+  canManageTicketFiles_not: Boolean
+  canReadTicketCommentFiles: Boolean
+  canReadTicketCommentFiles_not: Boolean
+  canManageTicketCommentFiles: Boolean
+  canManageTicketCommentFiles_not: Boolean
+  canReadNewsItemFiles: Boolean
+  canReadNewsItemFiles_not: Boolean
+  canExecuteRegisterExternalPayments: Boolean
+  canExecuteRegisterExternalPayments_not: Boolean
+  canExecuteRegisterMetersReadings: Boolean
+  canExecuteRegisterMetersReadings_not: Boolean
+  canExecuteSendB2BAppPushMessage: Boolean
+  canExecuteSendB2BAppPushMessage_not: Boolean
+  canExecuteRegisterPropertyMetersReadings: Boolean
+  canExecuteRegisterPropertyMetersReadings_not: Boolean
+  canExecuteRegisterBillingReceipts: Boolean
+  canExecuteRegisterBillingReceipts_not: Boolean
+  canExecuteRegisterBillingReceiptFile: Boolean
+  canExecuteRegisterBillingReceiptFile_not: Boolean
+  canExecuteSetPaymentPosReceiptUrl: Boolean
+  canExecuteSetPaymentPosReceiptUrl_not: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+  developmentExportId: String
+  developmentExportId_not: String
+  developmentExportId_contains: String
+  developmentExportId_not_contains: String
+  developmentExportId_starts_with: String
+  developmentExportId_not_starts_with: String
+  developmentExportId_ends_with: String
+  developmentExportId_not_ends_with: String
+  developmentExportId_i: String
+  developmentExportId_not_i: String
+  developmentExportId_contains_i: String
+  developmentExportId_not_contains_i: String
+  developmentExportId_starts_with_i: String
+  developmentExportId_not_starts_with_i: String
+  developmentExportId_ends_with_i: String
+  developmentExportId_not_ends_with_i: String
+  developmentExportId_in: [String]
+  developmentExportId_not_in: [String]
+  productionExportId: String
+  productionExportId_not: String
+  productionExportId_contains: String
+  productionExportId_not_contains: String
+  productionExportId_starts_with: String
+  productionExportId_not_starts_with: String
+  productionExportId_ends_with: String
+  productionExportId_not_ends_with: String
+  productionExportId_i: String
+  productionExportId_not_i: String
+  productionExportId_contains_i: String
+  productionExportId_not_contains_i: String
+  productionExportId_starts_with_i: String
+  productionExportId_not_starts_with_i: String
+  productionExportId_ends_with_i: String
+  productionExportId_not_ends_with_i: String
+  productionExportId_in: [String]
+  productionExportId_not_in: [String]
+}
+
+input B2BAppAccessRightSetWhereUniqueInput {
+  id: ID!
+}
+
+enum SortB2BAppAccessRightSetsBy {
+  app_ASC
+  app_DESC
+  environment_ASC
+  environment_DESC
+  status_ASC
+  status_DESC
+  canReadB2BAccessTokens_ASC
+  canReadB2BAccessTokens_DESC
+  canManageB2BAccessTokens_ASC
+  canManageB2BAccessTokens_DESC
+  canReadBillingIntegrationOrganizationContexts_ASC
+  canReadBillingIntegrationOrganizationContexts_DESC
+  canManageBillingIntegrationOrganizationContexts_ASC
+  canManageBillingIntegrationOrganizationContexts_DESC
+  canReadBillingReceipts_ASC
+  canReadBillingReceipts_DESC
+  canReadBillingReceiptFiles_ASC
+  canReadBillingReceiptFiles_DESC
+  canReadBillingAccounts_ASC
+  canReadBillingAccounts_DESC
+  canReadBillingProperties_ASC
+  canReadBillingProperties_DESC
+  canReadBillingRecipients_ASC
+  canReadBillingRecipients_DESC
+  canReadContacts_ASC
+  canReadContacts_DESC
+  canManageContacts_ASC
+  canManageContacts_DESC
+  canReadInvoices_ASC
+  canReadInvoices_DESC
+  canManageInvoices_ASC
+  canManageInvoices_DESC
+  canReadMeters_ASC
+  canReadMeters_DESC
+  canManageMeters_ASC
+  canManageMeters_DESC
+  canReadMeterReadings_ASC
+  canReadMeterReadings_DESC
+  canManageMeterReadings_ASC
+  canManageMeterReadings_DESC
+  canReadMeterReportingPeriods_ASC
+  canReadMeterReportingPeriods_DESC
+  canManageMeterReportingPeriods_ASC
+  canManageMeterReportingPeriods_DESC
+  canReadOrganizations_ASC
+  canReadOrganizations_DESC
+  canReadOrganizationEmployees_ASC
+  canReadOrganizationEmployees_DESC
+  canReadOrganizationEmployeeRoles_ASC
+  canReadOrganizationEmployeeRoles_DESC
+  canReadPayments_ASC
+  canReadPayments_DESC
+  canReadProperties_ASC
+  canReadProperties_DESC
+  canManageProperties_ASC
+  canManageProperties_DESC
+  canReadCustomValues_ASC
+  canReadCustomValues_DESC
+  canManageCustomValues_ASC
+  canManageCustomValues_DESC
+  canReadTickets_ASC
+  canReadTickets_DESC
+  canManageTickets_ASC
+  canManageTickets_DESC
+  canReadTicketComments_ASC
+  canReadTicketComments_DESC
+  canManageTicketComments_ASC
+  canManageTicketComments_DESC
+  canReadTicketFiles_ASC
+  canReadTicketFiles_DESC
+  canManageTicketFiles_ASC
+  canManageTicketFiles_DESC
+  canReadTicketCommentFiles_ASC
+  canReadTicketCommentFiles_DESC
+  canManageTicketCommentFiles_ASC
+  canManageTicketCommentFiles_DESC
+  canReadNewsItemFiles_ASC
+  canReadNewsItemFiles_DESC
+  canExecuteRegisterExternalPayments_ASC
+  canExecuteRegisterExternalPayments_DESC
+  canExecuteRegisterMetersReadings_ASC
+  canExecuteRegisterMetersReadings_DESC
+  canExecuteSendB2BAppPushMessage_ASC
+  canExecuteSendB2BAppPushMessage_DESC
+  canExecuteRegisterPropertyMetersReadings_ASC
+  canExecuteRegisterPropertyMetersReadings_DESC
+  canExecuteRegisterBillingReceipts_ASC
+  canExecuteRegisterBillingReceipts_DESC
+  canExecuteRegisterBillingReceiptFile_ASC
+  canExecuteRegisterBillingReceiptFile_DESC
+  canExecuteSetPaymentPosReceiptUrl_ASC
+  canExecuteSetPaymentPosReceiptUrl_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  developmentExportId_ASC
+  developmentExportId_DESC
+  productionExportId_ASC
+  productionExportId_DESC
+}
+
+input B2BAppAccessRightSetUpdateInput {
+  app: B2BAppRelateToOneInput
+  environment: AppEnvironment
+  status: B2BAppAccessRightSetStatusType
+  canReadB2BAccessTokens: Boolean
+  canManageB2BAccessTokens: Boolean
+  canReadBillingIntegrationOrganizationContexts: Boolean
+  canManageBillingIntegrationOrganizationContexts: Boolean
+  canReadBillingReceipts: Boolean
+  canReadBillingReceiptFiles: Boolean
+  canReadBillingAccounts: Boolean
+  canReadBillingProperties: Boolean
+  canReadBillingRecipients: Boolean
+  canReadContacts: Boolean
+  canManageContacts: Boolean
+  canReadInvoices: Boolean
+  canManageInvoices: Boolean
+  canReadMeters: Boolean
+  canManageMeters: Boolean
+  canReadMeterReadings: Boolean
+  canManageMeterReadings: Boolean
+  canReadMeterReportingPeriods: Boolean
+  canManageMeterReportingPeriods: Boolean
+  canReadOrganizations: Boolean
+  canReadOrganizationEmployees: Boolean
+  canReadOrganizationEmployeeRoles: Boolean
+  canReadPayments: Boolean
+  canReadProperties: Boolean
+  canManageProperties: Boolean
+  canReadCustomValues: Boolean
+  canManageCustomValues: Boolean
+  canReadTickets: Boolean
+  canManageTickets: Boolean
+  canReadTicketComments: Boolean
+  canManageTicketComments: Boolean
+  canReadTicketFiles: Boolean
+  canManageTicketFiles: Boolean
+  canReadTicketCommentFiles: Boolean
+  canManageTicketCommentFiles: Boolean
+  canReadNewsItemFiles: Boolean
+  canExecuteRegisterExternalPayments: Boolean
+  canExecuteRegisterMetersReadings: Boolean
+  canExecuteSendB2BAppPushMessage: Boolean
+  canExecuteRegisterPropertyMetersReadings: Boolean
+  canExecuteRegisterBillingReceipts: Boolean
+  canExecuteRegisterBillingReceiptFile: Boolean
+  canExecuteSetPaymentPosReceiptUrl: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+  developmentExportId: String
+  productionExportId: String
+}
+
+input B2BAppAccessRightSetsUpdateInput {
+  id: ID!
+  data: B2BAppAccessRightSetUpdateInput
+}
+
+input B2BAppAccessRightSetCreateInput {
+  app: B2BAppRelateToOneInput
+  environment: AppEnvironment
+  status: B2BAppAccessRightSetStatusType
+  canReadB2BAccessTokens: Boolean
+  canManageB2BAccessTokens: Boolean
+  canReadBillingIntegrationOrganizationContexts: Boolean
+  canManageBillingIntegrationOrganizationContexts: Boolean
+  canReadBillingReceipts: Boolean
+  canReadBillingReceiptFiles: Boolean
+  canReadBillingAccounts: Boolean
+  canReadBillingProperties: Boolean
+  canReadBillingRecipients: Boolean
+  canReadContacts: Boolean
+  canManageContacts: Boolean
+  canReadInvoices: Boolean
+  canManageInvoices: Boolean
+  canReadMeters: Boolean
+  canManageMeters: Boolean
+  canReadMeterReadings: Boolean
+  canManageMeterReadings: Boolean
+  canReadMeterReportingPeriods: Boolean
+  canManageMeterReportingPeriods: Boolean
+  canReadOrganizations: Boolean
+  canReadOrganizationEmployees: Boolean
+  canReadOrganizationEmployeeRoles: Boolean
+  canReadPayments: Boolean
+  canReadProperties: Boolean
+  canManageProperties: Boolean
+  canReadCustomValues: Boolean
+  canManageCustomValues: Boolean
+  canReadTickets: Boolean
+  canManageTickets: Boolean
+  canReadTicketComments: Boolean
+  canManageTicketComments: Boolean
+  canReadTicketFiles: Boolean
+  canManageTicketFiles: Boolean
+  canReadTicketCommentFiles: Boolean
+  canManageTicketCommentFiles: Boolean
+  canReadNewsItemFiles: Boolean
+  canExecuteRegisterExternalPayments: Boolean
+  canExecuteRegisterMetersReadings: Boolean
+  canExecuteSendB2BAppPushMessage: Boolean
+  canExecuteRegisterPropertyMetersReadings: Boolean
+  canExecuteRegisterBillingReceipts: Boolean
+  canExecuteRegisterBillingReceiptFile: Boolean
+  canExecuteSetPaymentPosReceiptUrl: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+  developmentExportId: String
+  productionExportId: String
+}
+
+input B2BAppAccessRightSetsCreateInput {
+  data: B2BAppAccessRightSetCreateInput
+}
+
 enum WebhookHistoryRecordHistoryActionType {
   c
   u
@@ -7610,6 +9220,34 @@ type Query {
   """ Retrieve the meta-data for the B2BApp list. """
   _B2BAppsMeta: _ListMeta
 
+  """ Search for all B2BAppAccessRightHistoryRecord items which match the where clause. 
+  """
+  allB2BAppAccessRightHistoryRecords(where: B2BAppAccessRightHistoryRecordWhereInput, search: String, sortBy: [SortB2BAppAccessRightHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [B2BAppAccessRightHistoryRecord]
+
+  """ Search for the B2BAppAccessRightHistoryRecord item with the matching ID. 
+  """
+  B2BAppAccessRightHistoryRecord(where: B2BAppAccessRightHistoryRecordWhereUniqueInput!): B2BAppAccessRightHistoryRecord
+
+  """ Perform a meta-query on all B2BAppAccessRightHistoryRecord items which match the where clause. 
+  """
+  _allB2BAppAccessRightHistoryRecordsMeta(where: B2BAppAccessRightHistoryRecordWhereInput, search: String, sortBy: [SortB2BAppAccessRightHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the B2BAppAccessRightHistoryRecord list. """
+  _B2BAppAccessRightHistoryRecordsMeta: _ListMeta
+
+  """ Search for all B2BAppAccessRight items which match the where clause. """
+  allB2BAppAccessRights(where: B2BAppAccessRightWhereInput, search: String, sortBy: [SortB2BAppAccessRightsBy!], orderBy: String, first: Int, skip: Int): [B2BAppAccessRight]
+
+  """ Search for the B2BAppAccessRight item with the matching ID. """
+  B2BAppAccessRight(where: B2BAppAccessRightWhereUniqueInput!): B2BAppAccessRight
+
+  """ Perform a meta-query on all B2BAppAccessRight items which match the where clause. 
+  """
+  _allB2BAppAccessRightsMeta(where: B2BAppAccessRightWhereInput, search: String, sortBy: [SortB2BAppAccessRightsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the B2BAppAccessRight list. """
+  _B2BAppAccessRightsMeta: _ListMeta
+
   """ Search for all B2BAppPublishRequestHistoryRecord items which match the where clause. 
   """
   allB2BAppPublishRequestHistoryRecords(where: B2BAppPublishRequestHistoryRecordWhereInput, search: String, sortBy: [SortB2BAppPublishRequestHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [B2BAppPublishRequestHistoryRecord]
@@ -7751,6 +9389,36 @@ type Query {
 
   """ Retrieve the meta-data for the B2CAppPublishRequest list. """
   _B2CAppPublishRequestsMeta: _ListMeta
+
+  """ Search for all B2BAppAccessRightSetHistoryRecord items which match the where clause. 
+  """
+  allB2BAppAccessRightSetHistoryRecords(where: B2BAppAccessRightSetHistoryRecordWhereInput, search: String, sortBy: [SortB2BAppAccessRightSetHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [B2BAppAccessRightSetHistoryRecord]
+
+  """ Search for the B2BAppAccessRightSetHistoryRecord item with the matching ID. 
+  """
+  B2BAppAccessRightSetHistoryRecord(where: B2BAppAccessRightSetHistoryRecordWhereUniqueInput!): B2BAppAccessRightSetHistoryRecord
+
+  """ Perform a meta-query on all B2BAppAccessRightSetHistoryRecord items which match the where clause. 
+  """
+  _allB2BAppAccessRightSetHistoryRecordsMeta(where: B2BAppAccessRightSetHistoryRecordWhereInput, search: String, sortBy: [SortB2BAppAccessRightSetHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the B2BAppAccessRightSetHistoryRecord list. 
+  """
+  _B2BAppAccessRightSetHistoryRecordsMeta: _ListMeta
+
+  """ Search for all B2BAppAccessRightSet items which match the where clause. 
+  """
+  allB2BAppAccessRightSets(where: B2BAppAccessRightSetWhereInput, search: String, sortBy: [SortB2BAppAccessRightSetsBy!], orderBy: String, first: Int, skip: Int): [B2BAppAccessRightSet]
+
+  """ Search for the B2BAppAccessRightSet item with the matching ID. """
+  B2BAppAccessRightSet(where: B2BAppAccessRightSetWhereUniqueInput!): B2BAppAccessRightSet
+
+  """ Perform a meta-query on all B2BAppAccessRightSet items which match the where clause. 
+  """
+  _allB2BAppAccessRightSetsMeta(where: B2BAppAccessRightSetWhereInput, search: String, sortBy: [SortB2BAppAccessRightSetsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the B2BAppAccessRightSet list. """
+  _B2BAppAccessRightSetsMeta: _ListMeta
 
   """ Search for all WebhookHistoryRecord items which match the where clause. 
   """
@@ -7980,6 +9648,42 @@ type Mutation {
   """ Delete multiple B2BApp items by ID. """
   deleteB2BApps(ids: [ID!]): [B2BApp]
 
+  """ Create a single B2BAppAccessRightHistoryRecord item. """
+  createB2BAppAccessRightHistoryRecord(data: B2BAppAccessRightHistoryRecordCreateInput): B2BAppAccessRightHistoryRecord
+
+  """ Create multiple B2BAppAccessRightHistoryRecord items. """
+  createB2BAppAccessRightHistoryRecords(data: [B2BAppAccessRightHistoryRecordsCreateInput]): [B2BAppAccessRightHistoryRecord]
+
+  """ Update a single B2BAppAccessRightHistoryRecord item by ID. """
+  updateB2BAppAccessRightHistoryRecord(id: ID!, data: B2BAppAccessRightHistoryRecordUpdateInput): B2BAppAccessRightHistoryRecord
+
+  """ Update multiple B2BAppAccessRightHistoryRecord items by ID. """
+  updateB2BAppAccessRightHistoryRecords(data: [B2BAppAccessRightHistoryRecordsUpdateInput]): [B2BAppAccessRightHistoryRecord]
+
+  """ Delete a single B2BAppAccessRightHistoryRecord item by ID. """
+  deleteB2BAppAccessRightHistoryRecord(id: ID!): B2BAppAccessRightHistoryRecord
+
+  """ Delete multiple B2BAppAccessRightHistoryRecord items by ID. """
+  deleteB2BAppAccessRightHistoryRecords(ids: [ID!]): [B2BAppAccessRightHistoryRecord]
+
+  """ Create a single B2BAppAccessRight item. """
+  createB2BAppAccessRight(data: B2BAppAccessRightCreateInput): B2BAppAccessRight
+
+  """ Create multiple B2BAppAccessRight items. """
+  createB2BAppAccessRights(data: [B2BAppAccessRightsCreateInput]): [B2BAppAccessRight]
+
+  """ Update a single B2BAppAccessRight item by ID. """
+  updateB2BAppAccessRight(id: ID!, data: B2BAppAccessRightUpdateInput): B2BAppAccessRight
+
+  """ Update multiple B2BAppAccessRight items by ID. """
+  updateB2BAppAccessRights(data: [B2BAppAccessRightsUpdateInput]): [B2BAppAccessRight]
+
+  """ Delete a single B2BAppAccessRight item by ID. """
+  deleteB2BAppAccessRight(id: ID!): B2BAppAccessRight
+
+  """ Delete multiple B2BAppAccessRight items by ID. """
+  deleteB2BAppAccessRights(ids: [ID!]): [B2BAppAccessRight]
+
   """ Create a single B2BAppPublishRequestHistoryRecord item. """
   createB2BAppPublishRequestHistoryRecord(data: B2BAppPublishRequestHistoryRecordCreateInput): B2BAppPublishRequestHistoryRecord
 
@@ -8159,6 +9863,42 @@ type Mutation {
 
   """ Delete multiple B2CAppPublishRequest items by ID. """
   deleteB2CAppPublishRequests(ids: [ID!]): [B2CAppPublishRequest]
+
+  """ Create a single B2BAppAccessRightSetHistoryRecord item. """
+  createB2BAppAccessRightSetHistoryRecord(data: B2BAppAccessRightSetHistoryRecordCreateInput): B2BAppAccessRightSetHistoryRecord
+
+  """ Create multiple B2BAppAccessRightSetHistoryRecord items. """
+  createB2BAppAccessRightSetHistoryRecords(data: [B2BAppAccessRightSetHistoryRecordsCreateInput]): [B2BAppAccessRightSetHistoryRecord]
+
+  """ Update a single B2BAppAccessRightSetHistoryRecord item by ID. """
+  updateB2BAppAccessRightSetHistoryRecord(id: ID!, data: B2BAppAccessRightSetHistoryRecordUpdateInput): B2BAppAccessRightSetHistoryRecord
+
+  """ Update multiple B2BAppAccessRightSetHistoryRecord items by ID. """
+  updateB2BAppAccessRightSetHistoryRecords(data: [B2BAppAccessRightSetHistoryRecordsUpdateInput]): [B2BAppAccessRightSetHistoryRecord]
+
+  """ Delete a single B2BAppAccessRightSetHistoryRecord item by ID. """
+  deleteB2BAppAccessRightSetHistoryRecord(id: ID!): B2BAppAccessRightSetHistoryRecord
+
+  """ Delete multiple B2BAppAccessRightSetHistoryRecord items by ID. """
+  deleteB2BAppAccessRightSetHistoryRecords(ids: [ID!]): [B2BAppAccessRightSetHistoryRecord]
+
+  """ Create a single B2BAppAccessRightSet item. """
+  createB2BAppAccessRightSet(data: B2BAppAccessRightSetCreateInput): B2BAppAccessRightSet
+
+  """ Create multiple B2BAppAccessRightSet items. """
+  createB2BAppAccessRightSets(data: [B2BAppAccessRightSetsCreateInput]): [B2BAppAccessRightSet]
+
+  """ Update a single B2BAppAccessRightSet item by ID. """
+  updateB2BAppAccessRightSet(id: ID!, data: B2BAppAccessRightSetUpdateInput): B2BAppAccessRightSet
+
+  """ Update multiple B2BAppAccessRightSet items by ID. """
+  updateB2BAppAccessRightSets(data: [B2BAppAccessRightSetsUpdateInput]): [B2BAppAccessRightSet]
+
+  """ Delete a single B2BAppAccessRightSet item by ID. """
+  deleteB2BAppAccessRightSet(id: ID!): B2BAppAccessRightSet
+
+  """ Delete multiple B2BAppAccessRightSet items by ID. """
+  deleteB2BAppAccessRightSets(ids: [ID!]): [B2BAppAccessRightSet]
 
   """ Create a single WebhookHistoryRecord item. """
   createWebhookHistoryRecord(data: WebhookHistoryRecordCreateInput): WebhookHistoryRecord

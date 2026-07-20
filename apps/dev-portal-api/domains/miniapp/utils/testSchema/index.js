@@ -12,6 +12,8 @@ const { registerNewServiceUserByTestClient } = require('@app/condo/domains/user/
 
 const {
     B2BApp: B2BAppGQL,
+    B2BAppAccessRight: B2BAppAccessRightGQL,
+    B2BAppAccessRightSet: B2BAppAccessRightSetGQL,
     PUBLISH_B2B_APP_MUTATION,
     UPDATE_B2B_APP_CONTEXT_MUTATION,
     ALL_B2B_APP_CONTEXTS_QUERY,
@@ -44,6 +46,8 @@ const { CHANGE_OIDC_CLIENT_MUTATION } = require('@dev-portal-api/domains/miniapp
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const B2BApp = generateGQLTestUtils(B2BAppGQL)
+const B2BAppAccessRight = generateGQLTestUtils(B2BAppAccessRightGQL)
+const B2BAppAccessRightSet = generateGQLTestUtils(B2BAppAccessRightSetGQL)
 const B2BAppPublishRequest = generateGQLTestUtils(B2BAppPublishRequestGQL)
 
 const B2CApp = generateGQLTestUtils(B2CAppGQL)
@@ -271,6 +275,35 @@ async function updateTestB2BApp (client, id, extraAttrs = {}) {
         ...extraAttrs,
     }
     const obj = await B2BApp.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function createTestB2BAppAccessRightSet (client, app, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!app || !app.id) throw new Error('no app.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const attrs = {
+        dv: 1,
+        sender,
+        app: { connect: { id: app.id } },
+        environment: DEV_ENVIRONMENT,
+        ...extraAttrs,
+    }
+    const obj = await B2BAppAccessRightSet.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestB2BAppAccessRightSet (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await B2BAppAccessRightSet.update(client, id, attrs)
     return [obj, attrs]
 }
 
@@ -704,6 +737,37 @@ async function updateTestB2CAppAccessRight (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestB2BAppAccessRight (client, app, condoUserId, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!app || !app.id) throw new Error('no app.id')
+    if (!condoUserId) throw new Error('no condoUserId')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        app: { connect: { id: app.id } },
+        condoUserId,
+        ...extraAttrs,
+    }
+    const obj = await B2BAppAccessRight.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestB2BAppAccessRight (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await B2BAppAccessRight.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 
 async function registerAppUserServiceByTestClient(client, app, confirmEmailAction, extraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -755,6 +819,8 @@ module.exports = {
     CondoOIDCClient,
 
     B2BApp, createTestB2BApp, updateTestB2BApp, updateTestB2BApps,
+    B2BAppAccessRight, createTestB2BAppAccessRight, updateTestB2BAppAccessRight,
+    B2BAppAccessRightSet, createTestB2BAppAccessRightSet, updateTestB2BAppAccessRightSet,
     B2BAppPublishRequest, createTestB2BAppPublishRequest, updateTestB2BAppPublishRequest,
     publishB2BAppByTestClient,
     allB2BAppContextsByTestClient, updateB2BAppContextByTestClient,
