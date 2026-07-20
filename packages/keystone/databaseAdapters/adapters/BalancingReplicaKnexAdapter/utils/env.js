@@ -89,6 +89,7 @@ function _createReplicaPoolsSchema (availableDatabases) {
                         enum: REGISTERED_DATA_PROVIDER_NAMES,
                     },
                     writable: { type: 'boolean' },
+                    kmigrator: { type: 'boolean' },
                     balancer: {
                         type: 'string',
                         enum: Object.keys(BALANCER_OPTIONS_SCHEMAS),
@@ -118,6 +119,7 @@ function _normalizePoolConfig (poolName, poolConfig) {
         }
         return {
             provider: poolConfig.provider,
+            kmigrator: poolConfig.kmigrator,
             writable: Boolean(poolConfig.writable),
         }
     }

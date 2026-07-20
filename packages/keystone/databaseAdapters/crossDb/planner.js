@@ -1,19 +1,26 @@
+const { AsyncLocalStorage } = require('async_hooks')
+
 const { getItems } = require('@open-keystone/server-side-graphql-client')
 const get = require('lodash/get')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
-const { getSchemaCtx } = require('@open-condo/keystone/schema')
+const { find, getSchemaCtx } = require('@open-condo/keystone/schema')
+
+const { listNeedsCrossDbWhereRewrite } = require('./crossSourceHints')
 
 const { isDataProviderPool } = require('../dataProviders')
 const { getSourceRegistry, isCrossDbPlannerEnabled } = require('../sourceRegistry')
-const { getDatabaseAdapter, isPrismaAdapter } = require('../utils')
+const { castUuidParams, convertPrismaBigInts, getDatabaseAdapter, isPrismaAdapter } = require('../utils')
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 const GLOBAL_QUERY_LIMIT = 1000
 const CROSS_DB_RELATION_IDS_HARD_LIMIT = Number(conf.CROSS_DB_RELATION_FILTER_IDS_LIMIT) || 50000
 const CROSS_DB_RELATION_MAX_PAGES = Number(conf.CROSS_DB_RELATION_FILTER_MAX_PAGES) ||
     Math.ceil(CROSS_DB_RELATION_IDS_HARD_LIMIT / GLOBAL_QUERY_LIMIT) + 1
+
+/** Skips nested prepareCrossDbWhere while OR-flatten loads base ids via `find`. */
+const prepareWhereSkipStorage = new AsyncLocalStorage()
 
 const logger = getLogger()
 
@@ -53,6 +60,9 @@ class CrossDbPlanner {
         this.sourceRegistry = sourceRegistry || getSourceRegistry(adapter)
         this.baseSource = this.sourceRegistry.resolveSource(listKey)
         this._relationIdsCache = new Map()
+        // When flattening access `OR` branches to base `id_in`, nested prepareWhere
+        // must not re-enter OR flattening (would recurse through find → prepareWhere).
+        this._flatteningOr = false
     }
 
     isEnabled () {
@@ -67,8 +77,10 @@ class CrossDbPlanner {
         if (!this.isEnabled() || !initialWhere || typeof initialWhere !== 'object') {
             return initialWhere
         }
+        // relationMap may be empty when this list has no cross-source FKs, but nested
+        // same-pool filters (e.g. `{ receipt: { context: … } }` on BillingReceiptFile)
+        // still need recursive prepareWhere on the related list.
         const relationMap = this._buildRelationMap()
-        if (relationMap.size === 0) return initialWhere
         return this._rewriteWhereNode(initialWhere, relationMap)
     }
 
@@ -163,7 +175,6 @@ class CrossDbPlanner {
 
         const sourceName = this._ensureSqlBackedSource(tableName)
         if (this.isPrisma) {
-            const { castUuidParams, convertPrismaBigInts } = require('../utils')
             const prismaClient = this._getPrismaClient(sourceName)
             const placeholders = values.map((v, i) => UUID_RE.test(v) ? `$${i + 1}::uuid` : `$${i + 1}`).join(', ')
             const selectClause = columns.map(column => `"${column}"`).join(', ')
@@ -201,6 +212,9 @@ class CrossDbPlanner {
     _getFieldAdapters () {
         if (this.listAdapter?.fieldAdapters?.length) return this.listAdapter.fieldAdapters
         if (this.listAdapter?.fieldAdaptersByPath) return Object.values(this.listAdapter.fieldAdaptersByPath)
+        const fromParent = this.adapter?.listAdapters?.[this.listKey]
+        if (fromParent?.fieldAdapters?.length) return fromParent.fieldAdapters
+        if (fromParent?.fieldAdaptersByPath) return Object.values(fromParent.fieldAdaptersByPath)
         return []
     }
 
@@ -240,7 +254,111 @@ class CrossDbPlanner {
     async _tryRewriteRelationFilter (key, value, relationMap, rewritten) {
         if (await this._rewriteDirectRelation(key, value, relationMap, rewritten)) return true
         if (await this._rewriteNotRelation(key, value, relationMap, rewritten)) return true
-        return this._rewriteInRelation(key, value, relationMap, rewritten)
+        if (await this._rewriteInRelation(key, value, relationMap, rewritten)) return true
+        return this._rewriteSamePoolNestedRelation(key, value, rewritten)
+    }
+
+    /**
+     * Same-pool relation filters can still embed cross-source predicates on the related
+     * list (e.g. BillingReceiptFile access `{ receipt: { OR: [{ account…, context… }] } }`).
+     * Recursively run prepareWhere for the related list so nested OR/cross-source filters
+     * become `{ receipt: { id_in: […] } }` before SQL.
+     */
+    async _rewriteSamePoolNestedRelation (key, value, rewritten) {
+        if (!value || typeof value !== 'object' || Array.isArray(value)) return false
+        if (this._isDirectIdRelationFilter(value)) return false
+
+        const fieldAdapter = this._getFieldAdapters().find(adapter => (
+            adapter.isRelationship && adapter.path === key && adapter.refListKey
+        ))
+        if (!fieldAdapter) return false
+        if (this._isCrossSourceRelation(fieldAdapter.refListKey)) return false
+
+        const relatedListKey = fieldAdapter.refListKey
+        // Nested rewrite only when the related list (transitively) touches another pool.
+        if (this.adapter && !listNeedsCrossDbWhereRewrite(this.adapter, relatedListKey, {
+            sourceRegistry: this.sourceRegistry,
+        })) {
+            return false
+        }
+
+        const nestedPlanner = new CrossDbPlanner({
+            listKey: relatedListKey,
+            adapter: this.adapter,
+            isPrisma: this.isPrisma,
+            prisma: this.prisma,
+            knex: this.knex,
+            listAdapter: this.adapter?.listAdapters?.[relatedListKey],
+            resolveDbColumn: this.resolveDbColumn,
+            applyPrismaMultipleRelations: this.applyPrismaMultipleRelations,
+            sourceRegistry: this.sourceRegistry,
+        })
+        rewritten[key] = await nestedPlanner.prepareWhere(value)
+        return true
+    }
+
+    /**
+     * True when `node` (or any descendant) filters via a cross-source relation field.
+     * Used to detect Keystone access `OR: [{ context: { organization: … } }, …]` shapes
+     * that become `WHERE false OR (join…)` and cannot be rewritten as a single JOIN filter.
+     */
+    _nodeHasCrossSourceRelationFilter (node, relationMap) {
+        if (!node || typeof node !== 'object') return false
+        if (Array.isArray(node)) {
+            return node.some(item => this._nodeHasCrossSourceRelationFilter(item, relationMap))
+        }
+
+        for (const [key, value] of Object.entries(node)) {
+            if (this._isLogicalWhereKey(key)) {
+                if (this._nodeHasCrossSourceRelationFilter(value, relationMap)) return true
+                continue
+            }
+
+            if (relationMap.has(key)) return true
+
+            if (key.endsWith('_not') && relationMap.has(key.slice(0, -4))) return true
+            if (key.endsWith('_not_in') && relationMap.has(key.slice(0, -7))) return true
+            if (key.endsWith('_in') && relationMap.has(key.slice(0, -3))) return true
+
+            if (value && typeof value === 'object' && this._nodeHasCrossSourceRelationFilter(value, relationMap)) {
+                return true
+            }
+        }
+        return false
+    }
+
+    /**
+     * Resolve OR branches that touch cross-source relations to a base-table `id_in`.
+     * Each branch is rewritten (relation filters → FK id_in) then loaded via `find`
+     * (no GraphQL access merge), so SQL sees AND-only FK joins — not OR-of-joins.
+     */
+    async _flattenOrToBaseIds (branches, relationMap) {
+        this._flatteningOr = true
+        try {
+            const idGroups = await Promise.all(branches.map(async (branch) => {
+                const rewritten = await this._rewriteWhereNode(branch, relationMap)
+                if (isUnsatisfiableWhere(rewritten)) return []
+                return this._loadBaseIds(rewritten)
+            }))
+            return [...new Set(idGroups.flat())]
+        } finally {
+            this._flatteningOr = false
+        }
+    }
+
+    async _loadBaseIds (where) {
+        // `find` → executeFind → prepareCrossDbWhere; skip re-entry (where is already rewritten).
+        const rows = await prepareWhereSkipStorage.run({ skip: true }, () => find(this.listKey, where))
+        if (!Array.isArray(rows)) return []
+
+        const ids = rows.map(row => row?.id).filter(Boolean)
+        if (ids.length > CROSS_DB_RELATION_IDS_HARD_LIMIT) {
+            throw new Error(
+                `Cross-db OR flatten returned too many ids for ${this.listKey}. ` +
+                `Limit: ${CROSS_DB_RELATION_IDS_HARD_LIMIT}`,
+            )
+        }
+        return ids
     }
 
     async _rewriteWhereNode (node, relationMap) {
@@ -248,6 +366,27 @@ class CrossDbPlanner {
             return Promise.all(node.map(item => this._rewriteWhereNode(item, relationMap)))
         }
         if (!node || typeof node !== 'object') return node
+
+        // Access control often returns `{ OR: [{ context: { organization: … } }] }`.
+        // Keystone SQL wraps that as `false OR (join…)`, which the SQL rewriter cannot
+        // safely split. Resolve matching base ids instead (skip while already flattening).
+        if (
+            Array.isArray(node.OR) &&
+            !this._flatteningOr &&
+            this._nodeHasCrossSourceRelationFilter(node.OR, relationMap)
+        ) {
+            const ids = await this._flattenOrToBaseIds(node.OR, relationMap)
+            const rest = { ...node }
+            delete rest.OR
+            const restRewritten = await this._rewriteWhereNode(rest, relationMap)
+            if (!restRewritten || Object.keys(restRewritten).length === 0) {
+                return { id_in: ids }
+            }
+            if (isUnsatisfiableWhere({ id_in: ids }) || isUnsatisfiableWhere(restRewritten)) {
+                return { id_in: [] }
+            }
+            return { AND: [{ id_in: ids }, restRewritten] }
+        }
 
         const rewritten = {}
         for (const [key, value] of Object.entries(node)) {
@@ -429,16 +568,30 @@ function isUnsatisfiableWhere (where) {
  * Direct FK id filters (`user: { id_in: [...] }`) are left unchanged; SQL cross-pool rewrite handles them.
  * Used by `GqlWithKnexLoadList` and `loadListByChunks`.
  *
- * @param {{ listKey: string, where: object }} options
+ * @param {{ listKey: string, where: object, adapter?: object }} options
  * @returns {Promise<object>}
  */
-async function prepareCrossDbWhere ({ listKey, where }) {
+async function prepareCrossDbWhere ({ listKey, where, adapter: knownAdapter = null }) {
+    // Cheap exits first — no schema lookup / planner construction.
     if (!isCrossDbPlannerEnabled() || !where || typeof where !== 'object') {
+        return where
+    }
+    if (prepareWhereSkipStorage.getStore()?.skip) {
+        return where
+    }
+    // Caller already has the BalancingReplica adapter (hot path): skip getSchemaCtx.
+    if (knownAdapter && !listNeedsCrossDbWhereRewrite(knownAdapter, listKey)) {
         return where
     }
 
     const { keystone } = await getSchemaCtx(listKey)
-    const adapter = getDatabaseAdapter(keystone)
+    const adapter = knownAdapter || getDatabaseAdapter(keystone)
+
+    // Main-pool lists with no path to another pool: leave where untouched.
+    if (!listNeedsCrossDbWhereRewrite(adapter, listKey)) {
+        return where
+    }
+
     const isPrisma = isPrismaAdapter(keystone)
     const planner = new CrossDbPlanner({
         listKey,

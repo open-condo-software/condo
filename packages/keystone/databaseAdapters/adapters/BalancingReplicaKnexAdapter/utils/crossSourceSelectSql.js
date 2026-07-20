@@ -308,21 +308,54 @@ function _mutateWhere (node, mutator) {
 }
 
 /**
- * Flatten redundant `AND true` nodes left after predicate removal.
+ * Whether a WHERE AST node is a boolean literal (`true` / `false`).
+ *
+ * @param {object|null} node
+ * @param {boolean} value
+ * @returns {boolean}
+ */
+function _isBoolLiteral (node, value) {
+    return node?.type === 'bool' && node.value === value
+}
+
+/**
+ * Flatten redundant boolean logic left by Keystone / predicate removal.
+ *
+ * Keystone encodes `OR: [...]` as `WHERE false OR (…)` and `AND: [...]` as
+ * `WHERE true AND (…)`. Those tautologies must be collapsed before treating
+ * remaining `OR`s as unsafe for cross-pool rewrite.
  *
  * @param {object|null} node WHERE AST node
  * @returns {object|null}
  */
 function _simplifyWhere (node) {
     if (!node) return node
-    if (node.type === 'binary_expr' && String(node.operator).toUpperCase() === 'AND') {
-        const left = _simplifyWhere(node.left)
-        const right = _simplifyWhere(node.right)
-        if (left?.type === 'bool' && left.value === true) return right
-        if (right?.type === 'bool' && right.value === true) return left
+    if (node.type !== 'binary_expr') return node
+
+    const operator = String(node.operator || '').toUpperCase()
+    const left = _simplifyWhere(node.left)
+    const right = _simplifyWhere(node.right)
+
+    if (operator === 'AND') {
+        if (_isBoolLiteral(left, true)) return right
+        if (_isBoolLiteral(right, true)) return left
+        if (_isBoolLiteral(left, false) || _isBoolLiteral(right, false)) {
+            return { type: 'bool', value: false }
+        }
         return { ...node, left, right }
     }
-    return node
+
+    if (operator === 'OR') {
+        // Keystone: `whereRaw('false'); orWhere(...)` → `false OR (alias…)`
+        if (_isBoolLiteral(left, false)) return right
+        if (_isBoolLiteral(right, false)) return left
+        if (_isBoolLiteral(left, true) || _isBoolLiteral(right, true)) {
+            return { type: 'bool', value: true }
+        }
+        return { ...node, left, right }
+    }
+
+    return { ...node, left, right }
 }
 
 /**
@@ -371,7 +404,8 @@ function _whereTreeHasOrWithAlias (where, alias) {
  * @returns {Array}
  */
 function _extractAliasPredicates (where, alias) {
-    if (_whereTreeHasOrWithAlias(where, alias)) return []
+    const simplified = _simplifyWhere(where)
+    if (_whereTreeHasOrWithAlias(simplified, alias)) return []
 
     const predicates = []
     const walk = (node) => {
@@ -391,7 +425,7 @@ function _extractAliasPredicates (where, alias) {
             walk(node.right)
         }
     }
-    walk(where)
+    walk(simplified)
     return predicates
 }
 
@@ -405,13 +439,14 @@ function _extractAliasPredicates (where, alias) {
  * @returns {{ predicates: Array, where: object|null, unsupported: boolean }}
  */
 function _extractAndRemoveAliasPredicates (where, alias) {
-    if (_whereTreeHasOrWithAlias(where, alias)) {
+    const simplified = _simplifyWhere(where)
+    if (_whereTreeHasOrWithAlias(simplified, alias)) {
         return { predicates: [], where, unsupported: true }
     }
 
     const predicates = []
     let unsupported = false
-    const nextWhere = _simplifyWhere(_mutateWhere(where, (node) => {
+    const nextWhere = _simplifyWhere(_mutateWhere(simplified, (node) => {
         if (_isLogicalBinaryExpr(node) || !_nodeReferencesAlias(node, alias)) return undefined
         const predicate = _nodeToPredicate(node)
         if (!predicate) {
@@ -438,6 +473,25 @@ function _removeJoinByAlias (parsedQuery, alias) {
 }
 
 /**
+ * Replace SELECT expressions that reference `alias` with NULL (keep AS labels).
+ * Used when a cross-pool JOIN is dropped for hydration-only / FK-already-filtered cases.
+ *
+ * @param {object} parsedQuery SELECT AST (mutated in place)
+ * @param {string} alias
+ */
+function _nullOutAliasSelectColumns (parsedQuery, alias) {
+    if (!Array.isArray(parsedQuery.columns)) return
+    parsedQuery.columns = parsedQuery.columns.map((column) => {
+        if (!column || column.expr?.type !== 'column_ref') return column
+        if (column.expr.table !== alias) return column
+        return {
+            ...column,
+            expr: { type: 'null', value: null },
+        }
+    })
+}
+
+/**
  * AND a SQL condition string onto an existing WHERE AST node.
  *
  * @param {object|null} where existing WHERE AST
@@ -459,7 +513,7 @@ function _andWhereCondition (where, conditionSql) {
  * Rewrite a cross-pool SELECT: drop JOINs and replace alias filters with `base.fk IN (...)`.
  *
  * @param {string} sqlString original SELECT SQL
- * @param {{ joinRewrites?: Array<{ alias: string, fkExpression: string, ids: string[] }> }} options
+ * @param {{ joinRewrites?: Array<{ alias: string, fkExpression: string, ids?: string[]|null, stripJoinOnly?: boolean }> }} options
  * @returns {string|null} rewritten SQL, or `null` when nothing changed
  * @throws {Error} when OR conditions on a join alias make rewrite unsafe
  */
@@ -471,7 +525,15 @@ function rewriteCrossSourceSelectSql (sqlString, { joinRewrites = [] } = {}) {
     let changed = false
 
     for (const rewrite of joinRewrites) {
-        const { alias, fkExpression, ids } = rewrite
+        const { alias, fkExpression, ids, stripJoinOnly } = rewrite
+
+        if (stripJoinOnly) {
+            _removeJoinByAlias(targetQuery, alias)
+            _nullOutAliasSelectColumns(targetQuery, alias)
+            changed = true
+            continue
+        }
+
         const { predicates, where, unsupported } = _extractAndRemoveAliasPredicates(targetQuery.where, alias)
         if (unsupported) {
             throw new Error(`Unsupported cross-pool JOIN rewrite for alias "${alias}"`)
@@ -480,6 +542,7 @@ function rewriteCrossSourceSelectSql (sqlString, { joinRewrites = [] } = {}) {
 
         targetQuery.where = where
         _removeJoinByAlias(targetQuery, alias)
+        _nullOutAliasSelectColumns(targetQuery, alias)
 
         if (!ids || ids.length === 0) {
             targetQuery.where = _andWhereCondition(targetQuery.where, 'false')
@@ -565,6 +628,8 @@ async function planCrossPoolSelect ({
     getPoolName,
 }) {
     if (sqlOperationName !== 'select') return null
+    // Cheap reject: no JOIN ⇒ nothing to rewrite (avoids SQL AST on plain main-table reads).
+    if (!/\bjoin\b/i.test(sql)) return null
 
     const metadata = getFkJoinMetadata(sql)
     if (!metadata || metadata.joins.length === 0) return null
@@ -579,7 +644,6 @@ async function planCrossPoolSelect ({
     if (!basePoolName) return null
 
     const joinRewrites = []
-    const unsupportedCrossPoolJoins = []
 
     for (const join of metadata.joins) {
         const joinPool = routeToPool({
@@ -592,8 +656,24 @@ async function planCrossPoolSelect ({
         if (!joinPoolName || joinPoolName === basePoolName) continue
 
         const predicates = extractJoinAliasPredicates(sql, join.alias)
+        // Hydration-only JOIN (no filters on the join alias): drop it.
+        // If WHERE still references the alias (e.g. real OR-wrapped filters), fail closed —
+        // stripping the JOIN would leave dangling alias refs in WHERE.
         if (predicates.length === 0) {
-            unsupportedCrossPoolJoins.push(join.joinTable)
+            const parsedQuery = _parseSelectQuery(sql)
+            const targetQuery = _resolveSelectTargetAst(parsedQuery)
+            const simplifiedWhere = _simplifyWhere(targetQuery.where)
+            if (_nodeReferencesAlias(simplifiedWhere, join.alias)) {
+                throw new Error(
+                    `Unsupported cross-pool JOIN shape: ${join.joinTable}. ` +
+                    'Filters on the joined alias are required for cross-source rewrite.',
+                )
+            }
+            joinRewrites.push({
+                alias: join.alias,
+                fkExpression: join.fkExpression,
+                stripJoinOnly: true,
+            })
             continue
         }
 
@@ -617,14 +697,6 @@ async function planCrossPoolSelect ({
             fkExpression: join.fkExpression,
             ids,
         })
-    }
-
-    if (unsupportedCrossPoolJoins.length) {
-        throw new Error(
-            'Unsupported cross-pool JOIN shape: ' +
-            `${unsupportedCrossPoolJoins.join(', ')}. ` +
-            'Filters on the joined alias are required for cross-source rewrite.',
-        )
     }
 
     if (!joinRewrites.length) return null

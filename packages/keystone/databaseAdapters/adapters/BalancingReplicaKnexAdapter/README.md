@@ -91,10 +91,16 @@ const routingRules = [
 4. Cross-pool JOINs: planner queries remote pool, rewrites SQL, runs on base pool.
 5. Otherwise: pool's knex client runs the query.
 
+**Main-pool fast path:** lists with no cross-source outbound FKs skip SELECT rewrite wrapping
+and `prepareCrossDbWhere` returns the original `where` (same cost profile as pre-multi-db,
+aside from pool routing). See `crossDb/crossSourceHints.js`.
+
 ### Writes
 
 1. `_selectTargetPool` picks the owning pool (routing rules + source registry).
-2. Cross-source FK validation runs when needed.
+2. Cross-source FK validation runs only when the list has outbound FKs (insert/update) or
+   inbound dependents (hard delete / soft-delete). Ordinary updates on inbound-only parents
+   (e.g. Organization) are not wrapped.
 3. Target pool executes the mutation.
 
 ### KV-backed tables
