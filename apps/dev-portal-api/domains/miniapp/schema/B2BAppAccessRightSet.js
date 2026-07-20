@@ -13,6 +13,7 @@ const { B2B_APP_ACCESS_RIGHT_SET_APPROVED_STATUS, B2B_APP_ACCESS_RIGHT_SET_STATU
 const { B2B_APP_ACCESS_RIGHT_SET_UNIQUE_APP_STATUS_CONSTRAINT } = require('@dev-portal-api/domains/miniapp/constants/constraints')
 const { AVAILABLE_ENVIRONMENTS, PROD_ENVIRONMENT } = require('@dev-portal-api/domains/miniapp/constants/publishing')
 const { exportable } = require('@dev-portal-api/domains/miniapp/plugins/exportable')
+const { getAppAccessRightSetDiffField } = require('@dev-portal-api/domains/miniapp/schema/fields/rightSetDiff')
 const { B2BAppAccessRightSet: B2BAppAccessRightSetUtils } = require('@dev-portal-api/domains/miniapp/utils/serverSchema')
 const { locker } = require('@dev-portal-api/domains/miniapp/utils/serverSchema/locks')
 
@@ -51,6 +52,7 @@ const B2BAppAccessRightSet = new GQLListSchema('B2BAppAccessRightSet', {
                 update: userIsAdminOrIsSupport,
             },
         },
+        diff: getAppAccessRightSetDiffField('B2BAppAccessRightSet'),
         // NOTE: omit fields with extra access
         ...Object.fromEntries(Object.entries(B2B_PERMISSION_FIELDS).filter(([, value]) => !value.access)),
     },
