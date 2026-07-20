@@ -181,6 +181,17 @@ describe('crossSourceSelectSql', () => {
             expect(extractJoinAliasPredicates(sql, joinAlias)).toEqual([])
         })
 
+        test('collapses Keystone false OR wrapper and extracts join alias predicate', () => {
+            // Keystone `_addWheres` for OR: `whereRaw('false'); orWhere(...)`
+            const sql = keystoneSelectWithFkJoin({
+                extraWhere: `false or ("${joinAlias}"."id" in ('ctx-1', 'ctx-2'))`,
+            })
+
+            expect(extractJoinAliasPredicates(sql, joinAlias)).toEqual([
+                { type: 'in', column: 'id', negate: false, values: ['ctx-1', 'ctx-2'] },
+            ])
+        })
+
         test('ignores predicates on other aliases', () => {
             const sql = keystoneSelectWithFkJoin({ extraWhere: '"t0"."status" = \'open\'' })
 

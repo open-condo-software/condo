@@ -3,7 +3,9 @@
 #
 # Flow (setup_and_start_services):
 #   1. bin/prepare.js        — create DB, migrate, write base apps/condo/.env
-#   2. configure-message-db-storage.js — split Message tables to a second DB, enable multi-DB routing
+#   2. configure-external-db-storage.js — split Message + BillingReceipt (+ history)
+#      into external DBs; drop inbound FKs on main that reference those tables;
+#      enable CROSS_DB_RELATION_PLANNER_ENABLED for GraphQL relation filters
 #   3. start condo app + worker, run jest shards, stop services
 #
 # Usage:
@@ -25,12 +27,14 @@ setup_and_start_services() {
     node bin/prepare.js -f condo -c condo
 
     # Migration drift check while condo is still on the canonical single-DB layout.
-    # Must run before configure-message-db-storage.js rewrites routing to multi-DB.
+    # Must run before configure-external-db-storage.js rewrites routing to multi-DB.
     yarn workspace @app/condo makemigrations --check
 
-    # 2. Create message DB, copy Message table schemas, enable multi-DB routing in .env.
-    #    See bin/configure-message-db-storage.js (main DB is unchanged).
-    node bin/configure-message-db-storage.js
+    # 2. Create external DBs, copy table schemas, drop inbound FKs on main that
+    #    reference moved tables, enable multi-DB routing + cross-db planner in .env.
+    #    Main DB tables are left in place; routing sends queries to external pools.
+    #    See bin/configure-external-db-storage.js.
+    node bin/configure-external-db-storage.js
 
     export NEWS_ITEMS_SENDING_DELAY_SEC=2
     export NEWS_ITEM_SENDING_TTL_SEC=2
@@ -47,10 +51,10 @@ setup_and_start_services() {
 
     node bin/wait-apps-apis.js -f condo
 
-    # NOTE: the test bootstrap moves Message tables into a dedicated DB after the
-    # normal single-DB migrate completes. `makemigrations --check` compares the
-    # current runtime layout with the canonical migration graph, so it becomes an
-    # invalid signal for this synthetic cross-db setup.
+    # NOTE: the test bootstrap moves Message + BillingReceipt tables into dedicated
+    # DBs after the normal single-DB migrate completes. `makemigrations --check`
+    # compares the current runtime layout with the canonical migration graph, so it
+    # becomes an invalid signal for this synthetic cross-db setup.
 
     source bin/validate-db-schema-ts-to-match-graphql-api.sh
 

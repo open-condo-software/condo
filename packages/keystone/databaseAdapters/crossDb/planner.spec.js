@@ -43,11 +43,12 @@ jest.mock('@open-condo/keystone/logging', () => ({
 
 jest.mock('@open-condo/keystone/schema', () => ({
     getSchemaCtx: jest.fn(),
+    find: jest.fn(),
 }))
 
 const { getItems } = require('@open-keystone/server-side-graphql-client')
 
-const { getSchemaCtx } = require('@open-condo/keystone/schema')
+const { find, getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { CrossDbPlanner, prepareCrossDbWhere } = require('./planner')
 
@@ -169,6 +170,72 @@ describe('CrossDbPlanner.prepareWhere', () => {
         })
 
         expect(result).toEqual({ user: { id_in: ['user-1', 'user-2'] } })
+    })
+
+    test('flattens OR of cross-source relation filters to base id_in', async () => {
+        getSchemaCtx.mockResolvedValue({ keystone: {} })
+        getItems.mockResolvedValueOnce([{ id: 'user-1' }])
+        find.mockResolvedValueOnce([{ id: 'msg-1' }, { id: 'msg-2' }])
+
+        const result = await planner.prepareWhere({
+            OR: [
+                { user: { name_contains: 'john' } },
+            ],
+        })
+
+        expect(result).toEqual({ id_in: ['msg-1', 'msg-2'] })
+        expect(getItems).toHaveBeenCalledWith(expect.objectContaining({
+            listKey: 'User',
+            where: { name_contains: 'john' },
+        }))
+        expect(find).toHaveBeenCalledWith('Message', { user: { id_in: ['user-1'] } })
+    })
+
+    test('rewrites same-pool nested relation where via related-list planner', async () => {
+        getSchemaCtx.mockResolvedValue({ keystone: {} })
+        getItems.mockResolvedValueOnce([{ id: 'user-1' }])
+        find.mockResolvedValueOnce([{ id: 'msg-nested-1' }])
+
+        // MessageFile.receipt → Message (same pool); nested user filter is cross-source for Message
+        const filePlanner = new CrossDbPlanner({
+            listKey: 'MessageFile',
+            adapter: {
+                listAdapters: {
+                    MessageFile: {
+                        fieldAdapters: [
+                            { isRelationship: true, refListKey: 'Message', path: 'receipt' },
+                        ],
+                    },
+                    Message: {
+                        fieldAdapters: [
+                            { isRelationship: true, refListKey: 'User', path: 'user' },
+                        ],
+                    },
+                },
+            },
+            isPrisma: false,
+            knex: {},
+            singleRelations: [],
+            multipleRelations: [],
+            resolveDbColumn: (name) => name,
+            applyPrismaMultipleRelations: async (rows) => rows,
+            sourceRegistry: {
+                resolveSource: (tableName) => {
+                    if (tableName === 'Message' || tableName === 'MessageFile') return 'message'
+                    return 'main'
+                },
+            },
+        })
+
+        const result = await filePlanner.prepareWhere({
+            receipt: {
+                OR: [{ user: { name_contains: 'john' } }],
+            },
+        })
+
+        expect(result).toEqual({
+            receipt: { id_in: ['msg-nested-1'] },
+        })
     })
 
     test('rewrites empty positive relation _in groups to nested id_in []', async () => {

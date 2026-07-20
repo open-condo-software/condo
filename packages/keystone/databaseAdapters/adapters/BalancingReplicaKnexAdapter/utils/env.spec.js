@@ -165,6 +165,14 @@ describe('Config validation utils', () => {
                     ['master', 'asyncReplica1', 'asyncReplica2', 'syncReplica1', 'syncReplica2', 'billing'],
                 ],
                 [
+                    'with kmigrator-disabled writable pool',
+                    {
+                        write: { databases: ['master'], writable: true },
+                        billing: { databases: ['billing'], writable: true, kmigrator: false },
+                    },
+                    ['master', 'billing'],
+                ],
+                [
                     'with multiple DB clusters with own replicas',
                     {
                         write: { databases: ['master'], writable: true },
@@ -239,6 +247,17 @@ describe('Config validation utils', () => {
             expect(getReplicaPoolsConfig(config, ['main'])).toEqual({
                 main: { databases: ['main'], writable: true, balancer: 'RoundRobin' },
                 kv: { provider: 'kv', writable: false },
+            })
+        })
+        test('preserves kmigrator flag for postgres pools', () => {
+            const config = {
+                main: { databases: ['main'], writable: true },
+                billing: { databases: ['billing'], writable: true, kmigrator: false },
+            }
+
+            expect(getReplicaPoolsConfig(config, ['main', 'billing'])).toEqual({
+                main: { databases: ['main'], writable: true, balancer: 'RoundRobin' },
+                billing: { databases: ['billing'], writable: true, kmigrator: false, balancer: 'RoundRobin' },
             })
         })
         test('rejects unknown provider name', () => {

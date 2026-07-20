@@ -6,6 +6,15 @@ const {
     resolveSqlValue,
 } = require('./sqlAstUtils')
 const {
+    ON_DELETE,
+    normalizeOnDelete,
+    collectCrossSourceInboundForeignKeys,
+    extractDeleteTargetIds,
+    extractUpdateTargetIds,
+    isSoftDeleteUpdate,
+    enforceCrossSourceDeleteConstraints,
+} = require('./validateCrossSourceDeletes')
+const {
     collectCrossSourceForeignKeys,
     extractMutationColumnValues,
     validateCrossSourceReferences,
@@ -19,6 +28,13 @@ module.exports = {
     collectCrossSourceForeignKeys,
     extractMutationColumnValues,
     validateCrossSourceReferences,
+    ON_DELETE,
+    normalizeOnDelete,
+    collectCrossSourceInboundForeignKeys,
+    extractDeleteTargetIds,
+    extractUpdateTargetIds,
+    isSoftDeleteUpdate,
+    enforceCrossSourceDeleteConstraints,
     normalizeColumnName,
     normalizePositionalBindings,
     parseLiteralNode,

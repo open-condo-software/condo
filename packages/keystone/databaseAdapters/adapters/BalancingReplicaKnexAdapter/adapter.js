@@ -14,6 +14,9 @@ const { logger } = require('./utils/logger')
 const { isRuleMatching } = require('./utils/rules')
 const { extractCRUDQueryData } = require('./utils/sql')
 
+const { listHasCrossSourceInbound, listHasCrossSourceOutbound, listNeedsCrossDbWhereRewrite } = require('../../crossDb/crossSourceHints')
+const { isUnsatisfiableWhere, prepareCrossDbWhere } = require('../../crossDb/planner')
+const { enforceCrossSourceDeleteConstraints } = require('../../crossDb/validateCrossSourceDeletes')
 const { validateCrossSourceReferences } = require('../../crossDb/validateCrossSourceReferences')
 const { getDataProvider, isDataProviderPool, resolvePoolProvider } = require('../../dataProviders')
 const { executeProviderSqlMutation, executeProviderSqlSelect } = require('../../dataProviders/executeProviderSql')
@@ -165,28 +168,69 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
         return poolTables
     }
 
-    /** Validate cross-source FK columns before INSERT/UPDATE when DB constraints are absent. */
+    /** Validate cross-source FK columns / inbound delete rules when DB constraints are absent. */
     async _tryValidateCrossSourceReferences ({
         sqlObject,
         finalTableName,
         finalSqlOperationName,
-        gqlOperationType,
-        gqlOperationName,
     }) {
-        if (!['insert', 'update'].includes(finalSqlOperationName)) return
-
         const listAdapter = this.listAdapters?.[finalTableName]
         if (!listAdapter) return
 
-        await validateCrossSourceReferences({
-            tableName: finalTableName,
-            listAdapter,
-            sql: this.knex.client.positionBindings(sqlObject.sql),
-            bindings: sqlObject.bindings,
-            sqlOperationName: finalSqlOperationName,
-            sourceRegistry: this._sourceRegistry,
-            getPoolByName: (poolName) => this._replicaPools[poolName],
-        })
+        const hasOutbound = listHasCrossSourceOutbound(this, finalTableName)
+        const hasInbound = listHasCrossSourceInbound(this, finalTableName)
+        if (!hasOutbound && !hasInbound) return
+
+        const sql = this.knex.client.positionBindings(sqlObject.sql)
+        const bindings = sqlObject.bindings
+        const getPoolByName = (poolName) => this._replicaPools[poolName]
+
+        if (hasOutbound && ['insert', 'update'].includes(finalSqlOperationName)) {
+            await validateCrossSourceReferences({
+                tableName: finalTableName,
+                listAdapter,
+                sql,
+                bindings,
+                sqlOperationName: finalSqlOperationName,
+                sourceRegistry: this._sourceRegistry,
+                getPoolByName,
+            })
+        }
+
+        if (hasInbound) {
+            await enforceCrossSourceDeleteConstraints({
+                tableName: finalTableName,
+                listAdapters: this.listAdapters,
+                sql,
+                bindings,
+                sqlOperationName: finalSqlOperationName,
+                sourceRegistry: this._sourceRegistry,
+                getPoolByName,
+            })
+        }
+    }
+
+    /**
+     * Whether this mutation may need virtual cross-source FK checks.
+     * Main-only tables (no outbound/inbound to another pool) return false → knex runs as before.
+     * Inbound-only parents (e.g. Organization referenced from BillingReceipt) only wrap
+     * hard DELETE and soft-delete UPDATEs — not ordinary updates.
+     */
+    _needsCrossSourceValidation (finalTableName, finalSqlOperationName, sql) {
+        if (!['insert', 'update', 'delete'].includes(finalSqlOperationName)) return false
+        if (!this.listAdapters?.[finalTableName]) return false
+
+        const hasOutbound = listHasCrossSourceOutbound(this, finalTableName)
+        const hasInbound = listHasCrossSourceInbound(this, finalTableName)
+        if (!hasOutbound && !hasInbound) return false
+
+        if (hasOutbound && ['insert', 'update'].includes(finalSqlOperationName)) return true
+        if (hasInbound && finalSqlOperationName === 'delete') return true
+        // Soft-delete sniff only — avoid wrapping every UPDATE on inbound parents.
+        if (hasInbound && finalSqlOperationName === 'update' && /\b"?deletedAt"?\s*=/i.test(sql)) {
+            return true
+        }
+        return false
     }
 
     /**
@@ -202,6 +246,8 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
         gqlOperationName,
     }) {
         if (finalSqlOperationName !== 'select') return undefined
+        // Main-only lists never JOIN another pool from the base table.
+        if (!listHasCrossSourceOutbound(this, finalTableName)) return undefined
 
         const plannedSql = await planCrossPoolSelect({
             sql: builder.toString(),
@@ -288,10 +334,6 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
         this.knex.client.runner = (builder) => {
             try {
                 const sqlObject = builder.toSQL()
-                const gqlContext = graphqlCtx.getStore()
-                const gqlOperationType = get(gqlContext, 'gqlOperationType')
-                const gqlOperationName = get(gqlContext, 'gqlOperationName')
-
                 // Batched SQL (migrations) always goes to the default writable pool
                 if (Array.isArray(sqlObject)) {
                     return this._defaultPool.getQueryRunner(builder)
@@ -301,12 +343,22 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
                 const { sqlOperationName: finalSqlOperationName, tableName: finalTableName } =
                     extractCRUDQueryData(sqlQueryWithPositionalBindings)
 
+                // Cross-db gates as early as possible (cached hints) — before pool pick / wrap.
+                const needsCrossSourceValidation = this._needsCrossSourceValidation(
+                    finalTableName,
+                    finalSqlOperationName,
+                    sqlQueryWithPositionalBindings,
+                )
+                const needsSelectRewrite = finalSqlOperationName === 'select'
+                    && listHasCrossSourceOutbound(this, finalTableName)
+
+                const gqlContext = graphqlCtx.getStore()
+                const gqlOperationType = get(gqlContext, 'gqlOperationType')
+                const gqlOperationName = get(gqlContext, 'gqlOperationName')
+
                 const selectedPool = this._selectTargetPool(sqlQueryWithPositionalBindings)
 
                 if (selectedPool instanceof ProviderPool) {
-                    const needsCrossSourceValidation = ['insert', 'update'].includes(finalSqlOperationName)
-                        && Boolean(this.listAdapters?.[finalTableName])
-
                     return this._createProviderSqlRunner({
                         providerPool: selectedPool,
                         finalTableName,
@@ -320,25 +372,24 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
                 }
 
                 const primaryRunner = selectedPool.getQueryRunner(builder)
-                const needsCrossSourceValidation = ['insert', 'update'].includes(finalSqlOperationName)
-                    && Boolean(this.listAdapters?.[finalTableName])
-
-                const shouldWrapRunner = finalSqlOperationName === 'select' || needsCrossSourceValidation
-                if (!shouldWrapRunner) {
+                if (!needsSelectRewrite && !needsCrossSourceValidation) {
                     return primaryRunner
                 }
 
                 const originalPrimaryRun = primaryRunner.run.bind(primaryRunner)
 
                 primaryRunner.run = async () => {
-                    let primaryResult = await this._tryCrossPoolSelectRewrite({
-                        builder,
-                        selectedPool,
-                        finalTableName,
-                        finalSqlOperationName,
-                        gqlOperationType,
-                        gqlOperationName,
-                    })
+                    let primaryResult
+                    if (needsSelectRewrite) {
+                        primaryResult = await this._tryCrossPoolSelectRewrite({
+                            builder,
+                            selectedPool,
+                            finalTableName,
+                            finalSqlOperationName,
+                            gqlOperationType,
+                            gqlOperationName,
+                        })
+                    }
 
                     if (typeof primaryResult === 'undefined') {
                         if (needsCrossSourceValidation) {
@@ -406,6 +457,46 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
         this._patchKnexRunner()
     }
 
+    /**
+     * After list adapters exist, wrap find/itemsQuery so GraphQL access `where`
+     * with cross-source relation filters is rewritten via CrossDbPlanner
+     * (`context: { organization: ... }` → `context: { id_in: [...] }`) before SQL.
+     */
+    async postConnect ({ rels }) {
+        const result = await super.postConnect({ rels })
+        this._wrapListAdaptersWithCrossDbWhere()
+        return result
+    }
+
+    _wrapListAdaptersWithCrossDbWhere () {
+        if (this._crossDbWhereWrapped) return
+        this._crossDbWhereWrapped = true
+
+        for (const [listKey, listAdapter] of Object.entries(this.listAdapters || {})) {
+            if (!listAdapter || listAdapter.__crossDbWhereWrapped) continue
+            listAdapter.__crossDbWhereWrapped = true
+
+            // Main-only lists: never pay prepareCrossDbWhere / getSchemaCtx.
+            if (!listNeedsCrossDbWhereRewrite(this, listKey)) continue
+
+            const originalItemsQuery = listAdapter.itemsQuery.bind(listAdapter)
+            listAdapter.itemsQuery = async (args = {}, extra = {}) => {
+                const where = await prepareCrossDbWhere({ listKey, where: args.where, adapter: this })
+                if (isUnsatisfiableWhere(where)) {
+                    return extra.meta ? { count: 0 } : []
+                }
+                return originalItemsQuery({ ...args, where }, extra)
+            }
+
+            const originalFind = listAdapter.find.bind(listAdapter)
+            listAdapter.find = async (condition) => {
+                const where = await prepareCrossDbWhere({ listKey, where: condition, adapter: this })
+                if (isUnsatisfiableWhere(where)) return []
+                return originalFind(where)
+            }
+        }
+    }
+
     /** Table → pool registry built from DATABASE_POOLS introspection and routing rules. */
     getSourceRegistry () {
         if (!this._sourceRegistry) {
@@ -428,21 +519,30 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
      * Delegates find to a registered data provider when the table is on a provider pool.
      */
     async executeFind ({ schemaName, condition, listAdapter }) {
+        const where = await prepareCrossDbWhere({ listKey: schemaName, where: condition, adapter: this })
+        if (isUnsatisfiableWhere(where)) return []
+
         const provider = this._getProviderForSchema(schemaName)
-        if (providerSupportsFind(provider, condition)) {
-            return provider.find({ schemaName, condition })
+        if (providerSupportsFind(provider, where)) {
+            return provider.find({ schemaName, condition: where })
         }
-        return listAdapter.find(condition)
+        return listAdapter.find(where)
     }
 
     async executeItemsQuery ({ schemaName, args, meta, from, listAdapter }) {
+        const where = await prepareCrossDbWhere({ listKey: schemaName, where: args?.where, adapter: this })
+        if (isUnsatisfiableWhere(where)) {
+            return meta ? { count: 0 } : []
+        }
+        const nextArgs = { ...args, where }
+
         const provider = this._getProviderForSchema(schemaName)
-        if (!providerSupportsItemsQuery(provider, args)) {
-            return listAdapter.itemsQuery(args, { meta, from })
+        if (!providerSupportsItemsQuery(provider, nextArgs)) {
+            return listAdapter.itemsQuery(nextArgs, { meta, from })
         }
 
-        const rows = await provider.find({ schemaName, condition: args?.where || {} })
-        return meta ? { count: rows.length } : applyItemsQueryToRows(rows, args)
+        const rows = await provider.find({ schemaName, condition: nextArgs.where || {} })
+        return meta ? { count: rows.length } : applyItemsQueryToRows(rows, nextArgs)
     }
 
     async executeCreate ({ schemaName, data, listAdapter }) {
@@ -471,6 +571,7 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
 
     /**
      * One kmigrator stub per writable named database (read-only replica DBs are skipped).
+     * Pools may opt out with `kmigrator: false` when they hold only routed subsets of tables.
      * Default pool database is last so kmigrator writes the primary connection file last.
      */
     __kmigratorKnexAdapters () {
@@ -484,7 +585,7 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
 
         const writableDbNames = new Set()
         for (const poolConfig of Object.values(this._replicaPoolsConfig)) {
-            if (!poolConfig.writable || poolConfig.provider || !poolConfig.databases) continue
+            if (!poolConfig.writable || poolConfig.kmigrator === false || poolConfig.provider || !poolConfig.databases) continue
             for (const dbName of poolConfig.databases) {
                 writableDbNames.add(dbName)
             }
