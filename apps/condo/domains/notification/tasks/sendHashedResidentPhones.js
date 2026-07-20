@@ -1,6 +1,7 @@
 const crypto = require('crypto')
 const fs = require('fs')
 const os = require('os')
+const { finished } = require('stream/promises')
 const { promisify } = require('util')
 
 const { stringify } = require('csv-stringify')
@@ -15,10 +16,11 @@ const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 const { getHashedResidentsAndContactsPhones, sendFileByEmail } = require('./helpers/sendHashedResidentPhones')
 
+const { isEmailAdapterConfigured } = require('../adapters/emailAdapter')
+
 
 const rmfile = promisify(fs.unlink)
 
-const EMAIL_API_CONFIG = (conf.EMAIL_API_CONFIG) ? JSON.parse(conf.EMAIL_API_CONFIG) : null
 const MARKETING_EMAIL = conf.MARKETING_EMAIL || null
 
 const REDIS_KEY = 'sendHashedResidentPhonesLastDate'
@@ -35,7 +37,7 @@ async function sendHashedResidentPhones (userId) {
         entity: 'User',
     })
 
-    if (!EMAIL_API_CONFIG) {
+    if (!isEmailAdapterConfigured()) {
         const msg = 'no EMAIL_API_CONFIG'
         taskLogger.error({
             msg: 'no EMAIL_API_CONFIG',
@@ -90,6 +92,7 @@ async function sendHashedResidentPhones (userId) {
         })
 
         stringifier.end()
+        await finished(writeStream)
 
         taskLogger.info({
             msg: 'success load residents data',
@@ -98,7 +101,7 @@ async function sendHashedResidentPhones (userId) {
         })
 
         const stream = fs.createReadStream(filename, { encoding: 'utf8' })
-        const status = await sendFileByEmail({ stream, filename, config: EMAIL_API_CONFIG, toEmail: MARKETING_EMAIL })
+        const status = await sendFileByEmail({ stream, filename, toEmail: MARKETING_EMAIL })
 
         await redisClient.set(REDIS_KEY, dayjs().toISOString())
 

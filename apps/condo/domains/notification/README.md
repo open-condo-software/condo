@@ -68,3 +68,63 @@ TESTS_FAKE_CLIENT_MODE=true
 TESTS_FAKE_WORKER_MODE=true
 NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE=true
 ```
+
+# email providers
+
+Email delivery goes through `EmailAdapter` (`domains/notification/adapters/emailAdapter.js`).
+Provider is selected by `type` inside `EMAIL_API_CONFIG`:
+- omitted / `mailgun` — Mailgun (backward compatible with existing configs)
+- `sendsay` — Sendsay
+- `unisendergo` — Unisender Go
+
+Zod validates only common required fields (`api_url`, `from`); any additional keys are accepted.
+
+## How to add a new provider
+
+1. Implement an adapter class with static `type` and methods: `isConfigured`, `isEmailSupported`, `checkIsAvailable`, `send`
+2. Register it in the `EMAIL_ADAPTERS` map in `emailAdapter.js`
+3. Set `EMAIL_API_CONFIG.type` to that type value
+
+## Mailgun (default)
+
+Required: `api_url`, `token`, `from`.
+
+```bash
+EMAIL_API_CONFIG='{"api_url":"https://api.mailgun.net/v3/<domain>/messages","token":"<api-key>","from":"Condo <noreply@example.com>","useTags":true,"useAttachingData":true}'
+```
+
+## Unisender Go
+
+Uses [Unisender Go Web API](https://godocs.unisender.ru/web-api-ref#email-send) `email/send.json`.
+
+Required: `type`, `api_url`, `token`, `from`.
+
+Pick `api_url` for the data center where the account is registered (for example `go1` or `go2`).
+Wrong data center typically returns API error code `114` (“User with id … not found”).
+
+```bash
+EMAIL_API_CONFIG='{"type":"unisendergo","api_url":"https://go1.unisender.ru/ru/transactional/api/v1","token":"<api-key>","from":"Condo <noreply@example.com>","useTags":true,"useAttachingData":true}'
+```
+
+- `token` — Unisender Go API key (`X-API-KEY`)
+- `from` — sender email, optionally with display name (`Name <email@domain>`)
+
+API key: Unisender Go dashboard → Account → Security → API key
+(or project-level key under Settings → Projects).
+
+Sender domain must be verified (SPF/DKIM) in Unisender Go before production sends.
+
+## Sendsay
+
+Uses Sendsay transactional API via `issue.send` with `group: "personal"`.
+
+Required: `type`, `api_url`, `login`, `passwd`, `from`.
+
+```bash
+EMAIL_API_CONFIG='{"type":"sendsay","api_url":"https://api.sendsay.ru/general/api/v100/json","login":"<login>","sublogin":"<sublogin>","passwd":"<password>","from":"Condo <noreply@example.com>","useTags":true,"useAttachingData":true}'
+```
+
+- `api_url` — JSON endpoint base (`.../json`); account login is appended automatically as `.../json/<login>`
+- `login` / `sublogin` / `passwd` — Sendsay password auth via `one_time_auth` (or set `apikey`/`token` instead of `passwd`)
+- `from` — **must be a sender already verified** in Sendsay (`issue.emailsender.*`). Unverified `from` still returns `track.id`, but delivery fails later with `emailsender`
+- `cc` / `bcc` are not supported by the current Sendsay adapter
