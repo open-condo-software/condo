@@ -293,6 +293,9 @@
 
   "pages.apps.b2b.id.sections.oidc.title": "OIDC authorization",
 
+  "pages.apps.b2b.id.sections.permissions.title": "App permissions",
+  "pages.apps.b2b.id.sections.permissions.table.columns.permission.title": "Permission",
+
   "pages.apps.b2b.id.sections.publishing.title": "Publishing",
   "pages.apps.b2b.id.sections.publishing.publishForm.items.stand.label": "Select the environment",
   "pages.apps.b2b.id.sections.publishing.publishForm.items.components.label": "Select which changes you want to publish",
