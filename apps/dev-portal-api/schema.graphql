@@ -3705,6 +3705,11 @@ enum B2BAppAccessRightSetStatusType {
   approved
 }
 
+type AppAccessRightSetDiff {
+  added: [String!]!
+  removed: [String!]!
+}
+
 """ Set of permissions for B2BApp service user. Controls with lists can be read or/and managed and which mutations or queries can be executed for connected organizations. Can be freely edited for any non-production environment, production changes requires additional validation 
 """
 type B2BAppAccessRightSet {
@@ -3725,6 +3730,10 @@ type B2BAppAccessRightSet {
 
   """ Status of consideration of the current right set """
   status: B2BAppAccessRightSetStatusType
+
+  """ Difference between currently accepted request and this item. Used primarily for moderation process 
+  """
+  diff: AppAccessRightSetDiff
   canReadB2BAccessTokens: Boolean
   canManageB2BAccessTokens: Boolean
   canReadBillingIntegrationOrganizationContexts: Boolean

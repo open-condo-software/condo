@@ -169,6 +169,50 @@ describe('B2BAppAccessRightSet', () => {
                 })
             })
         })
+        describe('diff field', () => {
+            describe('Must be resolved correctly', () => {
+                test(`Must be empty for ${B2B_APP_ACCESS_RIGHT_SET_APPROVED_STATUS} status`, async () => {
+                    const [app] = await createTestB2BApp(creator)
+                    const [rightSet] = await createTestB2BAppAccessRightSet(admin, app, {
+                        environment: DEV_ENVIRONMENT,
+                        canReadContacts: true,
+                    })
+                    const readRightSet = await B2BAppAccessRightSet.getOne(admin, { id: rightSet.id })
+                    expect(readRightSet).toHaveProperty('status', B2B_APP_ACCESS_RIGHT_SET_APPROVED_STATUS)
+                    expect(readRightSet.diff).toEqual({ added: [], removed: [] })
+                })
+                test('Must treat non-existing approved set as all-false', async () => {
+                    const [app] = await createTestB2BApp(creator)
+                    const [rightSet] = await createTestB2BAppAccessRightSet(admin, app, {
+                        environment: PROD_ENVIRONMENT,
+                        canReadContacts: true,
+                        canManageContacts: true,
+                    })
+                    const readRightSet = await B2BAppAccessRightSet.getOne(admin, { id: rightSet.id })
+                    expect(readRightSet).toHaveProperty('status', B2B_APP_ACCESS_RIGHT_SET_PENDING_STATUS)
+                    expect(readRightSet.diff.added).toEqual(expect.arrayContaining(['canReadContacts', 'canManageContacts']))
+                    expect(readRightSet.diff.added).toHaveLength(2)
+                    expect(readRightSet.diff.removed).toEqual([])
+                })
+                test('Must resolve diff correctly from currently approved right set', async () => {
+                    const [app] = await createTestB2BApp(creator)
+                    await createTestB2BAppAccessRightSet(admin, app, {
+                        environment: PROD_ENVIRONMENT,
+                        status: B2B_APP_ACCESS_RIGHT_SET_APPROVED_STATUS,
+                        canReadContacts: true,
+                        canManageContacts: true,
+                    })
+                    const [pendingRightSet] = await createTestB2BAppAccessRightSet(admin, app, {
+                        environment: PROD_ENVIRONMENT,
+                        canReadContacts: true,
+                        canReadProperties: true,
+                    })
+                    const readRightSet = await B2BAppAccessRightSet.getOne(admin, { id: pendingRightSet.id })
+                    expect(readRightSet.diff.added).toEqual(['canReadProperties'])
+                    expect(readRightSet.diff.removed).toEqual(['canManageContacts'])
+                })
+            })
+        })
         describe('Creating new right set must auto-replace existing one with same status',  () => {
             test.each([B2B_APP_ACCESS_RIGHT_SET_PENDING_STATUS, B2B_APP_ACCESS_RIGHT_SET_APPROVED_STATUS])('Must auto-replace existing right set with status %s', async (status) => {
                 const environment = status === B2B_APP_ACCESS_RIGHT_SET_APPROVED_STATUS ? DEV_ENVIRONMENT : PROD_ENVIRONMENT

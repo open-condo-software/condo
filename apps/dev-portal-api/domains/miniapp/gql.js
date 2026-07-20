@@ -18,7 +18,7 @@ const B2BApp = generateGqlQueries('B2BApp', B2B_APP_FIELDS)
 const B2B_APP_ACCESS_RIGHT_FIELDS = `{ app { id } condoUserId condoUserEmail environment ${COMMON_FIELDS} ${EXPORT_FIELDS} }`
 const B2BAppAccessRight = generateGqlQueries('B2BAppAccessRight', B2B_APP_ACCESS_RIGHT_FIELDS)
 
-const B2B_APP_ACCESS_RIGHT_SET_FIELDS = `{ app { id } status environment ${COMMON_FIELDS} }`
+const B2B_APP_ACCESS_RIGHT_SET_FIELDS = `{ app { id } status environment diff { added removed } ${COMMON_FIELDS} }`
 const B2BAppAccessRightSet = generateGqlQueries('B2BAppAccessRightSet', B2B_APP_ACCESS_RIGHT_SET_FIELDS)
 
 
