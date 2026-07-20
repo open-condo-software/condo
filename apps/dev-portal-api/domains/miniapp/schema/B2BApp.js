@@ -10,15 +10,13 @@ const { getUrlMeta } = require('@open-condo/miniapp-utils/helpers/urls')
 const { B2B_APP_CATEGORIES, OTHER_CATEGORY } = require('@condo/domains/miniapp/constants')
 const { getSharedConstraintsValidator } = require('@dev-portal-api/domains/common/serverSchema/constraints')
 const { FileAdapter, getFileMetaAfterChange, getMimeTypesValidator } = require('@dev-portal-api/domains/common/utils/files')
+const { INVALID_APP_URL } = require('@dev-portal-api/domains/miniapp/constants/errors')
 const { exportable } = require('@dev-portal-api/domains/miniapp/plugins/exportable')
 const { canReadAppSchemas, canManageAppSchemas } = require('@dev-portal-api/domains/miniapp/utils/serverSchema/access')
 
 const { getEnvironmentalPermissionsFields } = require('./fields/devicePermissions')
 const { getEnvironmentalFields } = require('./fields/environmental')
 const { OIDC_CLIENT_ID_FIELD } = require('./fields/oidcClientId')
-
-const { INVALID_APP_URL } = require('../constants/errors')
-
 
 const LOGO_FILE_ADAPTER = new FileAdapter('B2BApps/logos', true)
 const LOGO_META_AFTER_CHANGE = getFileMetaAfterChange(LOGO_FILE_ADAPTER, 'logo')
