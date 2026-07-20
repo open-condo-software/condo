@@ -295,6 +295,9 @@
 
   "pages.apps.b2b.id.sections.oidc.title": "OIDC авторизация",
 
+  "pages.apps.b2b.id.sections.permissions.title": "Возможности приложения",
+  "pages.apps.b2b.id.sections.permissions.table.columns.permission.title": "Разрешение",
+
   "pages.apps.b2b.id.sections.publishing.title": "Публикация",
   "pages.apps.b2b.id.sections.publishing.publishForm.items.stand.label": "Выберите окружение",
   "pages.apps.b2b.id.sections.publishing.publishForm.items.components.label": "Выберите, какие изменения хотите опубликовать",

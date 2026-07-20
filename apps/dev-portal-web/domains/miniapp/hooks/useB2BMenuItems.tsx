@@ -12,6 +12,8 @@ const AVAILABLE_SECTIONS = [
     'info',
     'organizations',
     'oidc',
+    'permissions',
+    // 'service-user',
     'publishing',
 ] as const
 

@@ -61,6 +61,1081 @@ export type AuthenticateUserWithPhoneAndPasswordInput = {
   phone: Scalars['String']['input'];
 };
 
+export type B2BAppAccessRightCreateInput = {
+  app?: InputMaybe<B2BAppRelateToOneInput>;
+  condoUserId?: InputMaybe<Scalars['ID']['input']>;
+  createdAt?: InputMaybe<Scalars['String']['input']>;
+  createdBy?: InputMaybe<UserRelateToOneInput>;
+  deletedAt?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId?: InputMaybe<Scalars['String']['input']>;
+  dv?: InputMaybe<Scalars['Int']['input']>;
+  environment?: InputMaybe<AppEnvironment>;
+  newId?: InputMaybe<Scalars['String']['input']>;
+  productionExportId?: InputMaybe<Scalars['String']['input']>;
+  sender?: InputMaybe<SenderFieldInput>;
+  updatedAt?: InputMaybe<Scalars['String']['input']>;
+  updatedBy?: InputMaybe<UserRelateToOneInput>;
+  v?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type B2BAppAccessRightHistoryRecordCreateInput = {
+  app?: InputMaybe<Scalars['String']['input']>;
+  condoUserId?: InputMaybe<Scalars['ID']['input']>;
+  createdAt?: InputMaybe<Scalars['String']['input']>;
+  createdBy?: InputMaybe<Scalars['String']['input']>;
+  deletedAt?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId?: InputMaybe<Scalars['String']['input']>;
+  dv?: InputMaybe<Scalars['Int']['input']>;
+  environment?: InputMaybe<Scalars['String']['input']>;
+  history_action?: InputMaybe<B2BAppAccessRightHistoryRecordHistoryActionType>;
+  history_date?: InputMaybe<Scalars['String']['input']>;
+  history_id?: InputMaybe<Scalars['String']['input']>;
+  newId?: InputMaybe<Scalars['JSON']['input']>;
+  productionExportId?: InputMaybe<Scalars['String']['input']>;
+  sender?: InputMaybe<Scalars['JSON']['input']>;
+  updatedAt?: InputMaybe<Scalars['String']['input']>;
+  updatedBy?: InputMaybe<Scalars['String']['input']>;
+  v?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export enum B2BAppAccessRightHistoryRecordHistoryActionType {
+  C = 'c',
+  D = 'd',
+  U = 'u'
+}
+
+export type B2BAppAccessRightHistoryRecordUpdateInput = {
+  app?: InputMaybe<Scalars['String']['input']>;
+  condoUserId?: InputMaybe<Scalars['ID']['input']>;
+  createdAt?: InputMaybe<Scalars['String']['input']>;
+  createdBy?: InputMaybe<Scalars['String']['input']>;
+  deletedAt?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId?: InputMaybe<Scalars['String']['input']>;
+  dv?: InputMaybe<Scalars['Int']['input']>;
+  environment?: InputMaybe<Scalars['String']['input']>;
+  history_action?: InputMaybe<B2BAppAccessRightHistoryRecordHistoryActionType>;
+  history_date?: InputMaybe<Scalars['String']['input']>;
+  history_id?: InputMaybe<Scalars['String']['input']>;
+  newId?: InputMaybe<Scalars['JSON']['input']>;
+  productionExportId?: InputMaybe<Scalars['String']['input']>;
+  sender?: InputMaybe<Scalars['JSON']['input']>;
+  updatedAt?: InputMaybe<Scalars['String']['input']>;
+  updatedBy?: InputMaybe<Scalars['String']['input']>;
+  v?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type B2BAppAccessRightHistoryRecordWhereInput = {
+  AND?: InputMaybe<Array<InputMaybe<B2BAppAccessRightHistoryRecordWhereInput>>>;
+  OR?: InputMaybe<Array<InputMaybe<B2BAppAccessRightHistoryRecordWhereInput>>>;
+  app?: InputMaybe<Scalars['String']['input']>;
+  app_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  app_not?: InputMaybe<Scalars['String']['input']>;
+  app_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  condoUserId?: InputMaybe<Scalars['ID']['input']>;
+  condoUserId_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  condoUserId_not?: InputMaybe<Scalars['ID']['input']>;
+  condoUserId_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  createdAt?: InputMaybe<Scalars['String']['input']>;
+  createdAt_gt?: InputMaybe<Scalars['String']['input']>;
+  createdAt_gte?: InputMaybe<Scalars['String']['input']>;
+  createdAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  createdAt_lt?: InputMaybe<Scalars['String']['input']>;
+  createdAt_lte?: InputMaybe<Scalars['String']['input']>;
+  createdAt_not?: InputMaybe<Scalars['String']['input']>;
+  createdAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  createdBy?: InputMaybe<Scalars['String']['input']>;
+  createdBy_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  createdBy_not?: InputMaybe<Scalars['String']['input']>;
+  createdBy_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  deletedAt?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_gt?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_gte?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  deletedAt_lt?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_lte?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_not?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  developmentExportId?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_contains?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_contains_i?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_ends_with?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_i?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  developmentExportId_not?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_not_contains?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_not_i?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  developmentExportId_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_starts_with?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  dv?: InputMaybe<Scalars['Int']['input']>;
+  dv_gt?: InputMaybe<Scalars['Int']['input']>;
+  dv_gte?: InputMaybe<Scalars['Int']['input']>;
+  dv_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  dv_lt?: InputMaybe<Scalars['Int']['input']>;
+  dv_lte?: InputMaybe<Scalars['Int']['input']>;
+  dv_not?: InputMaybe<Scalars['Int']['input']>;
+  dv_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  environment?: InputMaybe<Scalars['String']['input']>;
+  environment_contains?: InputMaybe<Scalars['String']['input']>;
+  environment_contains_i?: InputMaybe<Scalars['String']['input']>;
+  environment_ends_with?: InputMaybe<Scalars['String']['input']>;
+  environment_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  environment_i?: InputMaybe<Scalars['String']['input']>;
+  environment_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  environment_not?: InputMaybe<Scalars['String']['input']>;
+  environment_not_contains?: InputMaybe<Scalars['String']['input']>;
+  environment_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  environment_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  environment_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  environment_not_i?: InputMaybe<Scalars['String']['input']>;
+  environment_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  environment_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  environment_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  environment_starts_with?: InputMaybe<Scalars['String']['input']>;
+  environment_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  history_action?: InputMaybe<B2BAppAccessRightHistoryRecordHistoryActionType>;
+  history_action_in?: InputMaybe<Array<InputMaybe<B2BAppAccessRightHistoryRecordHistoryActionType>>>;
+  history_action_not?: InputMaybe<B2BAppAccessRightHistoryRecordHistoryActionType>;
+  history_action_not_in?: InputMaybe<Array<InputMaybe<B2BAppAccessRightHistoryRecordHistoryActionType>>>;
+  history_date?: InputMaybe<Scalars['String']['input']>;
+  history_date_gt?: InputMaybe<Scalars['String']['input']>;
+  history_date_gte?: InputMaybe<Scalars['String']['input']>;
+  history_date_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  history_date_lt?: InputMaybe<Scalars['String']['input']>;
+  history_date_lte?: InputMaybe<Scalars['String']['input']>;
+  history_date_not?: InputMaybe<Scalars['String']['input']>;
+  history_date_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  history_id?: InputMaybe<Scalars['String']['input']>;
+  history_id_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  history_id_not?: InputMaybe<Scalars['String']['input']>;
+  history_id_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  id?: InputMaybe<Scalars['ID']['input']>;
+  id_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  id_not?: InputMaybe<Scalars['ID']['input']>;
+  id_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  newId?: InputMaybe<Scalars['JSON']['input']>;
+  newId_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  newId_not?: InputMaybe<Scalars['JSON']['input']>;
+  newId_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  productionExportId?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_contains?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_contains_i?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_ends_with?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_i?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  productionExportId_not?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_not_contains?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_not_i?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  productionExportId_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_starts_with?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  sender?: InputMaybe<Scalars['JSON']['input']>;
+  sender_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  sender_not?: InputMaybe<Scalars['JSON']['input']>;
+  sender_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  updatedAt?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_gt?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_gte?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  updatedAt_lt?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_lte?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_not?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  updatedBy?: InputMaybe<Scalars['String']['input']>;
+  updatedBy_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  updatedBy_not?: InputMaybe<Scalars['String']['input']>;
+  updatedBy_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  v?: InputMaybe<Scalars['Int']['input']>;
+  v_gt?: InputMaybe<Scalars['Int']['input']>;
+  v_gte?: InputMaybe<Scalars['Int']['input']>;
+  v_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  v_lt?: InputMaybe<Scalars['Int']['input']>;
+  v_lte?: InputMaybe<Scalars['Int']['input']>;
+  v_not?: InputMaybe<Scalars['Int']['input']>;
+  v_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+};
+
+export type B2BAppAccessRightHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID']['input'];
+};
+
+export type B2BAppAccessRightHistoryRecordsCreateInput = {
+  data?: InputMaybe<B2BAppAccessRightHistoryRecordCreateInput>;
+};
+
+export type B2BAppAccessRightHistoryRecordsUpdateInput = {
+  data?: InputMaybe<B2BAppAccessRightHistoryRecordUpdateInput>;
+  id: Scalars['ID']['input'];
+};
+
+export type B2BAppAccessRightSetCreateInput = {
+  app?: InputMaybe<B2BAppRelateToOneInput>;
+  canExecuteRegisterBillingReceiptFile?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteRegisterBillingReceipts?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteRegisterExternalPayments?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteRegisterMetersReadings?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteRegisterPropertyMetersReadings?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteSendB2BAppPushMessage?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteSetPaymentPosReceiptUrl?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageB2BAccessTokens?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageBillingIntegrationOrganizationContexts?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageContacts?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageCustomValues?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageInvoices?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageMeterReadings?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageMeterReportingPeriods?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageMeters?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageProperties?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageTicketCommentFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageTicketComments?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageTicketFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageTickets?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadB2BAccessTokens?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingAccounts?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingIntegrationOrganizationContexts?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingProperties?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingReceiptFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingReceipts?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingRecipients?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadContacts?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadCustomValues?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadInvoices?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadMeterReadings?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadMeterReportingPeriods?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadMeters?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItemFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadOrganizationEmployeeRoles?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadOrganizationEmployees?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadOrganizations?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadPayments?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadProperties?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadTicketCommentFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadTicketComments?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadTicketFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadTickets?: InputMaybe<Scalars['Boolean']['input']>;
+  createdAt?: InputMaybe<Scalars['String']['input']>;
+  createdBy?: InputMaybe<UserRelateToOneInput>;
+  deletedAt?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId?: InputMaybe<Scalars['String']['input']>;
+  dv?: InputMaybe<Scalars['Int']['input']>;
+  environment?: InputMaybe<AppEnvironment>;
+  newId?: InputMaybe<Scalars['String']['input']>;
+  productionExportId?: InputMaybe<Scalars['String']['input']>;
+  sender?: InputMaybe<SenderFieldInput>;
+  status?: InputMaybe<B2BAppAccessRightSetStatusType>;
+  updatedAt?: InputMaybe<Scalars['String']['input']>;
+  updatedBy?: InputMaybe<UserRelateToOneInput>;
+  v?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type B2BAppAccessRightSetHistoryRecordCreateInput = {
+  app?: InputMaybe<Scalars['String']['input']>;
+  canExecuteRegisterBillingReceiptFile?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteRegisterBillingReceipts?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteRegisterExternalPayments?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteRegisterMetersReadings?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteRegisterPropertyMetersReadings?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteSendB2BAppPushMessage?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteSetPaymentPosReceiptUrl?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageB2BAccessTokens?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageBillingIntegrationOrganizationContexts?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageContacts?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageCustomValues?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageInvoices?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageMeterReadings?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageMeterReportingPeriods?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageMeters?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageProperties?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageTicketCommentFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageTicketComments?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageTicketFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageTickets?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadB2BAccessTokens?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingAccounts?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingIntegrationOrganizationContexts?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingProperties?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingReceiptFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingReceipts?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingRecipients?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadContacts?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadCustomValues?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadInvoices?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadMeterReadings?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadMeterReportingPeriods?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadMeters?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItemFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadOrganizationEmployeeRoles?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadOrganizationEmployees?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadOrganizations?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadPayments?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadProperties?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadTicketCommentFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadTicketComments?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadTicketFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadTickets?: InputMaybe<Scalars['Boolean']['input']>;
+  createdAt?: InputMaybe<Scalars['String']['input']>;
+  createdBy?: InputMaybe<Scalars['String']['input']>;
+  deletedAt?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId?: InputMaybe<Scalars['String']['input']>;
+  dv?: InputMaybe<Scalars['Int']['input']>;
+  environment?: InputMaybe<Scalars['String']['input']>;
+  history_action?: InputMaybe<B2BAppAccessRightSetHistoryRecordHistoryActionType>;
+  history_date?: InputMaybe<Scalars['String']['input']>;
+  history_id?: InputMaybe<Scalars['String']['input']>;
+  newId?: InputMaybe<Scalars['JSON']['input']>;
+  productionExportId?: InputMaybe<Scalars['String']['input']>;
+  sender?: InputMaybe<Scalars['JSON']['input']>;
+  status?: InputMaybe<Scalars['String']['input']>;
+  updatedAt?: InputMaybe<Scalars['String']['input']>;
+  updatedBy?: InputMaybe<Scalars['String']['input']>;
+  v?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export enum B2BAppAccessRightSetHistoryRecordHistoryActionType {
+  C = 'c',
+  D = 'd',
+  U = 'u'
+}
+
+export type B2BAppAccessRightSetHistoryRecordUpdateInput = {
+  app?: InputMaybe<Scalars['String']['input']>;
+  canExecuteRegisterBillingReceiptFile?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteRegisterBillingReceipts?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteRegisterExternalPayments?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteRegisterMetersReadings?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteRegisterPropertyMetersReadings?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteSendB2BAppPushMessage?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteSetPaymentPosReceiptUrl?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageB2BAccessTokens?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageBillingIntegrationOrganizationContexts?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageContacts?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageCustomValues?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageInvoices?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageMeterReadings?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageMeterReportingPeriods?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageMeters?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageProperties?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageTicketCommentFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageTicketComments?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageTicketFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageTickets?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadB2BAccessTokens?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingAccounts?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingIntegrationOrganizationContexts?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingProperties?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingReceiptFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingReceipts?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingRecipients?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadContacts?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadCustomValues?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadInvoices?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadMeterReadings?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadMeterReportingPeriods?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadMeters?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItemFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadOrganizationEmployeeRoles?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadOrganizationEmployees?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadOrganizations?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadPayments?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadProperties?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadTicketCommentFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadTicketComments?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadTicketFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadTickets?: InputMaybe<Scalars['Boolean']['input']>;
+  createdAt?: InputMaybe<Scalars['String']['input']>;
+  createdBy?: InputMaybe<Scalars['String']['input']>;
+  deletedAt?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId?: InputMaybe<Scalars['String']['input']>;
+  dv?: InputMaybe<Scalars['Int']['input']>;
+  environment?: InputMaybe<Scalars['String']['input']>;
+  history_action?: InputMaybe<B2BAppAccessRightSetHistoryRecordHistoryActionType>;
+  history_date?: InputMaybe<Scalars['String']['input']>;
+  history_id?: InputMaybe<Scalars['String']['input']>;
+  newId?: InputMaybe<Scalars['JSON']['input']>;
+  productionExportId?: InputMaybe<Scalars['String']['input']>;
+  sender?: InputMaybe<Scalars['JSON']['input']>;
+  status?: InputMaybe<Scalars['String']['input']>;
+  updatedAt?: InputMaybe<Scalars['String']['input']>;
+  updatedBy?: InputMaybe<Scalars['String']['input']>;
+  v?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type B2BAppAccessRightSetHistoryRecordWhereInput = {
+  AND?: InputMaybe<Array<InputMaybe<B2BAppAccessRightSetHistoryRecordWhereInput>>>;
+  OR?: InputMaybe<Array<InputMaybe<B2BAppAccessRightSetHistoryRecordWhereInput>>>;
+  app?: InputMaybe<Scalars['String']['input']>;
+  app_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  app_not?: InputMaybe<Scalars['String']['input']>;
+  app_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  canExecuteRegisterBillingReceiptFile?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteRegisterBillingReceiptFile_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteRegisterBillingReceipts?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteRegisterBillingReceipts_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteRegisterExternalPayments?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteRegisterExternalPayments_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteRegisterMetersReadings?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteRegisterMetersReadings_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteRegisterPropertyMetersReadings?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteRegisterPropertyMetersReadings_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteSendB2BAppPushMessage?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteSendB2BAppPushMessage_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteSetPaymentPosReceiptUrl?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteSetPaymentPosReceiptUrl_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageB2BAccessTokens?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageB2BAccessTokens_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageBillingIntegrationOrganizationContexts?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageBillingIntegrationOrganizationContexts_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageContacts?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageContacts_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageCustomValues?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageCustomValues_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageInvoices?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageInvoices_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageMeterReadings?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageMeterReadings_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageMeterReportingPeriods?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageMeterReportingPeriods_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageMeters?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageMeters_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageProperties?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageProperties_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageTicketCommentFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageTicketCommentFiles_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageTicketComments?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageTicketComments_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageTicketFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageTicketFiles_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageTickets?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageTickets_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadB2BAccessTokens?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadB2BAccessTokens_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingAccounts?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingAccounts_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingIntegrationOrganizationContexts?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingIntegrationOrganizationContexts_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingProperties?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingProperties_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingReceiptFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingReceiptFiles_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingReceipts?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingReceipts_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingRecipients?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingRecipients_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadContacts?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadContacts_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadCustomValues?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadCustomValues_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadInvoices?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadInvoices_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadMeterReadings?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadMeterReadings_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadMeterReportingPeriods?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadMeterReportingPeriods_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadMeters?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadMeters_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItemFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItemFiles_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadOrganizationEmployeeRoles?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadOrganizationEmployeeRoles_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadOrganizationEmployees?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadOrganizationEmployees_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadOrganizations?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadOrganizations_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadPayments?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadPayments_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadProperties?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadProperties_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadTicketCommentFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadTicketCommentFiles_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadTicketComments?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadTicketComments_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadTicketFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadTicketFiles_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadTickets?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadTickets_not?: InputMaybe<Scalars['Boolean']['input']>;
+  createdAt?: InputMaybe<Scalars['String']['input']>;
+  createdAt_gt?: InputMaybe<Scalars['String']['input']>;
+  createdAt_gte?: InputMaybe<Scalars['String']['input']>;
+  createdAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  createdAt_lt?: InputMaybe<Scalars['String']['input']>;
+  createdAt_lte?: InputMaybe<Scalars['String']['input']>;
+  createdAt_not?: InputMaybe<Scalars['String']['input']>;
+  createdAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  createdBy?: InputMaybe<Scalars['String']['input']>;
+  createdBy_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  createdBy_not?: InputMaybe<Scalars['String']['input']>;
+  createdBy_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  deletedAt?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_gt?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_gte?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  deletedAt_lt?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_lte?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_not?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  developmentExportId?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_contains?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_contains_i?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_ends_with?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_i?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  developmentExportId_not?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_not_contains?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_not_i?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  developmentExportId_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_starts_with?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  dv?: InputMaybe<Scalars['Int']['input']>;
+  dv_gt?: InputMaybe<Scalars['Int']['input']>;
+  dv_gte?: InputMaybe<Scalars['Int']['input']>;
+  dv_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  dv_lt?: InputMaybe<Scalars['Int']['input']>;
+  dv_lte?: InputMaybe<Scalars['Int']['input']>;
+  dv_not?: InputMaybe<Scalars['Int']['input']>;
+  dv_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  environment?: InputMaybe<Scalars['String']['input']>;
+  environment_contains?: InputMaybe<Scalars['String']['input']>;
+  environment_contains_i?: InputMaybe<Scalars['String']['input']>;
+  environment_ends_with?: InputMaybe<Scalars['String']['input']>;
+  environment_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  environment_i?: InputMaybe<Scalars['String']['input']>;
+  environment_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  environment_not?: InputMaybe<Scalars['String']['input']>;
+  environment_not_contains?: InputMaybe<Scalars['String']['input']>;
+  environment_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  environment_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  environment_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  environment_not_i?: InputMaybe<Scalars['String']['input']>;
+  environment_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  environment_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  environment_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  environment_starts_with?: InputMaybe<Scalars['String']['input']>;
+  environment_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  history_action?: InputMaybe<B2BAppAccessRightSetHistoryRecordHistoryActionType>;
+  history_action_in?: InputMaybe<Array<InputMaybe<B2BAppAccessRightSetHistoryRecordHistoryActionType>>>;
+  history_action_not?: InputMaybe<B2BAppAccessRightSetHistoryRecordHistoryActionType>;
+  history_action_not_in?: InputMaybe<Array<InputMaybe<B2BAppAccessRightSetHistoryRecordHistoryActionType>>>;
+  history_date?: InputMaybe<Scalars['String']['input']>;
+  history_date_gt?: InputMaybe<Scalars['String']['input']>;
+  history_date_gte?: InputMaybe<Scalars['String']['input']>;
+  history_date_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  history_date_lt?: InputMaybe<Scalars['String']['input']>;
+  history_date_lte?: InputMaybe<Scalars['String']['input']>;
+  history_date_not?: InputMaybe<Scalars['String']['input']>;
+  history_date_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  history_id?: InputMaybe<Scalars['String']['input']>;
+  history_id_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  history_id_not?: InputMaybe<Scalars['String']['input']>;
+  history_id_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  id?: InputMaybe<Scalars['ID']['input']>;
+  id_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  id_not?: InputMaybe<Scalars['ID']['input']>;
+  id_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  newId?: InputMaybe<Scalars['JSON']['input']>;
+  newId_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  newId_not?: InputMaybe<Scalars['JSON']['input']>;
+  newId_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  productionExportId?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_contains?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_contains_i?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_ends_with?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_i?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  productionExportId_not?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_not_contains?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_not_i?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  productionExportId_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_starts_with?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  sender?: InputMaybe<Scalars['JSON']['input']>;
+  sender_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  sender_not?: InputMaybe<Scalars['JSON']['input']>;
+  sender_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  status?: InputMaybe<Scalars['String']['input']>;
+  status_contains?: InputMaybe<Scalars['String']['input']>;
+  status_contains_i?: InputMaybe<Scalars['String']['input']>;
+  status_ends_with?: InputMaybe<Scalars['String']['input']>;
+  status_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  status_i?: InputMaybe<Scalars['String']['input']>;
+  status_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  status_not?: InputMaybe<Scalars['String']['input']>;
+  status_not_contains?: InputMaybe<Scalars['String']['input']>;
+  status_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  status_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  status_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  status_not_i?: InputMaybe<Scalars['String']['input']>;
+  status_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  status_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  status_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  status_starts_with?: InputMaybe<Scalars['String']['input']>;
+  status_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  updatedAt?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_gt?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_gte?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  updatedAt_lt?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_lte?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_not?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  updatedBy?: InputMaybe<Scalars['String']['input']>;
+  updatedBy_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  updatedBy_not?: InputMaybe<Scalars['String']['input']>;
+  updatedBy_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  v?: InputMaybe<Scalars['Int']['input']>;
+  v_gt?: InputMaybe<Scalars['Int']['input']>;
+  v_gte?: InputMaybe<Scalars['Int']['input']>;
+  v_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  v_lt?: InputMaybe<Scalars['Int']['input']>;
+  v_lte?: InputMaybe<Scalars['Int']['input']>;
+  v_not?: InputMaybe<Scalars['Int']['input']>;
+  v_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+};
+
+export type B2BAppAccessRightSetHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID']['input'];
+};
+
+export type B2BAppAccessRightSetHistoryRecordsCreateInput = {
+  data?: InputMaybe<B2BAppAccessRightSetHistoryRecordCreateInput>;
+};
+
+export type B2BAppAccessRightSetHistoryRecordsUpdateInput = {
+  data?: InputMaybe<B2BAppAccessRightSetHistoryRecordUpdateInput>;
+  id: Scalars['ID']['input'];
+};
+
+export enum B2BAppAccessRightSetStatusType {
+  Approved = 'approved',
+  Pending = 'pending'
+}
+
+export type B2BAppAccessRightSetUpdateInput = {
+  app?: InputMaybe<B2BAppRelateToOneInput>;
+  canExecuteRegisterBillingReceiptFile?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteRegisterBillingReceipts?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteRegisterExternalPayments?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteRegisterMetersReadings?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteRegisterPropertyMetersReadings?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteSendB2BAppPushMessage?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteSetPaymentPosReceiptUrl?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageB2BAccessTokens?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageBillingIntegrationOrganizationContexts?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageContacts?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageCustomValues?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageInvoices?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageMeterReadings?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageMeterReportingPeriods?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageMeters?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageProperties?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageTicketCommentFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageTicketComments?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageTicketFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageTickets?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadB2BAccessTokens?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingAccounts?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingIntegrationOrganizationContexts?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingProperties?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingReceiptFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingReceipts?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingRecipients?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadContacts?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadCustomValues?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadInvoices?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadMeterReadings?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadMeterReportingPeriods?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadMeters?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItemFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadOrganizationEmployeeRoles?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadOrganizationEmployees?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadOrganizations?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadPayments?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadProperties?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadTicketCommentFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadTicketComments?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadTicketFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadTickets?: InputMaybe<Scalars['Boolean']['input']>;
+  createdAt?: InputMaybe<Scalars['String']['input']>;
+  createdBy?: InputMaybe<UserRelateToOneInput>;
+  deletedAt?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId?: InputMaybe<Scalars['String']['input']>;
+  dv?: InputMaybe<Scalars['Int']['input']>;
+  environment?: InputMaybe<AppEnvironment>;
+  newId?: InputMaybe<Scalars['String']['input']>;
+  productionExportId?: InputMaybe<Scalars['String']['input']>;
+  sender?: InputMaybe<SenderFieldInput>;
+  status?: InputMaybe<B2BAppAccessRightSetStatusType>;
+  updatedAt?: InputMaybe<Scalars['String']['input']>;
+  updatedBy?: InputMaybe<UserRelateToOneInput>;
+  v?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type B2BAppAccessRightSetWhereInput = {
+  AND?: InputMaybe<Array<InputMaybe<B2BAppAccessRightSetWhereInput>>>;
+  OR?: InputMaybe<Array<InputMaybe<B2BAppAccessRightSetWhereInput>>>;
+  app?: InputMaybe<B2BAppWhereInput>;
+  app_is_null?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteRegisterBillingReceiptFile?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteRegisterBillingReceiptFile_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteRegisterBillingReceipts?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteRegisterBillingReceipts_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteRegisterExternalPayments?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteRegisterExternalPayments_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteRegisterMetersReadings?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteRegisterMetersReadings_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteRegisterPropertyMetersReadings?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteRegisterPropertyMetersReadings_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteSendB2BAppPushMessage?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteSendB2BAppPushMessage_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteSetPaymentPosReceiptUrl?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteSetPaymentPosReceiptUrl_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageB2BAccessTokens?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageB2BAccessTokens_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageBillingIntegrationOrganizationContexts?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageBillingIntegrationOrganizationContexts_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageContacts?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageContacts_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageCustomValues?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageCustomValues_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageInvoices?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageInvoices_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageMeterReadings?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageMeterReadings_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageMeterReportingPeriods?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageMeterReportingPeriods_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageMeters?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageMeters_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageProperties?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageProperties_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageTicketCommentFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageTicketCommentFiles_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageTicketComments?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageTicketComments_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageTicketFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageTicketFiles_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageTickets?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageTickets_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadB2BAccessTokens?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadB2BAccessTokens_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingAccounts?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingAccounts_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingIntegrationOrganizationContexts?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingIntegrationOrganizationContexts_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingProperties?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingProperties_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingReceiptFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingReceiptFiles_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingReceipts?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingReceipts_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingRecipients?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadBillingRecipients_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadContacts?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadContacts_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadCustomValues?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadCustomValues_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadInvoices?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadInvoices_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadMeterReadings?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadMeterReadings_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadMeterReportingPeriods?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadMeterReportingPeriods_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadMeters?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadMeters_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItemFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItemFiles_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadOrganizationEmployeeRoles?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadOrganizationEmployeeRoles_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadOrganizationEmployees?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadOrganizationEmployees_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadOrganizations?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadOrganizations_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadPayments?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadPayments_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadProperties?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadProperties_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadTicketCommentFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadTicketCommentFiles_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadTicketComments?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadTicketComments_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadTicketFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadTicketFiles_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadTickets?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadTickets_not?: InputMaybe<Scalars['Boolean']['input']>;
+  createdAt?: InputMaybe<Scalars['String']['input']>;
+  createdAt_gt?: InputMaybe<Scalars['String']['input']>;
+  createdAt_gte?: InputMaybe<Scalars['String']['input']>;
+  createdAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  createdAt_lt?: InputMaybe<Scalars['String']['input']>;
+  createdAt_lte?: InputMaybe<Scalars['String']['input']>;
+  createdAt_not?: InputMaybe<Scalars['String']['input']>;
+  createdAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  createdBy?: InputMaybe<UserWhereInput>;
+  createdBy_is_null?: InputMaybe<Scalars['Boolean']['input']>;
+  deletedAt?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_gt?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_gte?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  deletedAt_lt?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_lte?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_not?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  developmentExportId?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_contains?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_contains_i?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_ends_with?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_i?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  developmentExportId_not?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_not_contains?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_not_i?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  developmentExportId_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_starts_with?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  dv?: InputMaybe<Scalars['Int']['input']>;
+  dv_gt?: InputMaybe<Scalars['Int']['input']>;
+  dv_gte?: InputMaybe<Scalars['Int']['input']>;
+  dv_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  dv_lt?: InputMaybe<Scalars['Int']['input']>;
+  dv_lte?: InputMaybe<Scalars['Int']['input']>;
+  dv_not?: InputMaybe<Scalars['Int']['input']>;
+  dv_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  environment?: InputMaybe<AppEnvironment>;
+  environment_in?: InputMaybe<Array<InputMaybe<AppEnvironment>>>;
+  environment_not?: InputMaybe<AppEnvironment>;
+  environment_not_in?: InputMaybe<Array<InputMaybe<AppEnvironment>>>;
+  id?: InputMaybe<Scalars['ID']['input']>;
+  id_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  id_not?: InputMaybe<Scalars['ID']['input']>;
+  id_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  newId?: InputMaybe<Scalars['String']['input']>;
+  newId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  newId_not?: InputMaybe<Scalars['String']['input']>;
+  newId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  productionExportId?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_contains?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_contains_i?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_ends_with?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_i?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  productionExportId_not?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_not_contains?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_not_i?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  productionExportId_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_starts_with?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  sender?: InputMaybe<SenderFieldInput>;
+  sender_in?: InputMaybe<Array<InputMaybe<SenderFieldInput>>>;
+  sender_not?: InputMaybe<SenderFieldInput>;
+  sender_not_in?: InputMaybe<Array<InputMaybe<SenderFieldInput>>>;
+  status?: InputMaybe<B2BAppAccessRightSetStatusType>;
+  status_in?: InputMaybe<Array<InputMaybe<B2BAppAccessRightSetStatusType>>>;
+  status_not?: InputMaybe<B2BAppAccessRightSetStatusType>;
+  status_not_in?: InputMaybe<Array<InputMaybe<B2BAppAccessRightSetStatusType>>>;
+  updatedAt?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_gt?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_gte?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  updatedAt_lt?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_lte?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_not?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  updatedBy?: InputMaybe<UserWhereInput>;
+  updatedBy_is_null?: InputMaybe<Scalars['Boolean']['input']>;
+  v?: InputMaybe<Scalars['Int']['input']>;
+  v_gt?: InputMaybe<Scalars['Int']['input']>;
+  v_gte?: InputMaybe<Scalars['Int']['input']>;
+  v_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  v_lt?: InputMaybe<Scalars['Int']['input']>;
+  v_lte?: InputMaybe<Scalars['Int']['input']>;
+  v_not?: InputMaybe<Scalars['Int']['input']>;
+  v_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+};
+
+export type B2BAppAccessRightSetWhereUniqueInput = {
+  id: Scalars['ID']['input'];
+};
+
+export type B2BAppAccessRightSetsCreateInput = {
+  data?: InputMaybe<B2BAppAccessRightSetCreateInput>;
+};
+
+export type B2BAppAccessRightSetsUpdateInput = {
+  data?: InputMaybe<B2BAppAccessRightSetUpdateInput>;
+  id: Scalars['ID']['input'];
+};
+
+export type B2BAppAccessRightUpdateInput = {
+  app?: InputMaybe<B2BAppRelateToOneInput>;
+  condoUserId?: InputMaybe<Scalars['ID']['input']>;
+  createdAt?: InputMaybe<Scalars['String']['input']>;
+  createdBy?: InputMaybe<UserRelateToOneInput>;
+  deletedAt?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId?: InputMaybe<Scalars['String']['input']>;
+  dv?: InputMaybe<Scalars['Int']['input']>;
+  environment?: InputMaybe<AppEnvironment>;
+  newId?: InputMaybe<Scalars['String']['input']>;
+  productionExportId?: InputMaybe<Scalars['String']['input']>;
+  sender?: InputMaybe<SenderFieldInput>;
+  updatedAt?: InputMaybe<Scalars['String']['input']>;
+  updatedBy?: InputMaybe<UserRelateToOneInput>;
+  v?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type B2BAppAccessRightWhereInput = {
+  AND?: InputMaybe<Array<InputMaybe<B2BAppAccessRightWhereInput>>>;
+  OR?: InputMaybe<Array<InputMaybe<B2BAppAccessRightWhereInput>>>;
+  app?: InputMaybe<B2BAppWhereInput>;
+  app_is_null?: InputMaybe<Scalars['Boolean']['input']>;
+  condoUserId?: InputMaybe<Scalars['ID']['input']>;
+  condoUserId_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  condoUserId_not?: InputMaybe<Scalars['ID']['input']>;
+  condoUserId_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  createdAt?: InputMaybe<Scalars['String']['input']>;
+  createdAt_gt?: InputMaybe<Scalars['String']['input']>;
+  createdAt_gte?: InputMaybe<Scalars['String']['input']>;
+  createdAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  createdAt_lt?: InputMaybe<Scalars['String']['input']>;
+  createdAt_lte?: InputMaybe<Scalars['String']['input']>;
+  createdAt_not?: InputMaybe<Scalars['String']['input']>;
+  createdAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  createdBy?: InputMaybe<UserWhereInput>;
+  createdBy_is_null?: InputMaybe<Scalars['Boolean']['input']>;
+  deletedAt?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_gt?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_gte?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  deletedAt_lt?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_lte?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_not?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  developmentExportId?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_contains?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_contains_i?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_ends_with?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_i?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  developmentExportId_not?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_not_contains?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_not_i?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  developmentExportId_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_starts_with?: InputMaybe<Scalars['String']['input']>;
+  developmentExportId_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  dv?: InputMaybe<Scalars['Int']['input']>;
+  dv_gt?: InputMaybe<Scalars['Int']['input']>;
+  dv_gte?: InputMaybe<Scalars['Int']['input']>;
+  dv_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  dv_lt?: InputMaybe<Scalars['Int']['input']>;
+  dv_lte?: InputMaybe<Scalars['Int']['input']>;
+  dv_not?: InputMaybe<Scalars['Int']['input']>;
+  dv_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  environment?: InputMaybe<AppEnvironment>;
+  environment_in?: InputMaybe<Array<InputMaybe<AppEnvironment>>>;
+  environment_not?: InputMaybe<AppEnvironment>;
+  environment_not_in?: InputMaybe<Array<InputMaybe<AppEnvironment>>>;
+  id?: InputMaybe<Scalars['ID']['input']>;
+  id_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  id_not?: InputMaybe<Scalars['ID']['input']>;
+  id_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  newId?: InputMaybe<Scalars['String']['input']>;
+  newId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  newId_not?: InputMaybe<Scalars['String']['input']>;
+  newId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  productionExportId?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_contains?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_contains_i?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_ends_with?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_i?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  productionExportId_not?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_not_contains?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_not_i?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  productionExportId_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_starts_with?: InputMaybe<Scalars['String']['input']>;
+  productionExportId_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  sender?: InputMaybe<SenderFieldInput>;
+  sender_in?: InputMaybe<Array<InputMaybe<SenderFieldInput>>>;
+  sender_not?: InputMaybe<SenderFieldInput>;
+  sender_not_in?: InputMaybe<Array<InputMaybe<SenderFieldInput>>>;
+  updatedAt?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_gt?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_gte?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  updatedAt_lt?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_lte?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_not?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  updatedBy?: InputMaybe<UserWhereInput>;
+  updatedBy_is_null?: InputMaybe<Scalars['Boolean']['input']>;
+  v?: InputMaybe<Scalars['Int']['input']>;
+  v_gt?: InputMaybe<Scalars['Int']['input']>;
+  v_gte?: InputMaybe<Scalars['Int']['input']>;
+  v_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  v_lt?: InputMaybe<Scalars['Int']['input']>;
+  v_lte?: InputMaybe<Scalars['Int']['input']>;
+  v_not?: InputMaybe<Scalars['Int']['input']>;
+  v_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+};
+
+export type B2BAppAccessRightWhereUniqueInput = {
+  id: Scalars['ID']['input'];
+};
+
+export type B2BAppAccessRightsCreateInput = {
+  data?: InputMaybe<B2BAppAccessRightCreateInput>;
+};
+
+export type B2BAppAccessRightsUpdateInput = {
+  data?: InputMaybe<B2BAppAccessRightUpdateInput>;
+  id: Scalars['ID']['input'];
+};
+
 export enum B2BAppCategoryType {
   BusinessDevelopment = 'BUSINESS_DEVELOPMENT',
   Dispatching = 'DISPATCHING',
@@ -90,15 +1165,27 @@ export type B2BAppCreateInput = {
   developer?: InputMaybe<Scalars['String']['input']>;
   developerUrl?: InputMaybe<Scalars['String']['input']>;
   developmentAppUrl?: InputMaybe<Scalars['String']['input']>;
+  developmentCameraAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentClipboardWriteAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
+  developmentFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentOidcClientId?: InputMaybe<Scalars['ID']['input']>;
+  developmentPublishedAt?: InputMaybe<Scalars['String']['input']>;
+  developmentSpeakerSelectionAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   logo?: InputMaybe<Scalars['FileMeta']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['String']['input']>;
   productionAppUrl?: InputMaybe<Scalars['String']['input']>;
+  productionCameraAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionClipboardWriteAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionExportId?: InputMaybe<Scalars['String']['input']>;
+  productionFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionOidcClientId?: InputMaybe<Scalars['ID']['input']>;
+  productionPublishedAt?: InputMaybe<Scalars['String']['input']>;
+  productionSpeakerSelectionAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   sender?: InputMaybe<SenderFieldInput>;
   shortDescription?: InputMaybe<Scalars['String']['input']>;
   updatedAt?: InputMaybe<Scalars['String']['input']>;
@@ -115,8 +1202,14 @@ export type B2BAppHistoryRecordCreateInput = {
   developer?: InputMaybe<Scalars['String']['input']>;
   developerUrl?: InputMaybe<Scalars['String']['input']>;
   developmentAppUrl?: InputMaybe<Scalars['String']['input']>;
+  developmentCameraAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentClipboardWriteAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
+  developmentFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentOidcClientId?: InputMaybe<Scalars['ID']['input']>;
+  developmentPublishedAt?: InputMaybe<Scalars['String']['input']>;
+  developmentSpeakerSelectionAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   history_action?: InputMaybe<B2BAppHistoryRecordHistoryActionType>;
   history_date?: InputMaybe<Scalars['String']['input']>;
@@ -125,8 +1218,14 @@ export type B2BAppHistoryRecordCreateInput = {
   name?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['JSON']['input']>;
   productionAppUrl?: InputMaybe<Scalars['String']['input']>;
+  productionCameraAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionClipboardWriteAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionExportId?: InputMaybe<Scalars['String']['input']>;
+  productionFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionOidcClientId?: InputMaybe<Scalars['ID']['input']>;
+  productionPublishedAt?: InputMaybe<Scalars['String']['input']>;
+  productionSpeakerSelectionAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   sender?: InputMaybe<Scalars['JSON']['input']>;
   shortDescription?: InputMaybe<Scalars['String']['input']>;
   updatedAt?: InputMaybe<Scalars['String']['input']>;
@@ -149,8 +1248,14 @@ export type B2BAppHistoryRecordUpdateInput = {
   developer?: InputMaybe<Scalars['String']['input']>;
   developerUrl?: InputMaybe<Scalars['String']['input']>;
   developmentAppUrl?: InputMaybe<Scalars['String']['input']>;
+  developmentCameraAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentClipboardWriteAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
+  developmentFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentOidcClientId?: InputMaybe<Scalars['ID']['input']>;
+  developmentPublishedAt?: InputMaybe<Scalars['String']['input']>;
+  developmentSpeakerSelectionAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   history_action?: InputMaybe<B2BAppHistoryRecordHistoryActionType>;
   history_date?: InputMaybe<Scalars['String']['input']>;
@@ -159,8 +1264,14 @@ export type B2BAppHistoryRecordUpdateInput = {
   name?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['JSON']['input']>;
   productionAppUrl?: InputMaybe<Scalars['String']['input']>;
+  productionCameraAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionClipboardWriteAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionExportId?: InputMaybe<Scalars['String']['input']>;
+  productionFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionOidcClientId?: InputMaybe<Scalars['ID']['input']>;
+  productionPublishedAt?: InputMaybe<Scalars['String']['input']>;
+  productionSpeakerSelectionAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   sender?: InputMaybe<Scalars['JSON']['input']>;
   shortDescription?: InputMaybe<Scalars['String']['input']>;
   updatedAt?: InputMaybe<Scalars['String']['input']>;
@@ -267,6 +1378,10 @@ export type B2BAppHistoryRecordWhereInput = {
   developmentAppUrl_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   developmentAppUrl_starts_with?: InputMaybe<Scalars['String']['input']>;
   developmentAppUrl_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  developmentCameraAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentCameraAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentClipboardWriteAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentClipboardWriteAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
   developmentExportId_contains?: InputMaybe<Scalars['String']['input']>;
   developmentExportId_contains_i?: InputMaybe<Scalars['String']['input']>;
@@ -285,10 +1400,24 @@ export type B2BAppHistoryRecordWhereInput = {
   developmentExportId_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   developmentExportId_starts_with?: InputMaybe<Scalars['String']['input']>;
   developmentExportId_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  developmentFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentFullscreenAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentMicrophoneAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   developmentOidcClientId?: InputMaybe<Scalars['ID']['input']>;
   developmentOidcClientId_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   developmentOidcClientId_not?: InputMaybe<Scalars['ID']['input']>;
   developmentOidcClientId_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  developmentPublishedAt?: InputMaybe<Scalars['String']['input']>;
+  developmentPublishedAt_gt?: InputMaybe<Scalars['String']['input']>;
+  developmentPublishedAt_gte?: InputMaybe<Scalars['String']['input']>;
+  developmentPublishedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  developmentPublishedAt_lt?: InputMaybe<Scalars['String']['input']>;
+  developmentPublishedAt_lte?: InputMaybe<Scalars['String']['input']>;
+  developmentPublishedAt_not?: InputMaybe<Scalars['String']['input']>;
+  developmentPublishedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  developmentSpeakerSelectionAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentSpeakerSelectionAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   dv_gt?: InputMaybe<Scalars['Int']['input']>;
   dv_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -361,6 +1490,10 @@ export type B2BAppHistoryRecordWhereInput = {
   productionAppUrl_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   productionAppUrl_starts_with?: InputMaybe<Scalars['String']['input']>;
   productionAppUrl_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  productionCameraAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionCameraAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  productionClipboardWriteAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionClipboardWriteAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   productionExportId?: InputMaybe<Scalars['String']['input']>;
   productionExportId_contains?: InputMaybe<Scalars['String']['input']>;
   productionExportId_contains_i?: InputMaybe<Scalars['String']['input']>;
@@ -379,10 +1512,24 @@ export type B2BAppHistoryRecordWhereInput = {
   productionExportId_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   productionExportId_starts_with?: InputMaybe<Scalars['String']['input']>;
   productionExportId_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  productionFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionFullscreenAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  productionMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionMicrophoneAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   productionOidcClientId?: InputMaybe<Scalars['ID']['input']>;
   productionOidcClientId_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   productionOidcClientId_not?: InputMaybe<Scalars['ID']['input']>;
   productionOidcClientId_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  productionPublishedAt?: InputMaybe<Scalars['String']['input']>;
+  productionPublishedAt_gt?: InputMaybe<Scalars['String']['input']>;
+  productionPublishedAt_gte?: InputMaybe<Scalars['String']['input']>;
+  productionPublishedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  productionPublishedAt_lt?: InputMaybe<Scalars['String']['input']>;
+  productionPublishedAt_lte?: InputMaybe<Scalars['String']['input']>;
+  productionPublishedAt_not?: InputMaybe<Scalars['String']['input']>;
+  productionPublishedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  productionSpeakerSelectionAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionSpeakerSelectionAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   sender?: InputMaybe<Scalars['JSON']['input']>;
   sender_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
   sender_not?: InputMaybe<Scalars['JSON']['input']>;
@@ -753,15 +1900,27 @@ export type B2BAppUpdateInput = {
   developer?: InputMaybe<Scalars['String']['input']>;
   developerUrl?: InputMaybe<Scalars['String']['input']>;
   developmentAppUrl?: InputMaybe<Scalars['String']['input']>;
+  developmentCameraAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentClipboardWriteAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
+  developmentFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentOidcClientId?: InputMaybe<Scalars['ID']['input']>;
+  developmentPublishedAt?: InputMaybe<Scalars['String']['input']>;
+  developmentSpeakerSelectionAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   logo?: InputMaybe<Scalars['FileMeta']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['String']['input']>;
   productionAppUrl?: InputMaybe<Scalars['String']['input']>;
+  productionCameraAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionClipboardWriteAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionExportId?: InputMaybe<Scalars['String']['input']>;
+  productionFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionOidcClientId?: InputMaybe<Scalars['ID']['input']>;
+  productionPublishedAt?: InputMaybe<Scalars['String']['input']>;
+  productionSpeakerSelectionAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   sender?: InputMaybe<SenderFieldInput>;
   shortDescription?: InputMaybe<Scalars['String']['input']>;
   updatedAt?: InputMaybe<Scalars['String']['input']>;
@@ -866,6 +2025,10 @@ export type B2BAppWhereInput = {
   developmentAppUrl_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   developmentAppUrl_starts_with?: InputMaybe<Scalars['String']['input']>;
   developmentAppUrl_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  developmentCameraAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentCameraAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentClipboardWriteAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentClipboardWriteAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
   developmentExportId_contains?: InputMaybe<Scalars['String']['input']>;
   developmentExportId_contains_i?: InputMaybe<Scalars['String']['input']>;
@@ -884,10 +2047,24 @@ export type B2BAppWhereInput = {
   developmentExportId_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   developmentExportId_starts_with?: InputMaybe<Scalars['String']['input']>;
   developmentExportId_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  developmentFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentFullscreenAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentMicrophoneAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   developmentOidcClientId?: InputMaybe<Scalars['ID']['input']>;
   developmentOidcClientId_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   developmentOidcClientId_not?: InputMaybe<Scalars['ID']['input']>;
   developmentOidcClientId_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  developmentPublishedAt?: InputMaybe<Scalars['String']['input']>;
+  developmentPublishedAt_gt?: InputMaybe<Scalars['String']['input']>;
+  developmentPublishedAt_gte?: InputMaybe<Scalars['String']['input']>;
+  developmentPublishedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  developmentPublishedAt_lt?: InputMaybe<Scalars['String']['input']>;
+  developmentPublishedAt_lte?: InputMaybe<Scalars['String']['input']>;
+  developmentPublishedAt_not?: InputMaybe<Scalars['String']['input']>;
+  developmentPublishedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  developmentSpeakerSelectionAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentSpeakerSelectionAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   dv_gt?: InputMaybe<Scalars['Int']['input']>;
   dv_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -944,6 +2121,10 @@ export type B2BAppWhereInput = {
   productionAppUrl_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   productionAppUrl_starts_with?: InputMaybe<Scalars['String']['input']>;
   productionAppUrl_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  productionCameraAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionCameraAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  productionClipboardWriteAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionClipboardWriteAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   productionExportId?: InputMaybe<Scalars['String']['input']>;
   productionExportId_contains?: InputMaybe<Scalars['String']['input']>;
   productionExportId_contains_i?: InputMaybe<Scalars['String']['input']>;
@@ -962,10 +2143,24 @@ export type B2BAppWhereInput = {
   productionExportId_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   productionExportId_starts_with?: InputMaybe<Scalars['String']['input']>;
   productionExportId_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  productionFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionFullscreenAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  productionMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionMicrophoneAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   productionOidcClientId?: InputMaybe<Scalars['ID']['input']>;
   productionOidcClientId_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   productionOidcClientId_not?: InputMaybe<Scalars['ID']['input']>;
   productionOidcClientId_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  productionPublishedAt?: InputMaybe<Scalars['String']['input']>;
+  productionPublishedAt_gt?: InputMaybe<Scalars['String']['input']>;
+  productionPublishedAt_gte?: InputMaybe<Scalars['String']['input']>;
+  productionPublishedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  productionPublishedAt_lt?: InputMaybe<Scalars['String']['input']>;
+  productionPublishedAt_lte?: InputMaybe<Scalars['String']['input']>;
+  productionPublishedAt_not?: InputMaybe<Scalars['String']['input']>;
+  productionPublishedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  productionSpeakerSelectionAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionSpeakerSelectionAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   sender?: InputMaybe<SenderFieldInput>;
   sender_in?: InputMaybe<Array<InputMaybe<SenderFieldInput>>>;
   sender_not?: InputMaybe<SenderFieldInput>;
@@ -3650,6 +4845,290 @@ export type SenderFieldInput = {
   fingerprint: Scalars['String']['input'];
 };
 
+export enum SortB2BAppAccessRightHistoryRecordsBy {
+  CondoUserIdAsc = 'condoUserId_ASC',
+  CondoUserIdDesc = 'condoUserId_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DevelopmentExportIdAsc = 'developmentExportId_ASC',
+  DevelopmentExportIdDesc = 'developmentExportId_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  EnvironmentAsc = 'environment_ASC',
+  EnvironmentDesc = 'environment_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  ProductionExportIdAsc = 'productionExportId_ASC',
+  ProductionExportIdDesc = 'productionExportId_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC'
+}
+
+export enum SortB2BAppAccessRightSetHistoryRecordsBy {
+  CanExecuteRegisterBillingReceiptFileAsc = 'canExecuteRegisterBillingReceiptFile_ASC',
+  CanExecuteRegisterBillingReceiptFileDesc = 'canExecuteRegisterBillingReceiptFile_DESC',
+  CanExecuteRegisterBillingReceiptsAsc = 'canExecuteRegisterBillingReceipts_ASC',
+  CanExecuteRegisterBillingReceiptsDesc = 'canExecuteRegisterBillingReceipts_DESC',
+  CanExecuteRegisterExternalPaymentsAsc = 'canExecuteRegisterExternalPayments_ASC',
+  CanExecuteRegisterExternalPaymentsDesc = 'canExecuteRegisterExternalPayments_DESC',
+  CanExecuteRegisterMetersReadingsAsc = 'canExecuteRegisterMetersReadings_ASC',
+  CanExecuteRegisterMetersReadingsDesc = 'canExecuteRegisterMetersReadings_DESC',
+  CanExecuteRegisterPropertyMetersReadingsAsc = 'canExecuteRegisterPropertyMetersReadings_ASC',
+  CanExecuteRegisterPropertyMetersReadingsDesc = 'canExecuteRegisterPropertyMetersReadings_DESC',
+  CanExecuteSendB2BAppPushMessageAsc = 'canExecuteSendB2BAppPushMessage_ASC',
+  CanExecuteSendB2BAppPushMessageDesc = 'canExecuteSendB2BAppPushMessage_DESC',
+  CanExecuteSetPaymentPosReceiptUrlAsc = 'canExecuteSetPaymentPosReceiptUrl_ASC',
+  CanExecuteSetPaymentPosReceiptUrlDesc = 'canExecuteSetPaymentPosReceiptUrl_DESC',
+  CanManageB2BAccessTokensAsc = 'canManageB2BAccessTokens_ASC',
+  CanManageB2BAccessTokensDesc = 'canManageB2BAccessTokens_DESC',
+  CanManageBillingIntegrationOrganizationContextsAsc = 'canManageBillingIntegrationOrganizationContexts_ASC',
+  CanManageBillingIntegrationOrganizationContextsDesc = 'canManageBillingIntegrationOrganizationContexts_DESC',
+  CanManageContactsAsc = 'canManageContacts_ASC',
+  CanManageContactsDesc = 'canManageContacts_DESC',
+  CanManageCustomValuesAsc = 'canManageCustomValues_ASC',
+  CanManageCustomValuesDesc = 'canManageCustomValues_DESC',
+  CanManageInvoicesAsc = 'canManageInvoices_ASC',
+  CanManageInvoicesDesc = 'canManageInvoices_DESC',
+  CanManageMeterReadingsAsc = 'canManageMeterReadings_ASC',
+  CanManageMeterReadingsDesc = 'canManageMeterReadings_DESC',
+  CanManageMeterReportingPeriodsAsc = 'canManageMeterReportingPeriods_ASC',
+  CanManageMeterReportingPeriodsDesc = 'canManageMeterReportingPeriods_DESC',
+  CanManageMetersAsc = 'canManageMeters_ASC',
+  CanManageMetersDesc = 'canManageMeters_DESC',
+  CanManagePropertiesAsc = 'canManageProperties_ASC',
+  CanManagePropertiesDesc = 'canManageProperties_DESC',
+  CanManageTicketCommentFilesAsc = 'canManageTicketCommentFiles_ASC',
+  CanManageTicketCommentFilesDesc = 'canManageTicketCommentFiles_DESC',
+  CanManageTicketCommentsAsc = 'canManageTicketComments_ASC',
+  CanManageTicketCommentsDesc = 'canManageTicketComments_DESC',
+  CanManageTicketFilesAsc = 'canManageTicketFiles_ASC',
+  CanManageTicketFilesDesc = 'canManageTicketFiles_DESC',
+  CanManageTicketsAsc = 'canManageTickets_ASC',
+  CanManageTicketsDesc = 'canManageTickets_DESC',
+  CanReadB2BAccessTokensAsc = 'canReadB2BAccessTokens_ASC',
+  CanReadB2BAccessTokensDesc = 'canReadB2BAccessTokens_DESC',
+  CanReadBillingAccountsAsc = 'canReadBillingAccounts_ASC',
+  CanReadBillingAccountsDesc = 'canReadBillingAccounts_DESC',
+  CanReadBillingIntegrationOrganizationContextsAsc = 'canReadBillingIntegrationOrganizationContexts_ASC',
+  CanReadBillingIntegrationOrganizationContextsDesc = 'canReadBillingIntegrationOrganizationContexts_DESC',
+  CanReadBillingPropertiesAsc = 'canReadBillingProperties_ASC',
+  CanReadBillingPropertiesDesc = 'canReadBillingProperties_DESC',
+  CanReadBillingReceiptFilesAsc = 'canReadBillingReceiptFiles_ASC',
+  CanReadBillingReceiptFilesDesc = 'canReadBillingReceiptFiles_DESC',
+  CanReadBillingReceiptsAsc = 'canReadBillingReceipts_ASC',
+  CanReadBillingReceiptsDesc = 'canReadBillingReceipts_DESC',
+  CanReadBillingRecipientsAsc = 'canReadBillingRecipients_ASC',
+  CanReadBillingRecipientsDesc = 'canReadBillingRecipients_DESC',
+  CanReadContactsAsc = 'canReadContacts_ASC',
+  CanReadContactsDesc = 'canReadContacts_DESC',
+  CanReadCustomValuesAsc = 'canReadCustomValues_ASC',
+  CanReadCustomValuesDesc = 'canReadCustomValues_DESC',
+  CanReadInvoicesAsc = 'canReadInvoices_ASC',
+  CanReadInvoicesDesc = 'canReadInvoices_DESC',
+  CanReadMeterReadingsAsc = 'canReadMeterReadings_ASC',
+  CanReadMeterReadingsDesc = 'canReadMeterReadings_DESC',
+  CanReadMeterReportingPeriodsAsc = 'canReadMeterReportingPeriods_ASC',
+  CanReadMeterReportingPeriodsDesc = 'canReadMeterReportingPeriods_DESC',
+  CanReadMetersAsc = 'canReadMeters_ASC',
+  CanReadMetersDesc = 'canReadMeters_DESC',
+  CanReadNewsItemFilesAsc = 'canReadNewsItemFiles_ASC',
+  CanReadNewsItemFilesDesc = 'canReadNewsItemFiles_DESC',
+  CanReadOrganizationEmployeeRolesAsc = 'canReadOrganizationEmployeeRoles_ASC',
+  CanReadOrganizationEmployeeRolesDesc = 'canReadOrganizationEmployeeRoles_DESC',
+  CanReadOrganizationEmployeesAsc = 'canReadOrganizationEmployees_ASC',
+  CanReadOrganizationEmployeesDesc = 'canReadOrganizationEmployees_DESC',
+  CanReadOrganizationsAsc = 'canReadOrganizations_ASC',
+  CanReadOrganizationsDesc = 'canReadOrganizations_DESC',
+  CanReadPaymentsAsc = 'canReadPayments_ASC',
+  CanReadPaymentsDesc = 'canReadPayments_DESC',
+  CanReadPropertiesAsc = 'canReadProperties_ASC',
+  CanReadPropertiesDesc = 'canReadProperties_DESC',
+  CanReadTicketCommentFilesAsc = 'canReadTicketCommentFiles_ASC',
+  CanReadTicketCommentFilesDesc = 'canReadTicketCommentFiles_DESC',
+  CanReadTicketCommentsAsc = 'canReadTicketComments_ASC',
+  CanReadTicketCommentsDesc = 'canReadTicketComments_DESC',
+  CanReadTicketFilesAsc = 'canReadTicketFiles_ASC',
+  CanReadTicketFilesDesc = 'canReadTicketFiles_DESC',
+  CanReadTicketsAsc = 'canReadTickets_ASC',
+  CanReadTicketsDesc = 'canReadTickets_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DevelopmentExportIdAsc = 'developmentExportId_ASC',
+  DevelopmentExportIdDesc = 'developmentExportId_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  EnvironmentAsc = 'environment_ASC',
+  EnvironmentDesc = 'environment_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  ProductionExportIdAsc = 'productionExportId_ASC',
+  ProductionExportIdDesc = 'productionExportId_DESC',
+  StatusAsc = 'status_ASC',
+  StatusDesc = 'status_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC'
+}
+
+export enum SortB2BAppAccessRightSetsBy {
+  AppAsc = 'app_ASC',
+  AppDesc = 'app_DESC',
+  CanExecuteRegisterBillingReceiptFileAsc = 'canExecuteRegisterBillingReceiptFile_ASC',
+  CanExecuteRegisterBillingReceiptFileDesc = 'canExecuteRegisterBillingReceiptFile_DESC',
+  CanExecuteRegisterBillingReceiptsAsc = 'canExecuteRegisterBillingReceipts_ASC',
+  CanExecuteRegisterBillingReceiptsDesc = 'canExecuteRegisterBillingReceipts_DESC',
+  CanExecuteRegisterExternalPaymentsAsc = 'canExecuteRegisterExternalPayments_ASC',
+  CanExecuteRegisterExternalPaymentsDesc = 'canExecuteRegisterExternalPayments_DESC',
+  CanExecuteRegisterMetersReadingsAsc = 'canExecuteRegisterMetersReadings_ASC',
+  CanExecuteRegisterMetersReadingsDesc = 'canExecuteRegisterMetersReadings_DESC',
+  CanExecuteRegisterPropertyMetersReadingsAsc = 'canExecuteRegisterPropertyMetersReadings_ASC',
+  CanExecuteRegisterPropertyMetersReadingsDesc = 'canExecuteRegisterPropertyMetersReadings_DESC',
+  CanExecuteSendB2BAppPushMessageAsc = 'canExecuteSendB2BAppPushMessage_ASC',
+  CanExecuteSendB2BAppPushMessageDesc = 'canExecuteSendB2BAppPushMessage_DESC',
+  CanExecuteSetPaymentPosReceiptUrlAsc = 'canExecuteSetPaymentPosReceiptUrl_ASC',
+  CanExecuteSetPaymentPosReceiptUrlDesc = 'canExecuteSetPaymentPosReceiptUrl_DESC',
+  CanManageB2BAccessTokensAsc = 'canManageB2BAccessTokens_ASC',
+  CanManageB2BAccessTokensDesc = 'canManageB2BAccessTokens_DESC',
+  CanManageBillingIntegrationOrganizationContextsAsc = 'canManageBillingIntegrationOrganizationContexts_ASC',
+  CanManageBillingIntegrationOrganizationContextsDesc = 'canManageBillingIntegrationOrganizationContexts_DESC',
+  CanManageContactsAsc = 'canManageContacts_ASC',
+  CanManageContactsDesc = 'canManageContacts_DESC',
+  CanManageCustomValuesAsc = 'canManageCustomValues_ASC',
+  CanManageCustomValuesDesc = 'canManageCustomValues_DESC',
+  CanManageInvoicesAsc = 'canManageInvoices_ASC',
+  CanManageInvoicesDesc = 'canManageInvoices_DESC',
+  CanManageMeterReadingsAsc = 'canManageMeterReadings_ASC',
+  CanManageMeterReadingsDesc = 'canManageMeterReadings_DESC',
+  CanManageMeterReportingPeriodsAsc = 'canManageMeterReportingPeriods_ASC',
+  CanManageMeterReportingPeriodsDesc = 'canManageMeterReportingPeriods_DESC',
+  CanManageMetersAsc = 'canManageMeters_ASC',
+  CanManageMetersDesc = 'canManageMeters_DESC',
+  CanManagePropertiesAsc = 'canManageProperties_ASC',
+  CanManagePropertiesDesc = 'canManageProperties_DESC',
+  CanManageTicketCommentFilesAsc = 'canManageTicketCommentFiles_ASC',
+  CanManageTicketCommentFilesDesc = 'canManageTicketCommentFiles_DESC',
+  CanManageTicketCommentsAsc = 'canManageTicketComments_ASC',
+  CanManageTicketCommentsDesc = 'canManageTicketComments_DESC',
+  CanManageTicketFilesAsc = 'canManageTicketFiles_ASC',
+  CanManageTicketFilesDesc = 'canManageTicketFiles_DESC',
+  CanManageTicketsAsc = 'canManageTickets_ASC',
+  CanManageTicketsDesc = 'canManageTickets_DESC',
+  CanReadB2BAccessTokensAsc = 'canReadB2BAccessTokens_ASC',
+  CanReadB2BAccessTokensDesc = 'canReadB2BAccessTokens_DESC',
+  CanReadBillingAccountsAsc = 'canReadBillingAccounts_ASC',
+  CanReadBillingAccountsDesc = 'canReadBillingAccounts_DESC',
+  CanReadBillingIntegrationOrganizationContextsAsc = 'canReadBillingIntegrationOrganizationContexts_ASC',
+  CanReadBillingIntegrationOrganizationContextsDesc = 'canReadBillingIntegrationOrganizationContexts_DESC',
+  CanReadBillingPropertiesAsc = 'canReadBillingProperties_ASC',
+  CanReadBillingPropertiesDesc = 'canReadBillingProperties_DESC',
+  CanReadBillingReceiptFilesAsc = 'canReadBillingReceiptFiles_ASC',
+  CanReadBillingReceiptFilesDesc = 'canReadBillingReceiptFiles_DESC',
+  CanReadBillingReceiptsAsc = 'canReadBillingReceipts_ASC',
+  CanReadBillingReceiptsDesc = 'canReadBillingReceipts_DESC',
+  CanReadBillingRecipientsAsc = 'canReadBillingRecipients_ASC',
+  CanReadBillingRecipientsDesc = 'canReadBillingRecipients_DESC',
+  CanReadContactsAsc = 'canReadContacts_ASC',
+  CanReadContactsDesc = 'canReadContacts_DESC',
+  CanReadCustomValuesAsc = 'canReadCustomValues_ASC',
+  CanReadCustomValuesDesc = 'canReadCustomValues_DESC',
+  CanReadInvoicesAsc = 'canReadInvoices_ASC',
+  CanReadInvoicesDesc = 'canReadInvoices_DESC',
+  CanReadMeterReadingsAsc = 'canReadMeterReadings_ASC',
+  CanReadMeterReadingsDesc = 'canReadMeterReadings_DESC',
+  CanReadMeterReportingPeriodsAsc = 'canReadMeterReportingPeriods_ASC',
+  CanReadMeterReportingPeriodsDesc = 'canReadMeterReportingPeriods_DESC',
+  CanReadMetersAsc = 'canReadMeters_ASC',
+  CanReadMetersDesc = 'canReadMeters_DESC',
+  CanReadNewsItemFilesAsc = 'canReadNewsItemFiles_ASC',
+  CanReadNewsItemFilesDesc = 'canReadNewsItemFiles_DESC',
+  CanReadOrganizationEmployeeRolesAsc = 'canReadOrganizationEmployeeRoles_ASC',
+  CanReadOrganizationEmployeeRolesDesc = 'canReadOrganizationEmployeeRoles_DESC',
+  CanReadOrganizationEmployeesAsc = 'canReadOrganizationEmployees_ASC',
+  CanReadOrganizationEmployeesDesc = 'canReadOrganizationEmployees_DESC',
+  CanReadOrganizationsAsc = 'canReadOrganizations_ASC',
+  CanReadOrganizationsDesc = 'canReadOrganizations_DESC',
+  CanReadPaymentsAsc = 'canReadPayments_ASC',
+  CanReadPaymentsDesc = 'canReadPayments_DESC',
+  CanReadPropertiesAsc = 'canReadProperties_ASC',
+  CanReadPropertiesDesc = 'canReadProperties_DESC',
+  CanReadTicketCommentFilesAsc = 'canReadTicketCommentFiles_ASC',
+  CanReadTicketCommentFilesDesc = 'canReadTicketCommentFiles_DESC',
+  CanReadTicketCommentsAsc = 'canReadTicketComments_ASC',
+  CanReadTicketCommentsDesc = 'canReadTicketComments_DESC',
+  CanReadTicketFilesAsc = 'canReadTicketFiles_ASC',
+  CanReadTicketFilesDesc = 'canReadTicketFiles_DESC',
+  CanReadTicketsAsc = 'canReadTickets_ASC',
+  CanReadTicketsDesc = 'canReadTickets_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DevelopmentExportIdAsc = 'developmentExportId_ASC',
+  DevelopmentExportIdDesc = 'developmentExportId_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  EnvironmentAsc = 'environment_ASC',
+  EnvironmentDesc = 'environment_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  ProductionExportIdAsc = 'productionExportId_ASC',
+  ProductionExportIdDesc = 'productionExportId_DESC',
+  StatusAsc = 'status_ASC',
+  StatusDesc = 'status_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC'
+}
+
+export enum SortB2BAppAccessRightsBy {
+  AppAsc = 'app_ASC',
+  AppDesc = 'app_DESC',
+  CondoUserIdAsc = 'condoUserId_ASC',
+  CondoUserIdDesc = 'condoUserId_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DevelopmentExportIdAsc = 'developmentExportId_ASC',
+  DevelopmentExportIdDesc = 'developmentExportId_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  EnvironmentAsc = 'environment_ASC',
+  EnvironmentDesc = 'environment_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  ProductionExportIdAsc = 'productionExportId_ASC',
+  ProductionExportIdDesc = 'productionExportId_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC'
+}
+
 export enum SortB2BAppHistoryRecordsBy {
   CategoryAsc = 'category_ASC',
   CategoryDesc = 'category_DESC',
@@ -3663,10 +5142,22 @@ export enum SortB2BAppHistoryRecordsBy {
   DeveloperDesc = 'developer_DESC',
   DevelopmentAppUrlAsc = 'developmentAppUrl_ASC',
   DevelopmentAppUrlDesc = 'developmentAppUrl_DESC',
+  DevelopmentCameraAllowedAsc = 'developmentCameraAllowed_ASC',
+  DevelopmentCameraAllowedDesc = 'developmentCameraAllowed_DESC',
+  DevelopmentClipboardWriteAllowedAsc = 'developmentClipboardWriteAllowed_ASC',
+  DevelopmentClipboardWriteAllowedDesc = 'developmentClipboardWriteAllowed_DESC',
   DevelopmentExportIdAsc = 'developmentExportId_ASC',
   DevelopmentExportIdDesc = 'developmentExportId_DESC',
+  DevelopmentFullscreenAllowedAsc = 'developmentFullscreenAllowed_ASC',
+  DevelopmentFullscreenAllowedDesc = 'developmentFullscreenAllowed_DESC',
+  DevelopmentMicrophoneAllowedAsc = 'developmentMicrophoneAllowed_ASC',
+  DevelopmentMicrophoneAllowedDesc = 'developmentMicrophoneAllowed_DESC',
   DevelopmentOidcClientIdAsc = 'developmentOidcClientId_ASC',
   DevelopmentOidcClientIdDesc = 'developmentOidcClientId_DESC',
+  DevelopmentPublishedAtAsc = 'developmentPublishedAt_ASC',
+  DevelopmentPublishedAtDesc = 'developmentPublishedAt_DESC',
+  DevelopmentSpeakerSelectionAllowedAsc = 'developmentSpeakerSelectionAllowed_ASC',
+  DevelopmentSpeakerSelectionAllowedDesc = 'developmentSpeakerSelectionAllowed_DESC',
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
   HistoryActionAsc = 'history_action_ASC',
@@ -3679,10 +5170,22 @@ export enum SortB2BAppHistoryRecordsBy {
   NameDesc = 'name_DESC',
   ProductionAppUrlAsc = 'productionAppUrl_ASC',
   ProductionAppUrlDesc = 'productionAppUrl_DESC',
+  ProductionCameraAllowedAsc = 'productionCameraAllowed_ASC',
+  ProductionCameraAllowedDesc = 'productionCameraAllowed_DESC',
+  ProductionClipboardWriteAllowedAsc = 'productionClipboardWriteAllowed_ASC',
+  ProductionClipboardWriteAllowedDesc = 'productionClipboardWriteAllowed_DESC',
   ProductionExportIdAsc = 'productionExportId_ASC',
   ProductionExportIdDesc = 'productionExportId_DESC',
+  ProductionFullscreenAllowedAsc = 'productionFullscreenAllowed_ASC',
+  ProductionFullscreenAllowedDesc = 'productionFullscreenAllowed_DESC',
+  ProductionMicrophoneAllowedAsc = 'productionMicrophoneAllowed_ASC',
+  ProductionMicrophoneAllowedDesc = 'productionMicrophoneAllowed_DESC',
   ProductionOidcClientIdAsc = 'productionOidcClientId_ASC',
   ProductionOidcClientIdDesc = 'productionOidcClientId_DESC',
+  ProductionPublishedAtAsc = 'productionPublishedAt_ASC',
+  ProductionPublishedAtDesc = 'productionPublishedAt_DESC',
+  ProductionSpeakerSelectionAllowedAsc = 'productionSpeakerSelectionAllowed_ASC',
+  ProductionSpeakerSelectionAllowedDesc = 'productionSpeakerSelectionAllowed_DESC',
   ShortDescriptionAsc = 'shortDescription_ASC',
   ShortDescriptionDesc = 'shortDescription_DESC',
   UpdatedAtAsc = 'updatedAt_ASC',
@@ -3764,10 +5267,22 @@ export enum SortB2BAppsBy {
   DeveloperDesc = 'developer_DESC',
   DevelopmentAppUrlAsc = 'developmentAppUrl_ASC',
   DevelopmentAppUrlDesc = 'developmentAppUrl_DESC',
+  DevelopmentCameraAllowedAsc = 'developmentCameraAllowed_ASC',
+  DevelopmentCameraAllowedDesc = 'developmentCameraAllowed_DESC',
+  DevelopmentClipboardWriteAllowedAsc = 'developmentClipboardWriteAllowed_ASC',
+  DevelopmentClipboardWriteAllowedDesc = 'developmentClipboardWriteAllowed_DESC',
   DevelopmentExportIdAsc = 'developmentExportId_ASC',
   DevelopmentExportIdDesc = 'developmentExportId_DESC',
+  DevelopmentFullscreenAllowedAsc = 'developmentFullscreenAllowed_ASC',
+  DevelopmentFullscreenAllowedDesc = 'developmentFullscreenAllowed_DESC',
+  DevelopmentMicrophoneAllowedAsc = 'developmentMicrophoneAllowed_ASC',
+  DevelopmentMicrophoneAllowedDesc = 'developmentMicrophoneAllowed_DESC',
   DevelopmentOidcClientIdAsc = 'developmentOidcClientId_ASC',
   DevelopmentOidcClientIdDesc = 'developmentOidcClientId_DESC',
+  DevelopmentPublishedAtAsc = 'developmentPublishedAt_ASC',
+  DevelopmentPublishedAtDesc = 'developmentPublishedAt_DESC',
+  DevelopmentSpeakerSelectionAllowedAsc = 'developmentSpeakerSelectionAllowed_ASC',
+  DevelopmentSpeakerSelectionAllowedDesc = 'developmentSpeakerSelectionAllowed_DESC',
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
   IdAsc = 'id_ASC',
@@ -3776,10 +5291,22 @@ export enum SortB2BAppsBy {
   NameDesc = 'name_DESC',
   ProductionAppUrlAsc = 'productionAppUrl_ASC',
   ProductionAppUrlDesc = 'productionAppUrl_DESC',
+  ProductionCameraAllowedAsc = 'productionCameraAllowed_ASC',
+  ProductionCameraAllowedDesc = 'productionCameraAllowed_DESC',
+  ProductionClipboardWriteAllowedAsc = 'productionClipboardWriteAllowed_ASC',
+  ProductionClipboardWriteAllowedDesc = 'productionClipboardWriteAllowed_DESC',
   ProductionExportIdAsc = 'productionExportId_ASC',
   ProductionExportIdDesc = 'productionExportId_DESC',
+  ProductionFullscreenAllowedAsc = 'productionFullscreenAllowed_ASC',
+  ProductionFullscreenAllowedDesc = 'productionFullscreenAllowed_DESC',
+  ProductionMicrophoneAllowedAsc = 'productionMicrophoneAllowed_ASC',
+  ProductionMicrophoneAllowedDesc = 'productionMicrophoneAllowed_DESC',
   ProductionOidcClientIdAsc = 'productionOidcClientId_ASC',
   ProductionOidcClientIdDesc = 'productionOidcClientId_DESC',
+  ProductionPublishedAtAsc = 'productionPublishedAt_ASC',
+  ProductionPublishedAtDesc = 'productionPublishedAt_DESC',
+  ProductionSpeakerSelectionAllowedAsc = 'productionSpeakerSelectionAllowed_ASC',
+  ProductionSpeakerSelectionAllowedDesc = 'productionSpeakerSelectionAllowed_DESC',
   ShortDescriptionAsc = 'shortDescription_ASC',
   ShortDescriptionDesc = 'shortDescription_DESC',
   UpdatedAtAsc = 'updatedAt_ASC',
@@ -6043,23 +7570,25 @@ export type AllB2CAppsQueryVariables = Exact<{
 
 export type AllB2CAppsQuery = { __typename?: 'Query', b2c?: Array<{ __typename?: 'B2CApp', id: string, name?: string | null, createdAt?: string | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null> | null, b2cMeta?: { __typename?: '_QueryMeta', count?: number | null } | null };
 
+export type B2BAppPermissionsFragment = { __typename?: 'B2BApp', developmentFullscreenAllowed?: boolean | null, productionFullscreenAllowed?: boolean | null, developmentMicrophoneAllowed?: boolean | null, productionMicrophoneAllowed?: boolean | null, developmentCameraAllowed?: boolean | null, productionCameraAllowed?: boolean | null, developmentSpeakerSelectionAllowed?: boolean | null, productionSpeakerSelectionAllowed?: boolean | null, developmentClipboardWriteAllowed?: boolean | null, productionClipboardWriteAllowed?: boolean | null };
+
 export type B2BAppEntryPointsFragment = { __typename?: 'B2BApp', developmentAppUrl?: string | null, productionAppUrl?: string | null };
 
-export type B2BAppFragmentFragment = { __typename: 'B2BApp', id: string, name?: string | null, developer?: string | null, developerUrl?: string | null, category?: B2BAppCategoryType | null, shortDescription?: string | null, detailedDescription?: string | null, developmentExportId?: string | null, productionExportId?: string | null, developmentAppUrl?: string | null, productionAppUrl?: string | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null };
+export type B2BAppFragmentFragment = { __typename: 'B2BApp', id: string, name?: string | null, developer?: string | null, developerUrl?: string | null, category?: B2BAppCategoryType | null, shortDescription?: string | null, detailedDescription?: string | null, developmentExportId?: string | null, productionExportId?: string | null, developmentAppUrl?: string | null, productionAppUrl?: string | null, developmentFullscreenAllowed?: boolean | null, productionFullscreenAllowed?: boolean | null, developmentMicrophoneAllowed?: boolean | null, productionMicrophoneAllowed?: boolean | null, developmentCameraAllowed?: boolean | null, productionCameraAllowed?: boolean | null, developmentSpeakerSelectionAllowed?: boolean | null, productionSpeakerSelectionAllowed?: boolean | null, developmentClipboardWriteAllowed?: boolean | null, productionClipboardWriteAllowed?: boolean | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null };
 
 export type GetB2BAppQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetB2BAppQuery = { __typename?: 'Query', app?: { __typename: 'B2BApp', id: string, name?: string | null, developer?: string | null, developerUrl?: string | null, category?: B2BAppCategoryType | null, shortDescription?: string | null, detailedDescription?: string | null, developmentExportId?: string | null, productionExportId?: string | null, developmentAppUrl?: string | null, productionAppUrl?: string | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null };
+export type GetB2BAppQuery = { __typename?: 'Query', app?: { __typename: 'B2BApp', id: string, name?: string | null, developer?: string | null, developerUrl?: string | null, category?: B2BAppCategoryType | null, shortDescription?: string | null, detailedDescription?: string | null, developmentExportId?: string | null, productionExportId?: string | null, developmentAppUrl?: string | null, productionAppUrl?: string | null, developmentFullscreenAllowed?: boolean | null, productionFullscreenAllowed?: boolean | null, developmentMicrophoneAllowed?: boolean | null, productionMicrophoneAllowed?: boolean | null, developmentCameraAllowed?: boolean | null, productionCameraAllowed?: boolean | null, developmentSpeakerSelectionAllowed?: boolean | null, productionSpeakerSelectionAllowed?: boolean | null, developmentClipboardWriteAllowed?: boolean | null, productionClipboardWriteAllowed?: boolean | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null };
 
 export type CreateB2BAppMutationVariables = Exact<{
   data: B2BAppCreateInput;
 }>;
 
 
-export type CreateB2BAppMutation = { __typename?: 'Mutation', app?: { __typename: 'B2BApp', id: string, name?: string | null, developer?: string | null, developerUrl?: string | null, category?: B2BAppCategoryType | null, shortDescription?: string | null, detailedDescription?: string | null, developmentExportId?: string | null, productionExportId?: string | null, developmentAppUrl?: string | null, productionAppUrl?: string | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null };
+export type CreateB2BAppMutation = { __typename?: 'Mutation', app?: { __typename: 'B2BApp', id: string, name?: string | null, developer?: string | null, developerUrl?: string | null, category?: B2BAppCategoryType | null, shortDescription?: string | null, detailedDescription?: string | null, developmentExportId?: string | null, productionExportId?: string | null, developmentAppUrl?: string | null, productionAppUrl?: string | null, developmentFullscreenAllowed?: boolean | null, productionFullscreenAllowed?: boolean | null, developmentMicrophoneAllowed?: boolean | null, productionMicrophoneAllowed?: boolean | null, developmentCameraAllowed?: boolean | null, productionCameraAllowed?: boolean | null, developmentSpeakerSelectionAllowed?: boolean | null, productionSpeakerSelectionAllowed?: boolean | null, developmentClipboardWriteAllowed?: boolean | null, productionClipboardWriteAllowed?: boolean | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null };
 
 export type UpdateB2BAppMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -6067,7 +7596,7 @@ export type UpdateB2BAppMutationVariables = Exact<{
 }>;
 
 
-export type UpdateB2BAppMutation = { __typename?: 'Mutation', app?: { __typename: 'B2BApp', id: string, name?: string | null, developer?: string | null, developerUrl?: string | null, category?: B2BAppCategoryType | null, shortDescription?: string | null, detailedDescription?: string | null, developmentExportId?: string | null, productionExportId?: string | null, developmentAppUrl?: string | null, productionAppUrl?: string | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null };
+export type UpdateB2BAppMutation = { __typename?: 'Mutation', app?: { __typename: 'B2BApp', id: string, name?: string | null, developer?: string | null, developerUrl?: string | null, category?: B2BAppCategoryType | null, shortDescription?: string | null, detailedDescription?: string | null, developmentExportId?: string | null, productionExportId?: string | null, developmentAppUrl?: string | null, productionAppUrl?: string | null, developmentFullscreenAllowed?: boolean | null, productionFullscreenAllowed?: boolean | null, developmentMicrophoneAllowed?: boolean | null, productionMicrophoneAllowed?: boolean | null, developmentCameraAllowed?: boolean | null, productionCameraAllowed?: boolean | null, developmentSpeakerSelectionAllowed?: boolean | null, productionSpeakerSelectionAllowed?: boolean | null, developmentClipboardWriteAllowed?: boolean | null, productionClipboardWriteAllowed?: boolean | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null };
 
 export type AllB2BAppContextsQueryVariables = Exact<{
   data: AllB2BAppContextsInput;
@@ -6313,6 +7842,20 @@ export const B2BAppEntryPointsFragmentDoc = gql`
   productionAppUrl
 }
     `;
+export const B2BAppPermissionsFragmentDoc = gql`
+    fragment B2BAppPermissions on B2BApp {
+  developmentFullscreenAllowed
+  productionFullscreenAllowed
+  developmentMicrophoneAllowed
+  productionMicrophoneAllowed
+  developmentCameraAllowed
+  productionCameraAllowed
+  developmentSpeakerSelectionAllowed
+  productionSpeakerSelectionAllowed
+  developmentClipboardWriteAllowed
+  productionClipboardWriteAllowed
+}
+    `;
 export const B2BAppFragmentFragmentDoc = gql`
     fragment B2BAppFragment on B2BApp {
   __typename
@@ -6329,8 +7872,10 @@ export const B2BAppFragmentFragmentDoc = gql`
   developmentExportId
   productionExportId
   ...B2BAppEntryPoints
+  ...B2BAppPermissions
 }
-    ${B2BAppEntryPointsFragmentDoc}`;
+    ${B2BAppEntryPointsFragmentDoc}
+${B2BAppPermissionsFragmentDoc}`;
 export const B2CAppPermissionsFragmentDoc = gql`
     fragment B2CAppPermissions on B2CApp {
   developmentFullscreenAllowed

@@ -1,3 +1,16 @@
+fragment B2BAppPermissions on B2BApp {
+    developmentFullscreenAllowed
+    productionFullscreenAllowed
+    developmentMicrophoneAllowed
+    productionMicrophoneAllowed
+    developmentCameraAllowed
+    productionCameraAllowed
+    developmentSpeakerSelectionAllowed
+    productionSpeakerSelectionAllowed
+    developmentClipboardWriteAllowed
+    productionClipboardWriteAllowed
+}
+
 fragment B2BAppEntryPoints on B2BApp {
     developmentAppUrl
     productionAppUrl
@@ -18,6 +31,7 @@ fragment B2BAppFragment on B2BApp {
     developmentExportId
     productionExportId
     ...B2BAppEntryPoints
+    ...B2BAppPermissions
 }
 
 query getB2BApp($id: ID!) {
