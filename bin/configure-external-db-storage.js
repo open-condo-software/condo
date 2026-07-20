@@ -68,6 +68,8 @@ async function ensureDatabase (dbName) {
     await withClient(ADMIN_URL, async (admin) => {
         const { rows } = await admin.query('SELECT 1 FROM pg_database WHERE datname = $1', [dbName])
         if (!rows.length) {
+            // dbName is derived from local DATABASE_URL + EXTERNAL_POOLS suffix, not HTTP input.
+            // nosemgrep: javascript.express.security.injection.tainted-sql-string.tainted-sql-string
             await admin.query(`CREATE DATABASE ${quoteIdent(dbName)}`)
         }
     })
@@ -113,6 +115,8 @@ async function copyTableSchema (source, target, tableName) {
         ...constraints.map((c) => `CONSTRAINT ${quoteIdent(c.conname)} ${c.def}`),
     ]
 
+    // tableName / column metadata from EXTERNAL_POOLS + pg_catalog — identifiers must be inlined.
+    // nosemgrep: javascript.express.security.injection.tainted-sql-string.tainted-sql-string
     await target.query(`CREATE TABLE ${quoteIdent(tableName)} (\n  ${defs.join(',\n  ')}\n)`)
 
     const { rows: indexes } = await source.query(`
@@ -130,7 +134,12 @@ async function copyTableSchema (source, target, tableName) {
 }
 
 async function copyTableData (source, target, tableName) {
-    const { rows: countRows } = await source.query(`SELECT COUNT(*)::int AS count FROM ${quoteIdent(tableName)}`)
+    // tableName comes from EXTERNAL_POOLS (hardcoded), not request/user input.
+    // Identifiers cannot be parameterized in Postgres; quoteIdent escapes them.
+    const quotedTable = quoteIdent(tableName)
+
+    // nosemgrep: javascript.express.security.injection.tainted-sql-string.tainted-sql-string
+    const { rows: countRows } = await source.query(`SELECT COUNT(*)::int AS count FROM ${quotedTable}`)
     const count = countRows[0]?.count || 0
     if (!count) return 0
 
@@ -139,17 +148,20 @@ async function copyTableData (source, target, tableName) {
         FROM pg_attribute a
         WHERE a.attrelid = $1::regclass AND a.attnum > 0 AND NOT a.attisdropped
         ORDER BY a.attnum
-    `, [`"public".${quoteIdent(tableName)}`])
+    `, [`"public".${quotedTable}`])
 
     const columnNames = columns.map(({ name }) => name)
     const quotedColumns = columnNames.map(quoteIdent).join(', ')
     const placeholders = columnNames.map((_, index) => `$${index + 1}`).join(', ')
 
-    const { rows } = await source.query(`SELECT ${quotedColumns} FROM ${quoteIdent(tableName)}`)
+    // Column list is from pg_catalog for the same hardcoded table; row values are bound params.
+    // nosemgrep: javascript.express.security.injection.tainted-sql-string.tainted-sql-string
+    const { rows } = await source.query(`SELECT ${quotedColumns} FROM ${quotedTable}`)
     for (const row of rows) {
         const values = columnNames.map(name => row[name])
+        // nosemgrep: javascript.express.security.injection.tainted-sql-string.tainted-sql-string
         await target.query(
-            `INSERT INTO ${quoteIdent(tableName)} (${quotedColumns}) VALUES (${placeholders}) ON CONFLICT DO NOTHING`,
+            `INSERT INTO ${quotedTable} (${quotedColumns}) VALUES (${placeholders}) ON CONFLICT DO NOTHING`,
             values,
         )
     }
@@ -182,6 +194,8 @@ async function dropInboundForeignKeysOnMain (client, tableNames) {
         `, [`"public".${quoteIdent(tableName)}`])
 
         for (const { name, from_table: fromTable } of rows) {
+            // Constraint/table names from pg_catalog for EXTERNAL_POOLS tables; quoteIdent escapes.
+            // nosemgrep: javascript.express.security.injection.tainted-sql-string.tainted-sql-string
             await client.query(
                 `ALTER TABLE ${quoteIdent(fromTable)} DROP CONSTRAINT ${quoteIdent(name)}`,
             )
