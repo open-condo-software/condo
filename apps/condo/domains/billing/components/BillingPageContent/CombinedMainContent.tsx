@@ -256,7 +256,7 @@ export const CombinedMainContent: React.FC = () => {
         })
 
         return result
-    }, [AccrualsSetupTabTitle, AccrualsTabTitle, PaymentsTabTitle, accrualsTabContent, activeType, canManageIntegrations, canReadBillingReceipts, canReadPayments, extensionAppTabs, isSetupCompleted])
+    }, [AccrualsSetupTabTitle, AccrualsTabTitle, PaymentsTabTitle, accrualsTabContent, acquiringContexts, activeType, canManageIntegrations, canReadBillingReceipts, canReadPayments, extensionAppTabs, isSetupCompleted])
 
     return (
         <Tabs
