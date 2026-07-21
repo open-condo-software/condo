@@ -192,7 +192,7 @@ export const BillingSettingsModal: React.FC<BillingSettingsModalProps> = ({ open
                         </Button>
                     )}
                 >
-                    <Row gutter={SECTION_ROW_GUTTER}>
+                    <Row gutter={SECTION_ROW_GUTTER} className={styles.recipientScrollPadding}>
                         <Col span={FULL_WIDTH_SPAN}>
                             <Row gutter={LIST_ROW_GUTTER}>
                                 <Col span={FULL_WIDTH_SPAN}>

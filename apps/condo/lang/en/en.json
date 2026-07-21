@@ -2000,6 +2000,8 @@
   "pages.billing.setup.notCompleted.title": "No payments or charges yet",
   "pages.billing.setup.notCompleted.messsage": "Set up this section",
   "pages.billing.setup.notCompleted.startButton.label": "Set up section",
+  "pages.billing.setup.notCompleted.verify.label": "Verifying your details",
+  "pages.billing.setup.notCompleted.verify.message": "We will soon verify your organization, and residents will be able to pay bills in the Doma app. To speed up the process, log in via SberBusiness.",
   "pages.billing.setup.chooseAcquirings.tooltip": "Specify where the accruals will be published",
   "pages.billing.Status.success.title": "Payments from individuals are enabled",
   "pages.billing.setup.paymentsAndAccruals.title": "Payments and Accruals",

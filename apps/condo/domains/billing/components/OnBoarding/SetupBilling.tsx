@@ -99,9 +99,6 @@ const SetupInteractiveBilling: React.FC<SetupInteractiveBillingProps> = ({ setup
             return () => window.removeEventListener('message', handleDoneMessage)
         }
     }, [handleDoneMessage])
-
-    console.log('B2BAppFrame', 'setupUrl', setupUrl)
-
     return (
         <B2BAppFrame
             src={setupUrl}
@@ -155,7 +152,7 @@ export const SetupBilling: React.FC = ()=> {
         }
     }, [router, currentCtxLoading, currentCtxError, currentContextId])
 
-    if (connectedCtxLoading || currentCtxLoading) {
+    if (connectedCtxLoading || currentCtxLoading || !currentCtx) {
         return <Loader fill size='large'/>
     }
 
@@ -164,7 +161,7 @@ export const SetupBilling: React.FC = ()=> {
     }
 
     const setupUrl = currentCtx.integration?.setupUrl
-    const setupId = currentCtx?.id
+    const setupId = currentCtx.id
 
     if (setupUrl) {
         return <SetupInteractiveBilling setupUrl={setupUrl} setupId={setupId}/>
