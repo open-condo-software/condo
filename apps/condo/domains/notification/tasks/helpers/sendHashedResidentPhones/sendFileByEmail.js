@@ -2,7 +2,7 @@ const path = require('path')
 
 const get = require('lodash/get')
 
-const { EmailAdapter, isEmailAdapterConfigured } = require('@condo/domains/notification/adapters/emailAdapter')
+const { EmailAdapter, isEmailAdapterConfigured } = require('@open-condo/keystone/emailAdapter')
 
 
 const streamToBuffer = async (stream) => {

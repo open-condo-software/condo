@@ -8,6 +8,7 @@ const { stringify } = require('csv-stringify')
 const dayjs = require('dayjs')
 
 const conf = require('@open-condo/config')
+const { isEmailAdapterConfigured } = require('@open-condo/keystone/emailAdapter')
 const { getKVClient } = require('@open-condo/keystone/kv')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { createTask } = require('@open-condo/keystone/tasks')
@@ -15,8 +16,6 @@ const { createTask } = require('@open-condo/keystone/tasks')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 const { getHashedResidentsAndContactsPhones, sendFileByEmail } = require('./helpers/sendHashedResidentPhones')
-
-const { isEmailAdapterConfigured } = require('../adapters/emailAdapter')
 
 
 const rmfile = promisify(fs.unlink)

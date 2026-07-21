@@ -71,18 +71,20 @@ NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE=true
 
 # email providers
 
-Email delivery goes through `EmailAdapter` (`domains/notification/adapters/emailAdapter.js`).
+Email delivery goes through shared `EmailAdapter` (`@open-condo/keystone/emailAdapter`).
 Provider is selected by `type` inside `EMAIL_API_CONFIG`:
 - omitted / `mailgun` — Mailgun (backward compatible with existing configs)
 - `sendsay` — Sendsay
 - `unisendergo` — Unisender Go
 
 Zod validates only common required fields (`api_url`, `from`); any additional keys are accepted.
+Optional `doNotSendEmails: true` skips the provider call (useful in local/dev).
+Inline CID images can be passed via `meta.inlineAttachments` (Mailgun uses `inline`; other providers rewrite `cid:` to data URIs).
 
 ## How to add a new provider
 
 1. Implement an adapter class with static `type` and methods: `isConfigured`, `isEmailSupported`, `checkIsAvailable`, `send`
-2. Register it in the `EMAIL_ADAPTERS` map in `emailAdapter.js`
+2. Register it in the `EMAIL_ADAPTERS` map in `packages/keystone/emailAdapter.js`
 3. Set `EMAIL_API_CONFIG.type` to that type value
 
 ## Mailgun (default)
