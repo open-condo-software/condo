@@ -2,19 +2,17 @@ import { SortAcquiringIntegrationContextsBy, SortBillingIntegrationOrganizationC
 import { Col, Row } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect } from 'react'
 
-import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Typography, Space, Button } from '@open-condo/ui'
+import { Typography, Space } from '@open-condo/ui'
 
 import { CONTEXT_FINISHED_STATUS, CONTEXT_IN_PROGRESS_STATUS, CONTEXT_VERIFICATION_STATUS } from '@condo/domains/acquiring/constants/context'
 import { AcquiringIntegrationContext as AcquiringContext, AcquiringIntegration } from '@condo/domains/acquiring/utils/clientSchema'
 import { BillingIntegrationOrganizationContext as BillingContext } from '@condo/domains/billing/utils/clientSchema'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { LoginWithSBBOLButton } from '@condo/domains/common/components/LoginWithSBBOLButton'
-import { UI_BILLING_SPP_COMBINED_PAGE } from '@condo/domains/common/constants/featureflags'
 import { extractOrigin } from '@condo/domains/common/utils/url.utils'
 import { B2BAppFrame } from '@condo/domains/miniapp/components/B2BAppFrame'
 import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
@@ -22,27 +20,20 @@ import { SBBOL_IMPORT_NAME } from '@condo/domains/organization/integrations/sbbo
 
 import type { RowProps } from 'antd'
 
+
 type SetupAcquiringProps = {
     onFinish: () => void
-    integrationId?: string
-    onDone?: () => void
-    verificationStep?: number
 }
 
 const AUTH_BUTTON_GUTTER: RowProps['gutter'] = [0, 40]
 const AUTH_TITLE_SPACE = 12
 const PARAGRAPH_SPACE = 16
 const FULL_COL_SPAN = 24
-const HALF_COL_SPAN = 12
 const CERTIFICATES_INFO_LINK = 'https://help.doma.ai/article/262-minc'
 const CONNECT_EMAIL = 'sales@doma.ai'
 
-export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish, integrationId, onDone, verificationStep }) => {
+export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
     const intl = useIntl()
-    const { useFlag } = useFeatureFlags()
-    const isCombinedFlow = useFlag(UI_BILLING_SPP_COMBINED_PAGE)
-    const [verificationSkipped, skippVerification] = useState<boolean>(false)
-    
     const AuthRequiredTitle = intl.formatMessage({ id: 'accrualsAndPayments.setup.verificationNeeded.title' })
     const AuthRequiredLink = intl.formatMessage({ id: 'accrualsAndPayments.setup.verificationNeeded.link' })
     const AuthRequiredCertMessage = intl.formatMessage({ id: 'accrualsAndPayments.setup.verificationNeeded.message.certs' }, {
@@ -78,17 +69,16 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish, integr
         ],
     })
 
-    const { objs: [acquiring], loading: acquiringLoading, error: acquiringError } = AcquiringIntegration.useObjects({
-        where: integrationId ? {
-            id: integrationId,
-        } : {
+    // NOTE: On practice there's only 1 acquiring and there's no plans to change it soon
+    const { objs: acquiring, loading: acquiringLoading, error: acquiringError } = AcquiringIntegration.useObjects({
+        where: {
             isHidden: false,
             setupUrl_not: null,
             type: AcquiringIntegrationTypeType.OnlineProcessing,
         },
     })
 
-    const acquiringId = acquiring?.id
+    const acquiringId = get(acquiring, ['0', 'id'], null)
 
     const { objs: acquiringContexts, loading: acquiringCtxLoading, error: acquiringCtxError, refetch: refetchCtx } = AcquiringContext.useObjects({
         where: {
@@ -99,7 +89,7 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish, integr
             SortAcquiringIntegrationContextsBy.UpdatedAtDesc,
             SortAcquiringIntegrationContextsBy.IdDesc,
         ],
-    }, { skip: !acquiringId || !orgId })
+    })
 
     // Note: is active context is in FINISHED status - we'll ignore this step render at all, so we only interested in verification ones
     const { objs: connectedContexts, loading: connectedCtxLoading, error: connectedCtxError } = AcquiringContext.useObjects({
@@ -112,7 +102,7 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish, integr
             SortAcquiringIntegrationContextsBy.UpdatedAtDesc,
             SortAcquiringIntegrationContextsBy.IdDesc,
         ],
-    }, { skip: !acquiringId || !orgId })
+    })
 
 
     const billingCtx = billingContexts[0] || null
@@ -125,9 +115,9 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish, integr
     useEffect(() => {
         // No connected billing = go to setup beginning
         if (!billingCtxLoading && !billingCtxError && !billingCtxId) {
-            router.replace({ query: { ...router.query, step: 0 } }, undefined, { shallow: true })
+            router.replace({ query: { step: 0 } }, undefined, { shallow: true })
         } else if (!connectedCtxLoading && !connectedCtxError && connectedCtxId) {
-            router.replace({ query: { ...router.query, step: verificationStep ?? 3 } }, undefined, { shallow: true })
+            router.replace({ query: { step: 3 } }, undefined, { shallow: true })
         }
     }, [
         billingCtxLoading,
@@ -137,7 +127,6 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish, integr
         connectedCtxError,
         connectedCtxId,
         router,
-        verificationStep,
     ])
 
     // If no context for selected acquiring and correct organization => need to create it and re-fetch
@@ -166,7 +155,7 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish, integr
         orgId,
     ])
 
-    const setupUrl = acquiringCtx?.integration?.setupUrl || ''
+    const setupUrl = get(acquiringCtx, ['integration', 'setupUrl'], '')
     const setupOrigin = extractOrigin(setupUrl)
 
     // when setup is done both Acquiring and Billing contexts get status "Finished"
@@ -177,15 +166,14 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish, integr
                 status: CONTEXT_FINISHED_STATUS,
             }, { id: billingCtxId })
                 .then(()=> {
-                    if (onDone) return onDone()
                     if (orgType === SERVICE_PROVIDER_TYPE) {
-                        router.push({ query: { ...router.query, step: verificationStep ?? 3 } }, undefined, { shallow: true })
+                        router.push({ query: { step: 3 } }, undefined, { shallow: true })
                     } else {
                         onFinish()
                     }
                 })
         }
-    }, [setupOrigin, updateBillingAction, billingCtxId, onDone, orgType, onFinish, router, verificationStep])
+    }, [setupOrigin, updateBillingAction, onFinish, orgType, router, billingCtxId])
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -196,58 +184,26 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish, integr
     }, [handleDoneMessage])
 
     if (!isOrgVerified) {
-        if (isCombinedFlow) {
-            if (!verificationSkipped) {
-                return (
-                    <Row gutter={AUTH_BUTTON_GUTTER}>
-                        <Row gutter={AUTH_BUTTON_GUTTER}>
-                            <Col span={HALF_COL_SPAN}>
-                                <Space size={AUTH_TITLE_SPACE} direction='vertical'>
-                                    <Typography.Title level={3}>{AuthRequiredTitle}</Typography.Title>
-                                    <Space size={PARAGRAPH_SPACE} direction='vertical'>
-                                        <Typography.Paragraph type='secondary'>
-                                            {AuthRequiredCertMessage}
-                                        </Typography.Paragraph>
-                                        <Typography.Paragraph type='secondary'>
-                                            {AuthRequiredContactMessage}
-                                        </Typography.Paragraph>
-                                    </Space>
-                                </Space>
-                            </Col>
-                        </Row>
-                        <Row gutter={AUTH_BUTTON_GUTTER}>
-                            <Col span={HALF_COL_SPAN}>
-                                <Space size={20}>
-                                    <LoginWithSBBOLButton redirect={router.asPath} checkTlsCert/>
-                                    <Button type='secondary' onClick={() => skippVerification(true)} >Войду позже</Button>
-                                </Space>
-                            </Col>
-                        </Row>
-                    </Row>
-                )
-            }
-        } else {
-            return (
-                <Row gutter={AUTH_BUTTON_GUTTER}>
-                    <Col span={FULL_COL_SPAN}>
-                        <Space size={AUTH_TITLE_SPACE} direction='vertical'>
-                            <Typography.Title level={3}>{AuthRequiredTitle}</Typography.Title>
-                            <Space size={PARAGRAPH_SPACE} direction='vertical'>
-                                <Typography.Paragraph type='secondary'>
-                                    {AuthRequiredCertMessage}
-                                </Typography.Paragraph>
-                                <Typography.Paragraph type='secondary'>
-                                    {AuthRequiredContactMessage}
-                                </Typography.Paragraph>
-                            </Space>
+        return (
+            <Row gutter={AUTH_BUTTON_GUTTER}>
+                <Col span={FULL_COL_SPAN}>
+                    <Space size={AUTH_TITLE_SPACE} direction='vertical'>
+                        <Typography.Title level={3}>{AuthRequiredTitle}</Typography.Title>
+                        <Space size={PARAGRAPH_SPACE} direction='vertical'>
+                            <Typography.Paragraph type='secondary'>
+                                {AuthRequiredCertMessage}
+                            </Typography.Paragraph>
+                            <Typography.Paragraph type='secondary'>
+                                {AuthRequiredContactMessage}
+                            </Typography.Paragraph>
                         </Space>
-                    </Col>
-                    <Col span={FULL_COL_SPAN}>
-                        <LoginWithSBBOLButton redirect={router.asPath} checkTlsCert/>
-                    </Col>
-                </Row>
-            )
-        }
+                    </Space>
+                </Col>
+                <Col span={FULL_COL_SPAN}>
+                    <LoginWithSBBOLButton redirect={router.asPath} checkTlsCert/>
+                </Col>
+            </Row>
+        )
     }
 
     if (acquiringError || acquiringCtxError || billingCtxError || connectedCtxError) {
