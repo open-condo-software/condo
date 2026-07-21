@@ -3,53 +3,21 @@ import { useMemo } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import type { ListProps } from '@open-condo/ui'
 
-import { useBillingPartnerContexts } from '@condo/domains/billing/hooks/useBillingPartnerContexts'
-
-function addUniqueValue (values: string[], nextValue?: string | null): void {
-    if (!nextValue || values.includes(nextValue)) return
-
-    values.push(nextValue)
-}
+import { useBillingAndAcquiringContexts } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
 
 export const useBillingSettingsIntegrationParameters = (): ListProps['dataSource'] => {
     const intl = useIntl()
-    const {
-        billingContexts,
-        sppBillingContext,
-        activePlatformPartnerContext,
-    } = useBillingPartnerContexts()
+    const { billingContexts, acquiringContexts } = useBillingAndAcquiringContexts()
 
     const SourceLabel = intl.formatMessage({ id: 'accrualsAndPayments.combined.settings.source' })
     const DestinationLabel = intl.formatMessage({ id: 'accrualsAndPayments.combined.settings.destination' })
 
     return useMemo(() => {
-        const sourceValues: string[] = []
-        const destinationValues: string[] = []
-        const sppBillingId = sppBillingContext?.integration?.id
-        const bankPartnerName = sppBillingContext?.integration?.billingPageTitle || sppBillingContext?.integration?.name
-        const platformPartnerName = activePlatformPartnerContext?.integration?.name
-
-        if (bankPartnerName) {
-            addUniqueValue(sourceValues, bankPartnerName)
-            addUniqueValue(destinationValues, intl.formatMessage(
-                { id: 'accrualsAndPayments.combined.settings.destination.partnerBanks' },
-                { partnerName: bankPartnerName },
-            ))
-        }
-
-        billingContexts.forEach(({ integration }) => {
-            const integrationId = integration?.id
-            if (!integrationId || integrationId === sppBillingId) return
-
-            addUniqueValue(sourceValues, integration?.name)
-        })
-
-        if (platformPartnerName) {
-            addUniqueValue(destinationValues, intl.formatMessage(
-                { id: 'accrualsAndPayments.combined.settings.destination.partner' },
-                { partnerName: platformPartnerName },
-            ))
-        }
+        const sourceValues: string[] = billingContexts
+            .filter(context => billingContexts.length === 1 || !context?.integration?.isHidden)
+            .map(context => context?.integration?.billingPageTitle || context?.integration?.name)
+        const destinationValues: string[] = acquiringContexts
+            .map(context => context?.integration?.name)
 
         return [
             {
@@ -61,13 +29,5 @@ export const useBillingSettingsIntegrationParameters = (): ListProps['dataSource
                 value: destinationValues.length ? destinationValues.join(', ') : '-',
             },
         ]
-    }, [
-        DestinationLabel,
-        SourceLabel,
-        activePlatformPartnerContext?.integration?.name,
-        billingContexts,
-        intl,
-        sppBillingContext?.integration?.id,
-        sppBillingContext?.integration?.billingPageTitle,
-    ])
+    }, [DestinationLabel, SourceLabel, billingContexts, acquiringContexts])
 }
