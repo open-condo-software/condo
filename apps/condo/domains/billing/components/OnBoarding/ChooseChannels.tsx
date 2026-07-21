@@ -148,6 +148,7 @@ export const ChooseChannels: React.FC = () => {
     const moveToTheNextStep = useCallback(async () => {
         await handleBillingSetupClick()
         await handleAcquiringSetupClick()
+
         await router.push({
             query: {
                 ...router.query,
