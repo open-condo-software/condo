@@ -2000,6 +2000,8 @@
   "pages.billing.setup.notCompleted.title": "Aún no hay pagos ni cargos",
   "pages.billing.setup.notCompleted.messsage": "Configura esta sección",
   "pages.billing.setup.notCompleted.startButton.label": "Configurar sección",
+  "pages.billing.setup.notCompleted.verify.label": "Verificando sus datos",
+  "pages.billing.setup.notCompleted.verify.message": "Pronto verificaremos su organización y los residentes podrán pagar sus facturas en la aplicación Doma. Para acelerar el proceso, inicie sesión a través de SberBusiness.",
   "pages.billing.setup.chooseAcquirings.tooltip": "Indique dónde se publicarán los devengos",
   "pages.billing.registry.uploadPage.title": "Carga del registro",
   "pages.billing.setup.paymentsAndAccruals.title": "Pagos y Devengos",

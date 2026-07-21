@@ -1,6 +1,5 @@
 import { SortAcquiringIntegrationsBy } from '@app/condo/schema'
 import { Row, Col } from 'antd'
-import get from 'lodash/get'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
@@ -19,7 +18,7 @@ import { Loader } from '@condo/domains/common/components/Loader'
 
 import { ChooseChannels } from './ChooseChannels'
 import styles from './index.module.css'
-import { SetupAcquiring } from './SetupAcquiring'
+import { SetupAcquiringCombinedFlow } from './SetupAcquiringCombinedFlow'
 import { SetupBilling } from './SetupBilling'
 import { WelcomeModal } from './WelcomeModal'
 
@@ -88,16 +87,17 @@ export const BillingOnboardingCombinedFlowPage: React.FC<BillingOnboardingPagePr
 
     const acquiringStepsStart = 2
     const totalSteps = (activeAcquiringContextsLoading || acquiringIntegrationsLoading)
-        ? 10
+        ? 4
         : 2 + selectedAcquiringIntegrations.length
     const [currentStep] = useOnboardingProgress(false, totalSteps)
 
     const stepItems: Array<StepItem> = useMemo(() => {
         const steps: Array<StepItem> = [
             { title: ChooseChannelsTitle },
-            { title: IntegrationSetupTitle  },
+            { title: IntegrationSetupTitle, breakPoint: true  },
             ...selectedAcquiringIntegrations.map((integration) => ({
                 title: integration.setupTitle || integration.name,
+                breakPoint: true,
             })),
         ]
         return steps
@@ -114,14 +114,12 @@ export const BillingOnboardingCombinedFlowPage: React.FC<BillingOnboardingPagePr
 
     const handleAcquiringDone = useCallback(() => {
         const isLastAcquiringStep = currentStep >= totalSteps - 1
-
+        onFinish()
         if (!isLastAcquiringStep) {
             router.push({ query: { ...router.query, step: currentStep + 1 } }, undefined, { shallow: true })
-            return
         } else {
             router.push('/billing')
         }
-        onFinish()
     }, [currentStep, onFinish, router, totalSteps])
 
     const currentScreen = useMemo(() => {
@@ -137,21 +135,14 @@ export const BillingOnboardingCombinedFlowPage: React.FC<BillingOnboardingPagePr
         const currentAcquiringIntegration = selectedAcquiringIntegrations[currentStep - acquiringStepsStart]
         if (currentAcquiringIntegration) {
             return (
-                <SetupAcquiring
+                <SetupAcquiringCombinedFlow
                     integrationId={currentAcquiringIntegration.id}
-                    onFinish={onFinish}
+                    onFinish={handleAcquiringDone}
                     onDone={handleAcquiringDone}
                 />
             )
         }
-    }, [
-        activeAcquiringContextsLoading,
-        acquiringIntegrationsLoading,
-        currentStep,
-        handleAcquiringDone,
-        onFinish,
-        selectedAcquiringIntegrations,
-    ])
+    }, [activeAcquiringContextsLoading, acquiringIntegrationsLoading, currentStep, handleAcquiringDone, selectedAcquiringIntegrations])
 
     if (!canManageIntegrations) {
         return <AccessDeniedPage />

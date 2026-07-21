@@ -224,7 +224,7 @@ export const CombinedMainContent: React.FC = () => {
             canManageIntegrations && !isSetupCompleted && {
                 label: AccrualsSetupTabTitle,
                 key: SETUP_TAB_KEY,
-                children:  <SetupTab />,
+                children:  <SetupTab acquiringContexts={acquiringContexts}/>,
             },
             canReadPayments && isSetupCompleted && {
                 label: PaymentsTabTitle,

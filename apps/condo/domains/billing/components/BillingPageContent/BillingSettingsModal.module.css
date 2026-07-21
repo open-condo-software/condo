@@ -5,3 +5,7 @@
 .recipient-details-list :global(.condo-list-item:first-child > .condo-typography:first-child) {
   font-weight: 600;
 }
+
+.recipient-scroll-padding {
+  padding-right: 10px;
+}

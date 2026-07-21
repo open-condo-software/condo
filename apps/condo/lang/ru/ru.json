@@ -2000,6 +2000,8 @@
   "pages.billing.setup.notCompleted.title": "Пока платежей и начислений нет",
   "pages.billing.setup.notCompleted.messsage": "Настройте раздел",
   "pages.billing.setup.notCompleted.startButton.label": "Настроить раздел",
+  "pages.billing.setup.notCompleted.verify.label": "Проверяем ваши данные",
+  "pages.billing.setup.notCompleted.verify.message": "Скоро мы проверим вашу организацию, и жители смогут оплачивать квитанции в приложении Doma. Чтобы ускорить процесс, войдите через СберБизнес.",
   "pages.billing.setup.chooseAcquirings.tooltip": "Укажите куда будут публиковаться начисления",
   "pages.billing.Status.success.title": "Платежи от физлиц подключены",
   "pages.billing.setup.paymentsAndAccruals.title": "Платежи и начисления",
