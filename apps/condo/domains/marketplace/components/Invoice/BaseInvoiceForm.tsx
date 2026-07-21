@@ -1137,7 +1137,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                         </Col>
 
                         <Form.Item
-                            dependencies={['rows']}
+                            shouldUpdate
                             noStyle
                         >
                             {
