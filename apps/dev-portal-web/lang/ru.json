@@ -297,6 +297,8 @@
   "pages.apps.b2b.id.sections.permissions.table.columns.permission.title": "Разрешение",
 
   "pages.apps.b2b.id.sections.serviceUser.title": "Сервисная учетная запись",
+  "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.title": "Доступы сервисного пользователя",
+  "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.table.columns.permission.title": "Название разрешения",
 
   "pages.apps.b2b.id.sections.publishing.title": "Публикация",
   "pages.apps.b2b.id.sections.publishing.publishForm.items.stand.label": "Выберите окружение",

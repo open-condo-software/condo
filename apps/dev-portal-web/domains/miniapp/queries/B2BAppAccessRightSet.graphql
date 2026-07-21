@@ -1,0 +1,19 @@
+fragment B2BAppAccessRightSetPermissions on B2BAppAccessRightSet {
+    canReadOrganizations
+    canReadTickets
+    canManageTickets
+}
+
+query getB2BAppAccessRightSetsForApp($appId: ID!, $environment: AppEnvironment!) {
+    rightSets: allB2BAppAccessRightSets(
+        where: {
+            app: { id: $appId },
+        },
+        # 2 environments * 2 statuses
+        first: 4) {
+        id
+        status
+        environment
+        ...B2BAppAccessRightSetPermissions
+    }
+}

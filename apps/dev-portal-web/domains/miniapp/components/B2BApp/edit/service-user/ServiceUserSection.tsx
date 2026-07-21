@@ -13,6 +13,8 @@ import { RegisterUserForm } from '@/domains/miniapp/components/User/edit/Registe
 import { getEnvironment } from '@/domains/miniapp/utils/query'
 import { DEV_ENVIRONMENT, PROD_ENVIRONMENT } from '@dev-portal-api/domains/miniapp/constants/publishing'
 
+import { AccessRightSetForm } from './AccessRightSetForm'
+
 import type { RowProps } from 'antd'
 
 import { AppEnvironment, AppType, useAllB2BAppAccessRightsQuery } from '@/gql'
@@ -68,6 +70,11 @@ export const ServiceUserSection: React.FC<{ id: string }> = ({ id }) => {
                                 : <RegisterUserForm id={id} environment={selectedEnvironment} appType={AppType.B2B}/>
                         )}
                     </Col>
+                    {!loading && !error && rights.length && (
+                        <Col span={FULL_COL_SPAN}>
+                            <AccessRightSetForm id={id} environment={selectedEnvironment}/>
+                        </Col>
+                    )}
                 </Row>
             </SubSection>
         </Section>

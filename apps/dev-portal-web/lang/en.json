@@ -297,6 +297,8 @@
   "pages.apps.b2b.id.sections.permissions.table.columns.permission.title": "Permission",
 
   "pages.apps.b2b.id.sections.serviceUser.title": "Service user",
+  "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.title": "Service user access",
+  "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.table.columns.permission.title": "Permission name",
 
   "pages.apps.b2b.id.sections.publishing.title": "Publishing",
   "pages.apps.b2b.id.sections.publishing.publishForm.items.stand.label": "Select the environment",

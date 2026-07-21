@@ -7606,6 +7606,16 @@ export type AllB2BAppAccessRightsQueryVariables = Exact<{
 
 export type AllB2BAppAccessRightsQuery = { __typename?: 'Query', rights?: Array<{ __typename?: 'B2BAppAccessRight', condoUserEmail?: string | null } | null> | null };
 
+export type B2BAppAccessRightSetPermissionsFragment = { __typename?: 'B2BAppAccessRightSet', canReadOrganizations?: boolean | null, canReadTickets?: boolean | null, canManageTickets?: boolean | null };
+
+export type GetB2BAppAccessRightSetsForAppQueryVariables = Exact<{
+  appId: Scalars['ID']['input'];
+  environment: AppEnvironment;
+}>;
+
+
+export type GetB2BAppAccessRightSetsForAppQuery = { __typename?: 'Query', rightSets?: Array<{ __typename?: 'B2BAppAccessRightSet', id: string, status?: B2BAppAccessRightSetStatusType | null, environment?: AppEnvironment | null, canReadOrganizations?: boolean | null, canReadTickets?: boolean | null, canManageTickets?: boolean | null } | null> | null };
+
 export type AllB2BAppContextsQueryVariables = Exact<{
   data: AllB2BAppContextsInput;
 }>;
@@ -7884,6 +7894,13 @@ export const B2BAppFragmentFragmentDoc = gql`
 }
     ${B2BAppEntryPointsFragmentDoc}
 ${B2BAppPermissionsFragmentDoc}`;
+export const B2BAppAccessRightSetPermissionsFragmentDoc = gql`
+    fragment B2BAppAccessRightSetPermissions on B2BAppAccessRightSet {
+  canReadOrganizations
+  canReadTickets
+  canManageTickets
+}
+    `;
 export const B2CAppPermissionsFragmentDoc = gql`
     fragment B2CAppPermissions on B2CApp {
   developmentFullscreenAllowed
@@ -8197,6 +8214,53 @@ export type AllB2BAppAccessRightsQueryHookResult = ReturnType<typeof useAllB2BAp
 export type AllB2BAppAccessRightsLazyQueryHookResult = ReturnType<typeof useAllB2BAppAccessRightsLazyQuery>;
 export type AllB2BAppAccessRightsSuspenseQueryHookResult = ReturnType<typeof useAllB2BAppAccessRightsSuspenseQuery>;
 export type AllB2BAppAccessRightsQueryResult = Apollo.QueryResult<AllB2BAppAccessRightsQuery, AllB2BAppAccessRightsQueryVariables>;
+export const GetB2BAppAccessRightSetsForAppDocument = gql`
+    query getB2BAppAccessRightSetsForApp($appId: ID!, $environment: AppEnvironment!) {
+  rightSets: allB2BAppAccessRightSets(where: {app: {id: $appId}}, first: 4) {
+    id
+    status
+    environment
+    ...B2BAppAccessRightSetPermissions
+  }
+}
+    ${B2BAppAccessRightSetPermissionsFragmentDoc}`;
+
+/**
+ * __useGetB2BAppAccessRightSetsForAppQuery__
+ *
+ * To run a query within a React component, call `useGetB2BAppAccessRightSetsForAppQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetB2BAppAccessRightSetsForAppQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetB2BAppAccessRightSetsForAppQuery({
+ *   variables: {
+ *      appId: // value for 'appId'
+ *      environment: // value for 'environment'
+ *   },
+ * });
+ */
+export function useGetB2BAppAccessRightSetsForAppQuery(baseOptions: Apollo.QueryHookOptions<GetB2BAppAccessRightSetsForAppQuery, GetB2BAppAccessRightSetsForAppQueryVariables> & ({ variables: GetB2BAppAccessRightSetsForAppQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetB2BAppAccessRightSetsForAppQuery, GetB2BAppAccessRightSetsForAppQueryVariables>(GetB2BAppAccessRightSetsForAppDocument, options);
+      }
+export function useGetB2BAppAccessRightSetsForAppLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetB2BAppAccessRightSetsForAppQuery, GetB2BAppAccessRightSetsForAppQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetB2BAppAccessRightSetsForAppQuery, GetB2BAppAccessRightSetsForAppQueryVariables>(GetB2BAppAccessRightSetsForAppDocument, options);
+        }
+// @ts-ignore
+export function useGetB2BAppAccessRightSetsForAppSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetB2BAppAccessRightSetsForAppQuery, GetB2BAppAccessRightSetsForAppQueryVariables>): Apollo.UseSuspenseQueryResult<GetB2BAppAccessRightSetsForAppQuery, GetB2BAppAccessRightSetsForAppQueryVariables>;
+export function useGetB2BAppAccessRightSetsForAppSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetB2BAppAccessRightSetsForAppQuery, GetB2BAppAccessRightSetsForAppQueryVariables>): Apollo.UseSuspenseQueryResult<GetB2BAppAccessRightSetsForAppQuery | undefined, GetB2BAppAccessRightSetsForAppQueryVariables>;
+export function useGetB2BAppAccessRightSetsForAppSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetB2BAppAccessRightSetsForAppQuery, GetB2BAppAccessRightSetsForAppQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetB2BAppAccessRightSetsForAppQuery, GetB2BAppAccessRightSetsForAppQueryVariables>(GetB2BAppAccessRightSetsForAppDocument, options);
+        }
+export type GetB2BAppAccessRightSetsForAppQueryHookResult = ReturnType<typeof useGetB2BAppAccessRightSetsForAppQuery>;
+export type GetB2BAppAccessRightSetsForAppLazyQueryHookResult = ReturnType<typeof useGetB2BAppAccessRightSetsForAppLazyQuery>;
+export type GetB2BAppAccessRightSetsForAppSuspenseQueryHookResult = ReturnType<typeof useGetB2BAppAccessRightSetsForAppSuspenseQuery>;
+export type GetB2BAppAccessRightSetsForAppQueryResult = Apollo.QueryResult<GetB2BAppAccessRightSetsForAppQuery, GetB2BAppAccessRightSetsForAppQueryVariables>;
 export const AllB2BAppContextsDocument = gql`
     query allB2BAppContexts($data: AllB2BAppContextsInput!) {
   contexts: allB2BAppContexts(data: $data) {
