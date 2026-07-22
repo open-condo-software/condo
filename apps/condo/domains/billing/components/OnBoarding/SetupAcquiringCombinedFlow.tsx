@@ -20,8 +20,6 @@ import type { RowProps } from 'antd'
 type SetupAcquiringProps = {
     onFinish: () => void
     integrationId: string
-    onDone?: () => void
-    verificationStep?: number
 }
 
 const AUTH_BUTTON_GUTTER: RowProps['gutter'] = [0, 40]
@@ -33,7 +31,7 @@ const CONNECT_EMAIL = 'sales@doma.ai'
 
 export const SetupAcquiringCombinedFlow: React.FC<SetupAcquiringProps> = ({ onFinish, integrationId }) => {
     const intl = useIntl()
-    const [verificationSkipped, skippVerification] = useState<boolean>(false)
+    const [verificationSkipped, setVerificationSkipped] = useState<boolean>(false)
     const AuthRequiredTitle = intl.formatMessage({ id: 'accrualsAndPayments.setup.verificationNeeded.title' })
     const AuthRequiredLink = intl.formatMessage({ id: 'accrualsAndPayments.setup.verificationNeeded.link' })
     const SkippAuthLink = intl.formatMessage({ id: 'accrualsAndPayments.setup.verificationNeeded.skip.link' })
@@ -113,7 +111,7 @@ export const SetupAcquiringCombinedFlow: React.FC<SetupAcquiringProps> = ({ onFi
                         <Col span={HALF_COL_SPAN}>
                             <Space size={20}>
                                 <LoginWithSBBOLButton redirect={router.asPath} checkTlsCert/>
-                                <Button type='secondary' onClick={() => skippVerification(true)} >{SkippAuthLink}</Button>
+                                <Button type='secondary' onClick={() => setVerificationSkipped(true)} >{SkippAuthLink}</Button>
                             </Space>
                         </Col>
                     </Row>

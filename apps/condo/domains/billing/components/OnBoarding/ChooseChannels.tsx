@@ -126,7 +126,7 @@ export const ChooseChannels: React.FC<IChooseChannels> = ({ onFinish }) => {
     const isDefaultSelectionsApplied = useRef(false)
     const updateChosenAcquirings = useCallback((chosenAcquirings: string[]) => {
         setChosenAcquirings(chosenAcquirings)
-        if (chosenAcquirings.indexOf(sppConfig.AcquiringIntegrationId) !== -1) {
+        if (chosenAcquirings.includes(sppConfig.AcquiringIntegrationId)) {
             setIsSppFlow(true)
         } else {
             setIsSppFlow(false)
@@ -261,7 +261,7 @@ export const ChooseChannels: React.FC<IChooseChannels> = ({ onFinish }) => {
                                 <BillingCard
                                     logoUrl={billing.logo?.publicUrl}
                                     connected={false}
-                                    checked={chosenBillingId === billing.id || billingGroup.indexOf(billing.id) !== -1 && billingGroup.indexOf(chosenBillingId) !== -1}
+                                    checked={chosenBillingId === billing.id || billingGroup.includes(billing.id) && billingGroup.includes(chosenBillingId)}
                                     onSelect={() => setChosenBillingId(billing.id)}
                                     onOpen={handleCardClick(billing)}
                                     name={billing.name}
