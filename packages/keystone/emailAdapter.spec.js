@@ -8,6 +8,7 @@ const { fetch } = require('@open-condo/keystone/fetch')
 
 const {
     EmailAdapter,
+    isEmailAdapterConfigured,
     EMAIL_ADAPTER_TYPE_MAILGUN,
     EMAIL_ADAPTER_TYPE_SENDSAY,
     EMAIL_ADAPTER_TYPE_UNISENDER_GO,
@@ -266,6 +267,69 @@ describe('Email adapters', () => {
             expect(https.get).toHaveBeenCalledWith(ATTACHMENT_URL, expect.any(Function))
             expect(fetch).toHaveBeenCalledTimes(1)
             expect(fetch.mock.calls[0][1].body).toBeDefined()
+        })
+
+        it('includes meta.inlineAttachments as Mailgun inline parts', async () => {
+            fetch.mockResolvedValue(createJsonResponse(200, { id: '<mailgun-id>', message: 'Queued. Thank you.' }))
+
+            const adapter = new EmailAdapter()
+            const [isOk] = await adapter.send({
+                to: 'user@example.com',
+                subject: 'With logo',
+                html: '<img src="cid:logo.png" />',
+                meta: {
+                    inlineAttachments: [{
+                        buffer: Buffer.from('logo-bytes'),
+                        mimetype: 'image/png',
+                        originalFilename: 'logo.png',
+                    }],
+                },
+            })
+
+            expect(isOk).toBe(true)
+            expect(fetch).toHaveBeenCalledTimes(1)
+            expect(fetch.mock.calls[0][1].body).toBeDefined()
+        })
+
+        it('skips provider call when doNotSendEmails is enabled', async () => {
+            process.env.EMAIL_API_CONFIG = JSON.stringify({
+                ...MAILGUN_CONFIG,
+                doNotSendEmails: true,
+            })
+
+            const adapter = new EmailAdapter()
+            expect(adapter.doNotSendEmails).toBe(true)
+
+            const [isOk, context] = await adapter.send({
+                to: 'user@example.com',
+                subject: 'Skipped',
+                text: 'Should not send',
+            })
+
+            expect(isOk).toBe(true)
+            expect(context).toEqual({ skipped: true, doNotSendEmails: true })
+            expect(fetch).not.toHaveBeenCalled()
+        })
+
+        it('allows doNotSendEmails without api_url for local prepare stubs', async () => {
+            process.env.EMAIL_API_CONFIG = JSON.stringify({
+                from: 'test@gmail.com',
+                doNotSendEmails: true,
+            })
+
+            const adapter = new EmailAdapter()
+            expect(adapter.isConfigured).toBe(true)
+            expect(isEmailAdapterConfigured()).toBe(true)
+
+            const [isOk, context] = await adapter.send({
+                to: 'user@example.com',
+                subject: 'Skipped',
+                text: 'Should not send',
+            })
+
+            expect(isOk).toBe(true)
+            expect(context).toEqual({ skipped: true, doNotSendEmails: true })
+            expect(fetch).not.toHaveBeenCalled()
         })
 
         it('fails send when attachment download returns status >= 400', async () => {
@@ -847,7 +911,6 @@ describe('Email adapters', () => {
 
             const adapter = new EmailAdapter({
                 ...MAILGUN_CONFIG,
-                doNotSendEmails: true,
                 customProviderOption: 'keep-me',
             })
             expect(adapter.isConfigured).toBe(true)

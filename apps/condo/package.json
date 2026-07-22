@@ -158,7 +158,6 @@
     "bad-words-next": "^1.6.7",
     "commander": "14.0.1",
     "cross-env": "catalog:",
-    "form-data": "^4.0.4",
     "https-proxy-agent": "^7.0.1",
     "jest": "catalog:",
     "jest-jasmine2": "catalog:",

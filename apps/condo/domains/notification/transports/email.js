@@ -1,6 +1,6 @@
 const get = require('lodash/get')
 
-const { EmailAdapter } = require('@condo/domains/notification/adapters/emailAdapter')
+const { EmailAdapter } = require('@open-condo/keystone/emailAdapter')
 
 const { EMAIL_TRANSPORT } = require('../constants/constants')
 const { renderTemplate } = require('../templates')
@@ -24,7 +24,7 @@ async function prepareMessageToSend (message) {
  * Send a email message by remote API service
  *
  * Provider is selected via `EMAIL_API_CONFIG.type`
- * See `adapters/emailAdapter.js` and notification domain README for configuration.
+ * See `@open-condo/keystone/emailAdapter` and notification domain README for configuration.
  *
  * @param {Object} args - send email arguments
  * @param {string} args.to - Email address `To` recipient(s). Example: "Bob <bob@host.com>". You can use commas to separate multiple recipients.

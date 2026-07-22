@@ -18,9 +18,13 @@ const DEFAULT_ATTACHMENT_DOWNLOAD_TIMEOUT_MS = 30000
 const DEFAULT_MAX_ATTACHMENT_SIZE_BYTES = 10 * 1024 * 1024
 
 const EmailApiConfigSchema = z.object({
-    api_url: z.string().min(1),
+    api_url: z.string().min(1).optional(),
     from: z.string().min(1),
-}).loose()
+    doNotSendEmails: z.boolean().optional(),
+}).loose().refine(
+    (data) => data.doNotSendEmails === true || (typeof data.api_url === 'string' && data.api_url.length > 0),
+    { message: 'api_url is required unless doNotSendEmails is true', path: ['api_url'] },
+)
 
 const validateConfig = (config, required, type) => {
     const missedFields = required.filter(field => !get(config, field))
@@ -187,6 +191,43 @@ const resolveAttachmentBuffer = async (attachment, options = {}) => {
     throw new Error('attachment must provide publicUrl or buffer')
 }
 
+/**
+ * Resolves `meta.inlineAttachments` the same way as regular attachments.
+ * @returns {Promise<Array<{ originalFilename: string, mimetype: string, buffer: Buffer }>>}
+ */
+const resolveInlineAttachments = async (meta, attachmentOptions) => {
+    if (!meta || !meta.inlineAttachments) return []
+
+    return Promise.all(meta.inlineAttachments.map(async (attachment) => {
+        const { mimetype, originalFilename } = attachment
+        const buffer = await resolveAttachmentBuffer(attachment, attachmentOptions)
+        return {
+            originalFilename: originalFilename || 'inline',
+            mimetype: mimetype || 'application/octet-stream',
+            buffer,
+        }
+    }))
+}
+
+/**
+ * Rewrites `cid:filename` references in HTML to data URIs (for non-Mailgun providers).
+ * @param {string|null|undefined} html
+ * @param {Array<{ originalFilename: string, mimetype: string, buffer: Buffer }>} inlines
+ * @returns {string|null|undefined}
+ */
+const applyInlineAttachmentsToHtml = (html, inlines) => {
+    if (!html || isEmpty(inlines)) return html
+
+    let result = html
+    for (const inline of inlines) {
+        const filename = inline.originalFilename
+        if (!filename) continue
+        const dataUri = `data:${inline.mimetype};base64,${inline.buffer.toString('base64')}`
+        result = result.split(`cid:${filename}`).join(dataUri)
+    }
+    return result
+}
+
 class MailgunEmail {
     static type = 'mailgun'
 
@@ -273,6 +314,18 @@ class MailgunEmail {
                 )
             })
         }
+
+        const inlineAttachments = await resolveInlineAttachments(meta, this.attachmentOptions)
+        inlineAttachments.forEach(({ originalFilename, mimetype, buffer }) => {
+            form.append(
+                'inline',
+                buffer,
+                {
+                    filename: originalFilename,
+                    contentType: mimetype,
+                },
+            )
+        })
 
         const auth = `api:${this.token}`
         const result = await fetch(
@@ -390,8 +443,11 @@ class UnisenderGoEmail {
         if (this.fromName) {
             message.from_name = this.fromName
         }
-        if (html) {
-            message.body.html = html
+
+        const inlineAttachments = await resolveInlineAttachments(meta, this.attachmentOptions)
+        const htmlWithInlines = applyInlineAttachmentsToHtml(html, inlineAttachments)
+        if (htmlWithInlines) {
+            message.body.html = htmlWithInlines
         }
         if (text) {
             message.body.plaintext = text
@@ -604,8 +660,11 @@ class SendsayEmail {
         if (replyName) {
             letter['reply.name'] = replyName
         }
-        if (html) {
-            letter.message.html = html
+
+        const inlineAttachments = await resolveInlineAttachments(meta, this.attachmentOptions)
+        const htmlWithInlines = applyInlineAttachmentsToHtml(html, inlineAttachments)
+        if (htmlWithInlines) {
+            letter.message.html = htmlWithInlines
         }
         if (text) {
             letter.message.text = text
@@ -719,6 +778,7 @@ const resolveAdapterType = (config) => {
 const isEmailAdapterConfigured = () => {
     const config = getEmailApiConfig()
     if (!config) return false
+    if (config.doNotSendEmails) return true
     const AdapterClass = EMAIL_ADAPTERS[resolveAdapterType(config)]
     if (!AdapterClass) return false
     return Boolean(new AdapterClass(config).isConfigured)
@@ -731,6 +791,7 @@ class EmailAdapter {
     constructor (config) {
         this.adapter = null
         this.provider = null
+        this.doNotSendEmails = false
         this._isEnvConfigMissing = config === undefined && !conf.EMAIL_API_CONFIG
 
         const validatedConfig = config === undefined
@@ -741,7 +802,16 @@ class EmailAdapter {
             return
         }
 
+        this.doNotSendEmails = Boolean(validatedConfig.doNotSendEmails)
+
         const type = resolveAdapterType(validatedConfig)
+        this.provider = type
+
+        // Local/dev configs may only set `from` + `doNotSendEmails` without provider credentials.
+        if (this.doNotSendEmails && !validatedConfig.api_url) {
+            return
+        }
+
         const AdapterClass = EMAIL_ADAPTERS[type]
         if (!AdapterClass) {
             const err = new Error(`Unknown email adapter: ${type}`)
@@ -753,11 +823,11 @@ class EmailAdapter {
             throw err
         }
 
-        this.provider = type
         this.adapter = new AdapterClass(validatedConfig)
     }
 
     get isConfigured () {
+        if (this.doNotSendEmails) return true
         return Boolean(this.adapter && this.adapter.isConfigured)
     }
 
@@ -786,7 +856,7 @@ class EmailAdapter {
      * @returns {Promise<[boolean, object]>}
      */
     async send ({ to, emailFrom = null, cc, bcc, subject, text, html, meta, messageType } = {}, extendedParams = {}) {
-        if (!this.adapter || !this.isConfigured) {
+        if (!this.isConfigured) {
             throw new Error(this._isEnvConfigMissing ? 'no EMAIL_API_CONFIG' : 'email adapter is not configured')
         }
         if (!to || !to.includes('@')) {
@@ -797,6 +867,13 @@ class EmailAdapter {
         }
         if (!text && !html) {
             throw new Error('no text or html argument')
+        }
+        if (this.doNotSendEmails) {
+            logger.warn({
+                msg: 'email send skipped because doNotSendEmails is enabled',
+                data: { to, subject, provider: this.provider },
+            })
+            return [true, { skipped: true, doNotSendEmails: true }]
         }
         if (!this.isEmailSupported(to)) {
             throw new Error(`Unsupported email address ${to}`)

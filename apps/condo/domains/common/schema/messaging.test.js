@@ -4,7 +4,7 @@ const { connect, JSONCodec, createInbox } = require('nats')
 const conf = require('@open-condo/config')
 const { fetch } = require('@open-condo/keystone/fetch')
 const { find } = require('@open-condo/keystone/schema')
-const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, waitFor } = require('@open-condo/keystone/test.utils')
 const { configure, buildOrganizationTopic, buildUserTopic } = require('@open-condo/messaging')
 
 const { OrganizationEmployee, updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
@@ -369,11 +369,15 @@ describe('Messaging Integration Tests', () => {
                 )
                 await serverConn.flush()
 
-                await new Promise(resolve => setTimeout(resolve, 1000))
+                await waitFor(() => {
+                    expect(received.length).toBeGreaterThanOrEqual(1)
+                }, { timeout: 5000, interval: 100 })
+
+                // Extra settle window so a wrongly-routed org-B message would still arrive if relay is broken
+                await new Promise(resolve => setTimeout(resolve, 500))
                 inboxSub.unsubscribe()
                 await done
 
-                expect(received.length).toBeGreaterThanOrEqual(1)
                 expect(received.every(m => m.org === clientA.organization.id)).toBe(true)
                 expect(received.find(m => m.org === clientB.organization.id)).toBeUndefined()
             } finally {
@@ -460,19 +464,23 @@ describe('Messaging Integration Tests', () => {
                 )
                 await serverConn.flush()
 
-                await new Promise(resolve => setTimeout(resolve, 1000))
+                await waitFor(() => {
+                    expect(receivedA.length).toBeGreaterThanOrEqual(1)
+                    expect(receivedB.length).toBeGreaterThanOrEqual(1)
+                }, { timeout: 5000, interval: 100 })
+
+                // Extra settle window so cross-org leakage would still show up if relay is broken
+                await new Promise(resolve => setTimeout(resolve, 500))
                 subA.unsubscribe()
                 subB.unsubscribe()
                 await doneA
                 await doneB
 
                 // User A only received their own org's messages
-                expect(receivedA.length).toBeGreaterThanOrEqual(1)
                 expect(receivedA.every(m => m.org === clientA.organization.id)).toBe(true)
                 expect(receivedA.some(m => m.org === clientB.organization.id)).toBe(false)
 
                 // User B only received their own org's messages
-                expect(receivedB.length).toBeGreaterThanOrEqual(1)
                 expect(receivedB.every(m => m.org === clientB.organization.id)).toBe(true)
                 expect(receivedB.some(m => m.org === clientA.organization.id)).toBe(false)
             } finally {
