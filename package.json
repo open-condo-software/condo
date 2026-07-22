@@ -133,7 +133,7 @@
     "defu": "^6.1.6",
     "figma-js/axios": "^1.16.0",
     "axios": "^1.16.0",
-    "protobufjs": "7.5.5",
+    "protobufjs": "7.6.5",
     "next": "^15.5.15",
     "@xmldom/xmldom": "^0.8.12",
     "js-cookie": "^3.0.8",
