@@ -4,7 +4,6 @@ import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
-import { CONTEXT_FINISHED_STATUS, CONTEXT_VERIFICATION_STATUS } from '@condo/domains/acquiring/constants/context'
 import { AcquiringIntegrationContext as AcquiringContext } from '@condo/domains/acquiring/utils/clientSchema'
 import { BillingAndAcquiringContext } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
 import { BillingOnboardingCombinedFlowPage } from '@condo/domains/billing/components/OnBoarding/BillingOnboardingCombinedFlowPage'
@@ -13,7 +12,6 @@ import { AccessDeniedPage } from '@condo/domains/common/components/containers/Ac
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { UI_BILLING_SPP_COMBINED_PAGE } from '@condo/domains/common/constants/featureflags'
 import { PageComponentType } from '@condo/domains/common/types'
-import { CONTEXT_FINISHED_STATUS as BILLING_FINISHED_STATUS } from '@condo/domains/miniapp/constants'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 
 const SetupBillingPage: PageComponentType = () => {
@@ -28,7 +26,6 @@ const SetupBillingPage: PageComponentType = () => {
 
     const { objs: billingContexts, loading: billingLoading, error: billingError, refetch: refetchBilling } = BillingContext.useObjects({
         where: {
-            status: BILLING_FINISHED_STATUS,
             organization: { id: orgId },
             deletedAt: null,
         },
@@ -36,7 +33,6 @@ const SetupBillingPage: PageComponentType = () => {
 
     const { objs: acquiringContexts, loading: acquiringLoading, error: acquiringError, refetch: refetchAcquiring } = AcquiringContext.useObjects({
         where: {
-            status_in: [CONTEXT_FINISHED_STATUS, CONTEXT_VERIFICATION_STATUS],
             organization: { id: orgId },
             deletedAt: null,
         },
@@ -52,7 +48,7 @@ const SetupBillingPage: PageComponentType = () => {
         refetchBilling,
     }), [acquiringContexts, billingContexts, refetchBilling])
 
-    if (acquiringLoading || billingLoading || acquiringError || acquiringLoading) {
+    if (acquiringLoading || acquiringError || billingLoading || billingError) {
         return (
             <LoadingOrErrorPage
                 title={PageTitle}

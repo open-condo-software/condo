@@ -355,6 +355,7 @@
   "accrualsAndPayments.setup.verificationNeeded.message.certs": "Para completar la configuración de la integración, inicia sesión con tu cuenta de Verde. La autorización sólo funcionará con certificados de seguridad instalados. Puedes obtener más información sobre ellos en {link}",
   "accrualsAndPayments.setup.verificationNeeded.message.contact": "Si no tienes un ID de Verde, envía una solicitud a {email}. Te enviaremos el contrato en un correo de respuesta.",
   "accrualsAndPayments.setup.verificationNeeded.title": "Inicia sesión con tu cuenta de VerdeID",
+  "accrualsAndPayments.setup.verificationNeeded.skip.link": "Ahora no",
   "accrualsAndPayments.setup.verificationStep.message.body": "En breve nuestro personal verificará tu organización y los vecinos podrán pagar los recibos a través de la app móvil Doma",
   "accrualsAndPayments.setup.verificationStep.message.title": "Verificando, espera",
   "accrualsAndPayments.setup.verificationStep.title": "Verificación",
