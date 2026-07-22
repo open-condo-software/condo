@@ -22,7 +22,7 @@ const ROW_GUTTER: Gutter | [Gutter, Gutter] = [10, 10]
 const ROW_STYLE = { marginTop: '16px' }
 
 type IBaseEmptyListProps = {
-    label: string | React.ReactElement
+    label: string | React.ReactElement | React.ReactNode
     createRoute?: string
     containerStyle?: CSSProperties
     accessCheck?: boolean

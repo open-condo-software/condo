@@ -36,6 +36,7 @@ export const SetupAcquiringCombinedFlow: React.FC<SetupAcquiringProps> = ({ onFi
     const [verificationSkipped, skippVerification] = useState<boolean>(false)
     const AuthRequiredTitle = intl.formatMessage({ id: 'accrualsAndPayments.setup.verificationNeeded.title' })
     const AuthRequiredLink = intl.formatMessage({ id: 'accrualsAndPayments.setup.verificationNeeded.link' })
+    const SkippAuthLink = intl.formatMessage({ id: 'accrualsAndPayments.setup.verificationNeeded.skip.link' })
     const AuthRequiredCertMessage = intl.formatMessage({ id: 'accrualsAndPayments.setup.verificationNeeded.message.certs' }, {
         link: <Typography.Link href={CERTIFICATES_INFO_LINK} target='_blank'>{AuthRequiredLink}</Typography.Link>,
     })
@@ -112,7 +113,7 @@ export const SetupAcquiringCombinedFlow: React.FC<SetupAcquiringProps> = ({ onFi
                         <Col span={HALF_COL_SPAN}>
                             <Space size={20}>
                                 <LoginWithSBBOLButton redirect={router.asPath} checkTlsCert/>
-                                <Button type='secondary' onClick={() => skippVerification(true)} >Войду позже</Button>
+                                <Button type='secondary' onClick={() => skippVerification(true)} >{SkippAuthLink}</Button>
                             </Space>
                         </Col>
                     </Row>

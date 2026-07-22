@@ -355,6 +355,7 @@
   "accrualsAndPayments.setup.verificationNeeded.message.certs": "To complete the integration setup, authorize via Sber. Authorization will only work with security certificates installed. Learn more about them {link}.",
   "accrualsAndPayments.setup.verificationNeeded.message.contact": "If you don't have a SberBusiness ID, send a request to {email}. We'll send you a contract in a reply message.",
   "accrualsAndPayments.setup.verificationNeeded.title": "Authorize via SberBusiness ID",
+  "accrualsAndPayments.setup.verificationNeeded.skip.link": "Sign In Later",
   "accrualsAndPayments.setup.verificationStep.message.body": "Soon enough, our staff will verify your organization and residents will be able to pay receipts through the resident's Doma mobile app",
   "accrualsAndPayments.setup.verificationStep.message.title": "Verifying, please wait",
   "accrualsAndPayments.setup.verificationStep.title": "Verification",

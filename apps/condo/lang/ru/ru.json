@@ -355,6 +355,7 @@
   "accrualsAndPayments.setup.verificationNeeded.message.certs": "Чтобы завершить настройку интеграции, авторизуйтесь через Сбер. Авторизация будет работать только с установленными сертификатами безопасности. Узнать подробнее о них можно {link}.",
   "accrualsAndPayments.setup.verificationNeeded.message.contact": "Если у вас нет СберБизнес ID, отправьте запрос на {email}. Мы пришлем договор в ответном письме.",
   "accrualsAndPayments.setup.verificationNeeded.title": "Авторизуйтесь через СберБизнес ID",
+  "accrualsAndPayments.setup.verificationNeeded.skip.link": "Войду позже",
   "accrualsAndPayments.setup.verificationStep.message.body": "В скором времени наши сотрудники верифицируют вашу организацию и жители смогут оплачивать квитанции через мобильное приложение жителя Doma",
   "accrualsAndPayments.setup.verificationStep.message.title": "Верифицируем, подождите",
   "accrualsAndPayments.setup.verificationStep.title": "Верификация",
