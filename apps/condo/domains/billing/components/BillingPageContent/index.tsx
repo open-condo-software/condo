@@ -105,8 +105,14 @@ export const BillingPageContent: React.FC = () => {
                     extra={isCombinedPageEnabled ? CombinedHeaderExtraContent : undefined}
                     title={<Typography.Title>{PageTitle}</Typography.Title>}
                 />
-                {isCombinedPageEnabled ? <CombinedMainContent/> : <MainContent />}
-                {isCombinedPageEnabled ? <BillingSettingsModal open={settingsModalOpen} onClose={closeSettingsModal} /> : null }
+                {isCombinedPageEnabled ? (
+                    <>
+                        <CombinedMainContent/>
+                        <BillingSettingsModal open={settingsModalOpen} onClose={closeSettingsModal} />
+                    </>
+                ) : (
+                    <MainContent />
+                )}
             </PageWrapper>
         </>
     )

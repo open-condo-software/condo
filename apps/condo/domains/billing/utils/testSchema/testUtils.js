@@ -4,13 +4,13 @@ const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/te
 
 
 const { AcquiringTestMixin } = require('@condo/domains/billing/utils/testSchema/mixins/acquiring')
+const { B2BAppTestMixin } = require('@condo/domains/billing/utils/testSchema/mixins/b2bApp')
 const { BillingTestMixin } = require('@condo/domains/billing/utils/testSchema/mixins/billing')
 const { ContactTestMixin } = require('@condo/domains/billing/utils/testSchema/mixins/contact')
 const { MeterTestMixin } = require('@condo/domains/billing/utils/testSchema/mixins/meter')
 const { OrganizationTestMixin } = require('@condo/domains/billing/utils/testSchema/mixins/organization')
 const { PropertyTestMixin } = require('@condo/domains/billing/utils/testSchema/mixins/property')
 const { ResidentTestMixin } = require('@condo/domains/billing/utils/testSchema/mixins/resident')
-const { B2BAppTestMixin } = require('@condo/domains/billing/utils/testSchema/mixins/b2bApp')
 const {
     makeClientWithServiceUser,
     makeClientWithSupportUser,
