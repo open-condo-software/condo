@@ -11,6 +11,7 @@ import type { StepItem } from '@open-condo/ui'
 
 import { CONTEXT_FINISHED_STATUS as ACQUIRING_CONTEXT_FINISHED_STATUS, CONTEXT_IN_PROGRESS_STATUS as ACQUIRING_CONTEXT_IN_PROGRESS_STATUS, CONTEXT_VERIFICATION_STATUS } from '@condo/domains/acquiring/constants/context'
 import { AcquiringIntegrationContext as AcquiringContext, AcquiringIntegration } from '@condo/domains/acquiring/utils/clientSchema'
+import { useBillingAndAcquiringContexts } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
 import { useOnboardingProgress } from '@condo/domains/billing/hooks/useOnboardingProgress'
 import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import { PageHeader, PageWrapper, TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
@@ -21,6 +22,7 @@ import styles from './index.module.css'
 import { SetupAcquiringCombinedFlow } from './SetupAcquiringCombinedFlow'
 import { SetupBilling } from './SetupBilling'
 import { WelcomeModal } from './WelcomeModal'
+
 
 import type { RowProps } from 'antd'
 
@@ -41,8 +43,9 @@ export const BillingOnboardingCombinedFlowPage: React.FC<BillingOnboardingPagePr
     const IntegrationSetupTitle = intl.formatMessage({ id: 'pages.billing.setup.chooseChannels.integrtion.setup.title' })
 
     const userOrganization = useOrganization()
-    const orgId = userOrganization?.organization?.id
     const canManageIntegrations = userOrganization?.role?.canManageIntegrations || false
+    const { acquiringContexts: activeAcquiringContexts, billingContexts, refetchBilling } = useBillingAndAcquiringContexts()
+    console.log('BillingOnboardingCombinedFlowPage: ', activeAcquiringContexts, billingContexts)
 
     const router = useRouter()
     const [welcomeShown, setWelcomeShown] = useState(false)
@@ -51,19 +54,9 @@ export const BillingOnboardingCombinedFlowPage: React.FC<BillingOnboardingPagePr
         setWelcomeShown(Boolean(localStorage.getItem(MODAL_STORAGE_KEY)))
     }, [])
 
-    const { objs: activeAcquiringContexts, loading: activeAcquiringContextsLoading, error: activeAcquiringContextsError } = AcquiringContext.useObjects({
-        where: {
-            organization: { id: orgId },
-            status_in: [ACQUIRING_CONTEXT_IN_PROGRESS_STATUS, ACQUIRING_CONTEXT_FINISHED_STATUS, CONTEXT_VERIFICATION_STATUS],
-        },
-    })
-    const { objs: acquiringIntegrations, loading: acquiringIntegrationsLoading, error: acquiringIntegrationsError } = AcquiringIntegration.useObjects({
-        where: {
-            isHidden: false,
-        },
-        sortBy: [
-            SortAcquiringIntegrationsBy.DisplayPriorityAsc,
-        ],
+    const { objs: acquiringIntegrations, loading: acquiringIntegrationsLoading } = AcquiringIntegration.useObjects({
+        where: { isHidden: false },
+        sortBy: [ SortAcquiringIntegrationsBy.DisplayPriorityAsc ],
     })
 
     const selectedAcquiringIntegrationIds = useMemo(() => {
@@ -86,7 +79,7 @@ export const BillingOnboardingCombinedFlowPage: React.FC<BillingOnboardingPagePr
     }, [acquiringIntegrations, selectedAcquiringIntegrationIds])
 
     const acquiringStepsStart = 2
-    const totalSteps = (activeAcquiringContextsLoading || acquiringIntegrationsLoading)
+    const totalSteps = (acquiringIntegrationsLoading)
         ? 4
         : 2 + selectedAcquiringIntegrations.length
     const [currentStep] = useOnboardingProgress(false, totalSteps)
@@ -104,6 +97,9 @@ export const BillingOnboardingCombinedFlowPage: React.FC<BillingOnboardingPagePr
     }, [ChooseChannelsTitle, IntegrationSetupTitle, selectedAcquiringIntegrations])
 
     const handleReturn = useCallback((newStep: number) => {
+        if (Number(router.query.step) === newStep) {
+            return
+        }
         router.push({ query: { ...router.query, step: newStep } }, undefined, { shallow: true })
     }, [router])
 
@@ -123,14 +119,15 @@ export const BillingOnboardingCombinedFlowPage: React.FC<BillingOnboardingPagePr
     }, [currentStep, onFinish, router, totalSteps])
 
     const currentScreen = useMemo(() => {
-        if (activeAcquiringContextsLoading || acquiringIntegrationsLoading) {
+        if (acquiringIntegrationsLoading) {
             return <Loader fill size='large'/>
         }
+        //activeAcquiringContexts.length === 0 || billingContexts.length === 0
         if (!currentStep || currentStep === 0) {
-            return <ChooseChannels/>
+            return <ChooseChannels onFinish={refetchBilling}/>
         }
         if (currentStep === 1) {
-            return <SetupBilling/>
+            return <SetupBilling />
         }
         const currentAcquiringIntegration = selectedAcquiringIntegrations[currentStep - acquiringStepsStart]
         if (currentAcquiringIntegration) {
@@ -142,7 +139,7 @@ export const BillingOnboardingCombinedFlowPage: React.FC<BillingOnboardingPagePr
                 />
             )
         }
-    }, [activeAcquiringContextsLoading, acquiringIntegrationsLoading, currentStep, handleAcquiringDone, selectedAcquiringIntegrations])
+    }, [acquiringIntegrationsLoading, currentStep, selectedAcquiringIntegrations, refetchBilling, handleAcquiringDone])
 
     if (!canManageIntegrations) {
         return <AccessDeniedPage />

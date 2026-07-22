@@ -7,7 +7,7 @@ import React, { useCallback, useEffect, useMemo } from 'react'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Typography, Markdown, Space, Button } from '@open-condo/ui'
+import { Markdown, Space, Button } from '@open-condo/ui'
 
 import { BillingIntegrationOrganizationContext as BillingContext } from '@condo/domains/billing/utils/clientSchema'
 import { Loader } from '@condo/domains/common/components/Loader'
@@ -15,6 +15,7 @@ import { UI_BILLING_SPP_COMBINED_PAGE } from '@condo/domains/common/constants/fe
 import { extractOrigin } from '@condo/domains/common/utils/url.utils'
 import { B2BAppFrame } from '@condo/domains/miniapp/components/B2BAppFrame'
 import { CONTEXT_FINISHED_STATUS } from '@condo/domains/miniapp/constants'
+
 
 import type { RowProps } from 'antd'
 
@@ -113,25 +114,13 @@ export const SetupBilling: React.FC = ()=> {
     const { organization } = useOrganization()
     const orgId = organization?.id
 
-    const { objs: connectedContexts, loading: connectedCtxLoading, error: connectedCtxError } = BillingContext.useObjects({
-        where: {
-            organization: { id: orgId },
-            status: CONTEXT_FINISHED_STATUS,
-        },
-        sortBy: [
-            SortBillingIntegrationOrganizationContextsBy.UpdatedAtDesc,
-            SortBillingIntegrationOrganizationContextsBy.IdDesc,
-        ],
-    })
     const { objs: currentContexts, loading: currentCtxLoading, error: currentCtxError } = BillingContext.useObjects({
-        where: {
-            organization: { id: orgId },
-        },
-        sortBy: [
-            SortBillingIntegrationOrganizationContextsBy.UpdatedAtDesc,
-            SortBillingIntegrationOrganizationContextsBy.IdDesc,
-        ],
+        where: { organization: { id: orgId }, deletedAt: null },
+        sortBy: [ SortBillingIntegrationOrganizationContextsBy.UpdatedAtDesc, SortBillingIntegrationOrganizationContextsBy.IdDesc ],
     })
+    const connectedContexts = useMemo(() => {
+        return currentContexts.filter(({ status }) => status === CONTEXT_FINISHED_STATUS)
+    }, [currentContexts])
 
     const connectedCtx = connectedContexts[0] || null
     const currentCtx = currentContexts[0] || null
@@ -140,10 +129,10 @@ export const SetupBilling: React.FC = ()=> {
 
     // NOTE: If already connected billing = skip to final step
     useEffect(() => {
-        if (!connectedCtxLoading && !connectedCtxError && connectedContextId) {
+        if (connectedContextId) {
             router.replace({ query: { ...router.query, step: 2 } }, undefined, { shallow: true })
         }
-    }, [router, connectedCtxLoading, connectedCtxError, connectedContextId])
+    }, [router, connectedContextId])
 
     // If no context found, return to step 0
     useEffect(() => {
@@ -152,19 +141,15 @@ export const SetupBilling: React.FC = ()=> {
         }
     }, [router, currentCtxLoading, currentCtxError, currentContextId])
 
-    if (connectedCtxLoading || currentCtxLoading || !currentCtx) {
+    if (currentCtxLoading || !currentCtx) {
         return <Loader fill size='large'/>
-    }
-
-    if (connectedCtxError || currentCtxError) {
-        return <Typography.Title>{currentCtxError || connectedCtxError}</Typography.Title>
     }
 
     const setupUrl = currentCtx.integration?.setupUrl
     const setupId = currentCtx.id
 
     if (setupUrl) {
-        return <SetupInteractiveBilling setupUrl={setupUrl} setupId={setupId}/>
+        return (<SetupInteractiveBilling setupUrl={setupUrl} setupId={setupId}/>)
     }
 
     return (
