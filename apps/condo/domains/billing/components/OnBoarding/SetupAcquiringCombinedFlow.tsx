@@ -2,7 +2,7 @@ import { SortAcquiringIntegrationContextsBy, AcquiringIntegrationTypeType } from
 import { Col, Row } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import React, { useCallback, useEffect, useState, useMemo } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -31,7 +31,7 @@ const HALF_COL_SPAN = 12
 const CERTIFICATES_INFO_LINK = 'https://help.doma.ai/article/262-minc'
 const CONNECT_EMAIL = 'sales@doma.ai'
 
-export const SetupAcquiringCombinedFlow: React.FC<SetupAcquiringProps> = ({ onFinish, integrationId, onDone }) => {
+export const SetupAcquiringCombinedFlow: React.FC<SetupAcquiringProps> = ({ onFinish, integrationId }) => {
     const intl = useIntl()
     const [verificationSkipped, skippVerification] = useState<boolean>(false)
     const AuthRequiredTitle = intl.formatMessage({ id: 'accrualsAndPayments.setup.verificationNeeded.title' })
@@ -77,6 +77,13 @@ export const SetupAcquiringCombinedFlow: React.FC<SetupAcquiringProps> = ({ onFi
             return () => window.removeEventListener('message', handleDoneMessage)
         }
     }, [handleDoneMessage])
+
+    // If no context found, return to step 0
+    useEffect(() => {
+        if (!acquiringCtxLoading && !acquiringCtx) {
+            router.replace({ query: { ...router.query, step: 0 } }, undefined, { shallow: true })
+        }
+    }, [acquiringCtx, acquiringCtxLoading, router])
 
     if (acquiringCtxLoading || !setupUrl) {
         return <Loader fill size='large'/>

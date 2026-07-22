@@ -1,4 +1,5 @@
 import { useGetB2BAppsWithBillingTabEmbeddingConfigQuery } from '@app/condo/gql'
+import { AcquiringIntegrationContextDefaultStatusType as AcquiringContextStatusType } from '@app/condo/schema'
 import get from 'lodash/get'
 import getConfig from 'next/config'
 import { useRouter } from 'next/router'
@@ -120,12 +121,17 @@ export const CombinedMainContent: React.FC = () => {
     const activeBillingContexts = useMemo(() => {
         return billingContexts.filter(({ status }) => status === CONTEXT_FINISHED_STATUS)
     }, [billingContexts])
+
     const inactiveAcquiringContexts = useMemo(() => {
         return acquiringContexts.filter(({ status }) => status !== CONTEXT_FINISHED_STATUS)
     }, [acquiringContexts])
+    const activeAcquiringContexts = useMemo(() => {
+        return acquiringContexts.filter(({ status }) => status === AcquiringContextStatusType.Finished || status === AcquiringContextStatusType.Verification)
+    }, [acquiringContexts])
+
     const isSetupCompleted = useMemo(() => {
-        return activeBillingContexts.length > 0 && inactiveAcquiringContexts.length === 0
-    }, [activeBillingContexts, inactiveAcquiringContexts])
+        return activeBillingContexts.length > 0 && inactiveAcquiringContexts.length === 0 && activeAcquiringContexts.length > 0
+    }, [activeAcquiringContexts, activeBillingContexts, inactiveAcquiringContexts.length])
 
     const billingIntegrationsExtensionTabs: ExtensionTabType[] = useMemo(() => {
         return activeBillingContexts
