@@ -133,7 +133,6 @@ export const BillingOnboardingCombinedFlowPage: React.FC<BillingOnboardingPagePr
                 <SetupAcquiringCombinedFlow
                     integrationId={currentAcquiringIntegration.id}
                     onFinish={handleAcquiringDone}
-                    onDone={handleAcquiringDone}
                 />
             )
         }
