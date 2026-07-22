@@ -1636,7 +1636,6 @@ __metadata:
     "@types/react": "catalog:"
     ajv: "catalog:"
     antd: "catalog:"
-    axios: "npm:^1.15.0"
     big.js: "npm:^6.2.2"
     body-parser: "npm:^1.20.3"
     body-parser-xml: "npm:^2.0.3"
