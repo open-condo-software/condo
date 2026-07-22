@@ -1,9 +1,12 @@
 const { NextApp } = require('@open-keystone/app-next')
+const cookieSignature = require('cookie-signature')
 const dayjs = require('dayjs')
 const duration = require('dayjs/plugin/duration')
 const isBetween = require('dayjs/plugin/isBetween')
 const timezone = require('dayjs/plugin/timezone')
 const utc = require('dayjs/plugin/utc')
+const express = require('express')
+const jwt = require('jsonwebtoken')
 
 const conf = require('@open-condo/config')
 const { FeaturesMiddleware } = require('@open-condo/featureflags/FeaturesMiddleware')
@@ -33,6 +36,7 @@ const { VoIPMiddleware } = require('@condo/domains/miniapp/VoIPMiddleware')
 const { UnsubscribeMiddleware } = require('@condo/domains/notification/UnsubscribeMiddleware')
 const { UserExternalIdentityMiddleware } = require('@condo/domains/user/integration/UserExternalIdentityMiddleware')
 const { OIDCMiddleware } = require('@condo/domains/user/oidc')
+const { getKVClient } = require('@open-condo/keystone/kv')
 
 dayjs.extend(duration)
 dayjs.extend(utc)
@@ -45,6 +49,8 @@ const IS_BUILD_PHASE = conf.PHASE === 'build'
 if (IS_BUILD_PHASE) {
     process.env.FILE_FIELD_ADAPTER = 'local' // Test
 }
+
+const kv = getKVClient('fing/multipart-upload')
 
 const schemas = () => [
     require('@condo/domains/common/schema'),
@@ -129,7 +135,53 @@ const apps = () => {
         new MessagingMiddleware(),
         new PaymentLinkMiddleware(),
         new UnsubscribeMiddleware(),
-        new FileMiddleware({ apiPrefix: '/api/files' }),
+        //new FileMiddleware({ apiPrefix: '/api/files' }),
+        new class NoneFileMiddleware {
+            prepareMiddleware () {
+                const app = express()
+                const appConfig = FileMiddleware.prototype.loadConfig()
+                const appClients = appConfig?.clients ?? {}
+                app.post('/api/files' + '/attach', async (req, res) => {
+                    const { signature, fileClientId } = req.body
+                    let data
+                    let appClient
+                    try {
+                        appClient = appClients?.[fileClientId]
+                        if (!appClient) throw new Error('no appClient')
+                        data = jwt.verify(signature, appClient.secret, { algorithms: ['HS256'] })
+                    } catch (err) {
+                        console.error(err)
+                        return res.setHeader('Content-Type', 'application/json').status(400).json({ error: 'no signature' })
+                    }
+                    console.log('COOKIE', req.cookies, req.signedCookies)
+                    const updatedId = data.id
+                    let newFileData
+                    try {
+                        newFileData = JSON.parse(await kv.get(`multipart-upload-uuid-to-file-data:${updatedId}`))
+                        if (!newFileData.filename || !newFileData.originalFilename) {
+                            throw new Error('No filename')
+                        }
+                    } catch (err) {
+                        console.error(err)
+                        return res.setHeader('Content-Type', 'application/json').status(400).json({ error: 'no upload data' })
+                    }
+
+                    return res.setHeader('Content-Type', 'application/json').status(200).json({
+                        data: {
+                            file: {
+                                signature: jwt.sign(
+                                    newFileData,
+                                    appClient.secret,
+                                    { expiresIn: '5m', algorithm: 'HS256' }
+                                ),
+                            },
+                        },
+                    })
+                })
+                app.set('trust proxy', true)
+                return app
+            }
+        }(),
         FileAdapter.makeFileAdapterMiddleware(),
         new UserExternalIdentityMiddleware(),
         new VoIPMiddleware(),
