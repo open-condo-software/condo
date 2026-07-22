@@ -44,8 +44,7 @@ export const BillingOnboardingCombinedFlowPage: React.FC<BillingOnboardingPagePr
 
     const userOrganization = useOrganization()
     const canManageIntegrations = userOrganization?.role?.canManageIntegrations || false
-    const { acquiringContexts: activeAcquiringContexts, billingContexts, refetchBilling } = useBillingAndAcquiringContexts()
-    console.log('BillingOnboardingCombinedFlowPage: ', activeAcquiringContexts, billingContexts)
+    const { acquiringContexts: activeAcquiringContexts, refetchBilling } = useBillingAndAcquiringContexts()
 
     const router = useRouter()
     const [welcomeShown, setWelcomeShown] = useState(false)
