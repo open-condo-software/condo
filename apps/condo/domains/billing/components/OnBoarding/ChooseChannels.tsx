@@ -146,30 +146,21 @@ export const ChooseChannels: React.FC<IChooseChannels> = ({ onFinish }) => {
         await handleBillingSetupClick()
         await handleAcquiringSetupClick()
         await onFinish()
-
-        await router.push({
-            query: {
-                ...router.query,
-                step: 1,
-            },
-        }, undefined, { shallow: true })
+        await router.push({ query: { ...router.query, step: 1 } }, undefined, { shallow: true })
     }, [handleAcquiringSetupClick, handleBillingSetupClick, onFinish, router])
 
     const { billingContexts, acquiringContexts } = useBillingAndAcquiringContexts()
-    console.log('billingContexts', billingContexts)
-    console.log('acquiringContexts', acquiringContexts)
 
     const connectedContexts = useMemo(() => {
         return billingContexts.filter(({ status }) => status === BILLING_CONTEXT_FINISHED_STATUS)
     }, [billingContexts])
 
     const { objs: billings, loading: billingsLoading } = BillingIntegration.useObjects({
-        where: { isHidden: false }, sortBy: [ SortBillingIntegrationsBy.DisplayPriorityAsc ],
+        where: { isHidden: false, setupUrl_not: null }, sortBy: [ SortBillingIntegrationsBy.DisplayPriorityAsc ],
     })
     
     const { objs: acquirings, loading: acquiringsLoading } = AcquiringIntegration.useObjects({
-        where: { isHidden: false },
-        sortBy: [ SortAcquiringIntegrationsBy.DisplayPriorityAsc ],
+        where: { isHidden: false, setupUrl_not: null }, sortBy: [ SortAcquiringIntegrationsBy.DisplayPriorityAsc ],
     })
 
     useEffect(() => {
@@ -181,7 +172,6 @@ export const ChooseChannels: React.FC<IChooseChannels> = ({ onFinish }) => {
             ? activeAcquiringIntegrationIds
             : acquirings.map(({ id }) => id)
         const chosenBillingIntegrationId = billingContexts[0]?.integration?.id || billings[0]?.id || null
-        console.log('INIT isDefaultSelectionsApplied', chosenAcquiringIds, chosenBillingIntegrationId)
         updateChosenAcquirings(chosenAcquiringIds)
         setChosenBillingId(chosenBillingIntegrationId)
         isDefaultSelectionsApplied.current = true

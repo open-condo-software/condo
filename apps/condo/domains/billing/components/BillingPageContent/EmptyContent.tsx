@@ -11,7 +11,6 @@ import { B2BAppFrame } from '@condo/domains/miniapp/components/B2BAppFrame'
 
 import { useBillingAndAcquiringContexts } from './ContextProvider'
 
-
 const BLOCK_CONTENT_GAP = 16
 const ERROR_MASCOT_IMG = '/mascot/fail.webp'
 const SEARCHING_MASCOT_IMG = '/mascot/searching.webp'
@@ -57,7 +56,7 @@ export const EmptyContent: React.FC<EmptyContentProps> = ({
                         <Space size={BLOCK_CONTENT_GAP} direction='vertical' align='center'>
                             {uploadComponent}
                             {Boolean(instructionUrl) && (
-                                <Button type='secondary' target='_blank' onClick={() => window.open(instructionUrl)}>
+                                <Button type='secondary' target='_blank' onClick={() => window.open(instructionUrl, '_blank', 'noopener,noreferrer')}>
                                     {InstructionButtonLabel}
                                 </Button>
                             )}
