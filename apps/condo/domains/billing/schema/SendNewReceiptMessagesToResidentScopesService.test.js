@@ -103,7 +103,6 @@ describe('SendNewReceiptMessagesToResidentScopesService', () => {
             })
 
             test('admin can', async () => {
-                console.log('payload:', JSON.stringify(payload, null, 2))
                 const [data] = await sendNewReceiptMessagesToResidentScopesByTestClient(adminClient, payload)
 
                 expect(data.status).toEqual(SUCCESS_STATUS)
