@@ -1,113 +1,119 @@
 # BalancingReplicaKnexAdapter
 
-> BalancingReplicaKnexAdapter is a database adapter for PostgresSQL, 
-> based on the standard KnexAdapter, but providing the ability to flexibly configure application-level traffic 
-> using environment variables.
+Multi-database Postgres adapter. Extends Keystone's `KnexAdapter`.
+
+**Start here:** [database adapters overview](../README.md) — architecture, file map, how to extend.
+
+## When to use
+
+- Read replicas or dedicated DBs for historical / billing / counts tables
+- Dedicated writable pools for specific table groups (e.g. Message on a separate DB)
+- Cross-pool SQL JOIN rewrite (Keystone-style `LEFT JOIN`)
+
+Use `DATABASE_URL=custom:{...}` (see `setup.utils.js`).
 
 ## Configuration
 
-The adapter is configured using 3 environment variables: `DATABASE_URL`, `DATABASE_POOLS` and `DATABASE_ROUTING_RULES`.
-
+Three required env vars plus optional cross-db settings (documented in the [global README](../README.md)).
 
 ### `DATABASE_URL`
 
-We use named databases to further group them into pools and redirect traffic. 
+Named connection strings:
 
-`DATABASE_URL` uses a custom protocol and can be formed programmatically as follows:
-
-```typescript
-type DBName = string
-type ConnectionString = string
-
-const namedDBs: Record<DBName, ConnectionString> = {
-    main: 'postgresql://****:****@127.0.0.1:5432/main',
-    replica: 'postgresql://****:****@127.0.0.1:5433/replica',
-}
-
-`custom:${JSON.stringify(namedDBs)}`
-```
-
-#### Example:
 ```dotenv
-DATABASE_URL=custom:{"main":"****://****:postgres@127.0.0.1:5432/main","replica":"****://****:postgres@127.0.0.1:5433/replica"}
+DATABASE_URL=custom:{"main":"postgresql://user:pass@127.0.0.1:5432/main","replica":"postgresql://user:pass@127.0.0.1:5433/replica"}
 ```
 
 ### `DATABASE_POOLS`
 
-A database pool is a set of 1 or more databases, each of which can accept a specific set of queries. 
-
-The pool may or may not be writable. 
-If so, it can accept mutable operations such as `insert` / `delete` / `update`. 
-If not, then only `select` / `show` is acceptable.
-
-The pool distributes the load among the bases using one of the following balancing algorithms:
-
-| Name         | default | description                                            |
-|--------------|---------|--------------------------------------------------------|
-| `RoundRobin` | yes     | Each request is distributed among the bases one by one | 
-
-You can form `DATABASE_POOLS` env variable by calling `JSON.stringify` on config of the following shape:
-```typescript
-type Balancer = 'RoundRobin'
-
-type PoolConfig = {
-    databases: Array<DBName>                    // Array of database names presenting in pool
-    writable: boolean                           // Marks, that pool can accept mutable operations
-    balancer?: Balancer                         // Balancer. "RoundRobin" by default.
-    balancerOptions?: Record<string, unknown>   // Balancer options depending on balancer (if any balancer need additional configuration)
-}
-
-type DatabasePools = Record<string, PoolConfig>
-
-const example: DatabasePools = {
-    main: { databases: ['main'], writable: true },
-    replicas: { databases: ['replica'], writable:false }
-}
-```
-#### Example:
 ```dotenv
-DATABASE_POOLS='{"main":{"databases":["main"],"writable":true},"replicas":{"databases":["replica"],"writable":false}}'
+DATABASE_POOLS={"main":{"databases":["main"],"writable":true},"replicas":{"databases":["replica"],"writable":false},"kv":{"provider":"kv","writable":true}}
 ```
+
+| Field | Description |
+|-------|-------------|
+| `databases` | Names from `DATABASE_URL` (Postgres pools) |
+| `provider` | Registered data provider name, e.g. `kv` (non-SQL pools; no `databases`) |
+| `writable` | `true` if pool accepts insert/update/delete |
+| `balancer` | Optional for Postgres pools, default `RoundRobin` |
+
+Provider pools are **Knex-only** (`BalancingReplicaKnexAdapter`). Do not use `provider` with `prisma-custom:`.
 
 ### `DATABASE_ROUTING_RULES`
 
-A routing rules is an array of objects containing the following fields:
+First matching rule wins. Conditions are AND-ed. Last rule must be the default (no conditions).
 
-| Name             | Type                                                       | required | description                                                                                                                                                                                                                                                                                                                                                           |
-|------------------|------------------------------------------------------------|----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| target           | string                                                     | yes      | To which pool to send SQL query if all conditions match                                                                                                                                                                                                                                                                                                               |
-| gqlOperationType | 'mutation' \| 'query'                                      | no       | If specified, rule will be applied only if SQL query <br>is made inside GQL mutation / query.                                                                                                                                                                                                                                                                         |
-| gqlOperationName | string \| RegExp                                           | no       | If specified, rule will be applied only if SQL query <br>is made inside GQL operation with matching name. <br><br>NOTE 1: Each subquery, such as Model.create, Model.getAll and etc., generates a new gql context, <br>so it's worth keeping this in mind when forming rules.<br><br>NOTE 2: Direct adapter calls (find / getByCondition) does not spawn gql context. |
-| sqlOperationName | 'insert' \| 'select' \| 'update' <br>\| 'delete' \| 'show' | no       | If specified, rule will be applied only if <br>the SQL query method equals the method specified in the rule                                                                                                                                                                                                                                                           |
-| tableName        | string \| RegExp                                           | no       | If specified, rule will be applied only if <br>the SQL query method operates on table with matching name                                                                                                                                                                                                                                                              |
+```dotenv
+DATABASE_ROUTING_RULES=[{"target":"main","gqlOperationType":"mutation"},{"target":"replicas","sqlOperationName":"select"},{"target":"main"}]
+```
 
-#### How does routing rules works
+| Field | Description |
+|-------|-------------|
+| `target` | Pool name (required) |
+| `gqlOperationType` | `query` or `mutation` |
+| `gqlOperationName` | GraphQL root field name or RegExp string |
+| `sqlOperationName` | `select`, `insert`, `update`, `delete`, `show` |
+| `tableName` | Table name or RegExp string |
 
-- Rules are scanned in order from first to last, the first rule. 
-- The conditions in a rule are combined through AND. 
-- The first rule in which all conditions match is applied. 
-- The rule chain must end with the default rule (without any conditions)
+**Note:** Sub-resolvers each set their own `gqlOperationName`. Direct `find()` calls have no GraphQL context.
 
-#### Example of configuration
+### Example rules (TypeScript)
 
 ```typescript
 const routingRules = [
-    // Send adapter calls inside registerBillingReceipt mutation to replicas
-    { gqlOperationName: 'registerBillingReceipt', sqlOperationName: 'select', tableName: "^Billing.+$", target: 'replicas' },
-    // Send all counts to separate replica-pool
+    { gqlOperationName: 'registerBillingReceipt', sqlOperationName: 'select', tableName: '^Billing.+$', target: 'replicas' },
     { gqlOperationName: '^.+Meta$', target: 'counts' },
-    // Send all historical logs to separate DB
     { tableName: '^.+HistoryRecord$', target: 'historical' },
-    // Send all traffic inside mutattions to main pool
-    { gqlOperationType: 'mutaion', target: 'main' },
-    // Send read operations to replicas
+    { gqlOperationType: 'mutation', target: 'main' },
     { sqlOperationName: 'select', target: 'replicas' },
-    // Send default trafiic to main pool
-    { target: 'main' }
+    { target: 'main' },
 ]
 ```
 
-#### Example of `.env` value:
+## Code layout
+
+| File | Role |
+|------|------|
+| `adapter.js` | Connect pools, patch knex runner, `execute*` hooks, ProviderPool SQL bridge |
+| `pool.js` | `KnexPool` + `ProviderPool` |
+| `utils/crossSourceSelectSql.js` | SQL AST helpers + `planCrossPoolSelect` (cross-pool JOIN rewrite) |
+| `utils/env.js` | Parse and validate config |
+| `utils/rules.js` | Rule matching |
+| `utils/sql.js` | SQL operation + table extraction |
+
+## Runtime behaviour
+
+### Reads
+
+1. GraphQL resolver stores operation type/name in `graphqlCtx`.
+2. Knex builds SQL; `adapter._patchKnexRunner` intercepts execution.
+3. `_routeToPool` picks a pool from rules.
+4. Cross-pool JOINs: planner queries remote pool, rewrites SQL, runs on base pool.
+5. Otherwise: pool's knex client runs the query.
+
+**Main-pool fast path:** lists with no cross-source outbound FKs skip SELECT rewrite wrapping
+and `prepareCrossDbWhere` returns the original `where` (same cost profile as pre-multi-db,
+aside from pool routing). See `crossDb/crossSourceHints.js`.
+
+### Writes
+
+1. `_selectTargetPool` picks the owning pool (routing rules + source registry).
+2. Cross-source FK validation runs only when the list has outbound FKs (insert/update) or
+   inbound dependents (hard delete / soft-delete). Ordinary updates on inbound-only parents
+   (e.g. Organization) are not wrapped.
+3. Target pool executes the mutation.
+
+### KV-backed tables
+
+Register the provider in `dataProviders/index.js`, then add a provider pool and routing rule:
+
 ```dotenv
-DATABASE_ROUTING_RULES='[{"target":"main","gqlOperationType":"mutation"},{"target":"replicas","sqlOperationName":"select"},{"target":"replicas","sqlOperationName":"show"},{"target":"main"}]'
+DATABASE_POOLS={"main":{"databases":["main"],"writable":true},"kv":{"provider":"kv","writable":true}}
+DATABASE_ROUTING_RULES=[{"tableName":"CachedUser","target":"kv"},{"target":"main"}]
 ```
+
+Reads: `find` / `itemsQuery` with `{ id }` / `{ id_in }` (optional `deletedAt: null`). Writes store full row JSON. GraphQL/knex SQL is translated via `executeProviderSql*`. Capability is inferred from method presence (`create` / `update` / `delete` / `find`); optional `matchFind` narrows supported filters.
+
+## Adding features
+
+See [How to add a new data provider](../README.md#how-to-add-a-new-data-provider-kv-mongo-) and [How to add a new balancing adapter variant](../README.md#how-to-add-a-new-balancing-adapter-variant) in the parent README.

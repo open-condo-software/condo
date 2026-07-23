@@ -81,4 +81,16 @@ describe('Key value adapter', () => {
         const expiredKey = await client.keys('testList')
         expect(expiredKey).toHaveLength(0)
     })
+
+    test('native mget works for keys with same hash tag on cluster', async () => {
+        const suffix = faker.datatype.uuid()
+        const keyA = `{kv-mget}:${suffix}:a`
+        const keyB = `{kv-mget}:${suffix}:b`
+
+        await client.set(keyA, 'value-a')
+        await client.set(keyB, 'value-b')
+
+        const values = await client.mget([keyA, keyB])
+        expect(values).toEqual(['value-a', 'value-b'])
+    })
 })

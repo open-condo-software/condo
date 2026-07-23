@@ -2,6 +2,11 @@ const {
     extractCRUDQueryData,
 } = require('./sql')
 
+const {
+    extractMutationWhereIds,
+    extractSimpleSelectCondition,
+} = require('../../../dataProviders/executeProviderSql')
+
 describe('SQL parsing utils', () => {
     describe('extractCRUDQueryData', () => {
         describe('Must correctly parse query table and method on CRUD (and show) operations', () => {
@@ -170,6 +175,25 @@ describe('SQL parsing utils', () => {
                 expect(() => extractCRUDQueryData(query))
                     .toThrow(/Provided SQL query cannot be parsed/)
             })
+        })
+    })
+
+    describe('extractMutationWhereIds', () => {
+        test('reads id from Keystone update SQL', () => {
+            const sql = 'update "public"."RelationModel" set "name" = $1, "v" = $2, "updatedAt" = $3, "updatedBy" = $4, "dv" = $5, "sender" = $6 where "id" = $7 returning "id", "name"'
+            expect(extractMutationWhereIds(sql, ['Bob', 2, '2026-01-01', 'editor', 1, {}, 'u1'])).toEqual(['u1'])
+        })
+    })
+
+    describe('extractSimpleSelectCondition', () => {
+        test('reads id equality with deletedAt null from Keystone select', () => {
+            const sql = 'select "t0".* from "public"."RelationModel" as "t0" where true and ("t0"."deletedAt" is null) and ("t0"."id" = $1) limit $2'
+            expect(extractSimpleSelectCondition(sql, ['u1', 100])).toEqual({ id: 'u1', deletedAt: null })
+        })
+
+        test('reads id_in from grouped select SQL', () => {
+            const sql = 'select "t0".* from "public"."Model" as "t0" where true and ("t0"."id" in ($1, $2)) limit $3'
+            expect(extractSimpleSelectCondition(sql, ['id-1', 'id-2', 100])).toEqual({ id_in: ['id-1', 'id-2'] })
         })
     })
 })
