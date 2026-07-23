@@ -25,7 +25,7 @@ import type { RowProps  } from 'antd'
 
 const { publicRuntimeConfig: { sppConfig, registryUploadIntegrationId  } } = getConfig()
 
-const billingGroup = [sppConfig.BillingIntegrationId, registryUploadIntegrationId]
+const billingGroup = new Set([sppConfig.BillingIntegrationId, registryUploadIntegrationId])
 
 const CARD_GAP = 40
 const MAX_CARDS = 4
@@ -39,14 +39,26 @@ type AcquiringCardProps = Pick<React.ComponentProps<typeof AppCard>, 'logoUrl' |
 }
 
 const AcquiringCard: React.FC<AcquiringCardProps> = ({ checked, onClick, ...appCardProps }) => {
+    const handleCheckboxKeyDown = useCallback((event: React.KeyboardEvent<HTMLDivElement>) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault()
+            event.stopPropagation()
+            onClick()
+        }
+    }, [onClick])
+
     return (
         <div className={styles['acquiring-card-wrapper']}>
             <div
                 className={styles['acquiring-card-checkbox-wrapper']}
+                role='checkbox'
+                aria-checked={checked}
+                tabIndex={0}
                 onClick={(event) => {
                     event.stopPropagation()
                     onClick()
                 }}
+                onKeyDown={handleCheckboxKeyDown}
             >
                 <Checkbox checked={checked} />
             </div>
@@ -77,14 +89,33 @@ const BillingCard: React.FC<BillingCardProps> = ({ checked, onSelect, onOpen, ..
         onSelect()
     }, [onOpen, onSelect])
 
+    const handleCardKeyDown = useCallback((event: React.KeyboardEvent<HTMLDivElement>) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault()
+            onSelect()
+        }
+    }, [onSelect])
+
+    const handleRadioKeyDown = useCallback((event: React.KeyboardEvent<HTMLDivElement>) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault()
+            event.stopPropagation()
+            onSelect()
+        }
+    }, [onSelect])
+
     return (
-        <div className={styles['billing-card-wrapper']} onClick={handleCardClick}>
+        <div className={styles['billing-card-wrapper']} onClick={handleCardClick} role='radio' aria-checked={checked} tabIndex={0} onKeyDown={handleCardKeyDown}>
             <div
                 className={styles['billing-card-radio-wrapper']}
+                role='radio'
+                aria-checked={checked}
+                tabIndex={-1}
                 onClick={(event) => {
                     event.stopPropagation()
                     onSelect()
                 }}
+                onKeyDown={handleRadioKeyDown}
             >
                 <Radio checked={checked} />
             </div>
@@ -261,7 +292,7 @@ export const ChooseChannels: React.FC<IChooseChannels> = ({ onFinish }) => {
                                 <BillingCard
                                     logoUrl={billing.logo?.publicUrl}
                                     connected={false}
-                                    checked={chosenBillingId === billing.id || billingGroup.includes(billing.id) && billingGroup.includes(chosenBillingId)}
+                                    checked={chosenBillingId === billing.id || billingGroup.has(billing.id) && billingGroup.has(chosenBillingId)}
                                     onSelect={() => setChosenBillingId(billing.id)}
                                     onOpen={handleCardClick(billing)}
                                     name={billing.name}
