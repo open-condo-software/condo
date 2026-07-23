@@ -15,7 +15,8 @@ import { CONTEXT_FINISHED_STATUS } from '@condo/domains/miniapp/constants'
 import { SecondaryLink } from '@condo/domains/user/components/auth/SecondaryLink'
 
 import styles from './Footer.module.css'
-import {parseQuery} from "../../../utils/tables.utils";
+
+import { parseQuery } from '../../../utils/tables.utils'
 
 
 interface FooterConfig {
