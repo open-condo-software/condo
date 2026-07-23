@@ -39,26 +39,25 @@ type AcquiringCardProps = Pick<React.ComponentProps<typeof AppCard>, 'logoUrl' |
 }
 
 const AcquiringCard: React.FC<AcquiringCardProps> = ({ checked, onClick, ...appCardProps }) => {
-    const handleCheckboxKeyDown = useCallback((event: React.KeyboardEvent<HTMLDivElement>) => {
-        if (event.key === 'Enter' || event.key === ' ') {
-            event.preventDefault()
-            event.stopPropagation()
-            onClick()
-        }
+    const handleCheckboxChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+        event.stopPropagation()
+        onClick()
     }, [onClick])
 
     return (
         <div className={styles['acquiring-card-wrapper']}>
+            <input
+                type='checkbox'
+                className={styles['sr-only']}
+                checked={checked}
+                onChange={handleCheckboxChange}
+            />
             <div
                 className={styles['acquiring-card-checkbox-wrapper']}
-                role='checkbox'
-                aria-checked={checked}
-                tabIndex={0}
                 onClick={(event) => {
                     event.stopPropagation()
                     onClick()
                 }}
-                onKeyDown={handleCheckboxKeyDown}
             >
                 <Checkbox checked={checked} />
             </div>
@@ -89,33 +88,25 @@ const BillingCard: React.FC<BillingCardProps> = ({ checked, onSelect, onOpen, ..
         onSelect()
     }, [onOpen, onSelect])
 
-    const handleCardKeyDown = useCallback((event: React.KeyboardEvent<HTMLDivElement>) => {
-        if (event.key === 'Enter' || event.key === ' ') {
-            event.preventDefault()
-            onSelect()
-        }
-    }, [onSelect])
-
-    const handleRadioKeyDown = useCallback((event: React.KeyboardEvent<HTMLDivElement>) => {
-        if (event.key === 'Enter' || event.key === ' ') {
-            event.preventDefault()
-            event.stopPropagation()
-            onSelect()
-        }
+    const handleRadioChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+        event.stopPropagation()
+        onSelect()
     }, [onSelect])
 
     return (
-        <div className={styles['billing-card-wrapper']} onClick={handleCardClick} role='radio' aria-checked={checked} tabIndex={0} onKeyDown={handleCardKeyDown}>
+        <div className={styles['billing-card-wrapper']} onClick={handleCardClick}>
+            <input
+                type='radio'
+                className={styles['sr-only']}
+                checked={checked}
+                onChange={handleRadioChange}
+            />
             <div
                 className={styles['billing-card-radio-wrapper']}
-                role='radio'
-                aria-checked={checked}
-                tabIndex={-1}
                 onClick={(event) => {
                     event.stopPropagation()
                     onSelect()
                 }}
-                onKeyDown={handleRadioKeyDown}
             >
                 <Radio checked={checked} />
             </div>
