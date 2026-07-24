@@ -3,8 +3,8 @@ const SUGGESTIONS_CLOSE_PREFIX = '[[/SUGGESTIONS'
 const SUGGESTIONS_BLOCK_REGEX = /\[\[SUGGESTIONS\]\]([\s\S]*?)\[\[\/SUGGESTIONS\]\]/m
 
 const CALLING_PREFIX = 'Calling'
-/** Stop before Cyrillic so "Calling ….За текущий месяц" still strips the tool line. */
-const CALLING_SERVICE_REGEX = /Calling\b[^\n\u0400-\u04FF]*/g
+// n8n / LangChain tool trace: "Calling <tool> with input: { ... }"
+const TOOL_CALL_HEADER_REGEX = /Calling\s+\S+\s+with\s+input:\s*/g
 
 export type SuggestionsFailureReason = 'missing_block' | 'empty_after_parse' | 'service_text_leaked'
 
@@ -42,7 +42,55 @@ function indexOfSuggestionsMarkerStart (text: string): number {
     return -1
 }
 
-function isCallingPrefix (line: string): boolean {
+/**
+ * End index (exclusive) of a JSON object starting at text[0] === '{',
+ * or -1 if the object is incomplete / invalid for stripping.
+ */
+function findEndOfBalancedJsonObject (text: string): number {
+    if (!text || text[0] !== '{') return -1
+
+    let depth = 0
+    let inString = false
+    let isEscaped = false
+
+    for (let i = 0; i < text.length; i++) {
+        const char = text[i]
+
+        if (inString) {
+            if (isEscaped) {
+                isEscaped = false
+                continue
+            }
+            if (char === '\\') {
+                isEscaped = true
+                continue
+            }
+            if (char === '"') {
+                inString = false
+            }
+            continue
+        }
+
+        if (char === '"') {
+            inString = true
+            continue
+        }
+        if (char === '{') {
+            depth += 1
+            continue
+        }
+        if (char === '}') {
+            depth -= 1
+            if (depth === 0) {
+                return i + 1
+            }
+        }
+    }
+
+    return -1
+}
+
+function isPartialToolCallTrace (line: string): boolean {
     if (!line) return false
 
     for (let size = CALLING_PREFIX.length; size >= 1; size--) {
@@ -51,16 +99,58 @@ function isCallingPrefix (line: string): boolean {
         }
     }
 
-    return false
+    if (/^Calling\s+\S*$/.test(line)) {
+        return true
+    }
+
+    if (/^Calling\s+\S+\s+with(?:\s+input)?$/.test(line)) {
+        return true
+    }
+
+    const headerMatch = /^(Calling\s+\S+\s+with\s+input:\s*)/.exec(line)
+    if (!headerMatch) {
+        return false
+    }
+
+    const rest = line.slice(headerMatch[1].length)
+    if (!rest) {
+        return true
+    }
+    if (rest[0] !== '{') {
+        return true
+    }
+
+    return findEndOfBalancedJsonObject(rest) < 0
 }
 
 function stripServiceToolCallLines (text: string): string {
-    let result = text.replace(CALLING_SERVICE_REGEX, '')
+    let result = ''
+    let lastIndex = 0
+
+    TOOL_CALL_HEADER_REGEX.lastIndex = 0
+    let headerMatch = TOOL_CALL_HEADER_REGEX.exec(text)
+    while (headerMatch) {
+        const headerStart = headerMatch.index
+        const headerEnd = headerMatch.index + headerMatch[0].length
+        const jsonEnd = findEndOfBalancedJsonObject(text.slice(headerEnd))
+
+        if (jsonEnd < 0) {
+            headerMatch = TOOL_CALL_HEADER_REGEX.exec(text)
+            continue
+        }
+
+        result += text.slice(lastIndex, headerStart)
+        lastIndex = headerEnd + jsonEnd
+        TOOL_CALL_HEADER_REGEX.lastIndex = lastIndex
+        headerMatch = TOOL_CALL_HEADER_REGEX.exec(text)
+    }
+
+    result += text.slice(lastIndex)
     result = result.replace(/^\n+/, '').replace(/\n{3,}/g, '\n\n')
 
     const lastNewlineIndex = result.lastIndexOf('\n')
     const lastLine = lastNewlineIndex >= 0 ? result.slice(lastNewlineIndex + 1) : result
-    if (isCallingPrefix(lastLine)) {
+    if (isPartialToolCallTrace(lastLine)) {
         return (lastNewlineIndex >= 0 ? result.slice(0, lastNewlineIndex) : '').trimEnd()
     }
 
@@ -89,6 +179,8 @@ export function toDisplayText (rawAnswer: string): string {
     return stripSuggestionsForDisplay(stripServiceToolCallLines(rawAnswer)).trimEnd()
 }
 
+// Turns raw model output into chat UI fields (clean text + suggestion chips).
+// Kept in utils so streaming buffer, finalize, and tests share one parser outside React.
 export function parseAssistantAnswer (answer: string): ParsedAssistantAnswer {
     if (!answer || typeof answer !== 'string') {
         return { text: '', suggestions: [], suggestionsFailureReason: 'missing_block' }

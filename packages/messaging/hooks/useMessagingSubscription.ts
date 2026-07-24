@@ -3,6 +3,8 @@ import { useEffect, useRef, useCallback, useState } from 'react'
 
 const RELAY_SUBSCRIBE_PREFIX = '_MESSAGING.subscribe'
 const RELAY_UNSUBSCRIBE_PREFIX = '_MESSAGING.unsubscribe'
+// TODO (vtolmachev): client clock drift can make startTime land in the server's future
+// (miss early stream chunks / reconnect gaps). Prefer server-side replaySkewMs + startSequence cursor.
 const DEFAULT_START_TIME_SKEW_MS = 5000
 
 interface UseMessagingSubscriptionOptions<T> {
@@ -24,7 +26,18 @@ interface MessagingSubscriptionState {
 }
 
 /**
- * PUB-gated subscription relay: client INBOX + `_MESSAGING.subscribe.<topic>`.
+ * Uses a PUB-gated subscription relay for secure cross-organization isolation.
+ *
+ * The broker does not enforce SUB permissions in auth_callout non-operator mode,
+ * but PUB permissions ARE enforced. This hook uses PUB to request a
+ * server-side relay that forwards messages to the client's unique INBOX.
+ *
+ * Flow:
+ * 1. Client subscribes to a unique delivery INBOX
+ * 2. Client publishes to `_MESSAGING.subscribe.<topic>` (PUB-gated)
+ * 3. Server-side relay subscribes to actual topic and forwards to client INBOX
+ * 4. On cleanup, client publishes `_MESSAGING.unsubscribe.{relayId}`
+ * 
  * First subscribe uses `startTime = now - skew` for JetStream replay; later reconnects use `lastMessageTime`.
  */
 export const useMessagingSubscription = <T = unknown>(options: UseMessagingSubscriptionOptions<T>) => {
@@ -112,6 +125,7 @@ export const useMessagingSubscription = <T = unknown>(options: UseMessagingSubsc
                 const relayTopic = `${RELAY_SUBSCRIBE_PREFIX}.${userId}.${topic}`
                 const requestBody: Record<string, string> = {
                     deliverInbox,
+                    // Client wall-clock cursor; see TODO above DEFAULT_START_TIME_SKEW_MS
                     startTime: lastMessageTimeRef.current
                         ?? new Date(Date.now() - DEFAULT_START_TIME_SKEW_MS).toISOString(),
                 }
@@ -165,6 +179,7 @@ export const useMessagingSubscription = <T = unknown>(options: UseMessagingSubsc
                                 return
                             }
 
+                            // Client receive time, not JetStream store time / sequence
                             lastMessageTimeRef.current = new Date().toISOString()
                             setState(prev => ({ ...prev, messageCount: prev.messageCount + 1 }))
 
