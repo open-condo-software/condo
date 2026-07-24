@@ -1,5 +1,14 @@
-/* Custom AI Drawer */
 .ai-drawer {
+  --ai-chat-header-height:
+    calc(
+      var(--condo-global-spacing-24)
+      + var(--condo-global-spacing-12)
+      + var(--condo-global-spacing-48)
+    );
+
+  /* Keep equal to .messages-container gap so previous-turn chips pin under the header. */
+  --ai-chat-chrome-gap: var(--condo-global-spacing-12);
+
   position: fixed;
   top: 0;
   right: 0;
@@ -10,7 +19,6 @@
   background: var(--condo-global-color-gray-1);
 }
 
-/* Header */
 .header {
   position: absolute;
   top: 0;
@@ -20,8 +28,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 84px;
-  padding: 24px 24px 12px;
+  height: var(--ai-chat-header-height);
+  padding: var(--condo-global-spacing-24) var(--condo-global-spacing-24) var(--condo-global-spacing-12);
+  background: color-mix(in srgb, var(--condo-global-color-gray-1) 88%, transparent);
   backdrop-filter: blur(20px);
 }
 
@@ -69,7 +78,7 @@
   background-color: var(--condo-global-color-gray-3);
 }
 
-/* Resize handle - full height like VSCode/Windsurf */
+/* Resize handle */
 .resize-handle {
   position: absolute;
   top: 0;
@@ -102,10 +111,10 @@
   cursor: e-resize;
 }
 
-/* Content area */
 .content {
   display: flex;
   flex: 1;
   flex-direction: column;
   height: 100%;
+  min-height: 0;
 }

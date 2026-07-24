@@ -1,0 +1,9 @@
+.thinking-status {
+  min-height: 1.6em;
+}
+
+.dots {
+  display: inline-block;
+  min-width: 1.2em;
+  text-align: left;
+}
