@@ -167,7 +167,7 @@ async function isReceiptPaid (context, accountNumber, period, organizationIds, r
  * @return {Promise<void>}
  */
 async function compareQRCodeWithLastReceipt ({ context, qrCodeFields, resolvers, billingContexts }) {
-    // NOTE(YEgorLu): account.number + tin + period should uniquely identify receipt
+    // NOTE(YEgorLu): account.number + tin + period should uniquely identify receipt. If not, then something is wrong
     const [lastBillingReceipt] = await BillingReceipt.getAll(
         context,
         {

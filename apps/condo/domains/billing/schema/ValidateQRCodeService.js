@@ -83,12 +83,6 @@ const ERRORS = {
         type: NOT_FOUND,
         message: 'No previous receipt was found',
     },
-    CAN_NOT_DETERMINE_RIGHT_RECEIPT: {
-        mutation: 'validateQRCode',
-        code: BAD_USER_INPUT,
-        type: NOT_FOUND,
-        message: 'Can not determine right receipt',
-    },
 }
 
 /**
