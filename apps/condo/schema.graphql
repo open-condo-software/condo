@@ -11487,6 +11487,7 @@ type BillingIntegrationHistoryRecord {
   name: String
   logo: JSON
   shortDescription: String
+  displayPriority: Int
   targetDescription: String
   bannerTextColor: String
   bannerColor: String
@@ -11572,6 +11573,14 @@ input BillingIntegrationHistoryRecordWhereInput {
   shortDescription_not_ends_with_i: String
   shortDescription_in: [String]
   shortDescription_not_in: [String]
+  displayPriority: Int
+  displayPriority_not: Int
+  displayPriority_lt: Int
+  displayPriority_lte: Int
+  displayPriority_gt: Int
+  displayPriority_gte: Int
+  displayPriority_in: [Int]
+  displayPriority_not_in: [Int]
   targetDescription: String
   targetDescription_not: String
   targetDescription_contains: String
@@ -11997,6 +12006,8 @@ enum SortBillingIntegrationHistoryRecordsBy {
   name_DESC
   shortDescription_ASC
   shortDescription_DESC
+  displayPriority_ASC
+  displayPriority_DESC
   targetDescription_ASC
   targetDescription_DESC
   bannerTextColor_ASC
@@ -12061,6 +12072,7 @@ input BillingIntegrationHistoryRecordUpdateInput {
   name: String
   logo: JSON
   shortDescription: String
+  displayPriority: Int
   targetDescription: String
   bannerTextColor: String
   bannerColor: String
@@ -12111,6 +12123,7 @@ input BillingIntegrationHistoryRecordCreateInput {
   name: String
   logo: JSON
   shortDescription: String
+  displayPriority: Int
   targetDescription: String
   bannerTextColor: String
   bannerColor: String
@@ -12396,6 +12409,10 @@ type BillingIntegration {
   """
   shortDescription: String
 
+  """ The number used to determine the position of the integration among the others.  
+  """
+  displayPriority: Int
+
   """ Short text describing integration target group. Like The type of organization for which this integration is best suited. 
   """
   targetDescription: String
@@ -12562,6 +12579,14 @@ input BillingIntegrationWhereInput {
   shortDescription_not_ends_with_i: String
   shortDescription_in: [String]
   shortDescription_not_in: [String]
+  displayPriority: Int
+  displayPriority_not: Int
+  displayPriority_lt: Int
+  displayPriority_lte: Int
+  displayPriority_gt: Int
+  displayPriority_gte: Int
+  displayPriority_in: [Int]
+  displayPriority_not_in: [Int]
   targetDescription: String
   targetDescription_not: String
   targetDescription_contains: String
@@ -12960,6 +12985,8 @@ enum SortBillingIntegrationsBy {
   name_DESC
   shortDescription_ASC
   shortDescription_DESC
+  displayPriority_ASC
+  displayPriority_DESC
   targetDescription_ASC
   targetDescription_DESC
   bannerTextColor_ASC
@@ -13032,6 +13059,7 @@ input BillingIntegrationUpdateInput {
   name: String
   logo: FileMeta
   shortDescription: String
+  displayPriority: Int
   targetDescription: String
   bannerTextColor: BillingIntegrationBannerTextColorType
   bannerColor: String
@@ -13080,6 +13108,7 @@ input BillingIntegrationCreateInput {
   name: String
   logo: FileMeta
   shortDescription: String
+  displayPriority: Int
   targetDescription: String
   bannerTextColor: BillingIntegrationBannerTextColorType
   bannerColor: String
@@ -60867,6 +60896,10 @@ type AcquiringIntegrationHistoryRecord {
   """
   _label_: String
   name: String
+  logo: JSON
+  shortDescription: String
+  displayPriority: Int
+  setupTitle: String
   setupUrl: String
   isHidden: Boolean
   type: String
@@ -60914,6 +60947,54 @@ input AcquiringIntegrationHistoryRecordWhereInput {
   name_not_ends_with_i: String
   name_in: [String]
   name_not_in: [String]
+  logo: JSON
+  logo_not: JSON
+  logo_in: [JSON]
+  logo_not_in: [JSON]
+  shortDescription: String
+  shortDescription_not: String
+  shortDescription_contains: String
+  shortDescription_not_contains: String
+  shortDescription_starts_with: String
+  shortDescription_not_starts_with: String
+  shortDescription_ends_with: String
+  shortDescription_not_ends_with: String
+  shortDescription_i: String
+  shortDescription_not_i: String
+  shortDescription_contains_i: String
+  shortDescription_not_contains_i: String
+  shortDescription_starts_with_i: String
+  shortDescription_not_starts_with_i: String
+  shortDescription_ends_with_i: String
+  shortDescription_not_ends_with_i: String
+  shortDescription_in: [String]
+  shortDescription_not_in: [String]
+  displayPriority: Int
+  displayPriority_not: Int
+  displayPriority_lt: Int
+  displayPriority_lte: Int
+  displayPriority_gt: Int
+  displayPriority_gte: Int
+  displayPriority_in: [Int]
+  displayPriority_not_in: [Int]
+  setupTitle: String
+  setupTitle_not: String
+  setupTitle_contains: String
+  setupTitle_not_contains: String
+  setupTitle_starts_with: String
+  setupTitle_not_starts_with: String
+  setupTitle_ends_with: String
+  setupTitle_not_ends_with: String
+  setupTitle_i: String
+  setupTitle_not_i: String
+  setupTitle_contains_i: String
+  setupTitle_not_contains_i: String
+  setupTitle_starts_with_i: String
+  setupTitle_not_starts_with_i: String
+  setupTitle_ends_with_i: String
+  setupTitle_not_ends_with_i: String
+  setupTitle_in: [String]
+  setupTitle_not_in: [String]
   setupUrl: String
   setupUrl_not: String
   setupUrl_contains: String
@@ -61131,6 +61212,12 @@ input AcquiringIntegrationHistoryRecordWhereUniqueInput {
 enum SortAcquiringIntegrationHistoryRecordsBy {
   name_ASC
   name_DESC
+  shortDescription_ASC
+  shortDescription_DESC
+  displayPriority_ASC
+  displayPriority_DESC
+  setupTitle_ASC
+  setupTitle_DESC
   setupUrl_ASC
   setupUrl_DESC
   isHidden_ASC
@@ -61171,6 +61258,10 @@ enum SortAcquiringIntegrationHistoryRecordsBy {
 
 input AcquiringIntegrationHistoryRecordUpdateInput {
   name: String
+  logo: JSON
+  shortDescription: String
+  displayPriority: Int
+  setupTitle: String
   setupUrl: String
   isHidden: Boolean
   type: String
@@ -61203,6 +61294,10 @@ input AcquiringIntegrationHistoryRecordsUpdateInput {
 
 input AcquiringIntegrationHistoryRecordCreateInput {
   name: String
+  logo: JSON
+  shortDescription: String
+  displayPriority: Int
+  setupTitle: String
   setupUrl: String
   isHidden: Boolean
   type: String
@@ -61281,6 +61376,20 @@ type AcquiringIntegration {
 
   """ Name of `acquiring component`, which is set up by developer """
   name: String
+
+  """ Logo of integration's company or integration itself """
+  logo: File
+
+  """ Short description / catch phrase providing information about integration functionality. Will be shown on integration's card 
+  """
+  shortDescription: String
+
+  """ The number used to determine the position of the integration among the others.  
+  """
+  displayPriority: Int
+
+  """ Title for the settings tab """
+  setupTitle: String
 
   """ Url to setup page of acquiring integration """
   setupUrl: String
@@ -61366,6 +61475,54 @@ input AcquiringIntegrationWhereInput {
   name_not_ends_with_i: String
   name_in: [String]
   name_not_in: [String]
+  logo: String
+  logo_not: String
+  logo_in: [String]
+  logo_not_in: [String]
+  shortDescription: String
+  shortDescription_not: String
+  shortDescription_contains: String
+  shortDescription_not_contains: String
+  shortDescription_starts_with: String
+  shortDescription_not_starts_with: String
+  shortDescription_ends_with: String
+  shortDescription_not_ends_with: String
+  shortDescription_i: String
+  shortDescription_not_i: String
+  shortDescription_contains_i: String
+  shortDescription_not_contains_i: String
+  shortDescription_starts_with_i: String
+  shortDescription_not_starts_with_i: String
+  shortDescription_ends_with_i: String
+  shortDescription_not_ends_with_i: String
+  shortDescription_in: [String]
+  shortDescription_not_in: [String]
+  displayPriority: Int
+  displayPriority_not: Int
+  displayPriority_lt: Int
+  displayPriority_lte: Int
+  displayPriority_gt: Int
+  displayPriority_gte: Int
+  displayPriority_in: [Int]
+  displayPriority_not_in: [Int]
+  setupTitle: String
+  setupTitle_not: String
+  setupTitle_contains: String
+  setupTitle_not_contains: String
+  setupTitle_starts_with: String
+  setupTitle_not_starts_with: String
+  setupTitle_ends_with: String
+  setupTitle_not_ends_with: String
+  setupTitle_i: String
+  setupTitle_not_i: String
+  setupTitle_contains_i: String
+  setupTitle_not_contains_i: String
+  setupTitle_starts_with_i: String
+  setupTitle_not_starts_with_i: String
+  setupTitle_ends_with_i: String
+  setupTitle_not_ends_with_i: String
+  setupTitle_in: [String]
+  setupTitle_not_in: [String]
   setupUrl: String
   setupUrl_not: String
   setupUrl_contains: String
@@ -61544,6 +61701,12 @@ input AcquiringIntegrationWhereUniqueInput {
 enum SortAcquiringIntegrationsBy {
   name_ASC
   name_DESC
+  shortDescription_ASC
+  shortDescription_DESC
+  displayPriority_ASC
+  displayPriority_DESC
+  setupTitle_ASC
+  setupTitle_DESC
   setupUrl_ASC
   setupUrl_DESC
   isHidden_ASC
@@ -61586,6 +61749,10 @@ enum SortAcquiringIntegrationsBy {
 
 input AcquiringIntegrationUpdateInput {
   name: String
+  logo: FileMeta
+  shortDescription: String
+  displayPriority: Int
+  setupTitle: String
   setupUrl: String
   isHidden: Boolean
   type: AcquiringIntegrationTypeType
@@ -61616,6 +61783,10 @@ input AcquiringIntegrationsUpdateInput {
 
 input AcquiringIntegrationCreateInput {
   name: String
+  logo: FileMeta
+  shortDescription: String
+  displayPriority: Int
+  setupTitle: String
   setupUrl: String
   isHidden: Boolean
   type: AcquiringIntegrationTypeType

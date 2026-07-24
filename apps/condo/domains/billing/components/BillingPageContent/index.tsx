@@ -9,6 +9,7 @@ import { useOrganization } from '@open-condo/next/organization'
 import { Button, Space, Tag, Tooltip, Typography } from '@open-condo/ui'
 import { useBreakpoints } from '@open-condo/ui/hooks'
 
+import { useBillingAndAcquiringContexts } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
 import { useBillingHeaderTags } from '@condo/domains/billing/hooks/useBillingHeaderTags'
 import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import { PageWrapper, PageHeader } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
@@ -18,6 +19,7 @@ import styles from './BillingPageContent.module.css'
 import { BillingSettingsModal } from './BillingSettingsModal'
 import { CombinedMainContent } from './CombinedMainContent'
 import { MainContent } from './MainContent'
+
 
 export const BillingPageContent: React.FC = () => {
     const intl = useIntl()
@@ -30,6 +32,11 @@ export const BillingPageContent: React.FC = () => {
     const userOrganization = useOrganization()
     const [settingsModalOpen, setSettingsModalOpen] = useState(false)
     const { legacyHeaderTags, combinedHeaderTags } = useBillingHeaderTags()
+    const { acquiringContexts, billingContexts } = useBillingAndAcquiringContexts()
+
+    const isSetupCompleted = useMemo(() => {
+        return acquiringContexts.length > 0 && billingContexts.length > 0
+    }, [acquiringContexts, billingContexts])
 
     const isSmallScreen = !breakpoints.TABLET_LARGE
     const canReadBillingReceipts = get(userOrganization, ['link', 'role', 'canReadBillingReceipts'], false)
@@ -70,17 +77,18 @@ export const BillingPageContent: React.FC = () => {
                         </Tooltip>
                     )
                 })}
-                <Button
-                    type='secondary'
-                    minimal
-                    compact
-                    icon={<Settings size='medium' />}
-                    title={SettingsTitle}
-                    onClick={openSettingsModal}
-                />
+                { isSetupCompleted ?
+                    <Button
+                        type='secondary'
+                        minimal
+                        compact
+                        icon={<Settings size='medium' />}
+                        title={SettingsTitle}
+                        onClick={openSettingsModal}
+                    /> : null }
             </Space>
         )
-    }, [SettingsTitle, combinedHeaderTags, openSettingsModal])
+    }, [SettingsTitle, combinedHeaderTags, isSetupCompleted, openSettingsModal])
 
     if (!canReadBillingReceipts && !canReadPayments) {
         return <AccessDeniedPage />
@@ -97,8 +105,14 @@ export const BillingPageContent: React.FC = () => {
                     extra={isCombinedPageEnabled ? CombinedHeaderExtraContent : undefined}
                     title={<Typography.Title>{PageTitle}</Typography.Title>}
                 />
-                {isCombinedPageEnabled ? <CombinedMainContent/> : <MainContent />}
-                <BillingSettingsModal open={settingsModalOpen} onClose={closeSettingsModal} />
+                {isCombinedPageEnabled ? (
+                    <>
+                        <CombinedMainContent/>
+                        <BillingSettingsModal open={settingsModalOpen} onClose={closeSettingsModal} />
+                    </>
+                ) : (
+                    <MainContent />
+                )}
             </PageWrapper>
         </>
     )

@@ -6,6 +6,7 @@ const get = require('lodash/get')
 const has = require('lodash/has')
 const uniq = require('lodash/uniq')
 
+const { getFileMetaAfterChange } = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, find } = require('@open-condo/keystone/schema')
 
@@ -17,6 +18,12 @@ const {
     ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE,
     ACQUIRING_INTEGRATION_TYPES,
 } = require('@condo/domains/acquiring/constants/integration')
+const {
+    LOGO_FIELD,
+    SHORT_DESCRIPTION_FIELD,
+    ACQUIRING_FILE_ADAPTER,
+    DISPLAY_PRIORITY_FIELD,
+} = require('@condo/domains/acquiring/schema/fields/common')
 const { FEE_DISTRIBUTION_SCHEMA_FIELD } = require('@condo/domains/acquiring/schema/fields/json/FeeDistribution')
 const { DEFAULT_BILLING_INTEGRATION_GROUP } = require('@condo/domains/billing/constants/constants')
 const { POSITIVE_MONEY_AMOUNT_FIELD } = require('@condo/domains/common/schema/fields')
@@ -26,6 +33,8 @@ const {
     CONTEXT_DEFAULT_STATUS_FIELD,
 } = require('@condo/domains/miniapp/schema/fields/integration')
 
+const logoMetaAfterChange = getFileMetaAfterChange(ACQUIRING_FILE_ADAPTER, 'logo')
+
 const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
     schemaDoc: 'Information about `acquiring component` which will generate `billing receipts` and `payments`',
     fields: {
@@ -33,6 +42,21 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
             schemaDoc: 'Name of `acquiring component`, which is set up by developer',
             type: 'Text',
             isRequired: true,
+        },
+
+        logo: LOGO_FIELD,
+
+        shortDescription: {
+            adminDoc: 'Appears on the integration card',
+            ...SHORT_DESCRIPTION_FIELD,
+        },
+
+        displayPriority: DISPLAY_PRIORITY_FIELD,
+
+        setupTitle: {
+            schemaDoc: 'Title for the settings tab',
+            type: 'Text',
+            isRequired: false,
         },
 
         setupUrl: {
@@ -70,7 +94,7 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
         hostUrl: {
             schemaDoc: 'Url to acquiring integration service. Mobile devices will use it communicate with external acquiring. List of endpoints is the same for all of them.',
             type: 'Text',
-            isRequired: true,
+            isRequired: false,
         },
 
         supportedBillingIntegrationsGroup: {
@@ -123,6 +147,11 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
                     }
                 },
             },
+        },
+    },
+    hooks: {
+        afterChange: async (args) => {
+            await logoMetaAfterChange(args)
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical()],

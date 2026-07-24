@@ -1,4 +1,5 @@
 import { useGetB2BAppsWithBillingTabEmbeddingConfigQuery } from '@app/condo/gql'
+import { AcquiringIntegrationContextDefaultStatusType as AcquiringContextStatusType } from '@app/condo/schema'
 import get from 'lodash/get'
 import getConfig from 'next/config'
 import { useRouter } from 'next/router'
@@ -15,7 +16,8 @@ import { B2BAppBillingTab } from '@condo/domains/billing/components/BillingPageC
 import { useBillingAndAcquiringContexts } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
 import { EmptyContent } from '@condo/domains/billing/components/BillingPageContent/EmptyContent'
 import { PaymentsTab } from '@condo/domains/billing/components/BillingPageContent/PaymentsTab'
-import { ACCRUALS_TAB_KEY, CONTEXT_FINISHED_STATUS, EXTENSION_TAB_KEY, PAYMENTS_TAB_KEY } from '@condo/domains/billing/constants/constants'
+import { SetupTab } from '@condo/domains/billing/components/BillingPageContent/SetupTab'
+import { ACCRUALS_TAB_KEY, CONTEXT_FINISHED_STATUS, EXTENSION_TAB_KEY, PAYMENTS_TAB_KEY, SETUP_TAB_KEY } from '@condo/domains/billing/constants/constants'
 import { DEFAULT_COMBINED_VIEW_TYPES, useCombinedViewAvailability } from '@condo/domains/billing/hooks/useCombinedViewAvailability'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
@@ -105,9 +107,12 @@ export const CombinedMainContent: React.FC = () => {
     const intl = useIntl()
     const PaymentsTabTitle = intl.formatMessage({ id: 'Payments' })
     const AccrualsTabTitle = intl.formatMessage({ id: 'Accruals' })
+    const AccrualsSetupTabTitle = intl.formatMessage({ id: 'pages.billing.setup.paymentsAndAccruals.title' })
+
     const userOrganization = useOrganization()
-    const canReadBillingReceipts = get(userOrganization, ['link', 'role', 'canReadBillingReceipts'], false)
-    const canReadPayments = get(userOrganization, ['link', 'role', 'canReadPayments'], false)
+    const canReadBillingReceipts = userOrganization?.role?.canReadBillingReceipts || false
+    const canReadPayments = userOrganization?.role?.canReadPayments || false
+    const canManageIntegrations = userOrganization?.role?.canManageIntegrations || false
 
     const router = useRouter()
     const { tab, type } = parseQuery(router.query)
@@ -116,6 +121,17 @@ export const CombinedMainContent: React.FC = () => {
     const activeBillingContexts = useMemo(() => {
         return billingContexts.filter(({ status }) => status === CONTEXT_FINISHED_STATUS)
     }, [billingContexts])
+
+    const inactiveAcquiringContexts = useMemo(() => {
+        return acquiringContexts.filter(({ status }) => status !== CONTEXT_FINISHED_STATUS)
+    }, [acquiringContexts])
+    const activeAcquiringContexts = useMemo(() => {
+        return acquiringContexts.filter(({ status }) => status === AcquiringContextStatusType.Finished || status === AcquiringContextStatusType.Verification)
+    }, [acquiringContexts])
+
+    const isSetupCompleted = useMemo(() => {
+        return activeBillingContexts.length > 0 && inactiveAcquiringContexts.length === 0 && activeAcquiringContexts.length > 0
+    }, [activeAcquiringContexts, activeBillingContexts, inactiveAcquiringContexts.length])
 
     const billingIntegrationsExtensionTabs: ExtensionTabType[] = useMemo(() => {
         return activeBillingContexts
@@ -126,7 +142,6 @@ export const CombinedMainContent: React.FC = () => {
     const { data } = useGetB2BAppsWithBillingTabEmbeddingConfigQuery()
     const b2bAppsExtensionTabs: ExtensionTabType[] = useMemo(() => {
         if (!data?.b2bApps) return []
-
         return data.b2bApps.filter(Boolean).map((b2bApp) => ({
             id: b2bApp.id,
             label: b2bApp.name || '',
@@ -143,10 +158,11 @@ export const CombinedMainContent: React.FC = () => {
     const extensionTabKeys = useMemo(() => extensionAppTabs.map(({ id }) => `${EXTENSION_TAB_KEY}-${id}`), [extensionAppTabs])
 
     const availableTabs = useMemo(() => [
-        canReadPayments && PAYMENTS_TAB_KEY,
-        canReadBillingReceipts && ACCRUALS_TAB_KEY,
+        !isSetupCompleted && SETUP_TAB_KEY,
+        canReadPayments && isSetupCompleted && PAYMENTS_TAB_KEY,
+        canReadBillingReceipts && isSetupCompleted &&  ACCRUALS_TAB_KEY,
         ...extensionTabKeys,
-    ].filter(Boolean), [canReadBillingReceipts, canReadPayments, extensionTabKeys])
+    ].filter(Boolean), [canReadBillingReceipts, canReadPayments, extensionTabKeys, isSetupCompleted])
     const activeTab = useMemo(() => availableTabs.includes(tab) ? tab : availableTabs[0], [availableTabs, tab])
 
     const {
@@ -211,12 +227,17 @@ export const CombinedMainContent: React.FC = () => {
 
     const items = useMemo<Array<TabItem>>(() => {
         const result: Array<TabItem> = [
-            canReadPayments && {
+            canManageIntegrations && !isSetupCompleted && {
+                label: AccrualsSetupTabTitle,
+                key: SETUP_TAB_KEY,
+                children:  <SetupTab acquiringContexts={acquiringContexts}/>,
+            },
+            canReadPayments && isSetupCompleted && {
                 label: PaymentsTabTitle,
                 key: PAYMENTS_TAB_KEY,
                 children: <PaymentsTab type={activeType as ViewTypes} />,
             },
-            canReadBillingReceipts && {
+            canReadBillingReceipts && isSetupCompleted && {
                 label: AccrualsTabTitle,
                 key: ACCRUALS_TAB_KEY,
                 children: accrualsTabContent,
@@ -241,7 +262,7 @@ export const CombinedMainContent: React.FC = () => {
         })
 
         return result
-    }, [AccrualsTabTitle, PaymentsTabTitle, accrualsTabContent, activeType, canReadBillingReceipts, canReadPayments, extensionAppTabs])
+    }, [AccrualsSetupTabTitle, AccrualsTabTitle, PaymentsTabTitle, accrualsTabContent, acquiringContexts, activeType, canManageIntegrations, canReadBillingReceipts, canReadPayments, extensionAppTabs, isSetupCompleted])
 
     return (
         <Tabs
@@ -250,7 +271,7 @@ export const CombinedMainContent: React.FC = () => {
             onChange={handleTabChange}
             items={items}
             destroyInactiveTabPane
-            tabBarExtraContent={!isExtensionTabActive && availableTypesForActiveTab.length > 1 && (
+            tabBarExtraContent={!isExtensionTabActive && availableTypesForActiveTab.length > 1 && activeBillingContexts.length > 0 && (
                 <CombinedViewSwitch activeTab={activeTab} availableTypes={availableTypesForActiveTab} />
             )}
         />
