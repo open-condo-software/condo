@@ -61,7 +61,7 @@ function stringifyQrCode (qrCodeObj) {
     }, 'ST00012')).toString('base64')
 }
 
-async function createBillingReceiptAndAllDependencies (admin, organization, property, qrCodeAttrs, period, sum, acquiringIntegrationFeePercent, serviceFeePercent) {
+async function createBillingReceiptAndAllDependencies (admin, organization, property, qrCodeAttrs, period, sum, acquiringIntegrationFeePercent = '0.5', serviceFeePercent = '1') {
     const { billingIntegrationContext } = await addBillingIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
     const { acquiringIntegrationContext } = await addAcquiringIntegrationAndContext(admin, organization, {
         explicitFeeDistributionSchema: [{
@@ -134,7 +134,7 @@ function generateQrCodeObj (extraAttrs = {}) {
 }
 
 describe('ValidateQRCodeService', () => {
-    let adminClient, supportClient, userClient, staffClient, serviceClient, anonymous, organization
+    let adminClient, supportClient, userClient, staffClient, serviceClient, anonymous, organization, property
     let qrCodeObj, qrCodeString
     beforeAll(async () => {
         adminClient = await makeLoggedInAdminClient()
@@ -160,11 +160,25 @@ describe('ValidateQRCodeService', () => {
             status: CONTEXT_FINISHED_STATUS,
             recipient,
         })
-        organization = testOrganization
+        organization = testOrganization;
 
-        const [property] = await createTestProperty(adminClient, testOrganization)
+        [property] = await createTestProperty(adminClient, testOrganization)
         const [billingProperty] = await createTestBillingProperty(adminClient, billingIntegrationContext, { address: property.address })
-        await createTestBillingAccount(adminClient, billingIntegrationContext, billingProperty, { number: qrCodeObj.PersAcc })
+        const [billingAccount] = await createTestBillingAccount(adminClient, billingIntegrationContext, billingProperty, { number: qrCodeObj.PersAcc })
+        const [billingRecipient] = await createTestBillingRecipient(adminClient, billingIntegrationContext, {
+            bankAccount: qrCodeObj.PersonalAcc,
+            bic: qrCodeObj.BIC,
+            tin: qrCodeObj.PayeeINN,
+        })
+
+        const [billingReceipt] = await createTestBillingReceipt(adminClient, billingIntegrationContext, billingProperty, billingAccount, {
+            period: '2024-01-01',
+            receiver: { connect: { id: billingRecipient.id } },
+            recipient: createTestRecipient({
+                bic: billingRecipient.bic,
+            }),
+            toPay: String(qrCodeObj.Sum),
+        })
 
         qrCodeString = stringifyQrCode(qrCodeObj)
     })
@@ -173,17 +187,23 @@ describe('ValidateQRCodeService', () => {
         const [organization] = await createTestOrganization(adminClient)
         const [property] = await createTestProperty(adminClient, organization)
         const [periodM, periodY] = qrCodeObj.PaymPeriod.split('.')
-
-        await createBillingReceiptAndAllDependencies(adminClient, organization, property, qrCodeObj, `${periodY}-${periodM}-01`, qrCodeObj.Sum, '0.5', '1')
+        const qrCodeObjCur = {
+            ...qrCodeObj,
+            PayeeINN: organization.tin,
+            PayerAddress: `${property.address}, кв. 1`,
+        }
+        const qrCodeString = stringifyQrCode(qrCodeObjCur)
+        
+        await createBillingReceiptAndAllDependencies(adminClient, organization, property, qrCodeObjCur, `${periodY}-${periodM}-01`, qrCodeObj.Sum, '0.5', '1')
 
         const [{ qrCodeFields }] = await validateQRCodeByTestClient(adminClient, { qrCode: qrCodeString })
 
-        expect(qrCodeFields.PersonalAcc).toBe(qrCodeObj.PersonalAcc)
-        expect(qrCodeFields.PayeeINN).toBe(qrCodeObj.PayeeINN)
-        expect(qrCodeFields.PayerAddress).toBe(qrCodeObj.PayerAddress)
-        expect(qrCodeFields.Sum).toBe(qrCodeObj.Sum)
-        expect(qrCodeFields.lastName).toBe(qrCodeObj.lastName)
-        expect(qrCodeFields.PaymPeriod).toBe(qrCodeObj.PaymPeriod)
+        expect(qrCodeFields.PersonalAcc).toBe(qrCodeObjCur.PersonalAcc)
+        expect(qrCodeFields.PayeeINN).toBe(qrCodeObjCur.PayeeINN)
+        expect(qrCodeFields.PayerAddress).toBe(qrCodeObjCur.PayerAddress)
+        expect(qrCodeFields.Sum).toBe(qrCodeObjCur.Sum)
+        expect(qrCodeFields.lastName).toBe(qrCodeObjCur.lastName)
+        expect(qrCodeFields.PaymPeriod).toBe(qrCodeObjCur.PaymPeriod)
     })
 
     test('should parse fields case-insensitively', async () => {
@@ -316,38 +336,50 @@ describe('ValidateQRCodeService', () => {
             )
         })
 
-        test('should throw if 2+ billing accounts exists', async () => {
-            const [anotherOrganization] = await createTestOrganization(adminClient)
-            const [anotherProperty] = await createTestProperty(adminClient, anotherOrganization)
-            const { billingIntegrationContext: billingIntegrationContext1 } = await addBillingIntegrationAndContext(adminClient, anotherOrganization, {}, { status: CONTEXT_FINISHED_STATUS })
-            await addAcquiringIntegrationAndContext(adminClient, anotherOrganization, {}, { status: CONTEXT_FINISHED_STATUS })
-            const [billingProperty1] = await createTestBillingProperty(adminClient, billingIntegrationContext1, { address: anotherProperty.address })
-            await createTestBillingAccount(adminClient, billingIntegrationContext1, billingProperty1, { number: qrCodeObj.PersAcc })
+        describe('multiple billing accounts', () => {
+            test('should determine right receipt by receipient account number', async () => {
+                const [anotherOrganization] = await createTestOrganization(adminClient)
+                const [anotherProperty] = await createTestProperty(adminClient, anotherOrganization)
+                const [anotherOrganization2] = await createTestOrganization(adminClient, { tin: anotherOrganization.tin })
+                const [anotherProperty2] = await createTestProperty(adminClient, anotherOrganization2, { address: anotherProperty.address })
 
-            const [anotherOrganization2] = await createTestOrganization(adminClient, { tin: anotherOrganization.tin })
-            const [anotherProperty2] = await createTestProperty(adminClient, anotherOrganization2, { address: anotherProperty.address })
-            const { billingIntegrationContext: billingIntegrationContext2 } = await addBillingIntegrationAndContext(adminClient, anotherOrganization2, {}, { status: CONTEXT_FINISHED_STATUS })
-            await addAcquiringIntegrationAndContext(adminClient, anotherOrganization2, {}, { status: CONTEXT_FINISHED_STATUS })
-            const [billingProperty2] = await createTestBillingProperty(adminClient, billingIntegrationContext2, { address: anotherProperty2.address })
-            await createTestBillingAccount(adminClient, billingIntegrationContext2, billingProperty2, { number: qrCodeObj.PersAcc })
+                const anotherQrCodeObj = generateQrCodeObj({
+                    PayeeINN: anotherOrganization.tin,
+                    PayerAddress: `${anotherProperty.address}, кв. 1`,
+                    PersAcc: qrCodeObj.PersAcc,
+                })
 
-            const anotherQrCodeObj = generateQrCodeObj({
-                PayeeINN: anotherOrganization.tin,
-                PayerAddress: `${anotherProperty.address}, кв. 1`,
-                PersAcc: qrCodeObj.PersAcc,
+                const anotherQrCodeObj2 = generateQrCodeObj({
+                    PayeeINN: anotherQrCodeObj.PayeeINN,
+                    PayerAddress: anotherQrCodeObj.PayerAddress,
+                    PersAcc: anotherQrCodeObj.PersAcc,
+                })
+
+                await createBillingReceiptAndAllDependencies(adminClient, anotherOrganization, anotherProperty, anotherQrCodeObj2, '2024-01-01', anotherQrCodeObj.Sum)
+                const { billingReceipt: receiptToBeFound } = await createBillingReceiptAndAllDependencies(adminClient, anotherOrganization2, anotherProperty2, anotherQrCodeObj, '2024-01-01', anotherQrCodeObj.Sum)
+                
+                const [{ lastReceiptData }] = await validateQRCodeByTestClient(adminClient, { qrCode: stringifyQrCode(anotherQrCodeObj) })
+                expect(lastReceiptData.id).toBe(receiptToBeFound.id)
             })
-            await expectToThrowGQLError(
-                async () => {
-                    await validateQRCodeByTestClient(adminClient, { qrCode: stringifyQrCode(anotherQrCodeObj) })
-                },
-                {
-                    mutation: 'validateQRCode',
-                    code: 'INTERNAL_ERROR',
-                    type: 'WRONG_VALUE',
-                    message: 'More than one billing accounts were found',
-                },
-                'result',
-            )
+
+            test('should pick newer receipt if tin + account number + recipient account are same', async () => {
+                const [anotherOrganization] = await createTestOrganization(adminClient)
+                const [anotherProperty] = await createTestProperty(adminClient, anotherOrganization)
+                const [anotherOrganization2] = await createTestOrganization(adminClient, { tin: anotherOrganization.tin })
+                const [anotherProperty2] = await createTestProperty(adminClient, anotherOrganization2, { address: anotherProperty.address })
+
+                const anotherQrCodeObj = generateQrCodeObj({
+                    PayeeINN: anotherOrganization.tin,
+                    PayerAddress: `${anotherProperty.address}, кв. 1`,
+                    PersAcc: qrCodeObj.PersAcc,
+                })
+
+                await createBillingReceiptAndAllDependencies(adminClient, anotherOrganization, anotherProperty, anotherQrCodeObj, '2024-01-01', anotherQrCodeObj.Sum)
+                const { billingReceipt: receiptToBeFound } = await createBillingReceiptAndAllDependencies(adminClient, anotherOrganization2, anotherProperty2, anotherQrCodeObj, '2024-01-01', anotherQrCodeObj.Sum)
+                
+                const [{ lastReceiptData }] = await validateQRCodeByTestClient(adminClient, { qrCode: stringifyQrCode(anotherQrCodeObj) })
+                expect(lastReceiptData.id).toBe(receiptToBeFound.id)
+            })
         })
 
         test('should throw if no AcquiringIntegrationContext in status finished was found', async () => {
