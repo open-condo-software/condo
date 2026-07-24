@@ -60,15 +60,11 @@ type BillingCardProps = Pick<React.ComponentProps<typeof AppCard>, 'logoUrl' | '
 }
 
 const BillingCard: React.FC<BillingCardProps> = ({ checked, onSelect, onOpen, ...appCardProps }) => {
-
-    const handleRadioChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-        const target = event.target as HTMLElement
-        if (target && typeof target.closest === 'function') {
-            if (target.closest('button')) {
-                // Check if the card's button was clicked
-                onOpen()
-                return
-            }
+    const handleCardClick = useCallback((e?: React.MouseEvent) => {
+        const target = e?.target as HTMLElement | undefined
+        if (target && target.closest('button')) {
+            onOpen()
+            return
         }
         onSelect()
     }, [onOpen, onSelect])
@@ -78,11 +74,11 @@ const BillingCard: React.FC<BillingCardProps> = ({ checked, onSelect, onOpen, ..
             <div
                 className={styles['billing-card-radio-wrapper']}
             >
-                <Radio checked={checked} onChange={handleRadioChange}/>
+                <Radio checked={checked} onChange={onSelect}/>
             </div>
             <AppCard
                 {...appCardProps }
-                onClick={handleRadioChange}
+                onClick={handleCardClick}
             />
         </div>
     )
