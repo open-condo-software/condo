@@ -86,6 +86,8 @@ const AIInputNotification: FC<AIInputNotificationPropsType> = ({
     return (
         <div className={styles.wrapper}>
             {isVisible && (
+                // TODO (vtolmachev): keep panel inside viewport on small comment blocks
+                // (absolute upward placement can clip the header; needs collision handling or overlay)
                 <div className={styles.panel} role='status' aria-live='polite'>
                     <Space
                         size={12}
@@ -101,6 +103,7 @@ const AIInputNotification: FC<AIInputNotificationPropsType> = ({
                             />
 
                             <Button
+                                aria-label='Close'
                                 type='secondary'
                                 minimal
                                 compact

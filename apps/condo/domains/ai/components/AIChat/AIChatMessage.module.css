@@ -27,7 +27,7 @@
 
 .user-message-actions {
   opacity: 0;
-  transition: opacity 0.15s ease;
+  transition: opacity var(--condo-global-transition-duration-default) ease;
 }
 
 .user-message-bubble {
@@ -39,7 +39,7 @@
   padding: var(--condo-global-spacing-4) var(--condo-global-spacing-8);
   background: var(--condo-global-color-white);
   border-radius: var(--condo-global-border-radius-medium);
-  box-shadow: 0 1px 2px rgb(0 0 0 / 3%);
+  box-shadow: var(--condo-global-box-shadow-default);
 }
 
 .user-message-attachments {
@@ -79,5 +79,5 @@
 }
 
 .assistant-markdown * {
-  margin-bottom: 8px !important;
+  margin-bottom: var(--condo-global-spacing-8) !important;
 }

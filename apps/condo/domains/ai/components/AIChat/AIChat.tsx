@@ -87,6 +87,7 @@ export const AIChat: React.FC<AIChatProps> = ({
 
     const [inputValue, setInputValue] = useState('')
     const [messages, setMessages] = useState<Message[]>([])
+    // User message id of the turn currently pinned/clamped in the scroller
     const [activeTurnUserMessageId, setActiveTurnUserMessageId] = useState<string | null>(null)
 
     const messagesContainerRef = useRef<HTMLDivElement>(null)
@@ -208,6 +209,7 @@ export const AIChat: React.FC<AIChatProps> = ({
         }))
         setMessages(historyWithDates)
         setActiveTurnUserMessageId(null)
+        // Wait for history messages to commit to the DOM before scrolling to bottom
         requestAnimationFrame(() => {
             const container = messagesContainerRef.current
             if (container) {
@@ -218,7 +220,7 @@ export const AIChat: React.FC<AIChatProps> = ({
         const lastMessage = historyWithDates[historyWithDates.length - 1]
 
         if (lastMessage?.status === 'sending' && lastMessage?.executionAIFlowTaskId) {
-            void (async () => {
+            const resumeLastMessage = async () => {
                 try {
                     const result = await resume(lastMessage.executionAIFlowTaskId)
                     finalizeAssistantMessage(lastMessage, result)
@@ -230,7 +232,9 @@ export const AIChat: React.FC<AIChatProps> = ({
                         status: 'sent',
                     })
                 }
-            })()
+            }
+
+            resumeLastMessage()
         }
     }, [aiSessionId, resume, finalizeAssistantMessage, changeMessage, errorMessage])
 
@@ -389,7 +393,7 @@ export const AIChat: React.FC<AIChatProps> = ({
         if (userIndex < 0) return
 
         const turnAssistant = messages[userIndex + 1]
-        if (!turnAssistant || turnAssistant.role !== 'assistant') return
+        if (turnAssistant?.role !== 'assistant') return
 
         pendingScrollToMessageIdRef.current = null
         shouldScrollActiveTurnRef.current = true
@@ -447,6 +451,7 @@ export const AIChat: React.FC<AIChatProps> = ({
 
         const syncInputHeight = () => {
             chatContainer.style.setProperty('--ai-chat-input-height', `${inputContainer.offsetHeight}px`)
+            // Wait for padding from --ai-chat-input-height to apply before measuring scrollport
             requestAnimationFrame(() => {
                 if (messagesContainerRef.current) {
                     syncScrollportHeight(messagesContainerRef.current)
@@ -613,7 +618,7 @@ export const AIChat: React.FC<AIChatProps> = ({
                             label: btn.buttonName,
                             tooltip: btn.buttonDescription || undefined,
                             disabled: !canExecuteAIFlow,
-                            onClick: () => void handleScenarioButtonClick(btn.buttonId, btn.buttonName),
+                            onClick: () => handleScenarioButtonClick(btn.buttonId, btn.buttonName),
                         }))}
                     />
                 )}

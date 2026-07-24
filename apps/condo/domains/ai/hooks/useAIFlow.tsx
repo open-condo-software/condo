@@ -72,6 +72,14 @@ type PendingCompletion<T> = {
     resolve: (result: StreamWaitResult<T>) => void
 }
 
+// TODO (vtolmachev): unify with PendingCompletion into one pending waiter for the whole waitForTaskResult
+// (stream + poll both resolve the same waiter)
+type PendingPolling<T> = {
+    runId: number
+    settled: boolean
+    resolve: (result: AIFlowTaskResult<T>) => void
+}
+
 type UseAIFlowResultType<T> = [
     {
         execute: (context?: object) => Promise<AIFlowTaskResult<T>>
@@ -88,6 +96,24 @@ type UseAIFlowResultType<T> = [
 const DEFAULT_TIMEOUT_MS = 10000
 const TASK_FIRST_POLL_TIMEOUT_MS = 2000
 const TASK_POLLING_INTERVAL_MS = 1000
+
+function buildCancelledResult<T> (): AIFlowTaskResult<T> {
+    return { data: null, error: new Error('Flow cancelled'), localizedErrorText: null }
+}
+
+function getRemainingMs (deadlineAt: number): number {
+    return Math.max(0, deadlineAt - Date.now())
+}
+
+/**
+ * Soft stream phase: leave a trailing share of the overall timeout for polling fallback.
+ * Overall user-facing wait stays within `timeoutMs` (stream + poll share one deadline).
+ */
+function getStreamPhaseMs (timeoutMs: number): number {
+    const minReserveMs = TASK_FIRST_POLL_TIMEOUT_MS + TASK_POLLING_INTERVAL_MS * 3
+    const reserveMs = Math.min(timeoutMs, Math.max(minReserveMs, Math.floor(timeoutMs / 3)))
+    return Math.max(0, timeoutMs - reserveMs)
+}
 
 function extractAnswerText (result: unknown): string {
     if (typeof result === 'string') {
@@ -132,6 +158,7 @@ export function useAIFlow<T = object> ({
     const streamTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
     const runIdRef = useRef(0)
     const pendingCompletionRef = useRef<PendingCompletion<T> | null>(null)
+    const pendingPollingRef = useRef<PendingPolling<T> | null>(null)
     const displayBufferRef = useRef<AnswerDisplayBuffer | null>(null)
 
     const { useFlagValue } = useFeatureFlags()
@@ -161,14 +188,25 @@ export function useAIFlow<T = object> ({
         runIdRef.current += 1
         stopPollingTimers()
         clearStreamTimeout()
-        const pending = pendingCompletionRef.current
-        if (pending && !pending.settled) {
-            pending.settled = true
+
+        const streamPending = pendingCompletionRef.current
+        if (streamPending && !streamPending.settled) {
+            streamPending.settled = true
             pendingCompletionRef.current = null
-            pending.resolve({ type: 'cancelled' })
+            streamPending.resolve({ type: 'cancelled' })
         } else {
             pendingCompletionRef.current = null
         }
+
+        const pollingPending = pendingPollingRef.current
+        if (pollingPending && !pollingPending.settled) {
+            pollingPending.settled = true
+            pendingPollingRef.current = null
+            pollingPending.resolve(buildCancelledResult<T>())
+        } else {
+            pendingPollingRef.current = null
+        }
+
         return runIdRef.current
     }, [stopPollingTimers, clearStreamTimeout])
 
@@ -206,6 +244,8 @@ export function useAIFlow<T = object> ({
     }, [])
 
     const failFlow = useCallback((err: Error | null) => {
+        displayBufferRef.current?.dispose()
+        displayBufferRef.current = null
         setData(null)
         setLoading(false)
         setError(err)
@@ -280,27 +320,48 @@ export function useAIFlow<T = object> ({
         onMessage,
     })
 
-    const startPollingForResult = useCallback(async (taskId: string, runId: number): Promise<AIFlowTaskResult<T>> => {
+    const startPollingForResult = useCallback(async (
+        taskId: string,
+        runId: number,
+        deadlineAt: number,
+    ): Promise<AIFlowTaskResult<T>> => {
         stopPollingTimers()
 
         return new Promise((resolve) => {
-            const startTime = Date.now()
-            let hasResolved = false
+            pendingPollingRef.current = {
+                runId,
+                settled: false,
+                resolve: (result) => {
+                    stopPollingTimers()
+                    resolve(result)
+                },
+            }
 
             const resolveOnce = (value: AIFlowTaskResult<T>) => {
-                if (hasResolved || !isActiveRun(runId)) return
-                hasResolved = true
-                stopPollingTimers()
-                resolve(value)
+                const pending = pendingPollingRef.current
+                if (!pending || pending.settled || pending.runId !== runId) return
+                pending.settled = true
+                pendingPollingRef.current = null
+                pending.resolve(value)
+            }
+
+            const bailIfInactive = () => {
+                if (isActiveRun(runId)) return false
+                resolveOnce(buildCancelledResult<T>())
+                return true
+            }
+
+            const failWithTimeout = () => {
+                const timeoutError = new Error('Flow timed out')
+                failFlow(timeoutError)
+                resolveOnce({ data: null, error: timeoutError, localizedErrorText: null })
             }
 
             const poll = async () => {
-                if (hasResolved || !isActiveRun(runId)) return
+                if (bailIfInactive()) return
 
-                if (Date.now() - startTime >= timeout) {
-                    const timeoutError = new Error('Flow timed out')
-                    failFlow(timeoutError)
-                    resolveOnce({ data: null, error: timeoutError, localizedErrorText: null })
+                if (getRemainingMs(deadlineAt) <= 0) {
+                    failWithTimeout()
                     return
                 }
 
@@ -310,7 +371,12 @@ export function useAIFlow<T = object> ({
                         fetchPolicy: 'no-cache',
                     })
 
-                    if (hasResolved || !isActiveRun(runId)) return
+                    if (bailIfInactive()) return
+
+                    if (getRemainingMs(deadlineAt) <= 0) {
+                        failWithTimeout()
+                        return
+                    }
 
                     if (!pollResult?.data?.task) {
                         const notFoundError = new Error('Task not found')
@@ -354,20 +420,30 @@ export function useAIFlow<T = object> ({
                         return
                     }
                 } catch (pollError) {
-                    if (hasResolved || !isActiveRun(runId)) return
+                    if (bailIfInactive()) return
                     const err = pollError instanceof Error ? pollError : new Error(String(pollError))
                     failFlow(err)
                     resolveOnce({ data: null, error: err, localizedErrorText: null })
                 }
             }
 
+            const firstDelayMs = Math.min(TASK_FIRST_POLL_TIMEOUT_MS, getRemainingMs(deadlineAt))
+            if (firstDelayMs <= 0) {
+                failWithTimeout()
+                return
+            }
+
             pollingTimeoutRef.current = setTimeout(() => {
-                if (hasResolved || !isActiveRun(runId)) return
+                if (bailIfInactive()) return
+                if (getRemainingMs(deadlineAt) <= 0) {
+                    failWithTimeout()
+                    return
+                }
                 pollingIntervalRef.current = setInterval(poll, TASK_POLLING_INTERVAL_MS)
                 void poll()
-            }, TASK_FIRST_POLL_TIMEOUT_MS)
+            }, firstDelayMs)
         })
-    }, [timeout, getExecutionAIFlowTaskById, stopPollingTimers, getDisplayBuffer, completeFlow, failFlow, isActiveRun])
+    }, [getExecutionAIFlowTaskById, stopPollingTimers, getDisplayBuffer, completeFlow, failFlow, isActiveRun])
 
     useEffect(() => {
         invalidateActiveWork()
@@ -387,39 +463,52 @@ export function useAIFlow<T = object> ({
     }, [invalidateActiveWork])
 
     const waitForTaskResult = useCallback(async (taskId: string, runId: number): Promise<AIFlowTaskResult<T>> => {
-        if (aiStreamingEnabled && isConnected) {
-            const streamWait = await new Promise<StreamWaitResult<T>>((resolve) => {
-                pendingCompletionRef.current = {
-                    runId,
-                    taskId,
-                    settled: false,
-                    resolve,
-                }
-                streamTimeoutRef.current = setTimeout(() => {
-                    const pending = pendingCompletionRef.current
-                    if (!pending || pending.settled || pending.runId !== runId || !isActiveRun(runId)) return
-                    pending.settled = true
-                    pendingCompletionRef.current = null
-                    streamTimeoutRef.current = null
-                    resolve({ type: 'timeout' })
-                }, timeout)
-            })
+        const deadlineAt = Date.now() + timeout
 
-            if (streamWait.type === 'done') {
-                return streamWait.outcome
-            }
-            if (streamWait.type === 'cancelled') {
-                return { data: null, error: new Error('Flow cancelled'), localizedErrorText: null }
+        if (aiStreamingEnabled && isConnected) {
+            const streamWaitMs = Math.min(getStreamPhaseMs(timeout), getRemainingMs(deadlineAt))
+
+            if (streamWaitMs > 0) {
+                const streamWait = await new Promise<StreamWaitResult<T>>((resolve) => {
+                    pendingCompletionRef.current = {
+                        runId,
+                        taskId,
+                        settled: false,
+                        resolve,
+                    }
+                    streamTimeoutRef.current = setTimeout(() => {
+                        const pending = pendingCompletionRef.current
+                        if (!pending || pending.settled || pending.runId !== runId || !isActiveRun(runId)) return
+                        pending.settled = true
+                        pendingCompletionRef.current = null
+                        streamTimeoutRef.current = null
+                        resolve({ type: 'timeout' })
+                    }, streamWaitMs)
+                })
+
+                if (streamWait.type === 'done') {
+                    return streamWait.outcome
+                }
+                if (streamWait.type === 'cancelled') {
+                    return { data: null, error: new Error('Flow cancelled'), localizedErrorText: null }
+                }
             }
         }
 
-        return startPollingForResult(taskId, runId)
+        if (getRemainingMs(deadlineAt) <= 0) {
+            const timeoutError = new Error('Flow timed out')
+            failFlow(timeoutError)
+            return { data: null, error: timeoutError, localizedErrorText: null }
+        }
+
+        return startPollingForResult(taskId, runId, deadlineAt)
     }, [
         aiStreamingEnabled,
         isConnected,
         timeout,
         startPollingForResult,
         isActiveRun,
+        failFlow,
     ])
 
     const execute = useCallback(async (context: object = {}): Promise<AIFlowTaskResult<T>> => {
