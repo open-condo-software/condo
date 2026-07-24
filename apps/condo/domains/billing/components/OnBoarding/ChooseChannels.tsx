@@ -39,26 +39,9 @@ type AcquiringCardProps = Pick<React.ComponentProps<typeof AppCard>, 'logoUrl' |
 }
 
 const AcquiringCard: React.FC<AcquiringCardProps> = ({ checked, onClick, ...appCardProps }) => {
-    const handleCheckboxChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-        event.stopPropagation()
-        onClick()
-    }, [onClick])
-
     return (
         <div className={styles['acquiring-card-wrapper']}>
-            <input
-                type='checkbox'
-                className={styles['sr-only']}
-                checked={checked}
-                onChange={handleCheckboxChange}
-            />
-            <div
-                className={styles['acquiring-card-checkbox-wrapper']}
-                onClick={(event) => {
-                    event.stopPropagation()
-                    onClick()
-                }}
-            >
+            <div className={styles['acquiring-card-checkbox-wrapper']} >
                 <Checkbox checked={checked} />
             </div>
             <AppCard
@@ -77,41 +60,29 @@ type BillingCardProps = Pick<React.ComponentProps<typeof AppCard>, 'logoUrl' | '
 }
 
 const BillingCard: React.FC<BillingCardProps> = ({ checked, onSelect, onOpen, ...appCardProps }) => {
-    const handleCardClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+
+    const handleRadioChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         const target = event.target as HTMLElement
-
-        if (target.closest('.condo-btn,button,a')) {
-            onOpen()
-            return
+        if (target && typeof target.closest === 'function') {
+            if (target.closest('button')) {
+                // Check if the card's button was clicked
+                onOpen()
+                return
+            }
         }
-
         onSelect()
     }, [onOpen, onSelect])
 
-    const handleRadioChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-        event.stopPropagation()
-        onSelect()
-    }, [onSelect])
-
     return (
-        <div className={styles['billing-card-wrapper']} onClick={handleCardClick}>
-            <input
-                type='radio'
-                className={styles['sr-only']}
-                checked={checked}
-                onChange={handleRadioChange}
-            />
+        <div className={styles['billing-card-wrapper']}>
             <div
                 className={styles['billing-card-radio-wrapper']}
-                onClick={(event) => {
-                    event.stopPropagation()
-                    onSelect()
-                }}
             >
-                <Radio checked={checked} />
+                <Radio checked={checked} onChange={handleRadioChange}/>
             </div>
             <AppCard
                 {...appCardProps }
+                onClick={handleRadioChange}
             />
         </div>
     )
