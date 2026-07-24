@@ -72,6 +72,7 @@ async function getNewsSharingRecipientsCounters (context, data) {
 }
 
 const NewsItemFile = generateServerUtils('NewsItemFile')
+const NewsItemSource = generateServerUtils('NewsItemSource')
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -86,5 +87,6 @@ module.exports = {
     getNewsItemSharingRecipients,
     getNewsSharingRecipientsCounters,
     NewsItemFile,
+    NewsItemSource,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
