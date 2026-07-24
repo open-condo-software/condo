@@ -14,7 +14,7 @@ const {
     checkPermissionsInEmployedOrRelatedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
 const { getUserResidents } = require('@condo/domains/resident/utils/accessSchema')
-const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 
 async function canReadNewsItems ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
@@ -68,6 +68,16 @@ async function canManageNewsItems ({ authentication: { item: user }, context, or
     return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageNewsItems')
 }
 
+function canDirectlySetNewsItemSource ({ authentication: { item: user } }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+
+    // The news form never sends "source", so it always falls back to the default one via resolveInput.
+    // Only a trusted SERVICE account (b2b app backend, via an authoritative bulk mutation) or an admin
+    // is allowed to explicitly set a non-default source.
+    return user.isAdmin || user.type === SERVICE
+}
+
 /*
   Rules are logical functions that used for list access, and may return a boolean (meaning
   all or no items are available) or a set of filters that limit the available items.
@@ -75,4 +85,5 @@ async function canManageNewsItems ({ authentication: { item: user }, context, or
 module.exports = {
     canReadNewsItems,
     canManageNewsItems,
+    canDirectlySetNewsItemSource,
 }
