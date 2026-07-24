@@ -24,6 +24,8 @@ const { RegisterMultiPaymentForVirtualReceiptService } = require('./RegisterMult
 const { RegisterMultiPaymentService } = require('./RegisterMultiPaymentService')
 const { SetPaymentPosReceiptUrlService } = require('./SetPaymentPosReceiptUrlService')
 const { SumPaymentsService } = require('./SumPaymentsService')
+const { AllCardBindingsService } = require('./AllCardBindingsService')
+const { DeleteCardBindingService } = require('./DeleteCardBindingService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -48,5 +50,7 @@ module.exports = {
     PaymentsFile,
     SetPaymentPosReceiptUrlService,
     RegisterExternalPaymentsService,
+    AllCardBindingsService,
+    DeleteCardBindingService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
