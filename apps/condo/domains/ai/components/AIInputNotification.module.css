@@ -10,11 +10,11 @@
   bottom: calc(100% + var(--condo-global-spacing-8));
   left: 0;
   z-index: 5;
+  display: flex;
+  flex-direction: column;
   width: 100%;
   max-height: min(60vh, calc(100dvh - 96px));
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
   background-color: var(--condo-global-color-white);
   border: 1px solid var(--condo-global-color-gray-3);
   border-radius: var(--condo-global-border-radius-large);
@@ -22,10 +22,10 @@
 }
 
 .notification {
-  min-height: 0;
-  overflow: hidden;
   width: 100%;
+  min-height: 0;
   padding: var(--condo-global-spacing-12);
+  overflow: hidden;
   background-color: var(--condo-global-color-white);
 }
 
