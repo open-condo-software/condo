@@ -62,7 +62,7 @@ type BillingCardProps = Pick<React.ComponentProps<typeof AppCard>, 'logoUrl' | '
 const BillingCard: React.FC<BillingCardProps> = ({ checked, onSelect, onOpen, ...appCardProps }) => {
     const handleCardClick = useCallback((e?: React.MouseEvent) => {
         const target = e?.target as HTMLElement | undefined
-        if (target && target.closest('button')) {
+        if (target?.closest('button')) {
             onOpen()
             return
         }

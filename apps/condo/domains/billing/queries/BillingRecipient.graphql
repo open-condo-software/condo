@@ -4,7 +4,6 @@ query getOrganizationBillingRecipients($organization: OrganizationWhereInput!) {
             context: {
                 organization: $organization
                 status: "Finished"
-                deletedAt: null
             }
         }
         first: 100

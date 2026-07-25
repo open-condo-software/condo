@@ -14,6 +14,8 @@ import { useBillingHeaderTags } from '@condo/domains/billing/hooks/useBillingHea
 import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import { PageWrapper, PageHeader } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { UI_BILLING_SPP_COMBINED_PAGE } from '@condo/domains/common/constants/featureflags'
+import {  CONTEXT_FINISHED_STATUS as BILLING_CONTEXT_FINISHED_STATUS } from '@condo/domains/billing/constants/constants'
+import {  CONTEXT_FINISHED_STATUS as ACQUIRING_CONTEXT_FINISHED_STATUS } from '@condo/domains/acquiring/constants/context'
 
 import styles from './BillingPageContent.module.css'
 import { BillingSettingsModal } from './BillingSettingsModal'
@@ -35,7 +37,13 @@ export const BillingPageContent: React.FC = () => {
     const { acquiringContexts, billingContexts } = useBillingAndAcquiringContexts()
 
     const isSetupCompleted = useMemo(() => {
-        return acquiringContexts.length > 0 && billingContexts.length > 0
+        const finishedAcquiringContexts = acquiringContexts
+            .filter(({ status }) => status === ACQUIRING_CONTEXT_FINISHED_STATUS)
+        const finishedBillingContexts = billingContexts
+            .filter(({ status }) => status === BILLING_CONTEXT_FINISHED_STATUS)
+        const isAcquiringSetupCompleted = finishedAcquiringContexts.length > 0 && finishedAcquiringContexts.length === acquiringContexts.length
+        const isBillingSetupCompleted = finishedBillingContexts.length > 0 && finishedBillingContexts.length === billingContexts.length
+        return isAcquiringSetupCompleted && isBillingSetupCompleted
     }, [acquiringContexts, billingContexts])
 
     const isSmallScreen = !breakpoints.TABLET_LARGE
