@@ -7,7 +7,7 @@ import React, { useCallback, useEffect, useMemo } from 'react'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Markdown, Space, Button } from '@open-condo/ui'
+import { Markdown, Space, Button, Typography } from '@open-condo/ui'
 
 import { BillingIntegrationOrganizationContext as BillingContext } from '@condo/domains/billing/utils/clientSchema'
 import { Loader } from '@condo/domains/common/components/Loader'
@@ -140,6 +140,10 @@ export const SetupBilling: React.FC = ()=> {
             router.replace({ query: { ...router.query, step: 0 } }, undefined, { shallow: true })
         }
     }, [router, currentCtxLoading, currentCtxError, currentContextId])
+
+    if (currentCtxError) {
+        return <Typography.Title>{currentCtxError}</Typography.Title>
+    }
 
     if (currentCtxLoading || !currentCtx) {
         return <Loader fill size='large'/>
