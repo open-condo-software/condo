@@ -74,7 +74,9 @@ exports.down = async (knex) => {
     BEGIN;
 --
 -- Alter field hostUrl on acquiringintegration
+-- Backfill NULLs before restoring NOT NULL to avoid constraint violation
 --
+UPDATE "AcquiringIntegration" SET "hostUrl" = '' WHERE "hostUrl" IS NULL;
 ALTER TABLE "AcquiringIntegration" ALTER COLUMN "hostUrl" SET NOT NULL;
 --
 -- Add field displayPriority to billingintegrationhistoryrecord
