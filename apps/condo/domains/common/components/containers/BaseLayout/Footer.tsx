@@ -56,7 +56,13 @@ const getValidatedSppFintechUrl = (
         }
         return ''
     } catch {
-        return ''
+        // Old url without tabs in string format
+        try {
+            const redirectUrl = new URL(rawSppFintechUrl, baseSppFintechUrl).toString()
+            return parseUrl(redirectUrl)?.toString() || ''
+        } catch {
+            return ''
+        }
     }
 }
 

@@ -12,7 +12,7 @@ const { GQLListSchema, find } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/acquiring/access/AcquiringIntegration')
 const { CONTEXT_STATUSES, CONTEXT_IN_PROGRESS_STATUS } = require('@condo/domains/acquiring/constants/context')
-const { SUPPORTED_BILLING_INTEGRATION_GROUP_DOESNT_EXIST_ERROR } = require('@condo/domains/acquiring/constants/errors')
+const { SUPPORTED_BILLING_INTEGRATION_GROUP_DOESNT_EXIST_ERROR, ACQUIRING_INTEGRATION_REQUIRED_HOST_URL } = require('@condo/domains/acquiring/constants/errors')
 const {
     ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE,
     ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE,
@@ -32,6 +32,7 @@ const {
     IS_HIDDEN_FIELD,
     CONTEXT_DEFAULT_STATUS_FIELD,
 } = require('@condo/domains/miniapp/schema/fields/integration')
+
 
 const logoMetaAfterChange = getFileMetaAfterChange(ACQUIRING_FILE_ADAPTER, 'logo')
 
@@ -95,6 +96,13 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
             schemaDoc: 'Url to acquiring integration service. Mobile devices will use it communicate with external acquiring. List of endpoints is the same for all of them.',
             type: 'Text',
             isRequired: false,
+            hooks: {
+                validateInput: ({ resolvedData, addFieldValidationError }) => {
+                    if (resolvedData['type'] === ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE && !resolvedData['hostUrl']) {
+                        addFieldValidationError(ACQUIRING_INTEGRATION_REQUIRED_HOST_URL)
+                    }
+                },
+            },
         },
 
         supportedBillingIntegrationsGroup: {

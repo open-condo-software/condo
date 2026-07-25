@@ -158,11 +158,11 @@ export const CombinedMainContent: React.FC = () => {
     const extensionTabKeys = useMemo(() => extensionAppTabs.map(({ id }) => `${EXTENSION_TAB_KEY}-${id}`), [extensionAppTabs])
 
     const availableTabs = useMemo(() => [
-        !isSetupCompleted && SETUP_TAB_KEY,
+        !isSetupCompleted && canManageIntegrations && SETUP_TAB_KEY,
         canReadPayments && isSetupCompleted && PAYMENTS_TAB_KEY,
         canReadBillingReceipts && isSetupCompleted &&  ACCRUALS_TAB_KEY,
         ...extensionTabKeys,
-    ].filter(Boolean), [canReadBillingReceipts, canReadPayments, extensionTabKeys, isSetupCompleted])
+    ].filter(Boolean), [canManageIntegrations, canReadBillingReceipts, canReadPayments, extensionTabKeys, isSetupCompleted])
     const activeTab = useMemo(() => availableTabs.includes(tab) ? tab : availableTabs[0], [availableTabs, tab])
 
     const {
