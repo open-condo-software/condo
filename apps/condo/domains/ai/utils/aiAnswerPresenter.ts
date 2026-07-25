@@ -3,8 +3,18 @@ const SUGGESTIONS_CLOSE_PREFIX = '[[/SUGGESTIONS'
 const SUGGESTIONS_BLOCK_REGEX = /\[\[SUGGESTIONS\]\]([\s\S]*?)\[\[\/SUGGESTIONS\]\]/m
 
 const CALLING_PREFIX = 'Calling'
-// n8n / LangChain tool trace: "Calling <tool> with input: { ... }"
-const TOOL_CALL_HEADER_REGEX = /Calling\s+\S+\s+with\s+input:\s*/g
+// camelCase / PascalCase tool ids: getTickets, getProperties, SearchHouses
+const TOOL_NAME_PATTERN = '[A-Za-z][A-Za-z0-9]*[A-Z][A-Za-z0-9_]*|[a-z]+[A-Z][A-Za-z0-9_]*'
+// n8n / LangChain: "Calling <tool> with input: { ... }"
+const TOOL_CALL_HEADER_REGEX = new RegExp(`Calling\\s+(?:${TOOL_NAME_PATTERN})\\s+with\\s+input:\\s*`, 'g')
+const PARTIAL_TOOL_CALL_HEADER_REGEX = new RegExp(`^(Calling\\s+(?:${TOOL_NAME_PATTERN})\\s+with\\s+input:\\s*)`)
+// Narrative status without JSON: "Calling getProperties to find the house by address."
+// Stop before newline or Cyrillic so glued RU text stays.
+const NARRATIVE_TOOL_CALL_REGEX = new RegExp(
+    `Calling\\s+(?:${TOOL_NAME_PATTERN})\\b[^\\n\\u0400-\\u04FF]*`,
+    'g',
+)
+const PARTIAL_NARRATIVE_TOOL_CALL_REGEX = new RegExp(`^Calling\\s+(?:${TOOL_NAME_PATTERN})\\b`)
 
 export type SuggestionsFailureReason = 'missing_block' | 'empty_after_parse' | 'service_text_leaked'
 
@@ -14,17 +24,24 @@ export type ParsedAssistantAnswer = {
     suggestionsFailureReason?: SuggestionsFailureReason
 }
 
+function indexOfTrailingPartialMarker (text: string, marker: string): number {
+    for (let size = marker.length - 1; size >= 2; size--) {
+        if (text.endsWith(marker.slice(0, size))) {
+            return text.length - size
+        }
+    }
+    return -1
+}
+
 function indexOfSuggestionsMarkerStart (text: string): number {
     const completeOpenIndex = text.indexOf(SUGGESTIONS_OPEN_PREFIX)
     if (completeOpenIndex >= 0) {
         return completeOpenIndex
     }
 
-    for (let size = SUGGESTIONS_OPEN_PREFIX.length - 1; size >= 2; size--) {
-        const partial = SUGGESTIONS_OPEN_PREFIX.slice(0, size)
-        if (text.endsWith(partial)) {
-            return text.length - size
-        }
+    const partialOpenIndex = indexOfTrailingPartialMarker(text, SUGGESTIONS_OPEN_PREFIX)
+    if (partialOpenIndex >= 0) {
+        return partialOpenIndex
     }
 
     const closeIndex = text.indexOf(SUGGESTIONS_CLOSE_PREFIX)
@@ -32,14 +49,45 @@ function indexOfSuggestionsMarkerStart (text: string): number {
         return closeIndex
     }
 
-    for (let size = SUGGESTIONS_CLOSE_PREFIX.length - 1; size >= 2; size--) {
-        const partial = SUGGESTIONS_CLOSE_PREFIX.slice(0, size)
-        if (text.endsWith(partial)) {
-            return text.length - size
+    return indexOfTrailingPartialMarker(text, SUGGESTIONS_CLOSE_PREFIX)
+}
+
+type JsonScanState = {
+    depth: number
+    inString: boolean
+    isEscaped: boolean
+}
+
+function applyJsonObjectScanStep (state: JsonScanState, char: string): boolean {
+    if (state.inString) {
+        if (state.isEscaped) {
+            state.isEscaped = false
+            return false
         }
+        if (char === '\\') {
+            state.isEscaped = true
+            return false
+        }
+        if (char === '"') {
+            state.inString = false
+        }
+        return false
     }
 
-    return -1
+    if (char === '"') {
+        state.inString = true
+        return false
+    }
+    if (char === '{') {
+        state.depth += 1
+        return false
+    }
+    if (char !== '}') {
+        return false
+    }
+
+    state.depth -= 1
+    return state.depth === 0
 }
 
 /**
@@ -47,80 +95,39 @@ function indexOfSuggestionsMarkerStart (text: string): number {
  * or -1 if the object is incomplete / invalid for stripping.
  */
 function findEndOfBalancedJsonObject (text: string): number {
-    if (!text || text[0] !== '{') return -1
+    if (!text?.startsWith('{')) return -1
 
-    let depth = 0
-    let inString = false
-    let isEscaped = false
-
+    const state: JsonScanState = { depth: 0, inString: false, isEscaped: false }
     for (let i = 0; i < text.length; i++) {
-        const char = text[i]
-
-        if (inString) {
-            if (isEscaped) {
-                isEscaped = false
-                continue
-            }
-            if (char === '\\') {
-                isEscaped = true
-                continue
-            }
-            if (char === '"') {
-                inString = false
-            }
-            continue
-        }
-
-        if (char === '"') {
-            inString = true
-            continue
-        }
-        if (char === '{') {
-            depth += 1
-            continue
-        }
-        if (char === '}') {
-            depth -= 1
-            if (depth === 0) {
-                return i + 1
-            }
+        if (applyJsonObjectScanStep(state, text[i])) {
+            return i + 1
         }
     }
 
     return -1
 }
 
-function isPartialToolCallTrace (line: string): boolean {
-    if (!line) return false
-
-    for (let size = CALLING_PREFIX.length; size >= 1; size--) {
-        if (line === CALLING_PREFIX.slice(0, size)) {
-            return true
-        }
-    }
-
-    if (/^Calling\s+\S*$/.test(line)) {
-        return true
-    }
-
-    if (/^Calling\s+\S+\s+with(?:\s+input)?$/.test(line)) {
-        return true
-    }
-
-    const headerMatch = /^(Calling\s+\S+\s+with\s+input:\s*)/.exec(line)
+function isIncompleteToolCallAfterHeader (line: string): boolean {
+    const headerMatch = PARTIAL_TOOL_CALL_HEADER_REGEX.exec(line)
     if (!headerMatch) {
         return false
     }
 
     const rest = line.slice(headerMatch[1].length)
-    if (!rest) {
-        return true
-    }
-    if (rest[0] !== '{') {
+    if (!rest || rest[0] !== '{') {
         return true
     }
 
     return findEndOfBalancedJsonObject(rest) < 0
+}
+
+function isPartialToolCallTrace (line: string): boolean {
+    if (!line) return false
+    if (CALLING_PREFIX.startsWith(line)) return true
+    if (/^Calling\s+\S*$/.test(line) && !/[.!?]$/.test(line)) return true
+    if (PARTIAL_NARRATIVE_TOOL_CALL_REGEX.test(line)) return true
+    if (/^Calling\s+\S+\s+with(?:\s+input)?$/.test(line)) return true
+    return isIncompleteToolCallAfterHeader(line)
 }
 
 function stripServiceToolCallLines (text: string): string {
@@ -146,6 +153,7 @@ function stripServiceToolCallLines (text: string): string {
     }
 
     result += text.slice(lastIndex)
+    result = result.replace(NARRATIVE_TOOL_CALL_REGEX, '')
     result = result.replace(/^\n+/, '').replace(/\n{3,}/g, '\n\n')
 
     const lastNewlineIndex = result.lastIndexOf('\n')
@@ -179,6 +187,34 @@ export function toDisplayText (rawAnswer: string): string {
     return stripSuggestionsForDisplay(stripServiceToolCallLines(rawAnswer)).trimEnd()
 }
 
+function parseSuggestionLines (blockBody: string): string[] {
+    return blockBody
+        .split('\n')
+        .flatMap((line) => {
+            const trimmed = line.trim()
+            if (!trimmed.startsWith('& ')) return []
+            const suggestion = trimmed.slice(2).trim()
+            return suggestion ? [suggestion] : []
+        })
+        .slice(0, 3)
+}
+
+function getSuggestionsFailureReason (
+    textWithoutSuggestions: string,
+    parsedSuggestions: string[],
+): SuggestionsFailureReason | undefined {
+    const hasLeakedServiceText = textWithoutSuggestions.includes(SUGGESTIONS_OPEN_PREFIX)
+        || textWithoutSuggestions.includes(SUGGESTIONS_CLOSE_PREFIX)
+
+    if (hasLeakedServiceText) {
+        return 'service_text_leaked'
+    }
+    if (parsedSuggestions.length === 0) {
+        return 'empty_after_parse'
+    }
+    return undefined
+}
+
 // Turns raw model output into chat UI fields (clean text + suggestion chips).
 // Kept in utils so streaming buffer, finalize, and tests share one parser outside React.
 export function parseAssistantAnswer (answer: string): ParsedAssistantAnswer {
@@ -188,7 +224,8 @@ export function parseAssistantAnswer (answer: string): ParsedAssistantAnswer {
 
     const match = SUGGESTIONS_BLOCK_REGEX.exec(answer)
     if (!match) {
-        const hasSuggestionMarkers = answer.includes(SUGGESTIONS_OPEN_PREFIX) || answer.includes(SUGGESTIONS_CLOSE_PREFIX)
+        const hasSuggestionMarkers = answer.includes(SUGGESTIONS_OPEN_PREFIX)
+            || answer.includes(SUGGESTIONS_CLOSE_PREFIX)
         return {
             text: toDisplayText(answer),
             suggestions: [],
@@ -196,32 +233,14 @@ export function parseAssistantAnswer (answer: string): ParsedAssistantAnswer {
         }
     }
 
-    const suggestions = match[1]
-        .split('\n')
-        .flatMap((line) => {
-            const trimmed = line.trim()
-            if (!trimmed.startsWith('& ')) return []
-            const suggestion = trimmed.slice(2).trim()
-            return suggestion ? [suggestion] : []
-        })
-
+    const parsedSuggestions = parseSuggestionLines(match[1])
     const textWithoutSuggestions = stripServiceToolCallLines(
         answer.replace(SUGGESTIONS_BLOCK_REGEX, ''),
     ).trimEnd()
-    const hasLeakedServiceText = textWithoutSuggestions.includes(SUGGESTIONS_OPEN_PREFIX)
-        || textWithoutSuggestions.includes(SUGGESTIONS_CLOSE_PREFIX)
-    const parsedSuggestions = suggestions.slice(0, 3)
-
-    let suggestionsFailureReason: SuggestionsFailureReason | undefined
-    if (hasLeakedServiceText) {
-        suggestionsFailureReason = 'service_text_leaked'
-    } else if (parsedSuggestions.length === 0) {
-        suggestionsFailureReason = 'empty_after_parse'
-    }
 
     return {
         text: textWithoutSuggestions,
         suggestions: parsedSuggestions,
-        suggestionsFailureReason,
+        suggestionsFailureReason: getSuggestionsFailureReason(textWithoutSuggestions, parsedSuggestions),
     }
 }

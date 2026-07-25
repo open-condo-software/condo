@@ -13,8 +13,8 @@ type CreateAnswerDisplayBufferOptions = {
     charsPerSecond?: number
 }
 
-const DEFAULT_CHARS_PER_SECOND = 100
-const TICK_MS = 33
+const DEFAULT_CHARS_PER_SECOND = 50
+const MAX_FRAME_DELTA_SEC = 0.05
 
 export function createAnswerDisplayBuffer ({
     onFlush,
@@ -23,12 +23,12 @@ export function createAnswerDisplayBuffer ({
     let receivedText = ''
     let displayedText = ''
     let revealedLength = 0
-    let intervalId: ReturnType<typeof setInterval> | null = null
+    let rafId: number | null = null
+    let lastFrameTs = 0
+    let charCarry = 0
     let disposed = false
     let onCaughtUp: (() => void) | null = null
     let finishRequested = false
-
-    const charsPerTick = Math.max(1, Math.round((charsPerSecond * TICK_MS) / 1000))
 
     const flushDisplayed = () => {
         if (disposed) return
@@ -36,9 +36,11 @@ export function createAnswerDisplayBuffer ({
     }
 
     const stopRevealLoop = () => {
-        if (intervalId === null) return
-        clearInterval(intervalId)
-        intervalId = null
+        if (rafId === null) return
+        cancelAnimationFrame(rafId)
+        rafId = null
+        lastFrameTs = 0
+        charCarry = 0
     }
 
     const notifyCaughtUpIfNeeded = () => {
@@ -59,27 +61,45 @@ export function createAnswerDisplayBuffer ({
         return nextDisplay === toDisplayText(receivedText)
     }
 
-    const revealStep = () => {
-        if (disposed) {
-            stopRevealLoop()
-            return
-        }
+    const speedForBacklog = (backlog: number) => {
+        if (backlog > 120) return charsPerSecond * 3
+        if (backlog > 60) return charsPerSecond * 2
+        if (backlog > 24) return charsPerSecond * 1.4
+        return charsPerSecond
+    }
+
+    const revealFrame = (ts: number) => {
+        rafId = null
+        if (disposed) return
 
         if (revealedLength >= receivedText.length) {
             paintVisibleFromRevealed()
-            stopRevealLoop()
             notifyCaughtUpIfNeeded()
             return
         }
 
-        revealedLength = Math.min(receivedText.length, revealedLength + charsPerTick)
-        const visibleDone = paintVisibleFromRevealed()
+        if (!lastFrameTs) lastFrameTs = ts
+        const dt = Math.min(MAX_FRAME_DELTA_SEC, (ts - lastFrameTs) / 1000)
+        lastFrameTs = ts
 
-        if (visibleDone) {
-            revealedLength = receivedText.length
-            stopRevealLoop()
-            notifyCaughtUpIfNeeded()
+        const backlog = receivedText.length - revealedLength
+        charCarry += speedForBacklog(backlog) * dt
+        const charsToReveal = Math.floor(charCarry)
+        if (charsToReveal > 0) {
+            charCarry -= charsToReveal
+            revealedLength = Math.min(receivedText.length, revealedLength + charsToReveal)
         }
+
+        const visibleDone = paintVisibleFromRevealed()
+        if (visibleDone || revealedLength >= receivedText.length) {
+            revealedLength = receivedText.length
+            lastFrameTs = 0
+            charCarry = 0
+            notifyCaughtUpIfNeeded()
+            return
+        }
+
+        rafId = requestAnimationFrame(revealFrame)
     }
 
     const scheduleReveal = () => {
@@ -89,8 +109,8 @@ export function createAnswerDisplayBuffer ({
             notifyCaughtUpIfNeeded()
             return
         }
-        if (intervalId !== null) return
-        intervalId = setInterval(revealStep, TICK_MS)
+        if (rafId !== null) return
+        rafId = requestAnimationFrame(revealFrame)
     }
 
     return {

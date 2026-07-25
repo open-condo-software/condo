@@ -19,6 +19,18 @@ describe('aiAnswerPresenter tool-trace stripping', () => {
         expect(toDisplayText(raw)).toBe('За текущий месяц')
     })
 
+    it('removes narrative tool status lines with camelCase tool names', () => {
+        const raw = 'Calling getProperties to find the house by address.Не нашёл дом по адресу «12 корпус 2».'
+
+        expect(toDisplayText(raw)).toBe('Не нашёл дом по адресу «12 корпус 2».')
+    })
+
+    it('removes narrative tool status on its own line', () => {
+        const raw = 'Calling getProperties to find the house by address.\nНе нашёл дом.'
+
+        expect(toDisplayText(raw)).toBe('Не нашёл дом.')
+    })
+
     it('keeps English sentences that start with Calling', () => {
         const raw = 'Calling the resident is the next step.'
 

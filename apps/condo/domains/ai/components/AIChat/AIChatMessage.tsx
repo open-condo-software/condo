@@ -204,7 +204,7 @@ const AIChatAssistantMessage: React.FC<AIChatAssistantMessageProps> = ({
                 {message.content.suggestions?.length > 0 && (
                     <AIChatSuggestions
                         items={message.content.suggestions.map((suggestion, index) => ({
-                            key: `${message.id}-${suggestion}`,
+                            key: `${message.id}-${index}-${suggestion}`,
                             label: suggestion,
                             disabled: !canExecuteAIFlow,
                             animationDelayMs: index * SUGGESTION_ANIMATION_DELAY_MS,
