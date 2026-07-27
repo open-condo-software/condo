@@ -39,7 +39,7 @@ const ServiceProviderProfilePage: PageComponentType = () => {
 
     if (sppConfig && 'BillingIntegrationId' in sppConfig && isSPPOrg) {
         return (
-            <BillingAppPage id={sppConfig.BillingIntegrationId}>
+            <BillingAppPage id={sppConfig.BillingIntegrationId} title={PageTitle}>
                 {GlobalHints}
             </BillingAppPage>
         )
