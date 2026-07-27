@@ -65,12 +65,6 @@ const ERRORS = {
         type: NOT_FOUND,
         message: 'No billing account was found',
     },
-    MUCH_BILLING_ACCOUNTS: {
-        mutation: 'validateQRCode',
-        code: INTERNAL_ERROR,
-        type: WRONG_VALUE,
-        message: 'More than one billing accounts were found',
-    },
     BANK_ACCOUNT_IS_INVALID: {
         mutation: 'validateQRCode',
         code: BAD_USER_INPUT,
@@ -82,6 +76,12 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: NOT_FOUND,
         message: 'No previous receipt was found',
+    },
+    NO_BILLING_CONTEXT: {
+        mutation: 'validateQRCode',
+        code: INTERNAL_ERROR,
+        type: NOT_FOUND,
+        message: 'Organization with provided TIN does not have an active billing integration',
     },
 }
 
@@ -182,6 +182,9 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
                     },
                 })
 
+                if (!billingContexts.length) {
+                    throw new GQLError(ERRORS.NO_BILLING_CONTEXT, context)
+                }
 
                 const organizationsIds = [...new Set(billingContexts.map(billingContext => billingContext.organization))]
 
@@ -220,9 +223,8 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
 
                 await compareQRCodeWithLastReceipt({ context, qrCodeFields, resolvers, billingContexts })
 
-                
-                qrCodeFields['PaymPeriod'] = getQRCodePaymPeriod(qrCodeFields, foundReceipt.context)
                 const billingContext = billingContexts.find(billingContext => billingContext.id === foundReceipt.context.id)
+                qrCodeFields['PaymPeriod'] = getQRCodePaymPeriod(qrCodeFields, billingContext)
                 const billingIntegration = await getById('BillingIntegration', billingContext.integration)
 
                 const acquiringContext = acquiringContexts.find(acquiringContext => acquiringContext.organization === billingContext.organization)

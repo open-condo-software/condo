@@ -337,7 +337,7 @@ describe('ValidateQRCodeService', () => {
         })
 
         describe('multiple billing accounts', () => {
-            test('should determine right receipt by receipient account number', async () => {
+            test('should determine right receipt by recipient account number', async () => {
                 const [anotherOrganization] = await createTestOrganization(adminClient)
                 const [anotherProperty] = await createTestProperty(adminClient, anotherOrganization)
                 const [anotherOrganization2] = await createTestOrganization(adminClient, { tin: anotherOrganization.tin })

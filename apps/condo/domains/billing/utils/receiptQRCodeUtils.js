@@ -1,6 +1,7 @@
 const Big = require('big.js')
 const dayjs = require('dayjs')
-const { get, set } = require('lodash')
+const get = require('lodash/get')
+const set = require('lodash/set')
 
 const { find } = require('@open-condo/keystone/schema')
 
@@ -190,6 +191,7 @@ async function compareQRCodeWithLastReceipt ({ context, qrCodeFields, resolvers,
 
     if (!lastBillingReceipt) {
         resolvers.onNoReceipt && await resolvers.onNoReceipt()
+        return
     }
 
     const billingContext = billingContexts.find(billingContext => billingContext.id === lastBillingReceipt.context.id)
