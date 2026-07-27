@@ -80065,6 +80065,10 @@ type B2BAppAccessRightSetHistoryRecord {
   canManageTicketFiles: Boolean
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
+  canReadNewsItems: Boolean
+  canManageNewsItems: Boolean
+  canReadNewsItemScopes: Boolean
+  canManageNewsItemScopes: Boolean
   canReadNewsItemFiles: Boolean
   canManageNewsItemFiles: Boolean
   canExecuteRegisterExternalPayments: Boolean
@@ -80222,6 +80226,14 @@ input B2BAppAccessRightSetHistoryRecordWhereInput {
   canReadTicketCommentFiles_not: Boolean
   canManageTicketCommentFiles: Boolean
   canManageTicketCommentFiles_not: Boolean
+  canReadNewsItems: Boolean
+  canReadNewsItems_not: Boolean
+  canManageNewsItems: Boolean
+  canManageNewsItems_not: Boolean
+  canReadNewsItemScopes: Boolean
+  canReadNewsItemScopes_not: Boolean
+  canManageNewsItemScopes: Boolean
+  canManageNewsItemScopes_not: Boolean
   canReadNewsItemFiles: Boolean
   canReadNewsItemFiles_not: Boolean
   canManageNewsItemFiles: Boolean
@@ -80451,6 +80463,14 @@ enum SortB2BAppAccessRightSetHistoryRecordsBy {
   canReadTicketCommentFiles_DESC
   canManageTicketCommentFiles_ASC
   canManageTicketCommentFiles_DESC
+  canReadNewsItems_ASC
+  canReadNewsItems_DESC
+  canManageNewsItems_ASC
+  canManageNewsItems_DESC
+  canReadNewsItemScopes_ASC
+  canReadNewsItemScopes_DESC
+  canManageNewsItemScopes_ASC
+  canManageNewsItemScopes_DESC
   canReadNewsItemFiles_ASC
   canReadNewsItemFiles_DESC
   canManageNewsItemFiles_ASC
@@ -80539,6 +80559,10 @@ input B2BAppAccessRightSetHistoryRecordUpdateInput {
   canManageTicketFiles: Boolean
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
+  canReadNewsItems: Boolean
+  canManageNewsItems: Boolean
+  canReadNewsItemScopes: Boolean
+  canManageNewsItemScopes: Boolean
   canReadNewsItemFiles: Boolean
   canManageNewsItemFiles: Boolean
   canExecuteRegisterExternalPayments: Boolean
@@ -80617,6 +80641,10 @@ input B2BAppAccessRightSetHistoryRecordCreateInput {
   canManageTicketFiles: Boolean
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
+  canReadNewsItems: Boolean
+  canManageNewsItems: Boolean
+  canReadNewsItemScopes: Boolean
+  canManageNewsItemScopes: Boolean
   canReadNewsItemFiles: Boolean
   canManageNewsItemFiles: Boolean
   canExecuteRegisterExternalPayments: Boolean
@@ -80748,10 +80776,11 @@ type B2BAppAccessRightSet {
   canManageTicketFiles: Boolean
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
+  canReadNewsItems: Boolean
+  canManageNewsItems: Boolean
+  canReadNewsItemScopes: Boolean
+  canManageNewsItemScopes: Boolean
   canReadNewsItemFiles: Boolean
-
-  """ Currently, this field is read-only. You cannot get manage access for the specified schema. 
-  """
   canManageNewsItemFiles: Boolean
   canExecuteRegisterExternalPayments: Boolean
   canExecuteRegisterMetersReadings: Boolean
@@ -80904,6 +80933,14 @@ input B2BAppAccessRightSetWhereInput {
   canReadTicketCommentFiles_not: Boolean
   canManageTicketCommentFiles: Boolean
   canManageTicketCommentFiles_not: Boolean
+  canReadNewsItems: Boolean
+  canReadNewsItems_not: Boolean
+  canManageNewsItems: Boolean
+  canManageNewsItems_not: Boolean
+  canReadNewsItemScopes: Boolean
+  canReadNewsItemScopes_not: Boolean
+  canManageNewsItemScopes: Boolean
+  canManageNewsItemScopes_not: Boolean
   canReadNewsItemFiles: Boolean
   canReadNewsItemFiles_not: Boolean
   canManageNewsItemFiles: Boolean
@@ -81115,6 +81152,14 @@ enum SortB2BAppAccessRightSetsBy {
   canReadTicketCommentFiles_DESC
   canManageTicketCommentFiles_ASC
   canManageTicketCommentFiles_DESC
+  canReadNewsItems_ASC
+  canReadNewsItems_DESC
+  canManageNewsItems_ASC
+  canManageNewsItems_DESC
+  canReadNewsItemScopes_ASC
+  canReadNewsItemScopes_DESC
+  canManageNewsItemScopes_ASC
+  canManageNewsItemScopes_DESC
   canReadNewsItemFiles_ASC
   canReadNewsItemFiles_DESC
   canManageNewsItemFiles_ASC
@@ -81203,6 +81248,10 @@ input B2BAppAccessRightSetUpdateInput {
   canManageTicketFiles: Boolean
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
+  canReadNewsItems: Boolean
+  canManageNewsItems: Boolean
+  canReadNewsItemScopes: Boolean
+  canManageNewsItemScopes: Boolean
   canReadNewsItemFiles: Boolean
   canManageNewsItemFiles: Boolean
   canExecuteRegisterExternalPayments: Boolean
@@ -81278,6 +81327,10 @@ input B2BAppAccessRightSetCreateInput {
   canManageTicketFiles: Boolean
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
+  canReadNewsItems: Boolean
+  canManageNewsItems: Boolean
+  canReadNewsItemScopes: Boolean
+  canManageNewsItemScopes: Boolean
   canReadNewsItemFiles: Boolean
   canManageNewsItemFiles: Boolean
   canExecuteRegisterExternalPayments: Boolean

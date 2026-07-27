@@ -25,6 +25,7 @@ import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { PageComponentType } from '@condo/domains/common/types'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { NewsReadPermissionRequired } from '@condo/domains/news/components/PageAccess'
+import { NEWS_ITEM_SOURCE_IDS } from '@condo/domains/news/constants/newsItemSourceIds'
 import { useNewsItemsAccess } from '@condo/domains/news/hooks/useNewsItemsAccess'
 import { useTableColumns } from '@condo/domains/news/hooks/useTableColumns'
 import { useTableFilters } from '@condo/domains/news/hooks/useTableFilters'
@@ -223,6 +224,7 @@ const NewsPage: PageComponentType = () => {
 
     const baseNewsQuery = {
         organization: { id: organization.id },
+        source: { id_in: [NEWS_ITEM_SOURCE_IDS.WEB_APP] },
     }
 
     const filterMetas = useTableFilters()

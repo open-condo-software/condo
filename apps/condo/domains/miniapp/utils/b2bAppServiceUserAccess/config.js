@@ -123,8 +123,12 @@ const B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS = {
         },
 
         // News domain
+        NewsItem: {},
+        NewsItemScope: {
+            pathToOrganizationId: ['newsItem', 'organization', 'id'],
+        },
         NewsItemFile: {
-            canBeManaged: false,
+            pathToOrganizationId: ['newsItem', 'organization', 'id'],
         },
     },
 

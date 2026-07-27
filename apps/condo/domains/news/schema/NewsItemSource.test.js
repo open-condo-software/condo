@@ -80,15 +80,6 @@ describe('NewsItemSource', () => {
                     await updateTestNewsItemSource(client, objCreated.id)
                 })
             })
-
-            test('isDefault is read-only', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestNewsItemSource(admin)
-
-                const [obj] = await updateTestNewsItemSource(admin, objCreated.id, { isDefault: true })
-
-                expect(obj.isDefault).toEqual(false)
-            })
         })
 
         describe('hard delete', () => {

@@ -8,6 +8,7 @@ const { get, isEmpty } = require('lodash')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { find, getById } = require('@open-condo/keystone/schema')
 
+const { canReadObjectsAsB2BAppServiceUser, canManageObjectsAsB2BAppServiceUser } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
 const { queryFindNewsItemsScopesByResidents } = require('@condo/domains/news/utils/accessSchema')
 const {
     getEmployedOrRelatedOrganizationsByPermissions,
@@ -16,11 +17,16 @@ const {
 const { getUserResidents } = require('@condo/domains/resident/utils/accessSchema')
 const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 
-async function canReadNewsItems ({ authentication: { item: user }, context }) {
+async function canReadNewsItems (args) {
+    const { authentication: { item: user }, context } = args
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isAdmin || user.isSupport) return {}
+
+    if (user.type === SERVICE) {
+        return await canReadObjectsAsB2BAppServiceUser(args)
+    }
 
     if (user.type === RESIDENT) {
         const residents = await getUserResidents(context, user)
@@ -47,11 +53,16 @@ async function canReadNewsItems ({ authentication: { item: user }, context }) {
     }
 }
 
-async function canManageNewsItems ({ authentication: { item: user }, context, originalInput, operation, itemId }) {
+async function canManageNewsItems (args) {
+    const { authentication: { item: user }, context, originalInput, operation, itemId } = args
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
     if (user.type === RESIDENT) return false
+
+    if (user.type === SERVICE) {
+        return await canManageObjectsAsB2BAppServiceUser(args)
+    }
 
     let organizationId
 
