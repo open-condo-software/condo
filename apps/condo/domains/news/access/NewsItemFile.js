@@ -9,7 +9,7 @@ const uniq = require('lodash/uniq')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
-const { canReadObjectsAsB2BAppServiceUser } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
+const { canReadObjectsAsB2BAppServiceUser, canManageObjectsAsB2BAppServiceUser } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
 const { queryFindNewsItemsScopesByResidents } = require('@condo/domains/news/utils/accessSchema')
 const { getEmployedOrRelatedOrganizationsByPermissions, checkPermissionsInEmployedOrRelatedOrganizations } = require('@condo/domains/organization/utils/accessSchema')
 const { getUserResidents } = require('@condo/domains/resident/utils/accessSchema')
@@ -66,10 +66,15 @@ async function canReadNewsItemFiles (args) {
     return false
 }
 
-async function canManageNewsItemFiles ({ authentication: { item: user }, originalInput, operation, itemId, itemIds, context }) {
+async function canManageNewsItemFiles (args) {
+    const { authentication: { item: user }, originalInput, operation, itemId, itemIds, context } = args
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
+
+    if (user.type === SERVICE) {
+        return await canManageObjectsAsB2BAppServiceUser(args)
+    }
 
     if (user.type === STAFF) {
         if (operation === 'create') {
