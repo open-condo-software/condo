@@ -23,6 +23,7 @@ type AIChatInputProps = {
     onInputKeyDown: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void
     onSendMessage: () => void | Promise<void>
     placeholder: string
+    variant?: 'overlay' | 'embedded'
 }
 
 export const AIChatInput: React.FC<AIChatInputProps> = ({
@@ -36,6 +37,7 @@ export const AIChatInput: React.FC<AIChatInputProps> = ({
     onInputKeyDown,
     onSendMessage,
     placeholder,
+    variant = 'overlay',
 }) => {
     const intl = useIntl()
     const attachmentsUploading = attachments ? attachments.uploading : false
@@ -58,7 +60,7 @@ export const AIChatInput: React.FC<AIChatInputProps> = ({
     }, [intl, attachments])
 
     return (
-        <div ref={containerRef} className={styles.inputContainer}>
+        <div ref={containerRef} className={`${styles.inputContainer} ${variant === 'embedded' ? styles.inputContainerEmbedded : ''}`}>
             <Space direction='vertical' size={8} width='100%'>
                 <div className={styles.attachmentsContainer}>
                     {attachments && attachments.fileList.length > 0 && (

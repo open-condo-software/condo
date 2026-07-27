@@ -22,6 +22,7 @@ import { UserMenu } from '@condo/domains/user/components/UserMenu'
 
 export interface ITopMenuItemsProps {
     headerAction?: React.ElementType
+    hideAIButton?: boolean
 }
 
 export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
@@ -74,7 +75,7 @@ export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
                 <div style={{ maxHeight: '24px' }}>
                     <UserMessagesList disabled={!hasSubscription} />
                 </div>
-                { isAIChatEnabled && !isAIOverlayOpen && (
+                { isAIChatEnabled && !isAIOverlayOpen && !props.hideAIButton && (
                     <AIFlowButton
                         onClick={() => {
                             void analytics.track('ai_assistant_open_click', {})

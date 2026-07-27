@@ -9,6 +9,12 @@
   backdrop-filter: blur(20px);
 }
 
+.input-container-embedded {
+  backdrop-filter: none;
+  background: var(--condo-global-color-white);
+  border-top: 1px solid var(--condo-global-color-gray-3);
+}
+
 .text-area-container {
   flex: 1 1 auto;
   width: 100%;
