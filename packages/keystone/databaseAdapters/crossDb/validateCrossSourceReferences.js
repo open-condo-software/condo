@@ -32,6 +32,27 @@ function _mapInsertValueRow (valueRow, columns, bindings) {
 }
 
 /**
+ * `node-sql-parser` usually returns INSERT values as an array of expr_list nodes,
+ * but some parser shapes wrap a single row into a plain object. Normalize both.
+ *
+ * @param {*} insertValues
+ * @returns {Array<object>}
+ */
+function _normalizeInsertValueGroups (insertValues) {
+    if (Array.isArray(insertValues)) return insertValues
+    if (!insertValues || typeof insertValues !== 'object') return []
+
+    if (Array.isArray(insertValues.value)) {
+        return [{ ...insertValues, value: insertValues.value }]
+    }
+    if (Array.isArray(insertValues.values)) {
+        return insertValues.values
+    }
+
+    return []
+}
+
+/**
  * @param {string} sql
  * @param {Array} bindings
  * @returns {Array<Record<string, *>>}
@@ -45,7 +66,7 @@ function extractMutationColumnValues (sql, bindings = []) {
 
     if (ast.type === 'insert') {
         const columns = (ast.columns || []).map(normalizeColumnName).filter(Boolean)
-        return (ast.values || [])
+        return _normalizeInsertValueGroups(ast.values)
             .map(valueGroup => _mapInsertValueRow(valueGroup?.value, columns, bindings))
             .filter(Boolean)
     }
