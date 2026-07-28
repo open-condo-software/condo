@@ -5,6 +5,18 @@ __metadata:
   version: 10
   cacheKey: 10
 
+"@a2ui/web_core@npm:^0.10.5":
+  version: 0.10.5
+  resolution: "@a2ui/web_core@npm:0.10.5"
+  dependencies:
+    "@preact/signals-core": "npm:^1.14.2"
+    date-fns: "npm:^4.4.0"
+    zod: "npm:^3.25.76"
+    zod-to-json-schema: "npm:^3.25.2"
+  checksum: 10/c3f1d238ea6498e567e890d4a0ea53c8ef019653b054dd5b402354957e45b416f30aabbf9b25aeb6698a58c8352486aeff4deeb68559dacded0c280ed3712acb
+  languageName: node
+  linkType: hard
+
 "@accruals-gateway/domains@link:./domains::locator=%40app%2Faccruals-gateway%40workspace%3Aapps%2Faccruals-gateway":
   version: 0.0.0-use.local
   resolution: "@accruals-gateway/domains@link:./domains::locator=%40app%2Faccruals-gateway%40workspace%3Aapps%2Faccruals-gateway"
@@ -752,6 +764,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@app/condo@workspace:apps/condo"
   dependencies:
+    "@a2ui/web_core": "npm:^0.10.5"
     "@ant-design/colors": "npm:^6.0.0"
     "@ant-design/icons": "npm:6.0.0"
     "@apollo/client": "catalog:"
@@ -1042,37 +1055,6 @@ __metadata:
     react-dom: "catalog:"
     react-intl: "catalog:"
     typescript: "catalog:"
-  languageName: unknown
-  linkType: soft
-
-"@app/ecom-gateway@workspace:apps/ecom-gateway":
-  version: 0.0.0-use.local
-  resolution: "@app/ecom-gateway@workspace:apps/ecom-gateway"
-  dependencies:
-    "@ecom-gateway/domains": "link:./domains"
-    "@faker-js/faker": "catalog:"
-    "@graphql-tools/graphql-file-loader": "catalog:"
-    "@graphql-tools/load": "catalog:"
-    "@open-condo/apollo-server-client": "workspace:^"
-    "@open-condo/cli": "workspace:^"
-    "@open-condo/codegen": "workspace:^"
-    "@open-condo/config": "workspace:^"
-    "@open-condo/keystone": "workspace:^"
-    "@types/react": "catalog:"
-    big.js: "npm:^6.2.2"
-    cross-env: "catalog:"
-    express: "catalog:"
-    graphql: "catalog:"
-    helmet: "npm:^8.1.0"
-    ip-range-check: "npm:^0.2.0"
-    jest: "catalog:"
-    jest-jasmine2: "catalog:"
-    lodash: "catalog:"
-    mkdirp: "npm:^3.0.1"
-    openid-client: "catalog:"
-    pluralize: "catalog:"
-    react: "catalog:"
-    zod: "catalog:"
   languageName: unknown
   linkType: soft
 
@@ -1636,6 +1618,7 @@ __metadata:
     "@types/react": "catalog:"
     ajv: "catalog:"
     antd: "catalog:"
+    axios: "npm:^1.15.0"
     big.js: "npm:^6.2.2"
     body-parser: "npm:^1.20.3"
     body-parser-xml: "npm:^2.0.3"
@@ -4279,12 +4262,6 @@ __metadata:
   checksum: 10/6cfe46a5fcdaced943982e7ae66b08b89235493e106eb5bc833737c25905e13375c6ecc3aa0c357d136cb21dae3966213dba063f19b7a60b1235a29a7b05ff84
   languageName: node
   linkType: hard
-
-"@ecom-gateway/domains@link:./domains::locator=%40app%2Fecom-gateway%40workspace%3Aapps%2Fecom-gateway":
-  version: 0.0.0-use.local
-  resolution: "@ecom-gateway/domains@link:./domains::locator=%40app%2Fecom-gateway%40workspace%3Aapps%2Fecom-gateway"
-  languageName: node
-  linkType: soft
 
 "@emnapi/runtime@npm:^1.7.0":
   version: 1.11.2
@@ -11291,6 +11268,13 @@ __metadata:
   version: 1.392.1
   resolution: "@posthog/types@npm:1.392.1"
   checksum: 10/421108f7302c771d142e1e948ea3e1fe295a8b4b469ccf4fe5056bbae5e8741db01b38ef055aacf3685ef0c54b92ed5b92fcf4aae2da1d6d4c98a00f0418cf24
+  languageName: node
+  linkType: hard
+
+"@preact/signals-core@npm:^1.14.2":
+  version: 1.14.4
+  resolution: "@preact/signals-core@npm:1.14.4"
+  checksum: 10/11b948fd5c1420100bacbf384cd27fd3e55db093075b370f15b3029ce29921b2f7bd60b31ed19a8a6dbbba6ce2fa27ec2f2de5ef6335635f3c04ac3b753bf39c
   languageName: node
   linkType: hard
 
@@ -19607,6 +19591,13 @@ __metadata:
   dependencies:
     "@babel/runtime": "npm:^7.21.0"
   checksum: 10/70b3e8ea7aaaaeaa2cd80bd889622a4bcb5d8028b4de9162cbcda359db06e16ff6e9309e54eead5341e71031818497f19aaf9839c87d1aba1e27bb4796e758a9
+  languageName: node
+  linkType: hard
+
+"date-fns@npm:^4.4.0":
+  version: 4.4.0
+  resolution: "date-fns@npm:4.4.0"
+  checksum: 10/ae702acea42fb8452abe74f6d133c2360de9a14f00985645684b0df9c12280276649e95b52298a4fd7dabcc3b38799eb111107da99320d1cd94ba1d8a3d1c174
   languageName: node
   linkType: hard
 
@@ -43526,6 +43517,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"zod-to-json-schema@npm:^3.25.2":
+  version: 3.25.2
+  resolution: "zod-to-json-schema@npm:3.25.2"
+  peerDependencies:
+    zod: ^3.25.28 || ^4
+  checksum: 10/7035328654113f1a0b8e4c2d34a06f918c93650ef8a50d4fb30ad8f22e47d5762c163af9c82494756b34776bae3c41c26cfc6945105b0eee7dceb528cc07e665
+  languageName: node
+  linkType: hard
+
 "zod-validation-error@npm:3.0.0":
   version: 3.0.0
   resolution: "zod-validation-error@npm:3.0.0"
@@ -43546,6 +43546,13 @@ __metadata:
   version: 4.4.1
   resolution: "zod@npm:4.4.1"
   checksum: 10/e9c62dc846ed4c6ab5b062ffdc9ac7d38eadc41a921b71015f3a9d9ef6d3448c72ac93beb0015bd33d774e68e804e65840834101296950f5cbd7e3d64973f64c
+  languageName: node
+  linkType: hard
+
+"zod@npm:^3.25.76":
+  version: 3.25.76
+  resolution: "zod@npm:3.25.76"
+  checksum: 10/f0c963ec40cd96858451d1690404d603d36507c1fc9682f2dae59ab38b578687d542708a7fdbf645f77926f78c9ed558f57c3d3aa226c285f798df0c4da16995
   languageName: node
   linkType: hard
 

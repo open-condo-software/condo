@@ -135,10 +135,21 @@ const CoworkPage: PageComponentType = () => {
     }, [saveSessionId])
 
     const handleNewChat = useCallback(() => {
+        if (!organizationId) return
+        const newChatId = uuidV4()
+        const newChat: CoworkChat = {
+            id: newChatId,
+            title: newChatLabel,
+            createdAt: Date.now(),
+        }
+        const updatedChats = [newChat, ...chats]
+        saveChats(organizationId, updatedChats)
+        setChats(updatedChats)
+        saveSessionId(newChatId)
         setInitialMessage('')
-        setActiveChatId(null)
+        setActiveChatId(newChatId)
         setInputValue('')
-    }, [])
+    }, [organizationId, chats, saveChats, saveSessionId, newChatLabel])
 
     const handleDeleteChat = useCallback((chatId: string) => {
         if (!organizationId) return
