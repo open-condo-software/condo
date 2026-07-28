@@ -14,10 +14,11 @@ import { B2BAppFrame } from '@condo/domains/miniapp/components/B2BAppFrame'
 
 type BillingAppPageProps = {
     id: string
+    title?: string
     children?: React.ReactNode
 }
 
-export const BillingAppPage: React.FC<BillingAppPageProps> = ({ id, children }) => {
+export const BillingAppPage: React.FC<BillingAppPageProps> = ({ id, title, children }) => {
     const intl = useIntl()
     const FallbackPageTitle = intl.formatMessage({ id: 'global.section.miniapps' })
 
@@ -45,15 +46,16 @@ export const BillingAppPage: React.FC<BillingAppPageProps> = ({ id, children }) 
     return (
         <>
             <Head>
-                <title>{appName || FallbackPageTitle}</title>
+                <title>{title || appName || FallbackPageTitle}</title>
             </Head>
             <PageWrapper>
                 {children}
-                <PageHeader title={<Typography.Title level={1}>{appName || FallbackPageTitle}</Typography.Title>} spaced/>
+                <PageHeader title={<Typography.Title level={1}>{title || appName || FallbackPageTitle}</Typography.Title>} spaced/>
                 <PageContent>
                     {appUrl && (
                         <B2BAppFrame
                             src={appUrl}
+                            actions={true}
                         />
                     )}
                 </PageContent>
