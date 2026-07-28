@@ -70,7 +70,7 @@ export const ServiceUserSection: React.FC<{ id: string }> = ({ id }) => {
                                 : <RegisterUserForm id={id} environment={selectedEnvironment} appType={AppType.B2B}/>
                         )}
                     </Col>
-                    {!loading && !error && rights.length && (
+                    {Boolean(!loading && !error && rights.length) && (
                         <Col span={FULL_COL_SPAN}>
                             <AccessRightSetForm id={id} environment={selectedEnvironment}/>
                         </Col>

@@ -1,0 +1,19 @@
+.collapse-panel :global(.ant-collapse-content-box) {
+  padding: 0 !important;
+}
+
+.borderless-table tr:global(.ant-table-row):last-child > td:global(.ant-table-cell) {
+  border-bottom: none;
+}
+
+.clickable-row {
+  cursor: pointer;
+}
+
+.hint-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--condo-global-color-gray-7);
+  cursor: pointer;
+}

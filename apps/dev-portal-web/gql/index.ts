@@ -7606,15 +7606,21 @@ export type AllB2BAppAccessRightsQueryVariables = Exact<{
 
 export type AllB2BAppAccessRightsQuery = { __typename?: 'Query', rights?: Array<{ __typename?: 'B2BAppAccessRight', condoUserEmail?: string | null } | null> | null };
 
-export type B2BAppAccessRightSetPermissionsFragment = { __typename?: 'B2BAppAccessRightSet', canReadOrganizations?: boolean | null, canReadTickets?: boolean | null, canManageTickets?: boolean | null };
+export type B2BAppAccessRightSetPermissionsFragment = { __typename?: 'B2BAppAccessRightSet', canReadOrganizations?: boolean | null, canReadOrganizationEmployees?: boolean | null, canReadOrganizationEmployeeRoles?: boolean | null, canReadProperties?: boolean | null, canManageProperties?: boolean | null, canReadContacts?: boolean | null, canManageContacts?: boolean | null, canReadTickets?: boolean | null, canManageTickets?: boolean | null, canReadTicketFiles?: boolean | null, canManageTicketFiles?: boolean | null, canReadTicketComments?: boolean | null, canManageTicketComments?: boolean | null, canReadTicketCommentFiles?: boolean | null, canManageTicketCommentFiles?: boolean | null, canReadMeters?: boolean | null, canManageMeters?: boolean | null, canReadMeterReadings?: boolean | null, canManageMeterReadings?: boolean | null, canReadMeterReportingPeriods?: boolean | null, canManageMeterReportingPeriods?: boolean | null, canReadInvoices?: boolean | null, canManageInvoices?: boolean | null, canReadPayments?: boolean | null, canReadCustomValues?: boolean | null, canManageCustomValues?: boolean | null, canReadBillingReceipts?: boolean | null, canReadBillingReceiptFiles?: boolean | null };
 
 export type GetB2BAppAccessRightSetsForAppQueryVariables = Exact<{
   appId: Scalars['ID']['input'];
-  environment: AppEnvironment;
 }>;
 
 
-export type GetB2BAppAccessRightSetsForAppQuery = { __typename?: 'Query', rightSets?: Array<{ __typename?: 'B2BAppAccessRightSet', id: string, status?: B2BAppAccessRightSetStatusType | null, environment?: AppEnvironment | null, canReadOrganizations?: boolean | null, canReadTickets?: boolean | null, canManageTickets?: boolean | null } | null> | null };
+export type GetB2BAppAccessRightSetsForAppQuery = { __typename?: 'Query', rightSets?: Array<{ __typename?: 'B2BAppAccessRightSet', id: string, status?: B2BAppAccessRightSetStatusType | null, environment?: AppEnvironment | null, canReadOrganizations?: boolean | null, canReadOrganizationEmployees?: boolean | null, canReadOrganizationEmployeeRoles?: boolean | null, canReadProperties?: boolean | null, canManageProperties?: boolean | null, canReadContacts?: boolean | null, canManageContacts?: boolean | null, canReadTickets?: boolean | null, canManageTickets?: boolean | null, canReadTicketFiles?: boolean | null, canManageTicketFiles?: boolean | null, canReadTicketComments?: boolean | null, canManageTicketComments?: boolean | null, canReadTicketCommentFiles?: boolean | null, canManageTicketCommentFiles?: boolean | null, canReadMeters?: boolean | null, canManageMeters?: boolean | null, canReadMeterReadings?: boolean | null, canManageMeterReadings?: boolean | null, canReadMeterReportingPeriods?: boolean | null, canManageMeterReportingPeriods?: boolean | null, canReadInvoices?: boolean | null, canManageInvoices?: boolean | null, canReadPayments?: boolean | null, canReadCustomValues?: boolean | null, canManageCustomValues?: boolean | null, canReadBillingReceipts?: boolean | null, canReadBillingReceiptFiles?: boolean | null, diff?: { __typename?: 'AppAccessRightSetDiff', added: Array<string>, removed: Array<string> } | null } | null> | null };
+
+export type CreateB2BAppAccessRightSetMutationVariables = Exact<{
+  data: B2BAppAccessRightSetCreateInput;
+}>;
+
+
+export type CreateB2BAppAccessRightSetMutation = { __typename?: 'Mutation', rightSet?: { __typename?: 'B2BAppAccessRightSet', id: string, status?: B2BAppAccessRightSetStatusType | null, environment?: AppEnvironment | null, canReadOrganizations?: boolean | null, canReadOrganizationEmployees?: boolean | null, canReadOrganizationEmployeeRoles?: boolean | null, canReadProperties?: boolean | null, canManageProperties?: boolean | null, canReadContacts?: boolean | null, canManageContacts?: boolean | null, canReadTickets?: boolean | null, canManageTickets?: boolean | null, canReadTicketFiles?: boolean | null, canManageTicketFiles?: boolean | null, canReadTicketComments?: boolean | null, canManageTicketComments?: boolean | null, canReadTicketCommentFiles?: boolean | null, canManageTicketCommentFiles?: boolean | null, canReadMeters?: boolean | null, canManageMeters?: boolean | null, canReadMeterReadings?: boolean | null, canManageMeterReadings?: boolean | null, canReadMeterReportingPeriods?: boolean | null, canManageMeterReportingPeriods?: boolean | null, canReadInvoices?: boolean | null, canManageInvoices?: boolean | null, canReadPayments?: boolean | null, canReadCustomValues?: boolean | null, canManageCustomValues?: boolean | null, canReadBillingReceipts?: boolean | null, canReadBillingReceiptFiles?: boolean | null } | null };
 
 export type AllB2BAppContextsQueryVariables = Exact<{
   data: AllB2BAppContextsInput;
@@ -7897,8 +7903,33 @@ ${B2BAppPermissionsFragmentDoc}`;
 export const B2BAppAccessRightSetPermissionsFragmentDoc = gql`
     fragment B2BAppAccessRightSetPermissions on B2BAppAccessRightSet {
   canReadOrganizations
+  canReadOrganizationEmployees
+  canReadOrganizationEmployeeRoles
+  canReadProperties
+  canManageProperties
+  canReadContacts
+  canManageContacts
   canReadTickets
   canManageTickets
+  canReadTicketFiles
+  canManageTicketFiles
+  canReadTicketComments
+  canManageTicketComments
+  canReadTicketCommentFiles
+  canManageTicketCommentFiles
+  canReadMeters
+  canManageMeters
+  canReadMeterReadings
+  canManageMeterReadings
+  canReadMeterReportingPeriods
+  canManageMeterReportingPeriods
+  canReadInvoices
+  canManageInvoices
+  canReadPayments
+  canReadCustomValues
+  canManageCustomValues
+  canReadBillingReceipts
+  canReadBillingReceiptFiles
 }
     `;
 export const B2CAppPermissionsFragmentDoc = gql`
@@ -8215,11 +8246,15 @@ export type AllB2BAppAccessRightsLazyQueryHookResult = ReturnType<typeof useAllB
 export type AllB2BAppAccessRightsSuspenseQueryHookResult = ReturnType<typeof useAllB2BAppAccessRightsSuspenseQuery>;
 export type AllB2BAppAccessRightsQueryResult = Apollo.QueryResult<AllB2BAppAccessRightsQuery, AllB2BAppAccessRightsQueryVariables>;
 export const GetB2BAppAccessRightSetsForAppDocument = gql`
-    query getB2BAppAccessRightSetsForApp($appId: ID!, $environment: AppEnvironment!) {
+    query getB2BAppAccessRightSetsForApp($appId: ID!) {
   rightSets: allB2BAppAccessRightSets(where: {app: {id: $appId}}, first: 4) {
     id
     status
     environment
+    diff {
+      added
+      removed
+    }
     ...B2BAppAccessRightSetPermissions
   }
 }
@@ -8238,7 +8273,6 @@ export const GetB2BAppAccessRightSetsForAppDocument = gql`
  * const { data, loading, error } = useGetB2BAppAccessRightSetsForAppQuery({
  *   variables: {
  *      appId: // value for 'appId'
- *      environment: // value for 'environment'
  *   },
  * });
  */
@@ -8261,6 +8295,42 @@ export type GetB2BAppAccessRightSetsForAppQueryHookResult = ReturnType<typeof us
 export type GetB2BAppAccessRightSetsForAppLazyQueryHookResult = ReturnType<typeof useGetB2BAppAccessRightSetsForAppLazyQuery>;
 export type GetB2BAppAccessRightSetsForAppSuspenseQueryHookResult = ReturnType<typeof useGetB2BAppAccessRightSetsForAppSuspenseQuery>;
 export type GetB2BAppAccessRightSetsForAppQueryResult = Apollo.QueryResult<GetB2BAppAccessRightSetsForAppQuery, GetB2BAppAccessRightSetsForAppQueryVariables>;
+export const CreateB2BAppAccessRightSetDocument = gql`
+    mutation createB2BAppAccessRightSet($data: B2BAppAccessRightSetCreateInput!) {
+  rightSet: createB2BAppAccessRightSet(data: $data) {
+    id
+    status
+    environment
+    ...B2BAppAccessRightSetPermissions
+  }
+}
+    ${B2BAppAccessRightSetPermissionsFragmentDoc}`;
+export type CreateB2BAppAccessRightSetMutationFn = Apollo.MutationFunction<CreateB2BAppAccessRightSetMutation, CreateB2BAppAccessRightSetMutationVariables>;
+
+/**
+ * __useCreateB2BAppAccessRightSetMutation__
+ *
+ * To run a mutation, you first call `useCreateB2BAppAccessRightSetMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateB2BAppAccessRightSetMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createB2BAppAccessRightSetMutation, { data, loading, error }] = useCreateB2BAppAccessRightSetMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCreateB2BAppAccessRightSetMutation(baseOptions?: Apollo.MutationHookOptions<CreateB2BAppAccessRightSetMutation, CreateB2BAppAccessRightSetMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateB2BAppAccessRightSetMutation, CreateB2BAppAccessRightSetMutationVariables>(CreateB2BAppAccessRightSetDocument, options);
+      }
+export type CreateB2BAppAccessRightSetMutationHookResult = ReturnType<typeof useCreateB2BAppAccessRightSetMutation>;
+export type CreateB2BAppAccessRightSetMutationResult = Apollo.MutationResult<CreateB2BAppAccessRightSetMutation>;
+export type CreateB2BAppAccessRightSetMutationOptions = Apollo.BaseMutationOptions<CreateB2BAppAccessRightSetMutation, CreateB2BAppAccessRightSetMutationVariables>;
 export const AllB2BAppContextsDocument = gql`
     query allB2BAppContexts($data: AllB2BAppContextsInput!) {
   contexts: allB2BAppContexts(data: $data) {
