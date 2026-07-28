@@ -29,14 +29,14 @@ const SetupBillingPage: PageComponentType = () => {
             organization: { id: orgId },
             deletedAt: null,
         },
-    })
+    }, { skip: !orgId })
 
     const { objs: acquiringContexts, loading: acquiringLoading, error: acquiringError, refetch: refetchAcquiring } = AcquiringContext.useObjects({
         where: {
             organization: { id: orgId },
             deletedAt: null,
         },
-    })
+    }, { skip: !orgId })
 
     const handleFinishSetup = useCallback(() => {
         refetchBilling().then(() => refetchAcquiring())
