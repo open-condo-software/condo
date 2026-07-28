@@ -1,6 +1,7 @@
 const Big = require('big.js')
 const dayjs = require('dayjs')
-const { get, isNil, set } = require('lodash')
+const get = require('lodash/get')
+const set = require('lodash/set')
 
 const { find } = require('@open-condo/keystone/schema')
 
@@ -166,9 +167,8 @@ async function isReceiptPaid (context, accountNumber, period, organizationIds, r
  * @param {TCompareQRResolvers} resolvers
  * @return {Promise<void>}
  */
-async function compareQRCodeWithLastReceipt (context, qrCodeFields, resolvers) {
-    const period = formatPeriodFromQRCode(getQRCodeField(qrCodeFields, 'PaymPeriod'))
-
+async function compareQRCodeWithLastReceipt ({ context, qrCodeFields, resolvers, billingContexts }) {
+    // NOTE(YEgorLu): account.number + tin + period should uniquely identify receipt. If not, then something is wrong
     const [lastBillingReceipt] = await BillingReceipt.getAll(
         context,
         {
@@ -179,16 +179,25 @@ async function compareQRCodeWithLastReceipt (context, qrCodeFields, resolvers) {
                 bankAccount: getQRCodeField(qrCodeFields, 'PersonalAcc'),
                 deletedAt: null,
             },
+            context: {
+                id_in: billingContexts.map(billingContext => billingContext.id),
+                deletedAt: null,
+            },
             deletedAt: null,
         },
-        'id period toPay category { id name } createdAt',
-        { sortBy: ['period_DESC'], first: 1 },
+        'id period toPay category { id name } createdAt context { id }',
+        { sortBy: ['period_DESC', 'createdAt_DESC'], first: 1 },
     )
 
-    if (isNil(lastBillingReceipt)) {
-        // No receipts found at our side
+    if (!lastBillingReceipt) {
         resolvers.onNoReceipt && await resolvers.onNoReceipt()
-    } else if (lastBillingReceipt.period === period) {
+        return
+    }
+
+    const billingContext = billingContexts.find(billingContext => billingContext.id === lastBillingReceipt.context.id)
+    const period = formatPeriodFromQRCode(getQRCodePaymPeriod(qrCodeFields, billingContext))
+
+    if (lastBillingReceipt.period === period) {
         resolvers.onReceiptPeriodEqualsQrCodePeriod && await resolvers.onReceiptPeriodEqualsQrCodePeriod(lastBillingReceipt)
     } else if (lastBillingReceipt.period > period) {
         // we have a newer receipt at our side

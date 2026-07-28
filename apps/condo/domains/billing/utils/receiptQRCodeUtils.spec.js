@@ -191,7 +191,7 @@ describe('receiptQRCodeUtils', () => {
                     onReceiptPeriodNewerThanQrCodePeriod: jest.fn(),
                     onReceiptPeriodOlderThanQrCodePeriod: jest.fn(),
                 }
-                await compareQRCodeWithLastReceipt(context, qrCodeObj, resolvers)
+                await compareQRCodeWithLastReceipt({ context, qrCodeFields: qrCodeObj, resolvers, billingContexts: [billingIntegrationContext] })
 
                 expect(resolvers.onNoReceipt).toBeCalledTimes(1)
                 expect(resolvers.onReceiptPeriodEqualsQrCodePeriod).toBeCalledTimes(0)
@@ -201,6 +201,17 @@ describe('receiptQRCodeUtils', () => {
         })
 
         describe('when there is a billing receipt is existing', () => {
+
+            function formatReceiptForComparison ({ billingReceipt, billingContext }) {
+                return {
+                    id: billingReceipt.id,
+                    period: billingReceipt.period,
+                    toPay: billingReceipt.toPay,
+                    createdAt: billingReceipt.createdAt,
+                    category: { id: HOUSING_CATEGORY_ID, name: billingReceipt.category.name },
+                    context: { id: billingContext.id },
+                }
+            }
 
             let billingReceiptForComparison
 
@@ -216,13 +227,7 @@ describe('receiptQRCodeUtils', () => {
                     toPay: Big(qrCodeObj.Sum).div(100),
                 })
 
-                billingReceiptForComparison = {
-                    id: billingReceipt.id,
-                    period: billingReceipt.period,
-                    toPay: billingReceipt.toPay,
-                    createdAt: billingReceipt.createdAt,
-                    category: { id: HOUSING_CATEGORY_ID, name: billingReceipt.category.name },
-                }
+                billingReceiptForComparison = formatReceiptForComparison({ billingReceipt, billingContext: billingIntegrationContext })
             })
 
             test('last billing receipt period equals qr-code period', async () => {
@@ -232,7 +237,7 @@ describe('receiptQRCodeUtils', () => {
                     onReceiptPeriodNewerThanQrCodePeriod: jest.fn(),
                     onReceiptPeriodOlderThanQrCodePeriod: jest.fn(),
                 }
-                await compareQRCodeWithLastReceipt(context, qrCodeObj, resolvers)
+                await compareQRCodeWithLastReceipt({ context, qrCodeFields: qrCodeObj, resolvers, billingContexts: [billingIntegrationContext] })
 
                 expect(resolvers.onNoReceipt).toBeCalledTimes(0)
                 expect(resolvers.onReceiptPeriodEqualsQrCodePeriod).toBeCalledTimes(1)
@@ -249,7 +254,7 @@ describe('receiptQRCodeUtils', () => {
                     onReceiptPeriodNewerThanQrCodePeriod: jest.fn(),
                     onReceiptPeriodOlderThanQrCodePeriod: jest.fn(),
                 }
-                await compareQRCodeWithLastReceipt(context, { ...qrCodeObj, PaymPeriod: '05.2024' }, resolvers)
+                await compareQRCodeWithLastReceipt({ context, qrCodeFields: { ...qrCodeObj, PaymPeriod: '05.2024' }, resolvers, billingContexts: [billingIntegrationContext] })
 
                 expect(resolvers.onNoReceipt).toBeCalledTimes(0)
                 expect(resolvers.onReceiptPeriodEqualsQrCodePeriod).toBeCalledTimes(0)
@@ -266,7 +271,7 @@ describe('receiptQRCodeUtils', () => {
                     onReceiptPeriodNewerThanQrCodePeriod: jest.fn(),
                     onReceiptPeriodOlderThanQrCodePeriod: jest.fn(),
                 }
-                await compareQRCodeWithLastReceipt(context, { ...qrCodeObj, PaymPeriod: '07.2024' }, resolvers)
+                await compareQRCodeWithLastReceipt({ context, qrCodeFields: { ...qrCodeObj, PaymPeriod: '07.2024' }, resolvers, billingContexts: [billingIntegrationContext] })
 
                 expect(resolvers.onNoReceipt).toBeCalledTimes(0)
                 expect(resolvers.onReceiptPeriodEqualsQrCodePeriod).toBeCalledTimes(0)
@@ -274,6 +279,50 @@ describe('receiptQRCodeUtils', () => {
                 expect(resolvers.onReceiptPeriodOlderThanQrCodePeriod).toBeCalledTimes(1)
 
                 expect(resolvers.onReceiptPeriodOlderThanQrCodePeriod).toHaveBeenCalledWith(billingReceiptForComparison)
+            })
+
+            test('2 simillar billing receipts', async () => {
+                const [anotherOrganization] = await createTestOrganization(adminClient)
+
+                const { billingIntegrationContext: anotherBillingContext } = await addBillingIntegrationAndContext(adminClient, anotherOrganization, {}, { status: CONTEXT_FINISHED_STATUS })
+                await addAcquiringIntegrationAndContext(adminClient, anotherOrganization, {}, { status: CONTEXT_FINISHED_STATUS })
+
+                await createTestBankAccount(adminClient, anotherOrganization, {
+                    number: qrCodeObj.PersonalAcc,
+                    routingNumber: qrCodeObj.BIC,
+                })
+                const [anotherBillingProperty] = await createTestBillingProperty(adminClient, anotherBillingContext)
+                const [anotherBillingAccountButWithSameNumber] = await createTestBillingAccount(adminClient, anotherBillingContext, anotherBillingProperty, { number: qrCodeObj.PersAcc })
+                await createTestBillingRecipient(adminClient, anotherBillingContext, {
+                    tin: qrCodeObj.PayeeINN,
+                    bankAccount: qrCodeObj.PersonalAcc,
+                    bic: qrCodeObj.BIC,
+                })
+                const [anotherBillingReceipt] = await createTestBillingReceipt(adminClient, anotherBillingContext, anotherBillingProperty, anotherBillingAccountButWithSameNumber, {
+                    period: '2024-06-01',
+                    receiver: { connect: { id: billingRecipient.id } },
+                    recipient: createTestRecipient({
+                        tin: billingRecipient.tin,
+                        bic: billingRecipient.bic,
+                        bankAccount: billingRecipient.bankAccount,
+                    }),
+                    toPay: Big(qrCodeObj.Sum).div(100),
+                })
+
+                const resolvers = {
+                    onNoReceipt: jest.fn(),
+                    onReceiptPeriodEqualsQrCodePeriod: jest.fn(),
+                    onReceiptPeriodNewerThanQrCodePeriod: jest.fn(),
+                    onReceiptPeriodOlderThanQrCodePeriod: jest.fn(),
+                }
+                await compareQRCodeWithLastReceipt({ context, qrCodeFields: { ...qrCodeObj, PaymPeriod: '07.2024' }, resolvers, billingContexts: [billingIntegrationContext, anotherBillingContext] })
+
+                expect(resolvers.onNoReceipt).toBeCalledTimes(0)
+                expect(resolvers.onReceiptPeriodEqualsQrCodePeriod).toBeCalledTimes(0)
+                expect(resolvers.onReceiptPeriodNewerThanQrCodePeriod).toBeCalledTimes(0)
+                expect(resolvers.onReceiptPeriodOlderThanQrCodePeriod).toBeCalledTimes(1)
+
+                expect(resolvers.onReceiptPeriodOlderThanQrCodePeriod).toHaveBeenCalledWith(formatReceiptForComparison({ billingReceipt: anotherBillingReceipt, billingContext: anotherBillingContext })) // he has ben called because he is newer
             })
         })
     })
