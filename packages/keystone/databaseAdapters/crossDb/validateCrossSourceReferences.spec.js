@@ -202,6 +202,36 @@ describe('validateCrossSourceReferences', () => {
                 { user: 'user-2', type: 'TYPE_B' },
             ])
         })
+
+        test('handles parser INSERT shape with single object values', () => {
+            jest.resetModules()
+            jest.doMock('node-sql-parser/build/postgresql', () => ({
+                Parser: jest.fn(() => ({
+                    astify: jest.fn(() => ({
+                        type: 'insert',
+                        columns: ['user', 'type'],
+                        values: {
+                            type: 'expr_list',
+                            value: [
+                                { type: 'var', name: 1, prefix: '$' },
+                                { type: 'var', name: 2, prefix: '$' },
+                            ],
+                        },
+                    })),
+                })),
+            }))
+
+            const {
+                extractMutationColumnValues: extractWithMockedParser,
+            } = require('./validateCrossSourceReferences')
+
+            expect(extractWithMockedParser('insert ignored', ['user-1', 'TYPE_A'])).toEqual([
+                { user: 'user-1', type: 'TYPE_A' },
+            ])
+
+            jest.dontMock('node-sql-parser/build/postgresql')
+            jest.resetModules()
+        })
     })
 
     describe('validateCrossSourceReferences', () => {
