@@ -1,0 +1,9 @@
+.compact-steps {
+  height: 64px;
+  padding: 18px;
+}
+
+.compact-steps :global(.condo-steps-step-index) {
+  width: 32px;
+  height: 32px;
+}

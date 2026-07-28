@@ -32,12 +32,12 @@ export const useRecipientDetails = (recipient: BillingRecipientType): ListProps[
                 label: CategoryLabel,
                 value: recipient.category?.name || NoDataMessage,
             },
-            {
-                label: FeeLabel,
-                value: recipient.commission || NoDataMessage,
-            },
+            //{
+            //    label: FeeLabel,
+            //    value: recipient.commission || NoDataMessage,
+            //},FeeLabel
         ]
 
         return dataSource
-    }, [AccountLabel, BICLabel, CategoryLabel, FeeLabel, NoDataMessage, TINLabel, recipient])
+    }, [AccountLabel, BICLabel, CategoryLabel, NoDataMessage, TINLabel, recipient])
 }

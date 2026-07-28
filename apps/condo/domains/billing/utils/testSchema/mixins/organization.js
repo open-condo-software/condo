@@ -25,7 +25,7 @@ const OrganizationTestMixin = {
     async updateOrganization (updateInput) {
         const [updatedOrganization] = await updateTestOrganization(this.clients.admin, this.organization.id, updateInput)
         this.organization = updatedOrganization
-    }
+    },
 
 }
 

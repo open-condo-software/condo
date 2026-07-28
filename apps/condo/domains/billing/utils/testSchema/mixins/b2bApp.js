@@ -1,4 +1,9 @@
 const {
+    ACCESS_RIGHT_SET_GLOBAL_TYPE,
+    ACCESS_RIGHT_SET_SCOPED_TYPE,
+} = require('@condo/domains/miniapp/constants')
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
+const {
     createTestB2BApp,
     createTestB2BAppContext,
     createTestB2BAccessToken,
@@ -7,12 +12,9 @@ const {
     updateTestB2BAppAccessRightSet,
 } = require('@condo/domains/miniapp/utils/testSchema')
 const { makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
-const {
-    ACCESS_RIGHT_SET_GLOBAL_TYPE,
-    ACCESS_RIGHT_SET_SCOPED_TYPE,
-} = require('@condo/domains/miniapp/constants')
+
 const { OrganizationTestMixin } = require('./organization')
-const { CONTEXT_FINISHED_STATUS } = require("@condo/domains/miniapp/constants")
+
 
 const B2B_INTEGRATION_SET = {
     canExecuteRegisterBillingReceipts: true,
@@ -31,7 +33,7 @@ const B2BAppTestMixin = {
                 canReadB2BAccessTokens: true,
                 canManageB2BAccessTokens: true,
                 ...B2B_INTEGRATION_SET,
-                type: ACCESS_RIGHT_SET_GLOBAL_TYPE
+                type: ACCESS_RIGHT_SET_GLOBAL_TYPE,
             })
         await createTestB2BAppAccessRight(this.clients.support, this.clients.b2bServiceUser.user, b2bApp, rightSet)
         const [tokenRightSet] = await createTestB2BAppAccessRightSet(this.clients.support, b2bApp, { ...B2B_INTEGRATION_SET, type: ACCESS_RIGHT_SET_SCOPED_TYPE })
