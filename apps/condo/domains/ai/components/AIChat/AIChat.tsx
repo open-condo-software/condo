@@ -13,6 +13,10 @@ import { parseAssistantAnswer, toDisplayText } from '@condo/domains/ai/utils/aiA
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { LocalStorageManager } from '@condo/domains/common/utils/localStorageManager'
 
+import type { A2uiMessage } from '@a2ui/web_core/v0_9'
+
+import { extractA2UIMessages } from './genUI'
+
 import styles from './AIChat.module.css'
 import { AIChatInput } from './AIChatInput'
 import { AIChatMessage } from './AIChatMessage'
@@ -35,6 +39,7 @@ export type MessageContent = {
     text: string
     suggestions?: string[]
     attachments?: MessageAttachmentDisplay[]
+    a2uiMessages?: A2uiMessage[]
 }
 
 export type Message = {
@@ -173,13 +178,18 @@ export const AIChat: React.FC<AIChatProps> = ({
             })
         }
 
+        const { text: a2uiCleanText, a2uiMessages } = extractA2UIMessages(assistantAnswerText)
+        const finalText = a2uiMessages.length > 0 ? a2uiCleanText : assistantAnswerText
+
         const isFinalAssistantReply = result.data?.status === TASK_STATUSES.COMPLETED
 
+        // Show copy button only for final assistant replies, not intermediate statuses.
         changeMessage(assistantMessage.id, {
             ...assistantMessage,
             content: {
-                text: assistantAnswerText,
+                text: finalText,
                 suggestions,
+                a2uiMessages: a2uiMessages.length > 0 ? a2uiMessages : undefined,
             },
             status: 'sent',
             copyable: isFinalAssistantReply,

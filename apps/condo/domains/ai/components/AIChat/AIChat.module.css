@@ -116,3 +116,17 @@
   box-sizing: border-box;
   min-height: var(--ai-chat-scrollport-height, 100%);
 }
+
+.assistant-a2ui {
+  width: 100%;
+  margin-top: var(--condo-global-spacing-4);
+}
+
+.assistant-markdown {
+  color: var(--condo-global-color-black);
+  line-height: 1.6;
+}
+
+.assistant-markdown * {
+  margin-bottom: 8px !important;
+}

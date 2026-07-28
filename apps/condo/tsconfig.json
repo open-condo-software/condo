@@ -19,7 +19,10 @@
     "jsx": "preserve",
     "jsxImportSource": "@emotion/react",
     "downlevelIteration": true,
-    "incremental": true
+    "incremental": true,
+    "paths": {
+      "@a2ui/web_core/v0_9": ["../../node_modules/@a2ui/web_core/src/v0_9/index.d.ts"]
+    }
   },
   "include": [
     "next-env.d.ts",
