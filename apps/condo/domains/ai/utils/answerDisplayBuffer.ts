@@ -13,7 +13,7 @@ type CreateAnswerDisplayBufferOptions = {
     charsPerSecond?: number
 }
 
-const DEFAULT_CHARS_PER_SECOND = 50
+const DEFAULT_CHARS_PER_SECOND = 75
 const MAX_FRAME_DELTA_SEC = 0.05
 
 export function createAnswerDisplayBuffer ({

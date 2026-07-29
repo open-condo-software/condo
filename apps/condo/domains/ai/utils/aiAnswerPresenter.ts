@@ -3,18 +3,12 @@ const SUGGESTIONS_CLOSE_PREFIX = '[[/SUGGESTIONS'
 const SUGGESTIONS_BLOCK_REGEX = /\[\[SUGGESTIONS\]\]([\s\S]*?)\[\[\/SUGGESTIONS\]\]/m
 
 const CALLING_PREFIX = 'Calling'
-// camelCase / PascalCase tool ids: getTickets, getProperties, SearchHouses
-const TOOL_NAME_PATTERN = '[A-Za-z][A-Za-z0-9]*[A-Z][A-Za-z0-9_]*|[a-z]+[A-Z][A-Za-z0-9_]*'
 // n8n / LangChain: "Calling <tool> with input: { ... }"
-const TOOL_CALL_HEADER_REGEX = new RegExp(`Calling\\s+(?:${TOOL_NAME_PATTERN})\\s+with\\s+input:\\s*`, 'g')
-const PARTIAL_TOOL_CALL_HEADER_REGEX = new RegExp(`^(Calling\\s+(?:${TOOL_NAME_PATTERN})\\s+with\\s+input:\\s*)`)
-// Narrative status without JSON: "Calling getProperties to find the house by address."
-// Stop before newline or Cyrillic so glued RU text stays.
-const NARRATIVE_TOOL_CALL_REGEX = new RegExp(
-    `Calling\\s+(?:${TOOL_NAME_PATTERN})\\b[^\\n\\u0400-\\u04FF]*`,
-    'g',
-)
-const PARTIAL_NARRATIVE_TOOL_CALL_REGEX = new RegExp(`^Calling\\s+(?:${TOOL_NAME_PATTERN})\\b`)
+const TOOL_CALL_HEADER_REGEX = /Calling\s+.+?\s+with\s+input:\s*/g
+const PARTIAL_TOOL_CALL_HEADER_REGEX = /^(Calling\s+.+?\s+with\s+input:\s*)/
+// Strip any English "Calling …" agent traces
+const CALLING_TRACE_REGEX = /Calling[^\n\u0400-\u04FF]*/g
+const PARTIAL_CALLING_TRACE_REGEX = /^Calling\b/
 
 export type SuggestionsFailureReason = 'missing_block' | 'empty_after_parse' | 'service_text_leaked'
 
@@ -124,8 +118,7 @@ function isIncompleteToolCallAfterHeader (line: string): boolean {
 function isPartialToolCallTrace (line: string): boolean {
     if (!line) return false
     if (CALLING_PREFIX.startsWith(line)) return true
-    if (/^Calling\s+\S*$/.test(line) && !/[.!?]$/.test(line)) return true
-    if (PARTIAL_NARRATIVE_TOOL_CALL_REGEX.test(line)) return true
+    if (PARTIAL_CALLING_TRACE_REGEX.test(line)) return true
     if (/^Calling\s+\S+\s+with(?:\s+input)?$/.test(line)) return true
     return isIncompleteToolCallAfterHeader(line)
 }
@@ -153,7 +146,7 @@ function stripServiceToolCallLines (text: string): string {
     }
 
     result += text.slice(lastIndex)
-    result = result.replace(NARRATIVE_TOOL_CALL_REGEX, '')
+    result = result.replace(CALLING_TRACE_REGEX, '')
     result = result.replace(/^\n+/, '').replace(/\n{3,}/g, '\n\n')
 
     const lastNewlineIndex = result.lastIndexOf('\n')

@@ -19,7 +19,7 @@ describe('aiAnswerPresenter tool-trace stripping', () => {
         expect(toDisplayText(raw)).toBe('За текущий месяц')
     })
 
-    it('removes narrative tool status lines with camelCase tool names', () => {
+    it('removes narrative tool status lines', () => {
         const raw = 'Calling getProperties to find the house by address.Не нашёл дом по адресу «12 корпус 2».'
 
         expect(toDisplayText(raw)).toBe('Не нашёл дом по адресу «12 корпус 2».')
@@ -31,22 +31,23 @@ describe('aiAnswerPresenter tool-trace stripping', () => {
         expect(toDisplayText(raw)).toBe('Не нашёл дом.')
     })
 
-    it('keeps English sentences that start with Calling', () => {
-        const raw = 'Calling the resident is the next step.'
+    it('removes lowercase multi-word Calling status', () => {
+        const raw = 'Calling report scenario for negative analysis\nГотово.'
 
-        expect(toDisplayText(raw)).toBe(raw)
+        expect(toDisplayText(raw)).toBe('Готово.')
     })
 
-    it('keeps Spanish sentences that start with Calling', () => {
-        const raw = 'Calling a technician may help tomorrow.'
-
-        expect(toDisplayText(raw)).toBe(raw)
+    // TEMP: RU-only chat — EN "Calling …" prose is treated as agent noise for now.
+    it('removes English Calling prose while chat is RU-only', () => {
+        expect(toDisplayText('Calling the resident is the next step.')).toBe('')
+        expect(toDisplayText('Calling a technician may help tomorrow.\nОк.')).toBe('Ок.')
     })
 
     it('hides incomplete tool traces while streaming', () => {
         expect(toDisplayText('Hello\nCalling getTickets with input: {"a":')).toBe('Hello')
         expect(toDisplayText('Hello\nCalling getTickets with input:')).toBe('Hello')
         expect(toDisplayText('Hello\nCalling getTickets')).toBe('Hello')
+        expect(toDisplayText('Hello\nCalling report scenario')).toBe('Hello')
     })
 
     it('parseAssistantAnswer still returns suggestions after stripping traces', () => {
