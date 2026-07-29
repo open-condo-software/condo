@@ -5,7 +5,7 @@ const get = require('lodash/get')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
-const { find, getSchemaCtx } = require('@open-condo/keystone/schema')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { listNeedsCrossDbWhereRewrite } = require('./crossSourceHints')
 
@@ -19,7 +19,7 @@ const CROSS_DB_RELATION_IDS_HARD_LIMIT = Number(conf.CROSS_DB_RELATION_FILTER_ID
 const CROSS_DB_RELATION_MAX_PAGES = Number(conf.CROSS_DB_RELATION_FILTER_MAX_PAGES) ||
     Math.ceil(CROSS_DB_RELATION_IDS_HARD_LIMIT / GLOBAL_QUERY_LIMIT) + 1
 
-/** Skips nested prepareCrossDbWhere while OR-flatten loads base ids via `find`. */
+/** Skips nested prepareCrossDbWhere while OR-flatten loads base ids via base-list `getItems`. */
 const prepareWhereSkipStorage = new AsyncLocalStorage()
 
 const logger = getLogger()
@@ -61,7 +61,7 @@ class CrossDbPlanner {
         this.baseSource = this.sourceRegistry.resolveSource(listKey)
         this._relationIdsCache = new Map()
         // When flattening access `OR` branches to base `id_in`, nested prepareWhere
-        // must not re-enter OR flattening (would recurse through find → prepareWhere).
+        // must not re-enter OR flattening (would recurse through getItems → prepareWhere).
         this._flatteningOr = false
     }
 
@@ -329,7 +329,7 @@ class CrossDbPlanner {
 
     /**
      * Resolve OR branches that touch cross-source relations to a base-table `id_in`.
-     * Each branch is rewritten (relation filters → FK id_in) then loaded via `find`
+     * Each branch is rewritten (relation filters → FK id_in) then loaded via bounded `getItems`
      * (no GraphQL access merge), so SQL sees AND-only FK joins — not OR-of-joins.
      */
     async _flattenOrToBaseIds (branches, relationMap) {
@@ -347,8 +347,16 @@ class CrossDbPlanner {
     }
 
     async _loadBaseIds (where) {
-        // `find` → executeFind → prepareCrossDbWhere; skip re-entry (where is already rewritten).
-        const rows = await prepareWhereSkipStorage.run({ skip: true }, () => find(this.listKey, where))
+        const { keystone: baseKeystone } = await getSchemaCtx(this.listKey)
+        const rows = await prepareWhereSkipStorage.run({ skip: true }, () => getItems({
+            keystone: baseKeystone,
+            listKey: this.listKey,
+            where,
+            returnFields: 'id',
+            sortBy: ['id_ASC'],
+            first: CROSS_DB_RELATION_IDS_HARD_LIMIT + 1,
+            skip: 0,
+        }))
         if (!Array.isArray(rows)) return []
 
         const ids = rows.map(row => row?.id).filter(Boolean)

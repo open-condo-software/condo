@@ -7,7 +7,9 @@ const { getKVClient } = require('@open-condo/keystone/kv')
 const {
     executeProviderSqlMutation,
     executeProviderSqlSelect,
+    extractSimpleSelectCondition,
 } = require('./executeProviderSql')
+const { applyItemsQueryToRows } = require('./providerMethods')
 const { KvDataProvider } = require('./kv')
 
 const { BalancingReplicaKnexAdapter } = require('../adapters/BalancingReplicaKnexAdapter/adapter')
@@ -288,6 +290,50 @@ describe('executeProviderSql with KvDataProvider', () => {
             sql: countSql,
             bindings: [],
         })).rejects.toThrow('does not support COUNT queries')
+    })
+})
+
+describe('extractSimpleSelectCondition', () => {
+    test('parses simple id equality with deletedAt filter', () => {
+        const sql = 'select * from "Message" where "id" = $1 and "deletedAt" is null'
+
+        expect(extractSimpleSelectCondition(sql, ['msg-1'])).toEqual({
+            id: 'msg-1',
+            deletedAt: null,
+        })
+    })
+
+    test('preserves every id_in binding and fails closed on missing ones', () => {
+        const sql = 'select * from "Message" where "id" in ($1, $2, $3)'
+
+        expect(extractSimpleSelectCondition(sql, ['msg-1', 'msg-2', 'msg-3'])).toEqual({
+            id_in: ['msg-1', 'msg-2', 'msg-3'],
+        })
+        expect(extractSimpleSelectCondition(sql, ['msg-1', 'msg-2'])).toBeNull()
+    })
+
+    test('rejects unsupported extra predicates', () => {
+        const sql = 'select * from "Message" where "id" = $1 and "status" = $2'
+
+        expect(extractSimpleSelectCondition(sql, ['msg-1', 'sent'])).toBeNull()
+    })
+})
+
+describe('applyItemsQueryToRows', () => {
+    test('sorts by fields that contain underscores', () => {
+        const rows = [
+            { id: '2', some_field: 'b' },
+            { id: '1', some_field: 'a' },
+        ]
+
+        expect(applyItemsQueryToRows(rows, { sortBy: ['some_field_ASC'] })).toEqual([
+            { id: '1', some_field: 'a' },
+            { id: '2', some_field: 'b' },
+        ])
+        expect(applyItemsQueryToRows(rows, { sortBy: ['some_field_DESC'] })).toEqual([
+            { id: '2', some_field: 'b' },
+            { id: '1', some_field: 'a' },
+        ])
     })
 })
 

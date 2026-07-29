@@ -157,6 +157,14 @@ describe('crossSourceSelectSql', () => {
             ])
         })
 
+        test('returns empty list for nested alias predicate shapes that are not safely rewritable', () => {
+            const sql = keystoneSelectWithFkJoin({
+                extraWhere: `lower("${joinAlias}"."name") = 'ann'`,
+            })
+
+            expect(extractJoinAliasPredicates(sql, joinAlias)).toEqual([])
+        })
+
         test('extracts IN and NOT IN on joined User id', () => {
             const sqlIn = keystoneSelectWithFkJoin({
                 extraWhere: `"${joinAlias}"."id" in ('u-1', 'u-2')`,
@@ -266,6 +274,16 @@ describe('crossSourceSelectSql', () => {
         test('throws when WHERE uses OR around join-alias predicates', () => {
             const inputSql = keystoneSelectWithFkJoin({
                 extraWhere: '("t0__user"."name" = \'Ann\') or ("t0"."status" = \'sent\')',
+            })
+
+            expect(() => rewriteCrossSourceSelectSql(inputSql, {
+                joinRewrites: [userJoinRewrite(['user-ann-1'])],
+            })).toThrow('Unsupported cross-pool JOIN rewrite for alias "t0__user"')
+        })
+
+        test('throws when hydration-only join still has nested alias reference in WHERE', () => {
+            const inputSql = keystoneSelectWithFkJoin({
+                extraWhere: `lower("t0__user"."name") = 'ann'`,
             })
 
             expect(() => rewriteCrossSourceSelectSql(inputSql, {

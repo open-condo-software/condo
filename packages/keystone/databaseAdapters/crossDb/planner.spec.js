@@ -43,12 +43,11 @@ jest.mock('@open-condo/keystone/logging', () => ({
 
 jest.mock('@open-condo/keystone/schema', () => ({
     getSchemaCtx: jest.fn(),
-    find: jest.fn(),
 }))
 
 const { getItems } = require('@open-keystone/server-side-graphql-client')
 
-const { find, getSchemaCtx } = require('@open-condo/keystone/schema')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { CrossDbPlanner, prepareCrossDbWhere } = require('./planner')
 
@@ -175,7 +174,7 @@ describe('CrossDbPlanner.prepareWhere', () => {
     test('flattens OR of cross-source relation filters to base id_in', async () => {
         getSchemaCtx.mockResolvedValue({ keystone: {} })
         getItems.mockResolvedValueOnce([{ id: 'user-1' }])
-        find.mockResolvedValueOnce([{ id: 'msg-1' }, { id: 'msg-2' }])
+        getItems.mockResolvedValueOnce([{ id: 'msg-1' }, { id: 'msg-2' }])
 
         const result = await planner.prepareWhere({
             OR: [
@@ -188,13 +187,17 @@ describe('CrossDbPlanner.prepareWhere', () => {
             listKey: 'User',
             where: { name_contains: 'john' },
         }))
-        expect(find).toHaveBeenCalledWith('Message', { user: { id_in: ['user-1'] } })
+        expect(getItems).toHaveBeenLastCalledWith(expect.objectContaining({
+            listKey: 'Message',
+            where: { user: { id_in: ['user-1'] } },
+            first: 50001,
+        }))
     })
 
     test('rewrites same-pool nested relation where via related-list planner', async () => {
         getSchemaCtx.mockResolvedValue({ keystone: {} })
         getItems.mockResolvedValueOnce([{ id: 'user-1' }])
-        find.mockResolvedValueOnce([{ id: 'msg-nested-1' }])
+        getItems.mockResolvedValueOnce([{ id: 'msg-nested-1' }])
 
         // MessageFile.receipt → Message (same pool); nested user filter is cross-source for Message
         const filePlanner = new CrossDbPlanner({
@@ -247,6 +250,50 @@ describe('CrossDbPlanner.prepareWhere', () => {
         })
 
         expect(result).toEqual({ user: { id_in: [] } })
+    })
+})
+
+describe('CrossDbPlanner._loadBaseIds', () => {
+    let planner
+
+    beforeEach(() => {
+        jest.clearAllMocks()
+        getItems.mockReset()
+        getSchemaCtx.mockReset()
+        getSchemaCtx.mockResolvedValue({ keystone: {} })
+
+        planner = new CrossDbPlanner({
+            listKey: 'Message',
+            adapter: {},
+            isPrisma: false,
+            knex: {},
+            singleRelations: [],
+            multipleRelations: [],
+            resolveDbColumn: (name) => name,
+            applyPrismaMultipleRelations: async (rows) => rows,
+        })
+    })
+
+    test('loads bounded base ids via getItems', async () => {
+        getItems.mockResolvedValue([{ id: 'm-1' }, { id: 'm-2' }])
+
+        await expect(planner._loadBaseIds({ status: 'sent' })).resolves.toEqual(['m-1', 'm-2'])
+        expect(getItems).toHaveBeenCalledWith(expect.objectContaining({
+            listKey: 'Message',
+            where: { status: 'sent' },
+            returnFields: 'id',
+            sortBy: ['id_ASC'],
+            first: 50001,
+            skip: 0,
+        }))
+    })
+
+    test('throws when bounded base ids exceed hard limit', async () => {
+        getItems.mockResolvedValue(Array.from({ length: 50001 }, (_, i) => ({ id: `m-${i}` })))
+
+        await expect(planner._loadBaseIds({ status: 'sent' })).rejects.toThrow(
+            'Cross-db OR flatten returned too many ids for Message. Limit: 50000'
+        )
     })
 })
 

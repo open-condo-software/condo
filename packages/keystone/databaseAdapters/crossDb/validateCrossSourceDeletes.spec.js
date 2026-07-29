@@ -202,6 +202,30 @@ describe('validateCrossSourceDeletes', () => {
     })
 
     describe('enforceCrossSourceDeleteConstraints', () => {
+        test('throws when hard delete target ids cannot be resolved', async () => {
+            await expect(enforceCrossSourceDeleteConstraints({
+                tableName: 'BillingReceipt',
+                listAdapters: createListAdapters(),
+                sql: 'delete from "public"."BillingReceipt" where "period" = $1',
+                bindings: ['2026-01'],
+                sqlOperationName: 'delete',
+                sourceRegistry,
+                getPoolByName: createGetPoolByName({ tables: {} }),
+            })).rejects.toThrow('could not resolve target BillingReceipt id(s) for DELETE statement')
+        })
+
+        test('throws when soft-delete target ids cannot be resolved', async () => {
+            await expect(enforceCrossSourceDeleteConstraints({
+                tableName: 'BillingReceipt',
+                listAdapters: createListAdapters(),
+                sql: 'update "public"."BillingReceipt" set "deletedAt" = $1 where "period" = $2',
+                bindings: ['2026-01-01T00:00:00.000Z', '2026-01'],
+                sqlOperationName: 'update',
+                sourceRegistry,
+                getPoolByName: createGetPoolByName({ tables: {} }),
+            })).rejects.toThrow('could not resolve target BillingReceipt id(s) for UPDATE statement')
+        })
+
         test('PROTECT blocks hard delete when dependents exist', async () => {
             await expect(enforceCrossSourceDeleteConstraints({
                 tableName: 'BillingReceipt',

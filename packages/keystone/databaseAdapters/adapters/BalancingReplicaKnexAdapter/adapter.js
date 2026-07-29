@@ -110,19 +110,26 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
         }
 
         const ownerPoolName = this._sourceRegistry.resolveSource(tableName)
+        const routedPoolName = this._getPoolName(routedPool)
         const ownerPool = this._replicaPools[ownerPoolName]
+        const ownerPoolConfig = this._replicaPoolsConfig?.[ownerPoolName]
+
+        // Writes must go to the writable pool that actually owns the target table.
+        if (['insert', 'update', 'delete'].includes(sqlOperationName)) {
+            if (!ownerPool || !ownerPoolConfig?.writable) {
+                throw new Error(`Pool "${ownerPoolName}" is read-only or unavailable`)
+            }
+            if (ownerPoolName === routedPoolName) {
+                return routedPool
+            }
+            return ownerPool
+        }
+
         if (!ownerPool) {
             return routedPool
         }
-
-        const routedPoolName = this._getPoolName(routedPool)
         if (ownerPoolName === routedPoolName) {
             return routedPool
-        }
-
-        // Writes must go to the pool that actually owns the target table.
-        if (['insert', 'update', 'delete'].includes(sqlOperationName)) {
-            return ownerPool
         }
 
         // Reads may still follow replica rules, but only when that pool really has the table.
@@ -309,8 +316,6 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
                     sqlObject,
                     finalTableName,
                     finalSqlOperationName,
-                    gqlOperationType,
-                    gqlOperationName,
                 })
             }
 
@@ -391,14 +396,12 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
                         })
                     }
 
-                    if (typeof primaryResult === 'undefined') {
+                    if (primaryResult === undefined) {
                         if (needsCrossSourceValidation) {
                             await this._tryValidateCrossSourceReferences({
                                 sqlObject,
                                 finalTableName,
                                 finalSqlOperationName,
-                                gqlOperationType,
-                                gqlOperationName,
                             })
                         }
                         primaryResult = await originalPrimaryRun()

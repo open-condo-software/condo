@@ -242,7 +242,12 @@ async function enforceCrossSourceDeleteConstraints ({
         return
     }
 
-    if (!parentIds.length) return
+    if (!parentIds.length) {
+        throw new Error(
+            `Cross-database foreign key validation could not resolve target ${tableName} ` +
+            `id(s) for ${sqlOperationName.toUpperCase()} statement`,
+        )
+    }
 
     const inbound = collectCrossSourceInboundForeignKeys({
         listKey: tableName,
@@ -274,6 +279,9 @@ async function enforceCrossSourceDeleteConstraints ({
     // Soft-delete does not run ON DELETE CASCADE / SET_NULL in Postgres either.
     if (mode === 'soft') return
 
+    // NOTE: Cross-pool dependent writes run before the parent delete because the parent
+    // statement executes in a separate query runner outside this validator. These changes
+    // are therefore not transactional with the parent delete across different pools.
     const cascadeRels = inbound.filter(rel => rel.onDelete === ON_DELETE.CASCADE)
     for (const rel of cascadeRels) {
         const poolName = sourceRegistry.resolveSource(rel.dependentListKey)
