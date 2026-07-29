@@ -283,7 +283,7 @@ describe('crossSourceSelectSql', () => {
 
         test('throws when hydration-only join still has nested alias reference in WHERE', () => {
             const inputSql = keystoneSelectWithFkJoin({
-                extraWhere: `lower("t0__user"."name") = 'ann'`,
+                extraWhere: 'lower("t0__user"."name") = \'ann\'',
             })
 
             expect(() => rewriteCrossSourceSelectSql(inputSql, {
