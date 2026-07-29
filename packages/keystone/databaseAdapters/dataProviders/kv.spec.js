@@ -9,8 +9,8 @@ const {
     executeProviderSqlSelect,
     extractSimpleSelectCondition,
 } = require('./executeProviderSql')
-const { applyItemsQueryToRows } = require('./providerMethods')
 const { KvDataProvider } = require('./kv')
+const { applyItemsQueryToRows } = require('./providerMethods')
 
 const { BalancingReplicaKnexAdapter } = require('../adapters/BalancingReplicaKnexAdapter/adapter')
 const { createPoolBasedSourceRegistry } = require('../sourceRegistry')
