@@ -41,8 +41,12 @@
 
   "global.miniapp.environments.development.label": "Тестовый стенд",
   "global.miniapp.environments.development.label.genitive": "Тестового стенда",
+  "global.miniapp.environments.development.label.instrumental": "Тестовым стендом",
+  "global.miniapp.environments.development.label.prepositional": "Тестовом стенде",
   "global.miniapp.environments.production.label": "Продуктовый стенд",
   "global.miniapp.environments.production.label.genitive": "Продуктового стенда",
+  "global.miniapp.environments.production.label.instrumental": "Продуктовым стендом",
+  "global.miniapp.environments.production.label.prepositional": "Продуктовом стенде",
 
   "components.common.markdownEditor.controls.undo.title": "Назад",
   "components.common.markdownEditor.controls.redo.title": "Вперед",
@@ -342,6 +346,10 @@
   "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.alert.pending.message": "Запрос на изменение прав находится на этапе модерации",
   "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.alert.pending.description": "Как только мы рассмотрим запрос, изменение прав применится автоматически и будет доступным для публикации",
   "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.alert.pending.actions.viewChanges": "Посмотреть изменения",
+  "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.actions.compare": "Сравнить с {environment}",
+  "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.compareModal.title": "Права на {environment}",
+  "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.compareModal.diffContainer.added.title": "Дополнительные права",
+  "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.compareModal.diffContainer.removed.title": "Недостающие права",
   "pages.apps.b2b.id.sections.serviceUser.diffContainer.modal.title": "Просмотр изменений прав",
   "pages.apps.b2b.id.sections.serviceUser.diffContainer.noChanges.label": "Наборы прав идентичны. Изменений нет",
   "pages.apps.b2b.id.sections.serviceUser.diffContainer.added.label": "Добавленные права",

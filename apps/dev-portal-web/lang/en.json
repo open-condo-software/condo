@@ -41,8 +41,12 @@
 
   "global.miniapp.environments.development.label": "Test stand",
   "global.miniapp.environments.development.label.genitive": "Test stand",
+  "global.miniapp.environments.development.label.instrumental": "Test stand",
+  "global.miniapp.environments.development.label.prepositional": "Test stand",
   "global.miniapp.environments.production.label": "Production stand",
   "global.miniapp.environments.production.label.genitive": "Production stand",
+  "global.miniapp.environments.production.label.instrumental": "Production stand",
+  "global.miniapp.environments.production.label.prepositional": "Production stand",
 
   "components.common.markdownEditor.controls.undo.title": "Undo",
   "components.common.markdownEditor.controls.redo.title": "Redo",
@@ -342,6 +346,10 @@
   "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.alert.pending.message": "The request to change permissions is currently being reviewed",
   "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.alert.pending.description": "Once we review the request, the permission change will take effect automatically and will be available for publication",
   "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.alert.pending.actions.viewChanges": "View changes",
+  "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.actions.compare": "Compare with {environment}",
+  "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.compareModal.title": "Permissions on {environment}",
+  "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.compareModal.diffContainer.added.title": "Extra permissions",
+  "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.compareModal.diffContainer.removed.title": "Missing permissions",
   "pages.apps.b2b.id.sections.serviceUser.diffContainer.noChanges.label": "The sets of rights are identical. There are no changes",
   "pages.apps.b2b.id.sections.serviceUser.diffContainer.modal.title": "View permission changes",
   "pages.apps.b2b.id.sections.serviceUser.diffContainer.added.label": "Added permissions",

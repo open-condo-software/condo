@@ -1,12 +1,12 @@
-import { Col, Collapse, Divider, Row, Table, notification } from 'antd'
+import { Col, Collapse, Divider, notification, Row, Table } from 'antd'
 import isEqual from 'lodash/isEqual'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useIntl } from 'react-intl'
 
 import { useCachePersistor } from '@open-condo/apollo'
-import { ChevronDown, ChevronUp, QuestionCircle } from '@open-condo/icons'
+import { ChevronDown, ChevronUp, QuestionCircle, ArrowDownUp } from '@open-condo/icons'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
-import { Alert, Button, Checkbox, Space, Tooltip, Typography, Modal } from '@open-condo/ui'
+import { Alert, Button, Checkbox, Modal, Space, Tooltip, Typography } from '@open-condo/ui'
 
 import { Spin } from '@/domains/common/components/Spin'
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
@@ -15,7 +15,7 @@ import { GROUPED_PERMISSIONS } from '@/domains/miniapp/constants/b2bAppAccessRig
 import styles from './AccessRightSetForm.module.css'
 import { DiffContainer } from './DiffContainer'
 
-import type { Singular, ShowedPermissions, ListOrMutation } from '@/domains/miniapp/constants/b2bAppAccessRightSet'
+import type { ListOrMutation, ShowedPermissions, Singular } from '@/domains/miniapp/constants/b2bAppAccessRightSet'
 import type { RowProps, TableColumnType, TableProps } from 'antd'
 import type { CSSProperties } from 'react'
 
@@ -24,10 +24,18 @@ import {
     B2BAppAccessRightSetCreateInput,
     B2BAppAccessRightSetStatusType,
     CreateB2BAppAccessRightSetMutation,
+    GetB2BAppAccessRightSetsForAppQuery,
     GetB2BAppAccessRightSetsForAppDocument,
     useCreateB2BAppAccessRightSetMutation,
     useGetB2BAppAccessRightSetsForAppQuery,
 } from '@/gql'
+
+type RightSetType = NonNullable<NonNullable<GetB2BAppAccessRightSetsForAppQuery['rightSets']>[number]>
+
+type RightSetDiff = {
+    added: Array<ShowedPermissions>
+    removed: Array<ShowedPermissions>
+}
 
 type AccessRightSetFormProps = {
     id: string
@@ -60,10 +68,15 @@ type PermissionsGroupTableProps = {
 const DIVIDER_STYLES: CSSProperties = { marginBottom: 24 }
 const BUTTON_GUTTER: RowProps['gutter'] = [48, 48]
 const ALERT_GUTTER: RowProps['gutter'] = [24, 24]
+const COMPARE_GUTTER: RowProps['gutter'] = [16, 16]
 const FULL_COL_SPAN = 24
 
 function _singular<T extends string> (str: T): Singular<T> {
     return str.replace(/ies$/, 'y').replace(/s$/, '') as Singular<T>
+}
+
+function _capitalize (input: string) {
+    return `${input.charAt(0).toUpperCase()}${input.slice(1)}`
 }
 
 function parsePermission (permission: ShowedPermissions): ListOrMutation<ShowedPermissions> {
@@ -73,8 +86,25 @@ function parsePermission (permission: ShowedPermissions): ListOrMutation<ShowedP
     ) as ListOrMutation<ShowedPermissions>
 }
 
-function _capitalize (input: string) {
-    return `${input.charAt(0).toUpperCase()}${input.slice(1)}`
+function compareRightSets (current: RightSetType, other: RightSetType): RightSetDiff {
+    const added: Array<ShowedPermissions> = []
+    const removed: Array<ShowedPermissions> = []
+
+    for (const permissionGroup of Object.values(GROUPED_PERMISSIONS)) {
+        for (const permission of permissionGroup) {
+            const currentValue = current[permission] ?? false
+            const otherValue = other[permission] ?? false
+
+            if (currentValue === otherValue) continue
+            if (otherValue) {
+                added.push(permission)
+            } else {
+                removed.push(permission)
+            }
+        }
+    }
+
+    return { added, removed }
 }
 
 const GroupHeader: React.FC<GroupHeaderProps> = ({ group }) => {
@@ -193,6 +223,14 @@ export const AccessRightSetForm: React.FC<AccessRightSetFormProps> = ({ id, envi
     const approvedRightSet = useMemo(() => appRightSets.find((rightSet) => rightSet?.status === B2BAppAccessRightSetStatusType.Approved && rightSet?.environment === environment), [appRightSets, environment])
     const currentRightSet = useMemo(() => pendingRightSet ?? approvedRightSet, [approvedRightSet, pendingRightSet])
 
+    const otherEnvironment = environment === AppEnvironment.Production ? AppEnvironment.Development : AppEnvironment.Production
+    const otherRightSet = useMemo(() => {
+        const otherPending = appRightSets.find((rightSet) => rightSet?.status === B2BAppAccessRightSetStatusType.Pending && rightSet?.environment === otherEnvironment)
+        const otherApproved = appRightSets.find((rightSet) => rightSet?.status === B2BAppAccessRightSetStatusType.Approved && rightSet?.environment === otherEnvironment)
+
+        return otherPending ?? otherApproved
+    }, [appRightSets, otherEnvironment])
+
     useEffect(() => {
         if (currentRightSet) {
             setGroupedPermissions(prev => {
@@ -269,12 +307,12 @@ export const AccessRightSetForm: React.FC<AccessRightSetFormProps> = ({ id, envi
         const ActionLabel = intl.formatMessage({ id: 'pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.alert.pending.actions.viewChanges' })
         const ModalTitle = intl.formatMessage({ id: 'pages.apps.b2b.id.sections.serviceUser.diffContainer.modal.title' })
 
-        const addedPermissons = (currentRightSet.diff?.added ?? []) as Array<ShowedPermissions>
-        const removedPermissons = (currentRightSet.diff?.removed ?? []) as Array<ShowedPermissions>
+        const addedPermissions = (currentRightSet.diff?.added ?? []) as Array<ShowedPermissions>
+        const removedPermissions = (currentRightSet.diff?.removed ?? []) as Array<ShowedPermissions>
         const onActionClick = () => {
             showModal({
                 title: ModalTitle,
-                children: <DiffContainer added={addedPermissons} removed={removedPermissons} />,
+                children: <DiffContainer added={addedPermissions} removed={removedPermissions} />,
             })
         }
         const AlertDescription = (
@@ -289,13 +327,42 @@ export const AccessRightSetForm: React.FC<AccessRightSetFormProps> = ({ id, envi
         )
 
         return (
-            <>
-                <Alert type='warning' showIcon message={AlertMessage} description={AlertDescription}/>
-                {modalContextHolder}
-            </>
+            <Alert type='warning' showIcon message={AlertMessage} description={AlertDescription}/>
         )
-    }, [approvedRightSet?.id, currentRightSet?.diff?.added, currentRightSet?.diff?.removed, currentRightSet?.id, currentRightSet?.status, intl, modalContextHolder, showModal])
+    }, [approvedRightSet?.id, currentRightSet?.diff?.added, currentRightSet?.diff?.removed, currentRightSet?.id, currentRightSet?.status, intl, showModal])
 
+    const CompareMessage = useMemo(() => {
+        if (!otherRightSet || !currentRightSet) return null
+
+        const OtherEnvironmentInstrumentalLabel = intl.formatMessage({ id: `global.miniapp.environments.${otherEnvironment}.label.instrumental` })
+        const CompareMessage = intl.formatMessage({ id: 'pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.actions.compare' }, {
+            environment: OtherEnvironmentInstrumentalLabel.toLowerCase(),
+        })
+        const OtherEnvironmentPrepositionalLabel = intl.formatMessage({ id: `global.miniapp.environments.${otherEnvironment}.label.prepositional` })
+        const ModalTitle = intl.formatMessage({ id: 'pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.compareModal.title' }, {
+            environment: OtherEnvironmentPrepositionalLabel.toLowerCase(),
+        })
+        const ExtraPermissionsLabel = intl.formatMessage({ id: 'pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.compareModal.diffContainer.added.title' })
+        const MissingPermissionsLabel = intl.formatMessage({ id: 'pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.compareModal.diffContainer.removed.title' })
+
+        const diff = compareRightSets(currentRightSet, otherRightSet)
+
+        const onClick = () => {
+            showModal({
+                title: ModalTitle,
+                children: <DiffContainer added={diff.added} removed={diff.removed} addedTitle={ExtraPermissionsLabel} removedTitle={MissingPermissionsLabel} />,
+            })
+        }
+
+        return (
+            <Typography.Link onClick={onClick}>
+                <Space size={4} direction='horizontal'>
+                    <ArrowDownUp size='small'/>
+                    {CompareMessage}
+                </Space>
+            </Typography.Link>
+        )
+    }, [currentRightSet, intl, otherEnvironment, otherRightSet, showModal])
 
     return (
         <>
@@ -315,16 +382,25 @@ export const AccessRightSetForm: React.FC<AccessRightSetFormProps> = ({ id, envi
                     <Col span={FULL_COL_SPAN}>
                         <Row gutter={BUTTON_GUTTER}>
                             <Col span={FULL_COL_SPAN}>
-                                <Collapse
-                                    expandIconPosition='end'
-                                    expandIcon={expandIcon}
-                                >
-                                    {groupedPermissions.map(group => (
-                                        <Collapse.Panel key={group.group} header={<GroupHeader group={group.group}/>} className={styles.collapsePanel}>
-                                            <PermissionsGroupTable permissions={group.permissions} onChange={onPermissionChange}/>
-                                        </Collapse.Panel>
-                                    ))}
-                                </Collapse>
+                                <Row gutter={COMPARE_GUTTER}>
+                                    <Col span={FULL_COL_SPAN}>
+                                        <Collapse
+                                            expandIconPosition='end'
+                                            expandIcon={expandIcon}
+                                        >
+                                            {groupedPermissions.map(group => (
+                                                <Collapse.Panel key={group.group} header={<GroupHeader group={group.group}/>} className={styles.collapsePanel}>
+                                                    <PermissionsGroupTable permissions={group.permissions} onChange={onPermissionChange}/>
+                                                </Collapse.Panel>
+                                            ))}
+                                        </Collapse>
+                                    </Col>
+                                    {Boolean(CompareMessage) && (
+                                        <Col span={FULL_COL_SPAN}>
+                                            {CompareMessage}
+                                        </Col>
+                                    )}
+                                </Row>
                             </Col>
                             <Col span={FULL_COL_SPAN}>
                                 <Button
@@ -339,6 +415,7 @@ export const AccessRightSetForm: React.FC<AccessRightSetFormProps> = ({ id, envi
                     </Col>
                 </Row>
             )}
+            {modalContextHolder}
         </>
     )
 }

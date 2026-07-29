@@ -2,6 +2,7 @@ import { Col, Empty, Row, List } from 'antd'
 import React from 'react'
 import { useIntl, FormattedMessage } from 'react-intl'
 
+import { PlusCircle } from '@open-condo/icons'
 import { Typography } from '@open-condo/ui'
 
 import type { ShowedPermissions } from '@/domains/miniapp/constants/b2bAppAccessRightSet'
@@ -14,9 +15,11 @@ const FULL_COL_SPAN = 24
 type DiffContainerProps = {
     added: Array<ShowedPermissions>
     removed: Array<ShowedPermissions>
+    addedTitle?: string
+    removedTitle?: string
 }
 
-export const DiffContainer: React.FC<DiffContainerProps> = ({ added, removed }) => {
+export const DiffContainer: React.FC<DiffContainerProps> = ({ added, removed, addedTitle, removedTitle }) => {
     const intl = useIntl()
     const NoChangesText = intl.formatMessage({ id: 'pages.apps.b2b.id.sections.serviceUser.diffContainer.noChanges.label' })
     const AddedLabel = intl.formatMessage({ id: 'pages.apps.b2b.id.sections.serviceUser.diffContainer.added.label' })
@@ -41,7 +44,7 @@ export const DiffContainer: React.FC<DiffContainerProps> = ({ added, removed }) 
                     <List
                         size='small'
                         bordered
-                        header={<Typography.Text strong>{AddedLabel}</Typography.Text>}
+                        header={<Typography.Text strong>{addedTitle ?? AddedLabel}</Typography.Text>}
                         dataSource={added}
                         renderItem={(item) => (
                             <List.Item>
@@ -58,7 +61,7 @@ export const DiffContainer: React.FC<DiffContainerProps> = ({ added, removed }) 
                     <List
                         size='small'
                         bordered
-                        header={<Typography.Text strong>{RemovedLabel}</Typography.Text>}
+                        header={<Typography.Text strong>{removedTitle ?? RemovedLabel}</Typography.Text>}
                         dataSource={removed}
                         renderItem={(item) => (
                             <List.Item>
