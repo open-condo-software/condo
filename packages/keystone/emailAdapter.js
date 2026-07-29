@@ -691,39 +691,65 @@ class SendsayEmail {
             }))
         }
 
-        const result = await fetch(
-            this.api_url,
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
+        const sendIssue = async (usersList, issueLetter) => {
+            const result = await fetch(
+                this.api_url,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify(this._buildAuthPayload({
+                        action: 'issue.send',
+                        group: 'personal',
+                        sendwhen: 'now',
+                        letter: issueLetter,
+                        'users.list': usersList.join('\n'),
+                        ...extendedParams,
+                    })),
                 },
-                body: JSON.stringify(this._buildAuthPayload({
-                    action: 'issue.send',
-                    group: 'personal',
-                    sendwhen: 'now',
-                    letter,
-                    'users.list': [...toEmails, ...ccEmails, ...bccEmails].join('\n'),
-                    ...extendedParams,
-                })),
-            },
-        )
+            )
 
-        const responseText = await result.text()
-        let context
-        try {
-            context = JSON.parse(responseText)
-        } catch (error) {
-            return [false, { text: responseText, status: result.status }]
+            const responseText = await result.text()
+            let context
+            try {
+                context = JSON.parse(responseText)
+            } catch (error) {
+                return [false, { text: responseText, status: result.status }]
+            }
+
+            const isSent = result.ok && !get(context, 'errors')
+            if (!isSent && !get(context, 'status')) {
+                return [false, { ...context, status: result.status, text: responseText }]
+            }
+
+            return [isSent, context]
         }
 
-        const isSent = result.ok && !get(context, 'errors')
-        if (!isSent && !get(context, 'status')) {
-            return [false, { ...context, status: result.status, text: responseText }]
+        const [primaryOk, primaryContext] = await sendIssue([...toEmails, ...ccEmails], letter)
+        if (!primaryOk || isEmpty(bccEmails)) {
+            return [primaryOk, primaryContext]
         }
 
-        return [isSent, context]
+        const bccResults = await Promise.all(bccEmails.map(async (bccEmail) => {
+            const bccLetter = { ...letter }
+            delete bccLetter.cc
+            return await sendIssue([bccEmail], bccLetter)
+        }))
+
+        const failedBcc = bccResults.find(([isOk]) => !isOk)
+        if (failedBcc) {
+            return [false, {
+                primary: primaryContext,
+                bcc: bccResults.map(([, context]) => context),
+            }]
+        }
+
+        return [true, {
+            ...primaryContext,
+            bcc: bccResults.map(([, context]) => context),
+        }]
     }
 }
 

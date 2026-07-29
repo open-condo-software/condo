@@ -871,11 +871,13 @@ describe('Email adapters', () => {
             expect(fetch.mock.calls[0][0]).toBe(`${SENDSAY_CONFIG.api_url}/${SENDSAY_CONFIG.login}`)
         })
 
-        it('includes cc and bcc recipients in Sendsay users.list', async () => {
-            fetch.mockResolvedValue(createJsonResponse(200, { 'track.id': 55 }))
+        it('keeps bcc recipients hidden in separate Sendsay requests', async () => {
+            fetch
+                .mockResolvedValueOnce(createJsonResponse(200, { 'track.id': 55 }))
+                .mockResolvedValueOnce(createJsonResponse(200, { 'track.id': 56 }))
 
             const adapter = new EmailAdapter()
-            const [isOk] = await adapter.send({
+            const [isOk, context] = await adapter.send({
                 to: 'user@example.com',
                 cc: 'copy@example.com',
                 bcc: 'hidden@example.com',
@@ -884,9 +886,18 @@ describe('Email adapters', () => {
             })
 
             expect(isOk).toBe(true)
-            const body = JSON.parse(fetch.mock.calls[0][1].body)
-            expect(body['users.list']).toBe('user@example.com\ncopy@example.com\nhidden@example.com')
-            expect(body.letter.cc).toBe('copy@example.com')
+            expect(context['track.id']).toBe(55)
+            expect(context.bcc).toEqual([{ 'track.id': 56 }])
+
+            expect(fetch).toHaveBeenCalledTimes(2)
+
+            const primaryBody = JSON.parse(fetch.mock.calls[0][1].body)
+            expect(primaryBody['users.list']).toBe('user@example.com\ncopy@example.com')
+            expect(primaryBody.letter.cc).toBe('copy@example.com')
+
+            const bccBody = JSON.parse(fetch.mock.calls[1][1].body)
+            expect(bccBody['users.list']).toBe('hidden@example.com')
+            expect(bccBody.letter.cc).toBeUndefined()
         })
     })
 
