@@ -118,7 +118,6 @@ const Comments: React.FC<CommentsPropsType> = ({
     const [ { execute: runGenerateCommentAIFlow }, {
         loading: generateCommentLoading,
         data: generateCommentData,
-        streamDataText: generateCommentDataStreamText,
     }] = useAIFlow<{ answer: string }>({
         flowType: FLOW_TYPES.TICKET_REWRITE_COMMENT,
         modelName: 'Ticket',
@@ -345,8 +344,8 @@ const Comments: React.FC<CommentsPropsType> = ({
     })
 
     useEffect(() => {
-        setGenerateCommentAnswer(generateCommentData?.result?.answer || generateCommentDataStreamText)
-    }, [generateCommentData?.result?.answer, generateCommentDataStreamText])
+        setGenerateCommentAnswer(generateCommentData?.result?.answer)
+    }, [generateCommentData?.result?.answer])
 
     useEffect(() => {
         setRewriteTextAnswer(rewriteTextData?.result?.answer)

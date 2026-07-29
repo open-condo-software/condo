@@ -21,7 +21,7 @@ type AIChatInputProps = {
     inputValue: string
     onInputChange: (nextValue: string) => void
     onInputKeyDown: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void
-    onSendMessage: () => void
+    onSendMessage: () => void | Promise<void>
     placeholder: string
 }
 

@@ -106,13 +106,11 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
             setIsAtMinWidth(clampedWidth <= MIN_OVERLAY_WIDTH)
             setIsAtMaxWidth(clampedWidth >= MAX_OVERLAY_WIDTH)
 
-            // Only close if dragging right consistently and beyond close threshold
             if (newWidth < CLOSE_THRESHOLD && dragDirectionRef.current === 'right' && currentDirection === 'right') {
                 onClose()
                 return
             }
 
-            // Open overlay if dragging left consistently and beyond close threshold
             if (newWidth > CLOSE_THRESHOLD && dragDirectionRef.current === 'left' && currentDirection === 'left') {
                 openAIOverlay()
             }
@@ -145,7 +143,6 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
     }, [isResizing, dragDirection, setAIOverlayWidth, onClose, openAIOverlay])
 
     const handleResizeStart = (e: React.MouseEvent) => {
-        // Only allow resizing when overlay is open
         if (!open) return
 
         setIsResizing(true)

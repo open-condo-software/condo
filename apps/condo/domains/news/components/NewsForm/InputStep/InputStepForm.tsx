@@ -1,7 +1,7 @@
 import { B2BAppNewsSharingConfig } from '@app/condo/schema'
 import { Col, FormInstance, notification, Row, Form } from 'antd'
 import classNames from 'classnames'
-import React, { useCallback, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { CheckCircle, Copy, Sparkles } from '@open-condo/icons'
@@ -171,6 +171,16 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
         flowType: FLOW_TYPES.NEWS_REWRITE_TEXT,
     })
 
+    useEffect(() => {
+        setRewriteNewsText(rewriteNewsTextData?.result?.answer ?? '')
+    }, [rewriteNewsTextData?.result?.answer])
+
+    useEffect(() => {
+        if (rewriteNewsText || rewriteNewsTextError) {
+            setNewsTextAiNotificationShow(true)
+        }
+    }, [rewriteNewsText, rewriteNewsTextError])
+
     const hasNewsText = useMemo(() => value.length > 0, [value])
 
     const handleRewriteNewsTextClick = useCallback(async () => {
@@ -188,12 +198,10 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
         })
 
         const result = await runRewriteNewsTextAIFlow({ context })
-        setNewsTextAiNotificationShow(true)
 
         if (result.error) {
             notification.error({ message: result.localizedErrorText || GenericErrorMessage })
         }
-        setRewriteNewsText(result?.data?.result?.answer)
     }, [GenericErrorMessage, inputType, runRewriteNewsTextAIFlow, value, textForContext])
 
     const handleCloseAINotificationText = useCallback(() => {
@@ -205,6 +213,7 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
         })
 
         setNewsTextAiNotificationShow(false)
+        setRewriteNewsText('')
     }, [inputType])
 
     const handleApplyGeneratedMessage = useCallback(() => {
