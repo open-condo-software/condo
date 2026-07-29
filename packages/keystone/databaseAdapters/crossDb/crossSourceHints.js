@@ -108,7 +108,10 @@ function listNeedsCrossDbWhereRewrite (adapter, listKey, options = {}) {
     if (cache.has(listKey)) return cache.get(listKey)
 
     const visited = options.visited || new Set()
-    if (visited.has(listKey)) return false
+    if (visited.has(listKey)) {
+        if (options.state) options.state.cycleAffected = true
+        return false
+    }
     visited.add(listKey)
 
     const sourceRegistry = options.sourceRegistry
@@ -119,6 +122,7 @@ function listNeedsCrossDbWhereRewrite (adapter, listKey, options = {}) {
         return false
     }
 
+    const state = options.state || { cycleAffected: false }
     let result = false
     if (listHasCrossSourceOutbound(adapter, listKey, sourceRegistry)) {
         result = true
@@ -127,14 +131,16 @@ function listNeedsCrossDbWhereRewrite (adapter, listKey, options = {}) {
         for (const fieldAdapter of _iterFieldAdapters(listAdapter)) {
             if (!fieldAdapter.isRelationship || !fieldAdapter.refListKey) continue
             if (sourceRegistry.resolveSource(fieldAdapter.refListKey) !== baseSource) continue
-            if (listNeedsCrossDbWhereRewrite(adapter, fieldAdapter.refListKey, { sourceRegistry, visited })) {
+            if (listNeedsCrossDbWhereRewrite(adapter, fieldAdapter.refListKey, { sourceRegistry, visited, state })) {
                 result = true
                 break
             }
         }
     }
 
-    cache.set(listKey, result)
+    if (!state.cycleAffected) {
+        cache.set(listKey, result)
+    }
     return result
 }
 

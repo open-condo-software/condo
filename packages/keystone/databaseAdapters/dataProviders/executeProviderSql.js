@@ -69,8 +69,54 @@ function extractMutationWhereIds (sql, bindings = []) {
     return []
 }
 
-function _hasDeletedAtNullFilter (sql) {
-    return /"deletedAt"\s+is\s+null/i.test(sql)
+function _extractSimpleSelectConditionNode (node, bindings) {
+    if (node?.type === 'bool' && node.value === true) return {}
+    if (!node || node.type !== 'binary_expr') return null
+
+    const operator = String(node.operator || '').toUpperCase()
+    if (operator === 'AND') {
+        const left = _extractSimpleSelectConditionNode(node.left, bindings)
+        if (!left) return null
+        const right = _extractSimpleSelectConditionNode(node.right, bindings)
+        if (!right) return null
+
+        const merged = { ...left }
+        for (const [key, value] of Object.entries(right)) {
+            if (merged[key] !== undefined && JSON.stringify(merged[key]) !== JSON.stringify(value)) {
+                return null
+            }
+            merged[key] = value
+        }
+        return merged
+    }
+
+    const leftColumn = normalizeColumnName(node.left)
+    if (leftColumn === 'id' && operator === '=') {
+        const value = resolveSqlValue(node.right, bindings)
+        if (value === undefined || value === null) return null
+        return { id: value }
+    }
+
+    if (leftColumn === 'id' && operator === 'IN') {
+        const values = node.right?.value || node.right?.list
+        if (!Array.isArray(values)) return null
+
+        const ids = []
+        for (const item of values) {
+            const value = resolveSqlValue(item, bindings)
+            if (value === undefined || value === null) return null
+            ids.push(value)
+        }
+        return { id_in: ids }
+    }
+
+    if (leftColumn === 'deletedAt' && operator === 'IS') {
+        const value = resolveSqlValue(node.right, bindings)
+        if (value !== null) return null
+        return { deletedAt: null }
+    }
+
+    return null
 }
 
 /**
@@ -79,24 +125,9 @@ function _hasDeletedAtNullFilter (sql) {
  * @returns {{ id?: string, id_in?: string[], deletedAt?: null }|null}
  */
 function extractSimpleSelectCondition (sql, bindings = []) {
-    const idInMatch = sql.match(/(?:"t\d+"\.)?"id"\s+in\s*\(([^)]+)\)/i)
-    if (idInMatch) {
-        const ids = [...idInMatch[1].matchAll(/\$(\d+)/g)]
-            .map((match) => bindings[Number(match[1]) - 1])
-            .filter(Boolean)
-        const condition = { id_in: ids }
-        if (_hasDeletedAtNullFilter(sql)) condition.deletedAt = null
-        return condition
-    }
-
-    const idEqMatch = sql.match(/(?:"t\d+"\.)?"id"\s*=\s*\$(\d+)/i)
-    if (idEqMatch) {
-        const condition = { id: bindings[Number(idEqMatch[1]) - 1] }
-        if (_hasDeletedAtNullFilter(sql)) condition.deletedAt = null
-        return condition
-    }
-
-    return null
+    const ast = _parseMutationAst(sql)
+    if (!ast || ast.type !== 'select') return null
+    return _extractSimpleSelectConditionNode(ast.where, bindings)
 }
 
 async function _rollbackProviderCreates ({ provider, schemaName, rows }) {

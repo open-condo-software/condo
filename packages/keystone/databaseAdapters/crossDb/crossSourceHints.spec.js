@@ -97,4 +97,18 @@ describe('crossSourceHints (main-path fast skips)', () => {
         expect(adapter.__crossSourceOutboundCache.get('Organization')).toBe(false)
         expect(adapter.__crossSourceOutboundCache.get('Payment')).toBe(true)
     })
+
+    test('does not cache cycle-affected where rewrite results', () => {
+        const adapter = createAdapterFixture()
+        adapter.listAdapters.Organization.fieldAdapters = [
+            { isRelationship: true, refListKey: 'Ticket', path: 'ticket' },
+        ]
+        adapter.listAdapters.Ticket.fieldAdapters = [
+            { isRelationship: true, refListKey: 'Organization', path: 'organization' },
+        ]
+
+        expect(listNeedsCrossDbWhereRewrite(adapter, 'Organization')).toBe(false)
+        expect(adapter.__crossDbWhereRewriteCache?.has('Organization')).toBe(false)
+        expect(adapter.__crossDbWhereRewriteCache?.has('Ticket')).toBe(false)
+    })
 })

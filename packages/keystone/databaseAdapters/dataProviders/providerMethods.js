@@ -34,6 +34,14 @@ function providerSupportsItemsQuery (provider, args = {}) {
     return true
 }
 
+function _splitSortKey (sortKey) {
+    const boundary = String(sortKey).lastIndexOf('_')
+    if (boundary === -1) {
+        return [sortKey, 'ASC']
+    }
+    return [sortKey.slice(0, boundary), sortKey.slice(boundary + 1) || 'ASC']
+}
+
 function applyItemsQueryToRows (rows, args = {}) {
     let result = [...rows]
     const sortBy = args.sortBy || (args.orderBy ? [args.orderBy] : null)
@@ -41,7 +49,7 @@ function applyItemsQueryToRows (rows, args = {}) {
     if (sortBy?.length) {
         result.sort((left, right) => {
             for (const sortKey of sortBy) {
-                const [field, direction = 'ASC'] = sortKey.split('_')
+                const [field, direction = 'ASC'] = _splitSortKey(sortKey)
                 const leftValue = left?.[field]
                 const rightValue = right?.[field]
 

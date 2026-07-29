@@ -53,14 +53,11 @@ function _getColumnRefParts (node) {
  * @returns {boolean}
  */
 function _nodeReferencesAlias (node, alias) {
-    if (!node) return false
-    if (node.type === 'column_ref') {
-        return node.table === alias
-    }
-    if (node.type === 'binary_expr') {
-        return _nodeReferencesAlias(node.left, alias) || _nodeReferencesAlias(node.right, alias)
-    }
-    return false
+    if (!node || typeof node !== 'object') return false
+    if (Array.isArray(node)) return node.some(item => _nodeReferencesAlias(item, alias))
+    if (node.type === 'column_ref') return node.table === alias
+
+    return Object.values(node).some(value => _nodeReferencesAlias(value, alias))
 }
 
 /**

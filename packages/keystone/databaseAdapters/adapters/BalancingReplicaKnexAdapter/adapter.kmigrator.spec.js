@@ -198,3 +198,30 @@ describe('BalancingReplicaKnexAdapter.__kmigratorKnexAdapters', () => {
         expect(stubs[0].knex).toBe(mainKnex)
     })
 })
+
+describe('BalancingReplicaKnexAdapter._selectTargetPool', () => {
+    test('throws when owner pool for a write is read-only', () => {
+        const adapter = Object.create(BalancingReplicaKnexAdapter.prototype)
+        const mainPool = { name: 'main' }
+        const billingPool = { name: 'billing' }
+
+        adapter._routeToPool = jest.fn(() => mainPool)
+        adapter._sourceRegistry = { resolveSource: () => 'billing' }
+        adapter._replicaPools = {
+            main: mainPool,
+            billing: billingPool,
+        }
+        adapter._replicaPoolsConfig = {
+            main: { databases: ['main'], writable: true },
+            billing: { databases: ['billing'], writable: false },
+        }
+        adapter._getPoolName = jest.fn((pool) => {
+            if (pool === mainPool) return 'main'
+            if (pool === billingPool) return 'billing'
+            return null
+        })
+
+        expect(() => adapter._selectTargetPool('update "public"."Message" set "status" = $1 where "id" = $2'))
+            .toThrow('Pool "billing" is read-only or unavailable')
+    })
+})
