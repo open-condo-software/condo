@@ -879,7 +879,7 @@ describe('Email adapters', () => {
             const adapter = new EmailAdapter()
             const [isOk, context] = await adapter.send({
                 to: 'user@example.com',
-                cc: 'copy@example.com',
+                cc: 'Copy <copy@example.com>, other@example.com',
                 bcc: 'hidden@example.com',
                 subject: 'Hello',
                 text: 'Body',
@@ -896,8 +896,8 @@ describe('Email adapters', () => {
             expect(fetch).toHaveBeenCalledTimes(2)
 
             const primaryBody = JSON.parse(fetch.mock.calls[0][1].body)
-            expect(primaryBody['users.list']).toBe('user@example.com\ncopy@example.com')
-            expect(primaryBody.letter.cc).toBe('copy@example.com')
+            expect(primaryBody['users.list']).toBe('user@example.com\ncopy@example.com\nother@example.com')
+            expect(primaryBody.letter.cc).toBe('copy@example.com,other@example.com')
 
             const bccBody = JSON.parse(fetch.mock.calls[1][1].body)
             expect(bccBody['users.list']).toBe('hidden@example.com')

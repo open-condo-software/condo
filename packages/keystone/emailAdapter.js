@@ -660,7 +660,8 @@ class SendsayEmail {
             letter['reply.name'] = replyName
         }
         if (!isEmpty(ccEmails)) {
-            letter.cc = cc
+            // Sendsay expects bare email addresses (comma-separated), same as Mailgun-style headers
+            letter.cc = ccEmails.join(',')
         }
 
         const inlineAttachments = await resolveInlineAttachments(meta, this.attachmentOptions)
@@ -745,8 +746,7 @@ class SendsayEmail {
             return { email: bccEmail, isOk, context }
         }))
 
-        const failedBcc = bccResults.find(({ isOk }) => !isOk)
-        if (failedBcc) {
+        if (bccResults.some(({ isOk }) => !isOk)) {
             return [false, {
                 primary: primaryContext,
                 bcc: bccResults,
