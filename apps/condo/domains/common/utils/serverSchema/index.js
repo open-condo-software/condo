@@ -4,29 +4,17 @@ const { isFunction, isNil } = require('lodash')
 const get = require('lodash/get')
 
 const conf = require('@open-condo/config')
+const { getSourceRegistry } = require('@open-condo/keystone/databaseAdapters')
+const { CrossDbPlanner, GLOBAL_QUERY_LIMIT, isUnsatisfiableWhere, prepareCrossDbWhere } = require('@open-condo/keystone/databaseAdapters/crossDb')
 const { getDatabaseAdapter, isPrismaAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-const GLOBAL_QUERY_LIMIT = 1000
 const TOO_MANY_RETURNED_LOG_LIMITS = Object.freeze([1100, 9000, 14900, 49000, 149000])
 const TOO_MANY_RETURNED_RESULT_LOG_LIMIT = 4900
 const logger = getLogger()
 const TIMEOUT_DURATION = Number(conf.TIMEOUT_CHUNKS_DURATION) ||  60 * 1000
-
-// When we load models with Apollo graphql - every relation on a field for every object makes sql request
-// For example, loading 50 tickets will cause a result of ~1000 sql queries which is near server limit
-// But we want to keep sortBy and where functionality from gql
-// What we do:
-// 1. We use gql to load fields from main table with sort and where
-// 2. We use knex to load all relations in one sql request for ids in 1.
-// 3. We can use aggregate functions from knex on multiple relation fields
-// 4. We merge 1 and 2
-// 5. We load all data by chunks (size of chunk is equal to global guery sql limit)
-// It's about ~4.5 times faster then using only gql queries
-// Tested on tickets export for 24755 tickets: without knex  71220.902ms, with knex: 16094.841ms )
-// TODO(zuch): find out how to make 1 request for 1. and 2.
 
 function logTooManyReturnedIfRequired (tooManyReturnedLimitCounters, allObjects, { functionName, schemaName, data }) {
     if (!Array.isArray(tooManyReturnedLimitCounters)) throw new Error('logTooManyReturned: wrong argument type')
@@ -48,6 +36,20 @@ function logTooManyReturnedIfRequired (tooManyReturnedLimitCounters, allObjects,
         tooManyReturnedLimitCounters.shift()  // remove counter and mark as already notified
     }
 }
+
+// When we load models with Apollo graphql - every relation on a field for every object makes sql request
+// For example, loading 50 tickets will cause a result of ~1000 sql queries which is near server limit
+// But we want to keep sortBy and where functionality from gql
+// What we do:
+// 1. We use gql to load fields from main table with sort and where
+// 2. We use knex to load all relations in one sql request for ids in 1.
+// 3. We can use aggregate functions from knex on multiple relation fields
+// 4. We merge 1 and 2
+// 5. We load all data by chunks (size of chunk is equal to global guery sql limit)
+// It's about ~4.5 times faster then using only gql queries
+// Tested on tickets export for 24755 tickets: without knex  71220.902ms, with knex: 16094.841ms )
+// TODO(zuch): find out how to make 1 request for 1. and 2.
+// Cross-source relations: `CrossDbPlanner` in @open-condo/keystone/databaseAdapters/crossDb (env: CROSS_DB_RELATION_PLANNER_ENABLED).
 
 /**
  * @deprecated you should use find
@@ -125,10 +127,12 @@ class GqlWithKnexLoadList {
 
     async loadChunk (offset = 0, limit) {
         await this.initContext()
+
+        const where = await this._crossDbPlanner.prepareWhere(this.where)
         const mainTableObjects = await getItems({
             keystone: this.keystone,
             listKey: this.listKey,
-            where: this.where,
+            where,
             sortBy: this.sortBy,
             skip: offset,
             first: limit || GLOBAL_QUERY_LIMIT,
@@ -136,6 +140,10 @@ class GqlWithKnexLoadList {
         })
         if (mainTableObjects.length === 0) {
             return []
+        }
+
+        if (this._crossDbPlanner.isEnabled() && this._crossDbPlanner.hasCrossSourceRelations()) {
+            return this._crossDbPlanner.loadChunk(mainTableObjects)
         }
 
         if (this._isPrisma) {
@@ -187,10 +195,6 @@ class GqlWithKnexLoadList {
     async _loadChunkPrisma (mainTableObjects) {
         const ids = mainTableObjects.map(object => object.id)
 
-        // NOTE: For each single relation [Model, fieldName, value, alias]:
-        //   - fieldName is the FK column on the main table pointing to Model.id
-        //   - value is the column to select from Model
-        //   - We query Model separately and map results back by FK
         const relationData = {}
         for (const [Model, fieldName, value, alias] of this.singleRelations) {
             const fkValues = [...new Set(mainTableObjects.map(o => o[fieldName]).filter(Boolean))]
@@ -209,9 +213,6 @@ class GqlWithKnexLoadList {
             }
         }
 
-        // NOTE: Also need main table FK columns if fields didn't include them
-        // Load FK values from DB if not already in mainTableObjects
-        // DB column names may differ from Keystone field names (e.g. "operator" → "operatorId")
         const missingFkEntries = this.singleRelations
             .map(([, fieldName]) => ({ fieldName, dbCol: this._resolveDbColumn(fieldName) }))
             .filter(({ fieldName }) => mainTableObjects.length > 0 && !(fieldName in mainTableObjects[0]))
@@ -223,7 +224,6 @@ class GqlWithKnexLoadList {
             const fkRows = await this.prisma.$queryRawUnsafe(sql, ...ids)
             const fkLookup = Object.fromEntries(fkRows.map(r => [r.id, r]))
 
-            // Re-run relation lookups with FK data
             for (const [Model, fieldName, value, alias] of this.singleRelations) {
                 if (!(fieldName in (mainTableObjects[0] || {}))) {
                     const dbCol = this._resolveDbColumn(fieldName)
@@ -245,9 +245,20 @@ class GqlWithKnexLoadList {
             }
         }
 
-        // Handle multipleRelations via separate aggregate queries
-        // Each entry: [knexSelectFn, knexJoinFn, prismaConfig]
-        // prismaConfig: { select: 'MAX("createdAt")', as: 'startedAt', table: 'TicketChange', fk: 'ticket', where: { statusIdTo: [id1, id2] } }
+        return this._applyPrismaMultipleRelations(
+            mainTableObjects.map(obj => ({
+                ...obj,
+                ...(relationData[obj.id] || {}),
+            })),
+        )
+    }
+
+    async _applyPrismaMultipleRelations (mainTableObjects) {
+        if (this.multipleRelations.length === 0) {
+            return mainTableObjects
+        }
+
+        const ids = mainTableObjects.map(object => object.id)
         const multipleRelationData = {}
         for (const relation of this.multipleRelations) {
             const prismaConfig = relation[2]
@@ -289,7 +300,6 @@ class GqlWithKnexLoadList {
 
         return mainTableObjects.map(obj => ({
             ...obj,
-            ...(relationData[obj.id] || {}),
             ...(multipleRelationData[obj.id] || {}),
         }))
     }
@@ -297,20 +307,35 @@ class GqlWithKnexLoadList {
     async initContext () {
         const { keystone: modelAdapter } = await getSchemaCtx(this.listKey)
         this.keystone = modelAdapter
-        const adapter = getDatabaseAdapter(modelAdapter)
+        this.adapter = getDatabaseAdapter(modelAdapter)
         this._isPrisma = isPrismaAdapter(modelAdapter)
+
         if (this._isPrisma) {
-            this.prisma = adapter.prisma
-            this._listAdapter = adapter.listAdapters[this.listKey]
-            // Cache actual DB column names for _resolveDbColumn fallback
+            this.prisma = this.adapter.prisma
+            this._listAdapter = this.adapter.listAdapters[this.listKey]
             const cols = await this.prisma.$queryRawUnsafe(
                 'SELECT column_name FROM information_schema.columns WHERE table_name = $1',
                 this.listKey
             )
             this._dbColumns = new Set(cols.map(r => r.column_name))
         } else {
-            this.knex = adapter.knex
+            this.knex = this.adapter.knex
+            this._listAdapter = this.adapter.listAdapters?.[this.listKey]
         }
+
+        this._crossDbPlanner = new CrossDbPlanner({
+            listKey: this.listKey,
+            adapter: this.adapter,
+            isPrisma: this._isPrisma,
+            prisma: this.prisma,
+            knex: this.knex,
+            singleRelations: this.singleRelations,
+            multipleRelations: this.multipleRelations,
+            listAdapter: this._listAdapter,
+            resolveDbColumn: (fieldName) => this._resolveDbColumn(fieldName),
+            applyPrismaMultipleRelations: (rows) => this._applyPrismaMultipleRelations(rows),
+            sourceRegistry: getSourceRegistry(this.adapter),
+        })
     }
 
     /**
@@ -325,7 +350,6 @@ class GqlWithKnexLoadList {
         if (fa && fa.isRelationship && fa.rel && fa.rel.columnName) {
             return fa.rel.columnName
         }
-        // Field not in schema — check actual DB columns
         if (this._dbColumns) {
             if (this._dbColumns.has(fieldName)) return fieldName
             if (this._dbColumns.has(fieldName + 'Id')) return fieldName + 'Id'
@@ -389,6 +413,15 @@ const loadListByChunks = async ({
 
     const startTime = Date.now()
 
+    const listKey = get(list, 'listKey')
+    const effectiveWhere = listKey
+        ? await prepareCrossDbWhere({ listKey, where })
+        : where
+
+    if (isUnsatisfiableWhere(effectiveWhere)) {
+        return []
+    }
+
     do {
         const now = Date.now()
 
@@ -409,7 +442,7 @@ const loadListByChunks = async ({
         }
 
         const resolvedFields = !isNil(fields) ? fields : 'id'
-        newChunk = await list.getAll(context, where, resolvedFields, { sortBy, first: chunkSize, skip: skip })
+        newChunk = await list.getAll(context, effectiveWhere, resolvedFields, { sortBy, first: chunkSize, skip: skip })
         newChunkLength = newChunk.length
 
         if (newChunkLength > 0) {

@@ -8,6 +8,20 @@ const SUPPORTED_PG_OPERATIONS = new Set(['insert', 'select', 'update', 'delete',
 const parser = new Parser()
 
 /**
+ * Strip schema/quote wrappers and return the bare table name.
+ * `"public"."User"` → `User`, `User` → `User`.
+ *
+ * @param {string} tableName
+ * @returns {string}
+ */
+function normalizeTableName (tableName) {
+    if (!tableName || typeof tableName !== 'string') return tableName
+    const withoutQuotes = tableName.replace(/"/g, '')
+    const parts = withoutQuotes.split('.')
+    return parts[parts.length - 1]
+}
+
+/**
  * Helper util to extract tableName by "from" argument in node-sql-parser's AST
  * Used in "SELECT FROM <Table>" and "DELETE FROM <Table>" queries
  * @param sqlString - initial sql query to propagate inside error logs
@@ -27,7 +41,7 @@ function _extractTableByFromArgument (sqlString, ast) {
 
     // "SELECT * FROM t1 JOIN t2 ..." case
     if (nonJoinedItem.table) {
-        return nonJoinedItem.table
+        return normalizeTableName(nonJoinedItem.table)
     }
 
     // "SELECT COUNT(*) FROM (SELECT ...)" case
@@ -52,7 +66,7 @@ function _extractTableByTableArgument (sqlString, ast) {
     const tables = get(ast, 'table', [])
 
     if (!Array.isArray(tables)) {
-        return tables.table
+        return normalizeTableName(tables.table)
     }
 
     if (tables.length !== 1) {
@@ -60,7 +74,7 @@ function _extractTableByTableArgument (sqlString, ast) {
         throw new Error(`Unexpected table argument length. ${JSON.stringify({ sqlString, tables })}`)
     }
 
-    return tables[0].table
+    return normalizeTableName(tables[0].table)
 }
 
 /**
@@ -110,8 +124,8 @@ function extractCRUDQueryData (sqlString) {
     return { sqlOperationName, tableName }
 }
 
-
 module.exports = {
     SUPPORTED_PG_OPERATIONS,
     extractCRUDQueryData,
+    normalizeTableName,
 }
