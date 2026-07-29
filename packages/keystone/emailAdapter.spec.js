@@ -871,14 +871,22 @@ describe('Email adapters', () => {
             expect(fetch.mock.calls[0][0]).toBe(`${SENDSAY_CONFIG.api_url}/${SENDSAY_CONFIG.login}`)
         })
 
-        it('rejects cc and bcc because sendsay semantics differ', async () => {
+        it('includes cc and bcc recipients in Sendsay users.list', async () => {
+            fetch.mockResolvedValue(createJsonResponse(200, { 'track.id': 55 }))
+
             const adapter = new EmailAdapter()
-            await expect(adapter.send({
+            const [isOk] = await adapter.send({
                 to: 'user@example.com',
                 cc: 'copy@example.com',
+                bcc: 'hidden@example.com',
                 subject: 'Hello',
                 text: 'Body',
-            })).rejects.toThrow('Sendsay adapter does not support cc or bcc')
+            })
+
+            expect(isOk).toBe(true)
+            const body = JSON.parse(fetch.mock.calls[0][1].body)
+            expect(body['users.list']).toBe('user@example.com\ncopy@example.com\nhidden@example.com')
+            expect(body.letter.cc).toBe('copy@example.com')
         })
     })
 

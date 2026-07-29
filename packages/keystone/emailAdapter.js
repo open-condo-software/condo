@@ -635,11 +635,9 @@ class SendsayEmail {
     }
 
     async send ({ to, emailFrom = null, cc, bcc, subject, text, html, meta, messageType } = {}, extendedParams = {}) {
-        if (cc || bcc) {
-            throw new Error('Sendsay adapter does not support cc or bcc')
-        }
-
         const toEmails = parseEmailList(to)
+        const ccEmails = parseEmailList(cc)
+        const bccEmails = parseEmailList(bcc)
         if (isEmpty(toEmails)) {
             throw new Error('unsupported to argument format')
         }
@@ -659,6 +657,9 @@ class SendsayEmail {
         }
         if (replyName) {
             letter['reply.name'] = replyName
+        }
+        if (!isEmpty(ccEmails)) {
+            letter.cc = cc
         }
 
         const inlineAttachments = await resolveInlineAttachments(meta, this.attachmentOptions)
@@ -703,7 +704,7 @@ class SendsayEmail {
                     group: 'personal',
                     sendwhen: 'now',
                     letter,
-                    'users.list': toEmails.join('\n'),
+                    'users.list': [...toEmails, ...ccEmails, ...bccEmails].join('\n'),
                     ...extendedParams,
                 })),
             },
