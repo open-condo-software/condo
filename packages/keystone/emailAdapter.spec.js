@@ -887,7 +887,11 @@ describe('Email adapters', () => {
 
             expect(isOk).toBe(true)
             expect(context['track.id']).toBe(55)
-            expect(context.bcc).toEqual([{ 'track.id': 56 }])
+            expect(context.bcc).toEqual([{
+                email: 'hidden@example.com',
+                isOk: true,
+                context: { 'track.id': 56 },
+            }])
 
             expect(fetch).toHaveBeenCalledTimes(2)
 
@@ -898,6 +902,41 @@ describe('Email adapters', () => {
             const bccBody = JSON.parse(fetch.mock.calls[1][1].body)
             expect(bccBody['users.list']).toBe('hidden@example.com')
             expect(bccBody.letter.cc).toBeUndefined()
+        })
+
+        it('returns primary success and identifies failed bcc recipients', async () => {
+            fetch
+                .mockResolvedValueOnce(createJsonResponse(200, { 'track.id': 55 }))
+                .mockResolvedValueOnce(createJsonResponse(200, { 'track.id': 56 }))
+                .mockRejectedValueOnce(new Error('ECONNRESET'))
+
+            const adapter = new EmailAdapter()
+            const [isOk, context] = await adapter.send({
+                to: 'user@example.com',
+                cc: 'copy@example.com, user@example.com',
+                bcc: 'hidden1@example.com, hidden2@example.com',
+                subject: 'Hello',
+                text: 'Body',
+            })
+
+            expect(isOk).toBe(false)
+            expect(context).toEqual({
+                primary: { 'track.id': 55 },
+                bcc: [{
+                    email: 'hidden1@example.com',
+                    isOk: true,
+                    context: { 'track.id': 56 },
+                }, {
+                    email: 'hidden2@example.com',
+                    isOk: false,
+                    context: { error: 'ECONNRESET' },
+                }],
+            })
+
+            expect(fetch).toHaveBeenCalledTimes(3)
+
+            const primaryBody = JSON.parse(fetch.mock.calls[0][1].body)
+            expect(primaryBody['users.list']).toBe('user@example.com\ncopy@example.com')
         })
     })
 

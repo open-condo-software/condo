@@ -4,6 +4,7 @@ const https = require('https')
 const FormData = require('form-data')
 const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
+const uniq = require('lodash/uniq')
 const { z } = require('zod')
 
 const conf = require('@open-condo/config')
@@ -692,24 +693,29 @@ class SendsayEmail {
         }
 
         const sendIssue = async (usersList, issueLetter) => {
-            const result = await fetch(
-                this.api_url,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
+            let result
+            try {
+                result = await fetch(
+                    this.api_url,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                        },
+                        body: JSON.stringify(this._buildAuthPayload({
+                            action: 'issue.send',
+                            group: 'personal',
+                            sendwhen: 'now',
+                            letter: issueLetter,
+                            'users.list': usersList.join('\n'),
+                            ...extendedParams,
+                        })),
                     },
-                    body: JSON.stringify(this._buildAuthPayload({
-                        action: 'issue.send',
-                        group: 'personal',
-                        sendwhen: 'now',
-                        letter: issueLetter,
-                        'users.list': usersList.join('\n'),
-                        ...extendedParams,
-                    })),
-                },
-            )
+                )
+            } catch (error) {
+                return [false, { error: error.message }]
+            }
 
             const responseText = await result.text()
             let context
@@ -727,7 +733,7 @@ class SendsayEmail {
             return [isSent, context]
         }
 
-        const [primaryOk, primaryContext] = await sendIssue([...toEmails, ...ccEmails], letter)
+        const [primaryOk, primaryContext] = await sendIssue(uniq([...toEmails, ...ccEmails]), letter)
         if (!primaryOk || isEmpty(bccEmails)) {
             return [primaryOk, primaryContext]
         }
@@ -735,20 +741,21 @@ class SendsayEmail {
         const bccResults = await Promise.all(bccEmails.map(async (bccEmail) => {
             const bccLetter = { ...letter }
             delete bccLetter.cc
-            return await sendIssue([bccEmail], bccLetter)
+            const [isOk, context] = await sendIssue([bccEmail], bccLetter)
+            return { email: bccEmail, isOk, context }
         }))
 
-        const failedBcc = bccResults.find(([isOk]) => !isOk)
+        const failedBcc = bccResults.find(({ isOk }) => !isOk)
         if (failedBcc) {
             return [false, {
                 primary: primaryContext,
-                bcc: bccResults.map(([, context]) => context),
+                bcc: bccResults,
             }]
         }
 
         return [true, {
             ...primaryContext,
-            bcc: bccResults.map(([, context]) => context),
+            bcc: bccResults,
         }]
     }
 }
