@@ -4,6 +4,7 @@ const https = require('https')
 const FormData = require('form-data')
 const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
+const omit = require('lodash/omit')
 const uniq = require('lodash/uniq')
 const { z } = require('zod')
 
@@ -528,9 +529,15 @@ class UnisenderGoEmail {
 
 /**
  * Sendsay transactional email adapter.
- * Uses `issue.send` with `group: "personal"`.
+ * Uses `issue.send` with `group: "personal"` and a single `email` recipient per request.
  * Auth: `apikey`/`token`, or `one_time_auth` with `login` / optional `sublogin` / `passwd`.
  * `api_url` may be the base JSON endpoint (`.../json`) — account login is appended automatically.
+ *
+ * Sendsay personal API has no Cc/Bcc MIME headers. `cc`/`bcc` are delivered as extra personal
+ * sends (one HTTP call per address). Recipients never see other addresses in email headers.
+ * Sends are sequential and stop the current stage on first failure; earlier successful delivers
+ * are not rolled back — failed responses set `partial: true` when some recipients already got mail.
+ *
  * @see https://sendsay.ru/api/api.html
  */
 class SendsayEmail {
@@ -659,11 +666,6 @@ class SendsayEmail {
         if (replyName) {
             letter['reply.name'] = replyName
         }
-        if (!isEmpty(ccEmails)) {
-            // Sendsay expects bare email addresses (comma-separated), same as Mailgun-style headers
-            letter.cc = ccEmails.join(',')
-        }
-
         const inlineAttachments = await resolveInlineAttachments(meta, this.attachmentOptions)
         const htmlWithInlines = applyInlineAttachmentsToHtml(html, inlineAttachments)
         if (htmlWithInlines) {
@@ -672,9 +674,10 @@ class SendsayEmail {
         if (text) {
             letter.message.text = text
         }
-        if (this.useTags && messageType && typeof messageType === 'string') {
-            letter.label = [messageType]
-        }
+        // `label` is a top-level issue.send field, not letter.*
+        const issueLabels = (this.useTags && messageType && typeof messageType === 'string')
+            ? [messageType]
+            : null
         if (this.useAttachingData && meta && !isEmpty(meta.attachingData)) {
             letter['customer.id'] = typeof meta.attachingData === 'string'
                 ? meta.attachingData
@@ -693,7 +696,19 @@ class SendsayEmail {
             }))
         }
 
-        const sendIssue = async (usersList, issueLetter) => {
+        // Personal issue.send accepts a single recipient via `email` (preferred — validated immediately).
+        // `users.list` for personal is also single-address only (JSON / CSV / XLSX); multi-address = error.
+        // @see https://sendsay.ru/api/api.html#Выпуск-issue-send
+        // Cc/Bcc headers are not part of letter schema; deliver copies as separate personal sends.
+        const safeExtendedParams = omit(extendedParams || {}, [
+            'email',
+            'letter',
+            'action',
+            'group',
+            'sendwhen',
+        ])
+
+        const sendIssue = async (recipientEmail, issueLetter) => {
             let result
             try {
                 result = await fetch(
@@ -708,9 +723,11 @@ class SendsayEmail {
                             action: 'issue.send',
                             group: 'personal',
                             sendwhen: 'now',
+                            ...safeExtendedParams,
+                            ...(issueLabels ? { label: issueLabels } : {}),
                             letter: issueLetter,
-                            'users.list': usersList.join('\n'),
-                            ...extendedParams,
+                            // Always win over extendedParams — one personal recipient per call
+                            email: recipientEmail,
                         })),
                     },
                 )
@@ -734,29 +751,58 @@ class SendsayEmail {
             return [isSent, context]
         }
 
-        const [primaryOk, primaryContext] = await sendIssue(uniq([...toEmails, ...ccEmails]), letter)
-        if (!primaryOk || isEmpty(bccEmails)) {
-            return [primaryOk, primaryContext]
+        // Sequential to reduce rate-limit pressure and avoid starting later recipients after a failure.
+        const sendToMany = async (emails) => {
+            const results = []
+            for (const recipientEmail of emails) {
+                const [isOk, context] = await sendIssue(recipientEmail, letter)
+                results.push({ email: recipientEmail, isOk, context })
+                if (!isOk) break
+            }
+            return results
         }
 
-        const bccResults = await Promise.all(bccEmails.map(async (bccEmail) => {
-            const bccLetter = { ...letter }
-            delete bccLetter.cc
-            const [isOk, context] = await sendIssue([bccEmail], bccLetter)
-            return { email: bccEmail, isOk, context }
-        }))
+        const normalizeEmailKey = (email) => String(email).trim().toLowerCase()
+        const primaryRecipients = uniq([...toEmails, ...ccEmails])
+        const primaryKeys = new Set(primaryRecipients.map(normalizeEmailKey))
+        const bccRecipients = uniq(bccEmails).filter((email) => !primaryKeys.has(normalizeEmailKey(email)))
 
-        if (bccResults.some(({ isOk }) => !isOk)) {
-            return [false, {
-                primary: primaryContext,
-                bcc: bccResults,
-            }]
+        const primaryResults = await sendToMany(primaryRecipients)
+        const primaryOk = primaryResults.length === primaryRecipients.length
+            && primaryResults.every(({ isOk }) => isOk)
+
+        const buildContext = (results, { bccResults } = {}) => {
+            const firstOk = results.find(({ isOk }) => isOk)
+            const base = (firstOk || results[0] || {}).context || {}
+            const hasPartial = results.some(({ isOk }) => isOk) && results.some(({ isOk }) => !isOk)
+            const bccPartial = Array.isArray(bccResults)
+                && bccResults.some(({ isOk }) => isOk)
+                && bccResults.some(({ isOk }) => !isOk)
+            const context = { ...base }
+
+            // Keep top-level track.id for single-recipient callers; always expose per-recipient detail
+            // when there is more than one primary attempt or any failure/partial state.
+            if (results.length > 1 || !primaryOk || bccResults) {
+                context.recipients = results
+            }
+            if (bccResults) {
+                context.bcc = bccResults
+            }
+            if (hasPartial || bccPartial || (primaryOk && bccResults && bccResults.some(({ isOk }) => !isOk))) {
+                context.partial = true
+            }
+            return context
         }
 
-        return [true, {
-            ...primaryContext,
-            bcc: bccResults,
-        }]
+        if (!primaryOk || isEmpty(bccRecipients)) {
+            return [primaryOk, buildContext(primaryResults)]
+        }
+
+        const bccResults = await sendToMany(bccRecipients)
+        const bccOk = bccResults.length === bccRecipients.length
+            && bccResults.every(({ isOk }) => isOk)
+
+        return [bccOk, buildContext(primaryResults, { bccResults })]
     }
 }
 
