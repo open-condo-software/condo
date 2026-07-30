@@ -2,6 +2,7 @@ const {
     getFkJoinMetadata,
     extractJoinAliasPredicates,
     rewriteCrossSourceSelectSql,
+    planCrossPoolSelect,
     normalizeSqlForCompare,
 } = require('./crossSourceSelectSql')
 
@@ -316,6 +317,128 @@ describe('crossSourceSelectSql', () => {
                     'unused_alias',
                 ],
             })
+        })
+    })
+
+    describe('planCrossPoolSelect (fail-closed)', () => {
+        function createPoolHarness ({
+            basePoolName = 'external',
+            joinPoolName = 'main',
+            remoteIds = ['user-1'],
+        } = {}) {
+            const externalPool = {
+                name: 'external',
+                getKnexClient: () => {
+                    throw new Error('base pool knex should not be used by planner')
+                },
+            }
+            const mainPool = {
+                name: 'main',
+                getKnexClient: () => {
+                    const rows = remoteIds.map(id => ({ id }))
+                    const builder = {
+                        select: () => builder,
+                        limit: () => builder,
+                        where: () => builder,
+                        whereRaw: () => builder,
+                        whereIn: () => builder,
+                        whereNotIn: () => builder,
+                        then: (resolve) => resolve(rows),
+                    }
+                    return (tableName) => {
+                        expect(tableName).toEqual('User')
+                        return builder
+                    }
+                },
+            }
+            const pools = { external: externalPool, main: mainPool }
+
+            return {
+                routeToPool: ({ tableName }) => {
+                    if (tableName === 'Message') return pools[basePoolName]
+                    if (tableName === 'User') return pools[joinPoolName]
+                    return pools[basePoolName]
+                },
+                getPoolName: (pool) => pool?.name || null,
+            }
+        }
+
+        test('rewrites cross-pool Keystone FK join and does not leave JOIN in SQL', async () => {
+            const sql = keystoneSelectWithFkJoin({
+                extraWhere: '"t0__user"."name" ilike \'%Ann%\'',
+            })
+            const harness = createPoolHarness()
+
+            const rewritten = await planCrossPoolSelect({
+                sql,
+                baseTableName: 'Message',
+                sqlOperationName: 'select',
+                ...harness,
+            })
+
+            expect(rewritten).toBeTruthy()
+            const normalized = normalizeSqlForCompare(rewritten)
+            expect(normalized).not.toContain('join')
+            expect(normalized).toContain('"t0"."user" in (\'user-1\')')
+        })
+
+        test('returns null when all JOINs are same-pool (original SQL is safe)', async () => {
+            const sql = keystoneSelectWithFkJoin({
+                extraWhere: '"t0__user"."name" ilike \'%Ann%\'',
+            })
+            const harness = createPoolHarness({ joinPoolName: 'external' })
+
+            await expect(planCrossPoolSelect({
+                sql,
+                baseTableName: 'Message',
+                sqlOperationName: 'select',
+                ...harness,
+            })).resolves.toBeNull()
+        })
+
+        test('throws for unrecognized cross-pool JOIN shape (no silent fallback)', async () => {
+            const sql = [
+                'select "t0".* from "public"."Message" as "t0"',
+                'left outer join "public"."User" as "t0__user"',
+                'on "t0__user"."name" = "t0"."email"',
+                'where ("t0"."deletedAt" is null)',
+            ].join(' ')
+            const harness = createPoolHarness()
+
+            await expect(planCrossPoolSelect({
+                sql,
+                baseTableName: 'Message',
+                sqlOperationName: 'select',
+                ...harness,
+            })).rejects.toThrow(/Unsupported cross-pool JOIN shape: "User"/)
+        })
+
+        test('throws when joined table pool cannot be resolved', async () => {
+            const sql = keystoneSelectWithFkJoin({
+                extraWhere: '"t0__user"."id" = \'user-1\'',
+            })
+
+            await expect(planCrossPoolSelect({
+                sql,
+                baseTableName: 'Message',
+                sqlOperationName: 'select',
+                routeToPool: ({ tableName }) => (tableName === 'Message' ? { name: 'external' } : { name: 'orphan' }),
+                getPoolName: (pool) => (pool?.name === 'external' ? 'external' : null),
+            })).rejects.toThrow(/Cannot resolve pool for joined table "User"/)
+        })
+
+        test('throws when base table pool cannot be resolved', async () => {
+            const sql = keystoneSelectWithFkJoin({
+                extraWhere: '"t0__user"."id" = \'user-1\'',
+            })
+
+            await expect(planCrossPoolSelect({
+                sql,
+                baseTableName: 'Message',
+                sqlOperationName: 'select',
+                routeToPool: () => ({ name: 'external' }),
+                getPoolName: () => null,
+            })).rejects.toThrow(/Cannot resolve pool for base table "Message"/)
         })
     })
 })

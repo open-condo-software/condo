@@ -126,7 +126,10 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
         }
 
         if (!ownerPool) {
-            return routedPool
+            throw new Error(
+                `No pool found for table "${tableName}" (resolved source "${ownerPoolName}"). ` +
+                'Fix DATABASE_POOLS / DATABASE_ROUTING_RULES / source registry — refusing to fall back to another pool.',
+            )
         }
         if (ownerPoolName === routedPoolName) {
             return routedPool
@@ -242,7 +245,12 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
 
     /**
      * Cross-pool SELECT rewrite: run join filters on remote pool, replace JOIN with `fk IN (...)`.
+     *
+     * Fail-closed via {@link planCrossPoolSelect}: unsupported / unroutable cross-pool JOINs
+     * throw — never fall back to running the original JOIN SQL on the selected pool.
+     *
      * @returns {Promise<*|undefined>} query rows when rewrite applied, otherwise `undefined`
+     *   (`undefined` only when rewrite is not needed: no JOIN or all JOINs same-pool)
      */
     async _tryCrossPoolSelectRewrite ({
         builder,
@@ -266,6 +274,14 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
             getPoolName: (pool) => this._getPoolName(pool),
         })
         if (!plannedSql) return undefined
+
+        const targetPoolName = this._getPoolName(selectedPool)
+        if (!targetPoolName || typeof selectedPool.getKnexClient !== 'function') {
+            throw new Error(
+                `Cannot execute rewritten cross-pool SELECT for "${finalTableName}": ` +
+                `target pool "${targetPoolName || 'unknown'}" is unavailable`,
+            )
+        }
 
         const directResult = await selectedPool.getKnexClient().raw(plannedSql)
         return directResult.rows || directResult

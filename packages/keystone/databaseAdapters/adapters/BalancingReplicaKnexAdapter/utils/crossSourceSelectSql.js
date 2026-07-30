@@ -182,22 +182,57 @@ function _parseWhereCondition (conditionSql) {
 }
 
 /**
- * Extract base table + FK join metadata from an already-parsed SELECT AST.
- *
- * Detects only Keystone-style FK joins:
+ * Match a single FROM join item as a Keystone-style FK join to `baseAlias`:
  * `LEFT JOIN "User" AS "t0__user" ON "t0__user"."id" = "t0"."user"`.
  *
- * Important: this function is intentionally permissive and does not fail fast.
- * Unsupported join shapes are skipped here so the caller can continue scanning
- * the rest of the query. Actual fail-fast validation happens later in
- * `planCrossPoolSelect()`, when a join is about to be rewritten across pools.
+ * @param {object} item FROM AST item with `join`
+ * @param {string} baseAlias
+ * @returns {{ alias: string, joinTable: string, sourceAlias: string, sourceField: string, fkExpression: string }|null}
+ */
+function _matchFkJoinToBase (item, baseAlias) {
+    if (!item?.join || !item.on || item.on.type !== 'binary_expr') return null
+    if (String(item.on.operator).toUpperCase() !== '=') return null
+
+    const leftParts = _getColumnRefParts(item.on.left)
+    const rightParts = _getColumnRefParts(item.on.right)
+    if (!leftParts || !rightParts) return null
+
+    const joinAlias = item.as
+    const joinTable = normalizeTableName(item.table)
+    if (!joinAlias || !joinTable) return null
+
+    if (leftParts.table === joinAlias && leftParts.column === 'id' && rightParts.table === baseAlias) {
+        return {
+            alias: joinAlias,
+            joinTable,
+            sourceAlias: baseAlias,
+            sourceField: rightParts.column,
+            fkExpression: `"${baseAlias}"."${rightParts.column}"`,
+        }
+    }
+
+    if (rightParts.table === joinAlias && rightParts.column === 'id' && leftParts.table === baseAlias) {
+        return {
+            alias: joinAlias,
+            joinTable,
+            sourceAlias: baseAlias,
+            sourceField: leftParts.column,
+            fkExpression: `"${baseAlias}"."${leftParts.column}"`,
+        }
+    }
+
+    return null
+}
+
+/**
+ * Extract base table + recognized FK join metadata from an already-parsed SELECT AST.
  *
- * In other words:
- * - here: "can I recognize this join as a simple FK join?"
- * - later: "is it safe to rewrite this cross-pool join?"
+ * Only Keystone-style FK joins to the base alias are included. Unrecognized join
+ * shapes are omitted here; {@link planCrossPoolSelect} fail-closes on any omitted
+ * join that routes to another pool (no silent execution of unre written SQL).
  *
  * @param {object} parsedQuery SELECT AST
- * @returns {{ baseTable: string, baseAlias: string, joins: Array<{ alias: string, joinTable: string, sourceAlias: string, sourceField: string, fkExpression: string }> }|null}
+ * @returns {{ baseTable: string, baseAlias: string, joins: Array<{ alias: string, joinTable: string, sourceAlias: string, sourceField: string, fkExpression: string }>, fromJoins: Array<object> }|null}
  */
 function _getFkJoinMetadataFromParsedQuery (parsedQuery) {
     const from = parsedQuery.from || []
@@ -208,45 +243,19 @@ function _getFkJoinMetadataFromParsedQuery (parsedQuery) {
 
     const baseTable = normalizeTableName(baseFrom.table)
     const baseAlias = baseFrom.as || baseTable
+    const fromJoins = from.filter(item => item.join)
     const joins = []
 
-    for (const item of from) {
-        if (!item.join || !item.on || item.on.type !== 'binary_expr') continue
-        if (String(item.on.operator).toUpperCase() !== '=') continue
-
-        const leftParts = _getColumnRefParts(item.on.left)
-        const rightParts = _getColumnRefParts(item.on.right)
-        if (!leftParts || !rightParts) continue
-
-        const joinAlias = item.as
-        const joinTable = normalizeTableName(item.table)
-
-        if (leftParts.table === joinAlias && leftParts.column === 'id' && rightParts.table === baseAlias) {
-            joins.push({
-                alias: joinAlias,
-                joinTable,
-                sourceAlias: baseAlias,
-                sourceField: rightParts.column,
-                fkExpression: `"${baseAlias}"."${rightParts.column}"`,
-            })
-            continue
-        }
-
-        if (rightParts.table === joinAlias && rightParts.column === 'id' && leftParts.table === baseAlias) {
-            joins.push({
-                alias: joinAlias,
-                joinTable,
-                sourceAlias: baseAlias,
-                sourceField: leftParts.column,
-                fkExpression: `"${baseAlias}"."${leftParts.column}"`,
-            })
-        }
+    for (const item of fromJoins) {
+        const matched = _matchFkJoinToBase(item, baseAlias)
+        if (matched) joins.push(matched)
     }
 
     return {
         baseTable,
         baseAlias,
         joins,
+        fromJoins,
     }
 }
 
@@ -259,7 +268,14 @@ function _getFkJoinMetadataFromParsedQuery (parsedQuery) {
 function getFkJoinMetadata (sqlString) {
     try {
         const parsedQuery = _parseSelectQuery(sqlString)
-        return _getFkJoinMetadataFromParsedQuery(_resolveSelectTargetAst(parsedQuery))
+        const metadata = _getFkJoinMetadataFromParsedQuery(_resolveSelectTargetAst(parsedQuery))
+        if (!metadata) return null
+        // Public shape stays stable (omit internal `fromJoins` used by the planner).
+        return {
+            baseTable: metadata.baseTable,
+            baseAlias: metadata.baseAlias,
+            joins: metadata.joins,
+        }
     } catch (err) {
         return null
     }
@@ -604,6 +620,10 @@ function _applyJoinPredicate (query, predicate) {
  * 2. run `SELECT id FROM join_table WHERE ...` on the join table's pool
  * 3. rewrite the original SQL to `base.fk IN (...)` without the JOIN
  *
+ * Fail-closed: any cross-pool JOIN that cannot be rewritten throws. Never returns
+ * `null` while leaving unre written cross-pool JOINs in the SQL (that would risk
+ * hitting a stale dual copy on main/replica).
+ *
  * @param {object} options
  * @param {string} options.sql original SELECT SQL from Knex
  * @param {string} options.baseTableName Keystone list / table name for the main FROM clause
@@ -612,8 +632,8 @@ function _applyJoinPredicate (query, predicate) {
  * @param {string} options.sqlOperationName `select`, `insert`, etc.
  * @param {(context: object) => object} options.routeToPool returns the pool for a table context
  * @param {(pool: object) => string|null} options.getPoolName pool name used for same-pool comparison
- * @returns {Promise<string|null>} rewritten SQL, or `null` when rewrite is not needed
- * @throws {Error} when JOIN shape is unsupported or id limit is exceeded
+ * @returns {Promise<string|null>} rewritten SQL, or `null` when rewrite is not needed (no cross-pool JOINs)
+ * @throws {Error} when a cross-pool JOIN cannot be routed/rewritten, or id limit is exceeded
  */
 async function planCrossPoolSelect ({
     sql,
@@ -628,36 +648,77 @@ async function planCrossPoolSelect ({
     // Cheap reject: no JOIN ⇒ nothing to rewrite (avoids SQL AST on plain main-table reads).
     if (!/\bjoin\b/i.test(sql)) return null
 
-    const metadata = getFkJoinMetadata(sql)
-    if (!metadata || metadata.joins.length === 0) return null
+    let parsedQuery
+    try {
+        parsedQuery = _parseSelectQuery(sql)
+    } catch (err) {
+        throw new Error(
+            `Cannot parse SELECT with JOIN for cross-pool rewrite: ${err.message}`,
+        )
+    }
 
+    const metadata = _getFkJoinMetadataFromParsedQuery(_resolveSelectTargetAst(parsedQuery))
+    if (!metadata) {
+        throw new Error(
+            'Cannot resolve base table from SELECT with JOIN for cross-pool rewrite',
+        )
+    }
+
+    const baseTable = baseTableName || metadata.baseTable
     const basePool = routeToPool({
         gqlOperationType,
         gqlOperationName,
         sqlOperationName,
-        tableName: baseTableName || metadata.baseTable,
+        tableName: baseTable,
     })
     const basePoolName = getPoolName(basePool)
-    if (!basePoolName) return null
+    if (!basePoolName) {
+        throw new Error(
+            `Cannot resolve pool for base table "${baseTable}" during cross-pool JOIN rewrite`,
+        )
+    }
 
+    const fkJoinsByAlias = new Map(metadata.joins.map(join => [join.alias, join]))
     const joinRewrites = []
 
-    for (const join of metadata.joins) {
+    for (const fromJoin of metadata.fromJoins) {
+        const joinTable = normalizeTableName(fromJoin.table)
+        const joinAlias = fromJoin.as || joinTable
+        if (!joinTable) {
+            throw new Error(
+                `Unsupported cross-pool JOIN: missing join table name (alias "${joinAlias}")`,
+            )
+        }
+
         const joinPool = routeToPool({
             gqlOperationType,
             gqlOperationName,
             sqlOperationName,
-            tableName: join.joinTable,
+            tableName: joinTable,
         })
         const joinPoolName = getPoolName(joinPool)
-        if (!joinPoolName || joinPoolName === basePoolName) continue
+        if (!joinPoolName) {
+            throw new Error(
+                `Cannot resolve pool for joined table "${joinTable}" (alias "${joinAlias}")`,
+            )
+        }
+        // Same-pool JOIN can stay in the original SQL.
+        if (joinPoolName === basePoolName) continue
+
+        const join = fkJoinsByAlias.get(joinAlias)
+        if (!join) {
+            throw new Error(
+                `Unsupported cross-pool JOIN shape: "${joinTable}" AS "${joinAlias}". ` +
+                'Only Keystone FK joins to the base table (`join.id = base.fk`) can be rewritten. ' +
+                'Fix the query shape or keep both tables on the same pool.',
+            )
+        }
 
         const predicates = extractJoinAliasPredicates(sql, join.alias)
         // Hydration-only JOIN (no filters on the join alias): drop it.
         // If WHERE still references the alias (e.g. real OR-wrapped filters), fail closed —
         // stripping the JOIN would leave dangling alias refs in WHERE.
         if (predicates.length === 0) {
-            const parsedQuery = _parseSelectQuery(sql)
             const targetQuery = _resolveSelectTargetAst(parsedQuery)
             const simplifiedWhere = _simplifyWhere(targetQuery.where)
             if (_nodeReferencesAlias(simplifiedWhere, join.alias)) {
@@ -672,6 +733,12 @@ async function planCrossPoolSelect ({
                 stripJoinOnly: true,
             })
             continue
+        }
+
+        if (typeof joinPool.getKnexClient !== 'function') {
+            throw new Error(
+                `Joined table "${join.joinTable}" pool "${joinPoolName}" has no Knex client for cross-pool rewrite`,
+            )
         }
 
         const joinClient = joinPool.getKnexClient()
@@ -696,8 +763,17 @@ async function planCrossPoolSelect ({
         })
     }
 
+    // All JOINs were same-pool — original SQL is safe on the base table's pool.
     if (!joinRewrites.length) return null
-    return rewriteCrossSourceSelectSql(sql, { joinRewrites })
+
+    const rewritten = rewriteCrossSourceSelectSql(sql, { joinRewrites })
+    if (!rewritten) {
+        throw new Error(
+            `Cross-pool JOIN rewrite produced no SQL for base table "${baseTable}". ` +
+            'Refusing to run the original JOIN query (would risk wrong/stale pool).',
+        )
+    }
+    return rewritten
 }
 
 module.exports = {
