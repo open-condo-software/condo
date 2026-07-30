@@ -229,11 +229,6 @@ const NewsItem = new GQLListSchema('NewsItem', {
             ref: 'NewsItemSource',
             isRequired: true,
             kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
-            access: {
-                read: true,
-                create: access.canDirectlySetNewsItemSource,
-                update: access.canDirectlySetNewsItemSource,
-            },
         },
 
     },
