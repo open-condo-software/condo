@@ -1,14 +1,13 @@
 const { makeLoggedInAdminClient, makeClient, UUID_RE, expectValuesOfCommonFields } = require('@open-condo/keystone/test.utils')
-
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
 const { NEWS_ITEM_SOURCE_TYPES } = require('@condo/domains/news/constants/newsItemSourceTypes')
+const { NewsItemSource, createTestNewsItemSource, updateTestNewsItemSource } = require('@condo/domains/news/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
-const { NewsItemSource, createTestNewsItemSource, updateTestNewsItemSource } = require('@condo/domains/news/utils/testSchema')
 
 describe('NewsItemSource', () => {
     describe('CRUD tests', () => {
