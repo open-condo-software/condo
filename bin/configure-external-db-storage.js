@@ -29,16 +29,15 @@ const EXTERNAL_POOLS = [
         dbSuffix: '_message',
         tables: ['Message', 'MessageHistoryRecord'],
     },
-    // {
-    //     poolName: 'billing',
-    //     dbSuffix: '_billing',
-    //     tables: [
-    //         'BillingReceipt',
-    //         'BillingReceiptHistoryRecord',
-    //         'BillingReceiptFile',
-    //         'BillingReceiptFileHistoryRecord',
-    //     ],
-    // },
+    {
+        // Align with review helm: receipts (+ history) on a separate pool; files stay on main.
+        poolName: 'billing',
+        dbSuffix: '_billing',
+        tables: [
+            'BillingReceipt',
+            'BillingReceiptHistoryRecord',
+        ],
+    },
 ]
 
 function quoteIdent (name) {

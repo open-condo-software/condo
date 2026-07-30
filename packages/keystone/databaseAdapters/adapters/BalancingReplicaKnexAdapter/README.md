@@ -89,6 +89,8 @@ const routingRules = [
 2. Knex builds SQL; `adapter._patchKnexRunner` intercepts execution.
 3. `_routeToPool` picks a pool from rules.
 4. Cross-pool JOINs: planner queries remote pool, rewrites SQL, runs on base pool.
+   Fail-closed: unrecognized / unroutable cross-pool JOINs throw — the original JOIN SQL
+   is never executed on main/replica (avoids stale dual-copy reads after restore).
 5. Otherwise: pool's knex client runs the query.
 
 **Main-pool fast path:** lists with no cross-source outbound FKs skip SELECT rewrite wrapping

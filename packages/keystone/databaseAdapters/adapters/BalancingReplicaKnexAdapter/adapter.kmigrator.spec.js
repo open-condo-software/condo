@@ -224,4 +224,20 @@ describe('BalancingReplicaKnexAdapter._selectTargetPool', () => {
         expect(() => adapter._selectTargetPool('update "public"."Message" set "status" = $1 where "id" = $2'))
             .toThrow('Pool "billing" is read-only or unavailable')
     })
+
+    test('throws on read when resolved owner pool is missing (no fallback)', () => {
+        const adapter = Object.create(BalancingReplicaKnexAdapter.prototype)
+        const mainPool = { name: 'main' }
+
+        adapter._routeToPool = jest.fn(() => mainPool)
+        adapter._sourceRegistry = { resolveSource: () => 'external' }
+        adapter._replicaPools = { main: mainPool }
+        adapter._replicaPoolsConfig = {
+            main: { databases: ['main'], writable: true },
+        }
+        adapter._getPoolName = jest.fn((pool) => (pool === mainPool ? 'main' : null))
+
+        expect(() => adapter._selectTargetPool('select "t0".* from "public"."Message" as "t0"'))
+            .toThrow(/No pool found for table "Message"/)
+    })
 })
