@@ -1006,7 +1006,7 @@ describe('Email adapters', () => {
             expect(fetch).toHaveBeenCalledTimes(3)
         })
 
-        it('does not send duplicate audit copies when bcc repeats recipients already present in to/cc', async () => {
+        it('deduplicates recipients case-insensitively across to, cc, and bcc audit copies', async () => {
             fetch
                 .mockResolvedValueOnce(createJsonResponse(200, { 'track.id': 1 }))
                 .mockResolvedValueOnce(createJsonResponse(200, { 'track.id': 2 }))
@@ -1015,7 +1015,7 @@ describe('Email adapters', () => {
             const adapter = new EmailAdapter()
             const [isOk, context] = await adapter.send({
                 to: 'User@Example.com',
-                cc: 'copy@example.com',
+                cc: 'user@example.com, Copy@Example.com',
                 bcc: 'user@example.com, COPY@example.com, unique-bcc@example.com',
                 subject: 'Hello',
                 text: 'Body',
@@ -1026,8 +1026,12 @@ describe('Email adapters', () => {
             const emails = fetch.mock.calls.map(([, opts]) => JSON.parse(opts.body).email)
             expect(emails).toEqual([
                 'User@Example.com',
-                'copy@example.com',
+                'Copy@Example.com',
                 'unique-bcc@example.com',
+            ])
+            expect(context.recipients).toEqual([
+                { email: 'User@Example.com', isOk: true, context: { 'track.id': 1 } },
+                { email: 'Copy@Example.com', isOk: true, context: { 'track.id': 2 } },
             ])
             expect(context.bcc).toEqual([{
                 email: 'unique-bcc@example.com',

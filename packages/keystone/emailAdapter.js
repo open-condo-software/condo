@@ -5,7 +5,6 @@ const FormData = require('form-data')
 const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
 const omit = require('lodash/omit')
-const uniq = require('lodash/uniq')
 const { z } = require('zod')
 
 const conf = require('@open-condo/config')
@@ -763,9 +762,21 @@ class SendsayEmail {
         }
 
         const normalizeEmailKey = (email) => String(email).trim().toLowerCase()
-        const primaryRecipients = uniq([...toEmails, ...ccEmails])
+        const primaryRecipients = Object.values([...toEmails, ...ccEmails].reduce((acc, email) => {
+            const key = normalizeEmailKey(email)
+            if (!acc[key]) {
+                acc[key] = email
+            }
+            return acc
+        }, {}))
         const primaryKeys = new Set(primaryRecipients.map(normalizeEmailKey))
-        const bccRecipients = uniq(bccEmails).filter((email) => !primaryKeys.has(normalizeEmailKey(email)))
+        const bccRecipients = Object.values(bccEmails.reduce((acc, email) => {
+            const key = normalizeEmailKey(email)
+            if (!acc[key] && !primaryKeys.has(key)) {
+                acc[key] = email
+            }
+            return acc
+        }, {}))
 
         const primaryResults = await sendToMany(primaryRecipients)
         const primaryOk = primaryResults.length === primaryRecipients.length
