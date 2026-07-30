@@ -57,6 +57,14 @@ CREATE TABLE "NewsItemSource" ("type" varchar(50) NOT NULL, "name" text NOT NULL
 -- Add field source to newsitem
 --
 ALTER TABLE "NewsItem" ADD COLUMN "source" uuid NULL CONSTRAINT "NewsItem_source_574b470e_fk_NewsItemSource_id" REFERENCES "NewsItemSource"("id") DEFERRABLE INITIALLY DEFERRED; SET CONSTRAINTS "NewsItem_source_574b470e_fk_NewsItemSource_id" IMMEDIATE;
+
+--
+-- Seed default NewsItemSource rows and backfill existing NewsItem rows
+--
+INSERT INTO "NewsItemSource" (dv, sender, type, name, "isDefault", id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", "updatedBy") VALUES (1, '{"dv": 1, "fingerprint": "manual"}', 'web_app', 'news.source.WEB_APP.name', true, 'e555cb9b-6f1c-4af5-833f-0affb364096d', 1, '2026-07-24 00:00:00.000000', '2026-07-24 00:00:00.000000', null, null, null, null) ON CONFLICT (id) DO NOTHING;
+INSERT INTO "NewsItemSource" (dv, sender, type, name, "isDefault", id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", "updatedBy") VALUES (1, '{"dv": 1, "fingerprint": "manual"}', 'external_system', 'Debt', true, 'efe5f0cb-0f2d-4828-a7cf-056ca58bfa57', 1, '2026-07-24 00:00:00.000000', '2026-07-24 00:00:00.000000', null, null, null, null) ON CONFLICT (id) DO NOTHING;
+UPDATE "NewsItem" SET source = 'e555cb9b-6f1c-4af5-833f-0affb364096d' WHERE source IS NULL;
+
 CREATE INDEX "NewsItemSourceHistoryRecord_history_id_13d71f34" ON "NewsItemSourceHistoryRecord" ("history_id");
 ALTER TABLE "NewsItemSource" ADD CONSTRAINT "NewsItemSource_createdBy_94f74b24_fk_User_id" FOREIGN KEY ("createdBy") REFERENCES "User" ("id") DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE "NewsItemSource" ADD CONSTRAINT "NewsItemSource_updatedBy_01ec8279_fk_User_id" FOREIGN KEY ("updatedBy") REFERENCES "User" ("id") DEFERRABLE INITIALLY DEFERRED;
