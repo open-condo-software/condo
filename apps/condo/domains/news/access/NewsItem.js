@@ -79,16 +79,6 @@ async function canManageNewsItems (args) {
     return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageNewsItems')
 }
 
-function canDirectlySetNewsItemSource ({ authentication: { item: user } }) {
-    if (!user) return throwAuthenticationError()
-    if (user.deletedAt) return false
-
-    // The news form never sends "source", so it always falls back to the default one via resolveInput.
-    // Only a trusted SERVICE account (b2b app backend, via an authoritative bulk mutation) or an admin
-    // is allowed to explicitly set a non-default source.
-    return user.isAdmin || user.type === SERVICE
-}
-
 /*
   Rules are logical functions that used for list access, and may return a boolean (meaning
   all or no items are available) or a set of filters that limit the available items.
@@ -96,5 +86,4 @@ function canDirectlySetNewsItemSource ({ authentication: { item: user } }) {
 module.exports = {
     canReadNewsItems,
     canManageNewsItems,
-    canDirectlySetNewsItemSource,
 }
