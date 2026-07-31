@@ -302,6 +302,49 @@ describe('crossSourceSelectSql', () => {
             })).toThrow('Unsupported cross-pool JOIN rewrite for alias "t0__user"')
         })
 
+        test('rewrites Keystone id_not (join.id != x OR join.id IS NULL) onto local FK', () => {
+            const inputSql = keystoneSelectWithFkJoin({
+                joinTable: 'BillingCategory',
+                joinAlias: 't0__category',
+                fkColumn: 'category',
+                extraWhere: '("t0__category"."id" != \'55dd01e4-a87c-4713-8a91-951516b543f3\') or ("t0__category"."id" is null)',
+            })
+
+            expectSqlRewrite({
+                inputSql,
+                joinRewrites: [{
+                    alias: 't0__category',
+                    fkExpression: '"t0"."category"',
+                    applyIdPredicatesOnFk: true,
+                }],
+                mustNotContain: ['join', 't0__category'],
+                mustContain: [
+                    '("t0"."category" is null or "t0"."category" <> \'55dd01e4-a87c-4713-8a91-951516b543f3\')',
+                    '"t0"."deletedat" is null',
+                ],
+            })
+        })
+
+        test('rewrites join id equality onto local FK without remote ids list', () => {
+            const inputSql = keystoneSelectWithFkJoin({
+                joinTable: 'BillingCategory',
+                joinAlias: 't0__category',
+                fkColumn: 'category',
+                extraWhere: '"t0__category"."id" = \'cat-1\'',
+            })
+
+            expectSqlRewrite({
+                inputSql,
+                joinRewrites: [{
+                    alias: 't0__category',
+                    fkExpression: '"t0"."category"',
+                    applyIdPredicatesOnFk: true,
+                }],
+                mustNotContain: ['join', 't0__category'],
+                mustContain: ['"t0"."category" = \'cat-1\''],
+            })
+        })
+
         test('rewrites count(*) subselect and drops User JOIN', () => {
             const inputSql = keystoneCountSubselectWithFkJoin({
                 extraWhere: '"t0__user"."id" = \'user-1\'',
@@ -411,6 +454,41 @@ describe('crossSourceSelectSql', () => {
                 sqlOperationName: 'select',
                 ...harness,
             })).rejects.toThrow(/Unsupported cross-pool JOIN shape: "User"/)
+        })
+
+        test('rewrites Keystone id_not OR IS NULL via local FK (no remote query)', async () => {
+            const sql = keystoneSelectWithFkJoin({
+                baseTable: 'BillingReceipt',
+                joinTable: 'BillingCategory',
+                joinAlias: 't0__category',
+                fkColumn: 'category',
+                extraWhere: '("t0__category"."id" != \'55dd01e4-a87c-4713-8a91-951516b543f3\') or ("t0__category"."id" is null)',
+            })
+            const billingPool = {
+                name: 'billing',
+                getKnexClient: () => {
+                    throw new Error('should not query remote for pure id_not rewrite')
+                },
+            }
+            const mainPool = {
+                name: 'main',
+                getKnexClient: () => {
+                    throw new Error('should not query remote for pure id_not rewrite')
+                },
+            }
+
+            const rewritten = await planCrossPoolSelect({
+                sql,
+                baseTableName: 'BillingReceipt',
+                sqlOperationName: 'select',
+                routeToPool: ({ tableName }) => (tableName === 'BillingReceipt' ? billingPool : mainPool),
+                getPoolName: (pool) => pool?.name || null,
+            })
+
+            expect(rewritten).toBeTruthy()
+            const normalized = normalizeSqlForCompare(rewritten)
+            expect(normalized).not.toContain('join')
+            expect(normalized).toContain('"t0"."category" is null or "t0"."category" <>')
         })
 
         test('throws when joined table pool cannot be resolved', async () => {

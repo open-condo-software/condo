@@ -348,24 +348,52 @@ class CrossDbPlanner {
 
     async _loadBaseIds (where) {
         const { keystone: baseKeystone } = await getSchemaCtx(this.listKey)
-        const rows = await prepareWhereSkipStorage.run({ skip: true }, () => getItems({
-            keystone: baseKeystone,
-            listKey: this.listKey,
-            where,
-            returnFields: 'id',
-            sortBy: ['id_ASC'],
-            first: CROSS_DB_RELATION_IDS_HARD_LIMIT + 1,
-            skip: 0,
-        }))
-        if (!Array.isArray(rows)) return []
+        const ids = []
+        let skip = 0
+        let page = 0
+        let reachedTerminalPage = false
 
-        const ids = rows.map(row => row?.id).filter(Boolean)
-        if (ids.length > CROSS_DB_RELATION_IDS_HARD_LIMIT) {
+        // Keystone enforces maxTotalResults (= GLOBAL_QUERY_LIMIT). Requesting a larger
+        // `first` still throws when more than that many rows match — paginate instead.
+        while (page < CROSS_DB_RELATION_MAX_PAGES) {
+            page += 1
+            const rows = await prepareWhereSkipStorage.run({ skip: true }, () => getItems({
+                keystone: baseKeystone,
+                listKey: this.listKey,
+                where,
+                returnFields: 'id',
+                sortBy: ['id_ASC'],
+                first: GLOBAL_QUERY_LIMIT,
+                skip,
+            }))
+
+            if (!Array.isArray(rows) || rows.length === 0) {
+                reachedTerminalPage = true
+                break
+            }
+
+            ids.push(...rows.map(row => row?.id).filter(Boolean))
+            if (ids.length > CROSS_DB_RELATION_IDS_HARD_LIMIT) {
+                throw new Error(
+                    `Cross-db OR flatten returned too many ids for ${this.listKey}. ` +
+                    `Limit: ${CROSS_DB_RELATION_IDS_HARD_LIMIT}`,
+                )
+            }
+
+            if (rows.length < GLOBAL_QUERY_LIMIT) {
+                reachedTerminalPage = true
+                break
+            }
+            skip += rows.length
+        }
+
+        if (!reachedTerminalPage && page >= CROSS_DB_RELATION_MAX_PAGES) {
             throw new Error(
-                `Cross-db OR flatten returned too many ids for ${this.listKey}. ` +
-                `Limit: ${CROSS_DB_RELATION_IDS_HARD_LIMIT}`,
+                `Cross-db OR flatten reached page limit for ${this.listKey}. ` +
+                `Limit: ${CROSS_DB_RELATION_MAX_PAGES}`,
             )
         }
+
         return ids
     }
 

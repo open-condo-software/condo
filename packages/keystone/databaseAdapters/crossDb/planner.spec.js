@@ -190,7 +190,7 @@ describe('CrossDbPlanner.prepareWhere', () => {
         expect(getItems).toHaveBeenLastCalledWith(expect.objectContaining({
             listKey: 'Message',
             where: { user: { id_in: ['user-1'] } },
-            first: 50001,
+            first: 1000,
         }))
     })
 
@@ -283,14 +283,29 @@ describe('CrossDbPlanner._loadBaseIds', () => {
             where: { status: 'sent' },
             returnFields: 'id',
             sortBy: ['id_ASC'],
-            first: 50001,
+            first: 1000,
             skip: 0,
         }))
     })
 
-    test('throws when bounded base ids exceed hard limit', async () => {
-        getItems.mockResolvedValue(Array.from({ length: 50001 }, (_, i) => ({ id: `m-${i}` })))
+    test('paginates when a page is full (Keystone maxTotalResults)', async () => {
+        getItems
+            .mockResolvedValueOnce(Array.from({ length: 1000 }, (_, i) => ({ id: `m-${i}` })))
+            .mockResolvedValueOnce([{ id: 'm-1000' }, { id: 'm-1001' }])
 
+        const ids = await planner._loadBaseIds({ status: 'sent' })
+        expect(ids).toHaveLength(1002)
+        expect(getItems).toHaveBeenCalledTimes(2)
+        expect(getItems).toHaveBeenNthCalledWith(2, expect.objectContaining({
+            first: 1000,
+            skip: 1000,
+        }))
+    })
+
+    test('throws when bounded base ids exceed hard limit', async () => {
+        getItems.mockResolvedValue(Array.from({ length: 1000 }, (_, i) => ({ id: `m-${i}` })))
+
+        // 51 full pages × 1000 = 51000 > 50000 hard limit
         await expect(planner._loadBaseIds({ status: 'sent' })).rejects.toThrow(
             'Cross-db OR flatten returned too many ids for Message. Limit: 50000'
         )
