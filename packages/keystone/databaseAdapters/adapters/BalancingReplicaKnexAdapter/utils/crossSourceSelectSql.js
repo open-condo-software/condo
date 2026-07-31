@@ -105,6 +105,47 @@ function _nodeToPredicate (node) {
 }
 
 /**
+ * Keystone `id_not` / `id_not_in` on a related list becomes:
+ *   (alias.col != v OR alias.col IS NULL)  /  (alias.col NOT IN (...) OR alias.col IS NULL)
+ * That OR is intentional null-safety, not an unsafe disjunction — rewrite it to the local FK.
+ *
+ * @param {object|null} node
+ * @param {string} alias
+ * @returns {{ type: 'in'|'binary', column: string, operator?: string, value?: *, negate?: boolean, values?: Array, nullSafe: true }|null}
+ */
+function _tryParseKeystoneNullSafeNotPattern (node, alias) {
+    if (!_isOrBinaryExpr(node)) return null
+
+    const sides = [node.left, node.right]
+    const nullSide = sides.find(side => _isAliasColumnIsNull(side, alias))
+    const predSide = sides.find(side => side !== nullSide)
+    if (!nullSide || !predSide) return null
+
+    const nullParts = _getColumnRefParts(nullSide.left)
+    const predicate = _nodeToPredicate(predSide)
+    if (!nullParts || !predicate || predicate.column !== nullParts.column) return null
+    if (predicate.type === 'binary' && predicate.operator !== '!=' && predicate.operator !== '<>') {
+        return null
+    }
+    if (predicate.type === 'in' && !predicate.negate) return null
+
+    return { ...predicate, nullSafe: true }
+}
+
+/**
+ * @param {object|null} node
+ * @param {string} alias
+ * @returns {boolean}
+ */
+function _isAliasColumnIsNull (node, alias) {
+    if (!node || node.type !== 'binary_expr') return false
+    if (String(node.operator || '').toUpperCase() !== 'IS') return false
+    if (node.right?.type !== 'null') return false
+    const parts = _getColumnRefParts(node.left)
+    return Boolean(parts && parts.table === alias)
+}
+
+/**
  * Parse a SQL string and return the single SELECT AST root.
  *
  * @param {string} sqlString
@@ -391,7 +432,8 @@ function _isOrBinaryExpr (node) {
 
 /**
  * Whether the WHERE tree contains an `OR` that references the join alias.
- * Such shapes cannot be rewritten safely (would change result semantics).
+ * Such shapes cannot be rewritten safely (would change result semantics),
+ * except Keystone's null-safe `id_not` / `id_not_in` pattern (handled separately).
  *
  * @param {object|null} where WHERE AST root
  * @param {string} alias join alias
@@ -400,6 +442,7 @@ function _isOrBinaryExpr (node) {
 function _whereTreeHasOrWithAlias (where, alias) {
     if (!where) return false
     if (_isOrBinaryExpr(where)) {
+        if (_tryParseKeystoneNullSafeNotPattern(where, alias)) return false
         return _nodeReferencesAlias(where.left, alias) || _nodeReferencesAlias(where.right, alias)
     }
     if (where.type === 'binary_expr' && String(where.operator || '').toUpperCase() === 'AND') {
@@ -410,7 +453,7 @@ function _whereTreeHasOrWithAlias (where, alias) {
 
 /**
  * Walk WHERE and collect predicate descriptors for conditions on `alias.*` columns.
- * Skips the whole tree (returns `[]`) when an OR involving the alias is present.
+ * Skips the whole tree (returns `[]`) when an unsafe OR involving the alias is present.
  *
  * @param {object|null} where WHERE AST root
  * @param {string} alias join alias
@@ -423,6 +466,11 @@ function _extractAliasPredicates (where, alias) {
     const predicates = []
     const walk = (node) => {
         if (!node) return
+        const nullSafe = _tryParseKeystoneNullSafeNotPattern(node, alias)
+        if (nullSafe) {
+            predicates.push(nullSafe)
+            return
+        }
         if (node.type === 'binary_expr') {
             if (_isLogicalBinaryExpr(node)) {
                 walk(node.left)
@@ -460,6 +508,11 @@ function _extractAndRemoveAliasPredicates (where, alias) {
     const predicates = []
     let unsupported = false
     const nextWhere = _simplifyWhere(_mutateWhere(simplified, (node) => {
+        const nullSafe = _tryParseKeystoneNullSafeNotPattern(node, alias)
+        if (nullSafe) {
+            predicates.push(nullSafe)
+            return { type: 'bool', value: true }
+        }
         if (_isLogicalBinaryExpr(node) || !_nodeReferencesAlias(node, alias)) return undefined
         const predicate = _nodeToPredicate(node)
         if (!predicate) {
@@ -473,6 +526,66 @@ function _extractAndRemoveAliasPredicates (where, alias) {
         return { predicates: [], where, unsupported: true }
     }
     return { predicates, where: nextWhere, unsupported: false }
+}
+
+/**
+ * Escape a literal for inlined SQL id comparisons (UUIDs / controlled Keystone ids).
+ * @param {*} value
+ * @returns {string}
+ */
+function _sqlQuoteLiteral (value) {
+    return `'${String(value).replace(/'/g, '\'\'')}'`
+}
+
+/**
+ * Whether join filters only touch the related table's `id` (can map straight onto the local FK).
+ * @param {Array} predicates
+ * @returns {boolean}
+ */
+function _predicatesAreJoinIdOnly (predicates) {
+    return predicates.length > 0 && predicates.every(predicate => predicate.column === 'id')
+}
+
+/**
+ * Map join-alias `id` predicates onto the base table FK expression (no remote pool round-trip).
+ * @param {string} fkExpression
+ * @param {Array} predicates
+ * @returns {string}
+ */
+function _fkConditionFromIdPredicates (fkExpression, predicates) {
+    const parts = []
+    for (const predicate of predicates) {
+        if (predicate.type === 'in') {
+            if (!predicate.values.length) {
+                parts.push(predicate.negate ? 'true' : 'false')
+                continue
+            }
+            const list = predicate.values.map(_sqlQuoteLiteral).join(', ')
+            if (predicate.negate && predicate.nullSafe) {
+                parts.push(`(${fkExpression} IS NULL OR ${fkExpression} NOT IN (${list}))`)
+            } else if (predicate.negate) {
+                parts.push(`${fkExpression} NOT IN (${list})`)
+            } else {
+                parts.push(`${fkExpression} IN (${list})`)
+            }
+            continue
+        }
+
+        const op = predicate.operator === '!=' ? '<>' : predicate.operator
+        const literal = _sqlQuoteLiteral(predicate.value)
+        if ((op === '<>') && predicate.nullSafe) {
+            parts.push(`(${fkExpression} IS NULL OR ${fkExpression} <> ${literal})`)
+        } else if (op === '=') {
+            parts.push(`${fkExpression} = ${literal}`)
+        } else if (op === '<>') {
+            parts.push(`${fkExpression} <> ${literal}`)
+        } else {
+            throw new Error(
+                `Unsupported join id predicate operator "${predicate.operator}" for FK rewrite`,
+            )
+        }
+    }
+    return parts.join(' AND ')
 }
 
 /**
@@ -523,10 +636,11 @@ function _andWhereCondition (where, conditionSql) {
 }
 
 /**
- * Rewrite a cross-pool SELECT: drop JOINs and replace alias filters with `base.fk IN (...)`.
+ * Rewrite a cross-pool SELECT: drop JOINs and replace alias filters with `base.fk IN (...)`
+ * (or direct FK predicates when the join only filtered related `id`).
  *
  * @param {string} sqlString original SELECT SQL
- * @param {{ joinRewrites?: Array<{ alias: string, fkExpression: string, ids?: string[]|null, stripJoinOnly?: boolean }> }} options
+ * @param {{ joinRewrites?: Array<{ alias: string, fkExpression: string, ids?: string[]|null, stripJoinOnly?: boolean, applyIdPredicatesOnFk?: boolean }> }} options
  * @returns {string|null} rewritten SQL, or `null` when nothing changed
  * @throws {Error} when OR conditions on a join alias make rewrite unsafe
  */
@@ -538,7 +652,7 @@ function rewriteCrossSourceSelectSql (sqlString, { joinRewrites = [] } = {}) {
     let changed = false
 
     for (const rewrite of joinRewrites) {
-        const { alias, fkExpression, ids, stripJoinOnly } = rewrite
+        const { alias, fkExpression, ids, stripJoinOnly, applyIdPredicatesOnFk } = rewrite
 
         if (stripJoinOnly) {
             _removeJoinByAlias(targetQuery, alias)
@@ -557,10 +671,19 @@ function rewriteCrossSourceSelectSql (sqlString, { joinRewrites = [] } = {}) {
         _removeJoinByAlias(targetQuery, alias)
         _nullOutAliasSelectColumns(targetQuery, alias)
 
+        if (applyIdPredicatesOnFk) {
+            targetQuery.where = _andWhereCondition(
+                targetQuery.where,
+                _fkConditionFromIdPredicates(fkExpression, predicates),
+            )
+            changed = true
+            continue
+        }
+
         if (!ids || ids.length === 0) {
             targetQuery.where = _andWhereCondition(targetQuery.where, 'false')
         } else {
-            const escapedIds = ids.map(id => `'${String(id).replace(/'/g, '\'\'')}'`).join(', ')
+            const escapedIds = ids.map(_sqlQuoteLiteral).join(', ')
             targetQuery.where = _andWhereCondition(targetQuery.where, `${fkExpression} IN (${escapedIds})`)
         }
         changed = true
@@ -605,7 +728,7 @@ function _applyJoinPredicate (query, predicate) {
         query.whereRaw(`?? ${op} ?`, [predicate.column, predicate.value])
         return
     }
-    if (op === '<>') {
+    if (op === '<>' || op === '!=') {
         query.where(predicate.column, '!=', predicate.value)
         return
     }
@@ -731,6 +854,17 @@ async function planCrossPoolSelect ({
                 alias: join.alias,
                 fkExpression: join.fkExpression,
                 stripJoinOnly: true,
+            })
+            continue
+        }
+
+        // Pure related-`id` filters (incl. Keystone `id_not` → `!= OR IS NULL`) map onto the
+        // local FK column — no remote round-trip (and no huge NOT IN id lists).
+        if (_predicatesAreJoinIdOnly(predicates)) {
+            joinRewrites.push({
+                alias: join.alias,
+                fkExpression: join.fkExpression,
+                applyIdPredicatesOnFk: true,
             })
             continue
         }
