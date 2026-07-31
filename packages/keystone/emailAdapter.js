@@ -4,6 +4,7 @@ const https = require('https')
 const FormData = require('form-data')
 const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
+const omit = require('lodash/omit')
 const { z } = require('zod')
 
 const conf = require('@open-condo/config')
@@ -527,9 +528,15 @@ class UnisenderGoEmail {
 
 /**
  * Sendsay transactional email adapter.
- * Uses `issue.send` with `group: "personal"`.
+ * Uses `issue.send` with `group: "personal"` and a single `email` recipient per request.
  * Auth: `apikey`/`token`, or `one_time_auth` with `login` / optional `sublogin` / `passwd`.
  * `api_url` may be the base JSON endpoint (`.../json`) — account login is appended automatically.
+ *
+ * Sendsay personal API has no Cc/Bcc MIME headers. `cc`/`bcc` are delivered as extra personal
+ * sends (one HTTP call per address). Recipients never see other addresses in email headers.
+ * Sends are sequential and stop the current stage on first failure; earlier successful delivers
+ * are not rolled back — failed responses set `partial: true` when some recipients already got mail.
+ *
  * @see https://sendsay.ru/api/api.html
  */
 class SendsayEmail {
@@ -635,11 +642,9 @@ class SendsayEmail {
     }
 
     async send ({ to, emailFrom = null, cc, bcc, subject, text, html, meta, messageType } = {}, extendedParams = {}) {
-        if (cc || bcc) {
-            throw new Error('Sendsay adapter does not support cc or bcc')
-        }
-
         const toEmails = parseEmailList(to)
+        const ccEmails = parseEmailList(cc)
+        const bccEmails = parseEmailList(bcc)
         if (isEmpty(toEmails)) {
             throw new Error('unsupported to argument format')
         }
@@ -660,7 +665,6 @@ class SendsayEmail {
         if (replyName) {
             letter['reply.name'] = replyName
         }
-
         const inlineAttachments = await resolveInlineAttachments(meta, this.attachmentOptions)
         const htmlWithInlines = applyInlineAttachmentsToHtml(html, inlineAttachments)
         if (htmlWithInlines) {
@@ -669,9 +673,10 @@ class SendsayEmail {
         if (text) {
             letter.message.text = text
         }
-        if (this.useTags && messageType && typeof messageType === 'string') {
-            letter.label = [messageType]
-        }
+        // `label` is a top-level issue.send field, not letter.*
+        const issueLabels = (this.useTags && messageType && typeof messageType === 'string')
+            ? [messageType]
+            : null
         if (this.useAttachingData && meta && !isEmpty(meta.attachingData)) {
             letter['customer.id'] = typeof meta.attachingData === 'string'
                 ? meta.attachingData
@@ -690,39 +695,125 @@ class SendsayEmail {
             }))
         }
 
-        const result = await fetch(
-            this.api_url,
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                },
-                body: JSON.stringify(this._buildAuthPayload({
-                    action: 'issue.send',
-                    group: 'personal',
-                    sendwhen: 'now',
-                    letter,
-                    'users.list': toEmails.join('\n'),
-                    ...extendedParams,
-                })),
-            },
-        )
+        // Personal issue.send accepts a single recipient via `email` (preferred — validated immediately).
+        // `users.list` for personal is also single-address only (JSON / CSV / XLSX); multi-address = error.
+        // @see https://sendsay.ru/api/api.html#Выпуск-issue-send
+        // Cc/Bcc headers are not part of letter schema; deliver copies as separate personal sends.
+        const safeExtendedParams = omit(extendedParams || {}, [
+            'email',
+            'letter',
+            'action',
+            'group',
+            'sendwhen',
+        ])
 
-        const responseText = await result.text()
-        let context
-        try {
-            context = JSON.parse(responseText)
-        } catch (error) {
-            return [false, { text: responseText, status: result.status }]
+        const sendIssue = async (recipientEmail, issueLetter) => {
+            let result
+            try {
+                result = await fetch(
+                    this.api_url,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                        },
+                        body: JSON.stringify(this._buildAuthPayload({
+                            action: 'issue.send',
+                            group: 'personal',
+                            sendwhen: 'now',
+                            ...safeExtendedParams,
+                            ...(issueLabels ? { label: issueLabels } : {}),
+                            letter: issueLetter,
+                            // Always win over extendedParams — one personal recipient per call
+                            email: recipientEmail,
+                        })),
+                    },
+                )
+            } catch (error) {
+                return [false, { error: error.message }]
+            }
+
+            const responseText = await result.text()
+            let context
+            try {
+                context = JSON.parse(responseText)
+            } catch (error) {
+                return [false, { text: responseText, status: result.status }]
+            }
+
+            const isSent = result.ok && !get(context, 'errors')
+            if (!isSent && !get(context, 'status')) {
+                return [false, { ...context, status: result.status, text: responseText }]
+            }
+
+            return [isSent, context]
         }
 
-        const isSent = result.ok && !get(context, 'errors')
-        if (!isSent && !get(context, 'status')) {
-            return [false, { ...context, status: result.status, text: responseText }]
+        // Sequential to reduce rate-limit pressure and avoid starting later recipients after a failure.
+        const sendToMany = async (emails) => {
+            const results = []
+            for (const recipientEmail of emails) {
+                const [isOk, context] = await sendIssue(recipientEmail, letter)
+                results.push({ email: recipientEmail, isOk, context })
+                if (!isOk) break
+            }
+            return results
         }
 
-        return [isSent, context]
+        const normalizeEmailKey = (email) => String(email).trim().toLowerCase()
+        const primaryRecipients = Object.values([...toEmails, ...ccEmails].reduce((acc, email) => {
+            const key = normalizeEmailKey(email)
+            if (!acc[key]) {
+                acc[key] = email
+            }
+            return acc
+        }, {}))
+        const primaryKeys = new Set(primaryRecipients.map(normalizeEmailKey))
+        const bccRecipients = Object.values(bccEmails.reduce((acc, email) => {
+            const key = normalizeEmailKey(email)
+            if (!acc[key] && !primaryKeys.has(key)) {
+                acc[key] = email
+            }
+            return acc
+        }, {}))
+
+        const primaryResults = await sendToMany(primaryRecipients)
+        const primaryOk = primaryResults.length === primaryRecipients.length
+            && primaryResults.every(({ isOk }) => isOk)
+
+        const buildContext = (results, { bccResults } = {}) => {
+            const firstOk = results.find(({ isOk }) => isOk)
+            const base = (firstOk || results[0] || {}).context || {}
+            const hasPartial = results.some(({ isOk }) => isOk) && results.some(({ isOk }) => !isOk)
+            const bccPartial = Array.isArray(bccResults)
+                && bccResults.some(({ isOk }) => isOk)
+                && bccResults.some(({ isOk }) => !isOk)
+            const context = { ...base }
+
+            // Keep top-level track.id for single-recipient callers; always expose per-recipient detail
+            // when there is more than one primary attempt or any failure/partial state.
+            if (results.length > 1 || !primaryOk || bccResults) {
+                context.recipients = results
+            }
+            if (bccResults) {
+                context.bcc = bccResults
+            }
+            if (hasPartial || bccPartial || (primaryOk && bccResults && bccResults.some(({ isOk }) => !isOk))) {
+                context.partial = true
+            }
+            return context
+        }
+
+        if (!primaryOk || isEmpty(bccRecipients)) {
+            return [primaryOk, buildContext(primaryResults)]
+        }
+
+        const bccResults = await sendToMany(bccRecipients)
+        const bccOk = bccResults.length === bccRecipients.length
+            && bccResults.every(({ isOk }) => isOk)
+
+        return [bccOk, buildContext(primaryResults, { bccResults })]
     }
 }
 
