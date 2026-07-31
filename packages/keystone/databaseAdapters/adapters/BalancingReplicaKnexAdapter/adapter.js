@@ -117,10 +117,9 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
         // Writes must go to the writable pool that actually owns the target table.
         if (['insert', 'update', 'delete'].includes(sqlOperationName)) {
             if (!ownerPool || !ownerPoolConfig?.writable) {
-                throw new Error(`Pool "${ownerPoolName}" is read-only or unavailable`)
-            }
-            if (ownerPoolName === routedPoolName) {
-                return routedPool
+                throw new Error(
+                    `Pool "${ownerPoolName}" is read-only or unavailable for table "${tableName}"`,
+                )
             }
             return ownerPool
         }

@@ -2,7 +2,7 @@
 
 Multi-database Postgres adapter. Extends Keystone's `KnexAdapter`.
 
-**Start here:** [database adapters overview](../README.md) — architecture, file map, how to extend.
+**Start here:** [database adapters overview](../../README.md) — architecture, file map, how to extend.
 
 ## When to use
 
@@ -10,11 +10,11 @@ Multi-database Postgres adapter. Extends Keystone's `KnexAdapter`.
 - Dedicated writable pools for specific table groups (e.g. Message on a separate DB)
 - Cross-pool SQL JOIN rewrite (Keystone-style `LEFT JOIN`)
 
-Use `DATABASE_URL=custom:{...}` (see `setup.utils.js`).
+Use `DATABASE_URL=custom:{...}` (see `utils/env.js`).
 
 ## Configuration
 
-Three required env vars plus optional cross-db settings (documented in the [global README](../README.md)).
+Three required env vars plus optional cross-db settings (documented in the [global README](../../README.md)).
 
 ### `DATABASE_URL`
 
@@ -107,7 +107,7 @@ aside from pool routing). See `crossDb/crossSourceHints.js`.
 
 ### KV-backed tables
 
-Register the provider in `dataProviders/index.js`, then add a provider pool and routing rule:
+Register the provider in [`../../dataProviders/index.js`](../../dataProviders/index.js), then add a provider pool and routing rule:
 
 ```dotenv
 DATABASE_POOLS={"main":{"databases":["main"],"writable":true},"kv":{"provider":"kv","writable":true}}
@@ -118,4 +118,4 @@ Reads: `find` / `itemsQuery` with `{ id }` / `{ id_in }` (optional `deletedAt: n
 
 ## Adding features
 
-See [How to add a new data provider](../README.md#how-to-add-a-new-data-provider-kv-mongo-) and [How to add a new balancing adapter variant](../README.md#how-to-add-a-new-balancing-adapter-variant) in the parent README.
+See [How to add a new data provider](../../README.md#how-to-add-a-new-data-provider-kv-mongo-) and [How to add a new balancing adapter variant](../../README.md#how-to-add-a-new-balancing-adapter-variant) in the parent README.

@@ -109,48 +109,17 @@ class CrossDbPlanner {
             return this._relationIdsCache.get(cacheKey)
         }
 
-        const { keystone: relatedKeystone } = await getSchemaCtx(model)
-        const ids = []
-        let skip = 0
-        let page = 0
-        let reachedTerminalPage = false
-
-        while (page < CROSS_DB_RELATION_MAX_PAGES) {
-            page += 1
-            const relatedRows = await getItems({
-                keystone: relatedKeystone,
-                listKey: model,
-                where: relationWhere,
-                returnFields: 'id',
-                sortBy: ['id_ASC'],
-                first: GLOBAL_QUERY_LIMIT,
-                skip,
-            })
-
-            if (relatedRows.length === 0) {
-                reachedTerminalPage = true
-                break
-            }
-
-            ids.push(...relatedRows.map(row => row.id).filter(Boolean))
-            if (ids.length > CROSS_DB_RELATION_IDS_HARD_LIMIT) {
-                throw new Error(
-                    `Cross-db relation filter returned too many ids for ${model}. Limit: ${CROSS_DB_RELATION_IDS_HARD_LIMIT}`,
-                )
-            }
-
-            if (relatedRows.length < GLOBAL_QUERY_LIMIT) {
-                reachedTerminalPage = true
-                break
-            }
-            skip += relatedRows.length
-        }
-
-        if (!reachedTerminalPage && page >= CROSS_DB_RELATION_MAX_PAGES) {
-            throw new Error(
+        const { keystone: relatedKeystone } = getSchemaCtx(model)
+        const ids = await this._loadIdsPaginated({
+            keystone: relatedKeystone,
+            listKey: model,
+            where: relationWhere,
+            run: (fn) => fn(),
+            hardLimitMessage:
+                `Cross-db relation filter returned too many ids for ${model}. Limit: ${CROSS_DB_RELATION_IDS_HARD_LIMIT}`,
+            pageLimitMessage:
                 `Cross-db relation filter reached page limit for ${model}. Limit: ${CROSS_DB_RELATION_MAX_PAGES}`,
-            )
-        }
+        })
 
         this._relationIdsCache.set(cacheKey, ids)
         return ids
@@ -346,25 +315,32 @@ class CrossDbPlanner {
         }
     }
 
-    async _loadBaseIds (where) {
-        const { keystone: baseKeystone } = await getSchemaCtx(this.listKey)
+    /**
+     * Paginated id load via keyset (`id_gt`) instead of OFFSET.
+     * Call sites supply distinct hard/page limit error messages.
+     *
+     * @param {{ keystone: object, listKey: string, where: object, run: (fn: Function) => *, hardLimitMessage: string, pageLimitMessage: string }} options
+     * @returns {Promise<string[]>}
+     */
+    async _loadIdsPaginated ({ keystone, listKey, where, run, hardLimitMessage, pageLimitMessage }) {
         const ids = []
-        let skip = 0
+        let lastId = null
         let page = 0
         let reachedTerminalPage = false
 
-        // Keystone enforces maxTotalResults (= GLOBAL_QUERY_LIMIT). Requesting a larger
-        // `first` still throws when more than that many rows match — paginate instead.
         while (page < CROSS_DB_RELATION_MAX_PAGES) {
             page += 1
-            const rows = await prepareWhereSkipStorage.run({ skip: true }, () => getItems({
-                keystone: baseKeystone,
-                listKey: this.listKey,
-                where,
+            const pageWhere = lastId == null
+                ? where
+                : { AND: [where, { id_gt: lastId }] }
+
+            const rows = await run(() => getItems({
+                keystone,
+                listKey,
+                where: pageWhere,
                 returnFields: 'id',
                 sortBy: ['id_ASC'],
                 first: GLOBAL_QUERY_LIMIT,
-                skip,
             }))
 
             if (!Array.isArray(rows) || rows.length === 0) {
@@ -374,27 +350,42 @@ class CrossDbPlanner {
 
             ids.push(...rows.map(row => row?.id).filter(Boolean))
             if (ids.length > CROSS_DB_RELATION_IDS_HARD_LIMIT) {
-                throw new Error(
-                    `Cross-db OR flatten returned too many ids for ${this.listKey}. ` +
-                    `Limit: ${CROSS_DB_RELATION_IDS_HARD_LIMIT}`,
-                )
+                throw new Error(hardLimitMessage)
             }
 
             if (rows.length < GLOBAL_QUERY_LIMIT) {
                 reachedTerminalPage = true
                 break
             }
-            skip += rows.length
+
+            lastId = rows[rows.length - 1]?.id
+            if (lastId == null) {
+                reachedTerminalPage = true
+                break
+            }
         }
 
         if (!reachedTerminalPage && page >= CROSS_DB_RELATION_MAX_PAGES) {
-            throw new Error(
-                `Cross-db OR flatten reached page limit for ${this.listKey}. ` +
-                `Limit: ${CROSS_DB_RELATION_MAX_PAGES}`,
-            )
+            throw new Error(pageLimitMessage)
         }
 
         return ids
+    }
+
+    async _loadBaseIds (where) {
+        const { keystone: baseKeystone } = getSchemaCtx(this.listKey)
+        return this._loadIdsPaginated({
+            keystone: baseKeystone,
+            listKey: this.listKey,
+            where,
+            run: (fn) => prepareWhereSkipStorage.run({ skip: true }, fn),
+            hardLimitMessage:
+                `Cross-db OR flatten returned too many ids for ${this.listKey}. ` +
+                `Limit: ${CROSS_DB_RELATION_IDS_HARD_LIMIT}`,
+            pageLimitMessage:
+                `Cross-db OR flatten reached page limit for ${this.listKey}. ` +
+                `Limit: ${CROSS_DB_RELATION_MAX_PAGES}`,
+        })
     }
 
     async _rewriteWhereNode (node, relationMap) {
@@ -620,7 +611,7 @@ async function prepareCrossDbWhere ({ listKey, where, adapter: knownAdapter = nu
         return where
     }
 
-    const { keystone } = await getSchemaCtx(listKey)
+    const { keystone } = getSchemaCtx(listKey)
     const adapter = knownAdapter || getDatabaseAdapter(keystone)
 
     // Main-pool lists with no path to another pool: leave where untouched.

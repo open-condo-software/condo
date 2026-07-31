@@ -222,7 +222,7 @@ describe('BalancingReplicaKnexAdapter._selectTargetPool', () => {
         })
 
         expect(() => adapter._selectTargetPool('update "public"."Message" set "status" = $1 where "id" = $2'))
-            .toThrow('Pool "billing" is read-only or unavailable')
+            .toThrow('Pool "billing" is read-only or unavailable for table "Message"')
     })
 
     test('throws on read when resolved owner pool is missing (no fallback)', () => {
