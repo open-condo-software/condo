@@ -262,14 +262,12 @@ describe('crossSourceSelectSql', () => {
             })
         })
 
-        test('returns null when join is present but there are no filters on join alias to rewrite', () => {
+        test('throws when rewrite requests an alias with no removable join predicates', () => {
             const inputSql = keystoneSelectWithFkJoin()
 
-            expectSqlRewrite({
-                inputSql,
+            expect(() => rewriteCrossSourceSelectSql(inputSql, {
                 joinRewrites: [userJoinRewrite(['user-1'])],
-                equalsNormalized: null,
-            })
+            })).toThrow(/no removable predicates found/)
         })
 
         test('throws when WHERE uses OR around join-alias predicates', () => {
@@ -369,6 +367,12 @@ describe('crossSourceSelectSql', () => {
             joinPoolName = 'main',
             remoteIds = ['user-1'],
         } = {}) {
+            const invocations = {
+                where: [],
+                whereRaw: [],
+                whereIn: [],
+                whereNotIn: [],
+            }
             const externalPool = {
                 name: 'external',
                 getKnexClient: () => {
@@ -382,10 +386,22 @@ describe('crossSourceSelectSql', () => {
                     const builder = {
                         select: () => builder,
                         limit: () => builder,
-                        where: () => builder,
-                        whereRaw: () => builder,
-                        whereIn: () => builder,
-                        whereNotIn: () => builder,
+                        where: (...args) => {
+                            invocations.where.push(args)
+                            return builder
+                        },
+                        whereRaw: (...args) => {
+                            invocations.whereRaw.push(args)
+                            return builder
+                        },
+                        whereIn: (...args) => {
+                            invocations.whereIn.push(args)
+                            return builder
+                        },
+                        whereNotIn: (...args) => {
+                            invocations.whereNotIn.push(args)
+                            return builder
+                        },
                         then: (resolve) => resolve(rows),
                     }
                     return (tableName) => {
@@ -397,6 +413,7 @@ describe('crossSourceSelectSql', () => {
             const pools = { external: externalPool, main: mainPool }
 
             return {
+                invocations,
                 routeToPool: ({ tableName }) => {
                     if (tableName === 'Message') return pools[basePoolName]
                     if (tableName === 'User') return pools[joinPoolName]
@@ -416,13 +433,20 @@ describe('crossSourceSelectSql', () => {
                 sql,
                 baseTableName: 'Message',
                 sqlOperationName: 'select',
-                ...harness,
+                routeToPool: harness.routeToPool,
+                getPoolName: harness.getPoolName,
             })
 
             expect(rewritten).toBeTruthy()
             const normalized = normalizeSqlForCompare(rewritten)
             expect(normalized).not.toContain('join')
             expect(normalized).toContain('"t0"."user" in (\'user-1\')')
+            expect(harness.invocations.whereRaw).toEqual([
+                ['?? ilike ?', ['name', '%Ann%']],
+            ])
+            expect(harness.invocations.where).toEqual([])
+            expect(harness.invocations.whereIn).toEqual([])
+            expect(harness.invocations.whereNotIn).toEqual([])
         })
 
         test('returns null when all JOINs are same-pool (original SQL is safe)', async () => {
