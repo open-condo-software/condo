@@ -243,5 +243,27 @@ describe('B2BAppAccessRightSet', () => {
             expect(newRightSet).toHaveProperty('canManageContacts', true)
             expect(newRightSet).toHaveProperty('canReadProperties', true)
         })
+        test('Updating right set must not auto-inherit values', async () => {
+            const [app] = await createTestB2BApp(creator)
+            const [rightSet] = await createTestB2BAppAccessRightSet(creator, app, { environment: PROD_ENVIRONMENT, canReadContacts: true, canManageContacts: true })
+            expect(rightSet).toHaveProperty('status', B2B_APP_ACCESS_RIGHT_SET_PENDING_STATUS)
+            const [updatedRightSet] = await updateTestB2BAppAccessRightSet(support, rightSet.id, { status: B2B_APP_ACCESS_RIGHT_SET_APPROVED_STATUS })
+            expect(updatedRightSet).toHaveProperty('status', B2B_APP_ACCESS_RIGHT_SET_APPROVED_STATUS)
+
+            const [newRightSet] = await createTestB2BAppAccessRightSet(creator, app, { environment: PROD_ENVIRONMENT, canManageContacts: false })
+            expect(newRightSet).toHaveProperty('status', B2B_APP_ACCESS_RIGHT_SET_PENDING_STATUS)
+            expect(newRightSet).toHaveProperty('canReadContacts', true)
+            expect(newRightSet).toHaveProperty('canManageContacts', false)
+
+            const currentApprovedRightSet = await B2BAppAccessRightSet.getOne(creator, { id: rightSet.id })
+            expect(currentApprovedRightSet).toHaveProperty('status', B2B_APP_ACCESS_RIGHT_SET_APPROVED_STATUS)
+            expect(currentApprovedRightSet).toHaveProperty('canReadContacts', true)
+            expect(currentApprovedRightSet).toHaveProperty('canManageContacts', true)
+
+            const [approvedRightSet] = await updateTestB2BAppAccessRightSet(support, newRightSet.id, { status: B2B_APP_ACCESS_RIGHT_SET_APPROVED_STATUS })
+            expect(approvedRightSet).toHaveProperty('status', B2B_APP_ACCESS_RIGHT_SET_APPROVED_STATUS)
+            expect(approvedRightSet).toHaveProperty('canReadContacts', true)
+            expect(approvedRightSet).toHaveProperty('canManageContacts', false)
+        })
     })
 })

@@ -61,7 +61,7 @@ const B2BAppAccessRightSet = new GQLListSchema('B2BAppAccessRightSet', {
         ...PERMISSION_FIELDS,
     },
     hooks: {
-        beforeChange: async ({ existingItem, resolvedData, context, originalInput }) => {
+        beforeChange: async ({ existingItem, resolvedData, context, originalInput, operation }) => {
             const item = { ...existingItem, ...resolvedData }
             const appId = item.app
             const environment = item.environment
@@ -80,17 +80,19 @@ const B2BAppAccessRightSet = new GQLListSchema('B2BAppAccessRightSet', {
                 }
 
                 // NOTE 2: Some fields are hidden on frontend, so we need to inherit it from previously approved right set
-                const existingApprovedRightSet = await getByCondition('B2BAppAccessRightSet', {
-                    app: { id: appId },
-                    environment,
-                    status: B2B_APP_ACCESS_RIGHT_SET_APPROVED_STATUS,
-                    deletedAt: null,
-                })
+                if (operation === 'create') {
+                    const existingApprovedRightSet = await getByCondition('B2BAppAccessRightSet', {
+                        app: { id: appId },
+                        environment,
+                        status: B2B_APP_ACCESS_RIGHT_SET_APPROVED_STATUS,
+                        deletedAt: null,
+                    })
 
-                const previousPermissionFields = pick(existingApprovedRightSet ?? {}, Object.keys(PERMISSION_FIELDS))
-                for (const [key, value] of Object.entries(previousPermissionFields)) {
-                    if (!(key in originalInput)) {
-                        resolvedData[key] = value
+                    const previousPermissionFields = pick(existingApprovedRightSet ?? {}, Object.keys(PERMISSION_FIELDS))
+                    for (const [key, value] of Object.entries(previousPermissionFields)) {
+                        if (!(key in originalInput)) {
+                            resolvedData[key] = value
+                        }
                     }
                 }
 
