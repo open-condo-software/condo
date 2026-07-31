@@ -122,8 +122,10 @@ function _tryParseKeystoneNullSafeNotPattern (node, alias) {
     if (!nullSide || !predSide) return null
 
     const nullParts = _getColumnRefParts(nullSide.left)
+    const predParts = _getColumnRefParts(predSide.left)
     const predicate = _nodeToPredicate(predSide)
-    if (!nullParts || !predicate || predicate.column !== nullParts.column) return null
+    if (!nullParts || !predParts || predParts.table !== alias) return null
+    if (!predicate || predicate.column !== nullParts.column) return null
     if (predicate.type === 'binary' && predicate.operator !== '!=' && predicate.operator !== '<>') {
         return null
     }
@@ -330,12 +332,14 @@ function getFkJoinMetadata (sqlString) {
  *
  * Returns an empty array when OR branches involve the alias (unsafe to split).
  *
- * @param {string} sqlString full SELECT SQL
+ * @param {string|object} sqlStringOrAst full SELECT SQL, or an already-parsed select AST (read-only)
  * @param {string} alias join table alias
  * @returns {Array<{ type: 'in'|'binary', column: string, operator?: string, value?: *, negate?: boolean, values?: Array }>}
  */
-function extractJoinAliasPredicates (sqlString, alias) {
-    const parsedQuery = _parseSelectQuery(sqlString)
+function extractJoinAliasPredicates (sqlStringOrAst, alias) {
+    const parsedQuery = typeof sqlStringOrAst === 'string'
+        ? _parseSelectQuery(sqlStringOrAst)
+        : sqlStringOrAst
     return _extractAliasPredicates(_resolveSelectTargetAst(parsedQuery).where, alias)
 }
 
@@ -665,7 +669,14 @@ function rewriteCrossSourceSelectSql (sqlString, { joinRewrites = [] } = {}) {
         if (unsupported) {
             throw new Error(`Unsupported cross-pool JOIN rewrite for alias "${alias}"`)
         }
-        if (!predicates.length) continue
+        // Fail closed: a rewrite entry without removable predicates must not be skipped
+        // (especially when an earlier rewrite already set `changed`).
+        if (!predicates.length) {
+            throw new Error(
+                `Unsupported cross-pool JOIN rewrite for alias "${alias}": ` +
+                'no removable predicates found on the original query',
+            )
+        }
 
         targetQuery.where = where
         _removeJoinByAlias(targetQuery, alias)
@@ -716,8 +727,20 @@ const CROSS_DB_JOIN_IDS_HARD_LIMIT = Number(conf.CROSS_DB_JOIN_FILTER_IDS_LIMIT)
  * @param {{ type: 'in'|'binary', column: string, operator?: string, value?: *, negate?: boolean, values?: Array }} predicate
  */
 function _applyJoinPredicate (query, predicate) {
+    // nullSafe (`!= OR IS NULL`) is only safe on the local FK path via applyIdPredicatesOnFk.
+    // Never apply it as a plain remote filter — that would drop the IS NULL half.
+    if (predicate.nullSafe) {
+        throw new Error(
+            `Unsupported null-safe join predicate on column "${predicate.column}" for remote pool query`,
+        )
+    }
+
     if (predicate.type === 'in') {
-        if (predicate.values.length === 0) return
+        // Empty IN must match zero rows — do not omit the filter (fail open).
+        if (predicate.values.length === 0) {
+            query.whereRaw('false')
+            return
+        }
         if (predicate.negate) query.whereNotIn(predicate.column, predicate.values)
         else query.whereIn(predicate.column, predicate.values)
         return
@@ -837,7 +860,7 @@ async function planCrossPoolSelect ({
             )
         }
 
-        const predicates = extractJoinAliasPredicates(sql, join.alias)
+        const predicates = extractJoinAliasPredicates(parsedQuery, join.alias)
         // Hydration-only JOIN (no filters on the join alias): drop it.
         // If WHERE still references the alias (e.g. real OR-wrapped filters), fail closed —
         // stripping the JOIN would leave dangling alias refs in WHERE.
