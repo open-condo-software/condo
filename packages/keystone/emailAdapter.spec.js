@@ -729,7 +729,7 @@ describe('Email adapters', () => {
             expect(adapter.isConfigured).toBe(false)
         })
 
-        it('sends transactional email via issue.send personal payload', async () => {
+        it('maps notification messageType to top-level Sendsay label instead of letter.label', async () => {
             fetch.mockResolvedValue(createJsonResponse(200, {
                 session: 'abc',
                 'track.id': 12345,
@@ -742,6 +742,7 @@ describe('Email adapters', () => {
                 subject: 'Hello from Sendsay',
                 text: 'Plain text',
                 html: '<b>HTML</b>',
+                // Notification transport passes message.type through messageType for provider tagging.
                 messageType: 'SHARE_TICKET',
                 meta: { attachingData: { organizationId: 'org-1' } },
             })
@@ -762,7 +763,8 @@ describe('Email adapters', () => {
                 action: 'issue.send',
                 group: 'personal',
                 sendwhen: 'now',
-                'users.list': 'user@example.com',
+                email: 'user@example.com',
+                label: ['SHARE_TICKET'],
                 one_time_auth: {
                     login: SENDSAY_CONFIG.login,
                     sublogin: SENDSAY_CONFIG.sublogin,
@@ -774,7 +776,6 @@ describe('Email adapters', () => {
                     'from.name': 'Condo',
                     'reply.email': 'support@example.com',
                     'reply.name': 'Support',
-                    label: ['SHARE_TICKET'],
                     'customer.id': JSON.stringify({ organizationId: 'org-1' }),
                     message: {
                         html: '<b>HTML</b>',
@@ -782,6 +783,9 @@ describe('Email adapters', () => {
                     },
                 },
             })
+            // Sendsay expects issue labels at the top level of issue.send, not inside letter payload.
+            expect(body.letter.label).toBeUndefined()
+            expect(body['users.list']).toBeUndefined()
             expect(body.login).toBeUndefined()
             expect(body.passwd).toBeUndefined()
         })
@@ -871,14 +875,193 @@ describe('Email adapters', () => {
             expect(fetch.mock.calls[0][0]).toBe(`${SENDSAY_CONFIG.api_url}/${SENDSAY_CONFIG.login}`)
         })
 
-        it('rejects cc and bcc because sendsay semantics differ', async () => {
+        it('sends notification copies as separate personal emails because Sendsay has no visible Cc/Bcc headers', async () => {
+            fetch
+                .mockResolvedValueOnce(createJsonResponse(200, { 'track.id': 55 }))
+                .mockResolvedValueOnce(createJsonResponse(200, { 'track.id': 56 }))
+                .mockResolvedValueOnce(createJsonResponse(200, { 'track.id': 57 }))
+                .mockResolvedValueOnce(createJsonResponse(200, { 'track.id': 58 }))
+
             const adapter = new EmailAdapter()
-            await expect(adapter.send({
+            const [isOk, context] = await adapter.send({
                 to: 'user@example.com',
-                cc: 'copy@example.com',
+                cc: 'Copy <copy@example.com>, other@example.com',
+                bcc: 'hidden@example.com',
                 subject: 'Hello',
                 text: 'Body',
-            })).rejects.toThrow('Sendsay adapter does not support cc or bcc')
+            })
+
+            expect(isOk).toBe(true)
+            expect(context['track.id']).toBe(55)
+            expect(context.recipients).toEqual([
+                { email: 'user@example.com', isOk: true, context: { 'track.id': 55 } },
+                { email: 'copy@example.com', isOk: true, context: { 'track.id': 56 } },
+                { email: 'other@example.com', isOk: true, context: { 'track.id': 57 } },
+            ])
+            expect(context.bcc).toEqual([{
+                email: 'hidden@example.com',
+                isOk: true,
+                context: { 'track.id': 58 },
+            }])
+            expect(context.partial).toBeUndefined()
+
+            expect(fetch).toHaveBeenCalledTimes(4)
+
+            const emails = fetch.mock.calls.map(([, opts]) => JSON.parse(opts.body).email)
+            expect(emails).toEqual([
+                'user@example.com',
+                'copy@example.com',
+                'other@example.com',
+                'hidden@example.com',
+            ])
+            fetch.mock.calls.forEach(([, opts]) => {
+                const body = JSON.parse(opts.body)
+                expect(body['users.list']).toBeUndefined()
+                expect(body.letter.cc).toBeUndefined()
+            })
+        })
+
+        it('keeps top-level track.id for application flows that send one main email plus HIDDEN_COPY bcc', async () => {
+            fetch
+                .mockResolvedValueOnce(createJsonResponse(200, { 'track.id': 11, session: 's1' }))
+                .mockResolvedValueOnce(createJsonResponse(200, { 'track.id': 12 }))
+
+            const adapter = new EmailAdapter()
+            const [isOk, context] = await adapter.send({
+                to: 'user@example.com',
+                bcc: 'hidden@example.com',
+                subject: 'Hello',
+                text: 'Body',
+            })
+
+            expect(isOk).toBe(true)
+            expect(context['track.id']).toBe(11)
+            expect(context.session).toBe('s1')
+            expect(context.recipients).toEqual([
+                { email: 'user@example.com', isOk: true, context: { 'track.id': 11, session: 's1' } },
+            ])
+            expect(context.bcc).toEqual([{
+                email: 'hidden@example.com',
+                isOk: true,
+                context: { 'track.id': 12 },
+            }])
+        })
+
+        it('stops after first primary failure so later copies are not sent by mistake', async () => {
+            fetch
+                .mockResolvedValueOnce(createJsonResponse(200, { 'track.id': 1 }))
+                .mockResolvedValueOnce(createJsonResponse(400, { errors: [{ id: 'wrong_email' }] }))
+
+            const adapter = new EmailAdapter()
+            const [isOk, context] = await adapter.send({
+                to: 'user@example.com',
+                cc: 'bad@example.com, skipped@example.com',
+                bcc: 'hidden@example.com',
+                subject: 'Hello',
+                text: 'Body',
+            })
+
+            expect(isOk).toBe(false)
+            expect(context['track.id']).toBe(1)
+            expect(context.partial).toBe(true)
+            expect(context.recipients).toEqual([
+                { email: 'user@example.com', isOk: true, context: { 'track.id': 1 } },
+                {
+                    email: 'bad@example.com',
+                    isOk: false,
+                    context: expect.objectContaining({ errors: [{ id: 'wrong_email' }] }),
+                },
+            ])
+            expect(context.bcc).toBeUndefined()
+            expect(fetch).toHaveBeenCalledTimes(2)
+        })
+
+        it('marks partial delivery when audit-copy bcc fails after the user-facing email was sent', async () => {
+            fetch
+                .mockResolvedValueOnce(createJsonResponse(200, { 'track.id': 54 }))
+                .mockResolvedValueOnce(createJsonResponse(200, { 'track.id': 55 }))
+                .mockRejectedValueOnce(new Error('ECONNRESET'))
+
+            const adapter = new EmailAdapter()
+            const [isOk, context] = await adapter.send({
+                to: 'user@example.com',
+                cc: 'copy@example.com, user@example.com',
+                bcc: 'hidden1@example.com, hidden2@example.com',
+                subject: 'Hello',
+                text: 'Body',
+            })
+
+            expect(isOk).toBe(false)
+            expect(context['track.id']).toBe(54)
+            expect(context.partial).toBe(true)
+            expect(context.recipients).toEqual([
+                { email: 'user@example.com', isOk: true, context: { 'track.id': 54 } },
+                { email: 'copy@example.com', isOk: true, context: { 'track.id': 55 } },
+            ])
+            expect(context.bcc).toEqual([{
+                email: 'hidden1@example.com',
+                isOk: false,
+                context: { error: 'ECONNRESET' },
+            }])
+            expect(fetch).toHaveBeenCalledTimes(3)
+        })
+
+        it('deduplicates recipients case-insensitively across to, cc, and bcc audit copies', async () => {
+            fetch
+                .mockResolvedValueOnce(createJsonResponse(200, { 'track.id': 1 }))
+                .mockResolvedValueOnce(createJsonResponse(200, { 'track.id': 2 }))
+                .mockResolvedValueOnce(createJsonResponse(200, { 'track.id': 3 }))
+
+            const adapter = new EmailAdapter()
+            const [isOk, context] = await adapter.send({
+                to: 'User@Example.com',
+                cc: 'user@example.com, Copy@Example.com',
+                bcc: 'user@example.com, COPY@example.com, unique-bcc@example.com',
+                subject: 'Hello',
+                text: 'Body',
+            })
+
+            expect(isOk).toBe(true)
+            expect(fetch).toHaveBeenCalledTimes(3)
+            const emails = fetch.mock.calls.map(([, opts]) => JSON.parse(opts.body).email)
+            expect(emails).toEqual([
+                'User@Example.com',
+                'Copy@Example.com',
+                'unique-bcc@example.com',
+            ])
+            expect(context.recipients).toEqual([
+                { email: 'User@Example.com', isOk: true, context: { 'track.id': 1 } },
+                { email: 'Copy@Example.com', isOk: true, context: { 'track.id': 2 } },
+            ])
+            expect(context.bcc).toEqual([{
+                email: 'unique-bcc@example.com',
+                isOk: true,
+                context: { 'track.id': 3 },
+            }])
+        })
+
+        it('keeps application-controlled recipient and letter fields even when extendedParams adds extra Sendsay options', async () => {
+            fetch.mockResolvedValue(createJsonResponse(200, { 'track.id': 9 }))
+
+            const adapter = new EmailAdapter()
+            await adapter.send({
+                to: 'user@example.com',
+                subject: 'Hello',
+                text: 'Body',
+            }, {
+                email: 'attacker@example.com',
+                letter: { subject: 'hijacked' },
+                action: 'member.list',
+                group: 'masssending',
+                extra: { keep: true },
+            })
+
+            const body = JSON.parse(fetch.mock.calls[0][1].body)
+            expect(body.email).toBe('user@example.com')
+            expect(body.action).toBe('issue.send')
+            expect(body.group).toBe('personal')
+            expect(body.letter.subject).toBe('Hello')
+            expect(body.extra).toEqual({ keep: true })
         })
     })
 
