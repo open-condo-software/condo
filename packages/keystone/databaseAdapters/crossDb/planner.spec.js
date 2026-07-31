@@ -72,7 +72,7 @@ describe('CrossDbPlanner.loadRelatedIds', () => {
     })
 
     test('loads relation ids by chunks with deterministic order', async () => {
-        getSchemaCtx.mockResolvedValue({ keystone: {} })
+        getSchemaCtx.mockReturnValue({ keystone: {} })
         getItems
             .mockResolvedValueOnce(Array.from({ length: 1000 }, (_, i) => ({ id: `id-${i}` })))
             .mockResolvedValueOnce([{ id: 'id-1000' }, { id: 'id-1001' }])
@@ -82,20 +82,22 @@ describe('CrossDbPlanner.loadRelatedIds', () => {
         expect(ids).toHaveLength(1002)
         expect(getItems).toHaveBeenNthCalledWith(1, expect.objectContaining({
             listKey: 'User',
+            where: { name_contains: 'john' },
             sortBy: ['id_ASC'],
             first: 1000,
-            skip: 0,
         }))
         expect(getItems).toHaveBeenNthCalledWith(2, expect.objectContaining({
             listKey: 'User',
+            where: { AND: [{ name_contains: 'john' }, { id_gt: 'id-999' }] },
             sortBy: ['id_ASC'],
             first: 1000,
-            skip: 1000,
         }))
+        expect(getItems.mock.calls[0][0]).not.toHaveProperty('skip')
+        expect(getItems.mock.calls[1][0]).not.toHaveProperty('skip')
     })
 
     test('throws when relation ids exceed configured hard limit', async () => {
-        getSchemaCtx.mockResolvedValue({ keystone: {} })
+        getSchemaCtx.mockReturnValue({ keystone: {} })
         getItems.mockResolvedValueOnce(Array.from({ length: 50001 }, (_, i) => ({ id: `id-${i}` })))
 
         await expect(planner.loadRelatedIds('User', { name_contains: 'john' }))
@@ -104,7 +106,7 @@ describe('CrossDbPlanner.loadRelatedIds', () => {
     })
 
     test('does not throw page limit error after terminal page', async () => {
-        getSchemaCtx.mockResolvedValue({ keystone: {} })
+        getSchemaCtx.mockReturnValue({ keystone: {} })
         getItems
             .mockResolvedValueOnce(Array.from({ length: 1000 }, (_, i) => ({ id: `id-${i}` })))
             .mockResolvedValueOnce([])
@@ -113,6 +115,9 @@ describe('CrossDbPlanner.loadRelatedIds', () => {
 
         expect(ids).toHaveLength(1000)
         expect(getItems).toHaveBeenCalledTimes(2)
+        expect(getItems).toHaveBeenNthCalledWith(2, expect.objectContaining({
+            where: { AND: [{ name_contains: 'john' }, { id_gt: 'id-999' }] },
+        }))
     })
 })
 
@@ -161,7 +166,7 @@ describe('CrossDbPlanner.prepareWhere', () => {
     })
 
     test('rewrites non-id relation filters to nested id_in', async () => {
-        getSchemaCtx.mockResolvedValue({ keystone: {} })
+        getSchemaCtx.mockReturnValue({ keystone: {} })
         getItems.mockResolvedValueOnce([{ id: 'user-1' }, { id: 'user-2' }])
 
         const result = await planner.prepareWhere({
@@ -172,7 +177,7 @@ describe('CrossDbPlanner.prepareWhere', () => {
     })
 
     test('flattens OR of cross-source relation filters to base id_in', async () => {
-        getSchemaCtx.mockResolvedValue({ keystone: {} })
+        getSchemaCtx.mockReturnValue({ keystone: {} })
         getItems.mockResolvedValueOnce([{ id: 'user-1' }])
         getItems.mockResolvedValueOnce([{ id: 'msg-1' }, { id: 'msg-2' }])
 
@@ -195,7 +200,7 @@ describe('CrossDbPlanner.prepareWhere', () => {
     })
 
     test('rewrites same-pool nested relation where via related-list planner', async () => {
-        getSchemaCtx.mockResolvedValue({ keystone: {} })
+        getSchemaCtx.mockReturnValue({ keystone: {} })
         getItems.mockResolvedValueOnce([{ id: 'user-1' }])
         getItems.mockResolvedValueOnce([{ id: 'msg-nested-1' }])
 
@@ -242,7 +247,7 @@ describe('CrossDbPlanner.prepareWhere', () => {
     })
 
     test('rewrites empty positive relation _in groups to nested id_in []', async () => {
-        getSchemaCtx.mockResolvedValue({ keystone: {} })
+        getSchemaCtx.mockReturnValue({ keystone: {} })
         getItems.mockResolvedValueOnce([])
 
         const result = await planner.prepareWhere({
@@ -260,7 +265,7 @@ describe('CrossDbPlanner._loadBaseIds', () => {
         jest.clearAllMocks()
         getItems.mockReset()
         getSchemaCtx.mockReset()
-        getSchemaCtx.mockResolvedValue({ keystone: {} })
+        getSchemaCtx.mockReturnValue({ keystone: {} })
 
         planner = new CrossDbPlanner({
             listKey: 'Message',
@@ -284,8 +289,8 @@ describe('CrossDbPlanner._loadBaseIds', () => {
             returnFields: 'id',
             sortBy: ['id_ASC'],
             first: 1000,
-            skip: 0,
         }))
+        expect(getItems.mock.calls[0][0]).not.toHaveProperty('skip')
     })
 
     test('paginates when a page is full (Keystone maxTotalResults)', async () => {
@@ -298,8 +303,9 @@ describe('CrossDbPlanner._loadBaseIds', () => {
         expect(getItems).toHaveBeenCalledTimes(2)
         expect(getItems).toHaveBeenNthCalledWith(2, expect.objectContaining({
             first: 1000,
-            skip: 1000,
+            where: { AND: [{ status: 'sent' }, { id_gt: 'm-999' }] },
         }))
+        expect(getItems.mock.calls[1][0]).not.toHaveProperty('skip')
     })
 
     test('throws when bounded base ids exceed hard limit', async () => {
@@ -343,7 +349,7 @@ describe('isUnsatisfiableWhere', () => {
 describe('prepareCrossDbWhere', () => {
     beforeEach(() => {
         jest.clearAllMocks()
-        getSchemaCtx.mockResolvedValue({ keystone: {} })
+        getSchemaCtx.mockReturnValue({ keystone: {} })
     })
 
     test('keeps user id_in filter for Message queries', async () => {

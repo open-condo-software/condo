@@ -533,11 +533,21 @@ function _extractAndRemoveAliasPredicates (where, alias) {
 }
 
 /**
- * Escape a literal for inlined SQL id comparisons (UUIDs / controlled Keystone ids).
+ * Emit a literal for inlined SQL id comparisons (UUIDs / controlled Keystone ids).
+ * Strings are escaped and quoted; finite numbers are unquoted; null/undefined fail closed.
  * @param {*} value
  * @returns {string}
  */
 function _sqlQuoteLiteral (value) {
+    if (value === null || value === undefined) {
+        throw new Error('Cannot inline null/undefined as SQL literal')
+    }
+    if (typeof value === 'number') {
+        if (!Number.isFinite(value)) {
+            throw new Error(`Cannot inline non-finite number as SQL literal: ${value}`)
+        }
+        return String(value)
+    }
     return `'${String(value).replace(/'/g, '\'\'')}'`
 }
 
@@ -872,6 +882,17 @@ async function planCrossPoolSelect ({
                     `Unsupported cross-pool JOIN shape: ${join.joinTable}. ` +
                     'Filters on the joined alias are required for cross-source rewrite.',
                 )
+            }
+            // Fail closed: do not strip an alias that other retained JOINs still reference in ON.
+            for (const otherJoin of metadata.fromJoins) {
+                if (otherJoin === fromJoin) continue
+                if (otherJoin.on && _nodeReferencesAlias(otherJoin.on, join.alias)) {
+                    const otherAlias = otherJoin.as || normalizeTableName(otherJoin.table) || '?'
+                    throw new Error(
+                        `Unsupported cross-pool JOIN rewrite: stripping alias "${join.alias}" ` +
+                        `would leave a dangling reference in JOIN "${otherAlias}" ON clause`,
+                    )
+                }
             }
             joinRewrites.push({
                 alias: join.alias,
