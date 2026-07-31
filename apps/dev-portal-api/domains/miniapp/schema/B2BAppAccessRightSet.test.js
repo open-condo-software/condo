@@ -205,6 +205,7 @@ describe('B2BAppAccessRightSet', () => {
                     const [pendingRightSet] = await createTestB2BAppAccessRightSet(admin, app, {
                         environment: PROD_ENVIRONMENT,
                         canReadContacts: true,
+                        canManageContacts: false,
                         canReadProperties: true,
                     })
                     const readRightSet = await B2BAppAccessRightSet.getOne(admin, { id: pendingRightSet.id })
@@ -228,6 +229,19 @@ describe('B2BAppAccessRightSet', () => {
                 const previousRightSet = await B2BAppAccessRightSet.getOne(creator, { id: rightSet.id })
                 expect(previousRightSet).not.toBeDefined()
             })
+        })
+        test('Creating new right set must auto-inherit values from previously approved right set for environment', async () => {
+            const [app] = await createTestB2BApp(creator)
+            const [rightSet] = await createTestB2BAppAccessRightSet(creator, app, { environment: PROD_ENVIRONMENT, canReadContacts: true, canManageContacts: true })
+            expect(rightSet).toHaveProperty('status', B2B_APP_ACCESS_RIGHT_SET_PENDING_STATUS)
+            const [updatedRightSet] = await updateTestB2BAppAccessRightSet(support, rightSet.id, { status: B2B_APP_ACCESS_RIGHT_SET_APPROVED_STATUS })
+            expect(updatedRightSet).toHaveProperty('status', B2B_APP_ACCESS_RIGHT_SET_APPROVED_STATUS)
+
+            const [newRightSet] = await createTestB2BAppAccessRightSet(creator, app, { environment: PROD_ENVIRONMENT, canReadProperties: true })
+            expect(newRightSet).toHaveProperty('status', B2B_APP_ACCESS_RIGHT_SET_PENDING_STATUS)
+            expect(newRightSet).toHaveProperty('canReadContacts', true)
+            expect(newRightSet).toHaveProperty('canManageContacts', true)
+            expect(newRightSet).toHaveProperty('canReadProperties', true)
         })
     })
 })

@@ -245,6 +245,19 @@ export const AccessRightSetForm: React.FC<AccessRightSetFormProps> = ({ id, envi
 
                 return newValue
             })
+        } else {
+            const result: Array<RowType> = []
+            for (const [group, permissions] of Object.entries(GROUPED_PERMISSIONS)) {
+                result.push({
+                    group: group as keyof typeof GROUPED_PERMISSIONS,
+                    permissions: permissions.map(permission => ({
+                        key: permission,
+                        value: false,
+                    })),
+                })
+            }
+            setGroupedPermissions(result)
+            setInitialGroupedPermissions(result)
         }
     }, [currentRightSet])
 

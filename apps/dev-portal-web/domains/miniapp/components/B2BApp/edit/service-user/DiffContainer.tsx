@@ -2,7 +2,6 @@ import { Col, Empty, Row, List } from 'antd'
 import React from 'react'
 import { useIntl, FormattedMessage } from 'react-intl'
 
-import { PlusCircle } from '@open-condo/icons'
 import { Typography } from '@open-condo/ui'
 
 import type { ShowedPermissions } from '@/domains/miniapp/constants/b2bAppAccessRightSet'
