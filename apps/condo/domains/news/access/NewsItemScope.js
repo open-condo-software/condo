@@ -8,11 +8,12 @@ const { isSoftDelete } = require('@open-condo/keystone/access')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { find } = require('@open-condo/keystone/schema')
 
+const { canReadObjectsAsB2BAppServiceUser, canManageObjectsAsB2BAppServiceUser } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
 const {
     getEmployedOrRelatedOrganizationsByPermissions,
     checkPermissionsInEmployedOrRelatedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
-const { STAFF, RESIDENT } = require('@condo/domains/user/constants/common')
+const { STAFF, RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 
 async function canReadNewsItemScopes (attrs) {
     const { authentication: { item: user }, context } = attrs
@@ -20,6 +21,10 @@ async function canReadNewsItemScopes (attrs) {
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return {}
     if (user.type === RESIDENT) return false
+
+    if (user.type === SERVICE) {
+        return await canReadObjectsAsB2BAppServiceUser(attrs)
+    }
 
     const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadNewsItems')
 
@@ -33,7 +38,8 @@ async function canReadNewsItemScopes (attrs) {
     }
 }
 
-async function canManageNewsItemScopes ({ authentication: { item: user }, context, originalInput, operation, itemId, itemIds }) {
+async function canManageNewsItemScopes (args) {
+    const { authentication: { item: user }, context, originalInput, operation, itemId, itemIds } = args
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -47,6 +53,10 @@ async function canManageNewsItemScopes ({ authentication: { item: user }, contex
 
     if (operation !== 'create' && !isSoftDeleteOperation) return false
     if (user.isAdmin) return true
+
+    if (user.type === SERVICE) {
+        return await canManageObjectsAsB2BAppServiceUser(args)
+    }
 
     if (user.type === STAFF) {
         let organizationIds

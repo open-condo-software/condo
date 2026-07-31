@@ -29,6 +29,7 @@ const {
     WRONG_SEND_DATE,
     NO_NEWS_ITEM_SCOPES,
 } = require('@condo/domains/news/constants/errors')
+const { NEWS_ITEM_SOURCE_IDS } = require('@condo/domains/news/constants/newsItemSourceIds')
 const { NEWS_TYPES, NEWS_TYPE_EMERGENCY, NEWS_TYPE_COMMON } = require('@condo/domains/news/constants/newsTypes')
 const { NEWS_ITEM_SCOPE_FIELDS } = require('@condo/domains/news/gql')
 const { NewsItemScope, NewsItemFile } = require('@condo/domains/news/utils/serverSchema')
@@ -222,6 +223,14 @@ const NewsItem = new GQLListSchema('NewsItem', {
             },
         },
 
+        source: {
+            schemaDoc: 'Origin of the news item: the news form, an external system, ...',
+            type: 'Relationship',
+            ref: 'NewsItemSource',
+            isRequired: true,
+            kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
+        },
+
     },
     hooks: {
         resolveInput: async (args) => {
@@ -248,6 +257,10 @@ const NewsItem = new GQLListSchema('NewsItem', {
 
             if (!get(resultItemData, 'type')) {
                 resolvedData['type'] = NEWS_TYPE_COMMON
+            }
+
+            if (operation === 'create' && !get(resolvedData, 'source')) {
+                resolvedData['source'] = NEWS_ITEM_SOURCE_IDS.WEB_APP
             }
 
             if (!sendAt && isPublished && publishedAt) {

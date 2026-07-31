@@ -21,7 +21,8 @@ const {
     NewsItemRecipientsExportTask: NewsItemRecipientsExportTaskGQL,
 } = require('@condo/domains/news/gql')
 const { NEWS_TYPE_COMMON } = require('@condo/domains/news/constants/newsTypes')
-const { ALL_NEWS_CATEGORIES } = require('@condo/domains/news/constants/newsCategory') 
+const { ALL_NEWS_CATEGORIES } = require('@condo/domains/news/constants/newsCategory')
+const { NEWS_ITEM_SOURCE_TYPES } = require('@condo/domains/news/constants/newsItemSourceTypes') 
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { NewsItemSharing: NewsItemSharingGQL } = require('@condo/domains/news/gql')
 const { GET_NEWS_SHARING_RECIPIENTS_COUNTERS_QUERY } = require('@condo/domains/news/gql')
@@ -29,6 +30,7 @@ const { buildPropertyMap } = require('@condo/domains/property/utils/testSchema/f
 const { NewsItemFile: NewsItemFileGQL } = require('@condo/domains/news/gql')
 const { getUploadingFile } = require('@open-condo/keystone/test.utils')
 const conf = require('@open-condo/config')
+const { NewsItemSource: NewsItemSourceGQL } = require('@condo/domains/news/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const NewsItem = generateGQLTestUtils(NewsItemGQL)
@@ -39,6 +41,7 @@ const NewsItemRecipientsExportTask = generateGQLTestUtils(NewsItemRecipientsExpo
 
 const NewsItemSharing = generateGQLTestUtils(NewsItemSharingGQL)
 const NewsItemFile = generateGQLTestUtils(NewsItemFileGQL)
+const NewsItemSource = generateGQLTestUtils(NewsItemSourceGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 
@@ -392,6 +395,35 @@ async function updateTestNewsItemFile (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestNewsItemSource (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        type: NEWS_ITEM_SOURCE_TYPES.WEB_APP,
+        name: faker.random.alphaNumeric(8),
+        ...extraAttrs,
+    }
+    const obj = await NewsItemSource.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestNewsItemSource (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await NewsItemSource.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -407,5 +439,6 @@ module.exports = {
     getNewsSharingRecipientsByTestClient,
     getNewsSharingRecipientsCountersByTestClient,
     NewsItemFile, createTestNewsItemFile, updateTestNewsItemFile,
+    NewsItemSource, createTestNewsItemSource, updateTestNewsItemSource,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
