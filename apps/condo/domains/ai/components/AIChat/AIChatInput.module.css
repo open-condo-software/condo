@@ -10,9 +10,17 @@
 }
 
 .input-container-embedded {
-  backdrop-filter: none;
+  right: auto;
+  bottom: var(--condo-global-spacing-16);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 768px;
+  padding: var(--condo-global-spacing-12) var(--condo-global-spacing-16);
   background: var(--condo-global-color-white);
-  border-top: 1px solid var(--condo-global-color-gray-3);
+  border: 1px solid var(--condo-global-color-gray-3);
+  border-radius: var(--condo-global-border-radius-large);
+  box-shadow: 0 2px 16px rgb(0 0 0 / 8%);
 }
 
 .text-area-container {

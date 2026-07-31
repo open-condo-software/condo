@@ -44,6 +44,16 @@ function resolveStringList (value: unknown, dataModel: DataModel): string[] {
     return []
 }
 
+// Mutable ref to break circular reference for react-refresh HMR
+// (RowRenderer -> ComponentRenderer -> RENDERERS -> RowRenderer causes infinite recursion in computeFullKey)
+let _componentRendererRef: React.FC<RendererProps> | null = null
+
+const ChildRenderer: React.FC<RendererProps> = (props) => {
+    if (!_componentRendererRef) return null
+    const Renderer = _componentRendererRef
+    return <Renderer {...props} />
+}
+
 function resolveChildren (component: ComponentModel, surface: SurfaceModel): ComponentModel[] {
     const childrenProp = component.properties.children
     if (!childrenProp) return []
@@ -103,7 +113,7 @@ const RowRenderer: React.FC<RendererProps> = ({ component, surface }) => {
             width={justify === 'between' ? '100%' : undefined}
         >
             {children.map(child => (
-                <ComponentRenderer key={child.id} component={child} surface={surface} />
+                <ChildRenderer key={child.id} component={child} surface={surface} />
             ))}
         </Space>
     )
@@ -119,7 +129,7 @@ const ColumnRenderer: React.FC<RendererProps> = ({ component, surface }) => {
     return (
         <Space direction='vertical' size={8} width='100%'>
             {children.map(child => (
-                <ComponentRenderer key={child.id} component={child} surface={surface} />
+                <ChildRenderer key={child.id} component={child} surface={surface} />
             ))}
         </Space>
     )
@@ -130,7 +140,7 @@ const CardRenderer: React.FC<RendererProps> = ({ component, surface }) => {
     return (
         <Card>
             {children.map(child => (
-                <ComponentRenderer key={child.id} component={child} surface={surface} />
+                <ChildRenderer key={child.id} component={child} surface={surface} />
             ))}
         </Card>
     )
@@ -204,7 +214,7 @@ const ListRenderer: React.FC<RendererProps> = ({ component, surface }) => {
         <div>
             {children.map(child => (
                 <div key={child.id} style={{ marginBottom: 8 }}>
-                    <ComponentRenderer component={child} surface={surface} />
+                    <ChildRenderer component={child} surface={surface} />
                 </div>
             ))}
         </div>
@@ -268,6 +278,8 @@ export const ComponentRenderer: React.FC<RendererProps> = ({ component, surface 
         </ComponentErrorBoundary>
     )
 }
+
+_componentRendererRef = ComponentRenderer
 
 // --- Catalog ---
 

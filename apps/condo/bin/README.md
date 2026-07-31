@@ -27,3 +27,9 @@ Use: `yarn workspace @app/condo node ./bin/fix-database-migration-state.js` comm
 # Changing Organization inn
 
 Use: `yarn workspace @app/condo node ./bin/change-organization-inn.js <org_id> <new_inn>` command
+
+# Generate A2UI Catalog
+
+Use: `yarn workspace @app/condo node ./bin/generate-a2ui-catalog.js` — outputs the catalog prompt text
+
+Use: `yarn workspace @app/condo node ./bin/generate-a2ui-catalog.js --json` — outputs the catalog as JSON

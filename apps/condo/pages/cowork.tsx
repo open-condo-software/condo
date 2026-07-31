@@ -1,48 +1,27 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { v4 as uuidV4 } from 'uuid'
 
-import { Plus, Trash } from '@open-condo/icons'
+import { Check, Edit, Share } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Button, Input } from '@open-condo/ui'
+import { Button, Input, Tooltip } from '@open-condo/ui'
 
 import { AIChat } from '@condo/domains/ai/components/AIChat'
+import coworkStyles from '@condo/domains/ai/components/Cowork/Cowork.module.css'
+import { CoworkLayout, CoworkSidebar, type CoworkChat } from '@condo/domains/ai/components/Cowork'
 import { PageComponentType } from '@condo/domains/common/types'
-import { TopMenuItems } from '@condo/domains/common/components/containers/BaseLayout/components/TopMenuItems'
 import { LocalStorageManager } from '@condo/domains/common/utils/localStorageManager'
+import { stripMarkdown } from '@condo/domains/common/utils/stripMarkdown'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-
-import styles from './cowork.module.css'
 
 const AI_SESSION_STORAGE_KEY = 'condo-ai-chat-session-id'
 const COWORK_CHATS_STORAGE_KEY = 'condo-ai-cowork-chats'
+const AI_CHAT_HISTORY_STORAGE_KEY = 'condo-ai-chat-history'
 const sessionStorageManager = new LocalStorageManager<Record<string, string>>()
 const coworkChatsStorageManager = new LocalStorageManager<Record<string, CoworkChat[]>>()
+const historyStorageManager = new LocalStorageManager<Record<string, { history: any[], organizationId: string }>>()
 
-type CoworkChat = {
-    id: string
-    title: string
-    createdAt: number
-}
-
-
-const CoworkLayout: React.FC<React.PropsWithChildren<{ headerAction?: React.ElementType }>> = ({ children, headerAction }) => {
-    return (
-        <div className={styles.coworkLayout}>
-            <div className={styles.coworkHeader}>
-                <div className={styles.coworkHeaderLeft}>
-                    <div className={styles.coworkLogo}>
-                        Doma.ai <span className={styles.coworkLogoItalic}>Cowork</span>
-                    </div>
-                </div>
-                <div className={styles.coworkHeaderRight}>
-                    <TopMenuItems headerAction={headerAction} hideAIButton />
-                </div>
-            </div>
-            {children}
-        </div>
-    )
-}
+const SHARE_COPIED_RESET_TIMEOUT_MS = 2000
 
 const CoworkPage: PageComponentType = () => {
     const intl = useIntl()
@@ -51,7 +30,9 @@ const CoworkPage: PageComponentType = () => {
     const placeholder = intl.formatMessage({ id: 'ai.chat.placeholder' })
     const newChatLabel = intl.formatMessage({ id: 'ai.cowork.newChat' })
     const welcomeSubtitle = intl.formatMessage({ id: 'ai.cowork.welcomeSubtitle' })
-    const deleteChatLabel = intl.formatMessage({ id: 'ai.cowork.deleteChat' })
+    const editChatNameLabel = intl.formatMessage({ id: 'ai.cowork.editChatName' })
+    const shareLabel = intl.formatMessage({ id: 'ai.cowork.share' })
+    const shareCopiedLabel = intl.formatMessage({ id: 'ai.cowork.shareCopied' })
 
     const organizationId = useMemo(() => organization?.id, [organization])
 
@@ -59,7 +40,11 @@ const CoworkPage: PageComponentType = () => {
     const [activeChatId, setActiveChatId] = useState<string | null>(null)
     const [initialMessage, setInitialMessage] = useState('')
     const [inputValue, setInputValue] = useState('')
+    const [editingChatName, setEditingChatName] = useState(false)
+    const [chatNameInput, setChatNameInput] = useState('')
+    const [shareCopied, setShareCopied] = useState(false)
     const inputRef = useRef<any>(null)
+    const chatNameInputRef = useRef<any>(null)
 
     // Load chats from localStorage on mount / org change
     useEffect(() => {
@@ -132,6 +117,7 @@ const CoworkPage: PageComponentType = () => {
         saveSessionId(chatId)
         setInitialMessage('')
         setActiveChatId(chatId)
+        setEditingChatName(false)
     }, [saveSessionId])
 
     const handleNewChat = useCallback(() => {
@@ -149,82 +135,135 @@ const CoworkPage: PageComponentType = () => {
         setInitialMessage('')
         setActiveChatId(newChatId)
         setInputValue('')
+        setEditingChatName(false)
     }, [organizationId, chats, saveChats, saveSessionId, newChatLabel])
 
-    const handleDeleteChat = useCallback((chatId: string) => {
-        if (!organizationId) return
-        const updatedChats = chats.filter((c) => c.id !== chatId)
+    const activeChat = useMemo(() => chats.find((c) => c.id === activeChatId), [chats, activeChatId])
+
+    const handleSaveChatName = useCallback(() => {
+        if (!organizationId || !activeChatId) return
+        const trimmedName = chatNameInput.trim()
+        if (!trimmedName) {
+            setEditingChatName(false)
+            return
+        }
+        const updatedChats = chats.map((c) =>
+            c.id === activeChatId ? { ...c, title: trimmedName.slice(0, 100) } : c
+        )
         saveChats(organizationId, updatedChats)
         setChats(updatedChats)
+        setEditingChatName(false)
+    }, [organizationId, activeChatId, chatNameInput, chats, saveChats])
 
-        if (activeChatId === chatId) {
-            if (updatedChats.length > 0) {
-                saveSessionId(updatedChats[0].id)
-                setInitialMessage('')
-                setActiveChatId(updatedChats[0].id)
-            } else {
-                setActiveChatId(null)
-            }
+    const handleChatNameKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            e.preventDefault()
+            handleSaveChatName()
+        } else if (e.key === 'Escape') {
+            e.preventDefault()
+            setEditingChatName(false)
         }
-    }, [organizationId, chats, activeChatId, saveChats, saveSessionId])
+    }, [handleSaveChatName])
+
+    useEffect(() => {
+        if (editingChatName) {
+            setChatNameInput(activeChat?.title || '')
+            setTimeout(() => {
+                chatNameInputRef.current?.focus()
+                chatNameInputRef.current?.select()
+            }, 0)
+        }
+    }, [editingChatName, activeChat?.title])
+
+    const handleShare = useCallback(async () => {
+        if (!activeChatId) return
+
+        const savedHistory = historyStorageManager.getItem(AI_CHAT_HISTORY_STORAGE_KEY)
+        if (!savedHistory) return
+
+        const sessionData = savedHistory[activeChatId]
+        if (!sessionData || !sessionData.history || sessionData.history.length === 0) return
+
+        const lines: string[] = []
+        for (const msg of sessionData.history) {
+            if (!msg.content?.text?.trim()) continue
+            const roleLabel = msg.role === 'user' ? 'User' : 'Assistant'
+            const text = msg.role === 'assistant'
+                ? stripMarkdown(msg.content.text, { collapseLineBreaks: false })
+                : msg.content.text
+            lines.push(`${roleLabel}: ${text}`)
+            lines.push('')
+        }
+
+        if (lines.length === 0) return
+
+        try {
+            await navigator.clipboard.writeText(lines.join('\n').trim())
+            setShareCopied(true)
+            setTimeout(() => setShareCopied(false), SHARE_COPIED_RESET_TIMEOUT_MS)
+        } catch (e) {
+            console.error('Unable to copy conversation to clipboard', e)
+        }
+    }, [activeChatId])
 
     const canSend = useMemo(() => Boolean(inputValue.trim()), [inputValue])
 
-    const renderSidebar = () => (
-        <div className={styles.sidebar}>
-            <div className={styles.sidebarNewChat}>
-                <Button
-                    type='secondary'
-                    size='medium'
-                    block
-                    onClick={handleNewChat}
-                    icon={<Plus size='small' />}
-                >
-                    {newChatLabel}
-                </Button>
+    const renderChatHeader = () => {
+        if (!hasStarted) return null
+
+        return (
+            <div className={coworkStyles.chatHeader}>
+                <div className={coworkStyles.chatHeaderLeft}>
+                    {editingChatName ? (
+                        <Input
+                            ref={chatNameInputRef}
+                            className={coworkStyles.chatNameInput}
+                            value={chatNameInput}
+                            onChange={(e) => setChatNameInput(e.target.value)}
+                            onKeyDown={handleChatNameKeyDown}
+                            onBlur={handleSaveChatName}
+                        />
+                    ) : (
+                        <Tooltip title={editChatNameLabel}>
+                            <button
+                                className={coworkStyles.chatNameButton}
+                                onClick={() => setEditingChatName(true)}
+                            >
+                                <span className={coworkStyles.chatNameText}>{activeChat?.title || newChatLabel}</span>
+                                <span className={coworkStyles.chatNameEditIcon}><Edit size='small' /></span>
+                            </button>
+                        </Tooltip>
+                    )}
+                </div>
+                <div className={coworkStyles.chatHeaderRight}>
+                    <Tooltip title={shareCopied ? shareCopiedLabel : shareLabel}>
+                        <Button
+                            type='secondary'
+                            size='medium'
+                            compact
+                            minimal
+                            icon={shareCopied ? <Check size='small' /> : <Share size='small' />}
+                            onClick={handleShare}
+                            disabled={shareCopied}
+                            aria-label={shareLabel}
+                        />
+                    </Tooltip>
+                </div>
             </div>
-            <div className={styles.chatList}>
-                {chats.length === 0 ? (
-                    <div className={styles.sidebarEmpty}>{welcomeSubtitle}</div>
-                ) : (
-                    chats.map((chat) => (
-                        <div
-                            key={chat.id}
-                            className={`${styles.chatListItem} ${chat.id === activeChatId ? styles.chatListItemActive : ''}`}
-                            onClick={() => handleSelectChat(chat.id)}
-                        >
-                            <span className={styles.chatListItemTitle}>{chat.title}</span>
-                            <div className={styles.chatListItemDelete}>
-                                <Button
-                                    type='secondary'
-                                    size='medium'
-                                    compact
-                                    minimal
-                                    icon={<Trash size='small' />}
-                                    onClick={(e) => {
-                                        e.stopPropagation()
-                                        handleDeleteChat(chat.id)
-                                    }}
-                                />
-                            </div>
-                        </div>
-                    ))
-                )}
-            </div>
-        </div>
-    )
+        )
+    }
 
     const renderMain = () => {
         if (!hasStarted) {
             return (
-                <div className={styles.welcomeScreen}>
-                    <div className={styles.welcomeTitle}>
-                        Doma.ai <span className={styles.welcomeTitleItalic}>Cowork</span>
+                <div className={coworkStyles.welcomeScreen}>
+                    <div className={coworkStyles.welcomeTitle}>
+                        Doma.ai <span className={coworkStyles.welcomeTitleItalic}>Cowork</span>
                     </div>
-                    <div className={styles.welcomeSubtitle}>
+                    <div className={coworkStyles.welcomeSubtitle}>
                         {welcomeSubtitle}
                     </div>
-                    <div className={styles.welcomeInputWrapper}>
+                    <div className={coworkStyles.welcomeInputWrapper}>
                         <Input.TextArea
                             ref={inputRef}
                             value={inputValue}
@@ -241,7 +280,7 @@ const CoworkPage: PageComponentType = () => {
         }
 
         return (
-            <div className={styles.chatScreen}>
+            <div className={coworkStyles.chatContent}>
                 {activeChatId && (
                     <AIChat
                         key={activeChatId}
@@ -255,12 +294,16 @@ const CoworkPage: PageComponentType = () => {
     }
 
     return (
-        <div className={styles.coworkBody}>
-            {renderSidebar()}
-            <div className={styles.mainArea}>
-                <div className={styles.contentContainer}>
-                    {renderMain()}
-                </div>
+        <div className={coworkStyles.coworkBody}>
+            <CoworkSidebar
+                activeChatId={activeChatId}
+                onSelectChat={handleSelectChat}
+                onNewChat={handleNewChat}
+                highlightNavItem='chats'
+            />
+            <div className={coworkStyles.mainArea}>
+                {renderChatHeader()}
+                {renderMain()}
             </div>
         </div>
     )

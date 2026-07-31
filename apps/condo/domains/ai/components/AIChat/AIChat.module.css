@@ -5,6 +5,12 @@
   flex-direction: column;
   height: 100%;
   min-height: 0;
+  width: 100%;
+}
+
+.header-spacer {
+  flex-shrink: 0;
+  height: var(--condo-global-spacing-72);
 }
 
 .messages-container {
@@ -20,6 +26,15 @@
   overflow-y: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  width: 100%;
+  min-width: 0;
+}
+
+/* Override comment-body global styles */
+.messages-container.comment-body {
+  max-width: none;
+  min-width: 0;
+  padding: var(--condo-global-spacing-16) var(--condo-global-spacing-24) var(--condo-global-spacing-24);
 }
 
 /* Without this, long flex children shrink and clip inside the scroller. */
@@ -33,7 +48,7 @@
 
 .turn {
 .messages-container-embedded {
-  padding-bottom: var(--condo-global-spacing-48);
+  padding-bottom: var(--condo-global-spacing-16);
 }
 
 .scenario-button-tooltip-wrap {
@@ -43,7 +58,12 @@
 
 .message-wrapper {
   display: flex;
+  width: 100%;
   max-width: 100%;
+}
+
+.message-wrapper-narrow {
+  max-width: 768px;
 }
 
 .input-spacer {
@@ -53,7 +73,7 @@
 
 .user-message {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
 }
 
 .user-message-container {
@@ -61,7 +81,8 @@
   flex-direction: column;
   gap: var(--condo-global-spacing-8);
   align-items: flex-end;
-  max-width: 100%;
+  max-width: 768px;
+  width: 100%;
 }
 
 .user-message-row {
@@ -103,13 +124,33 @@
 
 .assistant-message {
   display: flex;
-  justify-content: flex-start;
+  width: 100%;
+  justify-content: center;
 }
 
 .assistant-message-container {
   display: flex;
   flex-direction: column;
   gap: var(--condo-global-spacing-12);
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.assistant-message-actions {
+  display: flex;
+  gap: var(--condo-global-spacing-4);
+  width: 100%;
+  max-width: 768px;
+  margin: 0 auto;
+}
+
+.assistant-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--condo-global-spacing-8);
+  margin: var(--condo-global-spacing-12) auto 0;
+  max-width: 768px;
 }
 
 .turn[data-active="true"] {
@@ -119,10 +160,14 @@
 
 .assistant-a2ui {
   width: 100%;
-  margin-top: var(--condo-global-spacing-4);
+  max-width: 1200px;
+  margin: var(--condo-global-spacing-4) auto 0;
 }
 
 .assistant-markdown {
+  width: 100%;
+  max-width: 768px;
+  margin: 0 auto;
   color: var(--condo-global-color-black);
   line-height: 1.6;
 }
