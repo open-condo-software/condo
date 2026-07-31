@@ -168,7 +168,7 @@ export const MetersTable = ({
         }
     }, [router])
 
-    const { count, loading: countLoading } = Meter.useCount({
+    const { count, loading: countLoading } = MeterReading.useCount({
         where: {
             createdBy: { id: user.id },
         },
