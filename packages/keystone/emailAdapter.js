@@ -535,7 +535,8 @@ class UnisenderGoEmail {
  * Sendsay personal API has no Cc/Bcc MIME headers. `cc`/`bcc` are delivered as extra personal
  * sends (one HTTP call per address). Recipients never see other addresses in email headers.
  * Sends are sequential; a failure for one address does not skip later recipients. Overall `isOk`
- * is false if any recipient failed, and `partial: true` is set when some already got mail.
+ * is true if at least one `to`, `cc`, or `bcc` recipient was delivered (so retries do not duplicate
+ * successful mail). `partial: true` is set when some deliveries failed alongside successes.
  *
  * @see https://sendsay.ru/api/api.html
  */
@@ -809,14 +810,19 @@ class SendsayEmail {
             return context
         }
 
+        // Treat any successful delivery as overall success so callers/retries do not resend already delivered mail.
+        const resolveOutcome = (results, { bccResults } = {}) => {
+            const allResults = Array.isArray(bccResults) ? [...results, ...bccResults] : results
+            const isOk = allResults.some(({ isOk }) => isOk)
+            return [isOk, buildContext(results, { bccResults })]
+        }
+
         if (isEmpty(bccRecipients)) {
-            return [primaryOk, buildContext(primaryResults)]
+            return resolveOutcome(primaryResults)
         }
 
         const bccResults = await sendToMany(bccRecipients)
-        const bccOk = bccResults.every(({ isOk }) => isOk)
-
-        return [primaryOk && bccOk, buildContext(primaryResults, { bccResults })]
+        return resolveOutcome(primaryResults, { bccResults })
     }
 }
 
