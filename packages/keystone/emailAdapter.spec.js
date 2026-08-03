@@ -1051,6 +1051,40 @@ describe('Email adapters', () => {
             }])
         })
 
+        it('continues remaining recipients when response-body processing throws for one address', async () => {
+            fetch
+                .mockResolvedValueOnce({
+                    ok: true,
+                    status: 200,
+                    text: jest.fn().mockRejectedValue(new Error('body read failed')),
+                })
+                .mockResolvedValueOnce(createJsonResponse(200, { 'track.id': 2 }))
+
+            const adapter = new EmailAdapter()
+            const [isOk, context] = await adapter.send({
+                to: 'broken@example.com',
+                cc: 'later@example.com',
+                subject: 'Hello',
+                text: 'Body',
+            })
+
+            expect(isOk).toBe(false)
+            expect(context.partial).toBe(true)
+            expect(context.recipients).toEqual([
+                {
+                    email: 'broken@example.com',
+                    isOk: false,
+                    context: { error: 'body read failed' },
+                },
+                {
+                    email: 'later@example.com',
+                    isOk: true,
+                    context: { 'track.id': 2 },
+                },
+            ])
+            expect(fetch).toHaveBeenCalledTimes(2)
+        })
+
         it('deduplicates recipients case-insensitively across to, cc, and bcc audit copies', async () => {
             fetch
                 .mockResolvedValueOnce(createJsonResponse(200, { 'track.id': 1 }))

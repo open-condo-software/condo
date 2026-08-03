@@ -754,8 +754,16 @@ class SendsayEmail {
         const sendToMany = async (emails) => {
             const results = []
             for (const recipientEmail of emails) {
-                const [isOk, context] = await sendIssue(recipientEmail, letter)
-                results.push({ email: recipientEmail, isOk, context })
+                try {
+                    const [isOk, context] = await sendIssue(recipientEmail, letter)
+                    results.push({ email: recipientEmail, isOk, context })
+                } catch (error) {
+                    results.push({
+                        email: recipientEmail,
+                        isOk: false,
+                        context: { error: error.message },
+                    })
+                }
             }
             return results
         }
