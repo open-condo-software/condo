@@ -25,6 +25,11 @@ const B2BAppAccessRightSet = generateGqlQueries('B2BAppAccessRightSet', B2B_APP_
 const B2B_APP_PUBLISH_REQUEST_FIELDS = `{ app { id } status isAppTested isContractSigned isInfoApproved ${COMMON_FIELDS} }`
 const B2BAppPublishRequest = generateGqlQueries('B2BAppPublishRequest', B2B_APP_PUBLISH_REQUEST_FIELDS)
 
+const IMPORT_B2B_APP_MUTATION = gql`
+    mutation importB2BApp ($data: ImportB2BAppInput!) {
+        result: importB2BApp(data: $data) { success }
+    }
+`
 
 const PUBLISH_B2B_APP_MUTATION = gql`
     mutation publishB2BApp ($data: PublishB2BAppInput!) {
@@ -143,7 +148,6 @@ const CHANGE_OIDC_CLIENT_MUTATION = gql`
         result: changeOIDCClient(data: $data) { id clientId name redirectUri isEnabled }
     }
 `
-
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -154,6 +158,7 @@ module.exports = {
     B2BAppAccessRightSet,
     B2BAppPublishRequest,
     PUBLISH_B2B_APP_MUTATION,
+    IMPORT_B2B_APP_MUTATION,
     ALL_B2B_APP_CONTEXTS_QUERY,
     UPDATE_B2B_APP_CONTEXT_MUTATION,
 

@@ -14,6 +14,7 @@ const {
     B2BApp: B2BAppGQL,
     B2BAppAccessRight: B2BAppAccessRightGQL,
     B2BAppAccessRightSet: B2BAppAccessRightSetGQL,
+    IMPORT_B2B_APP_MUTATION,
     PUBLISH_B2B_APP_MUTATION,
     UPDATE_B2B_APP_CONTEXT_MUTATION,
     ALL_B2B_APP_CONTEXTS_QUERY,
@@ -806,6 +807,34 @@ async function changeOIDCClientByTestClient(client, app, oidcClientId, extraAttr
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+
+async function importB2BAppByTestClient(client, app, condoDevApp = null, condoProdApp = null, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!app || !app.id) throw new Error('no app')
+    if (condoDevApp && !condoDevApp.id) throw new Error('no condoDevApp.id')
+    if (condoProdApp && !condoProdApp.id) throw new Error('no condoProdApp.id')
+
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const from = {}
+    if (condoDevApp) {
+        from.developmentApp =  { id: condoDevApp.id }
+    }
+    if (condoProdApp) {
+        from.productionApp = { id: condoProdApp.id }
+    }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        to: { app: { id: app.id } },
+        from,
+        options: { conflictPolicy: 'delete' },
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(IMPORT_B2B_APP_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -823,6 +852,7 @@ module.exports = {
     B2BAppAccessRightSet, createTestB2BAppAccessRightSet, updateTestB2BAppAccessRightSet,
     B2BAppPublishRequest, createTestB2BAppPublishRequest, updateTestB2BAppPublishRequest,
     publishB2BAppByTestClient,
+    importB2BAppByTestClient,
     allB2BAppContextsByTestClient, updateB2BAppContextByTestClient,
 
     B2CApp, createTestB2CApp, updateTestB2CApp, updateTestB2CApps, getB2CAppInfoByTestClient,
