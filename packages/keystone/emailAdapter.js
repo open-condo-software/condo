@@ -783,10 +783,7 @@ class SendsayEmail {
         const buildContext = (results, { bccResults } = {}) => {
             const firstOk = results.find(({ isOk }) => isOk)
             const base = (firstOk || results[0] || {}).context || {}
-            const hasPartial = results.some(({ isOk }) => isOk) && results.some(({ isOk }) => !isOk)
-            const bccPartial = Array.isArray(bccResults)
-                && bccResults.some(({ isOk }) => isOk)
-                && bccResults.some(({ isOk }) => !isOk)
+            const allResults = Array.isArray(bccResults) ? [...results, ...bccResults] : results
             const context = { ...base }
 
             // Keep top-level track.id for single-recipient callers; always expose per-recipient detail
@@ -797,7 +794,8 @@ class SendsayEmail {
             if (bccResults) {
                 context.bcc = bccResults
             }
-            if (hasPartial || bccPartial || (primaryOk && bccResults && bccResults.some(({ isOk }) => !isOk))) {
+            // Any mix of delivered + failed across primary/cc/bcc (including all primary failed + bcc ok)
+            if (allResults.some(({ isOk }) => isOk) && allResults.some(({ isOk }) => !isOk)) {
                 context.partial = true
             }
             return context

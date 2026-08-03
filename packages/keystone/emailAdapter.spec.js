@@ -1024,6 +1024,33 @@ describe('Email adapters', () => {
             expect(fetch).toHaveBeenCalledTimes(4)
         })
 
+        it('marks partial when every primary fails but a bcc audit copy succeeds', async () => {
+            fetch
+                .mockResolvedValueOnce(createJsonResponse(400, { errors: [{ id: 'wrong_email' }] }))
+                .mockResolvedValueOnce(createJsonResponse(200, { 'track.id': 77 }))
+
+            const adapter = new EmailAdapter()
+            const [isOk, context] = await adapter.send({
+                to: 'bad@example.com',
+                bcc: 'hidden@example.com',
+                subject: 'Hello',
+                text: 'Body',
+            })
+
+            expect(isOk).toBe(false)
+            expect(context.partial).toBe(true)
+            expect(context.recipients).toEqual([{
+                email: 'bad@example.com',
+                isOk: false,
+                context: expect.objectContaining({ errors: [{ id: 'wrong_email' }] }),
+            }])
+            expect(context.bcc).toEqual([{
+                email: 'hidden@example.com',
+                isOk: true,
+                context: { 'track.id': 77 },
+            }])
+        })
+
         it('deduplicates recipients case-insensitively across to, cc, and bcc audit copies', async () => {
             fetch
                 .mockResolvedValueOnce(createJsonResponse(200, { 'track.id': 1 }))
