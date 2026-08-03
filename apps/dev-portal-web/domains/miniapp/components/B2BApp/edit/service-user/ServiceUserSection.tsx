@@ -13,16 +13,18 @@ import { RegisterUserForm } from '@/domains/miniapp/components/User/edit/Registe
 import { getEnvironment } from '@/domains/miniapp/utils/query'
 import { DEV_ENVIRONMENT, PROD_ENVIRONMENT } from '@dev-portal-api/domains/miniapp/constants/publishing'
 
+import { AccessRightSetForm } from './AccessRightSetForm'
+
 import type { RowProps } from 'antd'
 
-import { AppType, AppEnvironment, useAllB2CAppAccessRightsQuery } from '@/gql'
+import { AppEnvironment, AppType, useAllB2BAppAccessRightsQuery } from '@/gql'
 
 const SELECT_GUTTER: RowProps['gutter'] = [40, 40]
 const FULL_COL_SPAN = 24
 
 export const ServiceUserSection: React.FC<{ id: string }> = ({ id }) => {
     const intl = useIntl()
-    const ServiceUserSectionTitle = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.serviceUser.title' })
+    const ServiceUserSectionTitle = intl.formatMessage({ id: 'pages.apps.b2b.id.sections.serviceUser.title' })
     const DevStandLabel = intl.formatMessage({ id: 'global.miniapp.environments.development.label' })
     const ProdStandLabel = intl.formatMessage({ id: 'global.miniapp.environments.production.label' })
 
@@ -37,7 +39,7 @@ export const ServiceUserSection: React.FC<{ id: string }> = ({ id }) => {
         setSelectedEnvironment(newEnv as AppEnvironment)
     }, [router])
 
-    const { data, loading, error } = useAllB2CAppAccessRightsQuery({
+    const { data, loading, error } = useAllB2BAppAccessRightsQuery({
         variables: {
             environment: selectedEnvironment,
             appId: id,
@@ -65,9 +67,14 @@ export const ServiceUserSection: React.FC<{ id: string }> = ({ id }) => {
                         {!loading && !error && (
                             rights.length
                                 ? <EditUserForm id={id} environment={selectedEnvironment} email={rights[0]?.condoUserEmail}/>
-                                : <RegisterUserForm id={id} environment={selectedEnvironment} appType={AppType.B2C}/>
+                                : <RegisterUserForm id={id} environment={selectedEnvironment} appType={AppType.B2B}/>
                         )}
                     </Col>
+                    {Boolean(!loading && !error && rights.length) && (
+                        <Col span={FULL_COL_SPAN}>
+                            <AccessRightSetForm id={id} environment={selectedEnvironment}/>
+                        </Col>
+                    )}
                 </Row>
             </SubSection>
         </Section>

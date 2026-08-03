@@ -1,0 +1,62 @@
+fragment B2BAppAccessRightSetPermissions on B2BAppAccessRightSet {
+    canReadOrganizations
+    canReadOrganizationEmployees
+    canReadOrganizationEmployeeRoles
+
+    canReadProperties
+    canManageProperties
+
+    canReadContacts
+    canManageContacts
+
+    canReadTickets
+    canManageTickets
+    canReadTicketFiles
+    canManageTicketFiles
+    canReadTicketComments
+    canManageTicketComments
+    canReadTicketCommentFiles
+    canManageTicketCommentFiles
+
+    canReadMeters
+    canManageMeters
+    canReadMeterReadings
+    canManageMeterReadings
+    canReadMeterReportingPeriods
+    canManageMeterReportingPeriods
+
+    canReadInvoices
+    canManageInvoices
+    canReadPayments
+
+    canReadCustomValues
+    canManageCustomValues
+
+    canReadBillingReceipts
+    canReadBillingReceiptFiles
+}
+
+query getB2BAppAccessRightSetsForApp($appId: ID!) {
+    rightSets: allB2BAppAccessRightSets(
+        where: {
+            app: { id: $appId },
+        },
+        # 2 environments * 2 statuses
+        first: 4
+    ) {
+        id
+        status
+        environment
+        diff { added removed }
+        ...B2BAppAccessRightSetPermissions
+    }
+}
+
+mutation createB2BAppAccessRightSet($data: B2BAppAccessRightSetCreateInput!) {
+    rightSet: createB2BAppAccessRightSet(data: $data) {
+        id
+        status
+        environment
+        ...B2BAppAccessRightSetPermissions
+    }
+}

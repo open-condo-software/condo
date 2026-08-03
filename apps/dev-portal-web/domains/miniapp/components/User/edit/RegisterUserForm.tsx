@@ -7,14 +7,15 @@ import { EmptySubSectionView } from '@/domains/miniapp/components/EmptySubSectio
 
 import { RegisterUserModal } from './RegisterUserModal'
 
-import { AppEnvironment } from '@/gql'
+import { AppEnvironment, AppType } from '@/gql'
 
 type RegisterUserFormProps = {
     id: string
     environment: AppEnvironment
+    appType: AppType
 }
 
-export const RegisterUserForm: React.FC<RegisterUserFormProps> = ({ id, environment }) => {
+export const RegisterUserForm: React.FC<RegisterUserFormProps> = ({ id, environment, appType }) => {
     const intl = useIntl()
     const NoUserMessage = intl.formatMessage({ id: 'pages.apps.any.id.sections.serviceUser.userSettings.registerUserForm.emptyView.message' })
     const NoUserDescription = intl.formatMessage({ id: 'pages.apps.any.id.sections.serviceUser.userSettings.registerUserForm.emptyView.description' })
@@ -52,6 +53,7 @@ export const RegisterUserForm: React.FC<RegisterUserFormProps> = ({ id, environm
                     environment={environment}
                     open={registerUserModalOpen}
                     onClose={closeRegisterModal}
+                    appType={appType}
                 />
             )}
         </>
