@@ -44,6 +44,7 @@ const { DEFAULT_COLOR_SCHEMA } = require("@dev-portal-api/domains/miniapp/consta
 const { B2BAppPublishRequest: B2BAppPublishRequestGQL } = require('@dev-portal-api/domains/miniapp/gql')
 const { CONNECT_ACTION } = require('@dev-portal-api/domains/miniapp/constants/b2bAppContext')
 const { CHANGE_OIDC_CLIENT_MUTATION } = require('@dev-portal-api/domains/miniapp/gql')
+const { getDevicePermissions, getDevicePermissionFieldName } = require('@condo/domains/miniapp/schema/fields/devicePermissions')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const B2BApp = generateGQLTestUtils(B2BAppGQL)
@@ -58,9 +59,11 @@ const B2CAppPublishRequest = generateGQLTestUtils(B2CAppPublishRequestGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 const FAKE_BUILD_ASSET_PATH = path.resolve(conf.PROJECT_ROOT, 'apps/dev-portal-api/domains/miniapp/utils/testSchema/assets/build.zip')
+const FAKE_B2B_APP_LOGO_PATH = path.resolve(conf.PROJECT_ROOT, 'apps/dev-portal-api/domains/miniapp/utils/testSchema/assets/logo.png')
 const FAKE_B2C_APP_LOGO_PATH = path.resolve(conf.PROJECT_ROOT, 'apps/dev-portal-api/domains/miniapp/utils/testSchema/assets/logo.png')
 
-const CondoB2BApp = generateGQLTestUtils(generateGqlQueries('B2BApp', '{ id name developer developerUrl logo { publicUrl filename } importId importRemoteSystem deletedAt v oidcClient { id } }'))
+const B2B_APP_PERMISSION_FIELDS = getDevicePermissions({ listKey: 'B2BApp' }).map(getDevicePermissionFieldName).join(' ')
+const CondoB2BApp = generateGQLTestUtils(generateGqlQueries('B2BApp', `{ id name developer developerUrl shortDescription detailedDescription category contextDefaultStatus appUrl logo { publicUrl filename } importId importRemoteSystem deletedAt v oidcClient { id } ${B2B_APP_PERMISSION_FIELDS} }`))
 const CondoB2BAppContext = generateGQLTestUtils(generateGqlQueries('B2BAppContext', '{ id app { id } organization { id tin name } status createdAt }'))
 const CondoB2CApp = generateGQLTestUtils(generateGqlQueries('B2CApp', '{ id name developer logo { publicUrl filename } currentBuild { id } importId importRemoteSystem deletedAt v oidcClient { id } appUrl }'))
 const CondoB2CAppBuild = generateGQLTestUtils(generateGqlQueries('B2CAppBuild', '{ id version data { publicUrl } importId importRemoteSystem }'))
@@ -126,6 +129,28 @@ async function createCondoB2CApp (client) {
     }
 
     const obj = await CondoB2CApp.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function createCondoB2BApp (client, extraAttrs = {}) {
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const logo = await getUploadingFile(FAKE_B2B_APP_LOGO_PATH, {
+        user: {id: client?.user?.id},
+        fileClientId: 'condo',
+        modelNames: ['B2BApp'],
+        dv: 1,
+        sender,
+    }, client, conf['CONDO_DOMAIN'])
+    const attrs = {
+        dv: 1,
+        sender,
+        logo,
+        name: faker.commerce.productName(),
+        developer: faker.company.name(),
+        ...extraAttrs,
+    }
+
+    const obj = await CondoB2BApp.create(client, attrs)
     return [obj, attrs]
 }
 
@@ -838,7 +863,7 @@ async function importB2BAppByTestClient(client, app, condoDevApp = null, condoPr
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
-    CondoB2BApp, updateCondoB2BApp,
+    CondoB2BApp, createCondoB2BApp, updateCondoB2BApp,
     CondoB2BAppContext, createCondoB2BAppContexts,
 
     CondoB2CApp, createCondoB2CApp, updateCondoB2CApp,

@@ -11,7 +11,7 @@ const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 const { wrapUploadFile } = require('@open-condo/keystone/upload')
 
-const { getDevicePermissions } = require('@condo/domains/miniapp/schema/fields/devicePermissions')
+const { getDevicePermissions, getDevicePermissionFieldName } = require('@condo/domains/miniapp/schema/fields/devicePermissions')
 const { REMOTE_SYSTEM } = require('@dev-portal-api/domains/common/constants/common')
 const { MULTIPLE_FOUND } = require('@dev-portal-api/domains/common/constants/errors')
 const { developmentClient, productionClient } = require('@dev-portal-api/domains/common/utils/serverClients')
@@ -43,11 +43,14 @@ const ERRORS = {
 }
 
 const ENVIRONMENTAL_FIELDS = [
-    'appUrl',
-    ...getDevicePermissions({ listKey: 'B2BApp' }),
+    { from: 'appUrl', to: 'appUrl' },
+    { from: 'oidcClient.id', to: 'oidcClientId' },
+    ...getDevicePermissions({ listKey: 'B2BApp' })
+        // NOTE: remove "is" Prefix
+        .map((permission) => ({ from: getDevicePermissionFieldName(permission), to: getDevicePermissionFieldName(permission).substring(2) })),
 ]
 
-const CondoB2BAppGQL = generateGqlQueries('B2BApp', `{ id name developer developerUrl shortDescription detailedDescription category logo { publicUrl filename mimetype encoding } ${ENVIRONMENTAL_FIELDS.join(' ')} oidcClient { id } }`)
+const CondoB2BAppGQL = generateGqlQueries('B2BApp', `{ id name developer developerUrl shortDescription detailedDescription category contextDefaultStatus logo { publicUrl filename mimetype encoding } ${ENVIRONMENTAL_FIELDS.filter(f => !f.from.includes('.')).map(f => f.from).join(' ')} oidcClient { id } }`)
 
 async function resolveConflicts ({ args, context }) {
     const {
@@ -193,6 +196,7 @@ async function importAppInfo ({ args, context }) {
         shortDescription: sourceApp.shortDescription,
         detailedDescription: sourceApp.detailedDescription,
         category: sourceApp.category,
+        contextDefaultStatus: sourceApp.contextDefaultStatus,
     }
     if (sourceApp.logo && sourceApp.logo.publicUrl) {
         const client = prodApp ? productionClient : developmentClient
@@ -217,13 +221,9 @@ async function importAppInfo ({ args, context }) {
     }
 
     for (const { environment, app } of queue) {
-        for (const field of ENVIRONMENTAL_FIELDS) {
-            const fieldName = getEnvironmentalFieldName(environment, field)
-            updatePayload[fieldName] = app[field]
-        }
-        if (app.oidcClient && app.oidcClient.id) {
-            const fieldName = getEnvironmentalFieldName(environment, 'oidcClientId')
-            updatePayload[fieldName] = app.oidcClient.id
+        for (const { from, to } of ENVIRONMENTAL_FIELDS) {
+            const toFieldName = getEnvironmentalFieldName(environment, to)
+            updatePayload[toFieldName] = get(app, from, null)
         }
 
         const exportField = getEnvironmentalFieldName(environment, 'exportId')
