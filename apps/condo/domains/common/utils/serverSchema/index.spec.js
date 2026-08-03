@@ -46,7 +46,7 @@ describe('GqlWithKnexLoadList cross-db relation ids loader', () => {
     test('loads relation ids by chunks with deterministic order', async () => {
         const planner = createPlanner()
 
-        getSchemaCtx.mockResolvedValue({ keystone: {} })
+        getSchemaCtx.mockReturnValue({ keystone: {} })
         getItems
             .mockResolvedValueOnce(Array.from({ length: 1000 }, (_, i) => ({ id: `id-${i}` })))
             .mockResolvedValueOnce([{ id: 'id-1000' }, { id: 'id-1001' }])
@@ -56,22 +56,24 @@ describe('GqlWithKnexLoadList cross-db relation ids loader', () => {
         expect(ids).toHaveLength(1002)
         expect(getItems).toHaveBeenNthCalledWith(1, expect.objectContaining({
             listKey: 'User',
+            where: { name_contains: 'john' },
             sortBy: ['id_ASC'],
             first: 1000,
-            skip: 0,
         }))
         expect(getItems).toHaveBeenNthCalledWith(2, expect.objectContaining({
             listKey: 'User',
+            where: { AND: [{ name_contains: 'john' }, { id_gt: 'id-999' }] },
             sortBy: ['id_ASC'],
             first: 1000,
-            skip: 1000,
         }))
+        expect(getItems.mock.calls[0][0]).not.toHaveProperty('skip')
+        expect(getItems.mock.calls[1][0]).not.toHaveProperty('skip')
     })
 
     test('throws when relation ids exceed configured hard limit', async () => {
         const planner = createPlanner()
 
-        getSchemaCtx.mockResolvedValue({ keystone: {} })
+        getSchemaCtx.mockReturnValue({ keystone: {} })
         getItems.mockResolvedValueOnce(Array.from({ length: 50001 }, (_, i) => ({ id: `id-${i}` })))
 
         await expect(planner.loadRelatedIds('User', { name_contains: 'john' }))
@@ -82,7 +84,7 @@ describe('GqlWithKnexLoadList cross-db relation ids loader', () => {
     test('does not throw page limit error after terminal page', async () => {
         const planner = createPlanner()
 
-        getSchemaCtx.mockResolvedValue({ keystone: {} })
+        getSchemaCtx.mockReturnValue({ keystone: {} })
         getItems
             .mockResolvedValueOnce(Array.from({ length: 1000 }, (_, i) => ({ id: `id-${i}` })))
             .mockResolvedValueOnce([])
@@ -91,5 +93,8 @@ describe('GqlWithKnexLoadList cross-db relation ids loader', () => {
 
         expect(ids).toHaveLength(1000)
         expect(getItems).toHaveBeenCalledTimes(2)
+        expect(getItems).toHaveBeenNthCalledWith(2, expect.objectContaining({
+            where: { AND: [{ name_contains: 'john' }, { id_gt: 'id-999' }] },
+        }))
     })
 })
