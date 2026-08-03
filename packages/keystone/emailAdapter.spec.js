@@ -963,7 +963,7 @@ describe('Email adapters', () => {
                 text: 'Body',
             })
 
-            expect(isOk).toBe(false)
+            expect(isOk).toBe(true)
             expect(context['track.id']).toBe(1)
             expect(context.partial).toBe(true)
             expect(context.recipients).toEqual([
@@ -1005,7 +1005,7 @@ describe('Email adapters', () => {
                 text: 'Body',
             })
 
-            expect(isOk).toBe(false)
+            expect(isOk).toBe(true)
             expect(context['track.id']).toBe(54)
             expect(context.partial).toBe(true)
             expect(context.recipients).toEqual([
@@ -1037,7 +1037,7 @@ describe('Email adapters', () => {
                 text: 'Body',
             })
 
-            expect(isOk).toBe(false)
+            expect(isOk).toBe(true)
             expect(context.partial).toBe(true)
             expect(context.recipients).toEqual([{
                 email: 'bad@example.com',
@@ -1049,6 +1049,65 @@ describe('Email adapters', () => {
                 isOk: true,
                 context: { 'track.id': 77 },
             }])
+        })
+
+        it('returns isOk true when to fails but a cc copy is delivered', async () => {
+            fetch
+                .mockResolvedValueOnce(createJsonResponse(400, { errors: [{ id: 'wrong_email' }] }))
+                .mockResolvedValueOnce(createJsonResponse(200, { 'track.id': 88 }))
+
+            const adapter = new EmailAdapter()
+            const [isOk, context] = await adapter.send({
+                to: 'bad@example.com',
+                cc: 'copy@example.com',
+                subject: 'Hello',
+                text: 'Body',
+            })
+
+            expect(isOk).toBe(true)
+            expect(context.partial).toBe(true)
+            expect(context.recipients).toEqual([
+                {
+                    email: 'bad@example.com',
+                    isOk: false,
+                    context: expect.objectContaining({ errors: [{ id: 'wrong_email' }] }),
+                },
+                {
+                    email: 'copy@example.com',
+                    isOk: true,
+                    context: { 'track.id': 88 },
+                },
+            ])
+            expect(context.bcc).toBeUndefined()
+        })
+
+        it('returns isOk false only when every Sendsay recipient fails', async () => {
+            fetch
+                .mockResolvedValueOnce(createJsonResponse(400, { errors: [{ id: 'wrong_email' }] }))
+                .mockResolvedValueOnce(createJsonResponse(400, { errors: [{ id: 'wrong_email' }] }))
+
+            const adapter = new EmailAdapter()
+            const [isOk, context] = await adapter.send({
+                to: 'bad1@example.com',
+                cc: 'bad2@example.com',
+                subject: 'Hello',
+                text: 'Body',
+            })
+
+            expect(isOk).toBe(false)
+            expect(context.partial).toBeUndefined()
+            expect(context.recipients).toEqual([
+                {
+                    email: 'bad1@example.com',
+                    isOk: false,
+                    context: expect.objectContaining({ errors: [{ id: 'wrong_email' }] }),
+                },
+                {
+                    email: 'bad2@example.com',
+                    isOk: false,
+                    context: expect.objectContaining({ errors: [{ id: 'wrong_email' }] }),
+                },
+            ])
         })
 
         it('continues remaining recipients when response-body processing throws for one address', async () => {
@@ -1068,7 +1127,7 @@ describe('Email adapters', () => {
                 text: 'Body',
             })
 
-            expect(isOk).toBe(false)
+            expect(isOk).toBe(true)
             expect(context.partial).toBe(true)
             expect(context.recipients).toEqual([
                 {
