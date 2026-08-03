@@ -947,15 +947,17 @@ describe('Email adapters', () => {
             }])
         })
 
-        it('stops after first primary failure so later copies are not sent by mistake', async () => {
+        it('continues remaining primary and bcc sends after one recipient fails', async () => {
             fetch
                 .mockResolvedValueOnce(createJsonResponse(200, { 'track.id': 1 }))
                 .mockResolvedValueOnce(createJsonResponse(400, { errors: [{ id: 'wrong_email' }] }))
+                .mockResolvedValueOnce(createJsonResponse(200, { 'track.id': 2 }))
+                .mockResolvedValueOnce(createJsonResponse(200, { 'track.id': 3 }))
 
             const adapter = new EmailAdapter()
             const [isOk, context] = await adapter.send({
                 to: 'user@example.com',
-                cc: 'bad@example.com, skipped@example.com',
+                cc: 'bad@example.com, later@example.com',
                 bcc: 'hidden@example.com',
                 subject: 'Hello',
                 text: 'Body',
@@ -971,9 +973,20 @@ describe('Email adapters', () => {
                     isOk: false,
                     context: expect.objectContaining({ errors: [{ id: 'wrong_email' }] }),
                 },
+                { email: 'later@example.com', isOk: true, context: { 'track.id': 2 } },
             ])
-            expect(context.bcc).toBeUndefined()
-            expect(fetch).toHaveBeenCalledTimes(2)
+            expect(context.bcc).toEqual([{
+                email: 'hidden@example.com',
+                isOk: true,
+                context: { 'track.id': 3 },
+            }])
+            expect(fetch).toHaveBeenCalledTimes(4)
+            expect(fetch.mock.calls.map(([, opts]) => JSON.parse(opts.body).email)).toEqual([
+                'user@example.com',
+                'bad@example.com',
+                'later@example.com',
+                'hidden@example.com',
+            ])
         })
 
         it('marks partial delivery when audit-copy bcc fails after the user-facing email was sent', async () => {
@@ -981,6 +994,7 @@ describe('Email adapters', () => {
                 .mockResolvedValueOnce(createJsonResponse(200, { 'track.id': 54 }))
                 .mockResolvedValueOnce(createJsonResponse(200, { 'track.id': 55 }))
                 .mockRejectedValueOnce(new Error('ECONNRESET'))
+                .mockResolvedValueOnce(createJsonResponse(200, { 'track.id': 56 }))
 
             const adapter = new EmailAdapter()
             const [isOk, context] = await adapter.send({
@@ -1002,8 +1016,12 @@ describe('Email adapters', () => {
                 email: 'hidden1@example.com',
                 isOk: false,
                 context: { error: 'ECONNRESET' },
+            }, {
+                email: 'hidden2@example.com',
+                isOk: true,
+                context: { 'track.id': 56 },
             }])
-            expect(fetch).toHaveBeenCalledTimes(3)
+            expect(fetch).toHaveBeenCalledTimes(4)
         })
 
         it('deduplicates recipients case-insensitively across to, cc, and bcc audit copies', async () => {

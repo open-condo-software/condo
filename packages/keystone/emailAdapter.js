@@ -534,8 +534,8 @@ class UnisenderGoEmail {
  *
  * Sendsay personal API has no Cc/Bcc MIME headers. `cc`/`bcc` are delivered as extra personal
  * sends (one HTTP call per address). Recipients never see other addresses in email headers.
- * Sends are sequential and stop the current stage on first failure; earlier successful delivers
- * are not rolled back — failed responses set `partial: true` when some recipients already got mail.
+ * Sends are sequential; a failure for one address does not skip later recipients. Overall `isOk`
+ * is false if any recipient failed, and `partial: true` is set when some already got mail.
  *
  * @see https://sendsay.ru/api/api.html
  */
@@ -750,13 +750,12 @@ class SendsayEmail {
             return [isSent, context]
         }
 
-        // Sequential to reduce rate-limit pressure and avoid starting later recipients after a failure.
+        // Sequential to reduce rate-limit pressure; continue through the list even if one address fails.
         const sendToMany = async (emails) => {
             const results = []
             for (const recipientEmail of emails) {
                 const [isOk, context] = await sendIssue(recipientEmail, letter)
                 results.push({ email: recipientEmail, isOk, context })
-                if (!isOk) break
             }
             return results
         }
@@ -779,8 +778,7 @@ class SendsayEmail {
         }, {}))
 
         const primaryResults = await sendToMany(primaryRecipients)
-        const primaryOk = primaryResults.length === primaryRecipients.length
-            && primaryResults.every(({ isOk }) => isOk)
+        const primaryOk = primaryResults.every(({ isOk }) => isOk)
 
         const buildContext = (results, { bccResults } = {}) => {
             const firstOk = results.find(({ isOk }) => isOk)
@@ -805,15 +803,14 @@ class SendsayEmail {
             return context
         }
 
-        if (!primaryOk || isEmpty(bccRecipients)) {
+        if (isEmpty(bccRecipients)) {
             return [primaryOk, buildContext(primaryResults)]
         }
 
         const bccResults = await sendToMany(bccRecipients)
-        const bccOk = bccResults.length === bccRecipients.length
-            && bccResults.every(({ isOk }) => isOk)
+        const bccOk = bccResults.every(({ isOk }) => isOk)
 
-        return [bccOk, buildContext(primaryResults, { bccResults })]
+        return [primaryOk && bccOk, buildContext(primaryResults, { bccResults })]
     }
 }
 
