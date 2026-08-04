@@ -35,6 +35,7 @@ const NEWS_REWRITE_TEXT_FLOW_TYPE = 'news_rewrite_text_flow'
 const INCIDENT_REWRITE_TEXT_FOR_RESIDENT_FLOW_TYPE = 'incident_rewrite_text_for_resident_flow'
 const GENERATE_NEWS_BY_INCIDENT_FLOW_TYPE = 'generate_news_by_incident_flow'
 const CHAT_WITH_CONDO_FLOW_TYPE = 'chat-with-condo'
+const SPEECH_TO_TEXT_FLOW_TYPE = 'speech_to_text'
 
 // Attachment constants
 const EXECUTION_AI_FLOW_TASK_FILE_MODEL_NAME = 'ExecutionAIFlowTaskFile'
@@ -51,6 +52,17 @@ const CHAT_WITH_CONDO_ALLOWED_MIME_TYPES = [
 ]
 const CHAT_WITH_CONDO_ALLOWED_FILE_EXTENSIONS = '.pdf,.docx,.xlsx,.csv,.txt,.doc,.xls'
 
+// Speech-to-text audio attachment constants (Whisper ~25 MB limit)
+const SPEECH_TO_TEXT_MAX_ATTACHMENTS = 1
+const SPEECH_TO_TEXT_MAX_ATTACHMENT_SIZE_BYTES = 25 * 1024 * 1024
+const SPEECH_TO_TEXT_ALLOWED_MIME_TYPES = [
+    'audio/webm',
+    'audio/mp4',
+    'audio/mpeg',
+    'audio/ogg',
+    'audio/wav',
+]
+
 /**
  * list of hardcoded flow types
  *
@@ -64,6 +76,7 @@ const FLOW_TYPES = {
     INCIDENT_REWRITE_TEXT_FOR_RESIDENT: INCIDENT_REWRITE_TEXT_FOR_RESIDENT_FLOW_TYPE,
     GENERATE_NEWS_BY_INCIDENT: GENERATE_NEWS_BY_INCIDENT_FLOW_TYPE,
     CHAT_WITH_CONDO: CHAT_WITH_CONDO_FLOW_TYPE,
+    SPEECH_TO_TEXT: SPEECH_TO_TEXT_FLOW_TYPE,
 }
 const FLOW_TYPES_LIST = Object.values(FLOW_TYPES)
 
@@ -255,6 +268,39 @@ const FLOW_META_SCHEMAS = {
             additionalProperties: true,
         },
     },
+    [FLOW_TYPES.SPEECH_TO_TEXT]: {
+        input: {
+            type: 'object',
+            properties: {
+                attachments: {
+                    type: 'array',
+                    minItems: 1,
+                    maxItems: SPEECH_TO_TEXT_MAX_ATTACHMENTS,
+                    items: {
+                        type: 'object',
+                        properties: {
+                            id: { type: 'string' },
+                            name: { type: 'string' },
+                            mimeType: { type: 'string', enum: SPEECH_TO_TEXT_ALLOWED_MIME_TYPES },
+                            size: { type: 'number', maximum: SPEECH_TO_TEXT_MAX_ATTACHMENT_SIZE_BYTES },
+                        },
+                        required: ['id', 'name', 'mimeType'],
+                        additionalProperties: false,
+                    },
+                },
+            },
+            required: ['attachments'],
+            additionalProperties: true,
+        },
+        output: {
+            type: 'object',
+            properties: {
+                answer: { type: 'string' },
+            },
+            required: ['answer'],
+            additionalProperties: true,
+        },
+    },
     [CUSTOM_FLOW_TYPE]: {
         // Data for custom flows is only checked to ensure that it is an object
         input: {
@@ -276,6 +322,10 @@ const FLOW_TOKEN_SCOPES = {
         // TODO: DOMA-13291 make scopes logic more secure
         { gqlOperationType: 'query' }, // Allow all queries
     ],
+    [FLOW_TYPES.SPEECH_TO_TEXT]: [
+        // Same as chat-with-condo: n8n downloads private attachment URLs with condoUserToken
+        { gqlOperationType: 'query' },
+    ],
 }
 
 for (const [flowName, schemaByOperation] of Object.entries(FLOW_META_SCHEMAS)) {
@@ -286,6 +336,11 @@ for (const [flowName, schemaByOperation] of Object.entries(FLOW_META_SCHEMAS)) {
         if (schema.type !== 'object') throw new Error(`Flow "${flowName}" (${operation}): Field "type" in meta scheme must have value "object"!`)
     }
 }
+
+const FLOW_TYPES_WITH_ATTACHMENTS = [
+    CHAT_WITH_CONDO_FLOW_TYPE,
+    SPEECH_TO_TEXT_FLOW_TYPE,
+]
 
 module.exports = {
     TASK_STATUSES,
@@ -298,10 +353,15 @@ module.exports = {
     CUSTOM_FLOW_TYPE,
     FLOW_ADAPTERS,
     CHAT_WITH_CONDO_FLOW_TYPE,
+    SPEECH_TO_TEXT_FLOW_TYPE,
     FLOW_TOKEN_SCOPES,
+    FLOW_TYPES_WITH_ATTACHMENTS,
     EXECUTION_AI_FLOW_TASK_FILE_MODEL_NAME,
     CHAT_WITH_CONDO_MAX_ATTACHMENTS,
     CHAT_WITH_CONDO_MAX_ATTACHMENT_SIZE_BYTES,
     CHAT_WITH_CONDO_ALLOWED_MIME_TYPES,
     CHAT_WITH_CONDO_ALLOWED_FILE_EXTENSIONS,
+    SPEECH_TO_TEXT_MAX_ATTACHMENTS,
+    SPEECH_TO_TEXT_MAX_ATTACHMENT_SIZE_BYTES,
+    SPEECH_TO_TEXT_ALLOWED_MIME_TYPES,
 }

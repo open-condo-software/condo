@@ -252,6 +252,18 @@ export const AIChat: React.FC<AIChatProps> = ({
         return Boolean(inputValue.trim() || canSendWithAttachments) && !attachmentsUploading
     }, [inputValue, canSendWithAttachments, attachmentsUploading])
 
+    const handleTranscript = useCallback((text: string) => {
+        const transcript = text.trim()
+        if (!transcript) return
+
+        setInputValue((prev) => {
+            const current = prev.trimEnd()
+            if (!current) return transcript
+            return `${current} ${transcript}`
+        })
+        inputRef.current?.focus()
+    }, [])
+
     const saveMessagesToLocalStorage = useCallback(() => {
         try {
             const currentHistory = historyStorageManager.getItem(STORAGE_KEY) || {}
@@ -658,6 +670,7 @@ export const AIChat: React.FC<AIChatProps> = ({
                 onInputChange={setInputValue}
                 onInputKeyDown={handleComposerKeyDown}
                 onSendMessage={handleSendMessage}
+                onTranscript={handleTranscript}
                 placeholder={placeholder}
             />
         </div>

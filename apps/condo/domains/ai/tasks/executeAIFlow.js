@@ -13,7 +13,7 @@ const { FlowiseAdapter, N8NAdapter } = require('@condo/domains/ai/adapters')
 const {
     TASK_STATUSES,
     FLOW_ADAPTERS: FLOW_ADAPTER_NAMES,
-    CHAT_WITH_CONDO_FLOW_TYPE,
+    FLOW_TYPES_WITH_ATTACHMENTS,
     EXECUTION_AI_FLOW_TASK_FILE_MODEL_NAME,
 } = require('@condo/domains/ai/constants')
 const { CUSTOM_FLOW_TYPES_LIST, AI_FLOWS_CONFIG } = require('@condo/domains/ai/utils/flowsConfig')
@@ -97,7 +97,7 @@ const executeAIFlow = async (executionAIFlowTask, additionalContext = {}) => {
 
         // TODO (DOMA-13305): Remove this when we persist attachments on a model and can fetch publicUrl via GraphQL.
         if (
-            task.flowType === CHAT_WITH_CONDO_FLOW_TYPE
+            FLOW_TYPES_WITH_ATTACHMENTS.includes(task.flowType)
             && Array.isArray(fullContext.attachments)
             && fullContext.attachments.length > 0
         ) {

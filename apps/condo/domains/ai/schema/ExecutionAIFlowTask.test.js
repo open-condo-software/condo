@@ -25,6 +25,9 @@ const {
     CHAT_WITH_CONDO_MAX_ATTACHMENTS,
     CHAT_WITH_CONDO_MAX_ATTACHMENT_SIZE_BYTES,
     CHAT_WITH_CONDO_FLOW_TYPE,
+    SPEECH_TO_TEXT_FLOW_TYPE,
+    SPEECH_TO_TEXT_ALLOWED_MIME_TYPES,
+    SPEECH_TO_TEXT_MAX_ATTACHMENT_SIZE_BYTES,
 } = require('@condo/domains/ai/constants')
 const { EXECUTION_AI_FLOW_TASK_DEFAULT_RATE_LIMITER } = require('@condo/domains/ai/schema/ExecutionAIFlowTask')
 const { executeAIFlow } = require('@condo/domains/ai/tasks/index')
@@ -659,6 +662,80 @@ describe('ExecutionAIFlowTask', () => {
                             organizationId: faker.datatype.uuid(),
                         },
                         attachments,
+                    },
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'INVALID_FLOW_CONTEXT',
+            })
+        })
+
+        test('speech_to_text context accepts audio attachment metadata without url', async () => {
+            const task = await ExecutionAIFlowTaskForUser.create(userClient, {
+                dv: 1,
+                sender: { fingerprint: faker.random.alphaNumeric(8), dv: 1 },
+                user: { connect: { id: userClient.user.id } },
+                flowType: SPEECH_TO_TEXT_FLOW_TYPE,
+                context: {
+                    attachments: [{
+                        id: faker.datatype.uuid(),
+                        name: 'voice.webm',
+                        mimeType: SPEECH_TO_TEXT_ALLOWED_MIME_TYPES[0],
+                        size: 1024,
+                    }],
+                },
+            })
+            const foundTask = await ExecutionAIFlowTask.getOne(adminClient, { id: task.id })
+
+            expect(task.context.attachments).toHaveLength(1)
+            expect(task.context.attachments[0]).not.toHaveProperty('url')
+            expect(foundTask.cleanContext.attachments[0]).not.toHaveProperty('url')
+        })
+
+        test('speech_to_text rejects document mimeType', async () => {
+            await expectToThrowGQLError(async () => {
+                await createTestExecutionAIFlowTask(userClient, userClient.user, {
+                    flowType: SPEECH_TO_TEXT_FLOW_TYPE,
+                    context: {
+                        attachments: [{
+                            id: faker.datatype.uuid(),
+                            name: 'report.pdf',
+                            mimeType: 'application/pdf',
+                            size: 1024,
+                        }],
+                    },
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'INVALID_FLOW_CONTEXT',
+            })
+        })
+
+        test('speech_to_text rejects attachment with size above limit', async () => {
+            await expectToThrowGQLError(async () => {
+                await createTestExecutionAIFlowTask(userClient, userClient.user, {
+                    flowType: SPEECH_TO_TEXT_FLOW_TYPE,
+                    context: {
+                        attachments: [{
+                            id: faker.datatype.uuid(),
+                            name: 'voice.webm',
+                            mimeType: SPEECH_TO_TEXT_ALLOWED_MIME_TYPES[0],
+                            size: SPEECH_TO_TEXT_MAX_ATTACHMENT_SIZE_BYTES + 1,
+                        }],
+                    },
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'INVALID_FLOW_CONTEXT',
+            })
+        })
+
+        test('speech_to_text rejects empty attachments', async () => {
+            await expectToThrowGQLError(async () => {
+                await createTestExecutionAIFlowTask(userClient, userClient.user, {
+                    flowType: SPEECH_TO_TEXT_FLOW_TYPE,
+                    context: {
+                        attachments: [],
                     },
                 })
             }, {
