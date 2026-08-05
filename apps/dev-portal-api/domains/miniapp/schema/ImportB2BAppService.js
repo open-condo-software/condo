@@ -5,9 +5,12 @@
 const dayjs = require('dayjs')
 const got = require('got')
 const get = require('lodash/get')
+const pick = require('lodash/pick')
+
 
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
+const { getByCondition } = require('@open-condo/keystone/schema')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 const { wrapUploadFile } = require('@open-condo/keystone/upload')
 
@@ -16,10 +19,12 @@ const { REMOTE_SYSTEM } = require('@dev-portal-api/domains/common/constants/comm
 const { MULTIPLE_FOUND } = require('@dev-portal-api/domains/common/constants/errors')
 const { developmentClient, productionClient } = require('@dev-portal-api/domains/common/utils/serverClients')
 const access = require('@dev-portal-api/domains/miniapp/access/ImportB2BAppService')
+const { B2B_APP_ACCESS_RIGHT_SET_APPROVED_STATUS } = require('@dev-portal-api/domains/miniapp/constants/b2bAppAccessRightSet')
 const { APP_NOT_FOUND } = require('@dev-portal-api/domains/miniapp/constants/errors')
 const { DEV_ENVIRONMENT, PROD_ENVIRONMENT } = require('@dev-portal-api/domains/miniapp/constants/publishing')
-const { B2BApp } = require('@dev-portal-api/domains/miniapp/utils/serverSchema')
+const { B2BApp, B2BAppAccessRight, B2BAppAccessRightSet } = require('@dev-portal-api/domains/miniapp/utils/serverSchema')
 
+const { PERMISSION_FIELDS } = require('./B2BAppAccessRightSet')
 const { getEnvironmentalFieldsSelection, getEnvironmentalFieldName } = require('./fields/environmental')
 
 
@@ -50,7 +55,10 @@ const ENVIRONMENTAL_FIELDS = [
         .map((permission) => ({ from: getDevicePermissionFieldName(permission), to: getDevicePermissionFieldName(permission).substring(2) })),
 ]
 
-const CondoB2BAppGQL = generateGqlQueries('B2BApp', `{ id name developer developerUrl shortDescription detailedDescription category contextDefaultStatus logo { publicUrl filename mimetype encoding } ${ENVIRONMENTAL_FIELDS.filter(f => !f.from.includes('.')).map(f => f.from).join(' ')} oidcClient { id } }`)
+const CondoB2BAppGQL = generateGqlQueries('B2BApp', `{ id name developer developerUrl shortDescription detailedDescription category contextDefaultStatus logo { publicUrl filename mimetype encoding } ${ENVIRONMENTAL_FIELDS.filter(f => !f.from.includes('.')).map(f => f.from).join(' ')} oidcClient { id importId importRemoteSystem } }`)
+const CondoB2BAppAccessRightGQL = generateGqlQueries('B2BAppAccessRight', `{ id user { id } accessRightSet { id ${Object.keys(PERMISSION_FIELDS).join(' ')} } }`)
+const CondoB2BAppAccessRightSetGQL = generateGqlQueries('B2BAppAccessRightSet', '{ id }')
+const CondoOIDCClientGQL = generateGqlQueries('OidcClient', '{ id }')
 
 async function resolveConflicts ({ args, context }) {
     const {
@@ -214,13 +222,26 @@ async function importAppInfo ({ args, context }) {
 
     const queue = []
     if (prodApp) {
-        queue.push({ environment: PROD_ENVIRONMENT, app: prodApp })
+        queue.push({ environment: PROD_ENVIRONMENT, app: prodApp, client: productionClient })
     }
     if (devApp) {
-        queue.push({ environment: DEV_ENVIRONMENT, app: devApp })
+        queue.push({ environment: DEV_ENVIRONMENT, app: devApp, client: developmentClient })
     }
 
-    for (const { environment, app } of queue) {
+    for (const { environment, app, client } of queue) {
+        if (app?.oidcClient?.id && !app.oidcClient?.importId) {
+            await client.updateModel({
+                modelGql: CondoOIDCClientGQL,
+                id: app.oidcClient.id,
+                updateInput: {
+                    dv,
+                    sender,
+                    importId: appId,
+                    importRemoteSystem: REMOTE_SYSTEM,
+                },
+            })
+        }
+
         for (const { from, to } of ENVIRONMENTAL_FIELDS) {
             const toFieldName = getEnvironmentalFieldName(environment, to)
             updatePayload[toFieldName] = get(app, from, null)
@@ -231,6 +252,106 @@ async function importAppInfo ({ args, context }) {
     }
 
     return await B2BApp.update(context, appId, updatePayload)
+}
+
+async function _importAppAccessRightFromEnvironment ({ condoAppId, args, environment, context }) {
+    const { data: { dv, sender, to: { app: { id: appId } } } } = args
+    const exportField = `${environment}ExportId`
+
+    const serverClient = environment === PROD_ENVIRONMENT
+        ? productionClient
+        : developmentClient
+
+    const accessRights = await serverClient.getModels({
+        modelGql: CondoB2BAppAccessRightGQL,
+        where: { app: { id: condoAppId } },
+        first: 1,
+    })
+
+    if (!accessRights.length) return
+
+    const condoAccessRight = accessRights[0]
+    const condoAccessRightSet = condoAccessRight?.accessRightSet
+
+    // STEP 1. Access rights section
+    const existingAccessRight = await getByCondition('B2BAppAccessRight', {
+        deletedAt: null,
+        app: { id: appId },
+        environment,
+    })
+    if (existingAccessRight) {
+        await B2BAppAccessRight.softDelete(context, existingAccessRight.id, 'id', {
+            dv,
+            sender,
+        })
+    }
+
+    const newAccessRight = await B2BAppAccessRight.create(context, {
+        dv,
+        sender,
+        condoUserId: condoAccessRight.user.id,
+        app: { connect: { id: appId } },
+        environment,
+        [exportField]: condoAccessRight.id,
+    })
+    await serverClient.updateModel({
+        modelGql: CondoB2BAppAccessRightGQL,
+        id: condoAccessRight.id,
+        updateInput: {
+            dv,
+            sender,
+            importId: newAccessRight.id,
+            importRemoteSystem: REMOTE_SYSTEM,
+        },
+    })
+
+    // STEP 2. Access rights set section
+    if (!condoAccessRightSet) return
+
+    const permissions = pick(condoAccessRightSet, Object.keys(PERMISSION_FIELDS))
+
+    const newRightSet = await B2BAppAccessRightSet.create(context, {
+        dv,
+        sender,
+        app: { connect: { id: appId } },
+        status: B2B_APP_ACCESS_RIGHT_SET_APPROVED_STATUS,
+        environment,
+        [exportField]: condoAccessRight.id,
+        ...permissions,
+    })
+    await serverClient.updateModel({
+        modelGql: CondoB2BAppAccessRightSetGQL,
+        id: condoAccessRightSet.id,
+        updateInput: {
+            dv,
+            sender,
+            importId: newRightSet.id,
+            importRemoteSystem: REMOTE_SYSTEM,
+        },
+    })
+}
+
+async function importRightSets ({ args, context }) {
+    const developmentAppId = get(args, ['data', 'from', 'developmentApp', 'id'])
+    const productionAppId = get(args, ['data', 'from', 'productionApp', 'id'])
+
+    if (developmentAppId) {
+        await _importAppAccessRightFromEnvironment({
+            condoAppId: developmentAppId,
+            environment: DEV_ENVIRONMENT,
+            args,
+            context,
+        })
+    }
+
+    if (productionAppId) {
+        await _importAppAccessRightFromEnvironment({
+            condoAppId: productionAppId,
+            environment: PROD_ENVIRONMENT,
+            args,
+            context,
+        })
+    }
 }
 
 const ImportB2BAppService = new GQLCustomSchema('ImportB2BAppService', {
@@ -269,6 +390,9 @@ const ImportB2BAppService = new GQLCustomSchema('ImportB2BAppService', {
 
                 // Step 1. App info sync
                 await importAppInfo({ args, context })
+
+                // Step 2. Right sets info
+                await importRightSets({ args, context })
                 
                 return {
                     success: true,

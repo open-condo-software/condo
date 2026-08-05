@@ -137,5 +137,6 @@ const B2BAppAccessRightSet = new GQLListSchema('B2BAppAccessRightSet', {
 })
 
 module.exports = {
+    PERMISSION_FIELDS,
     B2BAppAccessRightSet,
 }
