@@ -449,6 +449,65 @@ describe('crossSourceSelectSql', () => {
             expect(harness.invocations.whereNotIn).toEqual([])
         })
 
+        test('rewrites Message user:{id} filter onto local FK (no remote query)', async () => {
+            const sql = keystoneSelectWithFkJoin({
+                extraWhere: '"t0__user"."id" = \'2456eeea-d59a-446d-88fa-cdc2e58665ea\'',
+            })
+            const harness = createPoolHarness()
+
+            const rewritten = await planCrossPoolSelect({
+                sql,
+                baseTableName: 'Message',
+                sqlOperationName: 'select',
+                routeToPool: harness.routeToPool,
+                getPoolName: harness.getPoolName,
+            })
+
+            expect(rewritten).toBeTruthy()
+            const normalized = normalizeSqlForCompare(rewritten)
+            expect(normalized).not.toContain('join')
+            expect(normalized).toContain('"t0"."user" = \'2456eeea-d59a-446d-88fa-cdc2e58665ea\'')
+            expect(harness.invocations.where).toEqual([])
+            expect(harness.invocations.whereIn).toEqual([])
+        })
+
+        test('rewrites Message user:{id_in} filter onto local FK', async () => {
+            const sql = keystoneSelectWithFkJoin({
+                extraWhere: '"t0__user"."id" in (\'user-a\', \'user-b\')',
+            })
+            const harness = createPoolHarness()
+
+            const rewritten = await planCrossPoolSelect({
+                sql,
+                baseTableName: 'Message',
+                sqlOperationName: 'select',
+                routeToPool: harness.routeToPool,
+                getPoolName: harness.getPoolName,
+            })
+
+            expect(rewritten).toBeTruthy()
+            const normalized = normalizeSqlForCompare(rewritten)
+            expect(normalized).not.toContain('join')
+            expect(normalized).toContain('"t0"."user" in (\'user-a\', \'user-b\')')
+        })
+
+        test('fails closed when join filters use unresolved positional $N placeholders', async () => {
+            // planCrossPoolSelect must receive interpolated SQL (builder.toString()).
+            // Positional SQL cannot extract join predicates or be executed via .raw() without bindings.
+            const sql = keystoneSelectWithFkJoin({
+                extraWhere: '"t0__user"."id" = $1',
+            })
+            const harness = createPoolHarness()
+
+            await expect(planCrossPoolSelect({
+                sql,
+                baseTableName: 'Message',
+                sqlOperationName: 'select',
+                routeToPool: harness.routeToPool,
+                getPoolName: harness.getPoolName,
+            })).rejects.toThrow(/Filters on the joined alias are required/)
+        })
+
         test('returns null when all JOINs are same-pool (original SQL is safe)', async () => {
             const sql = keystoneSelectWithFkJoin({
                 extraWhere: '"t0__user"."name" ilike \'%Ann%\'',
