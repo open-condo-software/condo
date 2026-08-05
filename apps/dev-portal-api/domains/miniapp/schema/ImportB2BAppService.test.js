@@ -80,6 +80,26 @@ describe('ImportB2BAppService', () => {
         })
     })
     describe('Logic tests', () => {
+        describe('Basic checks', () => {
+            test('Must throw on empty "from" input', async () => {
+                const [app] = await createTestB2BApp(user)
+                await expectToThrowGQLErrorToResult(async () => {
+                    await importB2BAppByTestClient(support, app, null, null)
+                }, {
+                    code: 'BAD_USER_INPUT',
+                    type: 'ARG_NOT_SPECIFIED',
+                })
+            })
+            test('Must throw on invalid "to" input', async () => {
+                const [condoApp] = await createCondoB2BApp(condoAdmin)
+                await expectToThrowGQLErrorToResult(async () => {
+                    await importB2BAppByTestClient(support, { id: faker.datatype.uuid() }, condoApp, null)
+                }, {
+                    code: 'BAD_USER_INPUT',
+                    type: 'APP_NOT_FOUND',
+                })
+            })
+        })
         describe('App info', () => {
             let devPermissions
             let prodPermissions
@@ -223,8 +243,12 @@ describe('ImportB2BAppService', () => {
 
                 const devRight = await B2BAppAccessRight.getOne(support, { app: { id: app.id }, environment: DEV_ENVIRONMENT })
                 expect(devRight).toHaveProperty('condoUserId', condoDevRight.user.id)
+                expect(devRight).toHaveProperty('developmentExportId', condoDevRight.id)
+                expect(devRight).toHaveProperty('productionExportId', null)
                 const devRightSet = await B2BAppAccessRightSet.getOne(support, { app: { id: app.id }, environment: DEV_ENVIRONMENT })
                 expect(devRightSet).toHaveProperty('status', B2B_APP_ACCESS_RIGHT_SET_APPROVED_STATUS)
+                expect(devRightSet).toHaveProperty('developmentExportId', condoDevRight.accessRightSet.id)
+                expect(devRightSet).toHaveProperty('productionExportId', null)
                 expect(devRightSet).toEqual(expect.objectContaining(devPermissions))
                 const condoDevRightAfter = await CondoB2BAppAccessRight.getOne(condoAdmin, { id: condoDevRight.id })
                 expect(condoDevRightAfter).toHaveProperty('importId', devRight.id)
@@ -234,8 +258,12 @@ describe('ImportB2BAppService', () => {
 
                 const prodRight = await B2BAppAccessRight.getOne(support, { app: { id: app.id }, environment: PROD_ENVIRONMENT })
                 expect(prodRight).toHaveProperty('condoUserId', condoProdRight.user.id)
+                expect(prodRight).toHaveProperty('developmentExportId', null)
+                expect(prodRight).toHaveProperty('productionExportId', condoProdRight.id)
                 const prodRightSet = await B2BAppAccessRightSet.getOne(support, { app: { id: app.id }, environment: PROD_ENVIRONMENT })
                 expect(prodRightSet).toHaveProperty('status', B2B_APP_ACCESS_RIGHT_SET_APPROVED_STATUS)
+                expect(prodRightSet).toHaveProperty('developmentExportId', null)
+                expect(prodRightSet).toHaveProperty('productionExportId', condoProdRight.accessRightSet.id)
                 expect(prodRightSet).toEqual(expect.objectContaining(prodPermissions))
                 const condoProdRightAfter = await CondoB2BAppAccessRight.getOne(condoAdmin, { id: condoProdRight.id })
                 expect(condoProdRightAfter).toHaveProperty('importId', prodRight.id)

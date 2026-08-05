@@ -20,7 +20,7 @@ const { MULTIPLE_FOUND } = require('@dev-portal-api/domains/common/constants/err
 const { developmentClient, productionClient } = require('@dev-portal-api/domains/common/utils/serverClients')
 const access = require('@dev-portal-api/domains/miniapp/access/ImportB2BAppService')
 const { B2B_APP_ACCESS_RIGHT_SET_APPROVED_STATUS } = require('@dev-portal-api/domains/miniapp/constants/b2bAppAccessRightSet')
-const { APP_NOT_FOUND } = require('@dev-portal-api/domains/miniapp/constants/errors')
+const { APP_NOT_FOUND, ARG_NOT_SPECIFIED } = require('@dev-portal-api/domains/miniapp/constants/errors')
 const { DEV_ENVIRONMENT, PROD_ENVIRONMENT } = require('@dev-portal-api/domains/miniapp/constants/publishing')
 const { B2BApp, B2BAppAccessRight, B2BAppAccessRightSet, B2BAppPublishRequest } = require('@dev-portal-api/domains/miniapp/utils/serverSchema')
 
@@ -31,6 +31,16 @@ const { PUBLISH_REQUEST_APPROVED_STATUS } = require('../constants/publishing')
 
 
 const ERRORS = {
+    APP_NOT_FOUND: {
+        code: BAD_USER_INPUT,
+        type: APP_NOT_FOUND,
+        message: 'No app with specified ID found on dev portal',
+    },
+    FROM_NOT_SPECIFIED: {
+        code: BAD_USER_INPUT,
+        type: ARG_NOT_SPECIFIED,
+        message: 'No apps specified for "from" field',
+    },
     DEV_APP_NOT_FOUND: {
         code: BAD_USER_INPUT,
         type: APP_NOT_FOUND,
@@ -318,7 +328,7 @@ async function _importAppAccessRightFromEnvironment ({ condoAppId, args, environ
         app: { connect: { id: appId } },
         status: B2B_APP_ACCESS_RIGHT_SET_APPROVED_STATUS,
         environment,
-        [exportField]: condoAccessRight.id,
+        [exportField]: condoAccessRightSet.id,
         ...permissions,
     })
     await serverClient.updateModel({
@@ -361,7 +371,6 @@ async function allowPublishing ({ args, context }) {
         data: {
             dv,
             sender,
-            from,
             to: { app: { id: appId } },
         },
     } = args
@@ -421,6 +430,22 @@ const ImportB2BAppService = new GQLCustomSchema('ImportB2BAppService', {
             access: access.canImportB2BApp,
             schema: 'importB2BApp(data: ImportB2BAppInput!): ImportB2BAppOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
+                const {
+                    data: {
+                        to: { app: { id: appId } },
+                    },
+                } = args
+
+                const developmentAppId = get(args, ['data', 'from', 'developmentApp', 'id'])
+                const productionAppId = get(args, ['data', 'from', 'productionApp', 'id'])
+                if (!developmentAppId && !productionAppId) {
+                    throw new GQLError(ERRORS.FROM_NOT_SPECIFIED, context)
+                }
+
+                const app = await B2BApp.getOne(context, { id: appId, deletedAt: null }, 'id')
+                if (!app) {
+                    throw new GQLError(ERRORS.APP_NOT_FOUND, context)
+                }
 
                 // Step 0. Resolve conflicts if necessary (app was already published for some reason)
                 await resolveConflicts({ args, context })
