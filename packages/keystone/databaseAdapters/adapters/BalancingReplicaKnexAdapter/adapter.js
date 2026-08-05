@@ -94,10 +94,13 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
         throw new Error('None of routing rule matched SQL-query')
     }
 
-    /** Route a raw SQL string using GraphQL context from async local storage. */
-    _selectTargetPool (sql) {
+    /** Route a raw SQL string using GraphQL context from async local storage.
+     * @param {string} sql
+     * @param {{ sqlOperationName?: string, tableName?: string|null }|null} [preParsed] skip re-parsing when already known
+     */
+    _selectTargetPool (sql, preParsed = null) {
         const gqlContext = graphqlCtx.getStore()
-        const { sqlOperationName, tableName } = extractCRUDQueryData(sql)
+        const { sqlOperationName, tableName } = preParsed || extractCRUDQueryData(sql)
         const routedPool = this._routeToPool({
             gqlOperationType: get(gqlContext, 'gqlOperationType'),
             gqlOperationName: get(gqlContext, 'gqlOperationName'),
@@ -145,7 +148,14 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
 
     /** @param {KnexPool} pool */
     _getPoolName (pool) {
-        return Object.entries(this._replicaPools).find(([, candidate]) => candidate === pool)?.[0]
+        if (!pool) return undefined
+        if (!this._poolNameByPool) {
+            this._poolNameByPool = new WeakMap()
+            for (const [name, candidate] of Object.entries(this._replicaPools || {})) {
+                this._poolNameByPool.set(candidate, name)
+            }
+        }
+        return this._poolNameByPool.get(pool)
     }
 
     /** @returns {Promise<Record<string, Set<string>>>} table names per pool (source registry) */
@@ -252,7 +262,7 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
      *   (`undefined` only when rewrite is not needed: no JOIN or all JOINs same-pool)
      */
     async _tryCrossPoolSelectRewrite ({
-        builder,
+        sql,
         selectedPool,
         finalTableName,
         finalSqlOperationName,
@@ -264,7 +274,7 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
         if (!listHasCrossSourceOutbound(this, finalTableName)) return undefined
 
         const plannedSql = await planCrossPoolSelect({
-            sql: builder.toString(),
+            sql,
             baseTableName: finalTableName,
             gqlOperationType,
             gqlOperationName,
@@ -360,8 +370,8 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
                 }
 
                 const sqlQueryWithPositionalBindings = this.knex.client.positionBindings(sqlObject.sql)
-                const { sqlOperationName: finalSqlOperationName, tableName: finalTableName } =
-                    extractCRUDQueryData(sqlQueryWithPositionalBindings)
+                const crudQueryData = extractCRUDQueryData(sqlQueryWithPositionalBindings)
+                const { sqlOperationName: finalSqlOperationName, tableName: finalTableName } = crudQueryData
 
                 // Cross-db gates as early as possible (cached hints) — before pool pick / wrap.
                 const needsCrossSourceValidation = this._needsCrossSourceValidation(
@@ -376,7 +386,7 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
                 const gqlOperationType = get(gqlContext, 'gqlOperationType')
                 const gqlOperationName = get(gqlContext, 'gqlOperationName')
 
-                const selectedPool = this._selectTargetPool(sqlQueryWithPositionalBindings)
+                const selectedPool = this._selectTargetPool(sqlQueryWithPositionalBindings, crudQueryData)
 
                 if (selectedPool instanceof ProviderPool) {
                     return this._createProviderSqlRunner({
@@ -402,7 +412,7 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
                     let primaryResult
                     if (needsSelectRewrite) {
                         primaryResult = await this._tryCrossPoolSelectRewrite({
-                            builder,
+                            sql: sqlQueryWithPositionalBindings,
                             selectedPool,
                             finalTableName,
                             finalSqlOperationName,
@@ -428,7 +438,10 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
                 return primaryRunner
             } catch (err) {
                 logger.error({ msg: 'unexpected error during SQL query routing', err })
-                throw new Error(`Unexpected error happened during SQL query routing: ${String(err)}`)
+                throw new Error(
+                    `Unexpected error happened during SQL query routing: ${err?.message || String(err)}`,
+                    { cause: err },
+                )
             }
         }
     }
@@ -447,6 +460,7 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
             }),
         )
         this._poolTables = await this._initPoolTables()
+        this._poolNameByPool = null
 
         this._sourceRegistry = createPoolBasedSourceRegistry({
             poolTables: this._poolTables,

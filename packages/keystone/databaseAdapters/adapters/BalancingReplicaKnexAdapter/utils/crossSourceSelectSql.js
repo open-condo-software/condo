@@ -653,15 +653,17 @@ function _andWhereCondition (where, conditionSql) {
  * Rewrite a cross-pool SELECT: drop JOINs and replace alias filters with `base.fk IN (...)`
  * (or direct FK predicates when the join only filtered related `id`).
  *
- * @param {string} sqlString original SELECT SQL
+ * @param {string|object} sqlStringOrAst original SELECT SQL, or an already-parsed select AST (mutated)
  * @param {{ joinRewrites?: Array<{ alias: string, fkExpression: string, ids?: string[]|null, stripJoinOnly?: boolean, applyIdPredicatesOnFk?: boolean }> }} options
  * @returns {string|null} rewritten SQL, or `null` when nothing changed
  * @throws {Error} when OR conditions on a join alias make rewrite unsafe
  */
-function rewriteCrossSourceSelectSql (sqlString, { joinRewrites = [] } = {}) {
+function rewriteCrossSourceSelectSql (sqlStringOrAst, { joinRewrites = [] } = {}) {
     if (!joinRewrites.length) return null
 
-    const parsedQuery = _parseSelectQuery(sqlString)
+    const parsedQuery = typeof sqlStringOrAst === 'string'
+        ? _parseSelectQuery(sqlStringOrAst)
+        : sqlStringOrAst
     const targetQuery = _resolveSelectTargetAst(parsedQuery)
     let changed = false
 
@@ -727,8 +729,7 @@ function normalizeSqlForCompare (sqlString) {
 }
 
 /** Max ids allowed when resolving a cross-pool JOIN (`CROSS_DB_JOIN_FILTER_IDS_LIMIT`). */
-const CROSS_DB_JOIN_IDS_HARD_LIMIT = Number(conf.CROSS_DB_JOIN_FILTER_IDS_LIMIT) ||
-    Number(conf.CROSS_DB_RELATION_FILTER_IDS_LIMIT) || 10000
+const CROSS_DB_JOIN_IDS_HARD_LIMIT = Number(conf.CROSS_DB_JOIN_FILTER_IDS_LIMIT) || 10000
 
 /**
  * Apply a parsed join predicate to a Knex query builder on the remote table.
@@ -944,7 +945,7 @@ async function planCrossPoolSelect ({
     // All JOINs were same-pool — original SQL is safe on the base table's pool.
     if (!joinRewrites.length) return null
 
-    const rewritten = rewriteCrossSourceSelectSql(sql, { joinRewrites })
+    const rewritten = rewriteCrossSourceSelectSql(parsedQuery, { joinRewrites })
     if (!rewritten) {
         throw new Error(
             `Cross-pool JOIN rewrite produced no SQL for base table "${baseTable}". ` +
