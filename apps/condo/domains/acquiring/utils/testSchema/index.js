@@ -78,8 +78,8 @@ const { createTestProperty } = require('@condo/domains/property/utils/testSchema
 const { createTestResident, createTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-const { ALL_CARD_BINDINGS_MUTATION } = require('@condo/domains/acquiring/gql')
 const { DELETE_CARD_BINDING_MUTATION } = require('@condo/domains/acquiring/gql')
+const { ALL_CARD_BINDINGS_QUERY } = require("@condo/domains/acquiring/gql");
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateGQLTestUtils(AcquiringIntegrationGQL)
@@ -663,27 +663,15 @@ async function registerExternalPaymentsByTestClient (client, extraAttrs = {}) {
 
 async function allCardBindingsByTestClient(client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    const attrs = {
-        dv: 1,
-        sender,
-        ...extraAttrs,
-    }
-    const { data, errors } = await client.mutate(ALL_CARD_BINDINGS_MUTATION, { data: attrs })
-    throwIfError(data, errors)
-    return [data.result, attrs]
+    const { data, errors } = await client.query(ALL_CARD_BINDINGS_QUERY, { data: extraAttrs })
+    throwIfError(data, errors, { query: ALL_CARD_BINDINGS_QUERY, variables: { data: extraAttrs } })
+    return [data.result, extraAttrs]
 }
 
-async function deleteCardBindingByTestClient(client, extraAttrs = {}) {
+async function deleteCardBindingByTestClient(client, attrs = {}) {
     if (!client) throw new Error('no client')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    const attrs = {
-        dv: 1,
-        sender,
-        ...extraAttrs,
-    }
     const { data, errors } = await client.mutate(DELETE_CARD_BINDING_MUTATION, { data: attrs })
     throwIfError(data, errors)
     return [data.result, attrs]

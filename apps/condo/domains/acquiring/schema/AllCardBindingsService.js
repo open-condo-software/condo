@@ -8,8 +8,7 @@ const access = require('@condo/domains/acquiring/access/AllCardBindingsService')
 const {
     fetchCardTokens,
     deduplicateCardTokens,
-} = require('@condo/domains/acquiring/utils/serverSchema/allCardBinding/utils')
-
+} = require('@condo/domains/acquiring/utils/serverSchema/allCardBindings/utils')
 
 const AllCardBindingsService = new GQLCustomSchema('AllCardBindingsService', {
     types: [
@@ -26,7 +25,7 @@ const AllCardBindingsService = new GQLCustomSchema('AllCardBindingsService', {
             type: `
                 type CardToken {
                     id: String!
-                    providers: [String!]!
+                    acquiringIntegrationIds: [String!]!
                     cardNumber: String!
                     paymentSystem: String!
                     expiration: String!
@@ -49,7 +48,7 @@ const AllCardBindingsService = new GQLCustomSchema('AllCardBindingsService', {
     queries: [
         {
             access: access.canAllCardBindings,
-            schema: 'allCardBindings(data: AllCardBindingsInput!): AllCardBindingsOutput!',
+            schema: 'allCardBindings(data: AllCardBindingsInput!): AllCardBindingsOutput',
             resolver: async (parent, args) => {
                 const {
                     data: {
