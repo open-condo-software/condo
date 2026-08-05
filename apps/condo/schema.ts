@@ -3067,6 +3067,10 @@ export type B2BAppAccessRight = {
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']['output']>;
   id: Scalars['ID']['output'];
+  /**  ID of the object in the system from which it was imported  */
+  importId?: Maybe<Scalars['String']['output']>;
+  /**  Name of the system from which object was imported  */
+  importRemoteSystem?: Maybe<Scalars['String']['output']>;
   newId?: Maybe<Scalars['String']['output']>;
   /**  Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
@@ -3085,6 +3089,8 @@ export type B2BAppAccessRightCreateInput = {
   createdBy?: InputMaybe<UserRelateToOneInput>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
+  importId?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['String']['input']>;
   sender?: InputMaybe<SenderFieldInput>;
   updatedAt?: InputMaybe<Scalars['String']['input']>;
@@ -3114,6 +3120,8 @@ export type B2BAppAccessRightHistoryRecord = {
   history_date?: Maybe<Scalars['String']['output']>;
   history_id?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
+  importId?: Maybe<Scalars['String']['output']>;
+  importRemoteSystem?: Maybe<Scalars['String']['output']>;
   newId?: Maybe<Scalars['JSON']['output']>;
   sender?: Maybe<Scalars['JSON']['output']>;
   updatedAt?: Maybe<Scalars['String']['output']>;
@@ -3132,6 +3140,8 @@ export type B2BAppAccessRightHistoryRecordCreateInput = {
   history_action?: InputMaybe<B2BAppAccessRightHistoryRecordHistoryActionType>;
   history_date?: InputMaybe<Scalars['String']['input']>;
   history_id?: InputMaybe<Scalars['String']['input']>;
+  importId?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['JSON']['input']>;
   sender?: InputMaybe<Scalars['JSON']['input']>;
   updatedAt?: InputMaybe<Scalars['String']['input']>;
@@ -3156,6 +3166,8 @@ export type B2BAppAccessRightHistoryRecordUpdateInput = {
   history_action?: InputMaybe<B2BAppAccessRightHistoryRecordHistoryActionType>;
   history_date?: InputMaybe<Scalars['String']['input']>;
   history_id?: InputMaybe<Scalars['String']['input']>;
+  importId?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['JSON']['input']>;
   sender?: InputMaybe<Scalars['JSON']['input']>;
   updatedAt?: InputMaybe<Scalars['String']['input']>;
@@ -3223,6 +3235,42 @@ export type B2BAppAccessRightHistoryRecordWhereInput = {
   id_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   id_not?: InputMaybe<Scalars['ID']['input']>;
   id_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  importId?: InputMaybe<Scalars['String']['input']>;
+  importId_contains?: InputMaybe<Scalars['String']['input']>;
+  importId_contains_i?: InputMaybe<Scalars['String']['input']>;
+  importId_ends_with?: InputMaybe<Scalars['String']['input']>;
+  importId_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  importId_i?: InputMaybe<Scalars['String']['input']>;
+  importId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  importId_not?: InputMaybe<Scalars['String']['input']>;
+  importId_not_contains?: InputMaybe<Scalars['String']['input']>;
+  importId_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  importId_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  importId_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  importId_not_i?: InputMaybe<Scalars['String']['input']>;
+  importId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  importId_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  importId_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  importId_starts_with?: InputMaybe<Scalars['String']['input']>;
+  importId_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_contains?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_contains_i?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_ends_with?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_i?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  importRemoteSystem_not?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_not_contains?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_not_i?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  importRemoteSystem_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_starts_with?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['JSON']['input']>;
   newId_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
   newId_not?: InputMaybe<Scalars['JSON']['input']>;
@@ -3367,6 +3415,10 @@ export type B2BAppAccessRightSet = {
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']['output']>;
   id: Scalars['ID']['output'];
+  /**  ID of the object in the system from which it was imported  */
+  importId?: Maybe<Scalars['String']['output']>;
+  /**  Name of the system from which object was imported  */
+  importRemoteSystem?: Maybe<Scalars['String']['output']>;
   /**  Name for right set to distinguish it  */
   name?: Maybe<Scalars['String']['output']>;
   newId?: Maybe<Scalars['String']['output']>;
@@ -3439,6 +3491,8 @@ export type B2BAppAccessRightSetCreateInput = {
   createdBy?: InputMaybe<UserRelateToOneInput>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
+  importId?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['String']['input']>;
   sender?: InputMaybe<SenderFieldInput>;
@@ -3521,6 +3575,8 @@ export type B2BAppAccessRightSetHistoryRecord = {
   history_date?: Maybe<Scalars['String']['output']>;
   history_id?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
+  importId?: Maybe<Scalars['String']['output']>;
+  importRemoteSystem?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   newId?: Maybe<Scalars['JSON']['output']>;
   sender?: Maybe<Scalars['JSON']['output']>;
@@ -3592,6 +3648,8 @@ export type B2BAppAccessRightSetHistoryRecordCreateInput = {
   history_action?: InputMaybe<B2BAppAccessRightSetHistoryRecordHistoryActionType>;
   history_date?: InputMaybe<Scalars['String']['input']>;
   history_id?: InputMaybe<Scalars['String']['input']>;
+  importId?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['JSON']['input']>;
   sender?: InputMaybe<Scalars['JSON']['input']>;
@@ -3669,6 +3727,8 @@ export type B2BAppAccessRightSetHistoryRecordUpdateInput = {
   history_action?: InputMaybe<B2BAppAccessRightSetHistoryRecordHistoryActionType>;
   history_date?: InputMaybe<Scalars['String']['input']>;
   history_id?: InputMaybe<Scalars['String']['input']>;
+  importId?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['JSON']['input']>;
   sender?: InputMaybe<Scalars['JSON']['input']>;
@@ -3839,6 +3899,42 @@ export type B2BAppAccessRightSetHistoryRecordWhereInput = {
   id_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   id_not?: InputMaybe<Scalars['ID']['input']>;
   id_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  importId?: InputMaybe<Scalars['String']['input']>;
+  importId_contains?: InputMaybe<Scalars['String']['input']>;
+  importId_contains_i?: InputMaybe<Scalars['String']['input']>;
+  importId_ends_with?: InputMaybe<Scalars['String']['input']>;
+  importId_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  importId_i?: InputMaybe<Scalars['String']['input']>;
+  importId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  importId_not?: InputMaybe<Scalars['String']['input']>;
+  importId_not_contains?: InputMaybe<Scalars['String']['input']>;
+  importId_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  importId_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  importId_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  importId_not_i?: InputMaybe<Scalars['String']['input']>;
+  importId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  importId_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  importId_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  importId_starts_with?: InputMaybe<Scalars['String']['input']>;
+  importId_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_contains?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_contains_i?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_ends_with?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_i?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  importRemoteSystem_not?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_not_contains?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_not_i?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  importRemoteSystem_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_starts_with?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   name_contains?: InputMaybe<Scalars['String']['input']>;
   name_contains_i?: InputMaybe<Scalars['String']['input']>;
@@ -3989,6 +4085,8 @@ export type B2BAppAccessRightSetUpdateInput = {
   createdBy?: InputMaybe<UserRelateToOneInput>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
+  importId?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['String']['input']>;
   sender?: InputMaybe<SenderFieldInput>;
@@ -4139,6 +4237,42 @@ export type B2BAppAccessRightSetWhereInput = {
   id_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   id_not?: InputMaybe<Scalars['ID']['input']>;
   id_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  importId?: InputMaybe<Scalars['String']['input']>;
+  importId_contains?: InputMaybe<Scalars['String']['input']>;
+  importId_contains_i?: InputMaybe<Scalars['String']['input']>;
+  importId_ends_with?: InputMaybe<Scalars['String']['input']>;
+  importId_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  importId_i?: InputMaybe<Scalars['String']['input']>;
+  importId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  importId_not?: InputMaybe<Scalars['String']['input']>;
+  importId_not_contains?: InputMaybe<Scalars['String']['input']>;
+  importId_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  importId_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  importId_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  importId_not_i?: InputMaybe<Scalars['String']['input']>;
+  importId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  importId_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  importId_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  importId_starts_with?: InputMaybe<Scalars['String']['input']>;
+  importId_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_contains?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_contains_i?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_ends_with?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_i?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  importRemoteSystem_not?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_not_contains?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_not_i?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  importRemoteSystem_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_starts_with?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   name_contains?: InputMaybe<Scalars['String']['input']>;
   name_contains_i?: InputMaybe<Scalars['String']['input']>;
@@ -4209,6 +4343,8 @@ export type B2BAppAccessRightUpdateInput = {
   createdBy?: InputMaybe<UserRelateToOneInput>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
+  importId?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['String']['input']>;
   sender?: InputMaybe<SenderFieldInput>;
   updatedAt?: InputMaybe<Scalars['String']['input']>;
@@ -4254,6 +4390,42 @@ export type B2BAppAccessRightWhereInput = {
   id_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   id_not?: InputMaybe<Scalars['ID']['input']>;
   id_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  importId?: InputMaybe<Scalars['String']['input']>;
+  importId_contains?: InputMaybe<Scalars['String']['input']>;
+  importId_contains_i?: InputMaybe<Scalars['String']['input']>;
+  importId_ends_with?: InputMaybe<Scalars['String']['input']>;
+  importId_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  importId_i?: InputMaybe<Scalars['String']['input']>;
+  importId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  importId_not?: InputMaybe<Scalars['String']['input']>;
+  importId_not_contains?: InputMaybe<Scalars['String']['input']>;
+  importId_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  importId_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  importId_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  importId_not_i?: InputMaybe<Scalars['String']['input']>;
+  importId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  importId_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  importId_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  importId_starts_with?: InputMaybe<Scalars['String']['input']>;
+  importId_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_contains?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_contains_i?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_ends_with?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_i?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  importRemoteSystem_not?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_not_contains?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_not_i?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  importRemoteSystem_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_starts_with?: InputMaybe<Scalars['String']['input']>;
+  importRemoteSystem_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['String']['input']>;
   newId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   newId_not?: InputMaybe<Scalars['String']['input']>;
@@ -92912,6 +93084,10 @@ export enum SortB2BAppAccessRightHistoryRecordsBy {
   HistoryDateDesc = 'history_date_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
+  ImportIdAsc = 'importId_ASC',
+  ImportIdDesc = 'importId_DESC',
+  ImportRemoteSystemAsc = 'importRemoteSystem_ASC',
+  ImportRemoteSystemDesc = 'importRemoteSystem_DESC',
   UpdatedAtAsc = 'updatedAt_ASC',
   UpdatedAtDesc = 'updatedAt_DESC',
   VAsc = 'v_ASC',
@@ -93037,6 +93213,10 @@ export enum SortB2BAppAccessRightSetHistoryRecordsBy {
   HistoryDateDesc = 'history_date_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
+  ImportIdAsc = 'importId_ASC',
+  ImportIdDesc = 'importId_DESC',
+  ImportRemoteSystemAsc = 'importRemoteSystem_ASC',
+  ImportRemoteSystemDesc = 'importRemoteSystem_DESC',
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
   TypeAsc = 'type_ASC',
@@ -93166,6 +93346,10 @@ export enum SortB2BAppAccessRightSetsBy {
   DvDesc = 'dv_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
+  ImportIdAsc = 'importId_ASC',
+  ImportIdDesc = 'importId_DESC',
+  ImportRemoteSystemAsc = 'importRemoteSystem_ASC',
+  ImportRemoteSystemDesc = 'importRemoteSystem_DESC',
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
   TypeAsc = 'type_ASC',
@@ -93193,6 +93377,10 @@ export enum SortB2BAppAccessRightsBy {
   DvDesc = 'dv_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
+  ImportIdAsc = 'importId_ASC',
+  ImportIdDesc = 'importId_DESC',
+  ImportRemoteSystemAsc = 'importRemoteSystem_ASC',
+  ImportRemoteSystemDesc = 'importRemoteSystem_DESC',
   UpdatedAtAsc = 'updatedAt_ASC',
   UpdatedAtDesc = 'updatedAt_DESC',
   UpdatedByAsc = 'updatedBy_ASC',
