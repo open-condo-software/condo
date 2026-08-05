@@ -64,12 +64,6 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
             isRequired: false,
         },
 
-        cardGroup: {
-            schemaDoc: 'Logical group of card bindings returned by this acquiring integration',
-            type: 'Text',
-            isRequired: false,
-        },
-
         accessRights: {
             type: 'Relationship',
             ref: 'AcquiringIntegrationAccessRight.integration',
