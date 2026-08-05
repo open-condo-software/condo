@@ -262,7 +262,7 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
      *   (`undefined` only when rewrite is not needed: no JOIN or all JOINs same-pool)
      */
     async _tryCrossPoolSelectRewrite ({
-        sql,
+        builder,
         selectedPool,
         finalTableName,
         finalSqlOperationName,
@@ -273,8 +273,11 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
         // Main-only lists never JOIN another pool from the base table.
         if (!listHasCrossSourceOutbound(this, finalTableName)) return undefined
 
+        // Must use interpolated SQL (`builder.toString()`), not positional `$N` SQL:
+        // predicate extraction needs literal values, and the rewritten query is run via
+        // `.raw(plannedSql)` without bindings.
         const plannedSql = await planCrossPoolSelect({
-            sql,
+            sql: builder.toString(),
             baseTableName: finalTableName,
             gqlOperationType,
             gqlOperationName,
@@ -412,7 +415,7 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
                     let primaryResult
                     if (needsSelectRewrite) {
                         primaryResult = await this._tryCrossPoolSelectRewrite({
-                            sql: sqlQueryWithPositionalBindings,
+                            builder,
                             selectedPool,
                             finalTableName,
                             finalSqlOperationName,
