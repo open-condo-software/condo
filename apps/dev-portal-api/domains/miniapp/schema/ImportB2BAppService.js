@@ -22,10 +22,12 @@ const access = require('@dev-portal-api/domains/miniapp/access/ImportB2BAppServi
 const { B2B_APP_ACCESS_RIGHT_SET_APPROVED_STATUS } = require('@dev-portal-api/domains/miniapp/constants/b2bAppAccessRightSet')
 const { APP_NOT_FOUND } = require('@dev-portal-api/domains/miniapp/constants/errors')
 const { DEV_ENVIRONMENT, PROD_ENVIRONMENT } = require('@dev-portal-api/domains/miniapp/constants/publishing')
-const { B2BApp, B2BAppAccessRight, B2BAppAccessRightSet } = require('@dev-portal-api/domains/miniapp/utils/serverSchema')
+const { B2BApp, B2BAppAccessRight, B2BAppAccessRightSet, B2BAppPublishRequest } = require('@dev-portal-api/domains/miniapp/utils/serverSchema')
 
 const { PERMISSION_FIELDS } = require('./B2BAppAccessRightSet')
 const { getEnvironmentalFieldsSelection, getEnvironmentalFieldName } = require('./fields/environmental')
+
+const { PUBLISH_REQUEST_APPROVED_STATUS } = require('../constants/publishing')
 
 
 const ERRORS = {
@@ -354,6 +356,42 @@ async function importRightSets ({ args, context }) {
     }
 }
 
+async function allowPublishing ({ args, context }) {
+    const {
+        data: {
+            dv,
+            sender,
+            from,
+            to: { app: { id: appId } },
+        },
+    } = args
+    const productionAppId = get(args, ['data', 'from', 'productionApp', 'id'])
+    if (!productionAppId) return
+
+    const publishPayload = {
+        dv,
+        sender,
+        status: PUBLISH_REQUEST_APPROVED_STATUS,
+        isAppTested: true,
+        isContractSigned: true,
+        isInfoApproved: true,
+    }
+
+    const existingRequest = await B2BAppPublishRequest.getOne(context, {
+        app: { id: appId },
+        deletedAt: null,
+    }, 'id status')
+
+    if (!existingRequest) {
+        await B2BAppPublishRequest.create(context, {
+            app: { connect: { id: appId } },
+            ...publishPayload,
+        })
+    } else if (existingRequest.status !== PUBLISH_REQUEST_APPROVED_STATUS) {
+        await B2BAppPublishRequest.update(context, existingRequest.id, publishPayload)
+    }
+}
+
 const ImportB2BAppService = new GQLCustomSchema('ImportB2BAppService', {
     types: [
         {
@@ -383,7 +421,6 @@ const ImportB2BAppService = new GQLCustomSchema('ImportB2BAppService', {
             access: access.canImportB2BApp,
             schema: 'importB2BApp(data: ImportB2BAppInput!): ImportB2BAppOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
-                // const { data: { dv, sender, options, to: { app: { id: appId } } } } = args
 
                 // Step 0. Resolve conflicts if necessary (app was already published for some reason)
                 await resolveConflicts({ args, context })
@@ -393,6 +430,9 @@ const ImportB2BAppService = new GQLCustomSchema('ImportB2BAppService', {
 
                 // Step 2. Right sets info
                 await importRightSets({ args, context })
+
+                // Step 3. Allow future publishing
+                await allowPublishing({ args, context })
                 
                 return {
                     success: true,

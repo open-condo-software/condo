@@ -183,6 +183,19 @@ describe('ImportB2BAppService', () => {
 
                 expect(updatedApp).toEqual(expect.objectContaining(expectedPayload))
             })
+            test('Condo OIDC client must be updated with importId / importRemoteSystem if not taken', async () => {
+                // TODO: write it
+            })
+        })
+        describe('B2BAppAccessRight + B2BAppAccessRightSet', () => {
+            test('Right set models must be created correctly', async () => {
+                // TODO: write it
+            })
+        })
+        describe('B2BAppPublishRequest', () => {
+            test('Publish request in approved status must be created if imported from production environment', async () => {
+                // TODO: write it
+            })
         })
         describe('Conflict policy', () => {
             describe.each(AVAILABLE_ENVIRONMENTS)('%p environment', (environment) => {
