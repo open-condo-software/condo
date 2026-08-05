@@ -1,7 +1,10 @@
+const { getLogger } = require('@open-condo/keystone/logging')
 const { find } = require('@open-condo/keystone/schema')
 
 const { ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE } = require('@condo/domains/acquiring/constants/integration')
 const { deleteUserCard } = require('@condo/domains/acquiring/utils/serverSchema/cardsOnlineInteraction')
+
+const logger = getLogger()
 
 async function deleteCardBinding (userId, cardId) {
     const acquiringIntegrations = await find('AcquiringIntegration', {
@@ -28,7 +31,7 @@ async function deleteCardBinding (userId, cardId) {
         }
 
         logger.error({
-            msg: 'Failed to delete card binding',
+            msg: 'failed to delete card binding',
             err: result.reason,
         })
     }

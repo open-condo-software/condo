@@ -1,4 +1,5 @@
 const { getLogger } = require('@open-condo/keystone/logging')
+const { find } = require('@open-condo/keystone/schema')
 
 const { ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE } = require('@condo/domains/acquiring/constants/integration')
 const { getUserCards } = require('@condo/domains/acquiring/utils/serverSchema/cardsOnlineInteraction')
@@ -18,7 +19,6 @@ async function fetchCardTokens (userId) {
             getUserCards(
                 integration.getUserCardsUrl,
                 userId,
-                integration.name,
                 integration.id,
             )
         )
@@ -33,7 +33,7 @@ async function fetchCardTokens (userId) {
         }
 
         logger.error({
-            msg: 'Failed to fetch card bindings',
+            msg: 'failed to fetch card bindings',
             err: result.reason,
         })
     }
@@ -50,13 +50,13 @@ function deduplicateCardTokens (cardTokens) {
         if (!existing) {
             deduplicated.set(card.id, {
                 ...card,
-                providers: [card.provider],
+                acquiringIntegrationIds: [card.acquiringIntegrationId],
             })
             continue
         }
 
-        if (!existing.providers.includes(card.provider)) {
-            existing.providers.push(card.provider)
+        if (!existing.acquiringIntegrationIds.includes(card.acquiringIntegrationId)) {
+            existing.acquiringIntegrationIds.push(card.acquiringIntegrationId)
         }
 
         existing.bankName ||= card.bankName
