@@ -3,13 +3,12 @@
  */
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
-async function canDeleteCardBinding ({ args: { data: { user: { id: userId, cardId } } }, authentication: { item: user } }) {
+async function canDeleteCardBinding ({ args: { data: { user: { id: userId }, cardId } }, authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
 
     return !!(userId && cardId)
-
 }
 
 /*

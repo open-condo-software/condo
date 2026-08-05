@@ -31,7 +31,7 @@ const DeleteCardBindingService = new GQLCustomSchema('DeleteCardBindingService',
     mutations: [
         {
             access: access.canDeleteCardBinding,
-            schema: 'deleteCardBinding(data: DeleteCardBindingInput!): DeleteCardBindingOutput!',
+            schema: 'deleteCardBinding(data: DeleteCardBindingInput!): DeleteCardBindingOutput',
             resolver: async (parent, args) => {
                 const {
                     data: {

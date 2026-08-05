@@ -3,7 +3,7 @@ const { getLogger } = require('@open-condo/keystone/logging')
 
 const logger = getLogger()
 
-async function getUserCards (url, userId, provider) {
+async function getUserCards (url, userId, acquiringIntegrationId) {
     try {
         const response = await fetch(url, {
             maxRetries: 5,
@@ -23,14 +23,14 @@ async function getUserCards (url, userId, provider) {
 
         return cardTokens.map(card => ({
             ...card,
-            provider,
+            acquiringIntegrationId,
         }))
     } catch (err) {
         logger.error({
-            msg: 'Failed to fetch card bindings',
+            msg: 'failed to fetch card bindings',
             err,
             data: {
-                provider,
+                acquiringIntegrationId,
                 url,
                 userId,
             },
@@ -40,7 +40,7 @@ async function getUserCards (url, userId, provider) {
     }
 }
 
-async function deleteUserCard (url, userId, cardId, provider) {
+async function deleteUserCard (url, userId, cardId, acquiringIntegrationId) {
     try {
         const response = await fetch(url, {
             maxRetries: 5,
@@ -65,7 +65,7 @@ async function deleteUserCard (url, userId, cardId, provider) {
             msg: 'Failed to delete card binding',
             err,
             data: {
-                provider,
+                acquiringIntegrationId,
                 url,
                 userId,
                 cardId,
