@@ -37,6 +37,7 @@ const {
     UPDATE_OIDC_CLIENT_URL_MUTATION,
     REGISTER_APP_USER_SERVICE_MUTATION,
 } = require('@dev-portal-api/domains/miniapp/gql')
+const { PERMISSION_FIELDS: B2B_APP_ACCESS_RIGHT_SET_PERMISSIONS } = require('@dev-portal-api/domains/miniapp/schema/fields/rightSetPermissions')
 const { getUploadingFile } = require('@open-condo/keystone/test.utils')
 const { DEV_ENVIRONMENT } = require('@dev-portal-api/domains/miniapp/constants/publishing')
 const { generateGqlQueries } = require("@open-condo/codegen/generate.gql")
@@ -65,6 +66,7 @@ const FAKE_B2C_APP_LOGO_PATH = path.resolve(conf.PROJECT_ROOT, 'apps/dev-portal-
 const B2B_APP_PERMISSION_FIELDS = getDevicePermissions({ listKey: 'B2BApp' }).map(getDevicePermissionFieldName).join(' ')
 const CondoB2BApp = generateGQLTestUtils(generateGqlQueries('B2BApp', `{ id name developer developerUrl shortDescription detailedDescription category contextDefaultStatus appUrl logo { publicUrl filename } importId importRemoteSystem deletedAt v oidcClient { id } ${B2B_APP_PERMISSION_FIELDS} }`))
 const CondoB2BAppContext = generateGQLTestUtils(generateGqlQueries('B2BAppContext', '{ id app { id } organization { id tin name } status createdAt }'))
+const CondoB2BAppAccessRight = generateGQLTestUtils(generateGqlQueries('B2BAppAccessRight', '{ id user { id } app { id } accessRightSet { id importId importRemoteSystem } importId importRemoteSystem }'))
 const CondoB2CApp = generateGQLTestUtils(generateGqlQueries('B2CApp', '{ id name developer logo { publicUrl filename } currentBuild { id } importId importRemoteSystem deletedAt v oidcClient { id } appUrl }'))
 const CondoB2CAppBuild = generateGQLTestUtils(generateGqlQueries('B2CAppBuild', '{ id version data { publicUrl } importId importRemoteSystem }'))
 const CondoB2CAppProperty = generateGQLTestUtils(generateGqlQueries('B2CAppProperty', '{ id address }'))
@@ -273,6 +275,34 @@ async function createCondoB2CAppAccessRight(client, condoApp, condoUser = null) 
     const obj =  await CondoB2CAppAccessRight.create(client, attrs)
 
     return [obj, attrs]
+}
+
+async function createCondoB2BAppAccessRight(client, condoApp) {
+    const [user] = await registerNewServiceUserByTestClient(client)
+
+    const permissions = Object.fromEntries(
+        Object.keys(B2B_APP_ACCESS_RIGHT_SET_PERMISSIONS).map(key => [key, faker.datatype.boolean()])
+    )
+
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        app: { connect: { id: condoApp.id } },
+        user: { connect: { id: user.id } },
+        accessRightSet: {
+            create: {
+                dv: 1,
+                sender,
+                app: { connect: { id: condoApp.id } },
+                ...permissions,
+            }
+        }
+    }
+    const obj = await CondoB2BAppAccessRight.create(client, attrs)
+
+    return [obj, attrs, permissions]
 }
 
 async function createTestB2BApp (client, extraAttrs = {}) {
@@ -865,6 +895,7 @@ async function importB2BAppByTestClient(client, app, condoDevApp = null, condoPr
 module.exports = {
     CondoB2BApp, createCondoB2BApp, updateCondoB2BApp,
     CondoB2BAppContext, createCondoB2BAppContexts,
+    CondoB2BAppAccessRight, createCondoB2BAppAccessRight,
 
     CondoB2CApp, createCondoB2CApp, updateCondoB2CApp,
     CondoB2CAppBuild, createCondoB2CAppBuild,

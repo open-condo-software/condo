@@ -10,6 +10,7 @@ const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 const { getDevicePermissions, getDevicePermissionFieldName } = require('@condo/domains/miniapp/schema/fields/devicePermissions')
 
 const { getEnvironmentalFieldsSelection } = require('./schema/fields/environmental')
+const { PERMISSION_FIELDS } = require('./schema/fields/rightSetPermissions')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 const EXPORT_FIELDS = getEnvironmentalFieldsSelection(['exportId'])
@@ -21,7 +22,7 @@ const B2BApp = generateGqlQueries('B2BApp', B2B_APP_FIELDS)
 const B2B_APP_ACCESS_RIGHT_FIELDS = `{ app { id } condoUserId condoUserEmail environment ${COMMON_FIELDS} ${EXPORT_FIELDS} }`
 const B2BAppAccessRight = generateGqlQueries('B2BAppAccessRight', B2B_APP_ACCESS_RIGHT_FIELDS)
 
-const B2B_APP_ACCESS_RIGHT_SET_FIELDS = `{ app { id } status environment diff { added removed } canManageContacts canReadContacts canReadProperties ${COMMON_FIELDS} }`
+const B2B_APP_ACCESS_RIGHT_SET_FIELDS = `{ app { id } status environment diff { added removed } ${Object.keys(PERMISSION_FIELDS).join(' ')} ${COMMON_FIELDS} }`
 const B2BAppAccessRightSet = generateGqlQueries('B2BAppAccessRightSet', B2B_APP_ACCESS_RIGHT_SET_FIELDS)
 
 

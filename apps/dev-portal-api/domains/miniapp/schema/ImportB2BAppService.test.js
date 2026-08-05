@@ -13,11 +13,18 @@ const {
 
 const { SMART_HOME_CATEGORY, BUSINESS_DEVELOPMENT_CATEGORY } = require('@condo/domains/miniapp/constants')
 const { getDevicePermissions, getDevicePermissionFieldName } = require('@condo/domains/miniapp/schema/fields/devicePermissions')
+const { createTestOidcClient } = require('@condo/domains/user/utils/testSchema')
 const { REMOTE_SYSTEM } = require('@dev-portal-api/domains/common/constants/common')
-const { PUBLISH_REQUEST_APPROVED_STATUS, AVAILABLE_ENVIRONMENTS, DEV_ENVIRONMENT } = require('@dev-portal-api/domains/miniapp/constants/publishing')
+const { B2B_APP_ACCESS_RIGHT_SET_APPROVED_STATUS } = require('@dev-portal-api/domains/miniapp/constants/b2bAppAccessRightSet')
+const { PUBLISH_REQUEST_APPROVED_STATUS, AVAILABLE_ENVIRONMENTS, DEV_ENVIRONMENT, PROD_ENVIRONMENT } = require('@dev-portal-api/domains/miniapp/constants/publishing')
 const {
     B2BApp,
+    B2BAppPublishRequest,
+    B2BAppAccessRight,
+    B2BAppAccessRightSet,
     CondoB2BApp,
+    CondoB2BAppAccessRight,
+    CondoOIDCClient,
     createTestB2CApp,
     createOIDCClientByTestClient,
     createTestB2BApp,
@@ -25,6 +32,7 @@ const {
     createTestB2BAppPublishRequest,
     importB2BAppByTestClient,
     publishB2BAppByTestClient,
+    createCondoB2BAppAccessRight,
 } = require('@dev-portal-api/domains/miniapp/utils/testSchema')
 const { makeLoggedInAdminClient, makeLoggedInSupportClient, makeRegisteredAndLoggedInUser, makeLoggedInCondoAdminClient } = require('@dev-portal-api/domains/user/utils/testSchema')
 
@@ -184,17 +192,75 @@ describe('ImportB2BAppService', () => {
                 expect(updatedApp).toEqual(expect.objectContaining(expectedPayload))
             })
             test('Condo OIDC client must be updated with importId / importRemoteSystem if not taken', async () => {
-                // TODO: write it
+                const [firstClient] = await createTestOidcClient(condoAdmin)
+                const [secondClient] = await createTestOidcClient(condoAdmin, { importId: '1234', importRemoteSystem: 'my-test-system' })
+                const [firstApp] = await createCondoB2BApp(condoAdmin, { oidcClient: { connect: { id: firstClient.id } } })
+                const [secondApp] = await createCondoB2BApp(condoAdmin, { oidcClient: { connect: { id: secondClient.id } } })
+
+                const [app] = await createTestB2BApp(user)
+                const [result] = await importB2BAppByTestClient(support, app, firstApp, secondApp)
+                expect(result).toHaveProperty('success', true)
+
+                const firstClientAfter = await CondoOIDCClient.getOne(condoAdmin, { id: firstClient.id })
+                expect(firstClientAfter).toHaveProperty('importId', app.id)
+                expect(firstClientAfter).toHaveProperty('importRemoteSystem', REMOTE_SYSTEM)
+
+                const secondClientAfter = await CondoOIDCClient.getOne(condoAdmin, { id: secondClient.id })
+                expect(secondClientAfter).toHaveProperty('importId', '1234')
+                expect(secondClientAfter).toHaveProperty('importRemoteSystem', 'my-test-system')
             })
         })
         describe('B2BAppAccessRight + B2BAppAccessRightSet', () => {
             test('Right set models must be created correctly', async () => {
-                // TODO: write it
+                const [condoDevApp] = await createCondoB2BApp(condoAdmin)
+                const [condoProdApp] = await createCondoB2BApp(condoAdmin)
+                const [condoDevRight, , devPermissions] = await createCondoB2BAppAccessRight(condoAdmin, condoDevApp)
+                const [condoProdRight, , prodPermissions] = await createCondoB2BAppAccessRight(condoAdmin, condoProdApp)
+
+                const [app] = await createTestB2BApp(user)
+                const [result] = await importB2BAppByTestClient(support, app, condoDevApp, condoProdApp)
+                expect(result).toHaveProperty('success', true)
+
+                const devRight = await B2BAppAccessRight.getOne(support, { app: { id: app.id }, environment: DEV_ENVIRONMENT })
+                expect(devRight).toHaveProperty('condoUserId', condoDevRight.user.id)
+                const devRightSet = await B2BAppAccessRightSet.getOne(support, { app: { id: app.id }, environment: DEV_ENVIRONMENT })
+                expect(devRightSet).toHaveProperty('status', B2B_APP_ACCESS_RIGHT_SET_APPROVED_STATUS)
+                expect(devRightSet).toEqual(expect.objectContaining(devPermissions))
+                const condoDevRightAfter = await CondoB2BAppAccessRight.getOne(condoAdmin, { id: condoDevRight.id })
+                expect(condoDevRightAfter).toHaveProperty('importId', devRight.id)
+                expect(condoDevRightAfter).toHaveProperty('importRemoteSystem', REMOTE_SYSTEM)
+                expect(condoDevRightAfter).toHaveProperty(['accessRightSet', 'importId'], devRightSet.id)
+                expect(condoDevRightAfter).toHaveProperty(['accessRightSet', 'importRemoteSystem'], REMOTE_SYSTEM)
+
+                const prodRight = await B2BAppAccessRight.getOne(support, { app: { id: app.id }, environment: PROD_ENVIRONMENT })
+                expect(prodRight).toHaveProperty('condoUserId', condoProdRight.user.id)
+                const prodRightSet = await B2BAppAccessRightSet.getOne(support, { app: { id: app.id }, environment: PROD_ENVIRONMENT })
+                expect(prodRightSet).toHaveProperty('status', B2B_APP_ACCESS_RIGHT_SET_APPROVED_STATUS)
+                expect(prodRightSet).toEqual(expect.objectContaining(prodPermissions))
+                const condoProdRightAfter = await CondoB2BAppAccessRight.getOne(condoAdmin, { id: condoProdRight.id })
+                expect(condoProdRightAfter).toHaveProperty('importId', prodRight.id)
+                expect(condoProdRightAfter).toHaveProperty('importRemoteSystem', REMOTE_SYSTEM)
+                expect(condoProdRightAfter).toHaveProperty(['accessRightSet', 'importId'], prodRightSet.id)
+                expect(condoProdRightAfter).toHaveProperty(['accessRightSet', 'importRemoteSystem'], REMOTE_SYSTEM)
             })
         })
         describe('B2BAppPublishRequest', () => {
             test('Publish request in approved status must be created if imported from production environment', async () => {
-                // TODO: write it
+                const [condoApp] = await createCondoB2BApp(condoAdmin)
+                const [firstApp] = await createTestB2BApp(user)
+                const [result] = await importB2BAppByTestClient(support, firstApp, null, condoApp)
+                expect(result).toHaveProperty('success', true)
+
+                const request = await B2BAppPublishRequest.getOne(user, { app: { id: firstApp.id } })
+                expect(request).toHaveProperty('status', PUBLISH_REQUEST_APPROVED_STATUS)
+
+                const [secondCondoApp] = await createCondoB2BApp(condoAdmin)
+                const [secondApp] = await createTestB2BApp(user)
+                const [secondResult] = await importB2BAppByTestClient(support, secondApp, secondCondoApp, null)
+                expect(secondResult).toHaveProperty('success', true)
+
+                const secondRequest = await B2BAppPublishRequest.getOne(user, { app: { id: secondApp.id } })
+                expect(secondRequest).not.toBeDefined()
             })
         })
         describe('Conflict policy', () => {

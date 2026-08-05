@@ -24,8 +24,8 @@ const { APP_NOT_FOUND } = require('@dev-portal-api/domains/miniapp/constants/err
 const { DEV_ENVIRONMENT, PROD_ENVIRONMENT } = require('@dev-portal-api/domains/miniapp/constants/publishing')
 const { B2BApp, B2BAppAccessRight, B2BAppAccessRightSet, B2BAppPublishRequest } = require('@dev-portal-api/domains/miniapp/utils/serverSchema')
 
-const { PERMISSION_FIELDS } = require('./B2BAppAccessRightSet')
 const { getEnvironmentalFieldsSelection, getEnvironmentalFieldName } = require('./fields/environmental')
+const { PERMISSION_FIELDS } = require('./fields/rightSetPermissions')
 
 const { PUBLISH_REQUEST_APPROVED_STATUS } = require('../constants/publishing')
 
