@@ -46,6 +46,7 @@ class CrossDbPlanner {
         resolveDbColumn,
         applyPrismaMultipleRelations,
         sourceRegistry,
+        relationIdsCache,
     }) {
         this.listKey = listKey
         this.adapter = adapter
@@ -59,7 +60,7 @@ class CrossDbPlanner {
         this.applyPrismaMultipleRelations = applyPrismaMultipleRelations
         this.sourceRegistry = sourceRegistry || getSourceRegistry(adapter)
         this.baseSource = this.sourceRegistry.resolveSource(listKey)
-        this._relationIdsCache = new Map()
+        this._relationIdsCache = relationIdsCache || new Map()
         // When flattening access `OR` branches to base `id_in`, nested prepareWhere
         // must not re-enter OR flattening (would recurse through getItems → prepareWhere).
         this._flatteningOr = false
@@ -80,8 +81,7 @@ class CrossDbPlanner {
         // relationMap may be empty when this list has no cross-source FKs, but nested
         // same-pool filters (e.g. `{ receipt: { context: … } }` on BillingReceiptFile)
         // still need recursive prepareWhere on the related list.
-        const relationMap = this._buildRelationMap()
-        return this._rewriteWhereNode(initialWhere, relationMap)
+        return this._rewriteWhereNode(initialWhere, this._getRelationMap())
     }
 
     async loadChunk (mainTableObjects) {
@@ -187,6 +187,13 @@ class CrossDbPlanner {
         return []
     }
 
+    _getRelationMap () {
+        if (!this._relationMap) {
+            this._relationMap = this._buildRelationMap()
+        }
+        return this._relationMap
+    }
+
     _buildRelationMap () {
         const relationMap = new Map()
 
@@ -206,6 +213,28 @@ class CrossDbPlanner {
         }
 
         return relationMap
+    }
+
+    /**
+     * @param {string} key
+     * @param {Map<string, string>} relationMap
+     * @returns {{ field: string, kind: 'direct'|'not'|'in'|'not_in' }|null}
+     */
+    _parseRelationFilterKey (key, relationMap) {
+        if (relationMap.has(key)) return { field: key, kind: 'direct' }
+        if (key.endsWith('_not_in')) {
+            const field = key.slice(0, -7)
+            return relationMap.has(field) ? { field, kind: 'not_in' } : null
+        }
+        if (key.endsWith('_not')) {
+            const field = key.slice(0, -4)
+            return relationMap.has(field) ? { field, kind: 'not' } : null
+        }
+        if (key.endsWith('_in')) {
+            const field = key.slice(0, -3)
+            return relationMap.has(field) ? { field, kind: 'in' } : null
+        }
+        return null
     }
 
     _isLogicalWhereKey (key) {
@@ -261,6 +290,7 @@ class CrossDbPlanner {
             resolveDbColumn: this.resolveDbColumn,
             applyPrismaMultipleRelations: this.applyPrismaMultipleRelations,
             sourceRegistry: this.sourceRegistry,
+            relationIdsCache: this._relationIdsCache,
         })
         rewritten[key] = await nestedPlanner.prepareWhere(value)
         return true
@@ -285,9 +315,7 @@ class CrossDbPlanner {
 
             if (relationMap.has(key)) return true
 
-            if (key.endsWith('_not') && relationMap.has(key.slice(0, -4))) return true
-            if (key.endsWith('_not_in') && relationMap.has(key.slice(0, -7))) return true
-            if (key.endsWith('_in') && relationMap.has(key.slice(0, -3))) return true
+            if (this._parseRelationFilterKey(key, relationMap)) return true
 
             if (value && typeof value === 'object' && this._nodeHasCrossSourceRelationFilter(value, relationMap)) {
                 return true
@@ -442,25 +470,24 @@ class CrossDbPlanner {
     }
 
     async _rewriteNotRelation (key, value, relationMap, rewritten) {
-        if (!key.endsWith('_not')) return false
+        const parsed = this._parseRelationFilterKey(key, relationMap)
+        if (!parsed || parsed.kind !== 'not') return false
 
-        const relationField = key.slice(0, -4)
-        const model = relationMap.get(relationField)
+        const model = relationMap.get(parsed.field)
         if (!model || !value || typeof value !== 'object' || Array.isArray(value)) return false
 
         if (this._isDirectIdRelationFilter(value)) return false
 
         const ids = await this.loadRelatedIds(model, value)
-        if (ids.length > 0) rewritten[relationField] = { id_not_in: ids }
+        if (ids.length > 0) rewritten[parsed.field] = { id_not_in: ids }
         return true
     }
 
     async _rewriteInRelation (key, value, relationMap, rewritten) {
-        if (!key.endsWith('_in') && !key.endsWith('_not_in')) return false
+        const parsed = this._parseRelationFilterKey(key, relationMap)
+        if (!parsed || (parsed.kind !== 'in' && parsed.kind !== 'not_in')) return false
 
-        const suffix = key.endsWith('_not_in') ? '_not_in' : '_in'
-        const relationField = key.slice(0, -suffix.length)
-        const model = relationMap.get(relationField)
+        const model = relationMap.get(parsed.field)
         if (!model || !Array.isArray(value) || !value.every(v => v && typeof v === 'object' && !Array.isArray(v))) {
             return false
         }
@@ -468,16 +495,16 @@ class CrossDbPlanner {
         const idsGroups = await Promise.all(value.map(filter => this.loadRelatedIds(model, filter)))
         const ids = [...new Set(idsGroups.flat())]
         if (ids.length === 0) {
-            if (suffix !== '_not_in') {
-                rewritten[relationField] = { id_in: [] }
+            if (parsed.kind !== 'not_in') {
+                rewritten[parsed.field] = { id_in: [] }
             }
             return true
         }
 
-        if (suffix === '_not_in') {
-            rewritten[relationField] = { id_not_in: ids }
+        if (parsed.kind === 'not_in') {
+            rewritten[parsed.field] = { id_not_in: ids }
         } else {
-            rewritten[relationField] = { id_in: ids }
+            rewritten[parsed.field] = { id_in: ids }
         }
         return true
     }
@@ -620,6 +647,9 @@ async function prepareCrossDbWhere ({ listKey, where, adapter: knownAdapter = nu
     }
 
     const isPrisma = isPrismaAdapter(keystone)
+    if (!adapter.__crossDbRelationIdsCache) {
+        adapter.__crossDbRelationIdsCache = new Map()
+    }
     const planner = new CrossDbPlanner({
         listKey,
         adapter,
@@ -630,6 +660,7 @@ async function prepareCrossDbWhere ({ listKey, where, adapter: knownAdapter = nu
         resolveDbColumn: (fieldName) => fieldName,
         applyPrismaMultipleRelations: async (rows) => rows,
         sourceRegistry: getSourceRegistry(adapter),
+        relationIdsCache: adapter.__crossDbRelationIdsCache,
     })
 
     return planner.prepareWhere(where)
