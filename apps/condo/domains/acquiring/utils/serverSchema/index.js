@@ -17,7 +17,7 @@ const { REGISTER_MULTI_PAYMENT_FOR_INVOICES_MUTATION } = require('@condo/domains
 const { CALCULATE_FEE_FOR_RECEIPT_QUERY } = require('@condo/domains/acquiring/gql')
 const { SET_PAYMENT_POS_RECEIPT_URL_MUTATION } = require('@condo/domains/acquiring/gql')
 const { REGISTER_EXTERNAL_PAYMENTS_MUTATION } = require('@condo/domains/acquiring/gql')
-const { ALL_CARD_BINDINGS_MUTATION } = require('@condo/domains/acquiring/gql')
+const { ALL_CARD_BINDINGS_QUERY } = require('@condo/domains/acquiring/gql')
 const { DELETE_CARD_BINDING_MUTATION } = require('@condo/domains/acquiring/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
@@ -153,10 +153,9 @@ async function allCardBindings (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
-    // TODO(codegen): write allCardBindings serverSchema guards
 
     return await execGqlWithoutAccess(context, {
-        query: ALL_CARD_BINDINGS_MUTATION,
+        query: ALL_CARD_BINDINGS_QUERY,
         variables: { data: { dv: 1, ...data } },
         errorMessage: '[error] Unable to allCardBindings',
         dataPath: 'obj',
@@ -167,7 +166,6 @@ async function deleteCardBinding (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
-    // TODO(codegen): write deleteCardBinding serverSchema guards
 
     return await execGqlWithoutAccess(context, {
         query: DELETE_CARD_BINDING_MUTATION,
