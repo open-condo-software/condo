@@ -42,7 +42,7 @@ const AcquiringCard: React.FC<AcquiringCardProps> = ({ checked, onClick, ...appC
     return (
         <div className={styles['acquiring-card-wrapper']}>
             <div className={styles['acquiring-card-checkbox-wrapper']} >
-                <Checkbox checked={checked} />
+                <Checkbox checked={checked} onChange={onClick} />
             </div>
             <AppCard
                 {...appCardProps}
