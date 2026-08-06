@@ -59,18 +59,34 @@ async function canReadBillingEntity (args) {
 
     if (user.type === SERVICE) {
         const canReadAsB2BAppServiceUser = await canReadObjectsAsB2BAppServiceUser(args)
-        return {
-            OR: [
-                canReadAsB2BAppServiceUser,
-                { 
-                    context: {
-                        integration: {
-                            accessRights_some: { user: { id: user.id }, deletedAt: null },
-                        },
-                    }, 
-                },
-            ].filter(Boolean),
+        // NOTE: The original code used a 2-level nested `context.integration.accessRights_some`
+        // filter inside an OR condition. Under certain query patterns (e.g. filtering by
+        // `property.addressKey + unitType + unitName`), Keystone v5 does not correctly
+        // translate deeply nested relationship filters inside OR conditions, causing
+        // BillingAccounts from organizations disconnected from the B2B app to leak through
+        // (returned with `context: null` due to field-level access control blocking the
+        // nested context resolution).
+        // To avoid this, we query the permitted context IDs directly and use a flat
+        // `context.id_in` filter that Keystone translates reliably.
+        const permittedContexts = await find('BillingIntegrationOrganizationContext', {
+            organization: { id_in: canReadAsB2BAppServiceUser?.context?.organization?.id_in || [] },
+            deletedAt: null,
+        })
+        const permittedContextIds = permittedContexts.map(ctx => ctx.id)
+        const integrationRights = await find('BillingIntegrationAccessRight', {
+            user: { id: user.id },
+            deletedAt: null,
+        })
+        const integrationIdsWithAccess = uniq(integrationRights.map(right => right.integration))
+        if (!isEmpty(integrationIdsWithAccess)) {
+            const integrationContexts = await find('BillingIntegrationOrganizationContext', {
+                integration: { id_in: integrationIdsWithAccess },
+                deletedAt: null,
+            })
+            permittedContextIds.push(...integrationContexts.map(ctx => ctx.id))
         }
+        if (isEmpty(permittedContextIds)) return false
+        return { context: { id_in: uniq(permittedContextIds) } }
     }
     if (user.type === STAFF) {
         return { 
