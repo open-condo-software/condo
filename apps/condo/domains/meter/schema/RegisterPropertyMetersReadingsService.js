@@ -14,7 +14,6 @@ const { GQLError } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema, find, getById } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 
-const { PropertyResolver } = require('@condo/domains/billing/schema/resolvers')
 const access = require('@condo/domains/meter/access/RegisterPropertyMetersReadingsService')
 const { OTHER_METER_READING_SOURCE_ID } = require('@condo/domains/meter/constants/constants')
 const { READINGS_LIMIT } = require('@condo/domains/meter/constants/registerMetersReadingsService')
@@ -30,9 +29,9 @@ const {
     tryToISO,
     getDateStrValidationError,
     transformToPlainObject,
-    getAddressesKeys, getResolvedAddresses,
     getSortedValues,
 } = require('@condo/domains/meter/utils/serverSchema/registerHelpers')
+const { resolvePropertyMeterAddressesForOrganization } = require('@condo/domains/meter/utils/serverSchema/resolvePropertyMeterAddressesForOrganization')
 dayjs.extend(customParseFormat)
 dayjs.extend(utc)
 
@@ -121,18 +120,13 @@ const RegisterPropertyMetersReadingsService = new GQLCustomSchema('RegisterPrope
 
                 const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
 
-                const propertyResolver = new PropertyResolver({ context })
-                propertyResolver.tin = organizationData.tin
-                propertyResolver.organizationId = organization.id
-
-                const resolvedAddresses = await getResolvedAddresses(propertyResolver, readings)
-                const addressesKeys = getAddressesKeys(readings, resolvedAddresses)
-
-                /** @type Property[] */
-                const properties = await find('Property', {
-                    organization,
-                    deletedAt: null,
-                    addressKey_in: addressesKeys,
+                const {
+                    resolvedAddresses,
+                    properties,
+                } = await resolvePropertyMeterAddressesForOrganization({
+                    organizationId: organization.id,
+                    tin: organizationData.tin,
+                    readings,
                 })
 
                 const resultRows = []
@@ -167,6 +161,7 @@ const RegisterPropertyMetersReadingsService = new GQLCustomSchema('RegisterPrope
                     }
 
                     const property = properties.find((p) => p.addressKey === addressKey)
+                    console.log('property', property, 'addressKey', addressKey, 'reading.address', reading.address, 'resolvedAddresses', resolvedAddresses)
 
                     if (!property) {
                         resultRows.push(new GQLError({
