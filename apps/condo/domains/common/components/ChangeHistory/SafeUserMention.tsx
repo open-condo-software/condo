@@ -2,8 +2,7 @@ import { User } from '@app/condo/schema'
 import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-
-import { Tooltip } from '@condo/domains/common/components/Tooltip'
+import { Tooltip } from '@open-condo/ui'
 
 
 type SafeUserMentionBaseProps = {
