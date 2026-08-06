@@ -112,6 +112,29 @@ const REGISTER_EXTERNAL_PAYMENTS_MUTATION = gql`
     }
 `
 
+const ALL_CARD_BINDINGS_QUERY = gql`
+    query allCardBindings($data: AllCardBindingsInput!) {
+        result: allCardBindings(data: $data) {
+            cardTokens {
+                id
+                acquiringIntegrationIds
+                cardNumber
+                paymentSystem
+                expiration
+                bankName
+                bankCountryCode
+                createdAt
+            }
+        }
+    }
+`
+
+const DELETE_CARD_BINDING_MUTATION = gql`
+    mutation deleteCardBinding ($data: DeleteCardBindingInput!) {
+        result: deleteCardBinding(data: $data) { status }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 const EXPORT_PAYMENTS_TO_EXCEL =  gql`
@@ -145,5 +168,7 @@ module.exports = {
     PAYMENT_STATUS_CHANGE_WEBHOOK_URL_FIELDS,
     PaymentStatusChangeWebhookUrl,
     REGISTER_EXTERNAL_PAYMENTS_MUTATION,
+    ALL_CARD_BINDINGS_QUERY,
+    DELETE_CARD_BINDING_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

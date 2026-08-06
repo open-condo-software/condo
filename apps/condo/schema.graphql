@@ -60870,6 +60870,8 @@ type AcquiringIntegrationHistoryRecord {
   setupUrl: String
   isHidden: Boolean
   type: String
+  getUserCardsUrl: String
+  deleteUserCardUrl: String
   canGroupReceipts: Boolean
   hostUrl: String
   supportedBillingIntegrationsGroup: String
@@ -60952,6 +60954,42 @@ input AcquiringIntegrationHistoryRecordWhereInput {
   type_not_ends_with_i: String
   type_in: [String]
   type_not_in: [String]
+  getUserCardsUrl: String
+  getUserCardsUrl_not: String
+  getUserCardsUrl_contains: String
+  getUserCardsUrl_not_contains: String
+  getUserCardsUrl_starts_with: String
+  getUserCardsUrl_not_starts_with: String
+  getUserCardsUrl_ends_with: String
+  getUserCardsUrl_not_ends_with: String
+  getUserCardsUrl_i: String
+  getUserCardsUrl_not_i: String
+  getUserCardsUrl_contains_i: String
+  getUserCardsUrl_not_contains_i: String
+  getUserCardsUrl_starts_with_i: String
+  getUserCardsUrl_not_starts_with_i: String
+  getUserCardsUrl_ends_with_i: String
+  getUserCardsUrl_not_ends_with_i: String
+  getUserCardsUrl_in: [String]
+  getUserCardsUrl_not_in: [String]
+  deleteUserCardUrl: String
+  deleteUserCardUrl_not: String
+  deleteUserCardUrl_contains: String
+  deleteUserCardUrl_not_contains: String
+  deleteUserCardUrl_starts_with: String
+  deleteUserCardUrl_not_starts_with: String
+  deleteUserCardUrl_ends_with: String
+  deleteUserCardUrl_not_ends_with: String
+  deleteUserCardUrl_i: String
+  deleteUserCardUrl_not_i: String
+  deleteUserCardUrl_contains_i: String
+  deleteUserCardUrl_not_contains_i: String
+  deleteUserCardUrl_starts_with_i: String
+  deleteUserCardUrl_not_starts_with_i: String
+  deleteUserCardUrl_ends_with_i: String
+  deleteUserCardUrl_not_ends_with_i: String
+  deleteUserCardUrl_in: [String]
+  deleteUserCardUrl_not_in: [String]
   canGroupReceipts: Boolean
   canGroupReceipts_not: Boolean
   hostUrl: String
@@ -61137,6 +61175,10 @@ enum SortAcquiringIntegrationHistoryRecordsBy {
   isHidden_DESC
   type_ASC
   type_DESC
+  getUserCardsUrl_ASC
+  getUserCardsUrl_DESC
+  deleteUserCardUrl_ASC
+  deleteUserCardUrl_DESC
   canGroupReceipts_ASC
   canGroupReceipts_DESC
   hostUrl_ASC
@@ -61174,6 +61216,8 @@ input AcquiringIntegrationHistoryRecordUpdateInput {
   setupUrl: String
   isHidden: Boolean
   type: String
+  getUserCardsUrl: String
+  deleteUserCardUrl: String
   canGroupReceipts: Boolean
   hostUrl: String
   supportedBillingIntegrationsGroup: String
@@ -61206,6 +61250,8 @@ input AcquiringIntegrationHistoryRecordCreateInput {
   setupUrl: String
   isHidden: Boolean
   type: String
+  getUserCardsUrl: String
+  deleteUserCardUrl: String
   canGroupReceipts: Boolean
   hostUrl: String
   supportedBillingIntegrationsGroup: String
@@ -61292,6 +61338,12 @@ type AcquiringIntegration {
   """ Defines the integration type. ONLINE_PROCESSING: used for processing and accepting payments. EXTERNAL_IMPORT: used for storing information about payments completed through other channels 
   """
   type: AcquiringIntegrationTypeType
+
+  """ Endpoint for retrieving a user's saved payment cards """
+  getUserCardsUrl: String
+
+  """ Endpoint for deleting a user's saved payment card """
+  deleteUserCardUrl: String
   accessRights(where: AcquiringIntegrationAccessRightWhereInput, search: String, sortBy: [SortAcquiringIntegrationAccessRightsBy!], orderBy: String, first: Int, skip: Int): [AcquiringIntegrationAccessRight!]!
   _accessRightsMeta(where: AcquiringIntegrationAccessRightWhereInput, search: String, sortBy: [SortAcquiringIntegrationAccessRightsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
 
@@ -61390,6 +61442,42 @@ input AcquiringIntegrationWhereInput {
   type_not: AcquiringIntegrationTypeType
   type_in: [AcquiringIntegrationTypeType]
   type_not_in: [AcquiringIntegrationTypeType]
+  getUserCardsUrl: String
+  getUserCardsUrl_not: String
+  getUserCardsUrl_contains: String
+  getUserCardsUrl_not_contains: String
+  getUserCardsUrl_starts_with: String
+  getUserCardsUrl_not_starts_with: String
+  getUserCardsUrl_ends_with: String
+  getUserCardsUrl_not_ends_with: String
+  getUserCardsUrl_i: String
+  getUserCardsUrl_not_i: String
+  getUserCardsUrl_contains_i: String
+  getUserCardsUrl_not_contains_i: String
+  getUserCardsUrl_starts_with_i: String
+  getUserCardsUrl_not_starts_with_i: String
+  getUserCardsUrl_ends_with_i: String
+  getUserCardsUrl_not_ends_with_i: String
+  getUserCardsUrl_in: [String]
+  getUserCardsUrl_not_in: [String]
+  deleteUserCardUrl: String
+  deleteUserCardUrl_not: String
+  deleteUserCardUrl_contains: String
+  deleteUserCardUrl_not_contains: String
+  deleteUserCardUrl_starts_with: String
+  deleteUserCardUrl_not_starts_with: String
+  deleteUserCardUrl_ends_with: String
+  deleteUserCardUrl_not_ends_with: String
+  deleteUserCardUrl_i: String
+  deleteUserCardUrl_not_i: String
+  deleteUserCardUrl_contains_i: String
+  deleteUserCardUrl_not_contains_i: String
+  deleteUserCardUrl_starts_with_i: String
+  deleteUserCardUrl_not_starts_with_i: String
+  deleteUserCardUrl_ends_with_i: String
+  deleteUserCardUrl_not_ends_with_i: String
+  deleteUserCardUrl_in: [String]
+  deleteUserCardUrl_not_in: [String]
 
   """ condition must be true for all nodes """
   accessRights_every: AcquiringIntegrationAccessRightWhereInput
@@ -61550,6 +61638,10 @@ enum SortAcquiringIntegrationsBy {
   isHidden_DESC
   type_ASC
   type_DESC
+  getUserCardsUrl_ASC
+  getUserCardsUrl_DESC
+  deleteUserCardUrl_ASC
+  deleteUserCardUrl_DESC
   accessRights_ASC
   accessRights_DESC
   canGroupReceipts_ASC
@@ -61589,6 +61681,8 @@ input AcquiringIntegrationUpdateInput {
   setupUrl: String
   isHidden: Boolean
   type: AcquiringIntegrationTypeType
+  getUserCardsUrl: String
+  deleteUserCardUrl: String
   accessRights: AcquiringIntegrationAccessRightRelateToManyInput
   canGroupReceipts: Boolean
   hostUrl: String
@@ -61619,6 +61713,8 @@ input AcquiringIntegrationCreateInput {
   setupUrl: String
   isHidden: Boolean
   type: AcquiringIntegrationTypeType
+  getUserCardsUrl: String
+  deleteUserCardUrl: String
   accessRights: AcquiringIntegrationAccessRightRelateToManyInput
   canGroupReceipts: Boolean
   hostUrl: String
@@ -95199,6 +95295,34 @@ type RegisterExternalPaymentsOutput {
   status: String!
 }
 
+input AllCardBindingsInput {
+  user: UserWhereUniqueInput!
+}
+
+type CardToken {
+  id: String!
+  acquiringIntegrationIds: [String!]!
+  cardNumber: String!
+  paymentSystem: String!
+  expiration: String!
+  bankName: String
+  bankCountryCode: String
+  createdAt: String!
+}
+
+type AllCardBindingsOutput {
+  cardTokens: [CardToken!]!
+}
+
+input DeleteCardBindingInput {
+  user: UserWhereUniqueInput!
+  cardId: String!
+}
+
+type DeleteCardBindingOutput {
+  status: String!
+}
+
 enum TicketReportPeriodType {
   calendarWeek
   month
@@ -100555,6 +100679,7 @@ type Query {
   """
   _allPaymentsSum(data: PaymentsSumInput!): PaymentsSumOutput
   calculateFeeForReceipt(data: CalculateFeeForReceiptInput!): CalculateFeeForReceiptOutput
+  allCardBindings(data: AllCardBindingsInput!): AllCardBindingsOutput
   ticketReportWidgetData(data: TicketReportWidgetInput!): TicketReportWidgetOutput
   ticketAnalyticsReport(data: TicketAnalyticsReportInput): TicketAnalyticsReportOutput
   exportTicketAnalyticsToExcel(data: ExportTicketAnalyticsToExcelInput): ExportTicketAnalyticsToExcelOutput
@@ -110253,6 +110378,7 @@ type Mutation {
 
   """Registers external payments"""
   registerExternalPayments(data: RegisterExternalPaymentsInput!): RegisterExternalPaymentsOutput
+  deleteCardBinding(data: DeleteCardBindingInput!): DeleteCardBindingOutput
   sendB2CAppPushMessage(data: SendB2CAppPushMessageInput!): SendB2CAppPushMessageOutput
 
   """
