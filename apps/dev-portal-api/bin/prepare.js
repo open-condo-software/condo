@@ -12,6 +12,9 @@ const {
     safeExec,
     registerAppProxy,
 } = require('@open-condo/cli')
+const { prepareKeystoneExpressApp } = require('@open-condo/keystone/prepareKeystoneApp')
+
+const { User } = require('@dev-portal-api/domains/user/utils/serverSchema')
 
 const APP_NAME = path.basename(path.resolve(__dirname, '..'))
 const BOT_RIGHTS_SET = JSON.stringify({
@@ -48,8 +51,10 @@ const BOT_RIGHTS_SET = JSON.stringify({
 })
 
 async function main () {
+    const { keystone: context } = await prepareKeystoneExpressApp(path.resolve('./index.js'), { excludeApps: ['AdminUIApp'] })
+
     // STEP 1. Register local users
-    await prepareAppEnvLocalAdminUsers(APP_NAME, 'phone')
+    const { adminUserIdentity } = await prepareAppEnvLocalAdminUsers(APP_NAME, 'phone')
 
     // STEP 2. Register proxies
     const { proxySecret, proxyId } = await registerAppProxy('condo', 'dev-portal-api')
@@ -101,6 +106,8 @@ async function main () {
     await updateAppEnvFile(APP_NAME, 'OIDC_CONDO_CLIENT_CONFIG', JSON.stringify({ ...oidcConf, scope: 'openid phone' }))
     await updateAppEnvFile(APP_NAME, 'ENABLE_DIRECT_OIDC', 'true')
 
+    const adminUser = await User.getOne(context, { phone: adminUserIdentity, isAdmin: true })
+
     // STEP 6. Bypass file rate-limits
     await updateAppEnvFile('condo', 'FILE_UPLOAD_CONFIG', (prev) => {
         const newValue = JSON.parse(prev || '{}')
@@ -115,6 +122,10 @@ async function main () {
         }
         if (!newValue.quota.whitelist.includes(prodBotId)) {
             newValue.quota.whitelist.push(prodBotId)
+        }
+
+        if (adminUser && adminUser.id && !newValue.quota.whitelist.includes(adminUser.id)) {
+            newValue.quota.whitelist.push(adminUser.id)
         }
         return JSON.stringify(newValue)
     })

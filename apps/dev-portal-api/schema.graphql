@@ -1561,6 +1561,7 @@ type B2BAppHistoryRecord {
   shortDescription: String
   detailedDescription: JSON
   category: String
+  contextDefaultStatus: String
   developmentAppUrl: String
   productionAppUrl: String
   developmentOidcClientId: ID
@@ -1695,6 +1696,24 @@ input B2BAppHistoryRecordWhereInput {
   category_not_ends_with_i: String
   category_in: [String]
   category_not_in: [String]
+  contextDefaultStatus: String
+  contextDefaultStatus_not: String
+  contextDefaultStatus_contains: String
+  contextDefaultStatus_not_contains: String
+  contextDefaultStatus_starts_with: String
+  contextDefaultStatus_not_starts_with: String
+  contextDefaultStatus_ends_with: String
+  contextDefaultStatus_not_ends_with: String
+  contextDefaultStatus_i: String
+  contextDefaultStatus_not_i: String
+  contextDefaultStatus_contains_i: String
+  contextDefaultStatus_not_contains_i: String
+  contextDefaultStatus_starts_with_i: String
+  contextDefaultStatus_not_starts_with_i: String
+  contextDefaultStatus_ends_with_i: String
+  contextDefaultStatus_not_ends_with_i: String
+  contextDefaultStatus_in: [String]
+  contextDefaultStatus_not_in: [String]
   developmentAppUrl: String
   developmentAppUrl_not: String
   developmentAppUrl_contains: String
@@ -1904,6 +1923,8 @@ enum SortB2BAppHistoryRecordsBy {
   shortDescription_DESC
   category_ASC
   category_DESC
+  contextDefaultStatus_ASC
+  contextDefaultStatus_DESC
   developmentAppUrl_ASC
   developmentAppUrl_DESC
   productionAppUrl_ASC
@@ -1966,6 +1987,7 @@ input B2BAppHistoryRecordUpdateInput {
   shortDescription: String
   detailedDescription: JSON
   category: String
+  contextDefaultStatus: String
   developmentAppUrl: String
   productionAppUrl: String
   developmentOidcClientId: ID
@@ -2011,6 +2033,7 @@ input B2BAppHistoryRecordCreateInput {
   shortDescription: String
   detailedDescription: JSON
   category: String
+  contextDefaultStatus: String
   developmentAppUrl: String
   productionAppUrl: String
   developmentOidcClientId: ID
@@ -2067,6 +2090,11 @@ enum B2BAppCategoryType {
   OTHER
 }
 
+enum B2BAppContextDefaultStatusType {
+  InProgress
+  Finished
+}
+
 """ B2B application """
 type B2BApp {
   """
@@ -2100,6 +2128,9 @@ type B2BApp {
   """ Category of app. Can be one of the following: ["DISPATCHING", "GIS", "SMART_HOME", "BUSINESS_DEVELOPMENT", "FINANCE", "OTHER"] By default set to "OTHER" 
   """
   category: B2BAppCategoryType
+
+  """ Status, which B2BAppContext will have after connecting miniapp """
+  contextDefaultStatus: B2BAppContextDefaultStatusType
 
   """ Web app entrypoint URL for development environment, which is used to open app in WebView or IFrame 
   """
@@ -2295,6 +2326,10 @@ input B2BAppWhereInput {
   category_not: B2BAppCategoryType
   category_in: [B2BAppCategoryType]
   category_not_in: [B2BAppCategoryType]
+  contextDefaultStatus: B2BAppContextDefaultStatusType
+  contextDefaultStatus_not: B2BAppContextDefaultStatusType
+  contextDefaultStatus_in: [B2BAppContextDefaultStatusType]
+  contextDefaultStatus_not_in: [B2BAppContextDefaultStatusType]
   developmentAppUrl: String
   developmentAppUrl_not: String
   developmentAppUrl_contains: String
@@ -2486,6 +2521,8 @@ enum SortB2BAppsBy {
   detailedDescription_DESC
   category_ASC
   category_DESC
+  contextDefaultStatus_ASC
+  contextDefaultStatus_DESC
   developmentAppUrl_ASC
   developmentAppUrl_DESC
   productionAppUrl_ASC
@@ -2548,6 +2585,7 @@ input B2BAppUpdateInput {
   shortDescription: String
   detailedDescription: String
   category: B2BAppCategoryType
+  contextDefaultStatus: B2BAppContextDefaultStatusType
   developmentAppUrl: String
   productionAppUrl: String
   developmentOidcClientId: ID
@@ -2590,6 +2628,7 @@ input B2BAppCreateInput {
   shortDescription: String
   detailedDescription: String
   category: B2BAppCategoryType
+  contextDefaultStatus: B2BAppContextDefaultStatusType
   developmentAppUrl: String
   productionAppUrl: String
   developmentOidcClientId: ID
@@ -9076,6 +9115,31 @@ type PublishB2BAppOutput {
   success: Boolean!
 }
 
+input ImportB2BAppFromInput {
+  developmentApp: B2BAppWhereUniqueInput
+  productionApp: B2BAppWhereUniqueInput
+}
+
+input ImportB2BAppToInput {
+  app: B2BAppWhereUniqueInput!
+}
+
+input ImportB2BAppOptionsInput {
+  conflictPolicy: ImportAppConflictPolicy!
+}
+
+input ImportB2BAppInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  from: ImportB2BAppFromInput!
+  to: ImportB2BAppToInput!
+  options: ImportB2BAppOptionsInput!
+}
+
+type ImportB2BAppOutput {
+  success: Boolean!
+}
+
 input AllB2BAppContextsInput {
   app: B2BAppWhereUniqueInput!
   first: Int!
@@ -10232,6 +10296,7 @@ type Mutation {
   completeConfirmPhoneAction(data: CompleteConfirmPhoneActionInput!): CompleteConfirmPhoneActionOutput
   registerNewUser(data: RegisterNewUserInput!): User
   publishB2BApp(data: PublishB2BAppInput!): PublishB2BAppOutput
+  importB2BApp(data: ImportB2BAppInput!): ImportB2BAppOutput
   updateB2BAppContext(data: UpdateB2BAppContextInput!): UpdateB2BAppContextOutput
   publishB2CApp(data: PublishB2CAppInput!): PublishB2CAppOutput
   importB2CApp(data: ImportB2CAppInput!): ImportB2CAppOutput

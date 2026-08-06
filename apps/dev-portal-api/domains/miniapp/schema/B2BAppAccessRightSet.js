@@ -9,7 +9,6 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analyt
 const { getByCondition } = require('@open-condo/keystone/schema')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
-const { B2B_PERMISSION_FIELDS } = require('@condo/domains/miniapp/schema/fields/b2bAccessRightSet')
 const access = require('@dev-portal-api/domains/miniapp/access/B2BAppAccessRightSet')
 const { B2B_APP_ACCESS_RIGHT_SET_APPROVED_STATUS, B2B_APP_ACCESS_RIGHT_SET_STATUS_OPTIONS, B2B_APP_ACCESS_RIGHT_SET_PENDING_STATUS } = require('@dev-portal-api/domains/miniapp/constants/b2bAppAccessRightSet')
 const { B2B_APP_ACCESS_RIGHT_SET_UNIQUE_APP_STATUS_CONSTRAINT } = require('@dev-portal-api/domains/miniapp/constants/constraints')
@@ -19,9 +18,7 @@ const { getAppAccessRightSetDiffField } = require('@dev-portal-api/domains/minia
 const { B2BAppAccessRightSet: B2BAppAccessRightSetUtils } = require('@dev-portal-api/domains/miniapp/utils/serverSchema')
 const { locker } = require('@dev-portal-api/domains/miniapp/utils/serverSchema/locks')
 
-// NOTE: omit fields with extra access
-const PERMISSION_FIELDS = Object.fromEntries(Object.entries(B2B_PERMISSION_FIELDS).filter(([, value]) => !value.access))
-
+const { PERMISSION_FIELDS } = require('./fields/rightSetPermissions')
 
 const B2BAppAccessRightSet = new GQLListSchema('B2BAppAccessRightSet', {
     schemaDoc: 'Set of permissions for B2BApp service user. ' +

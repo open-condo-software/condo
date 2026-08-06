@@ -7,24 +7,33 @@ const { gql } = require('graphql-tag')
 
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
+const { getDevicePermissions, getDevicePermissionFieldName } = require('@condo/domains/miniapp/schema/fields/devicePermissions')
+
 const { getEnvironmentalFieldsSelection } = require('./schema/fields/environmental')
+const { PERMISSION_FIELDS } = require('./schema/fields/rightSetPermissions')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 const EXPORT_FIELDS = getEnvironmentalFieldsSelection(['exportId'])
 
-const B2B_APP_FIELDS = `{ name developer logo { publicUrl originalFilename } ${getEnvironmentalFieldsSelection(['oidcClientId'])} ${COMMON_FIELDS} ${EXPORT_FIELDS} }`
+const B2B_APP_PERMISSIONS_FIELDS = getEnvironmentalFieldsSelection(getDevicePermissions({ listKey: 'B2BApp' }).map(field => getDevicePermissionFieldName(field).substring(2)))
+const B2B_APP_FIELDS = `{ name developer developerUrl shortDescription detailedDescription category contextDefaultStatus logo { publicUrl originalFilename } ${getEnvironmentalFieldsSelection(['oidcClientId', 'appUrl'])} ${B2B_APP_PERMISSIONS_FIELDS} ${COMMON_FIELDS} ${EXPORT_FIELDS} }`
 const B2BApp = generateGqlQueries('B2BApp', B2B_APP_FIELDS)
 
 const B2B_APP_ACCESS_RIGHT_FIELDS = `{ app { id } condoUserId condoUserEmail environment ${COMMON_FIELDS} ${EXPORT_FIELDS} }`
 const B2BAppAccessRight = generateGqlQueries('B2BAppAccessRight', B2B_APP_ACCESS_RIGHT_FIELDS)
 
-const B2B_APP_ACCESS_RIGHT_SET_FIELDS = `{ app { id } status environment diff { added removed } canManageContacts canReadContacts canReadProperties ${COMMON_FIELDS} }`
+const B2B_APP_ACCESS_RIGHT_SET_FIELDS = `{ app { id } status environment diff { added removed } ${Object.keys(PERMISSION_FIELDS).join(' ')} ${COMMON_FIELDS} ${EXPORT_FIELDS} }`
 const B2BAppAccessRightSet = generateGqlQueries('B2BAppAccessRightSet', B2B_APP_ACCESS_RIGHT_SET_FIELDS)
 
 
 const B2B_APP_PUBLISH_REQUEST_FIELDS = `{ app { id } status isAppTested isContractSigned isInfoApproved ${COMMON_FIELDS} }`
 const B2BAppPublishRequest = generateGqlQueries('B2BAppPublishRequest', B2B_APP_PUBLISH_REQUEST_FIELDS)
 
+const IMPORT_B2B_APP_MUTATION = gql`
+    mutation importB2BApp ($data: ImportB2BAppInput!) {
+        result: importB2BApp(data: $data) { success }
+    }
+`
 
 const PUBLISH_B2B_APP_MUTATION = gql`
     mutation publishB2BApp ($data: PublishB2BAppInput!) {
@@ -143,7 +152,6 @@ const CHANGE_OIDC_CLIENT_MUTATION = gql`
         result: changeOIDCClient(data: $data) { id clientId name redirectUri isEnabled }
     }
 `
-
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -154,6 +162,7 @@ module.exports = {
     B2BAppAccessRightSet,
     B2BAppPublishRequest,
     PUBLISH_B2B_APP_MUTATION,
+    IMPORT_B2B_APP_MUTATION,
     ALL_B2B_APP_CONTEXTS_QUERY,
     UPDATE_B2B_APP_CONTEXT_MUTATION,
 

@@ -316,7 +316,6 @@ describe('ImportB2CAppService', () => {
         })
         describe('Conflict policy', () => {
             describe.each(AVAILABLE_ENVIRONMENTS)('%p environment', (environment) => {
-                let from
                 let fromApp
                 beforeEach(async () => {
                     // Create app - it auto-publishes and gets linked to a condo app
@@ -332,10 +331,6 @@ describe('ImportB2CAppService', () => {
                     await publishB2CAppByTestClient(support, app, undefined, environment);
                     // Create a different condo app that we'll try to import - this creates a conflict
                     [fromApp] = await createCondoB2CApp(condoAdmin)
-                    const fieldName = `${environment}App`
-                    from = {
-                        [fieldName]: fromApp,
-                    }
                 })
                 test('Must throw error on conflict if conflictPolicy is set to "panic"', async () => {
                     const devApp = environment === DEV_ENVIRONMENT ? fromApp : null

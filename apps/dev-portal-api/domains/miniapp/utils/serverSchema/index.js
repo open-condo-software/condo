@@ -10,6 +10,7 @@ const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.ut
 const {
     PUBLISH_B2B_APP_MUTATION,
     PUBLISH_B2C_APP_MUTATION,
+    IMPORT_B2B_APP_MUTATION,
     IMPORT_B2C_APP_MUTATION,
     CREATE_B2C_APP_PROPERTY_MUTATION,
     DELETE_B2C_APP_PROPERTY_MUTATION,
@@ -238,6 +239,19 @@ async function changeOIDCClient (context, data) {
     })
 }
 
+async function importB2BApp (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: IMPORT_B2B_APP_MUTATION,
+        variables: { data },
+        errorMessage: '[error] Unable to importB2BApp',
+        dataPath: 'result',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -246,6 +260,7 @@ module.exports = {
     B2BAppAccessRightSet,
     B2BAppPublishRequest,
     publishB2BApp,
+    importB2BApp,
     allB2BAppContexts,
     updateB2BAppContext,
 

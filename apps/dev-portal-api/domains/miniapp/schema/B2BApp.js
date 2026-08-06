@@ -7,7 +7,7 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analyt
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { getUrlMeta } = require('@open-condo/miniapp-utils/helpers/urls')
 
-const { B2B_APP_CATEGORIES, OTHER_CATEGORY } = require('@condo/domains/miniapp/constants')
+const { B2B_APP_CATEGORIES, OTHER_CATEGORY, CONTEXT_IN_PROGRESS_STATUS, CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 const { getSharedConstraintsValidator } = require('@dev-portal-api/domains/common/serverSchema/constraints')
 const { FileAdapter, getFileMetaAfterChange, getMimeTypesValidator } = require('@dev-portal-api/domains/common/utils/files')
 const { INVALID_APP_URL } = require('@dev-portal-api/domains/miniapp/constants/errors')
@@ -95,6 +95,14 @@ const B2BApp = new GQLListSchema('B2BApp', {
             isRequired: true,
             options: B2B_APP_CATEGORIES,
             defaultValue: OTHER_CATEGORY,
+        },
+        contextDefaultStatus: {
+            schemaDoc: 'Status, which B2BAppContext will have after connecting miniapp',
+            isRequired: true,
+            type: 'Select',
+            dataType: 'string',
+            options: [CONTEXT_IN_PROGRESS_STATUS, CONTEXT_FINISHED_STATUS],
+            defaultValue: CONTEXT_FINISHED_STATUS,
         },
         ...getEnvironmentalFields('appUrl', {
             schemaDoc: 'Web app entrypoint URL for {environment} environment, which is used to open app in WebView or IFrame',
