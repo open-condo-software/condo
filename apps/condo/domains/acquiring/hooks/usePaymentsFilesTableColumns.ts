@@ -80,12 +80,11 @@ export function usePaymentsFilesTableColumns (currencyCode: string): Record<stri
                 width: '10%',
                 render: stringSearch,
             },
-
             status: {
                 title: StatusTitle,
                 key: 'status',
                 dataIndex: 'status',
-                width: '10%',
+                width: '12%',
                 render: getPaymentsFileStatusRender(intl, search),
             },
         }
