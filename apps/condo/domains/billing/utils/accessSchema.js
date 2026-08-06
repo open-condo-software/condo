@@ -59,34 +59,35 @@ async function canReadBillingEntity (args) {
 
     if (user.type === SERVICE) {
         const canReadAsB2BAppServiceUser = await canReadObjectsAsB2BAppServiceUser(args)
-        // NOTE: The original code used a 2-level nested `context.integration.accessRights_some`
-        // filter inside an OR condition. Under certain query patterns (e.g. filtering by
+        // NOTE: The original code used nested relationship filters inside an OR:
+        //   { context: { organization: { id_in: [...] } } }  — from canReadObjectsAsB2BAppServiceUser
+        //   { context: { integration: { accessRights_some: { user: { id }, deletedAt: null } } } }
+        // Both are 2-level nested. Under certain query patterns (e.g. filtering by
         // `property.addressKey + unitType + unitName`), Keystone v5 does not correctly
         // translate deeply nested relationship filters inside OR conditions, causing
-        // BillingAccounts from organizations disconnected from the B2B app to leak through
-        // (returned with `context: null` due to field-level access control blocking the
-        // nested context resolution).
-        // To avoid this, we query the permitted context IDs directly and use a flat
-        // `context.id_in` filter that Keystone translates reliably.
-        const permittedContexts = await find('BillingIntegrationOrganizationContext', {
-            organization: { id_in: canReadAsB2BAppServiceUser?.context?.organization?.id_in || [] },
-            deletedAt: null,
-        })
-        const permittedContextIds = permittedContexts.map(ctx => ctx.id)
-        const integrationRights = await find('BillingIntegrationAccessRight', {
-            user: { id: user.id },
-            deletedAt: null,
-        })
-        const integrationIdsWithAccess = uniq(integrationRights.map(right => right.integration))
-        if (!isEmpty(integrationIdsWithAccess)) {
-            const integrationContexts = await find('BillingIntegrationOrganizationContext', {
-                integration: { id_in: integrationIdsWithAccess },
-                deletedAt: null,
-            })
-            permittedContextIds.push(...integrationContexts.map(ctx => ctx.id))
+        // BillingAccounts from organizations disconnected from the B2B app to leak through.
+        // To avoid this, we resolve the permitted context IDs via direct DB queries
+        // and return a flat `context.id_in` filter that Keystone translates reliably.
+        // The `accessRights_some` condition (1-level nesting on BillingIntegration) is kept
+        // as a separate filter condition since it works correctly at that nesting level.
+        const filterConditions = [
+            // BillingIntegrationAccessRight path — works fine as 1-level nesting
+            { context: { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } } },
+        ]
+        if (canReadAsB2BAppServiceUser) {
+            // B2BApp path — resolve org IDs to context IDs to avoid 2-level nesting
+            const orgIds = canReadAsB2BAppServiceUser.context?.organization?.id_in || []
+            if (!isEmpty(orgIds)) {
+                const permittedContexts = await find('BillingIntegrationOrganizationContext', {
+                    organization: { id_in: orgIds },
+                    deletedAt: null,
+                })
+                if (!isEmpty(permittedContexts)) {
+                    filterConditions.push({ context: { id_in: uniq(permittedContexts.map(ctx => ctx.id)) } })
+                }
+            }
         }
-        if (isEmpty(permittedContextIds)) return false
-        return { context: { id_in: uniq(permittedContextIds) } }
+        return { OR: filterConditions }
     }
     if (user.type === STAFF) {
         return { 
