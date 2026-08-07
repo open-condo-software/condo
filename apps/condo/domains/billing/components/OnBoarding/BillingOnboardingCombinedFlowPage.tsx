@@ -43,7 +43,7 @@ export const BillingOnboardingCombinedFlowPage: React.FC<BillingOnboardingPagePr
 
     const userOrganization = useOrganization()
     const canManageIntegrations = userOrganization?.role?.canManageIntegrations || false
-    const { acquiringContexts: activeAcquiringContexts, refetchBilling } = useBillingAndAcquiringContexts()
+    const { acquiringContexts: activeAcquiringContexts } = useBillingAndAcquiringContexts()
 
     const router = useRouter()
     const [welcomeShown, setWelcomeShown] = useState(false)
@@ -122,7 +122,7 @@ export const BillingOnboardingCombinedFlowPage: React.FC<BillingOnboardingPagePr
         }
         //activeAcquiringContexts.length === 0 || billingContexts.length === 0
         if (!currentStep || currentStep === 0) {
-            return <ChooseChannels onFinish={refetchBilling}/>
+            return <ChooseChannels onFinish={onFinish}/>
         }
         if (currentStep === 1) {
             return <SetupBilling />
@@ -136,7 +136,7 @@ export const BillingOnboardingCombinedFlowPage: React.FC<BillingOnboardingPagePr
                 />
             )
         }
-    }, [acquiringIntegrationsLoading, currentStep, selectedAcquiringIntegrations, refetchBilling, handleAcquiringDone])
+    }, [acquiringIntegrationsLoading, currentStep, selectedAcquiringIntegrations, onFinish, handleAcquiringDone])
 
     if (!canManageIntegrations) {
         return <AccessDeniedPage />
