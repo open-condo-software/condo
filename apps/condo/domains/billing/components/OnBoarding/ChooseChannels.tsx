@@ -91,7 +91,7 @@ const getCardsAmount = (width: number) => {
 }
 
 interface IChooseChannels {
-    onFinish: () => Promise<unknown>
+    onFinish: () => void
 }
 
 export const ChooseChannels: React.FC<IChooseChannels> = ({ onFinish }) => {
@@ -132,11 +132,21 @@ export const ChooseChannels: React.FC<IChooseChannels> = ({ onFinish }) => {
     const { loading: acquiringLoading, handleSetupClick: handleAcquiringSetupClick } = useIntegrationContexts({ integrationIds: chosenAcquirings })
 
     const moveToTheNextStep = useCallback(async () => {
+        const nextAcquiringsQueryValue = chosenAcquirings.length > 0
+            ? chosenAcquirings.join(',')
+            : EMPTY_ACQUIRINGS_QUERY_VALUE
+
         await handleBillingSetupClick()
         await handleAcquiringSetupClick()
         await onFinish()
-        await router.push({ query: { ...router.query, step: 1 } }, undefined, { shallow: true })
-    }, [handleAcquiringSetupClick, handleBillingSetupClick, onFinish, router])
+        await router.push({
+            query: {
+                ...router.query,
+                acquirings: nextAcquiringsQueryValue,
+                step: 1,
+            },
+        }, undefined, { shallow: true })
+    }, [chosenAcquirings, handleAcquiringSetupClick, handleBillingSetupClick, onFinish, router])
 
     const { billingContexts, acquiringContexts } = useBillingAndAcquiringContexts()
 
