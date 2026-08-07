@@ -24,6 +24,7 @@ const {
     PUBLISH_NOT_ALLOWED,
 } = require('@dev-portal-api/domains/miniapp/constants/errors')
 const { PROD_ENVIRONMENT, PUBLISH_REQUEST_APPROVED_STATUS, DEV_ENVIRONMENT } = require('@dev-portal-api/domains/miniapp/constants/publishing')
+const { getEnvironmentalPermissionsFieldsSelection } = require('@dev-portal-api/domains/miniapp/schema/fields/devicePermissions')
 const {
     publishB2BAppByTestClient,
     createTestB2BApp,
@@ -41,7 +42,12 @@ const {
     makeLoggedInCondoAdminClient,
 } = require('@dev-portal-api/domains/user/utils/testSchema')
 
-const CondoB2BApp = generateGQLTestUtils(generateGqlQueries('B2BApp', '{ id name developer developerUrl shortDescription detailedDescription category logo { publicUrl } importId importRemoteSystem deletedAt v oidcClient { id importId importRemoteSystem } }'))
+const devicePermissions = getEnvironmentalPermissionsFieldsSelection({ listKey: 'B2BApp' })
+    .split(' ')
+    .filter(key => key.startsWith('development'))
+    .map(key => `is${key.substring('development'.length)}`)
+    .join(' ')
+const CondoB2BApp = generateGQLTestUtils(generateGqlQueries('B2BApp', `{ id name developer developerUrl shortDescription detailedDescription category contextDefaultStatus logo { publicUrl } importId importRemoteSystem deletedAt v ${devicePermissions} oidcClient { id importId importRemoteSystem } }`))
 const CondoOIDCClient = generateGQLTestUtils(generateGqlQueries('OidcClient', '{ id deletedAt isEnabled clientId payload }'))
 
 describe('PublishB2BAppService', () => {
@@ -202,6 +208,18 @@ describe('PublishB2BAppService', () => {
                 expect(secondApiApp.developmentExportId).not.toBe(firstCondoAppId)
             })
             test('Publish job must transfer all B2BApp fields properly', async () => {
+                const prefix = 'development'
+                const initialPermissions = Object.fromEntries(
+                    getEnvironmentalPermissionsFieldsSelection({ listKey: 'B2BApp' })
+                        .split(' ')
+                        .filter(key => key.startsWith(prefix))
+                        .map(key => [key, faker.datatype.boolean()])
+                )
+                expect(Object.keys(initialPermissions).length).toBeGreaterThan(0)
+                const expectedPermissions = Object.fromEntries(Object.entries(initialPermissions)
+                    .map(([key, value]) => ['is' + key.substring(prefix.length), value])
+                )
+                await updateTestB2BApp(user, app.id, initialPermissions)
                 const [firstResult] = await publishB2BAppByTestClient(user, app, { info: true })
                 expect(firstResult).toHaveProperty('success', true)
 
@@ -212,10 +230,11 @@ describe('PublishB2BAppService', () => {
                 const createdCondoApp = await CondoB2BApp.getOne(condoAdmin, { id: apiApp.developmentExportId })
                 expect(createdCondoApp).toHaveProperty('name', app.name)
                 expect(createdCondoApp).toHaveProperty('developer', user.user.name)
-                // TODO: uncomment once files are done
-                // expect(createdCondoApp).toHaveProperty(['logo', 'publicUrl'])
-                // const initialLogo = createdCondoApp.logo.publicUrl
-                
+                expect(createdCondoApp).toHaveProperty('contextDefaultStatus', 'Finished')
+                expect(createdCondoApp).toHaveProperty(['logo', 'publicUrl'])
+                expect(createdCondoApp).toEqual(expect.objectContaining(expectedPermissions))
+                const initialLogo = createdCondoApp.logo.publicUrl
+
                 const commonPayload = {
                     name: faker.commerce.product(),
                     developer: faker.company.name(),
@@ -223,16 +242,20 @@ describe('PublishB2BAppService', () => {
                     shortDescription: faker.lorem.sentence(),
                     detailedDescription: faker.lorem.paragraph(),
                     category: B2B_APP_CATEGORIES[Math.floor(Math.random() * B2B_APP_CATEGORIES.length)],
+                    contextDefaultStatus: 'InProgress',
                 }
-                await updateTestB2BApp(user, app.id, commonPayload)
+                const updatedPermissions = Object.fromEntries(Object.entries(initialPermissions).map(([key, value]) => [key, !value]))
+                await updateTestB2BApp(user, app.id, { ...commonPayload, ...updatedPermissions })
 
                 const [secondResult] = await publishB2BAppByTestClient(user, app, { info: true })
                 expect(secondResult).toHaveProperty('success', true)
 
+                const expectedUpdatedPermissions = Object.fromEntries(Object.entries(expectedPermissions).map(([key, value]) => [key, !value]))
                 const updatedCondoApp = await CondoB2BApp.getOne(condoAdmin, { id: apiApp.developmentExportId })
                 expect(updatedCondoApp).toEqual(expect.objectContaining(commonPayload))
-                // expect(updatedCondoApp).toHaveProperty(['logo', 'publicUrl'])
-                // expect(updatedCondoApp.logo.publicUrl).not.toBe(initialLogo)
+                expect(updatedCondoApp).toEqual(expect.objectContaining(expectedUpdatedPermissions))
+                expect(updatedCondoApp).toHaveProperty(['logo', 'publicUrl'])
+                expect(updatedCondoApp.logo.publicUrl).not.toBe(initialLogo)
             })
             test('Publishing app with no developer or logo must use author name and default logo', async () => {
                 const apiApp = await B2BApp.getOne(admin, { id: app.id })
@@ -244,8 +267,7 @@ describe('PublishB2BAppService', () => {
 
                 const createdCondoApp = await CondoB2BApp.getOne(condoAdmin, { importId: apiApp.id, importRemoteSystem: REMOTE_SYSTEM })
                 expect(createdCondoApp).toHaveProperty('developer', user.user.name)
-                // TODO: uncomment once files are done
-                // expect(createdCondoApp).toHaveProperty(['logo', 'publicUrl'])
+                expect(createdCondoApp).toHaveProperty(['logo', 'publicUrl'])
             })
             test('exportId must be restored from null if condo app was found by importId', async () => {
                 const [firstResult] = await publishB2BAppByTestClient(user, app, { info: true })
