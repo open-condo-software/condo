@@ -685,13 +685,14 @@ class SendsayEmail {
         }
         if (meta && meta.attachments) {
             letter.attaches = await Promise.all(meta.attachments.map(async (attachment) => {
-                const { mimetype, originalFilename } = attachment
+                const { mimetype, originalFilename, charset } = attachment
                 const buffer = await resolveAttachmentBuffer(attachment, this.attachmentOptions)
                 return {
                     name: originalFilename || 'attachment',
                     content: buffer.toString('base64'),
                     encoding: 'base64',
                     'mime-type': mimetype || 'application/octet-stream',
+                    charset,
                 }
             }))
         }
