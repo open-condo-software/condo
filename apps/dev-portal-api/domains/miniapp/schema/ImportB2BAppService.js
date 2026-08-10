@@ -12,7 +12,7 @@ const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
 const { getByCondition } = require('@open-condo/keystone/schema')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
-const { wrapUploadFile } = require('@open-condo/keystone/upload')
+const { withFileServiceAuthorization } = require('@open-condo/keystone/upload')
 
 const { getDevicePermissions, getDevicePermissionFieldName } = require('@condo/domains/miniapp/schema/fields/devicePermissions')
 const { REMOTE_SYSTEM } = require('@dev-portal-api/domains/common/constants/common')
@@ -218,18 +218,25 @@ async function importAppInfo ({ args, context }) {
         category: sourceApp.category,
         contextDefaultStatus: sourceApp.contextDefaultStatus,
     }
+    let fileServiceAuth = null
     if (sourceApp.logo && sourceApp.logo.publicUrl) {
         const client = prodApp ? productionClient : developmentClient
         const stream = got.stream(sourceApp.logo.publicUrl, {
             headers: { 'Authorization': `Bearer ${client.authToken}` },
         })
-        // TODO: migrate to new API
-        updatePayload.logo = wrapUploadFile({
-            stream: stream,
+        const uploaded = await client.uploadFile({
+            stream,
             filename: sourceApp.logo.filename,
             mimetype: sourceApp.logo.mimetype,
             encoding: sourceApp.logo.encoding,
+            modelName: 'B2BApp',
+            userId: client.userId,
         })
+        updatePayload.logo = {
+            signature: uploaded.signature,
+            originalFilename: sourceApp.logo.filename || uploaded.originalFilename,
+        }
+        fileServiceAuth = `Bearer ${client.authToken}`
     }
 
     const queue = []
@@ -263,7 +270,10 @@ async function importAppInfo ({ args, context }) {
         updatePayload[exportField] = app.id
     }
 
-    return await B2BApp.update(context, appId, updatePayload)
+    const updateContext = fileServiceAuth
+        ? withFileServiceAuthorization(context, fileServiceAuth)
+        : context
+    return await B2BApp.update(updateContext, appId, updatePayload)
 }
 
 async function _importAppAccessRightFromEnvironment ({ condoAppId, args, environment, context }) {
