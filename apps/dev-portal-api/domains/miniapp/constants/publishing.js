@@ -8,6 +8,7 @@ const AVAILABLE_ENVIRONMENTS = [
     PROD_ENVIRONMENT,
 ]
 
+const B2B_APP_DEFAULT_LOGO_PATH = path.join(__dirname, '..', 'assets', 'b2bDefaultLogo.png')
 const B2C_APP_DEFAULT_LOGO_PATH = path.join(__dirname, '..', 'assets', 'b2cDefaultLogo.png')
 
 const PUBLISH_REQUEST_PENDING_STATUS = 'pending'
@@ -21,6 +22,7 @@ module.exports = {
     DEV_ENVIRONMENT,
     PROD_ENVIRONMENT,
     AVAILABLE_ENVIRONMENTS,
+    B2B_APP_DEFAULT_LOGO_PATH,
     B2C_APP_DEFAULT_LOGO_PATH,
     PUBLISH_REQUEST_PENDING_STATUS,
     PUBLISH_REQUEST_APPROVED_STATUS,
