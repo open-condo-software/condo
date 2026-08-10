@@ -275,15 +275,24 @@ async function addAccessRight ({ args, context, serverClient, condoApp }) {
         deletedAt: null,
     }, 'id condoUserId')
 
-    if (!accessRight) return
+    if (accessRight) {
+        logger.info({
+            msg: 'access right found for app',
+            entityId: id,
+            entity: 'B2BApp',
+            environment,
+            data: { accessRightId: accessRight.id },
+        })
+    } else {
+        logger.info({
+            msg: 'access right not found for app',
+            entityId: id,
+            entity: 'B2BApp',
+            environment,
+        })
+    }
 
-    logger.info({
-        msg: 'access right found for app',
-        entityId: id,
-        entity: 'B2BApp',
-        environment,
-        data: { accessRightId: accessRight.id },
-    })
+    let condoRight
 
     const condoRights = await serverClient.getModels({
         modelGql: CondoB2BAppAccessRightGql,
@@ -293,8 +302,6 @@ async function addAccessRight ({ args, context, serverClient, condoApp }) {
         first: 1,
     })
 
-    let condoRight
-
     if (condoRights.length) {
         condoRight = condoRights[0]
         logger.info({
@@ -302,16 +309,22 @@ async function addAccessRight ({ args, context, serverClient, condoApp }) {
             entityId: id,
             entity: 'B2BApp',
             environment,
-            data: { accessRightId: accessRight.id, condoAccessRightId: condoRight.id },
+            data: { accessRightId: accessRight?.id, condoAccessRightId: condoRight.id },
         })
+    }
+
+    if (condoRight) {
         const condoUserId = condoRight.user?.id
-        if (condoUserId !== accessRight.condoUserId) {
+        if (!accessRight || condoUserId !== accessRight.condoUserId) {
+            const stateMsg = !accessRight
+                ? 'existing condo access right does not match dev-portal one'
+                : 'existing condo access right user does not match with dev-portal one'
             logger.info({
-                msg: 'existing condo access right user does not match with dev-portal one',
+                msg: stateMsg,
                 entityId: id,
                 entity: 'B2BApp',
                 environment,
-                data: { accessRightId: accessRight.id, condoAccessRightId: condoRight.id  },
+                data: { accessRightId: accessRight?.id, condoAccessRightId: condoRight.id  },
             })
             await serverClient.updateModel({
                 modelGql: CondoB2BAppAccessRightGql,
@@ -327,10 +340,14 @@ async function addAccessRight ({ args, context, serverClient, condoApp }) {
                 entityId: id,
                 entity: 'B2BApp',
                 environment,
-                data: { accessRightId: accessRight.id, condoAccessRightId: condoRight.id  },
+                data: { accessRightId: accessRight?.id, condoAccessRightId: condoRight.id  },
             })
             condoRight = null
         }
+    }
+
+    if (!accessRight) {
+        return
     }
 
     if (!condoRight) {
@@ -408,7 +425,7 @@ async function addAccessRight ({ args, context, serverClient, condoApp }) {
             data: { accessRightSetId: accessRightSet.id },
         })
 
-        await serverClient.updateModel({
+        condoRight = await serverClient.updateModel({
             modelGql: CondoB2BAppAccessRightGql,
             id: condoRight.id,
             updateInput: {
@@ -418,6 +435,7 @@ async function addAccessRight ({ args, context, serverClient, condoApp }) {
                     create: {
                         dv,
                         sender,
+                        app: { connect: { id: condoApp.id } },
                         importId: accessRightSet.id,
                         importRemoteSystem: REMOTE_SYSTEM,
                         ...currentPermissions,
@@ -445,7 +463,6 @@ async function addAccessRight ({ args, context, serverClient, condoApp }) {
             },
         })
     }
-
 }
 
 const PublishB2BAppService = new GQLCustomSchema('PublishB2BAppService', {
