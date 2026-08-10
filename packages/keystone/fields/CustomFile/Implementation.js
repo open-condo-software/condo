@@ -58,12 +58,12 @@ class CustomFile extends FileWithUTF8Name.implementation {
         return gqlFieldAlias ? `${baseKey}:${gqlFieldAlias}` : baseKey
     }
 
-    _getFileServiceBaseUrl () {
+    _getFileServiceBaseUrl (context) {
         if (conf.FILE_SERVICE_URL) {
             return conf.FILE_SERVICE_URL
         }
 
-        if (!conf['FILE_UPLOAD_CONFIG'] && conf.CONDO_DOMAIN) {
+        if (context?.fileServiceAuthorization && !conf['FILE_UPLOAD_CONFIG'] && conf.CONDO_DOMAIN) {
             return conf.CONDO_DOMAIN
         }
 
@@ -278,7 +278,7 @@ class CustomFile extends FileWithUTF8Name.implementation {
         }
 
         try {
-            const res = await fetch(`${this._getFileServiceBaseUrl()}/api/files/attach`, {
+            const res = await fetch(`${this._getFileServiceBaseUrl(context)}/api/files/attach`, {
                 method: 'POST',
                 headers,
                 body: JSON.stringify(payload),
