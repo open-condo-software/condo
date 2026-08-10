@@ -59,18 +59,16 @@ async function canReadBillingEntity (args) {
 
     if (user.type === SERVICE) {
         const canReadAsB2BAppServiceUser = await canReadObjectsAsB2BAppServiceUser(args)
-        return {
-            OR: [
-                canReadAsB2BAppServiceUser,
-                { 
-                    context: {
-                        integration: {
-                            accessRights_some: { user: { id: user.id }, deletedAt: null },
-                        },
-                    }, 
-                },
-            ].filter(Boolean),
+        // NOTE: Wrapping each OR condition in AND prevents Keystone v5 from incorrectly
+        // translating deeply nested relationship filters inside OR conditions, which
+        // caused BillingAccounts from disconnected organizations to leak through.
+        const filterConditions = [
+            { AND: [{ context: { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } } }] },
+        ]
+        if (canReadAsB2BAppServiceUser) {
+            filterConditions.push({ AND: [canReadAsB2BAppServiceUser] })
         }
+        return { OR: filterConditions }
     }
     if (user.type === STAFF) {
         return { 
