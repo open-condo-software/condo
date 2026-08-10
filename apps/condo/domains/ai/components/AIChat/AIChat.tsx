@@ -60,12 +60,14 @@ type ExecuteAIMessageOptions = {
 
 type AIChatProps = {
     aiSessionId: string
-    variant?: 'overlay' | 'embedded'
+    initialMessage?: string
+    onFirstUserMessage?: (text: string) => void
 }
 
 export const AIChat: React.FC<AIChatProps> = ({
                                                   aiSessionId,
-                                                  variant = 'overlay',
+                                                  initialMessage,
+                                                  onFirstUserMessage,
                                               }) => {
     const intl = useIntl()
     const loadingLabel = intl.formatMessage({id: 'ai.chat.loading'})
@@ -105,6 +107,8 @@ export const AIChat: React.FC<AIChatProps> = ({
     const pendingScrollToMessageIdRef = useRef<string | null>(null)
     const shouldScrollActiveTurnRef = useRef(false)
     const initialLoadDoneRef = useRef(false)
+    const initialMessageSentRef = useRef(false)
+    const initialMessageOverrideRef = useRef<string | null>(null)
 
     const [{execute, resume}, {loading, currentTaskId, data}] = useAIFlow<{ answer: string }>({
         aiSessionId,
@@ -538,12 +542,17 @@ export const AIChat: React.FC<AIChatProps> = ({
     }, [user, organization, execute, finalizeAssistantMessage, changeMessage, errorMessage, loadingLabel])
 
     const handleSendMessage = useCallback(async () => {
-        const trimmedInput = inputValue.trim()
+        const overrideInput = initialMessageOverrideRef.current
+        initialMessageOverrideRef.current = null
+        const trimmedInput = (overrideInput ?? inputValue).trim()
         const canSend = (trimmedInput || canSendWithAttachments) && !loading && !attachmentsUploading && user
         if (!canSend) return
 
         const attachmentsToSend = attachments ? [...attachments.readyAttachments] : []
         const isFirstInSession = !messages.some((msg) => msg.role === 'user')
+        if (isFirstInSession && trimmedInput) {
+            onFirstUserMessage?.(trimmedInput)
+        }
         void analytics.track('ai_assistant_message_send', {
             source: 'typed',
             is_first_in_session: isFirstInSession,
@@ -569,7 +578,23 @@ export const AIChat: React.FC<AIChatProps> = ({
         attachments?.resetAttachments()
 
         await startUserTurn(userMessage, {attachments: attachmentsToSend})
-    }, [inputValue, canSendWithAttachments, loading, attachmentsUploading, user, attachments, messages, startUserTurn])
+    }, [inputValue, canSendWithAttachments, loading, attachmentsUploading, user, attachments, messages, startUserTurn, onFirstUserMessage])
+
+    // Auto-send the initial message once, after history load, if the session has no user messages yet
+    useEffect(() => {
+        if (!initialMessage || initialMessageSentRef.current || !initialLoadDoneRef.current || !user) return
+
+        const savedHistory = historyStorageManager.getItem(STORAGE_KEY)
+        const sessionData = savedHistory ? savedHistory[aiSessionId] : null
+        if (sessionData && sessionData.history && sessionData.history.some((msg: any) => msg.role === 'user')) {
+            initialMessageSentRef.current = true
+            return
+        }
+
+        initialMessageSentRef.current = true
+        initialMessageOverrideRef.current = initialMessage
+        void handleSendMessage()
+    }, [initialMessage, aiSessionId, user, handleSendMessage])
 
     const handleScenarioButtonClick = useCallback(async (buttonId: string, buttonName: string) => {
         if (!buttonName.trim() || loading || !user || !canExecuteAIFlow) return
@@ -633,7 +658,7 @@ export const AIChat: React.FC<AIChatProps> = ({
     return (
         <div ref={chatContainerRef} className={styles.chatContainer}>
             <div ref={messagesContainerRef}
-                 className={`${styles.messagesContainer} comment-body ${variant === 'embedded' ? styles.messagesContainerEmbedded : ''}`}>
+                 className={`${styles.messagesContainer} comment-body`}>
                 {welcomeDisplayMessage && (
                     <AIChatMessage
                         message={welcomeDisplayMessage}
@@ -688,7 +713,6 @@ export const AIChat: React.FC<AIChatProps> = ({
                 onInputKeyDown={handleComposerKeyDown}
                 onSendMessage={handleSendMessage}
                 placeholder={placeholder}
-                variant={variant}
             />
         </div>
     )

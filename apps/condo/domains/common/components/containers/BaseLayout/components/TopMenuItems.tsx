@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router'
 import React, { useMemo } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
@@ -8,7 +9,7 @@ import { Space, Typography } from '@open-condo/ui'
 
 import { useAIContext } from '@condo/domains/ai/components/AIContext'
 import { AIFlowButton } from '@condo/domains/ai/components/AIFlowButton'
-import { UI_AI_CHAT_WITH_CONDO, UI_HIDE_USER_LINKS } from '@condo/domains/common/constants/featureflags'
+import { UI_AI_CHAT_WITH_CONDO, UI_AI_COWORK, UI_HIDE_USER_LINKS } from '@condo/domains/common/constants/featureflags'
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { UserMessagesList } from '@condo/domains/notification/components/UserMessagesList'
 import { InlineOrganizationSelect } from '@condo/domains/organization/components/OrganizationSelect'
@@ -33,13 +34,17 @@ export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
     const { useFlag } = useFeatureFlags()
     const { isAIOverlayOpen, openAIOverlay } = useAIContext()
     const isAIChatEnabled = useFlag(UI_AI_CHAT_WITH_CONDO)
+    const isCoworkEnabled = useFlag(UI_AI_COWORK)
     const isUserMenuHidden = useFlag(UI_HIDE_USER_LINKS)
 
     const PaymentHistoryLabel = intl.formatMessage({ id: 'subscription.paymentHistory.title' })
     const LinkedCardsLabel = intl.formatMessage({ id: 'subscription.linkedCards.title' })
+    const CoworkLabel = intl.formatMessage({ id: 'ai.cowork.chats' })
 
     const { LinkedCardsModal, openModal: openLinkedCardsModal } = useLinkedCardsModal()
     const { PaymentHistoryModal, openModal: openPaymentHistoryModal, hasPaymentHistory } = usePaymentHistoryModal()
+
+    const router = useRouter()
 
     const subscriptionMenuItems = useMemo(() => {
         if (!hasPaymentHistory) return []
@@ -57,6 +62,18 @@ export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
         ]
     }, [hasPaymentHistory, openPaymentHistoryModal, openLinkedCardsModal, PaymentHistoryLabel, LinkedCardsLabel])
 
+    const userMenuExtraItems = useMemo(() => {
+        const items = [...subscriptionMenuItems]
+        if (isCoworkEnabled) {
+            items.push({
+                key: 'cowork',
+                label: <Typography.Text size='medium' type='inherit'>{CoworkLabel}</Typography.Text>,
+                onClick: () => { void router.push('/cowork') },
+            })
+        }
+        return items
+    }, [isCoworkEnabled, CoworkLabel, subscriptionMenuItems, router])
+
     if (auth.isLoading) return null
 
     return (
@@ -71,7 +88,7 @@ export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
                     <SBBOLIndicator organization={organization} />
                     <InlineOrganizationSelect />
                 </Space>
-                {!isUserMenuHidden && <UserMenu extraMenuItems={subscriptionMenuItems} />}
+                {!isUserMenuHidden && <UserMenu extraMenuItems={userMenuExtraItems} />}
                 <div style={{ maxHeight: '24px' }}>
                     <UserMessagesList disabled={!hasSubscription} />
                 </div>

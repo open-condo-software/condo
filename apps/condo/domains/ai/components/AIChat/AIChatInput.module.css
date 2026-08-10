@@ -9,13 +9,14 @@
   backdrop-filter: blur(20px);
 }
 
-.input-container-embedded {
+/* Embedded mode — when inside .cowork-chat-wrapper */
+.cowork-chat-wrapper .input-container {
+  position: relative;
   right: auto;
-  bottom: var(--condo-global-spacing-16);
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100%;
+  bottom: auto;
+  left: auto;
   max-width: 768px;
+  margin: 0 auto;
   padding: var(--condo-global-spacing-12) var(--condo-global-spacing-16);
   background: var(--condo-global-color-white);
   border: 1px solid var(--condo-global-color-gray-3);
