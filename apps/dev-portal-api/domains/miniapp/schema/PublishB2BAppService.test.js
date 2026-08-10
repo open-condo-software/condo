@@ -536,7 +536,7 @@ describe('PublishB2BAppService', () => {
                 expect(repeatedRight).toHaveProperty('v', condoRight.v)
                 expect(repeatedRight).toHaveProperty(['accessRightSet', 'v'], condoRight.accessRightSet.v)
 
-                const newPermissions = generateRightSetPermissions()
+                const newPermissions = Object.fromEntries(Object.entries(permissions).map(([key, value]) => [key, !value]))
                 const [newRightSet] = await createTestB2BAppAccessRightSet(user, app, newPermissions)
                 expect(newRightSet).toHaveProperty('id')
                 expect(newRightSet).toEqual(expect.objectContaining(newPermissions))

@@ -330,7 +330,7 @@ async function addAccessRight ({ args, context, serverClient, condoApp }) {
                 modelGql: CondoB2BAppAccessRightGql,
                 id: condoRight.id,
                 updateInput: {
-                    dv: 1,
+                    dv,
                     sender,
                     deletedAt: dayjs().toISOString(),
                 },
