@@ -25,12 +25,10 @@ function wrapUploadFile (uploadFile) {
 /**
  * Provide Authorization for CustomFile HTTP attach to an external file service (e.g. condo).
  *
- * Use this for server-side updates when the app has no local FileMiddleware
- * (`FILE_UPLOAD_CONFIG`) and attaches files over HTTP. Prefer this over mutating
- * `context.req.headers.authorization`.
+ * Returns a shallow copy of the Keystone context with `fileServiceAuthorization` set.
  *
- * Works with serverSchema helpers (`Model.update` / `create`): `fileServiceAuthorization`
- * is forwarded through `execGqlWithoutAccess` into field hooks.
+ * Use for server-side updates when the app has no local FileMiddleware
+ * (`FILE_UPLOAD_CONFIG`) and attaches files over HTTP.
  *
  * @example
  * const { withFileServiceAuthorization } = require('@open-condo/keystone/upload')
@@ -40,9 +38,9 @@ function wrapUploadFile (uploadFile) {
  *   { logo: { signature, originalFilename } },
  * )
  *
- * @param {Object} context - Keystone context (mutated and returned for chaining)
+ * @param {Object} context - Keystone context
  * @param {string} authorization - Full Authorization header value, e.g. `Bearer ${token}`
- * @returns {Object} same context
+ * @returns {Object} new context object scoped to this call
  */
 function withFileServiceAuthorization (context, authorization) {
     if (!context || typeof context !== 'object') {
@@ -51,8 +49,10 @@ function withFileServiceAuthorization (context, authorization) {
     if (!authorization || typeof authorization !== 'string') {
         throw new Error('withFileServiceAuthorization: authorization must be a non-empty string')
     }
-    context.fileServiceAuthorization = authorization
-    return context
+    return {
+        ...context,
+        fileServiceAuthorization: authorization,
+    }
 }
 
 module.exports = {

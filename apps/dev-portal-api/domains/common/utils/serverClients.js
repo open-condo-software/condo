@@ -84,12 +84,9 @@ class CondoClient extends ApolloServerClient {
      * @param {string} options.filename
      * @param {string} options.mimetype
      * @param {string} [options.encoding]
-     * @param {string} [options.userId] - Condo user id owning the FileRecord.
-     *   Must match the authenticated bot for HTTP (`meta.user.id === req.user.id`).
-     *   Defaults to the signed-in bot user.
      * @returns {Promise<{id: string, signature: string, originalFilename: string}>}
      */
-    async uploadFile ({ stream, modelName, filename, mimetype, encoding, userId }) {
+    async uploadFile ({ stream, modelName, filename, mimetype, encoding }) {
         if (!this.userId || !this.authToken) {
             await this.signIn()
         }
@@ -98,7 +95,7 @@ class CondoClient extends ApolloServerClient {
 
         const [file] = await uploadFilesFromServer({
             fileClientId: conf['FILE_CLIENT_ID'],
-            userId: userId || this.userId,
+            userId: this.userId,
             fingerprint: dvSender.sender.fingerprint,
             files: [{
                 stream,

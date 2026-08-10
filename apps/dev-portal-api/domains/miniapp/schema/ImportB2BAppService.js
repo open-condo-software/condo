@@ -230,7 +230,6 @@ async function importAppInfo ({ args, context }) {
             mimetype: sourceApp.logo.mimetype,
             encoding: sourceApp.logo.encoding,
             modelName: 'B2BApp',
-            userId: client.userId,
         })
         updatePayload.logo = {
             signature: uploaded.signature,
