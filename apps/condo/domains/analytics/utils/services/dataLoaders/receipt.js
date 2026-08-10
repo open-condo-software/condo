@@ -108,6 +108,7 @@ class ReceiptDataLoader extends AbstractDataLoader {
         const receiptMonthSumLoader = new GqlWithKnexLoadList({
             listKey: 'BillingReceipt',
             fields: 'id',
+            crossDbPlannerEnabled: true,
             where: {
                 AND: [
                     { period_gte: dayjs().startOf('month').format(PERIOD_DATE_FORMAT) },
