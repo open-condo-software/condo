@@ -4,7 +4,10 @@
 
 const fs = require('fs')
 
+const dayjs = require('dayjs')
 const got = require('got')
+const isEqual = require('lodash/isEqual')
+const pick = require('lodash/pick')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -12,19 +15,23 @@ const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const { REMOTE_SYSTEM } = require('@dev-portal-api/domains/common/constants/common')
 const { productionClient, developmentClient } = require('@dev-portal-api/domains/common/utils/serverClients')
-const { CondoB2BAppGql, CondoOIDCClientGql } = require('@dev-portal-api/domains/condo/gql')
+const { CondoB2BAppGql, CondoOIDCClientGql, CondoB2BAppAccessRightGql, CondoB2BAppAccessRightSetGql } = require('@dev-portal-api/domains/condo/gql')
 const access = require('@dev-portal-api/domains/miniapp/access/PublishB2BAppService')
+const { B2B_APP_ACCESS_RIGHT_SET_APPROVED_STATUS } = require('@dev-portal-api/domains/miniapp/constants/b2bAppAccessRightSet')
 const { APP_NOT_FOUND, FIRST_PUBLISH_WITHOUT_INFO, PUBLISH_NOT_ALLOWED, CONDO_APP_NOT_FOUND } = require('@dev-portal-api/domains/miniapp/constants/errors')
 const { B2B_APP_DEFAULT_LOGO_PATH } = require('@dev-portal-api/domains/miniapp/constants/publishing')
 const { PROD_ENVIRONMENT, PUBLISH_REQUEST_APPROVED_STATUS } = require('@dev-portal-api/domains/miniapp/constants/publishing')
-const { B2BApp, B2BAppPublishRequest } = require('@dev-portal-api/domains/miniapp/utils/serverSchema')
+const { B2BApp, B2BAppPublishRequest, B2BAppAccessRightSet, B2BAppAccessRight } = require('@dev-portal-api/domains/miniapp/utils/serverSchema')
+const { locker } = require('@dev-portal-api/domains/miniapp/utils/serverSchema/locks')
 
 const { extractDevicePermissionsForCondo, getEnvironmentalPermissionsFieldsSelection } = require('./fields/devicePermissions')
 const { getEnvironmentalFieldsSelection } = require('./fields/environmental')
+const { PERMISSION_FIELDS } = require('./fields/rightSetPermissions')
 const { getOIDCClientWhere } = require('./GetOIDCClientService')
 
-
+const ACCESS_RIGHT_SET_PERMISSIONS = Object.keys(PERMISSION_FIELDS)
 const B2B_APP_EXPORTED_FIELDS = `id name developer developerUrl createdBy { name } logo { publicUrl originalFilename mimetype } shortDescription detailedDescription category contextDefaultStatus ${getEnvironmentalPermissionsFieldsSelection({ listKey: 'B2BApp' })} ${getEnvironmentalFieldsSelection(['exportId', 'oidcClientId', 'appUrl'])}`
+const B2B_APP_ACCESS_RIGHT_SET_FIELDS = `id ${ACCESS_RIGHT_SET_PERMISSIONS.join(' ')}`
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -65,6 +72,19 @@ function getExportIdField (environment) {
 
 function getAppUrlField (environment) {
     return `${environment}AppUrl`
+}
+
+function wrapResolverWithLock (originalResolver) {
+    return async function (parent, args, contextValue, info) {
+        const { data: { app: { id }, environment } } = args
+        const lock = await locker.acquireAppLock(id, environment)
+
+        try {
+            return await originalResolver(parent, args, contextValue, info)
+        } finally {
+            await lock.release()
+        }
+    }
 }
 
 async function publishAppChanges ({ app, condoApp, serverClient, args, context }) {
@@ -246,6 +266,188 @@ async function syncOIDCClient ({ args, serverClient, condoApp, localApp }) {
     }
 }
 
+async function addAccessRight ({ args, context, serverClient, condoApp }) {
+    const { data: { dv, sender, app: { id }, environment } } = args
+    const exportField = `${environment}ExportId`
+    const accessRight = await B2BAppAccessRight.getOne(context, {
+        app: { id },
+        environment,
+        deletedAt: null,
+    }, 'id condoUserId')
+
+    if (!accessRight) return
+
+    logger.info({
+        msg: 'access right found for app',
+        entityId: id,
+        entity: 'B2BApp',
+        environment,
+        data: { accessRightId: accessRight.id },
+    })
+
+    const condoRights = await serverClient.getModels({
+        modelGql: CondoB2BAppAccessRightGql,
+        where: {
+            app: { id: condoApp.id },
+        },
+        first: 1,
+    })
+
+    let condoRight
+
+    if (condoRights.length) {
+        condoRight = condoRights[0]
+        logger.info({
+            msg: 'existing condo access right found for app',
+            entityId: id,
+            entity: 'B2BApp',
+            environment,
+            data: { accessRightId: accessRight.id, condoAccessRightId: condoRight.id },
+        })
+        const condoUserId = condoRight.user?.id
+        if (condoUserId !== accessRight.condoUserId) {
+            logger.info({
+                msg: 'existing condo access right user does not match with dev-portal one',
+                entityId: id,
+                entity: 'B2BApp',
+                environment,
+                data: { accessRightId: accessRight.id, condoAccessRightId: condoRight.id  },
+            })
+            await serverClient.updateModel({
+                modelGql: CondoB2BAppAccessRightGql,
+                id: condoRight.id,
+                updateInput: {
+                    dv: 1,
+                    sender,
+                    deletedAt: dayjs().toISOString(),
+                },
+            })
+            logger.info({
+                msg: 'existing condo access right successfully deleted',
+                entityId: id,
+                entity: 'B2BApp',
+                environment,
+                data: { accessRightId: accessRight.id, condoAccessRightId: condoRight.id  },
+            })
+            condoRight = null
+        }
+    }
+
+    if (!condoRight) {
+        logger.info({
+            msg: 'creating new condo access right',
+            entityId: id,
+            entity: 'B2BApp',
+            environment,
+            data: { accessRightId: accessRight.id },
+        })
+        condoRight = await serverClient.createModel({
+            modelGql: CondoB2BAppAccessRightGql,
+            createInput: {
+                dv,
+                sender,
+                app: { connect: { id: condoApp.id } },
+                user: { connect: { id: accessRight.condoUserId } },
+                importId: accessRight.id,
+                importRemoteSystem: REMOTE_SYSTEM,
+            },
+        })
+        logger.info({
+            msg: 'Updating dev-portal access right info',
+            entityId: id,
+            entity: 'B2BApp',
+            environment,
+            data: { accessRightId: accessRight.id, condoAccessRightId: condoRight.id },
+        })
+        await B2BAppAccessRight.update(context, accessRight.id, {
+            dv,
+            sender,
+            [exportField]: condoRight.id,
+        })
+    }
+
+    const accessRightSet = await B2BAppAccessRightSet.getOne(context, {
+        app: { id },
+        environment,
+        status: B2B_APP_ACCESS_RIGHT_SET_APPROVED_STATUS,
+        deletedAt: null,
+    }, B2B_APP_ACCESS_RIGHT_SET_FIELDS)
+
+    if (!accessRightSet && condoRight?.accessRightSet) {
+        logger.info({
+            msg: 'Deleting condo B2BAppAccessRightSet',
+            entityId: id,
+            entity: 'B2BApp',
+            environment,
+            data: { condoAccessRightSetId: condoRight.accessRightSet.id },
+        })
+
+        await serverClient.updateModel({
+            modelGql: CondoB2BAppAccessRightSetGql,
+            id: condoRight.accessRightSet.id,
+            updateInput: {
+                dv,
+                sender,
+                deletedAt: dayjs().toISOString(),
+            },
+        })
+    }
+
+    if (!accessRightSet) {
+        return
+    }
+
+    const currentPermissions = pick(accessRightSet, ACCESS_RIGHT_SET_PERMISSIONS)
+
+    if (!condoRight?.accessRightSet) {
+        logger.info({
+            msg: 'Creating condo B2BAppAccessRightSet',
+            entityId: id,
+            entity: 'B2BApp',
+            environment,
+            data: { accessRightSetId: accessRightSet.id },
+        })
+
+        await serverClient.updateModel({
+            modelGql: CondoB2BAppAccessRightGql,
+            id: condoRight.id,
+            updateInput: {
+                dv,
+                sender,
+                accessRightSet: {
+                    create: {
+                        dv,
+                        sender,
+                        importId: accessRightSet.id,
+                        importRemoteSystem: REMOTE_SYSTEM,
+                        ...currentPermissions,
+                    },
+                },
+            },
+        })
+    } else if (!isEqual(currentPermissions, pick(condoRight.accessRightSet, ACCESS_RIGHT_SET_PERMISSIONS))) {
+        logger.info({
+            msg: 'Updating B2BAppAccessRightSet permissions',
+            entityId: id,
+            entity: 'B2BApp',
+            environment,
+            data: { accessRightSetId: accessRightSet.id, condoAccessRightSetId: condoRight.accessRightSet.id },
+        })
+        await serverClient.updateModel({
+            modelGql: CondoB2BAppAccessRightSetGql,
+            id: condoRight.accessRightSet.id,
+            updateInput: {
+                dv,
+                sender,
+                ...currentPermissions,
+                importId: accessRightSet.id,
+                importRemoteSystem: REMOTE_SYSTEM,
+            },
+        })
+    }
+
+}
+
 const PublishB2BAppService = new GQLCustomSchema('PublishB2BAppService', {
     types: [
         {
@@ -266,7 +468,7 @@ const PublishB2BAppService = new GQLCustomSchema('PublishB2BAppService', {
         {
             access: access.canPublishB2BApp,
             schema: 'publishB2BApp(data: PublishB2BAppInput!): PublishB2BAppOutput',
-            resolver: async (parent, args, context) => {
+            resolver: wrapResolverWithLock(async (parent, args, context) => {
                 const { data: { app: { id }, options, environment } } = args
 
                 const app = await B2BApp.getOne(
@@ -322,13 +524,16 @@ const PublishB2BAppService = new GQLCustomSchema('PublishB2BAppService', {
                     throw new GQLError(ERRORS.CONDO_APP_NOT_FOUND, context)
                 }
 
+                // Step 3. Create accessRight is necessary
+                await addAccessRight({ args, serverClient, context, condoApp })
+
                 // Step 4. If OIDC client was created, publish must enable it for usage
                 await syncOIDCClient({ args, serverClient, condoApp, localApp: app })
 
                 return {
                     success: true,
                 }
-            },
+            }),
         },
     ],
     
