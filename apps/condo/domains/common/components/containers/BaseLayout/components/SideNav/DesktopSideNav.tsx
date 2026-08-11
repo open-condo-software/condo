@@ -18,10 +18,12 @@ import {
 interface ISideNavProps {
     onLogoClick: (...args) => void
     menuData?: React.ReactNode
+    residentActions?: React.ElementType | false | null
+    logo?: React.ReactNode
 }
 
 export const DesktopSideNav: React.FC<ISideNavProps> = (props) => {
-    const { onLogoClick, menuData } = props
+    const { onLogoClick, menuData, residentActions, logo } = props
     const { link, organization } = useOrganization()
 
     const hasAccessToAppeals = get(organization, 'type', MANAGING_COMPANY_TYPE) !== SERVICE_PROVIDER_TYPE
@@ -43,12 +45,12 @@ export const DesktopSideNav: React.FC<ISideNavProps> = (props) => {
                 collapsedWidth={COLLAPSED_SIDE_MENU_WIDTH}
             >
                 <div className='logo-container'>
-                    <Logo onClick={onLogoClick} minified={isCollapsed}/>
+                    {logo || <Logo onClick={onLogoClick} minified={isCollapsed}/>}
                 </div>
                 <div className='expand-button' onClick={toggleCollapsed}>
                     {isCollapsed ? <ChevronRight size='small'/> : <ChevronLeft size='small'/>}
                 </div>
-                {hasAccessToAppeals && (
+                {residentActions !== false && (residentActions ?? hasAccessToAppeals) && (
                     <div className='actions-container'>
                         <ResidentActions minified={isCollapsed}/>
                     </div>

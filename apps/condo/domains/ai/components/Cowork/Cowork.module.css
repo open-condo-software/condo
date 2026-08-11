@@ -16,7 +16,6 @@
   width: 100%;
   height: 56px;
   padding: 0 var(--condo-global-spacing-16) 0 var(--condo-global-spacing-16);
-  border-bottom: 1px solid var(--condo-global-color-gray-3);
   background: var(--condo-global-color-white);
 }
 
@@ -34,11 +33,6 @@
   font-weight: 700;
   color: var(--condo-global-color-black);
   user-select: none;
-}
-
-.cowork-logo-italic {
-  font-weight: 400;
-  color: var(--condo-global-color-gray-7);
 }
 
 .cowork-header-right {
@@ -102,6 +96,115 @@
   flex-shrink: 0;
   color: var(--condo-global-color-gray-6);
   font-size: 16px;
+}
+
+.side-menu-chats-section {
+  display: flex;
+  flex-direction: column;
+  padding: var(--condo-global-spacing-8) 0;
+}
+
+.side-menu-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.side-menu-group-header {
+  display: flex;
+  align-items: center;
+  gap: var(--condo-global-spacing-8);
+  padding: 9px 0;
+  cursor: pointer;
+  user-select: none;
+}
+
+.side-menu-group-header-chevron {
+  display: flex;
+  flex-shrink: 0;
+  color: var(--condo-global-color-gray-7);
+  transition: var(--condo-global-transition-duration-default), transform 0.15s ease;
+}
+
+.side-menu-group-header-chevron-collapsed {
+  transform: rotate(-90deg);
+}
+
+.side-menu-group-header-title {
+  color: var(--condo-global-color-gray-7) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  transition: var(--condo-global-transition-duration-default);
+}
+
+.side-menu-group-header:hover .side-menu-group-header-chevron,
+.side-menu-group-header:hover .side-menu-group-header-title {
+  color: var(--condo-global-color-black) !important;
+}
+
+.side-menu-group-content {
+  display: flex;
+  flex-direction: column;
+  padding: var(--condo-global-spacing-4) 0 var(--condo-global-spacing-8) var(--condo-global-spacing-24);
+}
+
+.side-menu-group-empty {
+  padding: var(--condo-global-spacing-8) 0;
+  color: var(--condo-global-color-gray-5);
+  font-size: 13px;
+}
+
+.side-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px var(--condo-global-spacing-8);
+  border-radius: var(--condo-global-border-radius-medium);
+  cursor: pointer;
+  transition: var(--condo-global-transition-duration-default);
+}
+
+.side-menu-item:hover {
+  background: var(--condo-global-color-gray-2);
+}
+
+.side-menu-item-active {
+  background: var(--condo-global-color-blue-2);
+}
+
+.side-menu-item .side-menu-item-title {
+  color: var(--condo-global-color-gray-7) !important;
+}
+
+.side-menu-item:hover .side-menu-item-title,
+.side-menu-item-active .side-menu-item-title {
+  color: var(--condo-global-color-black) !important;
+}
+
+.side-menu-item-title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.side-menu-item-actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+.side-menu-item:hover .side-menu-item-actions {
+  opacity: 1;
+}
+
+.side-menu-item-actions * {
+  color: var(--condo-global-color-gray-7);
+}
+
+.side-menu-item-actions:hover * {
+  color: var(--condo-global-color-black);
 }
 
 .sidebar-section-header {
@@ -310,11 +413,6 @@
   font-size: 28px;
   font-weight: 700;
   color: var(--condo-global-color-black);
-}
-
-.welcome-title-italic {
-  font-weight: 400;
-  color: var(--condo-global-color-gray-7);
 }
 
 .welcome-subtitle {

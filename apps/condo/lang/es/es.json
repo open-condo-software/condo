@@ -406,6 +406,7 @@
   "ai.chat.attachments.tooltip.limits": "Máximo {max} archivos, hasta {maxFileSizeMb} MB cada uno",
   "ai.chat.attachments.tooltip.textOnly": "De los archivos solo se tendrá en cuenta el texto",
   "ai.cowork.newChat": "Nuevo chat",
+  "ai.cowork.title": "Doma.ai Cowork",
   "ai.cowork.emptySessions": "Aún no hay chats. ¡Inicia uno nuevo!",
   "ai.cowork.deleteChat": "Eliminar chat",
   "ai.cowork.welcomeSubtitle": "Pregunta cualquier cosa sobre gestión inmobiliaria — puedo ayudar con tickets, residentes, facturación y más.",

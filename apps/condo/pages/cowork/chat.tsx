@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { v4 as uuidV4 } from 'uuid'
 
@@ -6,8 +7,8 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Button, Input, Tooltip } from '@open-condo/ui'
 
-import { CoworkLayout, CoworkSidebar, saveCoworkChats, type CoworkChat } from '@condo/domains/ai/components/Cowork'
 import { AIChat } from '@condo/domains/ai/components/AIChat'
+import { CoworkLayout } from '@condo/domains/ai/components/Cowork'
 import coworkStyles from '@condo/domains/ai/components/Cowork/Cowork.module.css'
 import { PageComponentType } from '@condo/domains/common/types'
 import { LocalStorageManager } from '@condo/domains/common/utils/localStorageManager'
@@ -26,10 +27,13 @@ const SHARE_COPIED_RESET_TIMEOUT_MS = 2000
 const CoworkPage: PageComponentType = () => {
     const intl = useIntl()
     const { organization } = useOrganization()
+    const router = useRouter()
+    const queryChatId = router.query.chatId as string | undefined
 
     const placeholder = intl.formatMessage({ id: 'ai.chat.placeholder' })
     const newChatLabel = intl.formatMessage({ id: 'ai.cowork.newChat' })
     const welcomeSubtitle = intl.formatMessage({ id: 'ai.cowork.welcomeSubtitle' })
+    const welcomeTitle = intl.formatMessage({ id: 'ai.cowork.title' })
     const editChatNameLabel = intl.formatMessage({ id: 'ai.cowork.editChatName' })
     const shareLabel = intl.formatMessage({ id: 'ai.cowork.share' })
     const shareCopiedLabel = intl.formatMessage({ id: 'ai.cowork.shareCopied' })
@@ -55,6 +59,12 @@ const CoworkPage: PageComponentType = () => {
         setChats(orgChats)
 
         if (orgChats.length > 0) {
+            const queryChat = queryChatId ? orgChats.find((c) => c.id === queryChatId) : null
+            if (queryChat) {
+                setActiveChatId(queryChat.id)
+                return
+            }
+
             const sessions = sessionStorageManager.getItem(AI_SESSION_STORAGE_KEY) || {}
             const currentSessionId = sessions[organizationId]
             const matchingChat = orgChats.find((c) => c.id === currentSessionId)
@@ -62,7 +72,7 @@ const CoworkPage: PageComponentType = () => {
         } else {
             setActiveChatId(null)
         }
-    }, [organizationId])
+    }, [organizationId, queryChatId])
 
     const saveChats = useCallback((orgId: string, updatedChats: CoworkChat[]) => {
         saveCoworkChats(orgId, updatedChats)
@@ -275,7 +285,7 @@ const CoworkPage: PageComponentType = () => {
             return (
                 <div className={coworkStyles.welcomeScreen}>
                     <div className={coworkStyles.welcomeTitle}>
-                        Doma.ai <span className={coworkStyles.welcomeTitleItalic}>Cowork</span>
+                        {welcomeTitle}
                     </div>
                     <div className={coworkStyles.welcomeSubtitle}>
                         {welcomeSubtitle}
@@ -311,12 +321,6 @@ const CoworkPage: PageComponentType = () => {
 
     return (
         <div className={coworkStyles.coworkBody}>
-            <CoworkSidebar
-                activeChatId={activeChatId}
-                onSelectChat={handleSelectChat}
-                onNewChat={handleNewChat}
-                highlightNavItem='chats'
-            />
             <div className={coworkStyles.mainArea}>
                 {renderChatHeader()}
                 {renderMain()}

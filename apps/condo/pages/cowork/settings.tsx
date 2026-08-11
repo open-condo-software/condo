@@ -3,7 +3,7 @@ import React from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 
-import { CoworkLayout, CoworkSidebar } from '@condo/domains/ai/components/Cowork'
+import { CoworkLayout } from '@condo/domains/ai/components/Cowork'
 import coworkStyles from '@condo/domains/ai/components/Cowork/Cowork.module.css'
 import { PageComponentType } from '@condo/domains/common/types'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
@@ -16,9 +16,6 @@ const CoworkSettingsPage: PageComponentType = () => {
 
     return (
         <div className={coworkStyles.coworkBody}>
-            <CoworkSidebar
-                highlightNavItem='settings'
-            />
             <div className={coworkStyles.mainArea}>
                 <div className={coworkStyles.miniappsContent}>
                     <div className={coworkStyles.miniappsHeader}>

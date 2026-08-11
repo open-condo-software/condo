@@ -406,6 +406,7 @@
   "ai.chat.attachments.maxFiles": "Можно прикрепить не более {max} файлов",
   "ai.chat.attachments.unsupportedType": "Этот тип файла не поддерживается",
   "ai.cowork.newChat": "Новый чат",
+  "ai.cowork.title": "Doma.ai Cowork",
   "ai.cowork.emptySessions": "Чатов пока нет. Начните новый!",
   "ai.cowork.deleteChat": "Удалить чат",
   "ai.cowork.welcomeSubtitle": "Задайте любой вопрос об управлении недвижимостью — я помогу с тикетами, резидентами, биллингом и многим другим.",

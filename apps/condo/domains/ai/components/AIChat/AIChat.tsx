@@ -13,14 +13,15 @@ import { parseAssistantAnswer, toDisplayText } from '@condo/domains/ai/utils/aiA
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { LocalStorageManager } from '@condo/domains/common/utils/localStorageManager'
 
-import type { A2uiMessage } from '@a2ui/web_core/v0_9'
 
-import { extractA2UIMessages } from './genUI'
 
 import styles from './AIChat.module.css'
 import { AIChatInput } from './AIChatInput'
 import { AIChatMessage } from './AIChatMessage'
 import { AIChatSuggestions } from './AIChatSuggestions'
+import { extractA2UIMessages } from './genUI'
+
+import type { A2uiMessage } from '@a2ui/web_core/v0_9'
 
 const STORAGE_KEY = 'condo-ai-chat-history'
 const WELCOME_UI_MESSAGE_ID = 'welcome-ui-message'
@@ -65,20 +66,20 @@ type AIChatProps = {
 }
 
 export const AIChat: React.FC<AIChatProps> = ({
-                                                  aiSessionId,
-                                                  initialMessage,
-                                                  onFirstUserMessage,
-                                              }) => {
+    aiSessionId,
+    initialMessage,
+    onFirstUserMessage,
+}) => {
     const intl = useIntl()
-    const loadingLabel = intl.formatMessage({id: 'ai.chat.loading'})
-    const welcomeMessage = intl.formatMessage({id: 'ai.chat.welcome'})
-    const errorMessage = intl.formatMessage({id: 'ai.chat.error'})
-    const failedToGetResponseMessage = intl.formatMessage({id: 'ai.chat.failedToGetResponse'})
-    const placeholder = intl.formatMessage({id: 'ai.chat.placeholder'})
-    const noResponseMessage = intl.formatMessage({id: 'ai.chat.noResponse'})
+    const loadingLabel = intl.formatMessage({ id: 'ai.chat.loading' })
+    const welcomeMessage = intl.formatMessage({ id: 'ai.chat.welcome' })
+    const errorMessage = intl.formatMessage({ id: 'ai.chat.error' })
+    const failedToGetResponseMessage = intl.formatMessage({ id: 'ai.chat.failedToGetResponse' })
+    const placeholder = intl.formatMessage({ id: 'ai.chat.placeholder' })
+    const noResponseMessage = intl.formatMessage({ id: 'ai.chat.noResponse' })
 
-    const {user} = useAuth()
-    const {organization} = useOrganization()
+    const { user } = useAuth()
+    const { organization } = useOrganization()
     const buttonConfig = useChatWithCondoButtonConfig()
     const scenarioButtons = buttonConfig?.buttons ?? []
     const welcomeDisplayMessage = useMemo<Message | null>(() => {
@@ -89,7 +90,7 @@ export const AIChat: React.FC<AIChatProps> = ({
         return {
             id: WELCOME_UI_MESSAGE_ID,
             role: 'assistant',
-            content: {text},
+            content: { text },
             timestamp: new Date(0),
             status: 'sent',
         }
@@ -110,7 +111,7 @@ export const AIChat: React.FC<AIChatProps> = ({
     const initialMessageSentRef = useRef(false)
     const initialMessageOverrideRef = useRef<string | null>(null)
 
-    const [{execute, resume}, {loading, currentTaskId, data}] = useAIFlow<{ answer: string }>({
+    const [{ execute, resume }, { loading, currentTaskId, data }] = useAIFlow<{ answer: string }>({
         aiSessionId,
         flowType: CHAT_WITH_CONDO_FLOW_TYPE,
         timeout: AI_FLOW_TIMEOUT_MS,
@@ -143,7 +144,7 @@ export const AIChat: React.FC<AIChatProps> = ({
             const updated = [...prev]
             updated[index] = {
                 ...current,
-                content: {text: displayText},
+                content: { text: displayText },
             }
             return updated
         })
@@ -158,22 +159,22 @@ export const AIChat: React.FC<AIChatProps> = ({
     const finalizeAssistantMessage = useCallback((
         assistantMessage: Message,
         result: {
-            data: { status?: string, result?: { answer?: string } } | null,
-            error?: object,
+            data: { status?: string, result?: { answer?: string } } | null
+            error?: object
             localizedErrorText?: string
         },
     ) => {
         if (!result.data || result.error) {
             changeMessage(assistantMessage.id, {
                 ...assistantMessage,
-                content: {text: result.localizedErrorText || failedToGetResponseMessage},
+                content: { text: result.localizedErrorText || failedToGetResponseMessage },
                 status: 'sent',
             })
             return
         }
 
         const rawAnswer = result.data.result?.answer
-        const {text: assistantAnswerText, suggestions, suggestionsFailureReason} = parseAssistantAnswer(
+        const { text: assistantAnswerText, suggestions, suggestionsFailureReason } = parseAssistantAnswer(
             rawAnswer?.trim() ? rawAnswer : noResponseMessage,
         )
 
@@ -186,7 +187,7 @@ export const AIChat: React.FC<AIChatProps> = ({
             })
         }
 
-        const {text: a2uiCleanText, a2uiMessages} = extractA2UIMessages(assistantAnswerText)
+        const { text: a2uiCleanText, a2uiMessages } = extractA2UIMessages(assistantAnswerText)
         const finalText = a2uiMessages.length > 0 ? a2uiCleanText : assistantAnswerText
 
         const isFinalAssistantReply = result.data?.status === TASK_STATUSES.COMPLETED
@@ -260,7 +261,7 @@ export const AIChat: React.FC<AIChatProps> = ({
                     console.error('Error resuming AI flow:', error)
                     changeMessage(lastMessage.id, {
                         ...lastMessage,
-                        content: {text: errorMessage},
+                        content: { text: errorMessage },
                         status: 'sent',
                     })
                 }
@@ -314,7 +315,7 @@ export const AIChat: React.FC<AIChatProps> = ({
 
         setMessages(prev => prev.map(msg => {
             if (msg.role === 'assistant' && msg.status === 'sending' && !msg.executionAIFlowTaskId) {
-                return {...msg, executionAIFlowTaskId: currentTaskId}
+                return { ...msg, executionAIFlowTaskId: currentTaskId }
             }
             return msg
         }))
@@ -329,10 +330,10 @@ export const AIChat: React.FC<AIChatProps> = ({
 
             const nextMessage = messages[index + 1]
             if (nextMessage?.role === 'assistant') {
-                turns.push({user: message, assistant: nextMessage})
+                turns.push({ user: message, assistant: nextMessage })
                 index += 1
             } else {
-                turns.push({user: message})
+                turns.push({ user: message })
             }
         }
 
@@ -349,7 +350,7 @@ export const AIChat: React.FC<AIChatProps> = ({
     }, [])
 
     const getTurnPinScrollTop = useCallback((container: HTMLElement, turnElement: HTMLElement) => {
-        const {padTop, listGap} = getMessagesPadding(container)
+        const { padTop, listGap } = getMessagesPadding(container)
         const containerRect = container.getBoundingClientRect()
         const turnRect = turnElement.getBoundingClientRect()
         const alignDelta = turnRect.top - (containerRect.top + padTop)
@@ -392,7 +393,7 @@ export const AIChat: React.FC<AIChatProps> = ({
             return Math.max(0, container.scrollHeight - container.clientHeight)
         }
 
-        const {padTop, padBottom} = getMessagesPadding(container)
+        const { padTop, padBottom } = getMessagesPadding(container)
         const pinScrollTop = getTurnPinScrollTop(container, turnElement)
         const gap = Number.parseFloat(getComputedStyle(turnElement).rowGap || getComputedStyle(turnElement).gap) || 0
         const messageElements = Array.from(
@@ -448,7 +449,7 @@ export const AIChat: React.FC<AIChatProps> = ({
             clampActiveTurnScroll()
         }
 
-        container?.addEventListener('scroll', onScroll, {passive: true})
+        container?.addEventListener('scroll', onScroll, { passive: true })
         clampActiveTurnScroll()
 
         return () => container?.removeEventListener('scroll', onScroll)
@@ -462,7 +463,7 @@ export const AIChat: React.FC<AIChatProps> = ({
 
     useEffect(() => {
         const syncScrollportHeight = (container: HTMLElement) => {
-            const {padTop, padBottom} = getMessagesPadding(container)
+            const { padTop, padBottom } = getMessagesPadding(container)
             const visibleHeight = Math.max(0, container.clientHeight - padTop - padBottom)
             container.style.setProperty('--ai-chat-scrollport-height', `${visibleHeight}px`)
             clampActiveTurnScroll()
@@ -507,7 +508,7 @@ export const AIChat: React.FC<AIChatProps> = ({
     ) => {
         const assistantMessage: Message = {
             id: uuidV4(),
-            content: {text: loadingLabel},
+            content: { text: loadingLabel },
             role: 'assistant',
             timestamp: new Date(),
             status: 'sending',
@@ -525,8 +526,8 @@ export const AIChat: React.FC<AIChatProps> = ({
                         organizationId: organization?.id,
                         ...options.additionalContext,
                     },
-                    ...(options.attachments?.length ? {attachments: options.attachments} : {}),
-                    ...(options.scenarioButtonId ? {button_id: options.scenarioButtonId} : {}),
+                    ...(options.attachments?.length ? { attachments: options.attachments } : {}),
+                    ...(options.scenarioButtonId ? { button_id: options.scenarioButtonId } : {}),
                 })
 
                 finalizeAssistantMessage(assistantMessage, result)
@@ -534,7 +535,7 @@ export const AIChat: React.FC<AIChatProps> = ({
                 console.error('Error in startUserTurn:', error)
                 changeMessage(assistantMessage.id, {
                     ...assistantMessage,
-                    content: {text: errorMessage},
+                    content: { text: errorMessage },
                     status: 'sent',
                 })
             }
@@ -565,7 +566,7 @@ export const AIChat: React.FC<AIChatProps> = ({
             content: {
                 text: trimmedInput,
                 ...(attachmentsToSend.length ? {
-                    attachments: attachmentsToSend.map(({name, mimeType}) => ({name, mimeType})),
+                    attachments: attachmentsToSend.map(({ name, mimeType }) => ({ name, mimeType })),
                 } : {}),
             },
             role: 'user',
@@ -577,7 +578,7 @@ export const AIChat: React.FC<AIChatProps> = ({
         setInputValue('')
         attachments?.resetAttachments()
 
-        await startUserTurn(userMessage, {attachments: attachmentsToSend})
+        await startUserTurn(userMessage, { attachments: attachmentsToSend })
     }, [inputValue, canSendWithAttachments, loading, attachmentsUploading, user, attachments, messages, startUserTurn, onFirstUserMessage])
 
     // Auto-send the initial message once, after history load, if the session has no user messages yet
@@ -611,14 +612,14 @@ export const AIChat: React.FC<AIChatProps> = ({
 
         const userMessage: Message = {
             id: uuidV4(),
-            content: {text: buttonName},
+            content: { text: buttonName },
             role: 'user',
             timestamp: new Date(),
             status: 'sent',
             copyable: true,
         }
 
-        await startUserTurn(userMessage, {scenarioButtonId: buttonId})
+        await startUserTurn(userMessage, { scenarioButtonId: buttonId })
     }, [loading, user, canExecuteAIFlow, messages, startUserTurn])
 
     const handleSuggestionButtonClick = useCallback(async (suggestedText: string) => {
@@ -635,7 +636,7 @@ export const AIChat: React.FC<AIChatProps> = ({
 
         const userMessage: Message = {
             id: uuidV4(),
-            content: {text: suggestedText},
+            content: { text: suggestedText },
             role: 'user',
             timestamp: new Date(),
             status: 'sent',
@@ -658,7 +659,7 @@ export const AIChat: React.FC<AIChatProps> = ({
     return (
         <div ref={chatContainerRef} className={styles.chatContainer}>
             <div ref={messagesContainerRef}
-                 className={`${styles.messagesContainer} comment-body`}>
+                className={`${styles.messagesContainer} comment-body`}>
                 {welcomeDisplayMessage && (
                     <AIChatMessage
                         message={welcomeDisplayMessage}
@@ -676,7 +677,7 @@ export const AIChat: React.FC<AIChatProps> = ({
                         }))}
                     />
                 )}
-                {chatTurns.map(({user: userMessage, assistant: assistantMessage}) => {
+                {chatTurns.map(({ user: userMessage, assistant: assistantMessage }) => {
                     const isActiveTurn = userMessage.id === activeTurnUserMessageId
 
                     return (

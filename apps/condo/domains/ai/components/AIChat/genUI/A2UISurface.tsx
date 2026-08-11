@@ -1,8 +1,8 @@
+import { MessageProcessor, type A2uiMessage, type SurfaceModel } from '@a2ui/web_core/v0_9'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 
 import { Space, Typography } from '@open-condo/ui'
 
-import { MessageProcessor, type A2uiMessage, type SurfaceModel } from '@a2ui/web_core/v0_9'
 
 import { ComponentRenderer, condoCatalog } from './condoCatalog'
 

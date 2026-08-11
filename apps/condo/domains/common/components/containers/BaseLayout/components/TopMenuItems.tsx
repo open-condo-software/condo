@@ -24,6 +24,7 @@ import { UserMenu } from '@condo/domains/user/components/UserMenu'
 export interface ITopMenuItemsProps {
     headerAction?: React.ElementType
     hideAIButton?: boolean
+    hideNotifications?: boolean
 }
 
 export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
@@ -33,8 +34,10 @@ export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
     const { hasSubscription } = useOrganizationSubscription()
     const { useFlag } = useFeatureFlags()
     const { isAIOverlayOpen, openAIOverlay } = useAIContext()
+
     const isAIChatEnabled = useFlag(UI_AI_CHAT_WITH_CONDO)
     const isCoworkEnabled = useFlag(UI_AI_COWORK)
+    
     const isUserMenuHidden = useFlag(UI_HIDE_USER_LINKS)
 
     const PaymentHistoryLabel = intl.formatMessage({ id: 'subscription.paymentHistory.title' })
@@ -89,9 +92,11 @@ export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
                     <InlineOrganizationSelect />
                 </Space>
                 {!isUserMenuHidden && <UserMenu extraMenuItems={userMenuExtraItems} />}
-                <div style={{ maxHeight: '24px' }}>
-                    <UserMessagesList disabled={!hasSubscription} />
-                </div>
+                {!props.hideNotifications && (
+                    <div style={{ maxHeight: '24px' }}>
+                        <UserMessagesList disabled={!hasSubscription} />
+                    </div>
+                )}
                 { isAIChatEnabled && !isAIOverlayOpen && !props.hideAIButton && (
                     <AIFlowButton
                         onClick={() => {

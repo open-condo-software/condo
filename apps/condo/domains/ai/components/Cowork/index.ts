@@ -1,3 +1,5 @@
 export { CoworkLayout } from './CoworkLayout'
-export { CoworkSidebar, saveCoworkChats, COWORK_CHATS_UPDATED_EVENT } from './CoworkSidebar'
-export type { CoworkChat } from './CoworkSidebar'
+export { SavedChatsProvider, useSavedChats } from './SavedChatsContext'
+export { SavedChatsService } from './SavedChatsService'
+export type { SavedChat, ChatStorageType, ChatUpdatePayload } from './SavedChatsService'
+export type { ISavedChatsContext } from './SavedChatsContext'

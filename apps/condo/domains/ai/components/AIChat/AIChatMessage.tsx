@@ -8,11 +8,11 @@ import { AIChatDocument } from '@condo/domains/ai/components/AIChatFile'
 import { exportAIMessage, type ExportAIMessageFormat, type ExportAIMessageOptions } from '@condo/domains/ai/utils/exportAIMessage'
 import { stripMarkdown } from '@condo/domains/common/utils/stripMarkdown'
 
-import { A2UISurfaces } from './genUI'
 
 import styles from './AIChatMessage.module.css'
 import { AIChatSuggestions } from './AIChatSuggestions'
 import { AIChatThinkingStatus } from './AIChatThinkingStatus'
+import { A2UISurfaces } from './genUI'
 
 import type { Message } from './AIChat'
 
@@ -111,10 +111,10 @@ type AIChatAssistantMessageProps = {
 }
 
 const AIChatAssistantMessage: React.FC<AIChatAssistantMessageProps> = ({
-                                                                           message,
-                                                                           onSuggestionClick,
-                                                                           canExecuteAIFlow,
-                                                                       }) => {
+    message,
+    onSuggestionClick,
+    canExecuteAIFlow,
+}) => {
     const intl = useIntl()
     const assistantMarkdownRef = useRef<HTMLDivElement>(null)
     const copyButton = useCopyButton(message)
@@ -227,10 +227,10 @@ const AIChatAssistantMessage: React.FC<AIChatAssistantMessageProps> = ({
 }
 
 export const AIChatMessage: React.FC<AIChatMessageProps> = ({
-                                                                message,
-                                                                onSuggestionClick,
-                                                                canExecuteAIFlow = true,
-                                                            }) => {
+    message,
+    onSuggestionClick,
+    canExecuteAIFlow = true,
+}) => {
     if (message.role === 'user') {
         return <AIChatUserMessage message={message} />
     }

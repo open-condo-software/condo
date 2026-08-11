@@ -28,13 +28,15 @@ import { useOrganizationInvites } from '@condo/domains/organization/hooks/useOrg
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 import { UserMenu } from '@condo/domains/user/components/UserMenu'
 
-import { ITopMenuItemsProps, TopMenuItems } from './components/TopMenuItems'
+import { ITopMenuItemsProps, TopMenuItems as DefaultTopMenuItems } from './components/TopMenuItems'
 
 const ORGANIZATION_TYPES: Array<OrganizationTypeType> = [OrganizationTypeType.ManagingCompany, OrganizationTypeType.ServiceProvider]
 
 interface IHeaderProps {
     headerAction?: React.ElementType
     TopMenuItems?: React.FC<ITopMenuItemsProps>
+    residentActions?: React.ElementType | false | null
+    logo?: React.ReactNode
 }
 
 export const Header: React.FC<IHeaderProps> = (props) => {
@@ -43,6 +45,7 @@ export const Header: React.FC<IHeaderProps> = (props) => {
     const router = useRouter()
     const { useFlag } = useFeatureFlags()
     const isUserMenuHidden = useFlag(UI_HIDE_USER_LINKS)
+    const { residentActions, logo } = props
 
     const { isAuthenticated } = useAuth()
     const { organization } = useOrganization()
@@ -98,17 +101,19 @@ export const Header: React.FC<IHeaderProps> = (props) => {
                             </div>
                             <div className='appeals-bar'>
                                 <Menu size='large' onClick={toggleCollapsed}/>
-                                <Logo onClick={handleLogoClick} minified/>
+                                {logo || <Logo onClick={handleLogoClick} minified/>}
                                 <div>
-                                    {hasAccessToAppeals && (
-                                        <ResidentActions minified/>
+                                    {hasAccessToAppeals && residentActions !== false && (
+                                        residentActions
+                                            ? React.createElement(residentActions, { minified: true })
+                                            : <ResidentActions minified/>
                                     )}
                                 </div>
                             </div>
                         </Layout.Header>
                     </> :
                     <Layout.Header className='header desktop-header'>
-                        <TopMenuItems headerAction={props.headerAction}/>
+                        {(props.TopMenuItems || DefaultTopMenuItems)({ headerAction: props.headerAction })}
                     </Layout.Header>
 
             }

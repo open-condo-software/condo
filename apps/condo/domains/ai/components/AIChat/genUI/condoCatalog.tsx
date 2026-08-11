@@ -1,10 +1,10 @@
+import { Catalog, type ComponentApi } from '@a2ui/web_core/v0_9'
 import React, { Component } from 'react'
 import { z } from 'zod'
 
 import { Button, Card, Checkbox, Input, Select, Space, Typography } from '@open-condo/ui'
 
 import type { ComponentModel, DataModel, SurfaceModel } from '@a2ui/web_core/v0_9'
-import { Catalog, type ComponentApi } from '@a2ui/web_core/v0_9'
 
 export const CONDO_CATALOG_ID = 'https://condo.open-condo.software/a2ui/v1/catalog.json'
 
@@ -236,8 +236,8 @@ const RENDERERS: Record<string, React.FC<RendererProps>> = {
 }
 
 class ComponentErrorBoundary extends Component<
-    { componentId: string, children: React.ReactNode },
-    { hasError: boolean }
+{ componentId: string, children: React.ReactNode },
+{ hasError: boolean }
 > {
     state = { hasError: false }
 

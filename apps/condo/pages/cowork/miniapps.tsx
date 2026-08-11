@@ -1,14 +1,14 @@
+import { B2BAppContextStatusType } from '@app/condo/schema'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useMemo } from 'react'
 
-import { B2BAppContextStatusType } from '@app/condo/schema'
 import { ExternalLink } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Button, Typography } from '@open-condo/ui'
 
-import { CoworkLayout, CoworkSidebar } from '@condo/domains/ai/components/Cowork'
+import { CoworkLayout } from '@condo/domains/ai/components/Cowork'
 import coworkStyles from '@condo/domains/ai/components/Cowork/Cowork.module.css'
 import { PageComponentType } from '@condo/domains/common/types'
 import { B2BAppContext } from '@condo/domains/miniapp/utils/clientSchema'
@@ -117,9 +117,6 @@ const CoworkMiniappsPage: PageComponentType = () => {
 
     return (
         <div className={coworkStyles.coworkBody}>
-            <CoworkSidebar
-                highlightNavItem='miniapps'
-            />
             <div className={coworkStyles.mainArea}>
                 <div className={coworkStyles.miniappsContent}>
                     <div className={coworkStyles.miniappsHeader}>
