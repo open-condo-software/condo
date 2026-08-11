@@ -6,8 +6,10 @@
 const { AcquiringIntegration } = require('./AcquiringIntegration')
 const { AcquiringIntegrationAccessRight } = require('./AcquiringIntegrationAccessRight')
 const { AcquiringIntegrationContext } = require('./AcquiringIntegrationContext')
+const { AllCardBindingsService } = require('./AllCardBindingsService')
 const { CalculateFeeForReceiptService } = require('./CalculateFeeForReceiptService')
 const { CreatePaymentByLinkService } = require('./CreatePaymentByLinkService')
+const { DeleteCardBindingService } = require('./DeleteCardBindingService')
 const { ExportPaymentsService } = require('./ExportPaymentsService')
 const { GeneratePaymentLinkService } = require('./GeneratePaymentLinkService')
 const { MultiPayment } = require('./MultiPayment')
@@ -48,5 +50,7 @@ module.exports = {
     PaymentsFile,
     SetPaymentPosReceiptUrlService,
     RegisterExternalPaymentsService,
+    AllCardBindingsService,
+    DeleteCardBindingService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
