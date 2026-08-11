@@ -80,7 +80,7 @@ export const useIncidentRelatedData: UseIncidentRelatedDataType = (incidents) =>
                 skip,
             })
 
-            objs = get(response, 'data.objs', [])
+            objs = response?.data?.objs ?? []
             incidentProperties = incidentProperties.concat(objs)
             skip += objs.length
         } while (objs.length === first)
@@ -107,7 +107,7 @@ export const useIncidentRelatedData: UseIncidentRelatedDataType = (incidents) =>
                 skip,
             })
 
-            objs = get(response, 'data.objs', [])
+            objs = response?.data?.objs ?? []
             incidentClassifiers = incidentClassifiers.concat(objs)
             skip += objs.length
         } while (objs.length === first)
