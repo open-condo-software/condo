@@ -11,8 +11,10 @@ This middleware has endpoints for uploading binaries and sharing previously uplo
 
 ## Authentication
 
-* Only authenticated, non-deleted users can call the endpoints. Auth is taken from the app session cookie (same as other Keystone-secured endpoints).
-* Unauthorized or deleted users receive `UNAUTHENTICATED/AUTHORIZATION_REQUIRED`.
+* **`/upload` and `/share`**: require an authenticated, non-deleted user (session cookie or Bearer). Unauthorized or deleted users receive `UNAUTHENTICATED/AUTHORIZATION_REQUIRED`.
+* **`/attach`**: dual-mode:
+  * **With session/Bearer** — ownership uses `req.user.id` and must match the `user.id` claim in the upload JWT (non-owners get `FILE_NOT_FOUND`).
+  * **Without session** — ownership is taken from a verified upload signature (`jwt.verify` + payload shape checks). Treat the upload JWT as a short-lived (~5m) attach capability for S2S callers.
 
 ---
 
@@ -224,6 +226,7 @@ Use when you didn’t inline-attach in `/upload`.
 
 * **Method**: `POST`
 * **Content-Type**: `application/json`
+* **Auth**: optional — see [Authentication](#authentication). S2S callers may omit `Cookie` / `Authorization` when the body includes a valid upload `signature`.
 * **Body**:
 
   * `dv`: `1`
@@ -231,7 +234,7 @@ Use when you didn’t inline-attach in `/upload`.
   * `modelName`: target model name (must be in the file’s `meta.modelNames`)
   * `itemId`: target model record id (UUID)
   * `fileClientId`: the client id used when uploading
-  * `signature`: upload/share signature
+  * `signature`: upload/share signature (HMAC JWT; owner + allowlist + ~5m TTL)
 
 **Successful response:**
 

@@ -58,12 +58,13 @@ class CustomFile extends FileWithUTF8Name.implementation {
         return gqlFieldAlias ? `${baseKey}:${gqlFieldAlias}` : baseKey
     }
 
-    _getFileServiceBaseUrl (context) {
+    _getFileServiceBaseUrl () {
         if (conf.FILE_SERVICE_URL) {
             return conf.FILE_SERVICE_URL
         }
 
-        if (context?.fileServiceAuthorization && !conf['FILE_UPLOAD_CONFIG'] && conf.CONDO_DOMAIN) {
+        // Apps without local FileMiddleware attach to condo over HTTP (signature-only)
+        if (!conf['FILE_UPLOAD_CONFIG'] && conf.CONDO_DOMAIN) {
             return conf.CONDO_DOMAIN
         }
 
@@ -263,24 +264,11 @@ class CustomFile extends FileWithUTF8Name.implementation {
 
         let attachResult
 
-        const headers = { 'Content-Type': 'application/json' }
-
-        // Prefer explicit auth from withFileServiceAuthorization(); fall back to request headers
-        const authorization = context.fileServiceAuthorization || context?.req?.headers?.authorization
-        if (authorization) {
-            headers['Authorization'] = authorization
-        } else {
-            const raw = context?.req?.headers?.cookie || ''
-            const cookieMatch = raw.match(/(?:^|;\s*)keystone\.sid=([^;]+)/)
-            if (cookieMatch) {
-                headers['Cookie'] = `keystone.sid=${cookieMatch[1]}`
-            }
-        }
-
+        // Dual-mode attach: upload JWT alone is enough (no session/Bearer required for S2S)
         try {
-            const res = await fetch(`${this._getFileServiceBaseUrl(context)}/api/files/attach`, {
+            const res = await fetch(`${this._getFileServiceBaseUrl()}/api/files/attach`, {
                 method: 'POST',
-                headers,
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
             })
 

@@ -519,7 +519,7 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser, createOrganiz
             })
 
             describe('attach', () => {
-                test('only authorized user can attach file', async () => {
+                test('unauthenticated attach with valid signature succeeds', async () => {
                     const user = await createTestUser()
                     const form = new FormData()
                     const meta = {
@@ -562,9 +562,85 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser, createOrganiz
                         }),
                     })
 
+                    const attachJson = await attachResult.json()
+                    expect(attachResult.status).toEqual(200)
+                    expect(attachJson.data.file).toHaveProperty('signature')
+                    const attachPayload = jwt.verify(
+                        attachJson.data.file.signature,
+                        appClients[fileClientId].secret,
+                        { algorithms: ['HS256'] },
+                    )
+                    expect(parseAndValidateFileMetaSignature(attachPayload).success).toBeTruthy()
+                })
+
+                test('unauthenticated attach with invalid signature fails', async () => {
+                    const attachResult = await fetch(serverAttachUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            signature: faker.datatype.uuid(),
+                            itemId: faker.datatype.uuid(),
+                            modelName: 'SomeModel',
+                            fileClientId,
+                            dv: 1, sender: { dv: 1, fingerprint: 'test-runner' },
+                        }),
+                    })
+
                     await expectGQLErrorResponse(attachResult, {
-                        code: 'UNAUTHENTICATED',
-                        type: 'AUTHORIZATION_REQUIRED',
+                        code: 'BAD_USER_INPUT',
+                        type: 'INVALID_PAYLOAD',
+                    })
+                })
+
+                test('unauthenticated attach with expired signature fails', async () => {
+                    const user = await createTestUser()
+                    const form = new FormData()
+                    const meta = {
+                        user: { id: user.user.id },
+                        fileClientId,
+                        modelNames: ['SomeModel'],
+                        ...DV_AND_SENDER,
+                    }
+                    form.append('meta', JSON.stringify(meta))
+                    form.append('file', filestream, 'dino.png')
+
+                    const result = await fetch(serverUrl, {
+                        method: 'POST',
+                        body: form,
+                        headers: { Cookie: user.getCookie() },
+                    })
+
+                    const json = await result.json()
+                    expect(result.status).toEqual(200)
+                    const file = json.data.files[0]
+                    const secret = appClients[fileClientId].secret
+                    const payload = jwt.verify(file.signature, secret, { algorithms: ['HS256'] })
+                    const now = Math.floor(Date.now() / 1000)
+                    const expiredSignature = jwt.sign(
+                        { ...payload, iat: now - 600, exp: now - 300 },
+                        secret,
+                        { algorithm: 'HS256' },
+                    )
+
+                    const attachResult = await fetch(serverAttachUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            signature: expiredSignature,
+                            itemId: faker.datatype.uuid(),
+                            modelName: 'SomeModel',
+                            fileClientId,
+                            dv: 1, sender: { dv: 1, fingerprint: 'test-runner' },
+                        }),
+                    })
+
+                    await expectGQLErrorResponse(attachResult, {
+                        code: 'BAD_USER_INPUT',
+                        type: 'INVALID_PAYLOAD',
                     })
                 })
 

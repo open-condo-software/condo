@@ -567,14 +567,16 @@ function fileShareHandler ({ keystone, appClients }) {
 /**
  * Core file attach logic, shared between the HTTP attach handler and server-side tasks.
  *
- * For HTTP requests, pass `userId: req.user.id` (session-verified identity).
- * For server-side tasks, omit `userId` — the owner is taken from the verified signature
- * payload (trusted because it's signed with the app secret).
+ * Ownership resolution:
+ * - If `userId` is passed (HTTP session / trusted server caller), it must match the
+ *   `user.id` claim inside the verified upload signature.
+ * - If `userId` is omitted (S2S HTTP without session), the owner is taken from the
+ *   verified signature payload (HMAC + 5m TTL).
  *
  * @param {object} keystone - Keystone app instance
  * @param {object} appClients - parsed FILE_UPLOAD_CONFIG clients map
  * @param {object} payload - { modelName, itemId, signature, fileClientId, dv, sender }
- * @param {string} [userId] - explicit owner id (overrides the one embedded in the signature)
+ * @param {string} [userId] - optional explicit owner id (must match signature user when set)
  * @param {object} [req] - optional express request, passed to GQLError for logging
  * @returns {Promise<{ signature: string }>} - public signature with full file meta
  */
@@ -591,11 +593,22 @@ async function processFileAttach ({ keystone, appClients, payload, userId, req }
         throw new GQLError(ERRORS.INVALID_PAYLOAD, { req })
     }
 
-    if (!userId) throw new GQLError(ERRORS.INVALID_PAYLOAD, { req })
-    const user = { id: userId }
+    const { success, data, error } = validateFileUploadSignature(decryptedData)
+    if (!success) {
+        throw new GQLError(ERRORS.INVALID_PAYLOAD, { req }, error ? [error] : undefined)
+    }
+
+    const signatureUserId = data.user.id
+    if (userId && userId !== signatureUserId) {
+        // Authenticated caller is not the upload owner (same outcome as missing FileRecord)
+        throw new GQLError(ERRORS.FILE_NOT_FOUND, { req })
+    }
+
+    const resolvedUserId = userId || signatureUserId
+    const user = { id: resolvedUserId }
 
     const context = keystone.createContext({ skipAccessControl: true })
-    const fileRecord = await FileRecord.getOne(context, { id: decryptedData.id, user }, `id attachments ${FILE_RECORD_ATTACHMENTS} fileMeta ${FILE_RECORD_META_FIELDS}`)
+    const fileRecord = await FileRecord.getOne(context, { id: data.id, user }, `id attachments ${FILE_RECORD_ATTACHMENTS} fileMeta ${FILE_RECORD_META_FIELDS}`)
 
     if (!fileRecord) throw new GQLError(ERRORS.FILE_NOT_FOUND, { req })
 
@@ -612,7 +625,7 @@ async function processFileAttach ({ keystone, appClients, payload, userId, req }
     const originalAttachments = fileRecord.attachments?.attachments
 
     const newAttachment = {
-        modelName, id: itemId, fileClientId: fileClientId, user: { id: userId },
+        modelName, id: itemId, fileClientId: fileClientId, user: { id: resolvedUserId },
     }
     const resultAttachments = Array.isArray(originalAttachments)
         ? [...originalAttachments, newAttachment]
@@ -648,7 +661,15 @@ function fileAttachHandler ({ keystone, appClients }) {
         }
 
         try {
-            const file = await processFileAttach({ keystone, appClients, payload: data, userId: req.user.id, req })
+            // Dual-mode: session/Bearer optional. Without req.user, ownership comes from upload JWT.
+            const sessionUserId = req.user && req.user.deletedAt === null ? req.user.id : undefined
+            const file = await processFileAttach({
+                keystone,
+                appClients,
+                payload: data,
+                userId: sessionUserId,
+                req,
+            })
             res.json({ data: { file } })
         } catch (err) {
             next(err)
