@@ -46,6 +46,27 @@ type UseLoadRelatedDataReturnType = {
 export type UseTableColumnsType = (props: UseTableColumnsPropsType) => UseTableColumnsReturnType
 type UseIncidentRelatedDataType = (incidents: IIncident[]) => UseLoadRelatedDataReturnType
 
+async function fetchWithPagination (refetch, where){
+    const first = 100
+    let skip = 0
+    let result = []
+    let objs = []
+
+    do {
+        const response = await refetch({
+            where,
+            first,
+            skip,
+        })
+
+        objs = response?.data?.objs ?? []
+        result = result.concat(objs)
+        skip += objs.length
+    } while (objs.length === first)
+
+    return result
+}
+
 export const useIncidentRelatedData: UseIncidentRelatedDataType = (incidents) => {
     const incidentIds = useMemo(() => incidents.map(incident => incident.id), [incidents])
 
@@ -66,24 +87,12 @@ export const useIncidentRelatedData: UseIncidentRelatedDataType = (incidents) =>
             return { incidentProperties: [] }
         }
 
-        const first = 100
-        let skip = 0
-        let incidentProperties = []
-        let objs = []
-
-        do {
-            const response = await refetchIncidentProperty({
-                where: {
-                    incident: { id_in: incidentIds },
-                },
-                first,
-                skip,
-            })
-
-            objs = response?.data?.objs ?? []
-            incidentProperties = incidentProperties.concat(objs)
-            skip += objs.length
-        } while (objs.length === first)
+        const incidentProperties = await fetchWithPagination(
+            refetchIncidentProperty,
+            {
+                incident: { id_in: incidentIds },
+            }
+        )
 
         return { incidentProperties }
     }, [])
@@ -93,24 +102,12 @@ export const useIncidentRelatedData: UseIncidentRelatedDataType = (incidents) =>
             return { incidentClassifiers: [] }
         }
 
-        const first = 100
-        let skip = 0
-        let incidentClassifiers = []
-        let objs = []
-
-        do {
-            const response = await refetchIncidentClassifierIncident({
-                where: {
-                    incident: { id_in: incidentIds },
-                },
-                first,
-                skip,
-            })
-
-            objs = response?.data?.objs ?? []
-            incidentClassifiers = incidentClassifiers.concat(objs)
-            skip += objs.length
-        } while (objs.length === first)
+        const incidentClassifiers = await fetchWithPagination(
+            refetchIncidentClassifierIncident,
+            {
+                incident: { id_in: incidentIds },
+            }
+        )
 
         return { incidentClassifiers }
     }, [])
