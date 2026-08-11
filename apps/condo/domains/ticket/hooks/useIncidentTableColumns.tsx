@@ -66,12 +66,26 @@ export const useIncidentRelatedData: UseIncidentRelatedDataType = (incidents) =>
             return { incidentProperties: [] }
         }
 
-        const response = await refetchIncidentProperty({
-            where: {
-                incident: { id_in: incidentIds },
-            },
-        })
-        return { incidentProperties: get(response, 'data.objs', []) }
+        const first = 100
+        let skip = 0
+        let incidentProperties = []
+        let objs = []
+
+        do {
+            const response = await refetchIncidentProperty({
+                where: {
+                    incident: { id_in: incidentIds },
+                },
+                first,
+                skip,
+            })
+
+            objs = get(response, 'data.objs', [])
+            incidentProperties = incidentProperties.concat(objs)
+            skip += objs.length
+        } while (objs.length === first)
+
+        return { incidentProperties }
     }, [])
 
     const getIncidentClassifierIncidents = useCallback(async (incidentIds: string[]) => {
@@ -79,12 +93,26 @@ export const useIncidentRelatedData: UseIncidentRelatedDataType = (incidents) =>
             return { incidentClassifiers: [] }
         }
 
-        const response = await refetchIncidentClassifierIncident({
-            where: {
-                incident: { id_in: incidentIds },
-            },
-        })
-        return { incidentClassifiers: get(response, 'data.objs', []) }
+        const first = 100
+        let skip = 0
+        let incidentClassifiers = []
+        let objs = []
+
+        do {
+            const response = await refetchIncidentClassifierIncident({
+                where: {
+                    incident: { id_in: incidentIds },
+                },
+                first,
+                skip,
+            })
+
+            objs = get(response, 'data.objs', [])
+            incidentClassifiers = incidentClassifiers.concat(objs)
+            skip += objs.length
+        } while (objs.length === first)
+
+        return { incidentClassifiers }
     }, [])
 
     const getPropertiesAndClassifiers = useCallback(async (incidentIds: string[]) => {
