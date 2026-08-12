@@ -2,8 +2,9 @@ import {
     Incident as IIncident,
     IncidentProperty as IIncidentProperty,
     IncidentClassifierIncident as IIncidentClassifierIncident,
+    SortIncidentPropertiesBy,
+    SortIncidentClassifierIncidentsBy,
 } from '@app/condo/schema'
-import { SortIncidentPropertiesBy, SortIncidentClassifierIncidentsBy } from '@app/condo/schema'
 import { ColumnsType } from 'antd/es/table/interface'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
