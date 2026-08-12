@@ -2,11 +2,13 @@ import {
     Incident as IIncident,
     IncidentProperty as IIncidentProperty,
     IncidentClassifierIncident as IIncidentClassifierIncident,
+    SortIncidentPropertiesBy,
+    SortIncidentClassifierIncidentsBy,
 } from '@app/condo/schema'
 import { ColumnsType } from 'antd/es/table/interface'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
@@ -49,62 +51,37 @@ type UseIncidentRelatedDataType = (incidents: IIncident[]) => UseLoadRelatedData
 export const useIncidentRelatedData: UseIncidentRelatedDataType = (incidents) => {
     const incidentIds = useMemo(() => incidents.map(incident => incident.id), [incidents])
 
-    const [incidentProperties, setIncidentProperties] = useState<IIncidentProperty[]>([])
-    const [incidentClassifiers, setIncidentClassifiers] = useState<IIncidentClassifierIncident[]>([])
-    const [loading, setLoading] = useState<boolean>(true)
-
     const {
-        refetch: refetchIncidentProperty,
-    } = IncidentProperty.useAllObjects({}, { skip: true })
-
-    const {
-        refetch: refetchIncidentClassifierIncident,
-    } = IncidentClassifierIncident.useAllObjects({}, { skip: true })
-
-    const getIncidentProperties = useCallback(async (incidentIds: string[]) => {
-        if (incidentIds.length < 1) {
-            return { incidentProperties: [] }
-        }
-
-        const response = await refetchIncidentProperty({
+        objs: incidentProperties,
+        loading: incidentPropertiesLoading,
+    } = IncidentProperty.useAllObjects(
+        {
             where: {
                 incident: { id_in: incidentIds },
             },
-        })
-        return { incidentProperties: get(response, 'data.objs', []) }
-    }, [])
+            sortBy: [SortIncidentPropertiesBy.IdAsc],
+        },
+        { skip: incidentIds.length === 0 }
+    )
 
-    const getIncidentClassifierIncidents = useCallback(async (incidentIds: string[]) => {
-        if (incidentIds.length < 1) {
-            return { incidentClassifiers: [] }
-        }
-
-        const response = await refetchIncidentClassifierIncident({
+    const {
+        objs: incidentClassifiers,
+        loading: incidentClassifiersLoading,
+    } = IncidentClassifierIncident.useAllObjects(
+        {
             where: {
                 incident: { id_in: incidentIds },
             },
-        })
-        return { incidentClassifiers: get(response, 'data.objs', []) }
-    }, [])
-
-    const getPropertiesAndClassifiers = useCallback(async (incidentIds: string[]) => {
-        setLoading(true)
-        const { incidentProperties } = await getIncidentProperties(incidentIds)
-        const { incidentClassifiers } = await getIncidentClassifierIncidents(incidentIds)
-        setIncidentProperties(incidentProperties)
-        setIncidentClassifiers(incidentClassifiers)
-        setLoading(false)
-    }, [getIncidentProperties, getIncidentClassifierIncidents])
-
-    useEffect(() => {
-        getPropertiesAndClassifiers(incidentIds)
-    }, [getPropertiesAndClassifiers, incidentIds])
+            sortBy: [SortIncidentClassifierIncidentsBy.IdAsc],
+        },
+        { skip: incidentIds.length === 0 }
+    )
 
     return useMemo(() => ({
         incidentProperties,
         incidentClassifiers,
-        loading,
-    }), [incidentClassifiers, incidentProperties, loading])
+        loading: incidentPropertiesLoading || incidentClassifiersLoading,
+    }), [incidentClassifiers, incidentClassifiersLoading, incidentProperties, incidentPropertiesLoading])
 }
 
 const COLUMNS_WIDTH = {
