@@ -157,7 +157,11 @@ const Contact = new GQLListSchema('Contact', {
                     return false
                 }
 
-                const Resident = await getByCondition('Resident', {
+                // NOTE: Technically, there might be multiple residents on the same address because:
+                // 1. there is no db-constraint
+                // 2. there is no lock during resident creation
+                // 3. resident uniqueness check was based on address instead of addressKey historically
+                const residents = await find('Resident', {
                     property: { id: propertyId, deletedAt: null },
                     unitName,
                     unitType,
@@ -165,7 +169,7 @@ const Contact = new GQLListSchema('Contact', {
                     deletedAt: null,
                 })
 
-                return Boolean(Resident)
+                return residents.length > 0
             },
         },
 
