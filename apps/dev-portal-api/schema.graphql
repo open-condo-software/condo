@@ -1576,6 +1576,8 @@ type B2BAppHistoryRecord {
   productionCameraAllowed: Boolean
   developmentSpeakerSelectionAllowed: Boolean
   productionSpeakerSelectionAllowed: Boolean
+  developmentModifiedAt: String
+  productionModifiedAt: String
   developmentPublishedAt: String
   productionPublishedAt: String
   id: ID!
@@ -1778,6 +1780,22 @@ input B2BAppHistoryRecordWhereInput {
   developmentSpeakerSelectionAllowed_not: Boolean
   productionSpeakerSelectionAllowed: Boolean
   productionSpeakerSelectionAllowed_not: Boolean
+  developmentModifiedAt: String
+  developmentModifiedAt_not: String
+  developmentModifiedAt_lt: String
+  developmentModifiedAt_lte: String
+  developmentModifiedAt_gt: String
+  developmentModifiedAt_gte: String
+  developmentModifiedAt_in: [String]
+  developmentModifiedAt_not_in: [String]
+  productionModifiedAt: String
+  productionModifiedAt_not: String
+  productionModifiedAt_lt: String
+  productionModifiedAt_lte: String
+  productionModifiedAt_gt: String
+  productionModifiedAt_gte: String
+  productionModifiedAt_in: [String]
+  productionModifiedAt_not_in: [String]
   developmentPublishedAt: String
   developmentPublishedAt_not: String
   developmentPublishedAt_lt: String
@@ -1953,6 +1971,10 @@ enum SortB2BAppHistoryRecordsBy {
   developmentSpeakerSelectionAllowed_DESC
   productionSpeakerSelectionAllowed_ASC
   productionSpeakerSelectionAllowed_DESC
+  developmentModifiedAt_ASC
+  developmentModifiedAt_DESC
+  productionModifiedAt_ASC
+  productionModifiedAt_DESC
   developmentPublishedAt_ASC
   developmentPublishedAt_DESC
   productionPublishedAt_ASC
@@ -2002,6 +2024,8 @@ input B2BAppHistoryRecordUpdateInput {
   productionCameraAllowed: Boolean
   developmentSpeakerSelectionAllowed: Boolean
   productionSpeakerSelectionAllowed: Boolean
+  developmentModifiedAt: String
+  productionModifiedAt: String
   developmentPublishedAt: String
   productionPublishedAt: String
   v: Int
@@ -2048,6 +2072,8 @@ input B2BAppHistoryRecordCreateInput {
   productionCameraAllowed: Boolean
   developmentSpeakerSelectionAllowed: Boolean
   productionSpeakerSelectionAllowed: Boolean
+  developmentModifiedAt: String
+  productionModifiedAt: String
   developmentPublishedAt: String
   productionPublishedAt: String
   v: Int
@@ -2187,6 +2213,14 @@ type B2BApp {
   """ Controls whether the mini-app can use “speaker selection” device permission on production environment 
   """
   productionSpeakerSelectionAllowed: Boolean
+
+  """ Last time mini-app information relative to development environment was modified. Used to auto-publish need detection 
+  """
+  developmentModifiedAt: String
+
+  """ Last time mini-app information relative to production environment was modified. Used to auto-publish need detection 
+  """
+  productionModifiedAt: String
 
   """ The last time a mini-app was published on the development environment 
   """
@@ -2394,6 +2428,22 @@ input B2BAppWhereInput {
   developmentSpeakerSelectionAllowed_not: Boolean
   productionSpeakerSelectionAllowed: Boolean
   productionSpeakerSelectionAllowed_not: Boolean
+  developmentModifiedAt: String
+  developmentModifiedAt_not: String
+  developmentModifiedAt_lt: String
+  developmentModifiedAt_lte: String
+  developmentModifiedAt_gt: String
+  developmentModifiedAt_gte: String
+  developmentModifiedAt_in: [String]
+  developmentModifiedAt_not_in: [String]
+  productionModifiedAt: String
+  productionModifiedAt_not: String
+  productionModifiedAt_lt: String
+  productionModifiedAt_lte: String
+  productionModifiedAt_gt: String
+  productionModifiedAt_gte: String
+  productionModifiedAt_in: [String]
+  productionModifiedAt_not_in: [String]
   developmentPublishedAt: String
   developmentPublishedAt_not: String
   developmentPublishedAt_lt: String
@@ -2551,6 +2601,10 @@ enum SortB2BAppsBy {
   developmentSpeakerSelectionAllowed_DESC
   productionSpeakerSelectionAllowed_ASC
   productionSpeakerSelectionAllowed_DESC
+  developmentModifiedAt_ASC
+  developmentModifiedAt_DESC
+  productionModifiedAt_ASC
+  productionModifiedAt_DESC
   developmentPublishedAt_ASC
   developmentPublishedAt_DESC
   productionPublishedAt_ASC
@@ -2600,6 +2654,8 @@ input B2BAppUpdateInput {
   productionCameraAllowed: Boolean
   developmentSpeakerSelectionAllowed: Boolean
   productionSpeakerSelectionAllowed: Boolean
+  developmentModifiedAt: String
+  productionModifiedAt: String
   developmentPublishedAt: String
   productionPublishedAt: String
   v: Int
@@ -2643,6 +2699,8 @@ input B2BAppCreateInput {
   productionCameraAllowed: Boolean
   developmentSpeakerSelectionAllowed: Boolean
   productionSpeakerSelectionAllowed: Boolean
+  developmentModifiedAt: String
+  productionModifiedAt: String
   developmentPublishedAt: String
   productionPublishedAt: String
   v: Int
@@ -4765,6 +4823,8 @@ type B2CAppHistoryRecord {
   productionBleCentralBgAllowed: Boolean
   developmentBlePeripheralBgAllowed: Boolean
   productionBlePeripheralBgAllowed: Boolean
+  developmentModifiedAt: String
+  productionModifiedAt: String
   developmentPublishedAt: String
   productionPublishedAt: String
   id: ID!
@@ -4933,6 +4993,22 @@ input B2CAppHistoryRecordWhereInput {
   developmentBlePeripheralBgAllowed_not: Boolean
   productionBlePeripheralBgAllowed: Boolean
   productionBlePeripheralBgAllowed_not: Boolean
+  developmentModifiedAt: String
+  developmentModifiedAt_not: String
+  developmentModifiedAt_lt: String
+  developmentModifiedAt_lte: String
+  developmentModifiedAt_gt: String
+  developmentModifiedAt_gte: String
+  developmentModifiedAt_in: [String]
+  developmentModifiedAt_not_in: [String]
+  productionModifiedAt: String
+  productionModifiedAt_not: String
+  productionModifiedAt_lt: String
+  productionModifiedAt_lte: String
+  productionModifiedAt_gt: String
+  productionModifiedAt_gte: String
+  productionModifiedAt_in: [String]
+  productionModifiedAt_not_in: [String]
   developmentPublishedAt: String
   developmentPublishedAt_not: String
   developmentPublishedAt_lt: String
@@ -5126,6 +5202,10 @@ enum SortB2CAppHistoryRecordsBy {
   developmentBlePeripheralBgAllowed_DESC
   productionBlePeripheralBgAllowed_ASC
   productionBlePeripheralBgAllowed_DESC
+  developmentModifiedAt_ASC
+  developmentModifiedAt_DESC
+  productionModifiedAt_ASC
+  productionModifiedAt_DESC
   developmentPublishedAt_ASC
   developmentPublishedAt_DESC
   productionPublishedAt_ASC
@@ -5183,6 +5263,8 @@ input B2CAppHistoryRecordUpdateInput {
   productionBleCentralBgAllowed: Boolean
   developmentBlePeripheralBgAllowed: Boolean
   productionBlePeripheralBgAllowed: Boolean
+  developmentModifiedAt: String
+  productionModifiedAt: String
   developmentPublishedAt: String
   productionPublishedAt: String
   v: Int
@@ -5237,6 +5319,8 @@ input B2CAppHistoryRecordCreateInput {
   productionBleCentralBgAllowed: Boolean
   developmentBlePeripheralBgAllowed: Boolean
   productionBlePeripheralBgAllowed: Boolean
+  developmentModifiedAt: String
+  productionModifiedAt: String
   developmentPublishedAt: String
   productionPublishedAt: String
   v: Int
@@ -5391,6 +5475,14 @@ type B2CApp {
   """ Controls whether the mini-app can use “ble peripheral bg” device permission on production environment 
   """
   productionBlePeripheralBgAllowed: Boolean
+
+  """ Last time mini-app information relative to development environment was modified. Used to auto-publish need detection 
+  """
+  developmentModifiedAt: String
+
+  """ Last time mini-app information relative to production environment was modified. Used to auto-publish need detection 
+  """
+  productionModifiedAt: String
 
   """ The last time a mini-app was published on the development environment 
   """
@@ -5564,6 +5656,22 @@ input B2CAppWhereInput {
   developmentBlePeripheralBgAllowed_not: Boolean
   productionBlePeripheralBgAllowed: Boolean
   productionBlePeripheralBgAllowed_not: Boolean
+  developmentModifiedAt: String
+  developmentModifiedAt_not: String
+  developmentModifiedAt_lt: String
+  developmentModifiedAt_lte: String
+  developmentModifiedAt_gt: String
+  developmentModifiedAt_gte: String
+  developmentModifiedAt_in: [String]
+  developmentModifiedAt_not_in: [String]
+  productionModifiedAt: String
+  productionModifiedAt_not: String
+  productionModifiedAt_lt: String
+  productionModifiedAt_lte: String
+  productionModifiedAt_gt: String
+  productionModifiedAt_gte: String
+  productionModifiedAt_in: [String]
+  productionModifiedAt_not_in: [String]
   developmentPublishedAt: String
   developmentPublishedAt_not: String
   developmentPublishedAt_lt: String
@@ -5737,6 +5845,10 @@ enum SortB2CAppsBy {
   developmentBlePeripheralBgAllowed_DESC
   productionBlePeripheralBgAllowed_ASC
   productionBlePeripheralBgAllowed_DESC
+  developmentModifiedAt_ASC
+  developmentModifiedAt_DESC
+  productionModifiedAt_ASC
+  productionModifiedAt_DESC
   developmentPublishedAt_ASC
   developmentPublishedAt_DESC
   productionPublishedAt_ASC
@@ -5794,6 +5906,8 @@ input B2CAppUpdateInput {
   productionBleCentralBgAllowed: Boolean
   developmentBlePeripheralBgAllowed: Boolean
   productionBlePeripheralBgAllowed: Boolean
+  developmentModifiedAt: String
+  productionModifiedAt: String
   developmentPublishedAt: String
   productionPublishedAt: String
   v: Int
@@ -5845,6 +5959,8 @@ input B2CAppCreateInput {
   productionBleCentralBgAllowed: Boolean
   developmentBlePeripheralBgAllowed: Boolean
   productionBlePeripheralBgAllowed: Boolean
+  developmentModifiedAt: String
+  productionModifiedAt: String
   developmentPublishedAt: String
   productionPublishedAt: String
   v: Int

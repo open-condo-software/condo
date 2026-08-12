@@ -16,6 +16,7 @@ const { canReadAppSchemas, canManageAppSchemas } = require('@dev-portal-api/doma
 
 const { getEnvironmentalPermissionsFields } = require('./fields/devicePermissions')
 const { getEnvironmentalFields } = require('./fields/environmental')
+const { getModifiedAtFields } = require('./fields/modifiedAt')
 const { OIDC_CLIENT_ID_FIELD } = require('./fields/oidcClientId')
 
 const LOGO_FILE_ADAPTER = new FileAdapter('B2BApps/logos', true)
@@ -131,6 +132,7 @@ const B2BApp = new GQLListSchema('B2BApp', {
         }),
         ...getEnvironmentalFields('oidcClientId', OIDC_CLIENT_ID_FIELD),
         ...getEnvironmentalPermissionsFields({ listKey: 'B2BApp' }),
+        ...getModifiedAtFields(),
         ...getEnvironmentalFields('publishedAt', {
             schemaDoc: 'The last time a mini-app was published on the {environment} environment',
             type: 'DateTimeUtc',

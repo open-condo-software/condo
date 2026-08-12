@@ -194,6 +194,15 @@ describe('B2BApp', () => {
             ]))
         })
     })
+    describe('Field resolve input tests', () => {
+        describe('modifiedAt', () => {
+            test('Must be updated all environment fields if common field changed', async () => {
+                const [app] = await createTestB2BApp(user)
+                const [firstApp] = await updateTestB2BApp(user, app.id, { name: faker.music.songName() })
+                expect(firstApp).toHaveProperty('modifiedAt', expect.stringContaining(''))
+            })
+        })
+    })
     describe('Field access tests', () => {
         describe.each(AVAILABLE_ENVIRONMENTS)('%p environment', (environment) => {
             const fieldName = getEnvironmentalFieldName(environment, 'oidcClientId')
