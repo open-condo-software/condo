@@ -51,6 +51,8 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
 
         // Organization domain
         'Organization',
+        'OrganizationEmployee',
+        'OrganizationLink',
 
         // Ticket domain
         'Ticket',
@@ -72,10 +74,13 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
 
         // Payments domain
         { schemaName: 'Payment', readonly: true },
-        
+
         // Billing domain
         { schemaName: 'BillingReceipt', readonly: true },
         { schemaName: 'BillingIntegrationOrganizationContext', readonly: true },
+
+        // Subscription domain
+        'SubscriptionContext',
     ],
     fields: {
         Organization: [
@@ -129,6 +134,7 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
         '_allBillingReceiptsSum',
         'getAvailableSubscriptionPlans',
         'registerSubscriptionContext',
+        'signinAsUser',
     ],
 }
 

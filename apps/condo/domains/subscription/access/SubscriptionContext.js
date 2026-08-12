@@ -5,26 +5,31 @@
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
 const { getEmployedOrRelatedOrganizationsByPermissions } = require('@condo/domains/organization/utils/accessSchema')
+const { canDirectlyReadSchemaObjects, canDirectlyManageSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
-async function canReadSubscriptionContexts ({ authentication: { item: user }, context }) {
+async function canReadSubscriptionContexts ({ authentication: { item: user }, context, listKey }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isAdmin || user.isSupport) return {}
 
+    const hasDirectAccess = await canDirectlyReadSchemaObjects(user, listKey)
+    if (hasDirectAccess) return true
+
     // Employee can read their organization's subscription contexts
     const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, [])
-    
+
     return {
         organization: { id_in: permittedOrganizations },
     }
 }
 
-async function canManageSubscriptionContexts ({ authentication: { item: user }, context, operation, originalInput, itemId }) {
+async function canManageSubscriptionContexts ({ authentication: { item: user }, context, operation, originalInput, itemId, listKey }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
+    if (user.isAdmin || user.isSupport) return true
 
-    return user.isAdmin || user.isSupport
+    return await canDirectlyManageSchemaObjects(user, listKey, originalInput, operation)
 }
 
 module.exports = {

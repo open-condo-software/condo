@@ -4,6 +4,8 @@
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
+const { canDirectlyManageSchemaObjects } = require('@condo/domains/user/utils/directAccess')
+
 async function canReadOrganizationLinks ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
@@ -11,11 +13,12 @@ async function canReadOrganizationLinks ({ authentication: { item: user } }) {
     return {}
 }
 
-async function canManageOrganizationLinks ({ authentication: { item: user } }) {
+async function canManageOrganizationLinks ({ authentication: { item: user }, listKey, originalInput, operation }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
+    if (user.isSupport || user.isAdmin) return true
 
-    return !!(user.isSupport || user.isAdmin)
+    return await canDirectlyManageSchemaObjects(user, listKey, originalInput, operation)
 }
 
 /*

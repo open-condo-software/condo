@@ -10,15 +10,19 @@ const {
     getEmployedOrRelatedOrganizationsByPermissions,
 } = require('@condo/domains/organization/utils/accessSchema')
 const { SERVICE } = require('@condo/domains/user/constants/common')
+const { canDirectlyReadSchemaObjects, canDirectlyManageSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
 
 async function canReadOrganizationEmployees (args) {
-    const { authentication: { item: user }, context } = args
+    const { authentication: { item: user }, context, listKey } = args
 
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isSupport || user.isAdmin) return {}
+
+    const hasDirectAccess = await canDirectlyReadSchemaObjects(user, listKey)
+    if (hasDirectAccess) return true
 
     if (user.type === SERVICE) {
         return await canReadObjectsAsB2BAppServiceUser(args)
@@ -38,10 +42,13 @@ async function canReadOrganizationEmployees (args) {
     }
 }
 
-async function canManageOrganizationEmployees ({ authentication: { item: user }, context, operation, itemId }) {
+async function canManageOrganizationEmployees ({ authentication: { item: user }, context, operation, itemId, listKey, originalInput }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
+
+    const hasDirectAccess = await canDirectlyManageSchemaObjects(user, listKey, originalInput, operation)
+    if (hasDirectAccess) return true
 
     // NOTE: you should use `inviteNewOrganizationEmployee`
     if (operation === 'create') return false
