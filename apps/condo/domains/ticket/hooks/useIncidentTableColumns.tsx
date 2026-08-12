@@ -3,10 +3,11 @@ import {
     IncidentProperty as IIncidentProperty,
     IncidentClassifierIncident as IIncidentClassifierIncident,
 } from '@app/condo/schema'
+import { SortIncidentPropertiesBy, SortIncidentClassifierIncidentsBy } from '@app/condo/schema'
 import { ColumnsType } from 'antd/es/table/interface'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
@@ -46,91 +47,40 @@ type UseLoadRelatedDataReturnType = {
 export type UseTableColumnsType = (props: UseTableColumnsPropsType) => UseTableColumnsReturnType
 type UseIncidentRelatedDataType = (incidents: IIncident[]) => UseLoadRelatedDataReturnType
 
-async function fetchWithPagination (refetch, where){
-    const first = 100
-    let skip = 0
-    let result = []
-    let objs = []
-
-    do {
-        const response = await refetch({
-            where,
-            first,
-            skip,
-            sortBy: ['id_ASC'],
-        })
-
-        objs = response?.data?.objs ?? []
-        result = result.concat(objs)
-        skip += objs.length
-    } while (objs.length === first)
-
-    return result
-}
-
 export const useIncidentRelatedData: UseIncidentRelatedDataType = (incidents) => {
     const incidentIds = useMemo(() => incidents.map(incident => incident.id), [incidents])
 
-    const [incidentProperties, setIncidentProperties] = useState<IIncidentProperty[]>([])
-    const [incidentClassifiers, setIncidentClassifiers] = useState<IIncidentClassifierIncident[]>([])
-    const [loading, setLoading] = useState<boolean>(true)
+    const {
+        objs: incidentProperties,
+        loading: incidentPropertiesLoading,
+    } = IncidentProperty.useAllObjects(
+        {
+            where: {
+                incident: { id_in: incidentIds },
+            },
+            sortBy: [SortIncidentPropertiesBy.IdAsc],
+        },
+        { skip: incidentIds.length === 0 }
+    )
 
     const {
-        refetch: refetchIncidentProperty,
-    } = IncidentProperty.useAllObjects({}, { skip: true })
-
-    const {
-        refetch: refetchIncidentClassifierIncident,
-    } = IncidentClassifierIncident.useAllObjects({}, { skip: true })
-
-    const getIncidentProperties = useCallback(async (incidentIds: string[]) => {
-        if (incidentIds.length < 1) {
-            return { incidentProperties: [] }
-        }
-
-        const incidentProperties = await fetchWithPagination(
-            refetchIncidentProperty,
-            {
+        objs: incidentClassifiers,
+        loading: incidentClassifiersLoading,
+    } = IncidentClassifierIncident.useAllObjects(
+        {
+            where: {
                 incident: { id_in: incidentIds },
-            }
-        )
-
-        return { incidentProperties }
-    }, [])
-
-    const getIncidentClassifierIncidents = useCallback(async (incidentIds: string[]) => {
-        if (incidentIds.length < 1) {
-            return { incidentClassifiers: [] }
-        }
-
-        const incidentClassifiers = await fetchWithPagination(
-            refetchIncidentClassifierIncident,
-            {
-                incident: { id_in: incidentIds },
-            }
-        )
-
-        return { incidentClassifiers }
-    }, [])
-
-    const getPropertiesAndClassifiers = useCallback(async (incidentIds: string[]) => {
-        setLoading(true)
-        const { incidentProperties } = await getIncidentProperties(incidentIds)
-        const { incidentClassifiers } = await getIncidentClassifierIncidents(incidentIds)
-        setIncidentProperties(incidentProperties)
-        setIncidentClassifiers(incidentClassifiers)
-        setLoading(false)
-    }, [getIncidentProperties, getIncidentClassifierIncidents])
-
-    useEffect(() => {
-        getPropertiesAndClassifiers(incidentIds)
-    }, [getPropertiesAndClassifiers, incidentIds])
+            },
+            sortBy: [SortIncidentClassifierIncidentsBy.IdAsc],
+        },
+        { skip: incidentIds.length === 0 }
+    )
 
     return useMemo(() => ({
         incidentProperties,
         incidentClassifiers,
-        loading,
-    }), [incidentClassifiers, incidentProperties, loading])
+        loading: incidentPropertiesLoading || incidentClassifiersLoading,
+    }), [incidentClassifiers, incidentClassifiersLoading, incidentProperties, incidentPropertiesLoading])
 }
 
 const COLUMNS_WIDTH = {
