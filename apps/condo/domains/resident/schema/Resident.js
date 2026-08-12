@@ -297,11 +297,10 @@ const Resident = new GQLListSchema('Resident', {
     ],
     hooks: {
         validateInput: async ({ resolvedData, operation, addValidationError, context }) => {
-            const { address, addressMeta, unitName, unitType, user: userId } = resolvedData
+            const { address, addressMeta, addressKey, unitName, unitType, user: userId } = resolvedData
             if (operation === 'create') {
-                const addressUpToBuilding = getAddressUpToBuildingFrom(addressMeta)
                 const [resident] = await ResidentAPI.getAll(context, {
-                    address_i: addressUpToBuilding,
+                    addressKey,
                     unitName_i: unitName,
                     unitType,
                     user: { id: userId },
