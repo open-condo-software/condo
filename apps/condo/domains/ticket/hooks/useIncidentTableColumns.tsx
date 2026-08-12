@@ -57,6 +57,7 @@ async function fetchWithPagination (refetch, where){
             where,
             first,
             skip,
+            sortBy: ['id_ASC'],
         })
 
         objs = response?.data?.objs ?? []
