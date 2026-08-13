@@ -65,7 +65,7 @@ const ENVIRONMENTAL_FIELDS = [
         .map((permission) => ({ from: getDevicePermissionFieldName(permission), to: getDevicePermissionFieldName(permission).substring(2) })),
 ]
 
-const CondoB2BAppGQL = generateGqlQueries('B2BApp', `{ id name developer developerUrl shortDescription detailedDescription category contextDefaultStatus logo { publicUrl filename mimetype encoding } ${ENVIRONMENTAL_FIELDS.filter(f => !f.from.includes('.')).map(f => f.from).join(' ')} oidcClient { id importId importRemoteSystem } }`)
+const CondoB2BAppGQL = generateGqlQueries('B2BApp', `{ id name developer developerUrl shortDescription detailedDescription category contextDefaultStatus logo { publicUrl originalFilename filename mimetype encoding } ${ENVIRONMENTAL_FIELDS.filter(f => !f.from.includes('.')).map(f => f.from).join(' ')} oidcClient { id importId importRemoteSystem } }`)
 const CondoB2BAppAccessRightGQL = generateGqlQueries('B2BAppAccessRight', `{ id user { id } accessRightSet { id ${Object.keys(PERMISSION_FIELDS).join(' ')} } }`)
 const CondoB2BAppAccessRightSetGQL = generateGqlQueries('B2BAppAccessRightSet', '{ id }')
 const CondoOIDCClientGQL = generateGqlQueries('OidcClient', '{ id }')
@@ -223,14 +223,14 @@ async function importAppInfo ({ args, context }) {
         })
         const uploaded = await client.uploadFile({
             stream,
-            filename: sourceApp.logo.filename,
+            filename: sourceApp.logo.originalFilename || sourceApp.logo.filename,
             mimetype: sourceApp.logo.mimetype,
             encoding: sourceApp.logo.encoding,
             modelName: 'B2BApp',
         })
         updatePayload.logo = {
             signature: uploaded.signature,
-            originalFilename: sourceApp.logo.filename || uploaded.originalFilename,
+            originalFilename: sourceApp.logo.originalFilename || uploaded.originalFilename,
         }
     }
 

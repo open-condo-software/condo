@@ -145,7 +145,7 @@ describe('ImportB2BAppService', () => {
                 expect(updatedApp).toHaveProperty('detailedDescription', condoDevApp.detailedDescription)
                 expect(updatedApp).toHaveProperty('category', condoDevApp.category)
                 expect(updatedApp).toHaveProperty('contextDefaultStatus', condoDevApp.contextDefaultStatus)
-                expect(updatedApp).toHaveProperty(['logo', 'originalFilename'], condoDevApp.logo.filename)
+                expect(updatedApp).toHaveProperty(['logo', 'originalFilename'], condoDevApp.logo.originalFilename)
                 expect(updatedApp).toHaveProperty('developmentExportId', condoDevApp.id)
             })
             test('App must be updated with info from condo prod app if prod app is specified', async () => {
@@ -160,7 +160,7 @@ describe('ImportB2BAppService', () => {
                 expect(updatedApp).toHaveProperty('detailedDescription', condoProdApp.detailedDescription)
                 expect(updatedApp).toHaveProperty('category', condoProdApp.category)
                 expect(updatedApp).toHaveProperty('contextDefaultStatus', condoProdApp.contextDefaultStatus)
-                expect(updatedApp).toHaveProperty(['logo', 'originalFilename'], condoProdApp.logo.filename)
+                expect(updatedApp).toHaveProperty(['logo', 'originalFilename'], condoProdApp.logo.originalFilename)
                 expect(updatedApp).toHaveProperty('productionExportId', condoProdApp.id)
             })
             test('Condo apps must be updated to include importId and importRemoteSystem', async () => {
