@@ -3047,6 +3047,7 @@ type UserRightsSetHistoryRecord {
   canExecute_allBillingReceiptsSum: Boolean
   canExecuteGetAvailableSubscriptionPlans: Boolean
   canExecuteRegisterSubscriptionContext: Boolean
+  canExecuteInviteNewOrganizationEmployee: Boolean
   canExecuteSigninAsUser: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageBillingIntegrationOrganizationContextDeletedAtField: Boolean
@@ -3209,6 +3210,8 @@ input UserRightsSetHistoryRecordWhereInput {
   canExecuteGetAvailableSubscriptionPlans_not: Boolean
   canExecuteRegisterSubscriptionContext: Boolean
   canExecuteRegisterSubscriptionContext_not: Boolean
+  canExecuteInviteNewOrganizationEmployee: Boolean
+  canExecuteInviteNewOrganizationEmployee_not: Boolean
   canExecuteSigninAsUser: Boolean
   canExecuteSigninAsUser_not: Boolean
   canManageOrganizationIsApprovedField: Boolean
@@ -3428,6 +3431,8 @@ enum SortUserRightsSetHistoryRecordsBy {
   canExecuteGetAvailableSubscriptionPlans_DESC
   canExecuteRegisterSubscriptionContext_ASC
   canExecuteRegisterSubscriptionContext_DESC
+  canExecuteInviteNewOrganizationEmployee_ASC
+  canExecuteInviteNewOrganizationEmployee_DESC
   canExecuteSigninAsUser_ASC
   canExecuteSigninAsUser_DESC
   canManageOrganizationIsApprovedField_ASC
@@ -3523,6 +3528,7 @@ input UserRightsSetHistoryRecordUpdateInput {
   canExecute_allBillingReceiptsSum: Boolean
   canExecuteGetAvailableSubscriptionPlans: Boolean
   canExecuteRegisterSubscriptionContext: Boolean
+  canExecuteInviteNewOrganizationEmployee: Boolean
   canExecuteSigninAsUser: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageBillingIntegrationOrganizationContextDeletedAtField: Boolean
@@ -3611,6 +3617,7 @@ input UserRightsSetHistoryRecordCreateInput {
   canExecute_allBillingReceiptsSum: Boolean
   canExecuteGetAvailableSubscriptionPlans: Boolean
   canExecuteRegisterSubscriptionContext: Boolean
+  canExecuteInviteNewOrganizationEmployee: Boolean
   canExecuteSigninAsUser: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageBillingIntegrationOrganizationContextDeletedAtField: Boolean
@@ -3889,6 +3896,10 @@ type UserRightsSet {
   """
   canExecuteRegisterSubscriptionContext: Boolean
 
+  """ Enables a user with the given UserRightsSet to execute "inviteNewOrganizationEmployee" query/mutation 
+  """
+  canExecuteInviteNewOrganizationEmployee: Boolean
+
   """ Enables a user with the given UserRightsSet to execute "signinAsUser" query/mutation 
   """
   canExecuteSigninAsUser: Boolean
@@ -4082,6 +4093,8 @@ input UserRightsSetWhereInput {
   canExecuteGetAvailableSubscriptionPlans_not: Boolean
   canExecuteRegisterSubscriptionContext: Boolean
   canExecuteRegisterSubscriptionContext_not: Boolean
+  canExecuteInviteNewOrganizationEmployee: Boolean
+  canExecuteInviteNewOrganizationEmployee_not: Boolean
   canExecuteSigninAsUser: Boolean
   canExecuteSigninAsUser_not: Boolean
   canManageOrganizationIsApprovedField: Boolean
@@ -4281,6 +4294,8 @@ enum SortUserRightsSetsBy {
   canExecuteGetAvailableSubscriptionPlans_DESC
   canExecuteRegisterSubscriptionContext_ASC
   canExecuteRegisterSubscriptionContext_DESC
+  canExecuteInviteNewOrganizationEmployee_ASC
+  canExecuteInviteNewOrganizationEmployee_DESC
   canExecuteSigninAsUser_ASC
   canExecuteSigninAsUser_DESC
   canManageOrganizationIsApprovedField_ASC
@@ -4376,6 +4391,7 @@ input UserRightsSetUpdateInput {
   canExecute_allBillingReceiptsSum: Boolean
   canExecuteGetAvailableSubscriptionPlans: Boolean
   canExecuteRegisterSubscriptionContext: Boolean
+  canExecuteInviteNewOrganizationEmployee: Boolean
   canExecuteSigninAsUser: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageBillingIntegrationOrganizationContextDeletedAtField: Boolean
@@ -4461,6 +4477,7 @@ input UserRightsSetCreateInput {
   canExecute_allBillingReceiptsSum: Boolean
   canExecuteGetAvailableSubscriptionPlans: Boolean
   canExecuteRegisterSubscriptionContext: Boolean
+  canExecuteInviteNewOrganizationEmployee: Boolean
   canExecuteSigninAsUser: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageBillingIntegrationOrganizationContextDeletedAtField: Boolean

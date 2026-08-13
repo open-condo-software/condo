@@ -47,12 +47,12 @@ async function canManageOrganizationEmployees ({ authentication: { item: user },
     if (user.deletedAt) return false
     if (user.isAdmin) return true
 
-    const hasDirectAccess = await canDirectlyManageSchemaObjects(user, listKey, originalInput, operation)
-    if (hasDirectAccess) return true
-
     // NOTE: you should use `inviteNewOrganizationEmployee`
     if (operation === 'create') return false
     if (user.isSupport) return true
+
+    const hasDirectAccess = await canDirectlyManageSchemaObjects(user, listKey, originalInput, operation)
+    if (hasDirectAccess) return true
 
     if (operation === 'update' && itemId) {
         const employeeToEdit = await getById('OrganizationEmployee', itemId)

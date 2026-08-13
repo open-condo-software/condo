@@ -134,6 +134,7 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
         '_allBillingReceiptsSum',
         'getAvailableSubscriptionPlans',
         'registerSubscriptionContext',
+        'inviteNewOrganizationEmployee',
         'signinAsUser',
     ],
 }

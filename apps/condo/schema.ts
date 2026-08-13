@@ -102531,6 +102531,8 @@ export enum SortUserHistoryRecordsBy {
 export enum SortUserRightsSetHistoryRecordsBy {
   CanExecuteGetAvailableSubscriptionPlansAsc = 'canExecuteGetAvailableSubscriptionPlans_ASC',
   CanExecuteGetAvailableSubscriptionPlansDesc = 'canExecuteGetAvailableSubscriptionPlans_DESC',
+  CanExecuteInviteNewOrganizationEmployeeAsc = 'canExecuteInviteNewOrganizationEmployee_ASC',
+  CanExecuteInviteNewOrganizationEmployeeDesc = 'canExecuteInviteNewOrganizationEmployee_DESC',
   CanExecuteRegisterNewServiceUserAsc = 'canExecuteRegisterNewServiceUser_ASC',
   CanExecuteRegisterNewServiceUserDesc = 'canExecuteRegisterNewServiceUser_DESC',
   CanExecuteRegisterSubscriptionContextAsc = 'canExecuteRegisterSubscriptionContext_ASC',
@@ -102686,6 +102688,8 @@ export enum SortUserRightsSetHistoryRecordsBy {
 export enum SortUserRightsSetsBy {
   CanExecuteGetAvailableSubscriptionPlansAsc = 'canExecuteGetAvailableSubscriptionPlans_ASC',
   CanExecuteGetAvailableSubscriptionPlansDesc = 'canExecuteGetAvailableSubscriptionPlans_DESC',
+  CanExecuteInviteNewOrganizationEmployeeAsc = 'canExecuteInviteNewOrganizationEmployee_ASC',
+  CanExecuteInviteNewOrganizationEmployeeDesc = 'canExecuteInviteNewOrganizationEmployee_DESC',
   CanExecuteRegisterNewServiceUserAsc = 'canExecuteRegisterNewServiceUser_ASC',
   CanExecuteRegisterNewServiceUserDesc = 'canExecuteRegisterNewServiceUser_DESC',
   CanExecuteRegisterSubscriptionContextAsc = 'canExecuteRegisterSubscriptionContext_ASC',
@@ -118289,6 +118293,8 @@ export type UserRightsSet = {
   _label_?: Maybe<Scalars['String']['output']>;
   /**  Enables a user with the given UserRightsSet to execute "getAvailableSubscriptionPlans" query/mutation  */
   canExecuteGetAvailableSubscriptionPlans?: Maybe<Scalars['Boolean']['output']>;
+  /**  Enables a user with the given UserRightsSet to execute "inviteNewOrganizationEmployee" query/mutation  */
+  canExecuteInviteNewOrganizationEmployee?: Maybe<Scalars['Boolean']['output']>;
   /**  Enables a user with the given UserRightsSet to execute "registerNewServiceUser" query/mutation  */
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']['output']>;
   /**  Enables a user with the given UserRightsSet to execute "registerSubscriptionContext" query/mutation  */
@@ -118441,6 +118447,7 @@ export type UserRightsSet = {
 
 export type UserRightsSetCreateInput = {
   canExecuteGetAvailableSubscriptionPlans?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteInviteNewOrganizationEmployee?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterNewServiceUser?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterSubscriptionContext?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteSendMessage?: InputMaybe<Scalars['Boolean']['input']>;
@@ -118531,6 +118538,7 @@ export type UserRightsSetHistoryRecord = {
    */
   _label_?: Maybe<Scalars['String']['output']>;
   canExecuteGetAvailableSubscriptionPlans?: Maybe<Scalars['Boolean']['output']>;
+  canExecuteInviteNewOrganizationEmployee?: Maybe<Scalars['Boolean']['output']>;
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']['output']>;
   canExecuteRegisterSubscriptionContext?: Maybe<Scalars['Boolean']['output']>;
   canExecuteSendMessage?: Maybe<Scalars['Boolean']['output']>;
@@ -118615,6 +118623,7 @@ export type UserRightsSetHistoryRecord = {
 
 export type UserRightsSetHistoryRecordCreateInput = {
   canExecuteGetAvailableSubscriptionPlans?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteInviteNewOrganizationEmployee?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterNewServiceUser?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterSubscriptionContext?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteSendMessage?: InputMaybe<Scalars['Boolean']['input']>;
@@ -118704,6 +118713,7 @@ export enum UserRightsSetHistoryRecordHistoryActionType {
 
 export type UserRightsSetHistoryRecordUpdateInput = {
   canExecuteGetAvailableSubscriptionPlans?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteInviteNewOrganizationEmployee?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterNewServiceUser?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterSubscriptionContext?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteSendMessage?: InputMaybe<Scalars['Boolean']['input']>;
@@ -118790,6 +118800,8 @@ export type UserRightsSetHistoryRecordWhereInput = {
   OR?: InputMaybe<Array<InputMaybe<UserRightsSetHistoryRecordWhereInput>>>;
   canExecuteGetAvailableSubscriptionPlans?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteGetAvailableSubscriptionPlans_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteInviteNewOrganizationEmployee?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteInviteNewOrganizationEmployee_not?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterNewServiceUser?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterNewServiceUser_not?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterSubscriptionContext?: InputMaybe<Scalars['Boolean']['input']>;
@@ -119040,6 +119052,7 @@ export type UserRightsSetRelateToOneInput = {
 
 export type UserRightsSetUpdateInput = {
   canExecuteGetAvailableSubscriptionPlans?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteInviteNewOrganizationEmployee?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterNewServiceUser?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterSubscriptionContext?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteSendMessage?: InputMaybe<Scalars['Boolean']['input']>;
@@ -119123,6 +119136,8 @@ export type UserRightsSetWhereInput = {
   OR?: InputMaybe<Array<InputMaybe<UserRightsSetWhereInput>>>;
   canExecuteGetAvailableSubscriptionPlans?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteGetAvailableSubscriptionPlans_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteInviteNewOrganizationEmployee?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteInviteNewOrganizationEmployee_not?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterNewServiceUser?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterNewServiceUser_not?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterSubscriptionContext?: InputMaybe<Scalars['Boolean']['input']>;
