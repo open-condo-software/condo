@@ -63,6 +63,7 @@ describe('SubscriptionContext', () => {
                     name: faker.lorem.words(3),
                     dv: 1,
                     sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                    canReadOrganizations: true,
                     canReadSubscriptionContexts: true,
                     canManageSubscriptionContexts: true,
                 },
