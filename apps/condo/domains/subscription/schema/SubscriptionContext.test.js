@@ -35,7 +35,7 @@ const {
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('SubscriptionContext', () => {
-    let admin, support, employee
+    let admin, support, employee, userWithDirectAccess
     let organization, subscriptionPlan, pricingRule
 
     beforeAll(async () => {
@@ -56,6 +56,19 @@ describe('SubscriptionContext', () => {
             currencyCode: 'RUB',
         })
         pricingRule = rule
+
+        userWithDirectAccess = await makeClientWithNewRegisteredAndLoggedInUser({
+            rightsSet: {
+                create: {
+                    name: faker.lorem.words(3),
+                    dv: 1,
+                    sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                    canReadOrganizations: true,
+                    canReadSubscriptionContexts: true,
+                    canManageSubscriptionContexts: true,
+                },
+            },
+        })
     })
 
     beforeEach(async () => {
@@ -111,6 +124,20 @@ describe('SubscriptionContext', () => {
                 expect(obj.id).toMatch(UUID_RE)
             })
 
+            test('user with direct access (canManageSubscriptionContexts) can create', async () => {
+                const startAt = dayjs().format('YYYY-MM-DD')
+                const endAt = dayjs().add(30, 'day').format('YYYY-MM-DD')
+
+                const [obj] = await createTestSubscriptionContext(userWithDirectAccess, organization, subscriptionPlan, {
+                    startAt,
+                    endAt,
+                    isTrial: true,
+                })
+
+                expect(obj.id).toMatch(UUID_RE)
+                expect(obj.organization.id).toBe(organization.id)
+            })
+
             test('employee cannot create', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await createTestSubscriptionContext(employee, organization, subscriptionPlan, {
@@ -143,6 +170,19 @@ describe('SubscriptionContext', () => {
                 })
 
                 const [obj] = await updateTestSubscriptionContext(support, objCreated.id, {
+                    deletedAt: dayjs().toISOString(),
+                })
+                expect(obj.deletedAt).toBeTruthy()
+            })
+
+            test('user with direct access (canManageSubscriptionContexts) can soft delete', async () => {
+                const [objCreated] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                    startAt: dayjs().format('YYYY-MM-DD'),
+                    endAt: dayjs().add(14, 'day').format('YYYY-MM-DD'),
+                    isTrial: true,
+                })
+
+                const [obj] = await updateTestSubscriptionContext(userWithDirectAccess, objCreated.id, {
                     deletedAt: dayjs().toISOString(),
                 })
                 expect(obj.deletedAt).toBeTruthy()
@@ -200,6 +240,22 @@ describe('SubscriptionContext', () => {
                 })
 
                 const objs = await SubscriptionContext.getAll(employee, { id: obj.id })
+
+                expect(objs).toHaveLength(1)
+                expect(objs[0].id).toBe(obj.id)
+            })
+
+            test('user with direct access (canReadSubscriptionContexts) can read any subscription context', async () => {
+                const otherUser = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [otherOrg] = await registerNewOrganization(otherUser, { type: HOLDING_TYPE })
+
+                const [obj] = await createTestSubscriptionContext(admin, otherOrg, subscriptionPlan, {
+                    startAt: dayjs().format('YYYY-MM-DD'),
+                    endAt: dayjs().add(14, 'day').format('YYYY-MM-DD'),
+                    isTrial: true,
+                })
+
+                const objs = await SubscriptionContext.getAll(userWithDirectAccess, { id: obj.id })
 
                 expect(objs).toHaveLength(1)
                 expect(objs[0].id).toBe(obj.id)

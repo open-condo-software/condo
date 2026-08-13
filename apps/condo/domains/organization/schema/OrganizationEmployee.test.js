@@ -68,6 +68,38 @@ describe('OrganizationEmployee', () => {
         })
     })
 
+    test('user with direct access (canExecuteInviteNewOrganizationEmployee): can invite new OrganizationEmployee', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const [organization] = await createTestOrganization(admin)
+        const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+            canManageEmployees: true,
+        })
+        const userWithDirectAccess = await makeClientWithNewRegisteredAndLoggedInUser({
+            rightsSet: {
+                create: {
+                    name: faker.lorem.words(3),
+                    dv: 1,
+                    sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                    canReadOrganizations: true,
+                    canReadOrganizationEmployees: true,
+                    canExecuteInviteNewOrganizationEmployee: true,
+                },
+            },
+        })
+
+        const inviteUserAttrs = {
+            name: faker.name.fullName(),
+            email: createTestEmail(),
+            phone: createTestPhone(),
+        }
+        const [employee] = await inviteNewOrganizationEmployee(userWithDirectAccess, organization, inviteUserAttrs, role)
+
+        expect(employee.id).toBeDefined()
+        expect(employee.organization.id).toEqual(organization.id)
+        expect(employee.email).toEqual(inviteUserAttrs.email)
+        expect(employee.phone).toEqual(inviteUserAttrs.phone)
+    })
+
     test('user: cannot create OrganizationEmployee', async () => {
         const { userClient, organization, role } = await makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee({
             canManageEmployees: true,
@@ -155,6 +187,30 @@ describe('OrganizationEmployee', () => {
         })
     })
 
+    test('user with direct access (canReadOrganizationEmployees): can read any OrganizationEmployee', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const [organization] = await createTestOrganization(admin)
+        const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+            canManageEmployees: false,
+        })
+        const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+        const [employee] = await createTestOrganizationEmployee(admin, organization, userClient.user, role)
+        const userWithDirectAccess = await makeClientWithNewRegisteredAndLoggedInUser({
+            rightsSet: {
+                create: {
+                    name: faker.lorem.words(3),
+                    dv: 1,
+                    sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                    canReadOrganizations: true,
+                    canReadOrganizationEmployees: true,
+                },
+            },
+        })
+
+        const readEmployee = await OrganizationEmployee.getOne(userWithDirectAccess, { id: employee.id })
+        expect(readEmployee).toHaveProperty('id', employee.id)
+    })
+
     describe('user: update OrganizationEmployee', () => {
         test('can set phone and email to null', async () => {
             const client = await makeClientWithRegisteredOrganization()
@@ -223,6 +279,33 @@ describe('OrganizationEmployee', () => {
         await expectToThrowAuthenticationErrorToObj(async () => {
             await updateTestOrganizationEmployee(client, employee.id, payload)
         })
+    })
+
+    test('user with direct access (canManageOrganizationEmployees): can update OrganizationEmployee', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const [organization] = await createTestOrganization(admin)
+        const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+            canManageEmployees: true,
+        })
+        const { user } = await makeClientWithNewRegisteredAndLoggedInUser()
+        const [employee] = await createTestOrganizationEmployee(admin, organization, user, role)
+        const userWithDirectAccess = await makeClientWithNewRegisteredAndLoggedInUser({
+            rightsSet: {
+                create: {
+                    name: faker.lorem.words(3),
+                    dv: 1,
+                    sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                    canReadOrganizations: true,
+                    canReadOrganizationEmployees: true,
+                    canManageOrganizationEmployees: true,
+                },
+            },
+        })
+
+        const [updated] = await updateTestOrganizationEmployee(userWithDirectAccess, employee.id, {
+            name: faker.name.firstName(),
+        })
+        expect(updated).toHaveProperty('id', employee.id)
     })
 
     describe('user: softDelete OrganizationEmployee', () => {
