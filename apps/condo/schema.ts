@@ -102537,6 +102537,8 @@ export enum SortUserRightsSetHistoryRecordsBy {
   CanExecuteRegisterSubscriptionContextDesc = 'canExecuteRegisterSubscriptionContext_DESC',
   CanExecuteSendMessageAsc = 'canExecuteSendMessage_ASC',
   CanExecuteSendMessageDesc = 'canExecuteSendMessage_DESC',
+  CanExecuteSigninAsUserAsc = 'canExecuteSigninAsUser_ASC',
+  CanExecuteSigninAsUserDesc = 'canExecuteSigninAsUser_DESC',
   CanExecuteAllBillingReceiptsSumAsc = 'canExecute_allBillingReceiptsSum_ASC',
   CanExecuteAllBillingReceiptsSumDesc = 'canExecute_allBillingReceiptsSum_DESC',
   CanExecuteAllPaymentsSumAsc = 'canExecute_allPaymentsSum_ASC',
@@ -102571,14 +102573,20 @@ export enum SortUserRightsSetHistoryRecordsBy {
   CanManageMessageBatchesDesc = 'canManageMessageBatches_DESC',
   CanManageOidcClientsAsc = 'canManageOidcClients_ASC',
   CanManageOidcClientsDesc = 'canManageOidcClients_DESC',
+  CanManageOrganizationEmployeesAsc = 'canManageOrganizationEmployees_ASC',
+  CanManageOrganizationEmployeesDesc = 'canManageOrganizationEmployees_DESC',
   CanManageOrganizationIsApprovedFieldAsc = 'canManageOrganizationIsApprovedField_ASC',
   CanManageOrganizationIsApprovedFieldDesc = 'canManageOrganizationIsApprovedField_DESC',
+  CanManageOrganizationLinksAsc = 'canManageOrganizationLinks_ASC',
+  CanManageOrganizationLinksDesc = 'canManageOrganizationLinks_DESC',
   CanManageOrganizationsAsc = 'canManageOrganizations_ASC',
   CanManageOrganizationsDesc = 'canManageOrganizations_DESC',
   CanManagePropertiesAsc = 'canManageProperties_ASC',
   CanManagePropertiesDesc = 'canManageProperties_DESC',
   CanManageResetUserLimitActionsAsc = 'canManageResetUserLimitActions_ASC',
   CanManageResetUserLimitActionsDesc = 'canManageResetUserLimitActions_DESC',
+  CanManageSubscriptionContextsAsc = 'canManageSubscriptionContexts_ASC',
+  CanManageSubscriptionContextsDesc = 'canManageSubscriptionContexts_DESC',
   CanManageTicketAutoAssignmentsAsc = 'canManageTicketAutoAssignments_ASC',
   CanManageTicketAutoAssignmentsDesc = 'canManageTicketAutoAssignments_DESC',
   CanManageTicketSentToAuthoritiesAtFieldAsc = 'canManageTicketSentToAuthoritiesAtField_ASC',
@@ -102623,6 +102631,10 @@ export enum SortUserRightsSetHistoryRecordsBy {
   CanReadMessagesDesc = 'canReadMessages_DESC',
   CanReadOidcClientsAsc = 'canReadOidcClients_ASC',
   CanReadOidcClientsDesc = 'canReadOidcClients_DESC',
+  CanReadOrganizationEmployeesAsc = 'canReadOrganizationEmployees_ASC',
+  CanReadOrganizationEmployeesDesc = 'canReadOrganizationEmployees_DESC',
+  CanReadOrganizationLinksAsc = 'canReadOrganizationLinks_ASC',
+  CanReadOrganizationLinksDesc = 'canReadOrganizationLinks_DESC',
   CanReadOrganizationsAsc = 'canReadOrganizations_ASC',
   CanReadOrganizationsDesc = 'canReadOrganizations_DESC',
   CanReadPaymentsAsc = 'canReadPayments_ASC',
@@ -102633,6 +102645,8 @@ export enum SortUserRightsSetHistoryRecordsBy {
   CanReadResetUserLimitActionsDesc = 'canReadResetUserLimitActions_DESC',
   CanReadResidentsAsc = 'canReadResidents_ASC',
   CanReadResidentsDesc = 'canReadResidents_DESC',
+  CanReadSubscriptionContextsAsc = 'canReadSubscriptionContexts_ASC',
+  CanReadSubscriptionContextsDesc = 'canReadSubscriptionContexts_DESC',
   CanReadTicketAutoAssignmentsAsc = 'canReadTicketAutoAssignments_ASC',
   CanReadTicketAutoAssignmentsDesc = 'canReadTicketAutoAssignments_DESC',
   CanReadTicketChangesAsc = 'canReadTicketChanges_ASC',
@@ -102678,6 +102692,8 @@ export enum SortUserRightsSetsBy {
   CanExecuteRegisterSubscriptionContextDesc = 'canExecuteRegisterSubscriptionContext_DESC',
   CanExecuteSendMessageAsc = 'canExecuteSendMessage_ASC',
   CanExecuteSendMessageDesc = 'canExecuteSendMessage_DESC',
+  CanExecuteSigninAsUserAsc = 'canExecuteSigninAsUser_ASC',
+  CanExecuteSigninAsUserDesc = 'canExecuteSigninAsUser_DESC',
   CanExecuteAllBillingReceiptsSumAsc = 'canExecute_allBillingReceiptsSum_ASC',
   CanExecuteAllBillingReceiptsSumDesc = 'canExecute_allBillingReceiptsSum_DESC',
   CanExecuteAllPaymentsSumAsc = 'canExecute_allPaymentsSum_ASC',
@@ -102712,14 +102728,20 @@ export enum SortUserRightsSetsBy {
   CanManageMessageBatchesDesc = 'canManageMessageBatches_DESC',
   CanManageOidcClientsAsc = 'canManageOidcClients_ASC',
   CanManageOidcClientsDesc = 'canManageOidcClients_DESC',
+  CanManageOrganizationEmployeesAsc = 'canManageOrganizationEmployees_ASC',
+  CanManageOrganizationEmployeesDesc = 'canManageOrganizationEmployees_DESC',
   CanManageOrganizationIsApprovedFieldAsc = 'canManageOrganizationIsApprovedField_ASC',
   CanManageOrganizationIsApprovedFieldDesc = 'canManageOrganizationIsApprovedField_DESC',
+  CanManageOrganizationLinksAsc = 'canManageOrganizationLinks_ASC',
+  CanManageOrganizationLinksDesc = 'canManageOrganizationLinks_DESC',
   CanManageOrganizationsAsc = 'canManageOrganizations_ASC',
   CanManageOrganizationsDesc = 'canManageOrganizations_DESC',
   CanManagePropertiesAsc = 'canManageProperties_ASC',
   CanManagePropertiesDesc = 'canManageProperties_DESC',
   CanManageResetUserLimitActionsAsc = 'canManageResetUserLimitActions_ASC',
   CanManageResetUserLimitActionsDesc = 'canManageResetUserLimitActions_DESC',
+  CanManageSubscriptionContextsAsc = 'canManageSubscriptionContexts_ASC',
+  CanManageSubscriptionContextsDesc = 'canManageSubscriptionContexts_DESC',
   CanManageTicketAutoAssignmentsAsc = 'canManageTicketAutoAssignments_ASC',
   CanManageTicketAutoAssignmentsDesc = 'canManageTicketAutoAssignments_DESC',
   CanManageTicketSentToAuthoritiesAtFieldAsc = 'canManageTicketSentToAuthoritiesAtField_ASC',
@@ -102764,6 +102786,10 @@ export enum SortUserRightsSetsBy {
   CanReadMessagesDesc = 'canReadMessages_DESC',
   CanReadOidcClientsAsc = 'canReadOidcClients_ASC',
   CanReadOidcClientsDesc = 'canReadOidcClients_DESC',
+  CanReadOrganizationEmployeesAsc = 'canReadOrganizationEmployees_ASC',
+  CanReadOrganizationEmployeesDesc = 'canReadOrganizationEmployees_DESC',
+  CanReadOrganizationLinksAsc = 'canReadOrganizationLinks_ASC',
+  CanReadOrganizationLinksDesc = 'canReadOrganizationLinks_DESC',
   CanReadOrganizationsAsc = 'canReadOrganizations_ASC',
   CanReadOrganizationsDesc = 'canReadOrganizations_DESC',
   CanReadPaymentsAsc = 'canReadPayments_ASC',
@@ -102774,6 +102800,8 @@ export enum SortUserRightsSetsBy {
   CanReadResetUserLimitActionsDesc = 'canReadResetUserLimitActions_DESC',
   CanReadResidentsAsc = 'canReadResidents_ASC',
   CanReadResidentsDesc = 'canReadResidents_DESC',
+  CanReadSubscriptionContextsAsc = 'canReadSubscriptionContexts_ASC',
+  CanReadSubscriptionContextsDesc = 'canReadSubscriptionContexts_DESC',
   CanReadTicketAutoAssignmentsAsc = 'canReadTicketAutoAssignments_ASC',
   CanReadTicketAutoAssignmentsDesc = 'canReadTicketAutoAssignments_DESC',
   CanReadTicketChangesAsc = 'canReadTicketChanges_ASC',
@@ -118267,6 +118295,8 @@ export type UserRightsSet = {
   canExecuteRegisterSubscriptionContext?: Maybe<Scalars['Boolean']['output']>;
   /**  Enables a user with the given UserRightsSet to execute "sendMessage" query/mutation  */
   canExecuteSendMessage?: Maybe<Scalars['Boolean']['output']>;
+  /**  Enables a user with the given UserRightsSet to execute "signinAsUser" query/mutation  */
+  canExecuteSigninAsUser?: Maybe<Scalars['Boolean']['output']>;
   /**  Enables a user with the given UserRightsSet to execute "_allBillingReceiptsSum" query/mutation  */
   canExecute_allBillingReceiptsSum?: Maybe<Scalars['Boolean']['output']>;
   /**  Enables a user with the given UserRightsSet to execute "_allPaymentsSum" query/mutation  */
@@ -118301,14 +118331,20 @@ export type UserRightsSet = {
   canManageMessageBatches?: Maybe<Scalars['Boolean']['output']>;
   /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "OidcClient" similar to support users  */
   canManageOidcClients?: Maybe<Scalars['Boolean']['output']>;
+  /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "OrganizationEmployee" similar to support users  */
+  canManageOrganizationEmployees?: Maybe<Scalars['Boolean']['output']>;
   /**  Enables a user with the given UserRightsSet to update "isApproved" field of model "Organization"  */
   canManageOrganizationIsApprovedField?: Maybe<Scalars['Boolean']['output']>;
+  /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "OrganizationLink" similar to support users  */
+  canManageOrganizationLinks?: Maybe<Scalars['Boolean']['output']>;
   /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "Organization" similar to support users  */
   canManageOrganizations?: Maybe<Scalars['Boolean']['output']>;
   /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "Property" similar to support users  */
   canManageProperties?: Maybe<Scalars['Boolean']['output']>;
   /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "ResetUserLimitAction" similar to support users  */
   canManageResetUserLimitActions?: Maybe<Scalars['Boolean']['output']>;
+  /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "SubscriptionContext" similar to support users  */
+  canManageSubscriptionContexts?: Maybe<Scalars['Boolean']['output']>;
   /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "TicketAutoAssignment" similar to support users  */
   canManageTicketAutoAssignments?: Maybe<Scalars['Boolean']['output']>;
   /**  Enables a user with the given UserRightsSet to update "sentToAuthoritiesAt" field of model "Ticket"  */
@@ -118353,6 +118389,10 @@ export type UserRightsSet = {
   canReadMessages?: Maybe<Scalars['Boolean']['output']>;
   /**  Enables a user with the given UserRightsSet to view all entities of model "OidcClient" as support / admin users do  */
   canReadOidcClients?: Maybe<Scalars['Boolean']['output']>;
+  /**  Enables a user with the given UserRightsSet to view all entities of model "OrganizationEmployee" as support / admin users do  */
+  canReadOrganizationEmployees?: Maybe<Scalars['Boolean']['output']>;
+  /**  Enables a user with the given UserRightsSet to view all entities of model "OrganizationLink" as support / admin users do  */
+  canReadOrganizationLinks?: Maybe<Scalars['Boolean']['output']>;
   /**  Enables a user with the given UserRightsSet to view all entities of model "Organization" as support / admin users do  */
   canReadOrganizations?: Maybe<Scalars['Boolean']['output']>;
   /**  Enables a user with the given UserRightsSet to view all entities of model "Payment" as support / admin users do  */
@@ -118363,6 +118403,8 @@ export type UserRightsSet = {
   canReadResetUserLimitActions?: Maybe<Scalars['Boolean']['output']>;
   /**  Enables a user with the given UserRightsSet to view all entities of model "Resident" as support / admin users do  */
   canReadResidents?: Maybe<Scalars['Boolean']['output']>;
+  /**  Enables a user with the given UserRightsSet to view all entities of model "SubscriptionContext" as support / admin users do  */
+  canReadSubscriptionContexts?: Maybe<Scalars['Boolean']['output']>;
   /**  Enables a user with the given UserRightsSet to view all entities of model "TicketAutoAssignment" as support / admin users do  */
   canReadTicketAutoAssignments?: Maybe<Scalars['Boolean']['output']>;
   /**  Enables a user with the given UserRightsSet to view all entities of model "TicketChange" as support / admin users do  */
@@ -118402,6 +118444,7 @@ export type UserRightsSetCreateInput = {
   canExecuteRegisterNewServiceUser?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterSubscriptionContext?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteSendMessage?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteSigninAsUser?: InputMaybe<Scalars['Boolean']['input']>;
   canExecute_allBillingReceiptsSum?: InputMaybe<Scalars['Boolean']['input']>;
   canExecute_allPaymentsSum?: InputMaybe<Scalars['Boolean']['input']>;
   canExecute_internalSendHashedResidentPhones?: InputMaybe<Scalars['Boolean']['input']>;
@@ -118419,10 +118462,13 @@ export type UserRightsSetCreateInput = {
   canManageBillingIntegrationOrganizationContextDeletedAtField?: InputMaybe<Scalars['Boolean']['input']>;
   canManageMessageBatches?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOidcClients?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageOrganizationEmployees?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOrganizationIsApprovedField?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageOrganizationLinks?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOrganizations?: InputMaybe<Scalars['Boolean']['input']>;
   canManageProperties?: InputMaybe<Scalars['Boolean']['input']>;
   canManageResetUserLimitActions?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageSubscriptionContexts?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTicketAutoAssignments?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTicketSentToAuthoritiesAtField?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTickets?: InputMaybe<Scalars['Boolean']['input']>;
@@ -118445,11 +118491,14 @@ export type UserRightsSetCreateInput = {
   canReadMessageBatches?: InputMaybe<Scalars['Boolean']['input']>;
   canReadMessages?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOidcClients?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadOrganizationEmployees?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadOrganizationLinks?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizations?: InputMaybe<Scalars['Boolean']['input']>;
   canReadPayments?: InputMaybe<Scalars['Boolean']['input']>;
   canReadProperties?: InputMaybe<Scalars['Boolean']['input']>;
   canReadResetUserLimitActions?: InputMaybe<Scalars['Boolean']['input']>;
   canReadResidents?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadSubscriptionContexts?: InputMaybe<Scalars['Boolean']['input']>;
   canReadTicketAutoAssignments?: InputMaybe<Scalars['Boolean']['input']>;
   canReadTicketChanges?: InputMaybe<Scalars['Boolean']['input']>;
   canReadTicketComments?: InputMaybe<Scalars['Boolean']['input']>;
@@ -118485,6 +118534,7 @@ export type UserRightsSetHistoryRecord = {
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']['output']>;
   canExecuteRegisterSubscriptionContext?: Maybe<Scalars['Boolean']['output']>;
   canExecuteSendMessage?: Maybe<Scalars['Boolean']['output']>;
+  canExecuteSigninAsUser?: Maybe<Scalars['Boolean']['output']>;
   canExecute_allBillingReceiptsSum?: Maybe<Scalars['Boolean']['output']>;
   canExecute_allPaymentsSum?: Maybe<Scalars['Boolean']['output']>;
   canExecute_internalSendHashedResidentPhones?: Maybe<Scalars['Boolean']['output']>;
@@ -118502,10 +118552,13 @@ export type UserRightsSetHistoryRecord = {
   canManageBillingIntegrationOrganizationContextDeletedAtField?: Maybe<Scalars['Boolean']['output']>;
   canManageMessageBatches?: Maybe<Scalars['Boolean']['output']>;
   canManageOidcClients?: Maybe<Scalars['Boolean']['output']>;
+  canManageOrganizationEmployees?: Maybe<Scalars['Boolean']['output']>;
   canManageOrganizationIsApprovedField?: Maybe<Scalars['Boolean']['output']>;
+  canManageOrganizationLinks?: Maybe<Scalars['Boolean']['output']>;
   canManageOrganizations?: Maybe<Scalars['Boolean']['output']>;
   canManageProperties?: Maybe<Scalars['Boolean']['output']>;
   canManageResetUserLimitActions?: Maybe<Scalars['Boolean']['output']>;
+  canManageSubscriptionContexts?: Maybe<Scalars['Boolean']['output']>;
   canManageTicketAutoAssignments?: Maybe<Scalars['Boolean']['output']>;
   canManageTicketSentToAuthoritiesAtField?: Maybe<Scalars['Boolean']['output']>;
   canManageTickets?: Maybe<Scalars['Boolean']['output']>;
@@ -118528,11 +118581,14 @@ export type UserRightsSetHistoryRecord = {
   canReadMessageBatches?: Maybe<Scalars['Boolean']['output']>;
   canReadMessages?: Maybe<Scalars['Boolean']['output']>;
   canReadOidcClients?: Maybe<Scalars['Boolean']['output']>;
+  canReadOrganizationEmployees?: Maybe<Scalars['Boolean']['output']>;
+  canReadOrganizationLinks?: Maybe<Scalars['Boolean']['output']>;
   canReadOrganizations?: Maybe<Scalars['Boolean']['output']>;
   canReadPayments?: Maybe<Scalars['Boolean']['output']>;
   canReadProperties?: Maybe<Scalars['Boolean']['output']>;
   canReadResetUserLimitActions?: Maybe<Scalars['Boolean']['output']>;
   canReadResidents?: Maybe<Scalars['Boolean']['output']>;
+  canReadSubscriptionContexts?: Maybe<Scalars['Boolean']['output']>;
   canReadTicketAutoAssignments?: Maybe<Scalars['Boolean']['output']>;
   canReadTicketChanges?: Maybe<Scalars['Boolean']['output']>;
   canReadTicketComments?: Maybe<Scalars['Boolean']['output']>;
@@ -118562,6 +118618,7 @@ export type UserRightsSetHistoryRecordCreateInput = {
   canExecuteRegisterNewServiceUser?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterSubscriptionContext?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteSendMessage?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteSigninAsUser?: InputMaybe<Scalars['Boolean']['input']>;
   canExecute_allBillingReceiptsSum?: InputMaybe<Scalars['Boolean']['input']>;
   canExecute_allPaymentsSum?: InputMaybe<Scalars['Boolean']['input']>;
   canExecute_internalSendHashedResidentPhones?: InputMaybe<Scalars['Boolean']['input']>;
@@ -118579,10 +118636,13 @@ export type UserRightsSetHistoryRecordCreateInput = {
   canManageBillingIntegrationOrganizationContextDeletedAtField?: InputMaybe<Scalars['Boolean']['input']>;
   canManageMessageBatches?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOidcClients?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageOrganizationEmployees?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOrganizationIsApprovedField?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageOrganizationLinks?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOrganizations?: InputMaybe<Scalars['Boolean']['input']>;
   canManageProperties?: InputMaybe<Scalars['Boolean']['input']>;
   canManageResetUserLimitActions?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageSubscriptionContexts?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTicketAutoAssignments?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTicketSentToAuthoritiesAtField?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTickets?: InputMaybe<Scalars['Boolean']['input']>;
@@ -118605,11 +118665,14 @@ export type UserRightsSetHistoryRecordCreateInput = {
   canReadMessageBatches?: InputMaybe<Scalars['Boolean']['input']>;
   canReadMessages?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOidcClients?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadOrganizationEmployees?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadOrganizationLinks?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizations?: InputMaybe<Scalars['Boolean']['input']>;
   canReadPayments?: InputMaybe<Scalars['Boolean']['input']>;
   canReadProperties?: InputMaybe<Scalars['Boolean']['input']>;
   canReadResetUserLimitActions?: InputMaybe<Scalars['Boolean']['input']>;
   canReadResidents?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadSubscriptionContexts?: InputMaybe<Scalars['Boolean']['input']>;
   canReadTicketAutoAssignments?: InputMaybe<Scalars['Boolean']['input']>;
   canReadTicketChanges?: InputMaybe<Scalars['Boolean']['input']>;
   canReadTicketComments?: InputMaybe<Scalars['Boolean']['input']>;
@@ -118644,6 +118707,7 @@ export type UserRightsSetHistoryRecordUpdateInput = {
   canExecuteRegisterNewServiceUser?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterSubscriptionContext?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteSendMessage?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteSigninAsUser?: InputMaybe<Scalars['Boolean']['input']>;
   canExecute_allBillingReceiptsSum?: InputMaybe<Scalars['Boolean']['input']>;
   canExecute_allPaymentsSum?: InputMaybe<Scalars['Boolean']['input']>;
   canExecute_internalSendHashedResidentPhones?: InputMaybe<Scalars['Boolean']['input']>;
@@ -118661,10 +118725,13 @@ export type UserRightsSetHistoryRecordUpdateInput = {
   canManageBillingIntegrationOrganizationContextDeletedAtField?: InputMaybe<Scalars['Boolean']['input']>;
   canManageMessageBatches?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOidcClients?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageOrganizationEmployees?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOrganizationIsApprovedField?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageOrganizationLinks?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOrganizations?: InputMaybe<Scalars['Boolean']['input']>;
   canManageProperties?: InputMaybe<Scalars['Boolean']['input']>;
   canManageResetUserLimitActions?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageSubscriptionContexts?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTicketAutoAssignments?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTicketSentToAuthoritiesAtField?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTickets?: InputMaybe<Scalars['Boolean']['input']>;
@@ -118687,11 +118754,14 @@ export type UserRightsSetHistoryRecordUpdateInput = {
   canReadMessageBatches?: InputMaybe<Scalars['Boolean']['input']>;
   canReadMessages?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOidcClients?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadOrganizationEmployees?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadOrganizationLinks?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizations?: InputMaybe<Scalars['Boolean']['input']>;
   canReadPayments?: InputMaybe<Scalars['Boolean']['input']>;
   canReadProperties?: InputMaybe<Scalars['Boolean']['input']>;
   canReadResetUserLimitActions?: InputMaybe<Scalars['Boolean']['input']>;
   canReadResidents?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadSubscriptionContexts?: InputMaybe<Scalars['Boolean']['input']>;
   canReadTicketAutoAssignments?: InputMaybe<Scalars['Boolean']['input']>;
   canReadTicketChanges?: InputMaybe<Scalars['Boolean']['input']>;
   canReadTicketComments?: InputMaybe<Scalars['Boolean']['input']>;
@@ -118726,6 +118796,8 @@ export type UserRightsSetHistoryRecordWhereInput = {
   canExecuteRegisterSubscriptionContext_not?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteSendMessage?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteSendMessage_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteSigninAsUser?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteSigninAsUser_not?: InputMaybe<Scalars['Boolean']['input']>;
   canExecute_allBillingReceiptsSum?: InputMaybe<Scalars['Boolean']['input']>;
   canExecute_allBillingReceiptsSum_not?: InputMaybe<Scalars['Boolean']['input']>;
   canExecute_allPaymentsSum?: InputMaybe<Scalars['Boolean']['input']>;
@@ -118760,14 +118832,20 @@ export type UserRightsSetHistoryRecordWhereInput = {
   canManageMessageBatches_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOidcClients?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOidcClients_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageOrganizationEmployees?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageOrganizationEmployees_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOrganizationIsApprovedField?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOrganizationIsApprovedField_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageOrganizationLinks?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageOrganizationLinks_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOrganizations?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOrganizations_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageProperties?: InputMaybe<Scalars['Boolean']['input']>;
   canManageProperties_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageResetUserLimitActions?: InputMaybe<Scalars['Boolean']['input']>;
   canManageResetUserLimitActions_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageSubscriptionContexts?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageSubscriptionContexts_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTicketAutoAssignments?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTicketAutoAssignments_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTicketSentToAuthoritiesAtField?: InputMaybe<Scalars['Boolean']['input']>;
@@ -118812,6 +118890,10 @@ export type UserRightsSetHistoryRecordWhereInput = {
   canReadMessages_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOidcClients?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOidcClients_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadOrganizationEmployees?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadOrganizationEmployees_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadOrganizationLinks?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadOrganizationLinks_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizations?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizations_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadPayments?: InputMaybe<Scalars['Boolean']['input']>;
@@ -118822,6 +118904,8 @@ export type UserRightsSetHistoryRecordWhereInput = {
   canReadResetUserLimitActions_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadResidents?: InputMaybe<Scalars['Boolean']['input']>;
   canReadResidents_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadSubscriptionContexts?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadSubscriptionContexts_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadTicketAutoAssignments?: InputMaybe<Scalars['Boolean']['input']>;
   canReadTicketAutoAssignments_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadTicketChanges?: InputMaybe<Scalars['Boolean']['input']>;
@@ -118959,6 +119043,7 @@ export type UserRightsSetUpdateInput = {
   canExecuteRegisterNewServiceUser?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterSubscriptionContext?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteSendMessage?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteSigninAsUser?: InputMaybe<Scalars['Boolean']['input']>;
   canExecute_allBillingReceiptsSum?: InputMaybe<Scalars['Boolean']['input']>;
   canExecute_allPaymentsSum?: InputMaybe<Scalars['Boolean']['input']>;
   canExecute_internalSendHashedResidentPhones?: InputMaybe<Scalars['Boolean']['input']>;
@@ -118976,10 +119061,13 @@ export type UserRightsSetUpdateInput = {
   canManageBillingIntegrationOrganizationContextDeletedAtField?: InputMaybe<Scalars['Boolean']['input']>;
   canManageMessageBatches?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOidcClients?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageOrganizationEmployees?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOrganizationIsApprovedField?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageOrganizationLinks?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOrganizations?: InputMaybe<Scalars['Boolean']['input']>;
   canManageProperties?: InputMaybe<Scalars['Boolean']['input']>;
   canManageResetUserLimitActions?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageSubscriptionContexts?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTicketAutoAssignments?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTicketSentToAuthoritiesAtField?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTickets?: InputMaybe<Scalars['Boolean']['input']>;
@@ -119002,11 +119090,14 @@ export type UserRightsSetUpdateInput = {
   canReadMessageBatches?: InputMaybe<Scalars['Boolean']['input']>;
   canReadMessages?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOidcClients?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadOrganizationEmployees?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadOrganizationLinks?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizations?: InputMaybe<Scalars['Boolean']['input']>;
   canReadPayments?: InputMaybe<Scalars['Boolean']['input']>;
   canReadProperties?: InputMaybe<Scalars['Boolean']['input']>;
   canReadResetUserLimitActions?: InputMaybe<Scalars['Boolean']['input']>;
   canReadResidents?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadSubscriptionContexts?: InputMaybe<Scalars['Boolean']['input']>;
   canReadTicketAutoAssignments?: InputMaybe<Scalars['Boolean']['input']>;
   canReadTicketChanges?: InputMaybe<Scalars['Boolean']['input']>;
   canReadTicketComments?: InputMaybe<Scalars['Boolean']['input']>;
@@ -119038,6 +119129,8 @@ export type UserRightsSetWhereInput = {
   canExecuteRegisterSubscriptionContext_not?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteSendMessage?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteSendMessage_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteSigninAsUser?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteSigninAsUser_not?: InputMaybe<Scalars['Boolean']['input']>;
   canExecute_allBillingReceiptsSum?: InputMaybe<Scalars['Boolean']['input']>;
   canExecute_allBillingReceiptsSum_not?: InputMaybe<Scalars['Boolean']['input']>;
   canExecute_allPaymentsSum?: InputMaybe<Scalars['Boolean']['input']>;
@@ -119072,14 +119165,20 @@ export type UserRightsSetWhereInput = {
   canManageMessageBatches_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOidcClients?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOidcClients_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageOrganizationEmployees?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageOrganizationEmployees_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOrganizationIsApprovedField?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOrganizationIsApprovedField_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageOrganizationLinks?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageOrganizationLinks_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOrganizations?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOrganizations_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageProperties?: InputMaybe<Scalars['Boolean']['input']>;
   canManageProperties_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageResetUserLimitActions?: InputMaybe<Scalars['Boolean']['input']>;
   canManageResetUserLimitActions_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageSubscriptionContexts?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageSubscriptionContexts_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTicketAutoAssignments?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTicketAutoAssignments_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTicketSentToAuthoritiesAtField?: InputMaybe<Scalars['Boolean']['input']>;
@@ -119124,6 +119223,10 @@ export type UserRightsSetWhereInput = {
   canReadMessages_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOidcClients?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOidcClients_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadOrganizationEmployees?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadOrganizationEmployees_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadOrganizationLinks?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadOrganizationLinks_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizations?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizations_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadPayments?: InputMaybe<Scalars['Boolean']['input']>;
@@ -119134,6 +119237,8 @@ export type UserRightsSetWhereInput = {
   canReadResetUserLimitActions_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadResidents?: InputMaybe<Scalars['Boolean']['input']>;
   canReadResidents_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadSubscriptionContexts?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadSubscriptionContexts_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadTicketAutoAssignments?: InputMaybe<Scalars['Boolean']['input']>;
   canReadTicketAutoAssignments_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadTicketChanges?: InputMaybe<Scalars['Boolean']['input']>;

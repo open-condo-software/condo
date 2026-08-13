@@ -3015,6 +3015,10 @@ type UserRightsSetHistoryRecord {
   canManageMessageBatches: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
+  canReadOrganizationEmployees: Boolean
+  canManageOrganizationEmployees: Boolean
+  canReadOrganizationLinks: Boolean
+  canManageOrganizationLinks: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
   canReadTicketAutoAssignments: Boolean
@@ -3034,6 +3038,8 @@ type UserRightsSetHistoryRecord {
   canReadPayments: Boolean
   canReadBillingReceipts: Boolean
   canReadBillingIntegrationOrganizationContexts: Boolean
+  canReadSubscriptionContexts: Boolean
+  canManageSubscriptionContexts: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
   canExecute_internalSendHashedResidentPhones: Boolean
@@ -3041,6 +3047,7 @@ type UserRightsSetHistoryRecord {
   canExecute_allBillingReceiptsSum: Boolean
   canExecuteGetAvailableSubscriptionPlans: Boolean
   canExecuteRegisterSubscriptionContext: Boolean
+  canExecuteSigninAsUser: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageBillingIntegrationOrganizationContextDeletedAtField: Boolean
   canManageTicketSentToAuthoritiesAtField: Boolean
@@ -3138,6 +3145,14 @@ input UserRightsSetHistoryRecordWhereInput {
   canReadOrganizations_not: Boolean
   canManageOrganizations: Boolean
   canManageOrganizations_not: Boolean
+  canReadOrganizationEmployees: Boolean
+  canReadOrganizationEmployees_not: Boolean
+  canManageOrganizationEmployees: Boolean
+  canManageOrganizationEmployees_not: Boolean
+  canReadOrganizationLinks: Boolean
+  canReadOrganizationLinks_not: Boolean
+  canManageOrganizationLinks: Boolean
+  canManageOrganizationLinks_not: Boolean
   canReadTickets: Boolean
   canReadTickets_not: Boolean
   canManageTickets: Boolean
@@ -3176,6 +3191,10 @@ input UserRightsSetHistoryRecordWhereInput {
   canReadBillingReceipts_not: Boolean
   canReadBillingIntegrationOrganizationContexts: Boolean
   canReadBillingIntegrationOrganizationContexts_not: Boolean
+  canReadSubscriptionContexts: Boolean
+  canReadSubscriptionContexts_not: Boolean
+  canManageSubscriptionContexts: Boolean
+  canManageSubscriptionContexts_not: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteRegisterNewServiceUser_not: Boolean
   canExecuteSendMessage: Boolean
@@ -3190,6 +3209,8 @@ input UserRightsSetHistoryRecordWhereInput {
   canExecuteGetAvailableSubscriptionPlans_not: Boolean
   canExecuteRegisterSubscriptionContext: Boolean
   canExecuteRegisterSubscriptionContext_not: Boolean
+  canExecuteSigninAsUser: Boolean
+  canExecuteSigninAsUser_not: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageOrganizationIsApprovedField_not: Boolean
   canManageBillingIntegrationOrganizationContextDeletedAtField: Boolean
@@ -3343,6 +3364,14 @@ enum SortUserRightsSetHistoryRecordsBy {
   canReadOrganizations_DESC
   canManageOrganizations_ASC
   canManageOrganizations_DESC
+  canReadOrganizationEmployees_ASC
+  canReadOrganizationEmployees_DESC
+  canManageOrganizationEmployees_ASC
+  canManageOrganizationEmployees_DESC
+  canReadOrganizationLinks_ASC
+  canReadOrganizationLinks_DESC
+  canManageOrganizationLinks_ASC
+  canManageOrganizationLinks_DESC
   canReadTickets_ASC
   canReadTickets_DESC
   canManageTickets_ASC
@@ -3381,6 +3410,10 @@ enum SortUserRightsSetHistoryRecordsBy {
   canReadBillingReceipts_DESC
   canReadBillingIntegrationOrganizationContexts_ASC
   canReadBillingIntegrationOrganizationContexts_DESC
+  canReadSubscriptionContexts_ASC
+  canReadSubscriptionContexts_DESC
+  canManageSubscriptionContexts_ASC
+  canManageSubscriptionContexts_DESC
   canExecuteRegisterNewServiceUser_ASC
   canExecuteRegisterNewServiceUser_DESC
   canExecuteSendMessage_ASC
@@ -3395,6 +3428,8 @@ enum SortUserRightsSetHistoryRecordsBy {
   canExecuteGetAvailableSubscriptionPlans_DESC
   canExecuteRegisterSubscriptionContext_ASC
   canExecuteRegisterSubscriptionContext_DESC
+  canExecuteSigninAsUser_ASC
+  canExecuteSigninAsUser_DESC
   canManageOrganizationIsApprovedField_ASC
   canManageOrganizationIsApprovedField_DESC
   canManageBillingIntegrationOrganizationContextDeletedAtField_ASC
@@ -3456,6 +3491,10 @@ input UserRightsSetHistoryRecordUpdateInput {
   canManageMessageBatches: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
+  canReadOrganizationEmployees: Boolean
+  canManageOrganizationEmployees: Boolean
+  canReadOrganizationLinks: Boolean
+  canManageOrganizationLinks: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
   canReadTicketAutoAssignments: Boolean
@@ -3475,6 +3514,8 @@ input UserRightsSetHistoryRecordUpdateInput {
   canReadPayments: Boolean
   canReadBillingReceipts: Boolean
   canReadBillingIntegrationOrganizationContexts: Boolean
+  canReadSubscriptionContexts: Boolean
+  canManageSubscriptionContexts: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
   canExecute_internalSendHashedResidentPhones: Boolean
@@ -3482,6 +3523,7 @@ input UserRightsSetHistoryRecordUpdateInput {
   canExecute_allBillingReceiptsSum: Boolean
   canExecuteGetAvailableSubscriptionPlans: Boolean
   canExecuteRegisterSubscriptionContext: Boolean
+  canExecuteSigninAsUser: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageBillingIntegrationOrganizationContextDeletedAtField: Boolean
   canManageTicketSentToAuthoritiesAtField: Boolean
@@ -3537,6 +3579,10 @@ input UserRightsSetHistoryRecordCreateInput {
   canManageMessageBatches: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
+  canReadOrganizationEmployees: Boolean
+  canManageOrganizationEmployees: Boolean
+  canReadOrganizationLinks: Boolean
+  canManageOrganizationLinks: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
   canReadTicketAutoAssignments: Boolean
@@ -3556,6 +3602,8 @@ input UserRightsSetHistoryRecordCreateInput {
   canReadPayments: Boolean
   canReadBillingReceipts: Boolean
   canReadBillingIntegrationOrganizationContexts: Boolean
+  canReadSubscriptionContexts: Boolean
+  canManageSubscriptionContexts: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
   canExecute_internalSendHashedResidentPhones: Boolean
@@ -3563,6 +3611,7 @@ input UserRightsSetHistoryRecordCreateInput {
   canExecute_allBillingReceiptsSum: Boolean
   canExecuteGetAvailableSubscriptionPlans: Boolean
   canExecuteRegisterSubscriptionContext: Boolean
+  canExecuteSigninAsUser: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageBillingIntegrationOrganizationContextDeletedAtField: Boolean
   canManageTicketSentToAuthoritiesAtField: Boolean
@@ -3712,6 +3761,22 @@ type UserRightsSet {
   """
   canManageOrganizations: Boolean
 
+  """ Enables a user with the given UserRightsSet to view all entities of model "OrganizationEmployee" as support / admin users do 
+  """
+  canReadOrganizationEmployees: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "OrganizationEmployee" similar to support users 
+  """
+  canManageOrganizationEmployees: Boolean
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "OrganizationLink" as support / admin users do 
+  """
+  canReadOrganizationLinks: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "OrganizationLink" similar to support users 
+  """
+  canManageOrganizationLinks: Boolean
+
   """ Enables a user with the given UserRightsSet to view all entities of model "Ticket" as support / admin users do 
   """
   canReadTickets: Boolean
@@ -3788,6 +3853,14 @@ type UserRightsSet {
   """
   canReadBillingIntegrationOrganizationContexts: Boolean
 
+  """ Enables a user with the given UserRightsSet to view all entities of model "SubscriptionContext" as support / admin users do 
+  """
+  canReadSubscriptionContexts: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "SubscriptionContext" similar to support users 
+  """
+  canManageSubscriptionContexts: Boolean
+
   """ Enables a user with the given UserRightsSet to execute "registerNewServiceUser" query/mutation 
   """
   canExecuteRegisterNewServiceUser: Boolean
@@ -3815,6 +3888,10 @@ type UserRightsSet {
   """ Enables a user with the given UserRightsSet to execute "registerSubscriptionContext" query/mutation 
   """
   canExecuteRegisterSubscriptionContext: Boolean
+
+  """ Enables a user with the given UserRightsSet to execute "signinAsUser" query/mutation 
+  """
+  canExecuteSigninAsUser: Boolean
 
   """ Enables a user with the given UserRightsSet to update "isApproved" field of model "Organization" 
   """
@@ -3941,6 +4018,14 @@ input UserRightsSetWhereInput {
   canReadOrganizations_not: Boolean
   canManageOrganizations: Boolean
   canManageOrganizations_not: Boolean
+  canReadOrganizationEmployees: Boolean
+  canReadOrganizationEmployees_not: Boolean
+  canManageOrganizationEmployees: Boolean
+  canManageOrganizationEmployees_not: Boolean
+  canReadOrganizationLinks: Boolean
+  canReadOrganizationLinks_not: Boolean
+  canManageOrganizationLinks: Boolean
+  canManageOrganizationLinks_not: Boolean
   canReadTickets: Boolean
   canReadTickets_not: Boolean
   canManageTickets: Boolean
@@ -3979,6 +4064,10 @@ input UserRightsSetWhereInput {
   canReadBillingReceipts_not: Boolean
   canReadBillingIntegrationOrganizationContexts: Boolean
   canReadBillingIntegrationOrganizationContexts_not: Boolean
+  canReadSubscriptionContexts: Boolean
+  canReadSubscriptionContexts_not: Boolean
+  canManageSubscriptionContexts: Boolean
+  canManageSubscriptionContexts_not: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteRegisterNewServiceUser_not: Boolean
   canExecuteSendMessage: Boolean
@@ -3993,6 +4082,8 @@ input UserRightsSetWhereInput {
   canExecuteGetAvailableSubscriptionPlans_not: Boolean
   canExecuteRegisterSubscriptionContext: Boolean
   canExecuteRegisterSubscriptionContext_not: Boolean
+  canExecuteSigninAsUser: Boolean
+  canExecuteSigninAsUser_not: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageOrganizationIsApprovedField_not: Boolean
   canManageBillingIntegrationOrganizationContextDeletedAtField: Boolean
@@ -4126,6 +4217,14 @@ enum SortUserRightsSetsBy {
   canReadOrganizations_DESC
   canManageOrganizations_ASC
   canManageOrganizations_DESC
+  canReadOrganizationEmployees_ASC
+  canReadOrganizationEmployees_DESC
+  canManageOrganizationEmployees_ASC
+  canManageOrganizationEmployees_DESC
+  canReadOrganizationLinks_ASC
+  canReadOrganizationLinks_DESC
+  canManageOrganizationLinks_ASC
+  canManageOrganizationLinks_DESC
   canReadTickets_ASC
   canReadTickets_DESC
   canManageTickets_ASC
@@ -4164,6 +4263,10 @@ enum SortUserRightsSetsBy {
   canReadBillingReceipts_DESC
   canReadBillingIntegrationOrganizationContexts_ASC
   canReadBillingIntegrationOrganizationContexts_DESC
+  canReadSubscriptionContexts_ASC
+  canReadSubscriptionContexts_DESC
+  canManageSubscriptionContexts_ASC
+  canManageSubscriptionContexts_DESC
   canExecuteRegisterNewServiceUser_ASC
   canExecuteRegisterNewServiceUser_DESC
   canExecuteSendMessage_ASC
@@ -4178,6 +4281,8 @@ enum SortUserRightsSetsBy {
   canExecuteGetAvailableSubscriptionPlans_DESC
   canExecuteRegisterSubscriptionContext_ASC
   canExecuteRegisterSubscriptionContext_DESC
+  canExecuteSigninAsUser_ASC
+  canExecuteSigninAsUser_DESC
   canManageOrganizationIsApprovedField_ASC
   canManageOrganizationIsApprovedField_DESC
   canManageBillingIntegrationOrganizationContextDeletedAtField_ASC
@@ -4239,6 +4344,10 @@ input UserRightsSetUpdateInput {
   canManageMessageBatches: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
+  canReadOrganizationEmployees: Boolean
+  canManageOrganizationEmployees: Boolean
+  canReadOrganizationLinks: Boolean
+  canManageOrganizationLinks: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
   canReadTicketAutoAssignments: Boolean
@@ -4258,6 +4367,8 @@ input UserRightsSetUpdateInput {
   canReadPayments: Boolean
   canReadBillingReceipts: Boolean
   canReadBillingIntegrationOrganizationContexts: Boolean
+  canReadSubscriptionContexts: Boolean
+  canManageSubscriptionContexts: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
   canExecute_internalSendHashedResidentPhones: Boolean
@@ -4265,6 +4376,7 @@ input UserRightsSetUpdateInput {
   canExecute_allBillingReceiptsSum: Boolean
   canExecuteGetAvailableSubscriptionPlans: Boolean
   canExecuteRegisterSubscriptionContext: Boolean
+  canExecuteSigninAsUser: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageBillingIntegrationOrganizationContextDeletedAtField: Boolean
   canManageTicketSentToAuthoritiesAtField: Boolean
@@ -4317,6 +4429,10 @@ input UserRightsSetCreateInput {
   canManageMessageBatches: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
+  canReadOrganizationEmployees: Boolean
+  canManageOrganizationEmployees: Boolean
+  canReadOrganizationLinks: Boolean
+  canManageOrganizationLinks: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
   canReadTicketAutoAssignments: Boolean
@@ -4336,6 +4452,8 @@ input UserRightsSetCreateInput {
   canReadPayments: Boolean
   canReadBillingReceipts: Boolean
   canReadBillingIntegrationOrganizationContexts: Boolean
+  canReadSubscriptionContexts: Boolean
+  canManageSubscriptionContexts: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
   canExecute_internalSendHashedResidentPhones: Boolean
@@ -4343,6 +4461,7 @@ input UserRightsSetCreateInput {
   canExecute_allBillingReceiptsSum: Boolean
   canExecuteGetAvailableSubscriptionPlans: Boolean
   canExecuteRegisterSubscriptionContext: Boolean
+  canExecuteSigninAsUser: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageBillingIntegrationOrganizationContextDeletedAtField: Boolean
   canManageTicketSentToAuthoritiesAtField: Boolean
