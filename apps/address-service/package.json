@@ -31,7 +31,7 @@
     "@open-condo/ui": "workspace:^",
     "@open-keystone/app-admin-ui": "catalog:",
     "express": "catalog:",
-    "fast-xml-parser": "^5.4.0",
+    "fast-xml-parser": "^5.10.1",
     "graphql": "catalog:",
     "graphql-tag": "catalog:",
     "lodash": "catalog:",
