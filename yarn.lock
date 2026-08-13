@@ -1745,6 +1745,7 @@ __metadata:
     uuid: "catalog:"
     xlsx: "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz"
     xml2js: "npm:^0.6.2"
+    zod: "catalog:"
   languageName: unknown
   linkType: soft
 
