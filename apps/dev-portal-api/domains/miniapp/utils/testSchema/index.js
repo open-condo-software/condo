@@ -64,7 +64,7 @@ const FAKE_B2B_APP_LOGO_PATH = path.resolve(conf.PROJECT_ROOT, 'apps/dev-portal-
 const FAKE_B2C_APP_LOGO_PATH = path.resolve(conf.PROJECT_ROOT, 'apps/dev-portal-api/domains/miniapp/utils/testSchema/assets/logo.png')
 
 const B2B_APP_PERMISSION_FIELDS = getDevicePermissions({ listKey: 'B2BApp' }).map(getDevicePermissionFieldName).join(' ')
-const CondoB2BApp = generateGQLTestUtils(generateGqlQueries('B2BApp', `{ id name developer developerUrl shortDescription detailedDescription category contextDefaultStatus appUrl logo { publicUrl filename } importId importRemoteSystem deletedAt v oidcClient { id } ${B2B_APP_PERMISSION_FIELDS} }`))
+const CondoB2BApp = generateGQLTestUtils(generateGqlQueries('B2BApp', `{ id name developer developerUrl shortDescription detailedDescription category contextDefaultStatus appUrl logo { publicUrl filename originalFilename } importId importRemoteSystem deletedAt v oidcClient { id } ${B2B_APP_PERMISSION_FIELDS} }`))
 const CondoB2BAppContext = generateGQLTestUtils(generateGqlQueries('B2BAppContext', '{ id app { id } organization { id tin name } status createdAt }'))
 const CondoB2BAppAccessRight = generateGQLTestUtils(generateGqlQueries('B2BAppAccessRight', '{ id user { id } app { id } accessRightSet { id importId importRemoteSystem } importId importRemoteSystem }'))
 const CondoB2CApp = generateGQLTestUtils(generateGqlQueries('B2CApp', '{ id name developer logo { publicUrl filename } currentBuild { id } importId importRemoteSystem deletedAt v oidcClient { id } appUrl }'))

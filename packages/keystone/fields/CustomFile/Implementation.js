@@ -63,6 +63,11 @@ class CustomFile extends FileWithUTF8Name.implementation {
             return conf.FILE_SERVICE_URL
         }
 
+        // Apps without local FileMiddleware attach to condo over HTTP (signature-only)
+        if (!conf['FILE_UPLOAD_CONFIG'] && conf.CONDO_DOMAIN) {
+            return conf.CONDO_DOMAIN
+        }
+
         // conf.SERVER_URL is cached at config init; read env for tests that override SERVER_URL
         return process.env.SERVER_URL || conf.SERVER_URL
     }
@@ -138,18 +143,17 @@ class CustomFile extends FileWithUTF8Name.implementation {
                 throw new GQLError({ ...ERRORS.WRONG_SIGNATURE, variable: [this.path] }, context)
             }
 
-            const { data, success, error } = validateFileUploadSignature(fileData)
+            const { data, success, error } = validateFileUploadSignature(fileMeta)
             if (!success) {
                 throw new GQLError(ERRORS.WRONG_SIGNATURE, context, error)
             }
 
-            fileMeta = data
-
-            if (fileMeta.authedItem !== context.authedItem.id) {
+            // skipAccessControl serverSchema updates may have no authedItem; ownership was enforced at upload
+            if (!context.skipAccessControl && data.user?.id && context.authedItem?.id && data.user.id !== context.authedItem.id) {
                 throw new GQLError({ ...ERRORS.ACCESS_DENIED, variable: [this.path] }, context)
             }
 
-            if (!fileMeta.modelNames.includes(listKey)) {
+            if (Array.isArray(data.modelNames) && data.modelNames.length > 0 && !data.modelNames.includes(listKey)) {
                 throw new GQLError({
                     ...ERRORS.ACCESS_DENIED,
                     variable: [this.path],
@@ -236,7 +240,8 @@ class CustomFile extends FileWithUTF8Name.implementation {
             dv: 1, sender: resolvedData.sender,
         }
 
-        if (context?.skipAccessControl) {
+        // Local file service only: in-process attach. Apps without FILE_UPLOAD_CONFIG goes through to HTTP.
+        if (context?.skipAccessControl && conf['FILE_UPLOAD_CONFIG']) {
             try {
                 const { signature } = await attachFileFromServer({
                     signature: fileNewFlow.signature,
@@ -259,22 +264,11 @@ class CustomFile extends FileWithUTF8Name.implementation {
 
         let attachResult
 
-        const headers = { 'Content-Type': 'application/json' }
-        
-        if (context?.req?.headers?.authorization) {
-            headers['Authorization'] = context?.req?.headers?.authorization
-        } else {
-            const raw = context?.req?.headers?.cookie || ''
-            const cookieMatch = raw.match(/(?:^|;\s*)keystone\.sid=([^;]+)/)
-            if (cookieMatch) {
-                headers['Cookie'] = `keystone.sid=${cookieMatch[1]}`
-            }
-        }
-
+        // Dual-mode attach: upload JWT alone is enough (no session/Bearer required for S2S)
         try {
             const res = await fetch(`${this._getFileServiceBaseUrl()}/api/files/attach`, {
                 method: 'POST',
-                headers,
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
             })
 

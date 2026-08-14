@@ -7,12 +7,10 @@ const got = require('got')
 const get = require('lodash/get')
 const pick = require('lodash/pick')
 
-
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
 const { getByCondition } = require('@open-condo/keystone/schema')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
-const { wrapUploadFile } = require('@open-condo/keystone/upload')
 
 const { getDevicePermissions, getDevicePermissionFieldName } = require('@condo/domains/miniapp/schema/fields/devicePermissions')
 const { REMOTE_SYSTEM } = require('@dev-portal-api/domains/common/constants/common')
@@ -67,7 +65,7 @@ const ENVIRONMENTAL_FIELDS = [
         .map((permission) => ({ from: getDevicePermissionFieldName(permission), to: getDevicePermissionFieldName(permission).substring(2) })),
 ]
 
-const CondoB2BAppGQL = generateGqlQueries('B2BApp', `{ id name developer developerUrl shortDescription detailedDescription category contextDefaultStatus logo { publicUrl filename mimetype encoding } ${ENVIRONMENTAL_FIELDS.filter(f => !f.from.includes('.')).map(f => f.from).join(' ')} oidcClient { id importId importRemoteSystem } }`)
+const CondoB2BAppGQL = generateGqlQueries('B2BApp', `{ id name developer developerUrl shortDescription detailedDescription category contextDefaultStatus logo { publicUrl originalFilename filename mimetype encoding } ${ENVIRONMENTAL_FIELDS.filter(f => !f.from.includes('.')).map(f => f.from).join(' ')} oidcClient { id importId importRemoteSystem } }`)
 const CondoB2BAppAccessRightGQL = generateGqlQueries('B2BAppAccessRight', `{ id user { id } accessRightSet { id ${Object.keys(PERMISSION_FIELDS).join(' ')} } }`)
 const CondoB2BAppAccessRightSetGQL = generateGqlQueries('B2BAppAccessRightSet', '{ id }')
 const CondoOIDCClientGQL = generateGqlQueries('OidcClient', '{ id }')
@@ -223,13 +221,17 @@ async function importAppInfo ({ args, context }) {
         const stream = got.stream(sourceApp.logo.publicUrl, {
             headers: { 'Authorization': `Bearer ${client.authToken}` },
         })
-        // TODO: migrate to new API
-        updatePayload.logo = wrapUploadFile({
-            stream: stream,
-            filename: sourceApp.logo.filename,
+        const uploaded = await client.uploadFile({
+            stream,
+            filename: sourceApp.logo.originalFilename || sourceApp.logo.filename,
             mimetype: sourceApp.logo.mimetype,
             encoding: sourceApp.logo.encoding,
+            modelName: 'B2BApp',
         })
+        updatePayload.logo = {
+            signature: uploaded.signature,
+            originalFilename: sourceApp.logo.originalFilename || uploaded.originalFilename,
+        }
     }
 
     const queue = []

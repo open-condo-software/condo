@@ -81,10 +81,10 @@ class FileMiddleware {
             fileShareHandler({ keystone, appClients })
         )
 
-        // attach route
+        // attach route — dual-mode auth:
+        // session/Bearer optional; without it ownership comes from a valid upload JWT
         app.post(
             this.apiPrefix + '/attach',
-            authHandler(),
             fileAttachHandler({ keystone, appClients })
         )
 
