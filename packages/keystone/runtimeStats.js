@@ -75,6 +75,36 @@ class RuntimeStatsMiddleware {
         return this.requestTargetOptions.includes(xTargetHeader) ? xTargetHeader : 'other'
     }
 
+    /**
+     * Balancer scrapes /api/runtime-stats and kube probes hit health URLs.
+     * Those must not inflate activeRequestsCount.
+     * @private
+     * @param req
+     * @returns {boolean}
+     */
+    shouldSkipTracking (req) {
+        let pathname
+        try {
+            pathname = new URL(`${conf['SERVER_URL']}${req.url}`).pathname
+        } catch (err) {
+            pathname = String(req.url || '').split('?')[0]
+        }
+
+        if (pathname === this.statsUrl || pathname === `${this.statsUrl}/`) {
+            return true
+        }
+
+        if (pathname === '/.well-known/apollo/server-health') {
+            return true
+        }
+
+        if (pathname === DEFAULT_HEALTHCHECK_URL || pathname.startsWith(`${DEFAULT_HEALTHCHECK_URL}/`)) {
+            return true
+        }
+
+        return false
+    }
+
     async prepareMiddleware ({ keystone }) {
         if (conf[RUNTIME_STATS_ENABLE_VAR_NAME] !== 'true') {
             logger.info({ msg: 'runtime stats disabled' })
@@ -153,6 +183,7 @@ class RuntimeStatsMiddleware {
 
         const detectRequestType = this.detectRequestType.bind(this)
         const detectRequestTarget = this.detectRequestTarget.bind(this)
+        const shouldSkipTracking = this.shouldSkipTracking.bind(this)
 
         app.use(function runtimeStatsMiddleware (req, res, next) {
             let requestTarget
@@ -190,6 +221,10 @@ class RuntimeStatsMiddleware {
             }
 
             try {
+                if (shouldSkipTracking(req)) {
+                    return next()
+                }
+
                 if (!req.id) {
                     logger.warn({ msg: 'Request has no ID, skipping runtime stats tracking', data: { url: req.url, method: req.method } })
                     return next()
