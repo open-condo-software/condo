@@ -1,25 +1,22 @@
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { v4 as uuidV4 } from 'uuid'
 
-import { Check, Edit, Share } from '@open-condo/icons'
+import { Check, Edit, Share, Trash } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Button, Input, Tooltip } from '@open-condo/ui'
+import { Button, Input, Modal, Tooltip } from '@open-condo/ui'
 
 import { AIChat } from '@condo/domains/ai/components/AIChat'
 import { CoworkLayout } from '@condo/domains/ai/components/Cowork'
 import coworkStyles from '@condo/domains/ai/components/Cowork/Cowork.module.css'
+import { useSavedChats } from '@condo/domains/ai/components/Cowork/SavedChatsContext'
 import { PageComponentType } from '@condo/domains/common/types'
 import { LocalStorageManager } from '@condo/domains/common/utils/localStorageManager'
 import { stripMarkdown } from '@condo/domains/common/utils/stripMarkdown'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-
 const AI_SESSION_STORAGE_KEY = 'condo-ai-chat-session-id'
-const COWORK_CHATS_STORAGE_KEY = 'condo-ai-cowork-chats'
 const AI_CHAT_HISTORY_STORAGE_KEY = 'condo-ai-chat-history'
 const sessionStorageManager = new LocalStorageManager<Record<string, string>>()
-const coworkChatsStorageManager = new LocalStorageManager<Record<string, CoworkChat[]>>()
 const historyStorageManager = new LocalStorageManager<Record<string, { history: any[], organizationId: string }>>()
 
 const SHARE_COPIED_RESET_TIMEOUT_MS = 2000
@@ -37,46 +34,45 @@ const CoworkPage: PageComponentType = () => {
     const editChatNameLabel = intl.formatMessage({ id: 'ai.cowork.editChatName' })
     const shareLabel = intl.formatMessage({ id: 'ai.cowork.share' })
     const shareCopiedLabel = intl.formatMessage({ id: 'ai.cowork.shareCopied' })
+    const deleteChatLabel = intl.formatMessage({ id: 'ai.cowork.deleteChat' })
+    const deleteChatConfirmLabel = intl.formatMessage({ id: 'ai.cowork.deleteChatConfirm' })
+    const deleteChatConfirmOkLabel = intl.formatMessage({ id: 'ai.cowork.deleteChatConfirmOk' })
+    const deleteChatConfirmCancelLabel = intl.formatMessage({ id: 'ai.cowork.deleteChatConfirmCancel' })
 
     const organizationId = useMemo(() => organization?.id, [organization])
 
-    const [chats, setChats] = useState<CoworkChat[]>([])
+    const { chats, isLoading: isChatsLoading, createChat, updateChat, deleteChat } = useSavedChats()
+
     const [activeChatId, setActiveChatId] = useState<string | null>(null)
     const [initialMessage, setInitialMessage] = useState('')
     const [inputValue, setInputValue] = useState('')
     const [editingChatName, setEditingChatName] = useState(false)
     const [chatNameInput, setChatNameInput] = useState('')
     const [shareCopied, setShareCopied] = useState(false)
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
     const inputRef = useRef<any>(null)
     const chatNameInputRef = useRef<any>(null)
 
-    // Load chats from localStorage on mount / org change
+    // Pick the active chat once the saved chats are loaded / org changes
     useEffect(() => {
-        if (!organizationId) return
+        if (!organizationId || isChatsLoading) return
 
-        const allChats = coworkChatsStorageManager.getItem(COWORK_CHATS_STORAGE_KEY) || {}
-        const orgChats = allChats[organizationId] || []
-        setChats(orgChats)
-
-        if (orgChats.length > 0) {
-            const queryChat = queryChatId ? orgChats.find((c) => c.id === queryChatId) : null
+        if (chats.length > 0) {
+            const queryChat = queryChatId ? chats.find((c) => c.id === queryChatId) : null
             if (queryChat) {
                 setActiveChatId(queryChat.id)
+                setInitialMessage('')
                 return
             }
 
             const sessions = sessionStorageManager.getItem(AI_SESSION_STORAGE_KEY) || {}
             const currentSessionId = sessions[organizationId]
-            const matchingChat = orgChats.find((c) => c.id === currentSessionId)
-            setActiveChatId(matchingChat ? matchingChat.id : orgChats[0].id)
+            const matchingChat = chats.find((c) => c.id === currentSessionId)
+            setActiveChatId(matchingChat ? matchingChat.id : chats[0].id)
         } else {
             setActiveChatId(null)
         }
-    }, [organizationId, queryChatId])
-
-    const saveChats = useCallback((orgId: string, updatedChats: CoworkChat[]) => {
-        saveCoworkChats(orgId, updatedChats)
-    }, [])
+    }, [organizationId, queryChatId, chats, isChatsLoading])
 
     const saveSessionId = useCallback((sessionId: string) => {
         if (!organizationId) return
@@ -95,25 +91,17 @@ const CoworkPage: PageComponentType = () => {
         }
     }, [hasStarted])
 
-    const handleStartChat = useCallback(() => {
+    const handleStartChat = useCallback(async () => {
         if (!organizationId) return
         const trimmedInput = inputValue.trim()
         if (!trimmedInput) return
 
-        const newChatId = uuidV4()
-        const newChat: CoworkChat = {
-            id: newChatId,
-            title: trimmedInput.slice(0, 50),
-            createdAt: Date.now(),
-        }
-        const updatedChats = [newChat, ...chats]
-        saveChats(organizationId, updatedChats)
-        setChats(updatedChats)
-        saveSessionId(newChatId)
+        const newChat = await createChat(trimmedInput.slice(0, 50))
+        saveSessionId(newChat.id)
         setInitialMessage(trimmedInput)
-        setActiveChatId(newChatId)
+        setActiveChatId(newChat.id)
         setInputValue('')
-    }, [organizationId, inputValue, chats, saveChats, saveSessionId])
+    }, [organizationId, inputValue, createChat, saveSessionId])
 
     const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if (e.key !== 'Enter' || e.shiftKey) return
@@ -128,59 +116,18 @@ const CoworkPage: PageComponentType = () => {
         setEditingChatName(false)
     }, [saveSessionId])
 
-    const findEmptyChat = useCallback((chatsToCheck: CoworkChat[]) => {
-        const savedHistory = historyStorageManager.getItem(AI_CHAT_HISTORY_STORAGE_KEY) || {}
-        return chatsToCheck.find((chat) => {
-            const sessionData = savedHistory[chat.id]
-            return !sessionData || !sessionData.history || sessionData.history.length === 0
-        })
-    }, [])
-
-    const handleNewChat = useCallback(() => {
-        if (!organizationId) return
-
-        const emptyChat = findEmptyChat(chats)
-        if (emptyChat) {
-            saveSessionId(emptyChat.id)
-            setInitialMessage('')
-            setActiveChatId(emptyChat.id)
-            setInputValue('')
-            setEditingChatName(false)
-            return
-        }
-
-        const newChatId = uuidV4()
-        const newChat: CoworkChat = {
-            id: newChatId,
-            title: newChatLabel,
-            createdAt: Date.now(),
-        }
-        const updatedChats = [newChat, ...chats]
-        saveChats(organizationId, updatedChats)
-        setChats(updatedChats)
-        saveSessionId(newChatId)
-        setInitialMessage('')
-        setActiveChatId(newChatId)
-        setInputValue('')
-        setEditingChatName(false)
-    }, [organizationId, chats, findEmptyChat, saveChats, saveSessionId, newChatLabel])
-
     const activeChat = useMemo(() => chats.find((c) => c.id === activeChatId), [chats, activeChatId])
 
-    const handleSaveChatName = useCallback(() => {
+    const handleSaveChatName = useCallback(async () => {
         if (!organizationId || !activeChatId) return
         const trimmedName = chatNameInput.trim()
         if (!trimmedName) {
             setEditingChatName(false)
             return
         }
-        const updatedChats = chats.map((c) =>
-            c.id === activeChatId ? { ...c, title: trimmedName.slice(0, 100) } : c
-        )
-        saveChats(organizationId, updatedChats)
-        setChats(updatedChats)
+        await updateChat(activeChatId, { name: trimmedName.slice(0, 100) })
         setEditingChatName(false)
-    }, [organizationId, activeChatId, chatNameInput, chats, saveChats])
+    }, [organizationId, activeChatId, chatNameInput, updateChat])
 
     const handleChatNameKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
@@ -194,13 +141,13 @@ const CoworkPage: PageComponentType = () => {
 
     useEffect(() => {
         if (editingChatName) {
-            setChatNameInput(activeChat?.title || '')
+            setChatNameInput(activeChat?.name || '')
             setTimeout(() => {
                 chatNameInputRef.current?.focus()
                 chatNameInputRef.current?.select()
             }, 0)
         }
-    }, [editingChatName, activeChat?.title])
+    }, [editingChatName, activeChat?.name])
 
     const handleShare = useCallback(async () => {
         if (!activeChatId) return
@@ -233,6 +180,22 @@ const CoworkPage: PageComponentType = () => {
         }
     }, [activeChatId])
 
+    const handleDeleteChat = useCallback(async () => {
+        if (!activeChatId) return
+        await deleteChat(activeChatId)
+        setIsDeleteModalOpen(false)
+
+        // Also clean up the chat history from local storage
+        const savedHistory = historyStorageManager.getItem(AI_CHAT_HISTORY_STORAGE_KEY)
+        if (savedHistory && savedHistory[activeChatId]) {
+            delete savedHistory[activeChatId]
+            historyStorageManager.setItem(AI_CHAT_HISTORY_STORAGE_KEY, savedHistory)
+        }
+
+        // Navigate to a fresh chat page (the layout's New chat logic will pick an empty one or create a new one)
+        void router.push('/cowork/chat')
+    }, [activeChatId, deleteChat, router])
+
     const canSend = useMemo(() => Boolean(inputValue.trim()), [inputValue])
 
     const renderChatHeader = () => {
@@ -256,7 +219,7 @@ const CoworkPage: PageComponentType = () => {
                                 className={coworkStyles.chatNameButton}
                                 onClick={() => setEditingChatName(true)}
                             >
-                                <span className={coworkStyles.chatNameText}>{activeChat?.title || newChatLabel}</span>
+                                <span className={coworkStyles.chatNameText}>{activeChat?.name || newChatLabel}</span>
                                 <span className={coworkStyles.chatNameEditIcon}><Edit size='small' /></span>
                             </button>
                         </Tooltip>
@@ -273,6 +236,17 @@ const CoworkPage: PageComponentType = () => {
                             onClick={handleShare}
                             disabled={shareCopied}
                             aria-label={shareLabel}
+                        />
+                    </Tooltip>
+                    <Tooltip title={deleteChatLabel}>
+                        <Button
+                            type='secondary'
+                            size='medium'
+                            compact
+                            minimal
+                            icon={<Trash size='small' />}
+                            onClick={() => setIsDeleteModalOpen(true)}
+                            aria-label={deleteChatLabel}
                         />
                     </Tooltip>
                 </div>
@@ -325,6 +299,21 @@ const CoworkPage: PageComponentType = () => {
                 {renderChatHeader()}
                 {renderMain()}
             </div>
+            <Modal
+                open={isDeleteModalOpen}
+                title={deleteChatConfirmLabel}
+                onCancel={() => setIsDeleteModalOpen(false)}
+                footer={
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+                        <Button type='secondary' onClick={() => setIsDeleteModalOpen(false)}>
+                            {deleteChatConfirmCancelLabel}
+                        </Button>
+                        <Button type='primary' onClick={handleDeleteChat}>
+                            {deleteChatConfirmOkLabel}
+                        </Button>
+                    </div>
+                }
+            />
         </div>
     )
 }

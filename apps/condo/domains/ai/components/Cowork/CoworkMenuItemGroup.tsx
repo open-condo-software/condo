@@ -1,10 +1,11 @@
 import classnames from 'classnames'
-import { useRouter } from 'next/router'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 
 import { ChevronDown, Star, StarFilled } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Tooltip, Typography } from '@open-condo/ui'
+
+import { MenuItem } from '@condo/domains/common/components/MenuItem'
 
 import styles from './Cowork.module.css'
 import { useSavedChats } from './SavedChatsContext'
@@ -17,30 +18,27 @@ interface ICoworkMenuItemGroupProps {
     emptyMessage?: string
 }
 
-const MenuItemGroupItem: React.FC<{ item: SavedChat, onTogglePin: (id: string, pinned: boolean) => void }> = ({ item, onTogglePin }) => {
-    const router = useRouter()
+interface IMenuItemGroupItemProps {
+    item: SavedChat
+    onTogglePin: (id: string, pinned: boolean) => void
+    // Called when the item navigates to its chat, e.g. to close a wrapping dropdown
+    onNavigate?: () => void
+}
+
+export const MenuItemGroupItem: React.FC<IMenuItemGroupItemProps> = ({ item, onTogglePin, onNavigate }) => {
     const intl = useIntl()
     const pinChatLabel = intl.formatMessage({ id: 'ai.cowork.pinChat' })
     const unpinChatLabel = intl.formatMessage({ id: 'ai.cowork.unpinChat' })
 
-    const isActive = useMemo(() => {
-        const queryChatId = router.query.chatId as string | undefined
-
-        return queryChatId === item.id
-    }, [router.query.chatId, item.id])
-
-    const handleClick = useCallback(() => {
-        router.push(`/cowork/chat?chatId=${item.id}`)
-    }, [router, item.id])
-
     return (
-        <div
-            className={classnames(styles.sideMenuItem, { [styles.sideMenuItemActive]: isActive })}
-            onClick={handleClick}
-        >
-            <Typography.Title level={5} ellipsis={{ rows: 2 }} type='secondary'>
-                {item.name}
-            </Typography.Title>
+        <div className={styles.sideMenuItem} onClick={onNavigate}>
+            <MenuItem
+                id={`menu-item-chat-${item.id}`}
+                path={`/cowork/chat?chatId=${item.id}`}
+                label={item.name}
+                labelRaw
+                menuItemWrapperProps={{ className: styles.sideMenuItemWrapper }}
+            />
             <div className={styles.sideMenuItemActions}>
                 <Tooltip title={item.pinned ? unpinChatLabel : pinChatLabel}>
                     <Button

@@ -24,7 +24,7 @@ interface IMenuItemWrapperProps {
 interface IMenuItemProps {
     id: string
     path?: string
-    icon: React.ElementType
+    icon?: React.ElementType
     label: string
     labelRaw?: true
     disabled?: boolean
@@ -90,7 +90,7 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
 
     const linkContent = (
         <Space size={12} align='center' direction='horizontal' className={styles.menuItem}>
-            <Icon size='medium' />
+            {Icon && <Icon size='medium' />}
             {!isCollapsed && (<div>
                 <Typography.Title ellipsis={{ rows: 2 }} level={5}>
                     {Message}
