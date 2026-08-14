@@ -130,6 +130,7 @@
     "axios": "^1.16.0",
     "protobufjs": "7.6.5",
     "next": "^15.5.15",
+    "fast-xml-parser": "^5.10.1",
     "@xmldom/xmldom": "^0.8.12",
     "js-cookie": "^3.0.8",
     "@whatwg-node/fetch/undici": "5.28.5",
