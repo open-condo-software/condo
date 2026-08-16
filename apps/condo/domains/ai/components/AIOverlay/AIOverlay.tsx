@@ -1,5 +1,5 @@
 import classnames from 'classnames'
-import React, { useState, useRef, useEffect, useMemo } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { v4 as uuidV4 } from 'uuid'
 
 import { Close, RefreshCw } from '@open-condo/icons'
@@ -7,8 +7,8 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Button, Typography } from '@open-condo/ui'
 
+import { getSessionId, setSessionId } from '@condo/domains/ai/utils/aiChatStorage'
 import { analytics } from '@condo/domains/common/utils/analytics'
-import { LocalStorageManager } from '@condo/domains/common/utils/localStorageManager'
 
 
 import styles from './AIOverlay.module.css'
@@ -24,7 +24,6 @@ type AIOverlayProps = {
 const MIN_OVERLAY_WIDTH = 300
 const MAX_OVERLAY_WIDTH = 1200
 const CLOSE_THRESHOLD = MIN_OVERLAY_WIDTH / 2
-const AI_SESSION_STORAGE_KEY = 'condo-ai-chat-session-id'
 const EMPTY_AI_SESSION_ID = ''
 
 export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
@@ -59,36 +58,28 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
             aiSessionId: aiSessionId ?? EMPTY_AI_SESSION_ID,
         })
         const newSessionId = uuidV4()
-        const aiSessionStorage = sessionStorage.getItem(AI_SESSION_STORAGE_KEY) || {}
         if (organization) {
-            aiSessionStorage[organization.id] = newSessionId
+            setSessionId(organization.id, newSessionId)
         }
-        sessionStorage.setItem(AI_SESSION_STORAGE_KEY, aiSessionStorage)
         setAiSessionId(newSessionId)
     }
 
-    const sessionStorage = useMemo(() => new LocalStorageManager<Record<string, string>>(), [])
-
     useEffect(() => {
-        const aiSessionStorage = sessionStorage.getItem(AI_SESSION_STORAGE_KEY) || {}
+        if (!organization) return
 
-        if (organization && aiSessionStorage[organization.id]) {
-            setAiSessionId(aiSessionStorage[organization.id])
+        const existing = getSessionId(organization.id)
+        if (existing) {
+            setAiSessionId(existing)
         } else {
             const newSessionId = uuidV4()
-            if (organization) {
-                aiSessionStorage[organization.id] = newSessionId
-                sessionStorage.setItem(AI_SESSION_STORAGE_KEY, aiSessionStorage)
-            }
+            setSessionId(organization.id, newSessionId)
             setAiSessionId(newSessionId)
         }
-    }, [sessionStorage, organization])
+    }, [organization])
 
     useEffect(() => {
         if (aiSessionId && organization) {
-            const aiSessionStorage = sessionStorage.getItem(AI_SESSION_STORAGE_KEY) || {}
-            aiSessionStorage[organization.id] = aiSessionId
-            sessionStorage.setItem(AI_SESSION_STORAGE_KEY, aiSessionStorage)
+            setSessionId(organization.id, aiSessionId)
         }
     }, [aiSessionId, organization])
 

@@ -10,9 +10,8 @@ import { useAIChatAttachments, type AIChatAttachmentMeta } from '@condo/domains/
 import { useAIFlow } from '@condo/domains/ai/hooks/useAIFlow'
 import { useChatWithCondoButtonConfig } from '@condo/domains/ai/hooks/useChatWithCondoButtonConfig'
 import { parseAssistantAnswer, toDisplayText } from '@condo/domains/ai/utils/aiAnswerPresenter'
+import { getChatHistory, hasUserMessage, saveChatHistory } from '@condo/domains/ai/utils/aiChatStorage'
 import { analytics } from '@condo/domains/common/utils/analytics'
-import { LocalStorageManager } from '@condo/domains/common/utils/localStorageManager'
-
 
 
 import styles from './AIChat.module.css'
@@ -21,37 +20,11 @@ import { AIChatMessage } from './AIChatMessage'
 import { AIChatSuggestions } from './AIChatSuggestions'
 import { extractA2UIMessages } from './genUI'
 
-import type { A2uiMessage } from '@a2ui/web_core/v0_9'
+import type { Message } from '@condo/domains/ai/utils/aiChatStorage'
 
-const STORAGE_KEY = 'condo-ai-chat-history'
 const WELCOME_UI_MESSAGE_ID = 'welcome-ui-message'
 
 const AI_FLOW_TIMEOUT_MS = 3 * 60 * 1000
-
-const historyStorageManager = new LocalStorageManager<Record<string, { history: any[], organizationId: string }>>()
-
-export type MessageAttachmentDisplay = {
-    name: string
-    mimeType?: string
-    url?: string
-}
-
-export type MessageContent = {
-    text: string
-    suggestions?: string[]
-    attachments?: MessageAttachmentDisplay[]
-    a2uiMessages?: A2uiMessage[]
-}
-
-export type Message = {
-    id: string
-    content: MessageContent
-    role: 'user' | 'assistant'
-    timestamp: Date
-    status?: 'sending' | 'sent' | 'error'
-    executionAIFlowTaskId?: string
-    copyable?: boolean
-}
 
 type ExecuteAIMessageOptions = {
     additionalContext?: Record<string, unknown>
@@ -209,36 +182,15 @@ export const AIChat: React.FC<AIChatProps> = ({
     useEffect(() => {
         initialLoadDoneRef.current = false
 
-        const savedHistory = historyStorageManager.getItem(STORAGE_KEY)
+        const historyWithDates = getChatHistory(aiSessionId)
 
-        if (!savedHistory || typeof savedHistory !== 'object') {
+        if (!historyWithDates || historyWithDates.length === 0) {
             setMessages([])
             setActiveTurnUserMessageId(null)
             initialLoadDoneRef.current = true
             return
         }
 
-        const sessionData = savedHistory[aiSessionId]
-        if (!sessionData || !sessionData.history) {
-            setMessages([])
-            setActiveTurnUserMessageId(null)
-            initialLoadDoneRef.current = true
-            return
-        }
-
-        const historyArray = sessionData.history
-
-        if (historyArray.length === 0) {
-            setMessages([])
-            setActiveTurnUserMessageId(null)
-            initialLoadDoneRef.current = true
-            return
-        }
-
-        const historyWithDates = historyArray.map((msg: any) => ({
-            ...msg,
-            timestamp: new Date(msg.timestamp),
-        }))
         setMessages(historyWithDates)
         setActiveTurnUserMessageId(null)
         initialLoadDoneRef.current = true
@@ -286,22 +238,7 @@ export const AIChat: React.FC<AIChatProps> = ({
     }, [inputValue, canSendWithAttachments, attachmentsUploading])
 
     const saveMessagesToLocalStorage = useCallback(() => {
-        try {
-            const currentHistory = historyStorageManager.getItem(STORAGE_KEY) || {}
-            const updatedHistory = {
-                ...currentHistory,
-                [aiSessionId]: {
-                    history: messages.map(msg => ({
-                        ...msg,
-                        timestamp: msg.timestamp.toISOString(),
-                    })),
-                    organizationId: organization?.id,
-                },
-            }
-            historyStorageManager.setItem(STORAGE_KEY, updatedHistory)
-        } catch (error) {
-            console.error('Failed to save chat history to localStorage:', error)
-        }
+        saveChatHistory(aiSessionId, messages, organization?.id)
     }, [aiSessionId, messages, organization?.id])
 
     useEffect(() => {
@@ -585,9 +522,7 @@ export const AIChat: React.FC<AIChatProps> = ({
     useEffect(() => {
         if (!initialMessage || initialMessageSentRef.current || !initialLoadDoneRef.current || !user) return
 
-        const savedHistory = historyStorageManager.getItem(STORAGE_KEY)
-        const sessionData = savedHistory ? savedHistory[aiSessionId] : null
-        if (sessionData && sessionData.history && sessionData.history.some((msg: any) => msg.role === 'user')) {
+        if (hasUserMessage(aiSessionId)) {
             initialMessageSentRef.current = true
             return
         }

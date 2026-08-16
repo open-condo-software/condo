@@ -42,7 +42,7 @@ export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
 
     const PaymentHistoryLabel = intl.formatMessage({ id: 'subscription.paymentHistory.title' })
     const LinkedCardsLabel = intl.formatMessage({ id: 'subscription.linkedCards.title' })
-    const CoworkLabel = intl.formatMessage({ id: 'ai.cowork.chats' })
+    const CoworkLabel = intl.formatMessage({ id: 'ai.cowork.menuLabel' })
 
     const { LinkedCardsModal, openModal: openLinkedCardsModal } = useLinkedCardsModal()
     const { PaymentHistoryModal, openModal: openPaymentHistoryModal, hasPaymentHistory } = usePaymentHistoryModal()

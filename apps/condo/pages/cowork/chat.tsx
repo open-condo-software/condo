@@ -9,15 +9,10 @@ import { Button, Input, Modal, Tooltip } from '@open-condo/ui'
 import { AIChat } from '@condo/domains/ai/components/AIChat'
 import { CoworkLayout } from '@condo/domains/ai/components/Cowork'
 import coworkStyles from '@condo/domains/ai/components/Cowork/Cowork.module.css'
-import { useSavedChats } from '@condo/domains/ai/components/Cowork/SavedChatsContext'
+import { useAiAssistantsChatStorage } from '@condo/domains/ai/components/Cowork/SavedChatsContext'
+import { setSessionId } from '@condo/domains/ai/utils/aiChatStorage'
 import { PageComponentType } from '@condo/domains/common/types'
-import { LocalStorageManager } from '@condo/domains/common/utils/localStorageManager'
-import { stripMarkdown } from '@condo/domains/common/utils/stripMarkdown'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-const AI_SESSION_STORAGE_KEY = 'condo-ai-chat-session-id'
-const AI_CHAT_HISTORY_STORAGE_KEY = 'condo-ai-chat-history'
-const sessionStorageManager = new LocalStorageManager<Record<string, string>>()
-const historyStorageManager = new LocalStorageManager<Record<string, { history: any[], organizationId: string }>>()
 
 const SHARE_COPIED_RESET_TIMEOUT_MS = 2000
 
@@ -43,7 +38,7 @@ const CoworkPage: PageComponentType = () => {
 
     const organizationId = useMemo(() => organization?.id, [organization])
 
-    const { chats, isLoading: isChatsLoading, createChat, updateChat, deleteChat } = useSavedChats()
+    const { chats, isLoading: isChatsLoading, createChat, updateChat, deleteChat, copyChat } = useAiAssistantsChatStorage()
 
     const [activeChatId, setActiveChatId] = useState<string | null>(null)
     const [initialMessage, setInitialMessage] = useState('')
@@ -55,32 +50,35 @@ const CoworkPage: PageComponentType = () => {
     const inputRef = useRef<any>(null)
     const chatNameInputRef = useRef<any>(null)
 
-    // Pick the active chat once the saved chats are loaded / org changes
+    // URL is the source of truth: ?chatId=xyz loads that chat, no chatId = new chat (welcome screen)
     useEffect(() => {
         if (!organizationId || isChatsLoading) return
 
-        if (chats.length > 0) {
-            const queryChat = queryChatId ? chats.find((c) => c.id === queryChatId) : null
+        if (queryChatId) {
+            const queryChat = chats.find((c) => c.id === queryChatId)
             if (queryChat) {
                 setActiveChatId(queryChat.id)
                 setInitialMessage('')
                 return
             }
-
-            const sessions = sessionStorageManager.getItem(AI_SESSION_STORAGE_KEY) || {}
-            const currentSessionId = sessions[organizationId]
-            const matchingChat = chats.find((c) => c.id === currentSessionId)
-            setActiveChatId(matchingChat ? matchingChat.id : chats[0].id)
-        } else {
-            setActiveChatId(null)
         }
+
+        setActiveChatId(null)
     }, [organizationId, queryChatId, chats, isChatsLoading])
+
+    // Pre-fill input from ?prompt= (used by Skills page) — one-shot, then clean the URL
+    useEffect(() => {
+        const prompt = router.query.prompt
+        if (typeof prompt !== 'string' || !prompt.trim()) return
+        if (activeChatId) return
+        setInputValue(prompt)
+        void router.replace({ pathname: '/cowork/chat', query: {} }, undefined, { shallow: true })
+        setTimeout(() => inputRef.current?.focus(), 100)
+    }, [router, activeChatId])
 
     const saveSessionId = useCallback((sessionId: string) => {
         if (!organizationId) return
-        const sessions = sessionStorageManager.getItem(AI_SESSION_STORAGE_KEY) || {}
-        sessions[organizationId] = sessionId
-        sessionStorageManager.setItem(AI_SESSION_STORAGE_KEY, sessions)
+        setSessionId(organizationId, sessionId)
     }, [organizationId])
 
     const hasStarted = activeChatId !== null
@@ -147,46 +145,17 @@ const CoworkPage: PageComponentType = () => {
 
     const handleShare = useCallback(async () => {
         if (!activeChatId) return
-
-        const savedHistory = historyStorageManager.getItem(AI_CHAT_HISTORY_STORAGE_KEY)
-        if (!savedHistory) return
-
-        const sessionData = savedHistory[activeChatId]
-        if (!sessionData || !sessionData.history || sessionData.history.length === 0) return
-
-        const lines: string[] = []
-        for (const msg of sessionData.history) {
-            if (!msg.content?.text?.trim()) continue
-            const roleLabel = msg.role === 'user' ? 'User' : 'Assistant'
-            const text = msg.role === 'assistant'
-                ? stripMarkdown(msg.content.text, { collapseLineBreaks: false })
-                : msg.content.text
-            lines.push(`${roleLabel}: ${text}`)
-            lines.push('')
-        }
-
-        if (lines.length === 0) return
-
-        try {
-            await navigator.clipboard.writeText(lines.join('\n').trim())
+        const copied = await copyChat(activeChatId)
+        if (copied) {
             setShareCopied(true)
             setTimeout(() => setShareCopied(false), SHARE_COPIED_RESET_TIMEOUT_MS)
-        } catch (e) {
-            console.error('Unable to copy conversation to clipboard', e)
         }
-    }, [activeChatId])
+    }, [activeChatId, copyChat])
 
     const handleDeleteChat = useCallback(async () => {
         if (!activeChatId) return
         await deleteChat(activeChatId)
         setIsDeleteModalOpen(false)
-
-        // Also clean up the chat history from local storage
-        const savedHistory = historyStorageManager.getItem(AI_CHAT_HISTORY_STORAGE_KEY)
-        if (savedHistory && savedHistory[activeChatId]) {
-            delete savedHistory[activeChatId]
-            historyStorageManager.setItem(AI_CHAT_HISTORY_STORAGE_KEY, savedHistory)
-        }
 
         // Navigate to a fresh chat page (the layout's New chat logic will pick an empty one or create a new one)
         void router.push('/cowork/chat')

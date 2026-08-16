@@ -14,7 +14,7 @@ import { AIChatSuggestions } from './AIChatSuggestions'
 import { AIChatThinkingStatus } from './AIChatThinkingStatus'
 import { A2UISurfaces } from './genUI'
 
-import type { Message } from './AIChat'
+import type { Message } from '@condo/domains/ai/utils/aiChatStorage'
 
 const COPY_RESET_TIMEOUT_MS = 2000
 const EXPORT_MENU_FORMATS: ExportAIMessageFormat[] = ['docx', 'pdf', 'txt']

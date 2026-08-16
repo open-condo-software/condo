@@ -1,5 +1,3 @@
 export { CoworkLayout } from './CoworkLayout'
-export { SavedChatsProvider, useSavedChats } from './SavedChatsContext'
-export { SavedChatsService } from './SavedChatsService'
-export type { SavedChat, ChatUpdatePayload } from './SavedChatsService'
-export type { ISavedChatsContext } from './SavedChatsContext'
+export { AiAssistantsChatStorageProvider, useAiAssistantsChatStorage } from './SavedChatsContext'
+export type { SavedChat, ChatUpdatePayload, IAiAssistantsChatStorageContext } from './SavedChatsContext'

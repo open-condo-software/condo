@@ -61,6 +61,12 @@
   background: var(--condo-global-color-gray-3);
 }
 
+.chat-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
 .section-label {
   display: inline-flex;
   align-items: center;
@@ -99,26 +105,43 @@
   width: 100%;
 }
 
-/* Chat header (in flow, not floating) */
+/* Floating chat header — overlays the chat surface (Kimi-style).
+   Matches .chat-container centering (max-width + margin auto) so the
+   button groups align with the chat content edges, not the screen edges. */
 .chat-header {
-  display: flex;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: space-between;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  max-width: 1600px;
+  margin: 0 auto;
+  height: var(--condo-global-spacing-48);
   padding: var(--condo-global-spacing-8) var(--condo-global-spacing-24);
-  border-bottom: 1px solid var(--condo-global-color-gray-3);
+  background: linear-gradient(to bottom, var(--condo-global-color-white) 55%, transparent);
+  pointer-events: none;
 }
 
+/* Chat name floats independently at the container's top-left edge */
 .chat-header-left {
+  position: absolute;
+  left: var(--condo-global-spacing-24);
+  top: var(--condo-global-spacing-8);
   display: flex;
   align-items: center;
   gap: var(--condo-global-spacing-4);
+  pointer-events: auto;
 }
 
+/* Action buttons float independently at the container's top-right edge */
 .chat-header-right {
+  position: absolute;
+  right: var(--condo-global-spacing-24);
+  top: var(--condo-global-spacing-8);
   display: flex;
   align-items: center;
   gap: var(--condo-global-spacing-8);
+  pointer-events: auto;
 }
 
 .chat-name-button {
@@ -226,14 +249,15 @@
   --ai-chat-markdown-width: 100%;
   --ai-chat-padding-x: var(--condo-global-spacing-24);
 
-  /* No floating header in cowork. Must be set to 0 explicitly: an unset
-     --ai-chat-header-height makes the messages-container padding-top calc
-     invalid, collapsing it to 0 (first message flush to top, shadow clipped). */
-  --ai-chat-header-height: 0;
+  /* Floating header height — reserves space above the first message so it
+     doesn't sit under the floating chat-header overlay. Must be set explicitly:
+     an unset --ai-chat-header-height makes the messages-container padding-top
+     calc invalid, collapsing it to 0 (first message flush to top, shadow clipped). */
+  --ai-chat-header-height: var(--condo-global-spacing-48);
 
-  /* 32px breathing room above the first message; the bottom gap is controlled
-     separately by --ai-chat-input-bottom-gap. */
-  --ai-chat-chrome-gap: var(--condo-global-spacing-32);
+  /* 24px breathing room above the first message (on top of the header height);
+     the bottom gap is controlled separately by --ai-chat-input-bottom-gap. */
+  --ai-chat-chrome-gap: var(--condo-global-spacing-24);
 
   /* Extra space below the last message, before the input. Set to 72px to be at
      least as tall as a one-line input, so the last message does not visually
