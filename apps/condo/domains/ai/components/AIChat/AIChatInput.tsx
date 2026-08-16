@@ -60,8 +60,8 @@ export const AIChatInput: React.FC<AIChatInputProps> = ({
     return (
         <div ref={containerRef} className={styles.inputContainer}>
             <Space direction='vertical' size={8} width='100%'>
-                <div className={styles.attachmentsContainer}>
-                    {attachments && attachments.fileList.length > 0 && (
+                {attachments && attachments.fileList.length > 0 && (
+                    <div className={styles.attachmentsContainer}>
                         <div className={styles.attachmentContainer}>
                             {attachments.fileList.map((file) => (
                                 <AIChatDocument
@@ -73,8 +73,8 @@ export const AIChatInput: React.FC<AIChatInputProps> = ({
                                 />
                             ))}
                         </div>
-                    )}
-                </div>
+                    </div>
+                )}
                 <div className={styles.textAreaContainer}>
                     <Input.TextArea
                         ref={inputRef}

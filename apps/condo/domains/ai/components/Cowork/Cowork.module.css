@@ -211,22 +211,40 @@
   flex: 1;
   flex-direction: column;
   width: 100%;
-  max-width: 768px;
+  max-width: 1600px;
   min-height: 0;
   margin: 0 auto;
+  padding: var(--condo-global-spacing-24);
 
   /* Cowork AIChat theme — white surface, grey bubbles, centered content, floating input */
   --ai-chat-bg: var(--condo-global-color-white);
   --ai-chat-bubble-bg: var(--condo-global-color-gray-1);
-  --ai-chat-content-max-width: 768px;
+  --ai-chat-bubble-box-shadow: none;
+  --ai-chat-bubble-padding: var(--condo-global-spacing-8) var(--condo-global-spacing-16);
+  --ai-chat-content-max-width: 1600px;
   --ai-chat-content-margin-inline: auto;
+  --ai-chat-markdown-width: 100%;
   --ai-chat-padding-x: var(--condo-global-spacing-24);
+
+  /* No floating header in cowork. Must be set to 0 explicitly: an unset
+     --ai-chat-header-height makes the messages-container padding-top calc
+     invalid, collapsing it to 0 (first message flush to top, shadow clipped). */
+  --ai-chat-header-height: 0;
+
+  /* 32px breathing room above the first message; the bottom gap is controlled
+     separately by --ai-chat-input-bottom-gap. */
+  --ai-chat-chrome-gap: var(--condo-global-spacing-32);
+
+  /* Extra space below the last message, before the input. Set to 72px to be at
+     least as tall as a one-line input, so the last message does not visually
+     crowd the floating input. */
+  --ai-chat-input-bottom-gap: var(--condo-global-spacing-72);
 
   /* Floating input card — absolute over messages, wide, tight wrapper */
   --ai-chat-input-position: absolute;
   --ai-chat-input-max-width: none;
-  --ai-chat-input-margin-inline: var(--condo-global-spacing-24);
-  --ai-chat-input-padding: 0;
+  --ai-chat-input-margin-inline: 0;
+  --ai-chat-input-padding: var(--condo-global-spacing-16) var(--condo-global-spacing-16);
   --ai-chat-input-bg: var(--condo-global-color-white);
   --ai-chat-input-backdrop: none;
   --ai-chat-input-border: 1px solid var(--condo-global-color-gray-3);

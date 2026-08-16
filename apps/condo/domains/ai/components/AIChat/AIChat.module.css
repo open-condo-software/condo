@@ -22,7 +22,7 @@
   padding:
     calc(var(--ai-chat-header-height) + var(--ai-chat-chrome-gap, var(--condo-global-spacing-12)))
     var(--ai-chat-padding-x, var(--condo-global-spacing-24))
-    calc(var(--ai-chat-input-height, 5rem) + var(--ai-chat-chrome-gap, var(--condo-global-spacing-12)));
+    calc(var(--ai-chat-input-height, 5rem) + var(--ai-chat-input-bottom-gap, var(--condo-global-spacing-12)));
   overflow-y: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -48,10 +48,6 @@
 
 .messages-container::-webkit-scrollbar {
   display: none;
-}
-
-.turn {
-  /* Turn wrapper — styling lives on children via data attributes (see .turn[data-active="true"]). */
 }
 
 .messages-container-embedded {
@@ -163,6 +159,10 @@
 .turn[data-active="true"] {
   box-sizing: border-box;
   min-height: var(--ai-chat-scrollport-height, 100%);
+}
+
+.turn:last-child {
+  padding-bottom: var(--ai-chat-last-turn-padding-bottom, 0);
 }
 
 .assistant-a2ui {
