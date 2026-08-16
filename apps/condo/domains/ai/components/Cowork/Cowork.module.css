@@ -1,43 +1,40 @@
-/* Layout — header + sidebar + main */
-.cowork-layout {
+/* Layout */
+.side-menu-logo {
   display: flex;
-  flex-direction: column;
-  height: 100vh;
-  background: var(--condo-global-color-white);
-}
-
-.cowork-header {
-  z-index: 9;
-  display: flex;
-  flex-direction: row;
-  flex-shrink: 0;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   width: 100%;
-  height: 56px;
-  padding: 0 var(--condo-global-spacing-16) 0 var(--condo-global-spacing-16);
-  background: var(--condo-global-color-white);
 }
 
-.cowork-header-left {
-  display: flex;
+.logo-cowork {
+  display: inline-flex;
   align-items: center;
-  gap: var(--condo-global-spacing-8);
+  height: 32px;
+  position: relative;
 }
 
-.cowork-logo {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--condo-global-color-black);
-  user-select: none;
+.logo-cowork-robot {
+  position: absolute;
+  top: -4px;
+  right: -8px;
+  font-size: 16px;
+  line-height: 1;
+  pointer-events: none;
 }
 
-.cowork-header-right {
-  display: flex;
-  align-items: center;
+.logo-cowork-title {
+  animation: logo-cowork-title-in 0.3s ease 0.15s 1 both;
+}
+
+@keyframes logo-cowork-title-in {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 /* Body — sidebar + main */
@@ -48,270 +45,48 @@
   width: 100%;
 }
 
-/* Sidebar */
-.sidebar {
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-  width: 260px;
-  border-right: 1px solid var(--condo-global-color-gray-3);
-  background: var(--condo-global-color-white);
-}
-
-.sidebar-nav {
+.side-menu-scroll {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  padding: var(--condo-global-spacing-12) var(--condo-global-spacing-8) var(--condo-global-spacing-8);
-}
-
-.sidebar-nav-item {
-  display: flex;
-  align-items: center;
-  gap: var(--condo-global-spacing-8);
-  padding: var(--condo-global-spacing-8) var(--condo-global-spacing-12);
-  border: none;
-  border-radius: var(--condo-global-border-radius-medium);
-  background: transparent;
-  cursor: pointer;
-  transition: background 0.12s ease;
-  text-align: left;
-  width: 100%;
-  color: var(--condo-global-color-gray-9);
-  font-size: 14px;
-  line-height: 1.5714;
-}
-
-.sidebar-nav-item:hover {
-  background: var(--condo-global-color-gray-2);
-}
-
-.sidebar-nav-item-active {
-  background: var(--condo-global-color-blue-2);
-  color: var(--condo-global-color-blue-9);
-}
-
-.sidebar-nav-item-icon {
-  display: flex;
-  flex-shrink: 0;
-  color: var(--condo-global-color-gray-6);
-  font-size: 16px;
-}
-
-.side-menu-chats-section {
-  display: flex;
-  flex-direction: column;
-  padding: var(--condo-global-spacing-8) 0;
-}
-
-.side-menu-group {
-  display: flex;
-  flex-direction: column;
-}
-
-.side-menu-group-header {
-  display: flex;
-  align-items: center;
-  gap: var(--condo-global-spacing-8);
-  padding: 9px 0;
-  cursor: pointer;
-  user-select: none;
-}
-
-.side-menu-group-header-chevron {
-  display: flex;
-  flex-shrink: 0;
-  color: var(--condo-global-color-gray-7);
-  transition: var(--condo-global-transition-duration-default), transform 0.15s ease;
-}
-
-.side-menu-group-header-chevron-collapsed {
-  transform: rotate(-90deg);
-}
-
-.side-menu-group-header-title {
-  color: var(--condo-global-color-gray-7) !important;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  transition: var(--condo-global-transition-duration-default);
-}
-
-.side-menu-group-header:hover .side-menu-group-header-chevron,
-.side-menu-group-header:hover .side-menu-group-header-title {
-  color: var(--condo-global-color-black) !important;
-}
-
-.side-menu-group-content {
-  display: flex;
-  flex-direction: column;
-  padding: var(--condo-global-spacing-4) 0 var(--condo-global-spacing-8) var(--condo-global-spacing-24);
-}
-
-.side-menu-group-empty {
-  padding: var(--condo-global-spacing-8) 0;
-  color: var(--condo-global-color-gray-5);
-  font-size: 13px;
-}
-
-.side-menu-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--condo-global-spacing-4);
-  padding: 0 var(--condo-global-spacing-8);
-  border-radius: var(--condo-global-border-radius-medium);
-  transition: var(--condo-global-transition-duration-default);
-}
-
-.side-menu-item:hover {
-  background: var(--condo-global-color-gray-2);
-}
-
-.side-menu-item-wrapper {
-  flex: 1;
-  min-width: 0;
-  padding: 9px 0 !important;
-}
-
-.side-menu-item-actions {
-  display: flex;
-  flex-shrink: 0;
-  gap: 2px;
-  opacity: 0;
-  transition: opacity 0.12s ease;
-}
-
-.side-menu-item:hover .side-menu-item-actions {
-  opacity: 1;
-}
-
-.side-menu-item-actions * {
-  color: var(--condo-global-color-gray-7);
-}
-
-.side-menu-item-actions:hover * {
-  color: var(--condo-global-color-black);
-}
-
-.collapsed-chats-dropdown .condo-dropdown-menu {
-  width: 280px;
-}
-
-.collapsed-chats-dropdown .condo-dropdown-menu-item-group-title {
-  padding: var(--condo-global-spacing-8) var(--condo-global-spacing-12) 0;
-}
-
-.sidebar-section-header {
-  display: flex;
-  align-items: center;
-  gap: var(--condo-global-spacing-4);
-  padding: var(--condo-global-spacing-8) var(--condo-global-spacing-12) var(--condo-global-spacing-4);
-  cursor: pointer;
-  user-select: none;
-  color: var(--condo-global-color-gray-7);
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  transition: color 0.12s ease;
-}
-
-.sidebar-section-header:hover {
-  color: var(--condo-global-color-black);
-}
-
-.sidebar-section-header-chevron {
-  display: flex;
-  flex-shrink: 0;
-  transition: transform 0.15s ease;
-}
-
-.sidebar-section-header-chevron-collapsed {
-  transform: rotate(-90deg);
-}
-
-.sidebar-section-content {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 0 var(--condo-global-spacing-8) var(--condo-global-spacing-8);
+  height: 100%;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
-.sidebar-section-content-collapsed {
-  display: none;
-}
-
-.sidebar-divider {
+.side-menu-divider {
   flex-shrink: 0;
   height: 1px;
-  margin: var(--condo-global-spacing-4) var(--condo-global-spacing-12);
+  margin: var(--condo-global-spacing-4) 0;
   background: var(--condo-global-color-gray-3);
 }
 
-.chat-list {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: 2px;
-  padding: 0 var(--condo-global-spacing-8) var(--condo-global-spacing-8);
-  overflow-y: auto;
-}
-
-.chat-list-item {
-  display: flex;
+.section-label {
+  display: inline-flex;
   align-items: center;
-  gap: var(--condo-global-spacing-8);
-  padding: var(--condo-global-spacing-8) var(--condo-global-spacing-12);
-  border: none;
-  border-radius: var(--condo-global-border-radius-medium);
-  background: transparent;
-  cursor: pointer;
-  transition: background 0.12s ease;
-  text-align: left;
+  justify-content: space-between;
+  gap: var(--condo-global-spacing-4);
   width: 100%;
 }
 
-.chat-list-item:hover {
-  background: var(--condo-global-color-gray-2);
+/* Make the antd Space row fill the full menu item width so the chevron can be
+   pushed to the right edge. Space is inline-flex by default and shrinks to content. */
+.sectionMenuItem :global(.condo-space) {
+  width: 100%;
 }
 
-.chat-list-item-active {
-  background: var(--condo-global-color-blue-2);
-  color: var(--condo-global-color-blue-9);
-}
-
-.chat-list-item-title {
-  overflow: hidden;
+/* Let the label wrapper (second space item) take all remaining horizontal space. */
+.sectionMenuItem :global(.condo-space-item:last-child) {
   flex: 1;
-  color: var(--condo-global-color-gray-9);
-  font-size: 14px;
-  line-height: 1.5714;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  min-width: 0;
 }
 
-.chat-list-item-actions {
-  display: flex;
-  flex-shrink: 0;
-  gap: 2px;
-  opacity: 0;
-  transition: opacity 0.12s ease;
-}
-
-.chat-list-item:hover .chat-list-item-actions {
-  opacity: 1;
-}
-
-.sidebar-empty {
-  display: flex;
-  flex: 1;
-  align-items: center;
-  justify-content: center;
-  padding: var(--condo-global-spacing-16);
-  color: var(--condo-global-color-gray-5);
-  font-size: 13px;
-  text-align: center;
+/* Propagate full width down through the label container and typography so that
+   .section-label's `width: 100%` + `justify-content: space-between` can push the
+   chevron to the right edge. */
+.sectionMenuItem :global(.condo-space-item:last-child > div),
+.sectionMenuItem :global(.condo-typography) {
+  width: 100%;
 }
 
 /* Main area */
@@ -421,13 +196,49 @@
   max-width: 640px;
 }
 
-/* Chat content (full width, contains AIChat) */
+/* Chat content (full width, contains the chat container) */
 .chat-content {
   display: flex;
   flex: 1;
   flex-direction: column;
   min-height: 0;
   width: 100%;
+}
+
+/* Centered container that bounds AIChat — max-width column on white surface */
+.chat-container {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  width: 100%;
+  max-width: 768px;
+  min-height: 0;
+  margin: 0 auto;
+
+  /* Cowork AIChat theme — white surface, grey bubbles, centered content, floating input */
+  --ai-chat-bg: var(--condo-global-color-white);
+  --ai-chat-bubble-bg: var(--condo-global-color-gray-1);
+  --ai-chat-content-max-width: 768px;
+  --ai-chat-content-margin-inline: auto;
+  --ai-chat-padding-x: var(--condo-global-spacing-24);
+
+  /* Floating input card — absolute over messages, wide, tight wrapper */
+  --ai-chat-input-position: absolute;
+  --ai-chat-input-max-width: none;
+  --ai-chat-input-margin-inline: var(--condo-global-spacing-24);
+  --ai-chat-input-padding: 0;
+  --ai-chat-input-bg: var(--condo-global-color-white);
+  --ai-chat-input-backdrop: none;
+  --ai-chat-input-border: 1px solid var(--condo-global-color-gray-3);
+  --ai-chat-input-border-radius: var(--condo-global-border-radius-large);
+  --ai-chat-input-box-shadow: 0 2px 16px rgb(0 0 0 / 8%);
+}
+
+/* Modal footer — delete-chat confirmation */
+.modal-footer {
+  display: flex;
+  gap: var(--condo-global-spacing-8);
+  justify-content: flex-end;
 }
 
 /* Miniapps page */

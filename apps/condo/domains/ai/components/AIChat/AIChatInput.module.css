@@ -1,27 +1,17 @@
 .input-container {
-  position: absolute;
+  position: var(--ai-chat-input-position, absolute);
   right: 0;
   bottom: 0;
   left: 0;
   z-index: 2;
-  padding: var(--condo-global-spacing-16) var(--condo-global-spacing-24);
-  background: color-mix(in srgb, var(--condo-global-color-gray-1) 88%, transparent);
-  backdrop-filter: blur(20px);
-}
-
-/* Embedded mode — when inside .cowork-chat-wrapper */
-.cowork-chat-wrapper .input-container {
-  position: relative;
-  right: auto;
-  bottom: auto;
-  left: auto;
-  max-width: 768px;
-  margin: 0 auto;
-  padding: var(--condo-global-spacing-12) var(--condo-global-spacing-16);
-  background: var(--condo-global-color-white);
-  border: 1px solid var(--condo-global-color-gray-3);
-  border-radius: var(--condo-global-border-radius-large);
-  box-shadow: 0 2px 16px rgb(0 0 0 / 8%);
+  max-width: var(--ai-chat-input-max-width, none);
+  margin-inline: var(--ai-chat-input-margin-inline, 0);
+  padding: var(--ai-chat-input-padding, var(--condo-global-spacing-16) var(--condo-global-spacing-24));
+  background: var(--ai-chat-input-bg, color-mix(in srgb, var(--condo-global-color-gray-1) 88%, transparent));
+  border: var(--ai-chat-input-border, none);
+  border-radius: var(--ai-chat-input-border-radius, 0);
+  box-shadow: var(--ai-chat-input-box-shadow, none);
+  backdrop-filter: var(--ai-chat-input-backdrop, blur(20px));
 }
 
 .text-area-container {

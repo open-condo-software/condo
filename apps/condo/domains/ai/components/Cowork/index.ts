@@ -1,5 +1,5 @@
 export { CoworkLayout } from './CoworkLayout'
 export { SavedChatsProvider, useSavedChats } from './SavedChatsContext'
 export { SavedChatsService } from './SavedChatsService'
-export type { SavedChat, ChatStorageType, ChatUpdatePayload } from './SavedChatsService'
+export type { SavedChat, ChatUpdatePayload } from './SavedChatsService'
 export type { ISavedChatsContext } from './SavedChatsContext'

@@ -21,20 +21,24 @@
   gap: var(--condo-global-spacing-12);
   padding:
     calc(var(--ai-chat-header-height) + var(--ai-chat-chrome-gap, var(--condo-global-spacing-12)))
-    var(--condo-global-spacing-24)
+    var(--ai-chat-padding-x, var(--condo-global-spacing-24))
     calc(var(--ai-chat-input-height, 5rem) + var(--ai-chat-chrome-gap, var(--condo-global-spacing-12)));
   overflow-y: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
   width: 100%;
   min-width: 0;
+  background: var(--ai-chat-bg, transparent);
 }
 
 /* Override comment-body global styles */
 .messages-container.comment-body {
   max-width: none;
   min-width: 0;
-  padding: var(--condo-global-spacing-16) var(--condo-global-spacing-24) var(--condo-global-spacing-24);
+  padding:
+    var(--condo-global-spacing-16)
+    var(--ai-chat-padding-x, var(--condo-global-spacing-24))
+    var(--condo-global-spacing-24);
 }
 
 /* Without this, long flex children shrink and clip inside the scroller. */
@@ -47,6 +51,7 @@
 }
 
 .turn {
+  /* Turn wrapper — styling lives on children via data attributes (see .turn[data-active="true"]). */
 }
 
 .messages-container-embedded {

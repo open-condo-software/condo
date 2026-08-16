@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { Check, Edit, Share, Trash } from '@open-condo/icons'
+import { Check, Edit, Share, Star, StarFilled, Trash } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Button, Input, Modal, Tooltip } from '@open-condo/ui'
@@ -38,6 +38,8 @@ const CoworkPage: PageComponentType = () => {
     const deleteChatConfirmLabel = intl.formatMessage({ id: 'ai.cowork.deleteChatConfirm' })
     const deleteChatConfirmOkLabel = intl.formatMessage({ id: 'ai.cowork.deleteChatConfirmOk' })
     const deleteChatConfirmCancelLabel = intl.formatMessage({ id: 'ai.cowork.deleteChatConfirmCancel' })
+    const pinChatLabel = intl.formatMessage({ id: 'ai.cowork.pinChat' })
+    const unpinChatLabel = intl.formatMessage({ id: 'ai.cowork.unpinChat' })
 
     const organizationId = useMemo(() => organization?.id, [organization])
 
@@ -101,20 +103,14 @@ const CoworkPage: PageComponentType = () => {
         setInitialMessage(trimmedInput)
         setActiveChatId(newChat.id)
         setInputValue('')
-    }, [organizationId, inputValue, createChat, saveSessionId])
+        void router.push(`/cowork/chat?chatId=${newChat.id}`, undefined, { shallow: true })
+    }, [organizationId, inputValue, createChat, saveSessionId, router])
 
     const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if (e.key !== 'Enter' || e.shiftKey) return
         e.preventDefault()
         handleStartChat()
     }, [handleStartChat])
-
-    const handleSelectChat = useCallback((chatId: string) => {
-        saveSessionId(chatId)
-        setInitialMessage('')
-        setActiveChatId(chatId)
-        setEditingChatName(false)
-    }, [saveSessionId])
 
     const activeChat = useMemo(() => chats.find((c) => c.id === activeChatId), [chats, activeChatId])
 
@@ -196,6 +192,11 @@ const CoworkPage: PageComponentType = () => {
         void router.push('/cowork/chat')
     }, [activeChatId, deleteChat, router])
 
+    const handleTogglePin = useCallback(async () => {
+        if (!activeChatId) return
+        await updateChat(activeChatId, { pinned: !activeChat?.pinned })
+    }, [activeChatId, activeChat?.pinned, updateChat])
+
     const canSend = useMemo(() => Boolean(inputValue.trim()), [inputValue])
 
     const renderChatHeader = () => {
@@ -226,6 +227,17 @@ const CoworkPage: PageComponentType = () => {
                     )}
                 </div>
                 <div className={coworkStyles.chatHeaderRight}>
+                    <Tooltip title={activeChat?.pinned ? unpinChatLabel : pinChatLabel}>
+                        <Button
+                            type='secondary'
+                            size='medium'
+                            compact
+                            minimal
+                            icon={activeChat?.pinned ? <StarFilled size='small' /> : <Star size='small' />}
+                            onClick={handleTogglePin}
+                            aria-label={activeChat?.pinned ? unpinChatLabel : pinChatLabel}
+                        />
+                    </Tooltip>
                     <Tooltip title={shareCopied ? shareCopiedLabel : shareLabel}>
                         <Button
                             type='secondary'
@@ -283,11 +295,13 @@ const CoworkPage: PageComponentType = () => {
         return (
             <div className={coworkStyles.chatContent}>
                 {activeChatId && (
-                    <AIChat
-                        key={activeChatId}
-                        aiSessionId={activeChatId}
-                        initialMessage={initialMessage || undefined}
-                    />
+                    <div className={coworkStyles.chatContainer}>
+                        <AIChat
+                            key={activeChatId}
+                            aiSessionId={activeChatId}
+                            initialMessage={initialMessage || undefined}
+                        />
+                    </div>
                 )}
             </div>
         )
@@ -304,7 +318,7 @@ const CoworkPage: PageComponentType = () => {
                 title={deleteChatConfirmLabel}
                 onCancel={() => setIsDeleteModalOpen(false)}
                 footer={
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+                    <div className={coworkStyles.modalFooter}>
                         <Button type='secondary' onClick={() => setIsDeleteModalOpen(false)}>
                             {deleteChatConfirmCancelLabel}
                         </Button>
