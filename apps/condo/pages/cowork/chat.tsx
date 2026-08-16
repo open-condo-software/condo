@@ -38,7 +38,7 @@ const CoworkPage: PageComponentType = () => {
 
     const organizationId = useMemo(() => organization?.id, [organization])
 
-    const { chats, isLoading: isChatsLoading, createChat, updateChat, deleteChat, copyChat } = useAiAssistantsChatStorage()
+    const { chats, createChat, updateChat, deleteChat, copyChat } = useAiAssistantsChatStorage()
 
     const [activeChatId, setActiveChatId] = useState<string | null>(null)
     const [initialMessage, setInitialMessage] = useState('')
@@ -52,7 +52,7 @@ const CoworkPage: PageComponentType = () => {
 
     // URL is the source of truth: ?chatId=xyz loads that chat, no chatId = new chat (welcome screen)
     useEffect(() => {
-        if (!organizationId || isChatsLoading) return
+        if (!organizationId) return
 
         if (queryChatId) {
             const queryChat = chats.find((c) => c.id === queryChatId)
@@ -64,7 +64,7 @@ const CoworkPage: PageComponentType = () => {
         }
 
         setActiveChatId(null)
-    }, [organizationId, queryChatId, chats, isChatsLoading])
+    }, [organizationId, queryChatId, chats])
 
     // Pre-fill input from ?prompt= (used by Skills page) — one-shot, then clean the URL
     useEffect(() => {
@@ -91,12 +91,12 @@ const CoworkPage: PageComponentType = () => {
         }
     }, [hasStarted])
 
-    const handleStartChat = useCallback(async () => {
+    const handleStartChat = useCallback(() => {
         if (!organizationId) return
         const trimmedInput = inputValue.trim()
         if (!trimmedInput) return
 
-        const newChat = await createChat(trimmedInput.slice(0, 50))
+        const newChat = createChat(trimmedInput.slice(0, 50))
         saveSessionId(newChat.id)
         setInitialMessage(trimmedInput)
         setActiveChatId(newChat.id)
@@ -112,14 +112,14 @@ const CoworkPage: PageComponentType = () => {
 
     const activeChat = useMemo(() => chats.find((c) => c.id === activeChatId), [chats, activeChatId])
 
-    const handleSaveChatName = useCallback(async () => {
+    const handleSaveChatName = useCallback(() => {
         if (!organizationId || !activeChatId) return
         const trimmedName = chatNameInput.trim()
         if (!trimmedName) {
             setEditingChatName(false)
             return
         }
-        await updateChat(activeChatId, { name: trimmedName.slice(0, 100) })
+        updateChat(activeChatId, { name: trimmedName.slice(0, 100) })
         setEditingChatName(false)
     }, [organizationId, activeChatId, chatNameInput, updateChat])
 
@@ -152,18 +152,18 @@ const CoworkPage: PageComponentType = () => {
         }
     }, [activeChatId, copyChat])
 
-    const handleDeleteChat = useCallback(async () => {
+    const handleDeleteChat = useCallback(() => {
         if (!activeChatId) return
-        await deleteChat(activeChatId)
+        deleteChat(activeChatId)
         setIsDeleteModalOpen(false)
 
         // Navigate to a fresh chat page (the layout's New chat logic will pick an empty one or create a new one)
         void router.push('/cowork/chat')
     }, [activeChatId, deleteChat, router])
 
-    const handleTogglePin = useCallback(async () => {
+    const handleTogglePin = useCallback(() => {
         if (!activeChatId) return
-        await updateChat(activeChatId, { pinned: !activeChat?.pinned })
+        updateChat(activeChatId, { pinned: !activeChat?.pinned })
     }, [activeChatId, activeChat?.pinned, updateChat])
 
     const canSend = useMemo(() => Boolean(inputValue.trim()), [inputValue])
