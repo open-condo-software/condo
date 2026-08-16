@@ -99,18 +99,15 @@ const ButtonRenderer: React.FC<RendererProps> = ({ component, surface }) => {
 const RowRenderer: React.FC<RendererProps> = ({ component, surface }) => {
     const children = resolveChildren(component, surface)
     const justify = resolveValue(component.properties.justify, surface.dataModel)
-    const align = resolveValue(component.properties.align, surface.dataModel)
-
-    const alignMap: Record<string, 'start' | 'center' | 'end'> = {
-        start: 'start', center: 'center', end: 'end',
-    }
+    const align = (resolveValue(component.properties.align, surface.dataModel) || 'start') as 'start' | 'center' | 'end'
+    const isSpaceBetween = justify === 'spaceBetween'
 
     const content = (
         <Space
             direction='horizontal'
             size={12}
-            align={alignMap[align ?? 'start'] ?? 'start'}
-            width={justify === 'between' ? '100%' : undefined}
+            align={align}
+            width={isSpaceBetween ? '100%' : undefined}
         >
             {children.map(child => (
                 <ChildRenderer key={child.id} component={child} surface={surface} />
@@ -118,7 +115,7 @@ const RowRenderer: React.FC<RendererProps> = ({ component, surface }) => {
         </Space>
     )
 
-    if (justify === 'between') {
+    if (isSpaceBetween) {
         return <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}>{content}</div>
     }
     return content
@@ -286,7 +283,7 @@ _componentRendererRef = ComponentRenderer
 // We create a minimal catalog with permissive schemas.
 // The MessageProcessor needs it to know which components are valid.
 // Actual rendering is done by our React ComponentRenderer above.
-const permissiveSchema = z.record(z.unknown())
+const permissiveSchema = z.record(z.string(), z.unknown())
 
 const componentApis = Object.keys(RENDERERS).map(name => ({
     name,

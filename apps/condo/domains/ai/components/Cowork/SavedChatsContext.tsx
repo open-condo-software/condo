@@ -22,14 +22,13 @@ export type ChatUpdatePayload = {
     pinned?: boolean
 }
 
-// Async storage ops — currently synchronous localStorage, ready to swap for GraphQL mutations.
-async function loadChats (organizationId: string): Promise<SavedChat[]> {
+function loadChats (organizationId: string): SavedChat[] {
     if (typeof window === 'undefined') return []
     const allChats = coworkChatsStorageManager.getItem(COWORK_CHATS_STORAGE_KEY) || {}
     return allChats[organizationId] || []
 }
 
-async function saveChats (organizationId: string, chats: SavedChat[]): Promise<void> {
+function saveChats (organizationId: string, chats: SavedChat[]): void {
     if (typeof window === 'undefined') return
     const allChats = coworkChatsStorageManager.getItem(COWORK_CHATS_STORAGE_KEY) || {}
     allChats[organizationId] = chats
@@ -38,10 +37,9 @@ async function saveChats (organizationId: string, chats: SavedChat[]): Promise<v
 
 interface IAiAssistantsChatStorageContext {
     chats: SavedChat[]
-    isLoading: boolean
-    createChat: (name: string) => Promise<SavedChat>
-    updateChat: (id: string, payload: ChatUpdatePayload) => Promise<SavedChat>
-    deleteChat: (id: string) => Promise<void>
+    createChat: (name: string) => SavedChat
+    updateChat: (id: string, payload: ChatUpdatePayload) => SavedChat
+    deleteChat: (id: string) => void
     exportChat: (id: string) => string | null
     copyChat: (id: string) => Promise<boolean>
 }
@@ -53,19 +51,13 @@ export const AiAssistantsChatStorageProvider: React.FC<{ children: React.ReactNo
     const organizationId = organization?.id
 
     const [chats, setChats] = useState<SavedChat[]>([])
-    const [isLoading, setIsLoading] = useState<boolean>(false)
 
-    const refresh = useCallback(async () => {
+    useEffect(() => {
         if (!organizationId) return
-        setIsLoading(true)
-        try {
-            setChats(await loadChats(organizationId))
-        } finally {
-            setIsLoading(false)
-        }
+        setChats(loadChats(organizationId))
     }, [organizationId])
 
-    const createChat = useCallback(async (name: string) => {
+    const createChat = useCallback((name: string): SavedChat => {
         if (!organizationId) throw new Error('Organization is not selected')
         const newChat: SavedChat = {
             id: uuidV4(),
@@ -73,27 +65,20 @@ export const AiAssistantsChatStorageProvider: React.FC<{ children: React.ReactNo
             createdAt: Date.now(),
             pinned: false,
         }
-        const prevChats = chats
-        const nextChats = [newChat, ...prevChats]
+        const nextChats = [newChat, ...chats]
         setChats(nextChats)
-        try {
-            await saveChats(organizationId, nextChats)
-            return newChat
-        } catch (error) {
-            setChats(prevChats)
-            throw error
-        }
+        saveChats(organizationId, nextChats)
+        return newChat
     }, [organizationId, chats])
 
-    const updateChat = useCallback(async (id: string, payload: ChatUpdatePayload) => {
+    const updateChat = useCallback((id: string, payload: ChatUpdatePayload): SavedChat => {
         if (!organizationId) throw new Error('Organization is not selected')
-        const prevChats = chats
-        const chatIndex = prevChats.findIndex((chat) => chat.id === id)
+        const chatIndex = chats.findIndex((chat) => chat.id === id)
         if (chatIndex === -1) {
             throw new Error(`Chat with id "${id}" not found`)
         }
-        const updatedChat = { ...prevChats[chatIndex], ...payload }
-        const withoutChat = prevChats.filter((chat) => chat.id !== id)
+        const updatedChat = { ...chats[chatIndex], ...payload }
+        const withoutChat = chats.filter((chat) => chat.id !== id)
 
         // Reorder on pin toggle: pinning floats to the top (most-recently-pinned first),
         // unpinning moves to the front of the unpinned group (first slot after the last pinned chat).
@@ -113,27 +98,16 @@ export const AiAssistantsChatStorageProvider: React.FC<{ children: React.ReactNo
             ...withoutChat.slice(insertAt),
         ]
         setChats(nextChats)
-        try {
-            await saveChats(organizationId, nextChats)
-            return updatedChat
-        } catch (error) {
-            setChats(prevChats)
-            throw error
-        }
+        saveChats(organizationId, nextChats)
+        return updatedChat
     }, [organizationId, chats])
 
-    const deleteChat = useCallback(async (id: string) => {
+    const deleteChat = useCallback((id: string): void => {
         if (!organizationId) throw new Error('Organization is not selected')
-        const prevChats = chats
-        const nextChats = prevChats.filter((chat) => chat.id !== id)
+        const nextChats = chats.filter((chat) => chat.id !== id)
         setChats(nextChats)
         deleteChatHistory(id)
-        try {
-            await saveChats(organizationId, nextChats)
-        } catch (error) {
-            setChats(prevChats)
-            throw error
-        }
+        saveChats(organizationId, nextChats)
     }, [organizationId, chats])
 
     const exportChat = useCallback((id: string): string | null => {
@@ -152,19 +126,14 @@ export const AiAssistantsChatStorageProvider: React.FC<{ children: React.ReactNo
         }
     }, [])
 
-    useEffect(() => {
-        refresh()
-    }, [refresh])
-
     const value = useMemo(() => ({
         chats,
-        isLoading,
         createChat,
         updateChat,
         deleteChat,
         exportChat,
         copyChat,
-    }), [chats, isLoading, createChat, updateChat, deleteChat, exportChat, copyChat])
+    }), [chats, createChat, updateChat, deleteChat, exportChat, copyChat])
 
     return (
         <AiAssistantsChatStorageContext.Provider value={value}>

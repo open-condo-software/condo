@@ -68,7 +68,7 @@ const CoworkMiniappsPage: PageComponentType = () => {
         }
 
         if (error) {
-            return <div className={coworkStyles.miniappsLoading}>{error.message}</div>
+            return <div className={coworkStyles.miniappsLoading}>{error}</div>
         }
 
         if (apps.length === 0) {
