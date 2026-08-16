@@ -1058,6 +1058,37 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@app/ecom-gateway@workspace:apps/ecom-gateway":
+  version: 0.0.0-use.local
+  resolution: "@app/ecom-gateway@workspace:apps/ecom-gateway"
+  dependencies:
+    "@ecom-gateway/domains": "link:./domains"
+    "@faker-js/faker": "catalog:"
+    "@graphql-tools/graphql-file-loader": "catalog:"
+    "@graphql-tools/load": "catalog:"
+    "@open-condo/apollo-server-client": "workspace:^"
+    "@open-condo/cli": "workspace:^"
+    "@open-condo/codegen": "workspace:^"
+    "@open-condo/config": "workspace:^"
+    "@open-condo/keystone": "workspace:^"
+    "@types/react": "catalog:"
+    big.js: "npm:^6.2.2"
+    cross-env: "catalog:"
+    express: "catalog:"
+    graphql: "catalog:"
+    helmet: "npm:^8.1.0"
+    ip-range-check: "npm:^0.2.0"
+    jest: "catalog:"
+    jest-jasmine2: "catalog:"
+    lodash: "catalog:"
+    mkdirp: "npm:^3.0.1"
+    openid-client: "catalog:"
+    pluralize: "catalog:"
+    react: "catalog:"
+    zod: "catalog:"
+  languageName: unknown
+  linkType: soft
+
 "@app/employee-bot@workspace:apps/employee-bot":
   version: 0.0.0-use.local
   resolution: "@app/employee-bot@workspace:apps/employee-bot"
@@ -4262,6 +4293,12 @@ __metadata:
   checksum: 10/6cfe46a5fcdaced943982e7ae66b08b89235493e106eb5bc833737c25905e13375c6ecc3aa0c357d136cb21dae3966213dba063f19b7a60b1235a29a7b05ff84
   languageName: node
   linkType: hard
+
+"@ecom-gateway/domains@link:./domains::locator=%40app%2Fecom-gateway%40workspace%3Aapps%2Fecom-gateway":
+  version: 0.0.0-use.local
+  resolution: "@ecom-gateway/domains@link:./domains::locator=%40app%2Fecom-gateway%40workspace%3Aapps%2Fecom-gateway"
+  languageName: node
+  linkType: soft
 
 "@emnapi/runtime@npm:^1.7.0":
   version: 1.11.2
