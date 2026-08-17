@@ -56,7 +56,7 @@ export function getChatHistory (sessionId: string): Message[] | null {
     if (!savedHistory) return null
 
     const sessionData = savedHistory[sessionId]
-    if (!sessionData || !sessionData.history) return null
+    if (!sessionData?.history) return null
 
     return sessionData.history.map((msg) => ({
         ...msg,
@@ -85,14 +85,14 @@ export function saveChatHistory (sessionId: string, messages: Message[], orgId: 
 
 export function deleteChatHistory (sessionId: string): void {
     const savedHistory = historyStorageManager.getItem(AI_CHAT_HISTORY_STORAGE_KEY)
-    if (!savedHistory || !savedHistory[sessionId]) return
+    if (!savedHistory?.[sessionId]) return
     delete savedHistory[sessionId]
     historyStorageManager.setItem(AI_CHAT_HISTORY_STORAGE_KEY, savedHistory)
 }
 
 export function hasUserMessage (sessionId: string): boolean {
     const history = getChatHistory(sessionId)
-    return Boolean(history && history.some((msg) => msg.role === 'user'))
+    return Boolean(history?.some((msg) => msg.role === 'user'))
 }
 
 // --- Export / share ---
@@ -108,8 +108,7 @@ export function exportChatAsText (sessionId: string): string | null {
         const text = msg.role === 'assistant'
             ? stripMarkdown(msg.content.text, { collapseLineBreaks: false })
             : msg.content.text
-        lines.push(`${roleLabel}: ${text}`)
-        lines.push('')
+        lines.push(`${roleLabel}: ${text}`, '')
     }
 
     if (lines.length === 0) return null

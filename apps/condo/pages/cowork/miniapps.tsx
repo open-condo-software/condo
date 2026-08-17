@@ -45,7 +45,7 @@ const CoworkMiniappsPage: PageComponentType = () => {
     const apps = useMemo(() => {
         if (!contexts) return []
         return contexts
-            .filter((ctx) => ctx && ctx.app && ctx.app.appUrl)
+            .filter((ctx) => ctx?.app?.appUrl)
             .map((ctx) => ({
                 id: ctx.app.id,
                 name: ctx.app.name,
