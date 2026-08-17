@@ -3,12 +3,19 @@
  */
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
+const { canExecuteServiceAsB2BAppServiceUser } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
 const { checkPermissionsInEmployedOrRelatedOrganizations } = require('@condo/domains/organization/utils/accessSchema')
+const { SERVICE } = require('@condo/domains/user/constants/common')
 
-async function canGetNewsItemsRecipientsCounters ({ authentication: { item: user }, context, args: { data: { organization: { id: organizationId } } } }) {
+async function canGetNewsItemsRecipientsCounters (args) {
+    const { authentication: { item: user }, context, args: { data: { organization: { id: organizationId } } } } = args
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
+
+    if (user.type === SERVICE) {
+        return await canExecuteServiceAsB2BAppServiceUser(args)
+    }
 
     return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canReadNewsItems')
 }

@@ -6,7 +6,7 @@ const dayjs = require('dayjs')
 const { get, isEmpty } = require('lodash')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { find, getById } = require('@open-condo/keystone/schema')
+const { getById } = require('@open-condo/keystone/schema')
 
 const { canReadObjectsAsB2BAppServiceUser, canManageObjectsAsB2BAppServiceUser } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
 const { queryFindNewsItemsScopesByResidents } = require('@condo/domains/news/utils/accessSchema')
@@ -79,6 +79,15 @@ async function canManageNewsItems (args) {
     return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageNewsItems')
 }
 
+async function canSetNewsItemUserField (args) {
+    const { authentication: { item: user } } = args
+    if (!user) return false
+    if (user.type === SERVICE) {
+        return await canManageObjectsAsB2BAppServiceUser(args)
+    }
+    return false
+}
+
 /*
   Rules are logical functions that used for list access, and may return a boolean (meaning
   all or no items are available) or a set of filters that limit the available items.
@@ -86,4 +95,5 @@ async function canManageNewsItems (args) {
 module.exports = {
     canReadNewsItems,
     canManageNewsItems,
+    canSetNewsItemUserField,
 }
