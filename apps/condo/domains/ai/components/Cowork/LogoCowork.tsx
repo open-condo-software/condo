@@ -1,5 +1,6 @@
-import { Typography } from '@open-condo/ui'
 import React from 'react'
+
+import { Typography } from '@open-condo/ui'
 
 import styles from './Cowork.module.css'
 

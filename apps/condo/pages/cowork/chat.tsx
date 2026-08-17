@@ -186,6 +186,7 @@ const CoworkPage: PageComponentType = () => {
                     ) : (
                         <Tooltip title={editChatNameLabel}>
                             <button
+                                type='button'
                                 className={coworkStyles.chatNameButton}
                                 onClick={() => setEditingChatName(true)}
                             >
