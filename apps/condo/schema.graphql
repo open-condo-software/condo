@@ -69450,6 +69450,8 @@ type NewsItemHistoryRecord {
   isPublished: Boolean
   publishedAt: String
   source: String
+  user: String
+  scopesCount: Int
   id: ID!
   v: Int
   createdAt: String
@@ -69568,6 +69570,18 @@ input NewsItemHistoryRecordWhereInput {
   source_not: String
   source_in: [String]
   source_not_in: [String]
+  user: String
+  user_not: String
+  user_in: [String]
+  user_not_in: [String]
+  scopesCount: Int
+  scopesCount_not: Int
+  scopesCount_lt: Int
+  scopesCount_lte: Int
+  scopesCount_gt: Int
+  scopesCount_gte: Int
+  scopesCount_in: [Int]
+  scopesCount_not_in: [Int]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -69667,6 +69681,8 @@ enum SortNewsItemHistoryRecordsBy {
   isPublished_DESC
   publishedAt_ASC
   publishedAt_DESC
+  scopesCount_ASC
+  scopesCount_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -69697,6 +69713,8 @@ input NewsItemHistoryRecordUpdateInput {
   isPublished: Boolean
   publishedAt: String
   source: String
+  user: String
+  scopesCount: Int
   v: Int
   createdAt: String
   updatedAt: String
@@ -69728,6 +69746,8 @@ input NewsItemHistoryRecordCreateInput {
   isPublished: Boolean
   publishedAt: String
   source: String
+  user: String
+  scopesCount: Int
   v: Int
   createdAt: String
   updatedAt: String
@@ -69828,6 +69848,13 @@ type NewsItem {
 
   """ Origin of the news item: the news form, an external system, ... """
   source: NewsItemSource
+
+  """ The organization employee user who authored this news item. """
+  user: User
+
+  """ Number of NewsItemScope records for this news item. Computed once, when the item transitions to isPublished=true (scopes can no longer change after that point). Stays 0 for unpublished drafts. 
+  """
+  scopesCount: Int
   id: ID!
   v: Int
   createdAt: String
@@ -69949,6 +69976,16 @@ input NewsItemWhereInput {
   publishedAt_not_in: [String]
   source: NewsItemSourceWhereInput
   source_is_null: Boolean
+  user: UserWhereInput
+  user_is_null: Boolean
+  scopesCount: Int
+  scopesCount_not: Int
+  scopesCount_lt: Int
+  scopesCount_lte: Int
+  scopesCount_gt: Int
+  scopesCount_gte: Int
+  scopesCount_in: [Int]
+  scopesCount_not_in: [Int]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -70036,6 +70073,10 @@ enum SortNewsItemsBy {
   publishedAt_DESC
   source_ASC
   source_DESC
+  user_ASC
+  user_DESC
+  scopesCount_ASC
+  scopesCount_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -70067,6 +70108,8 @@ input NewsItemUpdateInput {
   isPublished: Boolean
   publishedAt: String
   source: NewsItemSourceRelateToOneInput
+  user: UserRelateToOneInput
+  scopesCount: Int
   v: Int
   createdAt: String
   updatedAt: String
@@ -70096,6 +70139,8 @@ input NewsItemCreateInput {
   isPublished: Boolean
   publishedAt: String
   source: NewsItemSourceRelateToOneInput
+  user: UserRelateToOneInput
+  scopesCount: Int
   v: Int
   createdAt: String
   updatedAt: String
@@ -80078,6 +80123,7 @@ type B2BAppAccessRightSetHistoryRecord {
   canExecuteRegisterBillingReceipts: Boolean
   canExecuteRegisterBillingReceiptFile: Boolean
   canExecuteSetPaymentPosReceiptUrl: Boolean
+  canExecuteGetNewsItemsRecipientsCounters: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -80252,6 +80298,8 @@ input B2BAppAccessRightSetHistoryRecordWhereInput {
   canExecuteRegisterBillingReceiptFile_not: Boolean
   canExecuteSetPaymentPosReceiptUrl: Boolean
   canExecuteSetPaymentPosReceiptUrl_not: Boolean
+  canExecuteGetNewsItemsRecipientsCounters: Boolean
+  canExecuteGetNewsItemsRecipientsCounters_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -80489,6 +80537,8 @@ enum SortB2BAppAccessRightSetHistoryRecordsBy {
   canExecuteRegisterBillingReceiptFile_DESC
   canExecuteSetPaymentPosReceiptUrl_ASC
   canExecuteSetPaymentPosReceiptUrl_DESC
+  canExecuteGetNewsItemsRecipientsCounters_ASC
+  canExecuteGetNewsItemsRecipientsCounters_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -80572,6 +80622,7 @@ input B2BAppAccessRightSetHistoryRecordUpdateInput {
   canExecuteRegisterBillingReceipts: Boolean
   canExecuteRegisterBillingReceiptFile: Boolean
   canExecuteSetPaymentPosReceiptUrl: Boolean
+  canExecuteGetNewsItemsRecipientsCounters: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -80654,6 +80705,7 @@ input B2BAppAccessRightSetHistoryRecordCreateInput {
   canExecuteRegisterBillingReceipts: Boolean
   canExecuteRegisterBillingReceiptFile: Boolean
   canExecuteSetPaymentPosReceiptUrl: Boolean
+  canExecuteGetNewsItemsRecipientsCounters: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -80789,6 +80841,7 @@ type B2BAppAccessRightSet {
   canExecuteRegisterBillingReceipts: Boolean
   canExecuteRegisterBillingReceiptFile: Boolean
   canExecuteSetPaymentPosReceiptUrl: Boolean
+  canExecuteGetNewsItemsRecipientsCounters: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -80959,6 +81012,8 @@ input B2BAppAccessRightSetWhereInput {
   canExecuteRegisterBillingReceiptFile_not: Boolean
   canExecuteSetPaymentPosReceiptUrl: Boolean
   canExecuteSetPaymentPosReceiptUrl_not: Boolean
+  canExecuteGetNewsItemsRecipientsCounters: Boolean
+  canExecuteGetNewsItemsRecipientsCounters_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -81178,6 +81233,8 @@ enum SortB2BAppAccessRightSetsBy {
   canExecuteRegisterBillingReceiptFile_DESC
   canExecuteSetPaymentPosReceiptUrl_ASC
   canExecuteSetPaymentPosReceiptUrl_DESC
+  canExecuteGetNewsItemsRecipientsCounters_ASC
+  canExecuteGetNewsItemsRecipientsCounters_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -81261,6 +81318,7 @@ input B2BAppAccessRightSetUpdateInput {
   canExecuteRegisterBillingReceipts: Boolean
   canExecuteRegisterBillingReceiptFile: Boolean
   canExecuteSetPaymentPosReceiptUrl: Boolean
+  canExecuteGetNewsItemsRecipientsCounters: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -81340,6 +81398,7 @@ input B2BAppAccessRightSetCreateInput {
   canExecuteRegisterBillingReceipts: Boolean
   canExecuteRegisterBillingReceiptFile: Boolean
   canExecuteSetPaymentPosReceiptUrl: Boolean
+  canExecuteGetNewsItemsRecipientsCounters: Boolean
   v: Int
   createdAt: String
   updatedAt: String
