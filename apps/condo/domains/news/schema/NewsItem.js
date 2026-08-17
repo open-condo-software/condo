@@ -263,6 +263,32 @@ const NewsItem = new GQLListSchema('NewsItem', {
             },
         },
 
+        user: {
+            schemaDoc: 'The organization employee user who authored this news item.',
+            type: 'Relationship',
+            ref: 'User',
+            access: {
+                read: true,
+                create: access.canSetNewsItemUserField,
+                update: false,
+            },
+        },
+
+        scopesCount: {
+            schemaDoc: 'Number of NewsItemScope records for this news item. Computed once, when the ' +
+                'item transitions to isPublished=true (scopes can no longer change after that point). ' +
+                'Stays 0 for unpublished drafts. Used by the frontend to detect single-unit ("personal") ' +
+                'news items without a per-row subquery.',
+            type: 'Integer',
+            isRequired: true,
+            defaultValue: 0,
+            access: {
+                read: true,
+                create: canOnlyServerSideWithoutUserRequest,
+                update: canOnlyServerSideWithoutUserRequest,
+            },
+        },
+
     },
     hooks: {
         resolveInput: async (args) => {
@@ -299,6 +325,19 @@ const NewsItem = new GQLListSchema('NewsItem', {
                 resolvedData['user'] = get(context, 'authedItem.id') || null
             }
 
+            if (operation === 'update' && isPublished && existingItem && !existingItem.isPublished) {
+                resolvedData['scopesCount'] = await NewsItemScope.count(context, { newsItem: { id: existingItem.id }, deletedAt: null })
+            }
+
+            if (operation === 'create' && !get(resolvedData, 'user')) {
+                resolvedData['user'] = get(context, 'authedItem.id') || null
+            }
+
+            // scopesCount is computed once, right when the item transitions to published — at that
+            // point all of its NewsItemScope rows are guaranteed to already exist and to never change
+            // again (NewsItemScope create/update is blocked once the parent is published/sent, see
+            // NewsItemScope's own validateInput), so a single count here can never race with concurrent
+            // scope creation the way an increment-per-scope hook would.
             if (operation === 'update' && isPublished && existingItem && !existingItem.isPublished) {
                 resolvedData['scopesCount'] = await NewsItemScope.count(context, { newsItem: { id: existingItem.id }, deletedAt: null })
             }
