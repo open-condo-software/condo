@@ -25,6 +25,7 @@
     "lint-translations": "DISABLE_NEXT_APP=true node ./../../bin/lint-i18n-translations.js"
   },
   "dependencies": {
+    "@a2ui/web_core": "^0.10.5",
     "@ant-design/colors": "^6.0.0",
     "@ant-design/icons": "6.0.0",
     "@apollo/client": "catalog:",

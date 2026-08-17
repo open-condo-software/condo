@@ -14,7 +14,9 @@
   flex-direction: column;
   gap: var(--condo-global-spacing-8);
   align-items: flex-end;
-  max-width: 100%;
+  width: 100%;
+  max-width: var(--ai-chat-content-max-width, 100%);
+  margin-inline: var(--ai-chat-content-margin-inline, 0);
 }
 
 .user-message-row {
@@ -36,10 +38,10 @@
   gap: var(--condo-global-spacing-8);
   align-items: flex-start;
   max-width: 100%;
-  padding: var(--condo-global-spacing-4) var(--condo-global-spacing-8);
-  background: var(--condo-global-color-white);
+  padding: var(--ai-chat-bubble-padding, var(--condo-global-spacing-4) var(--condo-global-spacing-8));
+  background: var(--ai-chat-bubble-bg, var(--condo-global-color-white));
   border-radius: var(--condo-global-border-radius-medium);
-  box-shadow: var(--condo-global-box-shadow-default);
+  box-shadow: var(--ai-chat-bubble-box-shadow, var(--condo-global-box-shadow-default));
 }
 
 .user-message-attachments {
@@ -65,7 +67,9 @@
   gap: var(--condo-global-spacing-12);
   align-items: flex-start;
   justify-content: flex-start;
-  max-width: 100%;
+  width: 100%;
+  max-width: var(--ai-chat-content-max-width, 100%);
+  margin-inline: var(--ai-chat-content-margin-inline, 0);
 }
 
 .assistant-message-actions {
@@ -74,6 +78,9 @@
 }
 
 .assistant-markdown {
+  width: var(--ai-chat-markdown-width, auto);
+  max-width: var(--ai-chat-content-max-width, none);
+  margin-inline: var(--ai-chat-content-margin-inline, 0);
   color: var(--condo-global-color-black);
   line-height: 1.6;
 }

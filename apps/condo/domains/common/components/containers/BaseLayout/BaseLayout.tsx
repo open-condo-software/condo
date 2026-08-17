@@ -2,7 +2,7 @@ import { Layout, PageHeader as AntPageHeader, PageHeaderProps } from 'antd'
 import MenuItem from 'antd/lib/menu/MenuItem'
 import classnames from 'classnames'
 import Router from 'next/router'
-import React, { CSSProperties, FunctionComponent, ElementType } from 'react'
+import React, { CSSProperties, FunctionComponent, ElementType, ReactNode } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 
@@ -24,8 +24,10 @@ interface IBaseLayoutProps {
     menuDataRender?: () => MenuItem[]
     TopMenuItems?: React.FC<ITopMenuItemsProps>
     logoLocation?: string
+    logo?: ReactNode
     menuData?: React.ReactNode
     onLogoClick?: () => void
+    residentActions?: React.ElementType | false | null
 }
 
 const BaseLayout: React.FC<React.PropsWithChildren<IBaseLayoutProps>> = (props) => {
@@ -37,6 +39,8 @@ const BaseLayout: React.FC<React.PropsWithChildren<IBaseLayoutProps>> = (props) 
         headerAction,
         onLogoClick = () => Router.push('/'),
         TopMenuItems,
+        residentActions,
+        logo,
     } = props
 
     const { isCollapsed } = useLayoutContext()
@@ -52,7 +56,7 @@ const BaseLayout: React.FC<React.PropsWithChildren<IBaseLayoutProps>> = (props) 
 
     return (
         <Layout className={classnames(styles.layout, className)} style={style}>
-            {!isSideMenuHidden && <SideNav menuData={menuData} onLogoClick={onLogoClick}/>}
+            {!isSideMenuHidden && <SideNav menuData={menuData} onLogoClick={onLogoClick} residentActions={residentActions} logo={logo}/>}
             <Layout
                 className={classnames(
                     styles.subLayout,
@@ -60,7 +64,7 @@ const BaseLayout: React.FC<React.PropsWithChildren<IBaseLayoutProps>> = (props) 
                 )}
                 style={subLayoutStyle}
             >
-                {!isHeaderHidden && <Header headerAction={headerAction} TopMenuItems={TopMenuItems} />}
+                {!isHeaderHidden && <Header headerAction={headerAction} TopMenuItems={TopMenuItems} residentActions={residentActions} logo={logo}/>}
                 {children}
                 <Footer />
             </Layout>

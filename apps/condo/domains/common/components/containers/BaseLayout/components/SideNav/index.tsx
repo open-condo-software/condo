@@ -8,15 +8,17 @@ import { MobileSideNav } from './MobileSideNav'
 interface ISideNav {
     menuData?: React.ReactNode
     onLogoClick?: () => void
+    residentActions?: React.ElementType | false | null
+    logo?: React.ReactNode
 }
 
 export const SideNav: React.FC<ISideNav> = (props) => {
     const { isMobileView } = useLayoutContext()
-    const { menuData, onLogoClick } = props
+    const { menuData, onLogoClick, residentActions, logo } = props
 
     return (
         isMobileView
             ? <MobileSideNav menuData={menuData}/>
-            : <DesktopSideNav onLogoClick={onLogoClick} menuData={menuData}/>
+            : <DesktopSideNav onLogoClick={onLogoClick} menuData={menuData} residentActions={residentActions} logo={logo}/>
     )
 }

@@ -10,42 +10,21 @@ import { useAIChatAttachments, type AIChatAttachmentMeta } from '@condo/domains/
 import { useAIFlow } from '@condo/domains/ai/hooks/useAIFlow'
 import { useChatWithCondoButtonConfig } from '@condo/domains/ai/hooks/useChatWithCondoButtonConfig'
 import { parseAssistantAnswer, toDisplayText } from '@condo/domains/ai/utils/aiAnswerPresenter'
+import { getChatHistory, hasUserMessage, saveChatHistory } from '@condo/domains/ai/utils/aiChatStorage'
 import { analytics } from '@condo/domains/common/utils/analytics'
-import { LocalStorageManager } from '@condo/domains/common/utils/localStorageManager'
+
 
 import styles from './AIChat.module.css'
 import { AIChatInput } from './AIChatInput'
 import { AIChatMessage } from './AIChatMessage'
 import { AIChatSuggestions } from './AIChatSuggestions'
+import { extractA2UIMessages } from './genUI'
 
-const STORAGE_KEY = 'condo-ai-chat-history'
+import type { Message } from '@condo/domains/ai/utils/aiChatStorage'
+
 const WELCOME_UI_MESSAGE_ID = 'welcome-ui-message'
 
 const AI_FLOW_TIMEOUT_MS = 3 * 60 * 1000
-
-const historyStorageManager = new LocalStorageManager<Record<string, { history: any[], organizationId: string }>>()
-
-export type MessageAttachmentDisplay = {
-    name: string
-    mimeType?: string
-    url?: string
-}
-
-export type MessageContent = {
-    text: string
-    suggestions?: string[]
-    attachments?: MessageAttachmentDisplay[]
-}
-
-export type Message = {
-    id: string
-    content: MessageContent
-    role: 'user' | 'assistant'
-    timestamp: Date
-    status?: 'sending' | 'sent' | 'error'
-    executionAIFlowTaskId?: string
-    copyable?: boolean
-}
 
 type ExecuteAIMessageOptions = {
     additionalContext?: Record<string, unknown>
@@ -55,12 +34,17 @@ type ExecuteAIMessageOptions = {
 
 type AIChatProps = {
     aiSessionId: string
+    initialMessage?: string
+    onFirstUserMessage?: (text: string) => void
 }
 
 export const AIChat: React.FC<AIChatProps> = ({
     aiSessionId,
+    initialMessage,
+    onFirstUserMessage,
 }) => {
     const intl = useIntl()
+    const loadingLabel = intl.formatMessage({ id: 'ai.chat.loading' })
     const welcomeMessage = intl.formatMessage({ id: 'ai.chat.welcome' })
     const errorMessage = intl.formatMessage({ id: 'ai.chat.error' })
     const failedToGetResponseMessage = intl.formatMessage({ id: 'ai.chat.failedToGetResponse' })
@@ -96,6 +80,9 @@ export const AIChat: React.FC<AIChatProps> = ({
     const inputRef = useRef<any>(null)
     const pendingScrollToMessageIdRef = useRef<string | null>(null)
     const shouldScrollActiveTurnRef = useRef(false)
+    const initialLoadDoneRef = useRef(false)
+    const initialMessageSentRef = useRef(false)
+    const initialMessageOverrideRef = useRef<string | null>(null)
 
     const [{ execute, resume }, { loading, currentTaskId, data }] = useAIFlow<{ answer: string }>({
         aiSessionId,
@@ -108,11 +95,14 @@ export const AIChat: React.FC<AIChatProps> = ({
         },
     })
 
+    // Stream partial answers into the last 'sending' assistant message.
+    // Empty chunks are ignored so loadingLabel stays visible until real content arrives.
     useEffect(() => {
         if (!loading) return
 
         const rawAnswer = data?.result?.answer ?? ''
         const displayText = rawAnswer ? toDisplayText(rawAnswer) : ''
+        if (!displayText) return
 
         setMessages(prev => {
             const lastSendingIndex = [...prev].reverse().findIndex(
@@ -141,7 +131,11 @@ export const AIChat: React.FC<AIChatProps> = ({
 
     const finalizeAssistantMessage = useCallback((
         assistantMessage: Message,
-        result: { data: { status?: string, result?: { answer?: string } } | null, error?: object, localizedErrorText?: string },
+        result: {
+            data: { status?: string, result?: { answer?: string } } | null
+            error?: object
+            localizedErrorText?: string
+        },
     ) => {
         if (!result.data || result.error) {
             changeMessage(assistantMessage.id, {
@@ -166,49 +160,40 @@ export const AIChat: React.FC<AIChatProps> = ({
             })
         }
 
+        const { text: a2uiCleanText, a2uiMessages } = extractA2UIMessages(assistantAnswerText)
+        const finalText = a2uiMessages.length > 0 ? a2uiCleanText : assistantAnswerText
+
         const isFinalAssistantReply = result.data?.status === TASK_STATUSES.COMPLETED
 
+        // Show copy button only for final assistant replies, not intermediate statuses.
         changeMessage(assistantMessage.id, {
             ...assistantMessage,
             content: {
-                text: assistantAnswerText,
+                text: finalText,
                 suggestions,
+                a2uiMessages: a2uiMessages.length > 0 ? a2uiMessages : undefined,
             },
             status: 'sent',
             copyable: isFinalAssistantReply,
         })
     }, [aiSessionId, changeMessage, failedToGetResponseMessage, noResponseMessage])
 
+    // Load messages from localStorage when aiSessionId changes
     useEffect(() => {
-        const savedHistory = historyStorageManager.getItem(STORAGE_KEY)
+        initialLoadDoneRef.current = false
 
-        if (!savedHistory || typeof savedHistory !== 'object') {
+        const historyWithDates = getChatHistory(aiSessionId)
+
+        if (!historyWithDates || historyWithDates.length === 0) {
             setMessages([])
             setActiveTurnUserMessageId(null)
+            initialLoadDoneRef.current = true
             return
         }
 
-        const sessionData = savedHistory[aiSessionId]
-        if (!sessionData || !sessionData.history) {
-            setMessages([])
-            setActiveTurnUserMessageId(null)
-            return
-        }
-
-        const historyArray = sessionData.history
-
-        if (historyArray.length === 0) {
-            setMessages([])
-            setActiveTurnUserMessageId(null)
-            return
-        }
-
-        const historyWithDates = historyArray.map((msg: any) => ({
-            ...msg,
-            timestamp: new Date(msg.timestamp),
-        }))
         setMessages(historyWithDates)
         setActiveTurnUserMessageId(null)
+        initialLoadDoneRef.current = true
         // Wait for history messages to commit to the DOM before scrolling to bottom
         requestAnimationFrame(() => {
             const container = messagesContainerRef.current
@@ -253,26 +238,11 @@ export const AIChat: React.FC<AIChatProps> = ({
     }, [inputValue, canSendWithAttachments, attachmentsUploading])
 
     const saveMessagesToLocalStorage = useCallback(() => {
-        try {
-            const currentHistory = historyStorageManager.getItem(STORAGE_KEY) || {}
-            const updatedHistory = {
-                ...currentHistory,
-                [aiSessionId]: {
-                    history: messages.map(msg => ({
-                        ...msg,
-                        timestamp: msg.timestamp.toISOString(),
-                    })),
-                    organizationId: organization?.id,
-                },
-            }
-            historyStorageManager.setItem(STORAGE_KEY, updatedHistory)
-        } catch (error) {
-            console.error('Failed to save chat history to localStorage:', error)
-        }
+        saveChatHistory(aiSessionId, messages, organization?.id)
     }, [aiSessionId, messages, organization?.id])
 
     useEffect(() => {
-        if (aiSessionId) {
+        if (aiSessionId && initialLoadDoneRef.current) {
             saveMessagesToLocalStorage()
         }
     }, [aiSessionId, messages, saveMessagesToLocalStorage])
@@ -475,7 +445,7 @@ export const AIChat: React.FC<AIChatProps> = ({
     ) => {
         const assistantMessage: Message = {
             id: uuidV4(),
-            content: { text: '' },
+            content: { text: loadingLabel },
             role: 'assistant',
             timestamp: new Date(),
             status: 'sending',
@@ -507,15 +477,20 @@ export const AIChat: React.FC<AIChatProps> = ({
                 })
             }
         })()
-    }, [user, organization, execute, finalizeAssistantMessage, changeMessage, errorMessage])
+    }, [user, organization, execute, finalizeAssistantMessage, changeMessage, errorMessage, loadingLabel])
 
     const handleSendMessage = useCallback(async () => {
-        const trimmedInput = inputValue.trim()
+        const overrideInput = initialMessageOverrideRef.current
+        initialMessageOverrideRef.current = null
+        const trimmedInput = (overrideInput ?? inputValue).trim()
         const canSend = (trimmedInput || canSendWithAttachments) && !loading && !attachmentsUploading && user
         if (!canSend) return
 
         const attachmentsToSend = attachments ? [...attachments.readyAttachments] : []
         const isFirstInSession = !messages.some((msg) => msg.role === 'user')
+        if (isFirstInSession && trimmedInput) {
+            onFirstUserMessage?.(trimmedInput)
+        }
         void analytics.track('ai_assistant_message_send', {
             source: 'typed',
             is_first_in_session: isFirstInSession,
@@ -541,7 +516,21 @@ export const AIChat: React.FC<AIChatProps> = ({
         attachments?.resetAttachments()
 
         await startUserTurn(userMessage, { attachments: attachmentsToSend })
-    }, [inputValue, canSendWithAttachments, loading, attachmentsUploading, user, attachments, messages, startUserTurn])
+    }, [inputValue, canSendWithAttachments, loading, attachmentsUploading, user, attachments, messages, startUserTurn, onFirstUserMessage])
+
+    // Auto-send the initial message once, after history load, if the session has no user messages yet
+    useEffect(() => {
+        if (!initialMessage || initialMessageSentRef.current || !initialLoadDoneRef.current || !user) return
+
+        if (hasUserMessage(aiSessionId)) {
+            initialMessageSentRef.current = true
+            return
+        }
+
+        initialMessageSentRef.current = true
+        initialMessageOverrideRef.current = initialMessage
+        void handleSendMessage()
+    }, [initialMessage, aiSessionId, user, handleSendMessage])
 
     const handleScenarioButtonClick = useCallback(async (buttonId: string, buttonName: string) => {
         if (!buttonName.trim() || loading || !user || !canExecuteAIFlow) return
@@ -604,7 +593,8 @@ export const AIChat: React.FC<AIChatProps> = ({
 
     return (
         <div ref={chatContainerRef} className={styles.chatContainer}>
-            <div ref={messagesContainerRef} className={`${styles.messagesContainer} comment-body`}>
+            <div ref={messagesContainerRef}
+                className={`${styles.messagesContainer} comment-body`}>
                 {welcomeDisplayMessage && (
                     <AIChatMessage
                         message={welcomeDisplayMessage}

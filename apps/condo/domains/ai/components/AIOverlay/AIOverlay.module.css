@@ -39,43 +39,10 @@
   align-items: center;
 }
 
-.alpha-character {
-  margin-left: 3px;
-  font-size: 0.7em;
-  font-family: serif;
-  font-style: italic;
-  vertical-align: super;
-}
-
 .right-section {
   display: flex;
   gap: 24px;
   align-items: center;
-}
-
-.title {
-  margin: 0;
-  color: var(--condo-global-color-black);
-  font-weight: 600;
-  font-size: 16px;
-}
-
-.close-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px;
-  color: var(--condo-global-color-gray-3);
-  background: none;
-  border: none;
-  border-radius: var(--condo-global-border-radius-small);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.close-button:hover {
-  color: var(--condo-global-color-black);
-  background-color: var(--condo-global-color-gray-3);
 }
 
 /* Resize handle */

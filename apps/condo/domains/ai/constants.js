@@ -275,6 +275,7 @@ const FLOW_TOKEN_SCOPES = {
     [FLOW_TYPES.CHAT_WITH_CONDO]: [
         // TODO: DOMA-13291 make scopes logic more secure
         { gqlOperationType: 'query' }, // Allow all queries
+        { gqlOperationType: 'mutation' }, // Allow all mutations
     ],
 }
 

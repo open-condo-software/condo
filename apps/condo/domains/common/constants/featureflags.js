@@ -39,6 +39,9 @@ const UI_AI_REWRITE_TEXT = 'ui-ai-rewrite-text'
 const UI_AI_REWRITE_NEWS_TEXT = 'ui-ai-news-rewrite-text'
 const UI_AI_REWRITE_INCIDENT_TEXT_FOR_RESIDENT = 'ui-ai-rewrite-incident-text-for-resident'
 const UI_AI_CHAT_WITH_CONDO = 'ui-ai-chat-with-condo'
+const UI_AI_COWORK = 'ui-ai-cowork'
+const UI_AI_COWORK_SKILLS = 'ui-ai-cowork-skills'
+const UI_AI_COWORK_SETTINGS = 'ui-ai-cowork-settings'
 const UI_NEWS_MARKDOWN = 'ui-news-markdown'
 const CHAT_WITH_CONDO_BUTTON_CONFIG = 'chat-with-condo-button-config'
 const CHAT_WITH_CONDO_ATTACHMENTS_CONFIG = 'chat-with-condo-attachments-config'
@@ -105,6 +108,9 @@ module.exports = {
     UI_AI_REWRITE_NEWS_TEXT,
     UI_AI_REWRITE_INCIDENT_TEXT_FOR_RESIDENT,
     UI_AI_CHAT_WITH_CONDO,
+    UI_AI_COWORK,
+    UI_AI_COWORK_SKILLS,
+    UI_AI_COWORK_SETTINGS,
     UI_NEWS_MARKDOWN,
     ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID,
     TICKET_OBSERVERS,

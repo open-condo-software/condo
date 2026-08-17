@@ -24,8 +24,8 @@ interface IMenuItemWrapperProps {
 interface IMenuItemProps {
     id: string
     path?: string
-    icon: React.ElementType
-    label: string
+    icon?: React.ElementType
+    label: React.ReactNode
     labelRaw?: true
     disabled?: boolean
     hideInMenu?: boolean
@@ -37,7 +37,7 @@ interface IMenuItemProps {
     toolTipDecorator? (params: INoOrganizationToolTipWrapper): JSX.Element
 }
 
-const addToolTipForCollapsedMenu = (content: JSX.Element, Message: string) => (
+const addToolTipForCollapsedMenu = (content: JSX.Element, Message: React.ReactNode) => (
     <Tooltip title={<Typography.Paragraph size='medium'>{Message}</Typography.Paragraph>} placement='right'>
         {content}
     </Tooltip>
@@ -90,7 +90,7 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
 
     const linkContent = (
         <Space size={12} align='center' direction='horizontal' className={styles.menuItem}>
-            <Icon size='medium' />
+            {Icon && <Icon size='medium' />}
             {!isCollapsed && (<div>
                 <Typography.Title ellipsis={{ rows: 2 }} level={5}>
                     {Message}

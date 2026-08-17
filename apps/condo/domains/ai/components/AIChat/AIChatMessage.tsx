@@ -8,11 +8,13 @@ import { AIChatDocument } from '@condo/domains/ai/components/AIChatFile'
 import { exportAIMessage, type ExportAIMessageFormat, type ExportAIMessageOptions } from '@condo/domains/ai/utils/exportAIMessage'
 import { stripMarkdown } from '@condo/domains/common/utils/stripMarkdown'
 
+
 import styles from './AIChatMessage.module.css'
 import { AIChatSuggestions } from './AIChatSuggestions'
 import { AIChatThinkingStatus } from './AIChatThinkingStatus'
+import { A2UISurfaces } from './genUI'
 
-import type { Message } from './AIChat'
+import type { Message } from '@condo/domains/ai/utils/aiChatStorage'
 
 const COPY_RESET_TIMEOUT_MS = 2000
 const EXPORT_MENU_FORMATS: ExportAIMessageFormat[] = ['docx', 'pdf', 'txt']
@@ -199,6 +201,13 @@ const AIChatAssistantMessage: React.FC<AIChatAssistantMessageProps> = ({
                     <div className={styles.assistantMessageActions}>
                         {copyButton}
                         {downloadButton}
+                    </div>
+                )}
+                {message.content.a2uiMessages?.length > 0 && (
+                    <div className={styles.assistantA2UI}>
+                        <A2UISurfaces
+                            messages={message.content.a2uiMessages}
+                        />
                     </div>
                 )}
                 {message.content.suggestions?.length > 0 && (

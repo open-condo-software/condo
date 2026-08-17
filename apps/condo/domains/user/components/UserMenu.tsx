@@ -65,6 +65,9 @@ export const UserMenu: React.FC<UserMenuProps> = ({
         }
     }, [auth, sendSignOutToBroadcast, goToAfterLogout])
 
+    const isCoworkPage = router.pathname?.startsWith('/cowork')
+    const BackToCondoLabel = intl.formatMessage({ id: 'ai.cowork.backToCondo' })
+
     const menu = useMemo<DropdownProps['menu']>(() => {
         return {
             items: [
@@ -76,6 +79,13 @@ export const UserMenu: React.FC<UserMenuProps> = ({
                     onClick: handleProfileClick,
                 },
                 ...(extraMenuItems ?? []),
+                ...(isCoworkPage ? [{
+                    key: 'backToCondo',
+                    label: (
+                        <Typography.Text size='medium' type='inherit'>{BackToCondoLabel}</Typography.Text>
+                    ),
+                    onClick: () => { void router.push('/') },
+                }] : []),
                 {
                     key: 'signOut',
                     label: (
@@ -85,7 +95,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
                 },
             ],
         }
-    }, [MyProfileMessage, SignOutMessage, handleProfileClick, handleSignOutClick, extraMenuItems])
+    }, [MyProfileMessage, SignOutMessage, BackToCondoLabel, handleProfileClick, handleSignOutClick, extraMenuItems, isCoworkPage, router])
 
     const textSize: TypographyTextProps['size'] = !breakpoints.TABLET_LARGE ? 'small' : 'medium'
 

@@ -1,0 +1,407 @@
+/* Layout */
+.side-menu-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.logo-cowork {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+}
+
+.logo-cowork-robot {
+  position: absolute;
+  top: -4px;
+  right: -8px;
+  font-size: 16px;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.logo-cowork-title {
+  animation: logo-cowork-title-in 0.3s ease 0.15s 1 both;
+}
+
+@keyframes logo-cowork-title-in {
+  from {
+    transform: translateX(-8px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Body — sidebar + main */
+.cowork-body {
+  display: flex;
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+}
+
+.side-menu-scroll {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.side-menu-divider {
+  flex-shrink: 0;
+  height: 1px;
+  margin: var(--condo-global-spacing-4) 0;
+  background: var(--condo-global-color-gray-3);
+}
+
+.chat-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.section-label {
+  display: inline-flex;
+  gap: var(--condo-global-spacing-4);
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+/* Make the antd Space row fill the full menu item width so the chevron can be
+   pushed to the right edge. Space is inline-flex by default and shrinks to content. */
+.section-menu-item :global(.condo-space) {
+  width: 100%;
+}
+
+/* Let the label wrapper (second space item) take all remaining horizontal space. */
+.section-menu-item :global(.condo-space-item:last-child) {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Propagate full width down through the label container and typography so that
+   .section-label's `width: 100%` + `justify-content: space-between` can push the
+   chevron to the right edge. */
+.section-menu-item :global(.condo-space-item:last-child > div),
+.section-menu-item :global(.condo-typography) {
+  width: 100%;
+}
+
+/* Main area */
+.main-area {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+}
+
+/* Floating chat header — overlays the chat surface (Kimi-style).
+   Matches .chat-container centering (max-width + margin auto) so the
+   button groups align with the chat content edges, not the screen edges. */
+.chat-header {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 10;
+  max-width: 1600px;
+  height: var(--condo-global-spacing-48);
+  margin: 0 auto;
+  padding: var(--condo-global-spacing-8) var(--condo-global-spacing-24);
+  background: linear-gradient(to bottom, var(--condo-global-color-white) 55%, transparent);
+  pointer-events: none;
+}
+
+/* Chat name floats independently at the container's top-left edge */
+.chat-header-left {
+  position: absolute;
+  top: var(--condo-global-spacing-8);
+  left: var(--condo-global-spacing-24);
+  display: flex;
+  gap: var(--condo-global-spacing-4);
+  align-items: center;
+  pointer-events: auto;
+}
+
+/* Action buttons float independently at the container's top-right edge */
+.chat-header-right {
+  position: absolute;
+  top: var(--condo-global-spacing-8);
+  right: var(--condo-global-spacing-24);
+  display: flex;
+  gap: var(--condo-global-spacing-8);
+  align-items: center;
+  pointer-events: auto;
+}
+
+.chat-name-button {
+  display: flex;
+  gap: var(--condo-global-spacing-4);
+  align-items: center;
+  max-width: 100%;
+  padding: var(--condo-global-spacing-4) var(--condo-global-spacing-8);
+  overflow: hidden;
+  color: var(--condo-global-color-black);
+  font-weight: 600;
+  font-size: 15px;
+  background: transparent;
+  border: none;
+  border-radius: var(--condo-global-border-radius-medium);
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.chat-name-button:hover {
+  background: var(--condo-global-color-gray-2);
+}
+
+.chat-name-text {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.chat-name-edit-icon {
+  display: flex;
+  align-items: center;
+  color: var(--condo-global-color-gray-5);
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+.chat-name-button:hover .chat-name-edit-icon {
+  opacity: 1;
+}
+
+.chat-name-input {
+  width: 300px;
+}
+
+/* Welcome screen */
+.welcome-screen {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--condo-global-spacing-24);
+  align-items: center;
+  justify-content: center;
+  padding: var(--condo-global-spacing-24);
+}
+
+.welcome-title {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  color: var(--condo-global-color-black);
+  font-weight: 700;
+  font-size: 28px;
+}
+
+.welcome-subtitle {
+  max-width: 500px;
+  color: var(--condo-global-color-gray-6);
+  font-size: 15px;
+  text-align: center;
+}
+
+.welcome-input-wrapper {
+  width: 100%;
+  max-width: 640px;
+}
+
+/* Chat content (full width, contains the chat container) */
+.chat-content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  width: 100%;
+  min-height: 0;
+}
+
+/* Centered container that bounds AIChat — max-width column on white surface */
+.chat-container {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1600px;
+  min-height: 0;
+  margin: 0 auto;
+  padding: var(--condo-global-spacing-24);
+
+  /* Cowork AIChat theme — white surface, grey bubbles, centered content, floating input */
+  --ai-chat-bg: var(--condo-global-color-white);
+  --ai-chat-bubble-bg: var(--condo-global-color-gray-1);
+  --ai-chat-bubble-box-shadow: none;
+  --ai-chat-bubble-padding: var(--condo-global-spacing-8) var(--condo-global-spacing-16);
+  --ai-chat-content-max-width: 1600px;
+  --ai-chat-content-margin-inline: auto;
+  --ai-chat-markdown-width: 100%;
+  --ai-chat-padding-x: var(--condo-global-spacing-24);
+
+  /* Floating header height — reserves space above the first message so it
+     doesn't sit under the floating chat-header overlay. Must be set explicitly:
+     an unset --ai-chat-header-height makes the messages-container padding-top
+     calc invalid, collapsing it to 0 (first message flush to top, shadow clipped). */
+  --ai-chat-header-height: var(--condo-global-spacing-48);
+
+  /* 24px breathing room above the first message (on top of the header height);
+     the bottom gap is controlled separately by --ai-chat-input-bottom-gap. */
+  --ai-chat-chrome-gap: var(--condo-global-spacing-24);
+
+  /* Extra space below the last message, before the input. Set to 72px to be at
+     least as tall as a one-line input, so the last message does not visually
+     crowd the floating input. */
+  --ai-chat-input-bottom-gap: var(--condo-global-spacing-72);
+
+  /* Floating input card — absolute over messages, wide, tight wrapper */
+  --ai-chat-input-position: absolute;
+  --ai-chat-input-max-width: none;
+  --ai-chat-input-margin-inline: 0;
+  --ai-chat-input-padding: var(--condo-global-spacing-16) var(--condo-global-spacing-16);
+  --ai-chat-input-bg: var(--condo-global-color-white);
+  --ai-chat-input-backdrop: none;
+  --ai-chat-input-border: 1px solid var(--condo-global-color-gray-3);
+  --ai-chat-input-border-radius: var(--condo-global-border-radius-large);
+  --ai-chat-input-box-shadow: 0 2px 16px rgb(0 0 0 / 8%);
+}
+
+/* Modal footer — delete-chat confirmation */
+.modal-footer {
+  display: flex;
+  gap: var(--condo-global-spacing-8);
+  justify-content: flex-end;
+}
+
+/* Miniapps page */
+.miniapps-content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: var(--condo-global-spacing-24);
+  overflow-y: auto;
+}
+
+.miniapps-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--condo-global-spacing-24);
+}
+
+.miniapps-title {
+  color: var(--condo-global-color-black);
+  font-weight: 700;
+  font-size: 24px;
+}
+
+.miniapps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--condo-global-spacing-16);
+}
+
+.miniapp-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--condo-global-spacing-12);
+  padding: var(--condo-global-spacing-16);
+  background: var(--condo-global-color-white);
+  border: 1px solid var(--condo-global-color-gray-3);
+  border-radius: var(--condo-global-border-radius-large);
+  transition: box-shadow 0.12s ease, border-color 0.12s ease;
+}
+
+.miniapp-card:hover {
+  border-color: var(--condo-global-color-gray-4);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 6%);
+}
+
+.miniapp-card-header {
+  display: flex;
+  gap: var(--condo-global-spacing-12);
+  align-items: center;
+}
+
+.miniapp-card-icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  overflow: hidden;
+  border-radius: var(--condo-global-border-radius-medium);
+}
+
+.miniapp-card-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.miniapp-card-icon-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: var(--condo-global-color-gray-5);
+  font-weight: 700;
+  font-size: 18px;
+  background: var(--condo-global-color-gray-2);
+}
+
+.miniapp-card-name {
+  overflow: hidden;
+  color: var(--condo-global-color-black);
+  font-weight: 600;
+  font-size: 16px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.miniapp-card-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.miniapps-empty {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--condo-global-spacing-16);
+  align-items: center;
+  justify-content: center;
+  padding: var(--condo-global-spacing-48);
+  text-align: center;
+}
+
+.miniapps-empty-title {
+  color: var(--condo-global-color-black);
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.miniapps-empty-description {
+  max-width: 400px;
+  color: var(--condo-global-color-gray-6);
+  font-size: 14px;
+}
+
+.miniapps-loading {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  color: var(--condo-global-color-gray-5);
+  font-size: 14px;
+}
