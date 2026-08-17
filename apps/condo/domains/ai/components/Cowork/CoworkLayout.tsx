@@ -118,7 +118,7 @@ const CoworkSideMenu: React.FC = () => {
                         label={makeSectionLabel(chatsLabel, chatsOpen, isCollapsed)}
                         labelRaw
                         isCollapsed={isCollapsed}
-                        menuItemWrapperProps={{ className: styles.sectionMenuItem }}
+                        menuItemWrapperProps={{ className: styles['section-menu-item'] }}
                         onClick={isCollapsed ? toggleCollapsed : toggleChats}
                     />
                     <div className={styles.chatList} style={{ display: chatsOpen && !isCollapsed ? 'block' : 'none' }}>
