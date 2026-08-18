@@ -3372,6 +3372,7 @@ export type B2BAppAccessRightSet = {
   canManageMeterReportingPeriods?: Maybe<Scalars['Boolean']['output']>;
   canManageMeters?: Maybe<Scalars['Boolean']['output']>;
   canManageNewsItemFiles?: Maybe<Scalars['Boolean']['output']>;
+  canManageNewsItemRecipientsExportTasks?: Maybe<Scalars['Boolean']['output']>;
   canManageNewsItemScopes?: Maybe<Scalars['Boolean']['output']>;
   canManageNewsItems?: Maybe<Scalars['Boolean']['output']>;
   /**  Currently, this field is read-only. You cannot get manage access for the specified schema.  */
@@ -3401,6 +3402,8 @@ export type B2BAppAccessRightSet = {
   canReadMeterReportingPeriods?: Maybe<Scalars['Boolean']['output']>;
   canReadMeters?: Maybe<Scalars['Boolean']['output']>;
   canReadNewsItemFiles?: Maybe<Scalars['Boolean']['output']>;
+  /**  Currently, this field is read-only. You cannot get read access for the specified schema.  */
+  canReadNewsItemRecipientsExportTasks?: Maybe<Scalars['Boolean']['output']>;
   canReadNewsItemScopes?: Maybe<Scalars['Boolean']['output']>;
   canReadNewsItems?: Maybe<Scalars['Boolean']['output']>;
   canReadOrganizationEmployeeRoles?: Maybe<Scalars['Boolean']['output']>;
@@ -3460,6 +3463,7 @@ export type B2BAppAccessRightSetCreateInput = {
   canManageMeterReportingPeriods?: InputMaybe<Scalars['Boolean']['input']>;
   canManageMeters?: InputMaybe<Scalars['Boolean']['input']>;
   canManageNewsItemFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemRecipientsExportTasks?: InputMaybe<Scalars['Boolean']['input']>;
   canManageNewsItemScopes?: InputMaybe<Scalars['Boolean']['input']>;
   canManageNewsItems?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOrganizationEmployeeRoles?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3485,6 +3489,7 @@ export type B2BAppAccessRightSetCreateInput = {
   canReadMeterReportingPeriods?: InputMaybe<Scalars['Boolean']['input']>;
   canReadMeters?: InputMaybe<Scalars['Boolean']['input']>;
   canReadNewsItemFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItemRecipientsExportTasks?: InputMaybe<Scalars['Boolean']['input']>;
   canReadNewsItemScopes?: InputMaybe<Scalars['Boolean']['input']>;
   canReadNewsItems?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizationEmployeeRoles?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3545,6 +3550,7 @@ export type B2BAppAccessRightSetHistoryRecord = {
   canManageMeterReportingPeriods?: Maybe<Scalars['Boolean']['output']>;
   canManageMeters?: Maybe<Scalars['Boolean']['output']>;
   canManageNewsItemFiles?: Maybe<Scalars['Boolean']['output']>;
+  canManageNewsItemRecipientsExportTasks?: Maybe<Scalars['Boolean']['output']>;
   canManageNewsItemScopes?: Maybe<Scalars['Boolean']['output']>;
   canManageNewsItems?: Maybe<Scalars['Boolean']['output']>;
   canManageOrganizationEmployeeRoles?: Maybe<Scalars['Boolean']['output']>;
@@ -3570,6 +3576,7 @@ export type B2BAppAccessRightSetHistoryRecord = {
   canReadMeterReportingPeriods?: Maybe<Scalars['Boolean']['output']>;
   canReadMeters?: Maybe<Scalars['Boolean']['output']>;
   canReadNewsItemFiles?: Maybe<Scalars['Boolean']['output']>;
+  canReadNewsItemRecipientsExportTasks?: Maybe<Scalars['Boolean']['output']>;
   canReadNewsItemScopes?: Maybe<Scalars['Boolean']['output']>;
   canReadNewsItems?: Maybe<Scalars['Boolean']['output']>;
   canReadOrganizationEmployeeRoles?: Maybe<Scalars['Boolean']['output']>;
@@ -3624,6 +3631,7 @@ export type B2BAppAccessRightSetHistoryRecordCreateInput = {
   canManageMeterReportingPeriods?: InputMaybe<Scalars['Boolean']['input']>;
   canManageMeters?: InputMaybe<Scalars['Boolean']['input']>;
   canManageNewsItemFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemRecipientsExportTasks?: InputMaybe<Scalars['Boolean']['input']>;
   canManageNewsItemScopes?: InputMaybe<Scalars['Boolean']['input']>;
   canManageNewsItems?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOrganizationEmployeeRoles?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3649,6 +3657,7 @@ export type B2BAppAccessRightSetHistoryRecordCreateInput = {
   canReadMeterReportingPeriods?: InputMaybe<Scalars['Boolean']['input']>;
   canReadMeters?: InputMaybe<Scalars['Boolean']['input']>;
   canReadNewsItemFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItemRecipientsExportTasks?: InputMaybe<Scalars['Boolean']['input']>;
   canReadNewsItemScopes?: InputMaybe<Scalars['Boolean']['input']>;
   canReadNewsItems?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizationEmployeeRoles?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3708,6 +3717,7 @@ export type B2BAppAccessRightSetHistoryRecordUpdateInput = {
   canManageMeterReportingPeriods?: InputMaybe<Scalars['Boolean']['input']>;
   canManageMeters?: InputMaybe<Scalars['Boolean']['input']>;
   canManageNewsItemFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemRecipientsExportTasks?: InputMaybe<Scalars['Boolean']['input']>;
   canManageNewsItemScopes?: InputMaybe<Scalars['Boolean']['input']>;
   canManageNewsItems?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOrganizationEmployeeRoles?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3733,6 +3743,7 @@ export type B2BAppAccessRightSetHistoryRecordUpdateInput = {
   canReadMeterReportingPeriods?: InputMaybe<Scalars['Boolean']['input']>;
   canReadMeters?: InputMaybe<Scalars['Boolean']['input']>;
   canReadNewsItemFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItemRecipientsExportTasks?: InputMaybe<Scalars['Boolean']['input']>;
   canReadNewsItemScopes?: InputMaybe<Scalars['Boolean']['input']>;
   canReadNewsItems?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizationEmployeeRoles?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3813,6 +3824,8 @@ export type B2BAppAccessRightSetHistoryRecordWhereInput = {
   canManageMeters_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageNewsItemFiles?: InputMaybe<Scalars['Boolean']['input']>;
   canManageNewsItemFiles_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemRecipientsExportTasks?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemRecipientsExportTasks_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageNewsItemScopes?: InputMaybe<Scalars['Boolean']['input']>;
   canManageNewsItemScopes_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageNewsItems?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3863,6 +3876,8 @@ export type B2BAppAccessRightSetHistoryRecordWhereInput = {
   canReadMeters_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadNewsItemFiles?: InputMaybe<Scalars['Boolean']['input']>;
   canReadNewsItemFiles_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItemRecipientsExportTasks?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItemRecipientsExportTasks_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadNewsItemScopes?: InputMaybe<Scalars['Boolean']['input']>;
   canReadNewsItemScopes_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadNewsItems?: InputMaybe<Scalars['Boolean']['input']>;
@@ -4084,6 +4099,7 @@ export type B2BAppAccessRightSetUpdateInput = {
   canManageMeterReportingPeriods?: InputMaybe<Scalars['Boolean']['input']>;
   canManageMeters?: InputMaybe<Scalars['Boolean']['input']>;
   canManageNewsItemFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemRecipientsExportTasks?: InputMaybe<Scalars['Boolean']['input']>;
   canManageNewsItemScopes?: InputMaybe<Scalars['Boolean']['input']>;
   canManageNewsItems?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOrganizationEmployeeRoles?: InputMaybe<Scalars['Boolean']['input']>;
@@ -4109,6 +4125,7 @@ export type B2BAppAccessRightSetUpdateInput = {
   canReadMeterReportingPeriods?: InputMaybe<Scalars['Boolean']['input']>;
   canReadMeters?: InputMaybe<Scalars['Boolean']['input']>;
   canReadNewsItemFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItemRecipientsExportTasks?: InputMaybe<Scalars['Boolean']['input']>;
   canReadNewsItemScopes?: InputMaybe<Scalars['Boolean']['input']>;
   canReadNewsItems?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizationEmployeeRoles?: InputMaybe<Scalars['Boolean']['input']>;
@@ -4184,6 +4201,8 @@ export type B2BAppAccessRightSetWhereInput = {
   canManageMeters_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageNewsItemFiles?: InputMaybe<Scalars['Boolean']['input']>;
   canManageNewsItemFiles_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemRecipientsExportTasks?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemRecipientsExportTasks_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageNewsItemScopes?: InputMaybe<Scalars['Boolean']['input']>;
   canManageNewsItemScopes_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageNewsItems?: InputMaybe<Scalars['Boolean']['input']>;
@@ -4234,6 +4253,8 @@ export type B2BAppAccessRightSetWhereInput = {
   canReadMeters_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadNewsItemFiles?: InputMaybe<Scalars['Boolean']['input']>;
   canReadNewsItemFiles_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItemRecipientsExportTasks?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItemRecipientsExportTasks_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadNewsItemScopes?: InputMaybe<Scalars['Boolean']['input']>;
   canReadNewsItemScopes_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadNewsItems?: InputMaybe<Scalars['Boolean']['input']>;
@@ -93765,6 +93786,8 @@ export enum SortB2BAppAccessRightSetHistoryRecordsBy {
   CanManageMetersDesc = 'canManageMeters_DESC',
   CanManageNewsItemFilesAsc = 'canManageNewsItemFiles_ASC',
   CanManageNewsItemFilesDesc = 'canManageNewsItemFiles_DESC',
+  CanManageNewsItemRecipientsExportTasksAsc = 'canManageNewsItemRecipientsExportTasks_ASC',
+  CanManageNewsItemRecipientsExportTasksDesc = 'canManageNewsItemRecipientsExportTasks_DESC',
   CanManageNewsItemScopesAsc = 'canManageNewsItemScopes_ASC',
   CanManageNewsItemScopesDesc = 'canManageNewsItemScopes_DESC',
   CanManageNewsItemsAsc = 'canManageNewsItems_ASC',
@@ -93815,6 +93838,8 @@ export enum SortB2BAppAccessRightSetHistoryRecordsBy {
   CanReadMetersDesc = 'canReadMeters_DESC',
   CanReadNewsItemFilesAsc = 'canReadNewsItemFiles_ASC',
   CanReadNewsItemFilesDesc = 'canReadNewsItemFiles_DESC',
+  CanReadNewsItemRecipientsExportTasksAsc = 'canReadNewsItemRecipientsExportTasks_ASC',
+  CanReadNewsItemRecipientsExportTasksDesc = 'canReadNewsItemRecipientsExportTasks_DESC',
   CanReadNewsItemScopesAsc = 'canReadNewsItemScopes_ASC',
   CanReadNewsItemScopesDesc = 'canReadNewsItemScopes_DESC',
   CanReadNewsItemsAsc = 'canReadNewsItems_ASC',
@@ -93910,6 +93935,8 @@ export enum SortB2BAppAccessRightSetsBy {
   CanManageMetersDesc = 'canManageMeters_DESC',
   CanManageNewsItemFilesAsc = 'canManageNewsItemFiles_ASC',
   CanManageNewsItemFilesDesc = 'canManageNewsItemFiles_DESC',
+  CanManageNewsItemRecipientsExportTasksAsc = 'canManageNewsItemRecipientsExportTasks_ASC',
+  CanManageNewsItemRecipientsExportTasksDesc = 'canManageNewsItemRecipientsExportTasks_DESC',
   CanManageNewsItemScopesAsc = 'canManageNewsItemScopes_ASC',
   CanManageNewsItemScopesDesc = 'canManageNewsItemScopes_DESC',
   CanManageNewsItemsAsc = 'canManageNewsItems_ASC',
@@ -93960,6 +93987,8 @@ export enum SortB2BAppAccessRightSetsBy {
   CanReadMetersDesc = 'canReadMeters_DESC',
   CanReadNewsItemFilesAsc = 'canReadNewsItemFiles_ASC',
   CanReadNewsItemFilesDesc = 'canReadNewsItemFiles_DESC',
+  CanReadNewsItemRecipientsExportTasksAsc = 'canReadNewsItemRecipientsExportTasks_ASC',
+  CanReadNewsItemRecipientsExportTasksDesc = 'canReadNewsItemRecipientsExportTasks_DESC',
   CanReadNewsItemScopesAsc = 'canReadNewsItemScopes_ASC',
   CanReadNewsItemScopesDesc = 'canReadNewsItemScopes_DESC',
   CanReadNewsItemsAsc = 'canReadNewsItems_ASC',
