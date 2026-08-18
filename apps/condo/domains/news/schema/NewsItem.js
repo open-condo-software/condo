@@ -263,31 +263,6 @@ const NewsItem = new GQLListSchema('NewsItem', {
             },
         },
 
-        user: {
-            schemaDoc: 'The organization employee user who authored this news item.',
-            type: 'Relationship',
-            ref: 'User',
-            access: {
-                read: true,
-                create: access.canSetNewsItemUserField,
-                update: false,
-            },
-        },
-
-        scopesCount: {
-            schemaDoc: 'Number of NewsItemScope records for this news item. Computed once, when the ' +
-                'item transitions to isPublished=true (scopes can no longer change after that point). ' +
-                'Stays 0 for unpublished drafts.',
-            type: 'Integer',
-            isRequired: true,
-            defaultValue: 0,
-            access: {
-                read: true,
-                create: canOnlyServerSideWithoutUserRequest,
-                update: canOnlyServerSideWithoutUserRequest,
-            },
-        },
-
     },
     hooks: {
         resolveInput: async (args) => {
@@ -318,14 +293,6 @@ const NewsItem = new GQLListSchema('NewsItem', {
 
             if (operation === 'create' && !get(resolvedData, 'source')) {
                 resolvedData['source'] = NEWS_ITEM_SOURCE_IDS.NEWS_FORM
-            }
-
-            if (operation === 'create' && !get(resolvedData, 'user')) {
-                resolvedData['user'] = get(context, 'authedItem.id') || null
-            }
-
-            if (operation === 'update' && isPublished && existingItem && !existingItem.isPublished) {
-                resolvedData['scopesCount'] = await NewsItemScope.count(context, { newsItem: { id: existingItem.id }, deletedAt: null })
             }
 
             if (operation === 'create' && !get(resolvedData, 'user')) {
