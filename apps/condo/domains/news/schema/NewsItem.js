@@ -285,7 +285,7 @@ const NewsItem = new GQLListSchema('NewsItem', {
             }
 
             if (operation === 'create' && !get(resolvedData, 'source')) {
-                resolvedData['source'] = NEWS_ITEM_SOURCE_IDS.WEB_APP
+                resolvedData['source'] = NEWS_ITEM_SOURCE_IDS.NEWS_FORM
             }
 
             if (operation === 'create' && !get(resolvedData, 'user')) {

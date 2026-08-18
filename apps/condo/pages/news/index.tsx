@@ -224,7 +224,7 @@ const NewsPage: PageComponentType = () => {
 
     const baseNewsQuery = {
         organization: { id: organization.id },
-        source: { id_in: [NEWS_ITEM_SOURCE_IDS.WEB_APP] },
+        source: { id_in: [NEWS_ITEM_SOURCE_IDS.NEWS_FORM] },
     }
 
     const filterMetas = useTableFilters()

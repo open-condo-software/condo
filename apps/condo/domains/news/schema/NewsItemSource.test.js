@@ -18,7 +18,7 @@ describe('NewsItemSource', () => {
                 const [obj, attrs] = await createTestNewsItemSource(admin)
 
                 expectValuesOfCommonFields(obj, attrs, admin)
-                expect(obj.type).toEqual(NEWS_ITEM_SOURCE_TYPES.WEB_APP)
+                expect(obj.type).toEqual(NEWS_ITEM_SOURCE_TYPES.NEWS_FORM)
                 expect(obj.isDefault).toEqual(false)
             })
 

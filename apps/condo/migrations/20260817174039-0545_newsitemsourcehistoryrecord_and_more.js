@@ -100,8 +100,8 @@ CREATE INDEX "NewsItem_source_574b470e" ON "NewsItem" ("source");
 --
 -- Seed default NewsItemSource rows and backfill existing NewsItem rows
 --
-INSERT INTO "NewsItemSource" (dv, sender, type, name, "isDefault", id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", "updatedBy") VALUES (1, '{"dv": 1, "fingerprint": "manual"}', 'web_app', 'news.source.WEB_APP.name', true, 'e555cb9b-6f1c-4af5-833f-0affb364096d', 1, '2026-07-24 00:00:00.000000', '2026-07-24 00:00:00.000000', null, null, null, null) ON CONFLICT (id) DO NOTHING;
-INSERT INTO "NewsItemSource" (dv, sender, type, name, "isDefault", id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", "updatedBy") VALUES (1, '{"dv": 1, "fingerprint": "manual"}', 'external_system', 'Debt', true, 'efe5f0cb-0f2d-4828-a7cf-056ca58bfa57', 1, '2026-07-24 00:00:00.000000', '2026-07-24 00:00:00.000000', null, null, null, null) ON CONFLICT (id) DO NOTHING;
+INSERT INTO "NewsItemSource" (dv, sender, type, name, "isDefault", id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", "updatedBy") VALUES (1, '{"dv": 1, "fingerprint": "manual"}', 'news_form', 'news.source.NEWS_FORM.name', true, 'e555cb9b-6f1c-4af5-833f-0affb364096d', 1, '2026-07-24 00:00:00.000000', '2026-07-24 00:00:00.000000', null, null, null, null) ON CONFLICT (id) DO NOTHING;
+INSERT INTO "NewsItemSource" (dv, sender, type, name, "isDefault", id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", "updatedBy") VALUES (1, '{"dv": 1, "fingerprint": "manual"}', 'registry', 'news.source.REGISTRY.name', true, 'efe5f0cb-0f2d-4828-a7cf-056ca58bfa57', 1, '2026-07-24 00:00:00.000000', '2026-07-24 00:00:00.000000', null, null, null, null) ON CONFLICT (id) DO NOTHING;
 UPDATE "NewsItem" SET source = 'e555cb9b-6f1c-4af5-833f-0affb364096d' WHERE source IS NULL;
 
 --

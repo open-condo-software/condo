@@ -402,7 +402,7 @@ async function createTestNewsItemSource (client, extraAttrs = {}) {
     const attrs = {
         dv: 1,
         sender,
-        type: NEWS_ITEM_SOURCE_TYPES.WEB_APP,
+        type: NEWS_ITEM_SOURCE_TYPES.NEWS_FORM,
         name: faker.random.alphaNumeric(8),
         ...extraAttrs,
     }
