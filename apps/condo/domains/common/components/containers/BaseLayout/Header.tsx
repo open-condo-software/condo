@@ -45,7 +45,8 @@ export const Header: React.FC<IHeaderProps> = (props) => {
     const router = useRouter()
     const { useFlag } = useFeatureFlags()
     const isUserMenuHidden = useFlag(UI_HIDE_USER_LINKS)
-    const { residentActions, logo } = props
+    const { residentActions, logo, TopMenuItems, headerAction } = props
+    const TopMenuItemsComponent = TopMenuItems || DefaultTopMenuItems
 
     const { isAuthenticated } = useAuth()
     const { organization } = useOrganization()
@@ -113,7 +114,7 @@ export const Header: React.FC<IHeaderProps> = (props) => {
                         </Layout.Header>
                     </> :
                     <Layout.Header className='header desktop-header'>
-                        {(props.TopMenuItems || DefaultTopMenuItems)({ headerAction: props.headerAction })}
+                        <TopMenuItemsComponent headerAction={headerAction} />
                     </Layout.Header>
 
             }
