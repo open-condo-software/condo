@@ -1,6 +1,7 @@
 import { faker } from '@faker-js/faker/locale/ru'
 import dayjs from 'dayjs'
 import { check } from 'k6'
+import { Counter } from 'k6/metrics'
 
 import {
     setupCondoAuth,
@@ -9,25 +10,35 @@ import {
     createBillingIntegrationOrganizationContext,
     sendAuthorizedRequest,
     areReceiptsCreated,
+    getBalancerPeer,
 } from './utils'
 
-const RECEIPT_PER_ACCOUNT_NUMBER = 50
-const TOTAL_RECEIPT_NUMBER = 100
 const DURATION = '60s'
+const RECEIPT_COUNT = 100
+const BILLING_BALANCER_HEADERS = {
+    'X-Target': 'billing',
+    'X-Balancer-Debug': '1',
+}
+
+const balancerPeerHits = new Counter('balancer_peer_hits')
+const seenPeers = {}
 
 export const options = {
-    tags: { testid: 'registerBillingReceipt', serverUrl: __ENV.BASE_URL },
+    tags: { testid: 'podLoadBalance', serverUrl: __ENV.BASE_URL },
     scenarios: {
-        registerBillingReceipt: {
-            exec: 'registerBillingReceipt',
+        registerBillingReceipts: {
+            exec: 'registerBillingReceiptsService',
             executor: 'constant-vus',
             duration: DURATION,
-            vus: 1,
+            vus: 8,
         },
     },
     thresholds: {
         http_req_failed: ['rate<0.01'],
-        http_req_duration: ['med<7000'],
+        http_req_duration: ['med<14000'],
+        checks: ['rate>0.85'],
+        'checks{check:has balancer peer}': ['rate>0.95'],
+        'checks{check:avoids sticking to one pod}': ['rate>0.8'],
     },
 }
 
@@ -44,12 +55,12 @@ export function setup () {
         billingIntegration.json('data.obj'),
         { status: 'Finished' },
     )
-    const data = {
+
+    return {
         token,
         organizationId,
         billingContext: billingContext.json('data.obj'),
     }
-    return data
 }
 
 const randomNumber = (numDigits) => {
@@ -101,29 +112,17 @@ const createJSONReceipt = (extra = {}) => {
     }).filter(([, value]) => !!value))
 }
 
-export function registerBillingReceipt (data) {
+export function registerBillingReceiptsService (data) {
     const receipts = []
     const bankAccount = faker.random.numeric(12)
-    const unitName = `${faker.datatype.number({ min: 1, max: 10000 })}`
-    const address = 'г Нижний Новгород, пр-кт Ленина, д 88 к 78'
-    const addressWithUnit = address + ', кв ' + unitName
-    const accountNumberPrefix = faker.datatype.uuid()
 
-    let accountIndex = 0
-    let accountCounter = 0
-    for (let i = 0; i < TOTAL_RECEIPT_NUMBER; i++) {
-        receipts.push(createJSONReceipt({ bankAccount, address: addressWithUnit, accountNumber: `${accountNumberPrefix}${accountIndex}` }))
-        accountCounter++
-
-        if (accountCounter >= RECEIPT_PER_ACCOUNT_NUMBER) {
-            accountCounter = 0
-            accountIndex++
-        }
+    for (let i = 0; i < RECEIPT_COUNT; i++) {
+        receipts.push(createJSONReceipt({ bankAccount }))
     }
 
     const response = sendAuthorizedRequest(data, {
         operationName: 'registerBillingReceipts',
-        query: 'mutation registerBillingReceipts($data:RegisterBillingReceiptsInput!){ result:registerBillingReceipts(data:$data){id property { id address addressKey } importId } }',
+        query: 'mutation registerBillingReceipts($data:RegisterBillingReceiptsInput!){result:registerBillingReceipts(data:$data){id}}',
         variables: {
             data: {
                 dv: 1, sender: { dv: 1, fingerprint: 'k6-load-test' },
@@ -131,21 +130,19 @@ export function registerBillingReceipt (data) {
                 receipts,
             },
         },
-    })
+    }, BILLING_BALANCER_HEADERS)
 
-    const receiptsResponse = response.json('data.result') as Array<{
-        id: string, property: { id: string, address: string, addressKey: string }
-    }>
+    const peer = getBalancerPeer(response)
+    if (peer) {
+        seenPeers[peer] = 1
+        balancerPeerHits.add(1, { peer })
+    }
 
     check(response, {
         'receipt creation status is 200': (res) => res.status === 200,
         'receipts is created': (res) => areReceiptsCreated(res),
+        'has balancer peer': () => Boolean(peer),
+        // Overlapping slow billing mutations should not pin a VU onto one pod.
+        'avoids sticking to one pod': () => __ITER < 5 || Object.keys(seenPeers).length >= 2,
     })
-
-    return {
-        receipts: Array.isArray(receiptsResponse) ? receiptsResponse : [],
-        unitName,
-        address,
-        accountNumberPrefix,
-    }
 }

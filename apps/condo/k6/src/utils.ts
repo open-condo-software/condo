@@ -24,13 +24,28 @@ const setupCondoAuth = () => {
     }
 }
 
-const sendAuthorizedRequest = (data, payload) => {
+const sendAuthorizedRequest = (data, payload, extraHeaders = {}) => {
     return http.post(BASE_API_URL, JSON.stringify(payload), {
         headers: {
             'Authorization': `Bearer ${data.token}`,
             'Content-Type': 'application/json',
+            ...extraHeaders,
         },
     })
+}
+
+const areReceiptsCreated = (res) => {
+    try {
+        const result = res.json('data.result')
+        return Array.isArray(result) && result.length > 0 && result.every((item) => Boolean(item && item.id))
+    } catch (err) {
+        return false
+    }
+}
+
+const getBalancerPeer = (res) => {
+    const headers = res.headers || {}
+    return headers['X-Balancer-Peer'] || headers['x-balancer-peer'] || ''
 }
 
 const createOrganization = (data) => sendAuthorizedRequest(data, {
@@ -294,4 +309,6 @@ export {
     signInAsUser,
     resetOrganization,
     BASE_API_URL,
+    areReceiptsCreated,
+    getBalancerPeer,
 }

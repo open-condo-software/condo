@@ -11,6 +11,7 @@ import {
     createBillingIntegrationOrganizationContext,
     sendAuthorizedRequest,
     registerBillingReceiptFile,
+    areReceiptsCreated,
 } from './utils'
 
 const RECEIPT_PER_ACCOUNT_NUMBER = 50
@@ -152,11 +153,11 @@ const registerBillingReceipts = (data) => {
 
     check(response, {
         'receipt creation status is 200': (res) => res.status === 200,
-        'receipts is created': () => receiptsResponse.every(e => e.id !== undefined),
+        'receipts is created': (res) => areReceiptsCreated(res),
     })
 
     return {
-        receipts: receiptsResponse,
+        receipts: Array.isArray(receiptsResponse) ? receiptsResponse : [],
         unitName,
         address,
         accountNumberPrefix,
@@ -164,11 +165,12 @@ const registerBillingReceipts = (data) => {
 }
 
 export function registerBillingReceiptFileCase (data) {
-    const receipt = data.receipts[Math.floor(Math.random() * data.receipts.length)] // NOSONAR
+    const receipts = Array.isArray(data.receipts) ? data.receipts : []
+    const receipt = receipts[Math.floor(Math.random() * Math.max(receipts.length, 1))] // NOSONAR
     const response = registerBillingReceiptFile(
         data,
         data.billingContext.id,
-        receipt.id,
+        receipt && receipt.id,
         data.base64EncodedPDF,
     )
     const registerResponse = response.json('data.obj') as {
@@ -178,7 +180,9 @@ export function registerBillingReceiptFileCase (data) {
 
     check(response, {
         'resident billing receipt file response is 200': (res) => res.status === 200,
-        'resident billing receipt file id data provided': () => registerResponse.id !== undefined,
-        'resident billing receipt file status data provided': () => registerResponse.status === 'CREATED' || registerResponse.status === 'UPDATED' || registerResponse.status === 'SKIPPED',
+        'resident billing receipt file id data provided': () => Boolean(registerResponse && registerResponse.id),
+        'resident billing receipt file status data provided': () => Boolean(registerResponse && (
+            registerResponse.status === 'CREATED' || registerResponse.status === 'UPDATED' || registerResponse.status === 'SKIPPED'
+        )),
     })
 }

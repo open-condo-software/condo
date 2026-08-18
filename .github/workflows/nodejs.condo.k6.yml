@@ -75,6 +75,7 @@ jobs:
           k6 -o experimental-prometheus-rw run --summary-trend-stats="avg,min,med,max,p(90),p(95),p(99)" apps/condo/k6/dist/ticket.test.js
           k6 -o experimental-prometheus-rw run --summary-trend-stats="avg,min,med,max,p(90),p(95),p(99)" apps/condo/k6/dist/payment.test.js
           k6 -o experimental-prometheus-rw run --summary-trend-stats="avg,min,med,max,p(90),p(95),p(99)" apps/condo/k6/dist/registerBillingReceipt.test.js
+          k6 -o experimental-prometheus-rw run --summary-trend-stats="avg,min,med,max,p(90),p(95),p(99)" apps/condo/k6/dist/podLoadBalance.test.js
 
       - name: Upload screenshots
         uses: actions/upload-artifact@v4
