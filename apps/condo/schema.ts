@@ -66535,8 +66535,8 @@ export type NewsItemSourceRelateToOneInput = {
 };
 
 export enum NewsItemSourceTypeType {
-  ExternalSystem = 'external_system',
-  WebApp = 'web_app'
+  NewsForm = 'news_form',
+  Registry = 'registry'
 }
 
 export type NewsItemSourceUpdateInput = {

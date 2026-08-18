@@ -73104,8 +73104,8 @@ input NewsItemSourceHistoryRecordsCreateInput {
 }
 
 enum NewsItemSourceTypeType {
-  web_app
-  external_system
+  news_form
+  registry
 }
 
 """ News item source. Web app (news form), external system, ... """
