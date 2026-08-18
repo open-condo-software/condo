@@ -241,7 +241,7 @@ const NewsItem = new GQLListSchema('NewsItem', {
             type: 'Relationship',
             ref: 'User',
             isRequired: true,
-            kmigratorOptions: { null: true },
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
             access: {
                 read: true,
                 create: access.canSetNewsItemUserField,
