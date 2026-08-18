@@ -1,22 +1,20 @@
-
-import {
-    NewsItem as INewsItem,
-    NewsItemWhereInput as INewsItemWhereInput,
-} from '@app/condo/schema'
-import React, { useMemo } from 'react'
+import { NewsItemWhereInput as INewsItemWhereInput } from '@app/condo/schema'
+import { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
-import { ComponentType, FiltersMeta } from '@condo/domains/common/utils/filters.utils'
-import { getFilter, getDayRangeFilter, getStringContainsFilter } from '@condo/domains/common/utils/tables.utils'
+import { ComponentType, TableFiltersMeta } from '@condo/domains/common/utils/filters.utils'
+import { getDayRangeFilter, getFilter, getStringContainsFilter } from '@condo/domains/common/utils/tables.utils'
 import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
+import { getNewsAudienceFilter } from '@condo/domains/news/utils/audienceFilters'
 
 const typeFilter = getFilter(['type'], 'array', 'string', 'in')
 const filterDateRange = getDayRangeFilter('createdAt')
 const bodyFilter = getStringContainsFilter('body')
 const titleFilter = getStringContainsFilter('title')
+const audienceFilter = getNewsAudienceFilter()
 
-export type UseNewsTableFiltersReturnType = Array<FiltersMeta<INewsItemWhereInput, INewsItem>>
+export type UseNewsTableFiltersReturnType = Array<TableFiltersMeta<INewsItemWhereInput>>
 
 export const useTableFilters = (): UseNewsTableFiltersReturnType => {
     const intl = useIntl()
@@ -52,6 +50,11 @@ export const useTableFilters = (): UseNewsTableFiltersReturnType => {
                         placeholder: TypeMessage,
                     },
                 },
+            },
+            {
+                // Used by NewsAudienceFilterSwitch in page header (no modal UI)
+                keyword: 'audience',
+                filters: [audienceFilter],
             },
             {
                 keyword: 'createdAt',

@@ -1653,11 +1653,11 @@
   "news.component.RecipientCounter.error.loading": "Error al cargar los datos del contador",
   "news.component.RecipientCounter.label.properties": "comunidades \nseleccionadas",
   "news.component.RecipientCounter.statistics": "Estadística",
-  "news.component.RecipientCounter.willNotReceive.hint": "En {count, plural, one {# unidad} other {# unidades}} unidades no hay usuarios  de aplicación móvil Doma. Descarga  una lista para saber que unidades tienen usuarios.",
-  "news.component.RecipientCounter.willNotReceive.hintZero": "No hay usuarios de la aplicación móvil Doma en las comunidades. Descarga la lista para saber qué comunidades tienen usuarios.",
+  "news.component.RecipientCounter.willNotReceive.hint": "En {count, plural, one {# unidad} other {# unidades}} no hay usuarios de la aplicación Doma. Para ver los detalles, descarga la lista.",
+  "news.component.RecipientCounter.willNotReceive.hintZero": "No hay usuarios de la aplicación Doma en las unidades. Para ver los detalles, descarga la lista.",
   "news.component.RecipientCounter.willNotReceive.label": "no recibirá \nlocales",
-  "news.component.RecipientCounter.willReceive.hint": "En {count, plural, one {# unidad} other {# unidades}} hay  usuarios de aplicación  móvil Doma — recibirán  noticia.",
-  "news.component.RecipientCounter.willReceive.hintZero": "No hay unidades que tengan usuarios de la aplicación móvil Doma.",
+  "news.component.RecipientCounter.willReceive.hint": "En {count, plural, one {# unidad} other {# unidades}} hay usuarios de la aplicación Doma — recibirán la noticia.",
+  "news.component.RecipientCounter.willReceive.hintZero": "No hay unidades que tengan usuarios de la aplicación Doma.",
   "news.component.RecipientCounter.willReceive.label": "recibirá \nlocales",
   "news.create.title": "Nueva noticia",
   "news.createNews": "Añadir noticia",
@@ -2505,6 +2505,9 @@
   "pages.condo.news.index.field.date.notSentYet": "Todavía no se ha enviado",
   "pages.condo.news.index.field.date.sending": "Se envía",
   "pages.condo.news.index.pageTitle": "Noticias",
+  "pages.condo.news.filters.audience.all": "Todas",
+  "pages.condo.news.filters.audience.personal": "Personales",
+  "pages.condo.news.filters.audience.common": "Generales",
   "pages.condo.news.index.propertyGate.header": "Para crear noticias debe añadir sus propiedades",
   "pages.condo.news.index.propertyGate.title": "Añadir ahora la primera propiedad?",
   "pages.condo.news.index.tableField.addresses": "Destinatarios",

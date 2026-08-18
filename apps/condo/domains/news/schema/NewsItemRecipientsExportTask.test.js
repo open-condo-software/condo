@@ -19,6 +19,13 @@ const { i18n } = require('@open-condo/locales/loader')
 
 const { PROCESSING, COMPLETED, CANCELLED } = require('@condo/domains/common/constants/export')
 const { downloadFile, readXlsx, expectDataFormat, getTmpFile } = require('@condo/domains/common/utils/testSchema/file')
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
+const {
+    createTestB2BApp,
+    createTestB2BAppContext,
+    createTestB2BAppAccessRight,
+    createTestB2BAppAccessRightSet,
+} = require('@condo/domains/miniapp/utils/testSchema')
 const {
     propertyMap1x9x4,
     NewsItemRecipientsExportTask,
@@ -26,15 +33,14 @@ const {
     updateTestNewsItemRecipientsExportTask,
 } = require('@condo/domains/news/utils/testSchema')
 const {
-    createTestOrganizationEmployeeRole,
-    createTestOrganizationEmployee,
     createTestOrganization,
+    createTestOrganizationEmployee,
+    createTestOrganizationEmployeeRole,
 } = require('@condo/domains/organization/utils/testSchema')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-const { createTestUser } = require('@condo/domains/user/utils/testSchema')
+const { createTestUser, makeClientWithNewRegisteredAndLoggedInUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('NewsItemRecipientsExportTask', () => {
     let adminClient, userClient, anotherUserClient, anonymousClient
@@ -106,6 +112,25 @@ describe('NewsItemRecipientsExportTask', () => {
                 await expectToThrowAuthenticationErrorToObj(async () => {
                     await createTestNewsItemRecipientsExportTask(anonymousClient, userClient.user, dummyO10n)
                 })
+            })
+
+            test('b2b service user with canManageNewsItems can', async () => {
+                const [organization] = await createTestOrganization(adminClient)
+                const serviceClient = await makeClientWithServiceUser()
+                const [b2bApp] = await createTestB2BApp(adminClient)
+                const [accessRightSet] = await createTestB2BAppAccessRightSet(adminClient, b2bApp, {
+                    canManageNewsItems: true,
+                    canReadNewsItems: true,
+                })
+                await createTestB2BAppAccessRight(adminClient, serviceClient.user, b2bApp, accessRightSet)
+                await createTestB2BAppContext(adminClient, b2bApp, organization, { status: CONTEXT_FINISHED_STATUS })
+
+                const [obj] = await createTestNewsItemRecipientsExportTask(serviceClient, serviceClient.user, organization)
+
+                expect(obj.id).toMatch(UUID_RE)
+                expect(obj).toHaveProperty('user.id', serviceClient.user.id)
+                expect(obj).toHaveProperty('organization.id', organization.id)
+                expect(obj).toHaveProperty('status', PROCESSING)
             })
         })
 

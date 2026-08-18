@@ -9,17 +9,24 @@ const {
     expectToThrowAuthenticationError, expectToThrowAccessDeniedErrorToResult,
 } = require('@open-condo/keystone/test.utils')
 
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
+const {
+    createTestB2BApp,
+    createTestB2BAppContext,
+    createTestB2BAppAccessRight,
+    createTestB2BAppAccessRightSet,
+} = require('@condo/domains/miniapp/utils/testSchema')
 const { getNewsItemsRecipientsCountersByTestClient, propertyMap1x9x4 } = require('@condo/domains/news/utils/testSchema')
 const {
     createTestOrganization,
+    createTestOrganizationEmployee,
     createTestOrganizationEmployeeRole,
 } = require('@condo/domains/organization/utils/testSchema')
-const { createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { FLAT_UNIT_TYPE, PARKING_UNIT_TYPE, WAREHOUSE_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { buildPropertyMap } = require('@condo/domains/property/utils/testSchema/factories')
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser, createTestUser } = require('@condo/domains/user/utils/testSchema')
+const { createTestUser, makeClientWithNewRegisteredAndLoggedInUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 
 
 let adminClient, staffClientYes
@@ -141,6 +148,19 @@ describe('GetNewsItemsRecipientsCountersService', () => {
         }
         const [data1] = await getNewsItemsRecipientsCountersByTestClient(staffClientYes, payload1)
         expect(data1).toEqual({ propertiesCount: 1, unitsCount: 1, receiversCount: 2 })
+
+        /**
+         * Unit-level scopes across multiple properties
+         */
+        const payloadMultiPropertyUnits = {
+            organization: pick(dummyO10n, 'id'),
+            newsItemScopes: [
+                { property: { id: property1.id }, unitType: FLAT_UNIT_TYPE, unitName: '1' },
+                { property: { id: property2.id }, unitType: FLAT_UNIT_TYPE, unitName: '1' },
+            ],
+        }
+        const [dataMultiPropertyUnits] = await getNewsItemsRecipientsCountersByTestClient(staffClientYes, payloadMultiPropertyUnits)
+        expect(dataMultiPropertyUnits).toEqual({ propertiesCount: 2, unitsCount: 2, receiversCount: 2 })
     })
 
     test('The data for counters without propertyMap is calculated correctly', async () => {
@@ -265,5 +285,24 @@ describe('GetNewsItemsRecipientsCountersService', () => {
                 newsItemScopes: [{ property: null, unitType: null, unitName: null }],
             })
         })
+    })
+
+    test('b2b service user with canExecuteGetNewsItemsRecipientsCounters can execute', async () => {
+        const serviceClient = await makeClientWithServiceUser()
+        const [b2bApp] = await createTestB2BApp(adminClient)
+        const [accessRightSet] = await createTestB2BAppAccessRightSet(adminClient, b2bApp, {
+            canExecuteGetNewsItemsRecipientsCounters: true,
+            canReadNewsItems: true,
+        })
+        await createTestB2BAppAccessRight(adminClient, serviceClient.user, b2bApp, accessRightSet)
+        await createTestB2BAppContext(adminClient, b2bApp, dummyO10n, { status: CONTEXT_FINISHED_STATUS })
+
+        const [data] = await getNewsItemsRecipientsCountersByTestClient(serviceClient, {
+            organization: pick(dummyO10n, 'id'),
+            newsItemScopes: [{ property: null, unitType: null, unitName: null }],
+        })
+        expect(data).toHaveProperty('propertiesCount')
+        expect(data).toHaveProperty('unitsCount')
+        expect(data).toHaveProperty('receiversCount')
     })
 })

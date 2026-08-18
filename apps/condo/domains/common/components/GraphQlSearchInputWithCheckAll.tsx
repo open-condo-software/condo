@@ -69,10 +69,13 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
     const intl = useIntl()
     const CheckedAllMessage = intl.formatMessage({ id: 'CheckedAll' })
 
+    const checkAllFromForm = form.getFieldValue(checkAllFieldName)
+    const initialIsAllChecked = typeof checkAllFromForm === 'boolean' ? checkAllFromForm : checkAllInitialValue
+
     const [allDataLength, setAllDataLength] = useState<number>()
     const allDataLoadedRef = useRef<boolean>(false)
-    const [isAllChecked, setIsAllChecked] = useState<boolean>(checkAllInitialValue)
-    const [isRequired, setIsRequired] = useState<boolean>(selectFormItemProps.required)
+    const [isAllChecked, setIsAllChecked] = useState<boolean>(initialIsAllChecked)
+    const [isRequired, setIsRequired] = useState<boolean>(Boolean(selectFormItemProps.required) && !initialIsAllChecked)
     const { requiredValidator } = useValidations()
 
     const handleCheckboxChange = useCallback((event) => {
