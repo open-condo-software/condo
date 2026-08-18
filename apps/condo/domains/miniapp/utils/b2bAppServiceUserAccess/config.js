@@ -130,6 +130,9 @@ const B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS = {
         NewsItemFile: {
             pathToOrganizationId: ['newsItem', 'organization', 'id'],
         },
+        // Service accounts only ever create this task (on behalf of the real user) — never read it
+        // back, since condo's own generic task poller already surfaces it to that user directly.
+        NewsItemRecipientsExportTask: { canBeRead: false },
     },
 
     services: {
