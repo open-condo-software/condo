@@ -5,15 +5,12 @@ import get from 'lodash/get'
 import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Button, Modal, Space, Tag, Typography } from '@open-condo/ui'
-import type { ModalProps } from '@open-condo/ui'
+import { Button, List, Modal, Space, Tag } from '@open-condo/ui'
+import type { ListProps, ModalProps } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import { PAYMENTS_FILE_NEW_STATUS } from '@condo/domains/acquiring/constants/constants'
 
-import styles from './PaymentsFileDetailsModal.module.css'
-
-const ROW_GUTTER = 8
 const SECTION_SIZE = 16
 const CONTENT_SIZE = 40
 
@@ -37,27 +34,6 @@ interface PaymentsFileDetailsModalProps {
     open: boolean
     paymentsFile: PaymentsFileType | null
 }
-
-interface PaymentsFileDetailsRowProps {
-    label: string
-    value: string
-}
-
-const PaymentsFileDetailsRow: React.FC<PaymentsFileDetailsRowProps> = ({ label, value }) => (
-    <Row align='bottom' gutter={ROW_GUTTER} wrap={false}>
-        <Col flex='0 1 auto'>
-            <Typography.Text type='secondary'>{label}</Typography.Text>
-        </Col>
-        <Col flex='auto'>
-            <div className={styles.divider} />
-        </Col>
-        <Col flex='0 1 50%'>
-            <div className={styles.value}>
-                <Typography.Text>{value}</Typography.Text>
-            </div>
-        </Col>
-    </Row>
-)
 
 export const PaymentsFileDetailsModal: React.FC<PaymentsFileDetailsModalProps> = ({
     currency,
@@ -83,7 +59,7 @@ export const PaymentsFileDetailsModal: React.FC<PaymentsFileDetailsModalProps> =
     const paymentsCount = Number(get(paymentsFile, 'paymentsCount') || 0)
     const paymentOrder = get(paymentsFile, 'paymentOrder') || getPaymentsOrderFromBankComment(get(paymentsFile, 'bankComment'), PaymentOrderText)
 
-    const generalInfoRows = useMemo(() => ([
+    const generalInfoRows = useMemo<ListProps['dataSource']>(() => ([
         { label: CreationDate, value: get(paymentsFile, 'loadedAt') ? formatDateTime(get(paymentsFile, 'loadedAt')) : '' },
         { label: RegistryName, value: get(paymentsFile, 'name') },
         {
@@ -94,7 +70,7 @@ export const PaymentsFileDetailsModal: React.FC<PaymentsFileDetailsModalProps> =
         },
     ].filter(({ value }) => Boolean(value))), [CreationDate, Period, RegistryName, paymentsFile])
 
-    const moneyInfoRows = useMemo(() => ([
+    const moneyInfoRows = useMemo<ListProps['dataSource']>(() => ([
         {
             label: PaymentsAmountAndCount,
             value: paymentsCount > 0 ? `${amountWithoutFees} (${paymentsCount})` : amountWithoutFees,
@@ -102,7 +78,7 @@ export const PaymentsFileDetailsModal: React.FC<PaymentsFileDetailsModalProps> =
         { label: TransferredToBankAccount, value: amount },
     ].filter(({ value }) => Boolean(value))), [PaymentsAmountAndCount, TransferredToBankAccount, amount, amountWithoutFees, paymentsCount])
 
-    const bankInfoRows = useMemo(() => ([
+    const bankInfoRows = useMemo<ListProps['dataSource']>(() => ([
         { label: BankAccount, value: get(paymentsFile, 'bankAccount') },
         { label: PaymentOrderNumber, value: paymentOrder },
     ].filter(({ value }) => Boolean(value))), [BankAccount, PaymentOrderNumber, paymentOrder, paymentsFile])
@@ -141,17 +117,17 @@ export const PaymentsFileDetailsModal: React.FC<PaymentsFileDetailsModalProps> =
                     </Col>
                     <Col span={24}>
                         <Space direction='vertical' size={SECTION_SIZE}>
-                            {generalInfoRows.map(({ label, value }) => <PaymentsFileDetailsRow key={`${label}-${value}`} label={label} value={value} />)}
+                            <List dataSource={generalInfoRows} />
                         </Space>
                     </Col>
                     <Col span={24}>
                         <Space direction='vertical' size={SECTION_SIZE}>
-                            {moneyInfoRows.map(({ label, value }) => <PaymentsFileDetailsRow key={`${label}-${value}`} label={label} value={value} />)}
+                            <List dataSource={moneyInfoRows} />
                         </Space>
                     </Col>
                     <Col span={24}>
                         <Space direction='vertical' size={SECTION_SIZE}>
-                            {bankInfoRows.map(({ label, value }) => <PaymentsFileDetailsRow key={`${label}-${value}`} label={label} value={value} />)}
+                            <List dataSource={bankInfoRows} />
                         </Space>
                     </Col>
                     <Col span={24}>
