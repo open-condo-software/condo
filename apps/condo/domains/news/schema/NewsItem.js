@@ -229,6 +229,11 @@ const NewsItem = new GQLListSchema('NewsItem', {
             ref: 'NewsItemSource',
             isRequired: true,
             kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
+            access: {
+                read: true,
+                create: access.canManageNewsItems,
+                update: false,
+            },
         },
 
         user: {
@@ -251,8 +256,8 @@ const NewsItem = new GQLListSchema('NewsItem', {
             defaultValue: 0,
             access: {
                 read: true,
-                create: canOnlyServerSideWithoutUserRequest,
-                update: canOnlyServerSideWithoutUserRequest,
+                create: false,
+                update: false,
             },
         },
 
