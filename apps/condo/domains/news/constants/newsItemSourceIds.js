@@ -4,6 +4,7 @@
  */
 const NEWS_ITEM_SOURCE_IDS = {
     NEWS_FORM: 'e555cb9b-6f1c-4af5-833f-0affb364096d',
+    REGISTRY: 'efe5f0cb-0f2d-4828-a7cf-056ca58bfa57',
 }
 
 module.exports = {
