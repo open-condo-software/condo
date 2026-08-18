@@ -20,9 +20,11 @@ query getPaymentsFiles ($where: PaymentsFileWhereInput!, $sortBy: [SortPaymentsF
         paymentPeriodEndDay
         paymentsCount
         amount
+        amountWithoutFees
         name
         status
         paymentOrder
+        bankComment
     }
     meta: _allPaymentsFilesMeta (where: $where) {
         count
