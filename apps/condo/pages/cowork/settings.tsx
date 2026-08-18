@@ -7,6 +7,7 @@ import { Typography } from '@open-condo/ui'
 
 import { CoworkLayout } from '@condo/domains/ai/components/Cowork'
 import coworkStyles from '@condo/domains/ai/components/Cowork/Cowork.module.css'
+import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { UI_AI_COWORK_SETTINGS } from '@condo/domains/common/constants/featureflags'
 import { PageComponentType } from '@condo/domains/common/types'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
@@ -27,16 +28,14 @@ const CoworkSettingsPage: PageComponentType = () => {
     if (!settingsEnabled) return null
 
     return (
-        <div className={coworkStyles.coworkBody}>
-            <div className={coworkStyles.mainArea}>
-                <div className={coworkStyles.miniappsContent}>
-                    <div className={coworkStyles.miniappsHeader}>
-                        <Typography.Title level={2}>{titleLabel}</Typography.Title>
-                    </div>
-                    <div className={coworkStyles.miniappsLoading}>{comingSoonLabel}</div>
+        <PageWrapper>
+            <PageContent>
+                <div className={coworkStyles.miniappsHeader}>
+                    <Typography.Title level={2}>{titleLabel}</Typography.Title>
                 </div>
-            </div>
-        </div>
+                <div className={coworkStyles.miniappsLoading}>{comingSoonLabel}</div>
+            </PageContent>
+        </PageWrapper>
     )
 }
 

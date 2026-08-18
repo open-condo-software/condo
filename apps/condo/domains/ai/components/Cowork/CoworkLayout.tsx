@@ -1,5 +1,5 @@
 import Router from 'next/router'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { ChevronDown, ChevronUp, PlusCircle, Rocket, Settings, Smartphone, Star, Subtitles } from '@open-condo/icons'
@@ -9,7 +9,7 @@ import BaseLayout from '@condo/domains/common/components/containers/BaseLayout'
 import { TopMenuItems, type ITopMenuItemsProps } from '@condo/domains/common/components/containers/BaseLayout/components/TopMenuItems'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { MenuItem } from '@condo/domains/common/components/MenuItem'
-import { UI_AI_COWORK_SETTINGS, UI_AI_COWORK_SKILLS } from '@condo/domains/common/constants/featureflags'
+import { UI_AI_COWORK, UI_AI_COWORK_SETTINGS, UI_AI_COWORK_SKILLS } from '@condo/domains/common/constants/featureflags'
 import { LocalStorageManager } from '@condo/domains/common/utils/localStorageManager'
 
 import styles from './Cowork.module.css'
@@ -142,7 +142,7 @@ const CoworkSideMenu: React.FC = () => {
 
 
 const CoworkTopMenuItems: React.FC<ITopMenuItemsProps> = (props) => (
-    <TopMenuItems {...props} hideNotifications hideAIButton />
+    <TopMenuItems {...props} hideAIButton hideCoworkMenuLink />
 )
 
 const Logo: React.FC = () => {
@@ -159,6 +159,15 @@ const Logo: React.FC = () => {
 
 
 export const CoworkLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
+    const { useFlag } = useFeatureFlags()
+    const coworkEnabled = useFlag(UI_AI_COWORK)
+
+    useEffect(() => {
+        if (!coworkEnabled) void Router.replace('/')
+    }, [coworkEnabled])
+
+    if (!coworkEnabled) return null
+
     return (
         <AiAssistantsChatStorageProvider>
             <BaseLayout

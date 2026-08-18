@@ -7,6 +7,7 @@ import { Button, Typography } from '@open-condo/ui'
 
 import { CoworkLayout } from '@condo/domains/ai/components/Cowork'
 import coworkStyles from '@condo/domains/ai/components/Cowork/Cowork.module.css'
+import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { UI_AI_COWORK_SKILLS } from '@condo/domains/common/constants/featureflags'
 import { PageComponentType } from '@condo/domains/common/types'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
@@ -45,39 +46,37 @@ const CoworkSkillsPage: PageComponentType = () => {
     if (!skillsEnabled) return null
 
     return (
-        <div className={coworkStyles.coworkBody}>
-            <div className={coworkStyles.mainArea}>
-                <div className={coworkStyles.miniappsContent}>
-                    <div className={coworkStyles.miniappsHeader}>
-                        <div>
-                            <Typography.Title level={2}>{titleLabel}</Typography.Title>
-                            <Typography.Text type='secondary'>{subtitleLabel}</Typography.Text>
-                        </div>
-                    </div>
-                    <div className={coworkStyles.miniappsGrid}>
-                        {skills.map((skill) => (
-                            <div key={skill.id} className={coworkStyles.miniappCard}>
-                                <div className={coworkStyles.miniappCardHeader}>
-                                    <div className={coworkStyles.miniappCardName}>{skill.name}</div>
-                                </div>
-                                <Typography.Text type='secondary' size='medium'>
-                                    {skill.description}
-                                </Typography.Text>
-                                <div className={coworkStyles.miniappCardFooter}>
-                                    <Button
-                                        type='secondary'
-                                        size='medium'
-                                        onClick={() => handleRun(skill.prompt)}
-                                    >
-                                        {runLabel}
-                                    </Button>
-                                </div>
-                            </div>
-                        ))}
+        <PageWrapper>
+            <PageContent>
+                <div className={coworkStyles.miniappsHeader}>
+                    <div>
+                        <Typography.Title level={2}>{titleLabel}</Typography.Title>
+                        <Typography.Text type='secondary'>{subtitleLabel}</Typography.Text>
                     </div>
                 </div>
-            </div>
-        </div>
+                <div className={coworkStyles.miniappsGrid}>
+                    {skills.map((skill) => (
+                        <div key={skill.id} className={coworkStyles.miniappCard}>
+                            <div className={coworkStyles.miniappCardHeader}>
+                                <div className={coworkStyles.miniappCardName}>{skill.name}</div>
+                            </div>
+                            <Typography.Text type='secondary' size='medium'>
+                                {skill.description}
+                            </Typography.Text>
+                            <div className={coworkStyles.miniappCardFooter}>
+                                <Button
+                                    type='secondary'
+                                    size='medium'
+                                    onClick={() => handleRun(skill.prompt)}
+                                >
+                                    {runLabel}
+                                </Button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </PageContent>
+        </PageWrapper>
     )
 }
 
