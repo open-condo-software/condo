@@ -8,7 +8,6 @@ module.exports = {
         'ticket.test': path.join(__dirname, 'src/ticket.test.ts'),
         'news.test': path.join(__dirname, 'src/news.test.ts'),
         'payment.test': path.join(__dirname, 'src/payment.test.ts'),
-        'podLoadBalance.test': path.join(__dirname, 'src/podLoadBalance.test.ts'),
         'registerBillingReceiptFile.test': path.join(__dirname, 'src/registerBillingReceiptFile.test.ts'),
         'registerBillingReceipt.test': path.join(__dirname, 'src/registerBillingReceipt.test.ts'),
     },

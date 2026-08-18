@@ -2,7 +2,6 @@ import { faker } from '@faker-js/faker/locale/ru'
 import http from 'k6/http'
 
 import { buildFakeAddressAndMeta } from '../../domains/property/utils/testSchema/factories'
-import { MIN_PASSWORD_LENGTH } from '@condo/domains/user/constants/common'
 
 const BASE_API_URL = __ENV.BASE_URL + '/admin/api'
 const AUTH_REQS = { email: __ENV.AUTH_EMAIL, password: __ENV.AUTH_PASSWORD }
@@ -41,11 +40,6 @@ const areReceiptsCreated = (res) => {
     } catch (err) {
         return false
     }
-}
-
-const getBalancerPeer = (res) => {
-    const headers = res.headers || {}
-    return headers['X-Balancer-Peer'] || headers['x-balancer-peer'] || ''
 }
 
 const createOrganization = (data) => sendAuthorizedRequest(data, {
@@ -310,5 +304,4 @@ export {
     resetOrganization,
     BASE_API_URL,
     areReceiptsCreated,
-    getBalancerPeer,
 }

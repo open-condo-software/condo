@@ -134,7 +134,8 @@ export function registerBillingReceipt (data) {
     })
 
     const receiptsResponse = response.json('data.result') as Array<{
-        id: string, property: { id: string, address: string, addressKey: string }
+        id: string
+        property: { id: string, address: string, addressKey: string }
     }>
 
     check(response, {

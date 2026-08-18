@@ -9,8 +9,6 @@ const metrics = require('@open-condo/keystone/metrics')
 const { DEFAULT_HEALTHCHECK_URL } = require('./healthCheck')
 
 const SEND_METRICS_INTERVAL_IN_MS = 1000
-const DEFAULT_HOLD_MS = 10000
-const MAX_HOLD_MS = 30000
 
 const X_TARGET_OPTIONS_VAR_NAME = 'X_TARGET_OPTIONS'
 const RUNTIME_STATS_ACCESS_TOKEN_VAR_NAME = 'RUNTIME_STATS_ACCESS_TOKEN'
@@ -22,15 +20,6 @@ function isAccessTokenValid (token) {
     if (token.length !== accessToken.length) return false
 
     return crypto.timingSafeEqual(Buffer.from(token), Buffer.from(accessToken))
-}
-
-function parseHoldMs (value) {
-    const parsed = Number.parseInt(value, 10)
-    if (!Number.isFinite(parsed) || parsed < 1) {
-        return DEFAULT_HOLD_MS
-    }
-
-    return Math.min(parsed, MAX_HOLD_MS)
 }
 
 const IS_BUILD_PHASE = conf.PHASE === 'build'
@@ -318,30 +307,6 @@ class RuntimeStatsMiddleware {
                 }
             })
 
-            // Token-gated in-flight hold used by load-balance tests. Counted in activeRequestsCount
-            // (path is not skipped) so nginx can see a busy pod and stop sending it new traffic.
-            app.get(`${this.statsUrl}/hold`, (req, res) => {
-                if (!isAccessTokenValid(req.query['token'])) {
-                    res.status(403).send()
-                    return
-                }
-
-                const heldMs = parseHoldMs(req.query['ms'])
-                let completed = false
-                const timer = setTimeout(() => {
-                    completed = true
-                    if (!res.writableEnded) {
-                        res.json({ ok: true, heldMs })
-                    }
-                }, heldMs)
-
-                req.on('close', () => {
-                    clearTimeout(timer)
-                    if (!completed && !res.writableEnded) {
-                        res.end()
-                    }
-                })
-            })
         } else {
             logger.warn({
                 msg: 'Runtime stats url disabled. It\'s impossible to get stats using GET query',
