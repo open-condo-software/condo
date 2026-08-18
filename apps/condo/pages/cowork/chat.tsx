@@ -11,6 +11,7 @@ import { CoworkLayout } from '@condo/domains/ai/components/Cowork'
 import coworkStyles from '@condo/domains/ai/components/Cowork/Cowork.module.css'
 import { useAiAssistantsChatStorage } from '@condo/domains/ai/components/Cowork/SavedChatsContext'
 import { setSessionId } from '@condo/domains/ai/utils/aiChatStorage'
+import { PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { PageComponentType } from '@condo/domains/common/types'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 
@@ -50,12 +51,18 @@ const CoworkPage: PageComponentType = () => {
     const inputRef = useRef<any>(null)
     const chatNameInputRef = useRef<any>(null)
 
-    // URL is the source of truth: ?chatId=xyz loads that chat, no chatId = new chat (welcome screen)
+    // URL is the source of truth: ?chatId=xyz loads that chat, no chatId = new chat (welcome screen).
+    // chats is read via a ref so that creating a chat (which updates chats) does not re-run this
+    // effect before router.push has updated queryChatId — that race cleared activeChatId/initialMessage
+    // and prevented the new chat's first message from being sent to the AI.
+    const chatsRef = useRef(chats)
+    chatsRef.current = chats
+
     useEffect(() => {
         if (!organizationId) return
 
         if (queryChatId) {
-            const queryChat = chats.find((c) => c.id === queryChatId)
+            const queryChat = chatsRef.current.find((c) => c.id === queryChatId)
             if (queryChat) {
                 setActiveChatId(queryChat.id)
                 setInitialMessage('')
@@ -64,7 +71,7 @@ const CoworkPage: PageComponentType = () => {
         }
 
         setActiveChatId(null)
-    }, [organizationId, queryChatId, chats])
+    }, [organizationId, queryChatId])
 
     // Pre-fill input from ?prompt= (used by Skills page) — one-shot, then clean the URL
     useEffect(() => {
@@ -270,6 +277,7 @@ const CoworkPage: PageComponentType = () => {
                             key={activeChatId}
                             aiSessionId={activeChatId}
                             initialMessage={initialMessage || undefined}
+                            showWelcomeMessage={false}
                         />
                     </div>
                 )}
@@ -278,11 +286,9 @@ const CoworkPage: PageComponentType = () => {
     }
 
     return (
-        <div className={coworkStyles.coworkBody}>
-            <div className={coworkStyles.mainArea}>
-                {renderChatHeader()}
-                {renderMain()}
-            </div>
+        <PageWrapper className={coworkStyles.chatPageWrapper}>
+            {renderChatHeader()}
+            {renderMain()}
             <Modal
                 open={isDeleteModalOpen}
                 title={deleteChatConfirmLabel}
@@ -298,7 +304,7 @@ const CoworkPage: PageComponentType = () => {
                     </div>
                 }
             />
-        </div>
+        </PageWrapper>
     )
 }
 

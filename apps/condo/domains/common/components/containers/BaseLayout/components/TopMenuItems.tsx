@@ -25,6 +25,7 @@ export interface ITopMenuItemsProps {
     headerAction?: React.ElementType
     hideAIButton?: boolean
     hideNotifications?: boolean
+    hideCoworkMenuLink?: boolean
 }
 
 export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
@@ -67,7 +68,7 @@ export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
 
     const userMenuExtraItems = useMemo(() => {
         const items = [...subscriptionMenuItems]
-        if (isCoworkEnabled) {
+        if (isCoworkEnabled && !props.hideCoworkMenuLink) {
             items.push({
                 key: 'cowork',
                 label: <Typography.Text size='medium' type='inherit'>{CoworkLabel}</Typography.Text>,
@@ -75,7 +76,7 @@ export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
             })
         }
         return items
-    }, [isCoworkEnabled, CoworkLabel, subscriptionMenuItems, router])
+    }, [isCoworkEnabled, CoworkLabel, subscriptionMenuItems, router, props.hideCoworkMenuLink])
 
     if (auth.isLoading) return null
 

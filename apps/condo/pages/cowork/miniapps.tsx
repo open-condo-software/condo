@@ -10,6 +10,7 @@ import { Button, Typography } from '@open-condo/ui'
 
 import { CoworkLayout } from '@condo/domains/ai/components/Cowork'
 import coworkStyles from '@condo/domains/ai/components/Cowork/Cowork.module.css'
+import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { PageComponentType } from '@condo/domains/common/types'
 import { B2BAppContext } from '@condo/domains/miniapp/utils/clientSchema'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
@@ -116,24 +117,22 @@ const CoworkMiniappsPage: PageComponentType = () => {
     }
 
     return (
-        <div className={coworkStyles.coworkBody}>
-            <div className={coworkStyles.mainArea}>
-                <div className={coworkStyles.miniappsContent}>
-                    <div className={coworkStyles.miniappsHeader}>
-                        <Typography.Title level={2}>{titleLabel}</Typography.Title>
-                        <Button
-                            type='secondary'
-                            size='medium'
-                            onClick={handleBrowseApps}
-                            icon={<ExternalLink size='small' />}
-                        >
-                            {browseAppsLabel}
-                        </Button>
-                    </div>
-                    {renderContent()}
+        <PageWrapper>
+            <PageContent>
+                <div className={coworkStyles.miniappsHeader}>
+                    <Typography.Title level={2}>{titleLabel}</Typography.Title>
+                    <Button
+                        type='secondary'
+                        size='medium'
+                        onClick={handleBrowseApps}
+                        icon={<ExternalLink size='small' />}
+                    >
+                        {browseAppsLabel}
+                    </Button>
                 </div>
-            </div>
-        </div>
+                {renderContent()}
+            </PageContent>
+        </PageWrapper>
     )
 }
 

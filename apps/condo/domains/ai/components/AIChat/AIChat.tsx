@@ -36,12 +36,14 @@ type AIChatProps = {
     aiSessionId: string
     initialMessage?: string
     onFirstUserMessage?: (text: string) => void
+    showWelcomeMessage?: boolean
 }
 
 export const AIChat: React.FC<AIChatProps> = ({
     aiSessionId,
     initialMessage,
     onFirstUserMessage,
+    showWelcomeMessage = true,
 }) => {
     const intl = useIntl()
     const loadingLabel = intl.formatMessage({ id: 'ai.chat.loading' })
@@ -595,7 +597,7 @@ export const AIChat: React.FC<AIChatProps> = ({
         <div ref={chatContainerRef} className={styles.chatContainer}>
             <div ref={messagesContainerRef}
                 className={`${styles.messagesContainer} comment-body`}>
-                {welcomeDisplayMessage && (
+                {showWelcomeMessage && welcomeDisplayMessage && (
                     <AIChatMessage
                         message={welcomeDisplayMessage}
                         canExecuteAIFlow={canExecuteAIFlow}
