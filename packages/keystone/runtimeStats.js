@@ -13,6 +13,7 @@ const SEND_METRICS_INTERVAL_IN_MS = 1000
 const X_TARGET_OPTIONS_VAR_NAME = 'X_TARGET_OPTIONS'
 const RUNTIME_STATS_ACCESS_TOKEN_VAR_NAME = 'RUNTIME_STATS_ACCESS_TOKEN'
 const RUNTIME_STATS_ENABLE_VAR_NAME = 'RUNTIME_STATS_ENABLE'
+const RUNTIME_STATS_MAX_ACTIVE_REQUESTS_VAR_NAME = 'RUNTIME_STATS_MAX_ACTIVE_REQUESTS'
 
 function isAccessTokenValid (token) {
     const accessToken = conf[RUNTIME_STATS_ACCESS_TOKEN_VAR_NAME]
@@ -20,6 +21,12 @@ function isAccessTokenValid (token) {
     if (token.length !== accessToken.length) return false
 
     return crypto.timingSafeEqual(Buffer.from(token), Buffer.from(accessToken))
+}
+
+function parseMaxActiveRequests (value) {
+    const parsed = parseInt(value, 10)
+    if (!Number.isFinite(parsed) || parsed <= 0) return 0
+    return parsed
 }
 
 const IS_BUILD_PHASE = conf.PHASE === 'build'
@@ -30,11 +37,18 @@ const logger = getLogger('runtime-stats')
 class RuntimeStatsMiddleware {
     constructor ({
         statsUrl = '/api/runtime-stats',
+        maxActiveRequests,
     } = {}) {
         this.statsUrl = statsUrl
+        this.maxActiveRequests = parseMaxActiveRequests(
+            maxActiveRequests !== undefined
+                ? maxActiveRequests
+                : conf[RUNTIME_STATS_MAX_ACTIVE_REQUESTS_VAR_NAME],
+        )
         this.requestTargetOptions = (conf[X_TARGET_OPTIONS_VAR_NAME] || '').split(',').filter(Boolean)
         this.requestTypeOptions = ['api', 'graphql', 'oidc', 'wellKnown', 'healthCheck', 'other']
         this.metricsIntervalId = null
+        this.wasReady = true
     }
 
     /**
@@ -123,6 +137,13 @@ class RuntimeStatsMiddleware {
             logger.warn({
                 msg: 'There are no options for x-target header. All queries will relate to the `other` group.',
                 data: { howToFix: `Add the ${X_TARGET_OPTIONS_VAR_NAME} variable to env. For example: 'condo-app,billing,cc-app'` },
+            })
+        }
+
+        if (this.maxActiveRequests > 0) {
+            logger.info({
+                msg: 'max active requests enabled',
+                data: { maxActiveRequests: this.maxActiveRequests, statsUrl: this.statsUrl },
             })
         }
 
@@ -284,32 +305,57 @@ class RuntimeStatsMiddleware {
             next()
         })
 
-        if (conf[RUNTIME_STATS_ACCESS_TOKEN_VAR_NAME]) {
-            app.get(this.statsUrl, (req, res) => {
-                const token = req.query['token']
-                const reqIds = req.query['reqIds']
+        const sendRuntimeStats = (req, res) => {
+            const activeRequestsCount = runtimeStats.activeRequestsIds.size
+            const maxActiveRequests = this.maxActiveRequests
+            const ready = maxActiveRequests <= 0 || activeRequestsCount < maxActiveRequests
+            const token = req.query['token']
 
-                if (isAccessTokenValid(token)) {
-                    res.json({
-                        activeRequestsCount: runtimeStats.activeRequestsIds.size,
-                        activeRequestsCountByType: runtimeStats.activeRequestsCountByType,
-                        activeRequestsCountByTarget: runtimeStats.activeRequestsCountByTarget,
-                        totalRequestsCount: runtimeStats.totalRequestsCount,
-                        totalRequestsCountByType: runtimeStats.totalRequestsCountByType,
-                        totalRequestsCountByTarget: runtimeStats.totalRequestsCountByTarget,
-                        ...reqIds ? {
-                            reqIds: Array.from(runtimeStats.activeRequestsIds.keys()),
-                            activeRequests: Array.from(runtimeStats.activeRequestsDetails.entries()).map(([id, details]) => ({ id, ...details })),
-                        } : {},
-                    })
-                } else {
-                    res.status(403).send()
-                }
+            if (ready !== this.wasReady) {
+                logger.warn({
+                    msg: ready
+                        ? 'active requests below max, pod ready'
+                        : 'active requests at max, pod not ready',
+                    data: { activeRequestsCount, maxActiveRequests },
+                })
+                this.wasReady = ready
+            }
+
+            const status = ready ? 200 : 503
+
+            if (!token) {
+                // Kube httpGet probes cannot send a token from env. Status alone is
+                // enough for readiness; do not leak counters without a valid token.
+                return res.status(status).end()
+            }
+
+            if (!isAccessTokenValid(token)) {
+                return res.status(403).send()
+            }
+
+            const reqIds = req.query['reqIds']
+
+            return res.status(status).json({
+                ready,
+                maxActiveRequests,
+                activeRequestsCount,
+                activeRequestsCountByType: runtimeStats.activeRequestsCountByType,
+                activeRequestsCountByTarget: runtimeStats.activeRequestsCountByTarget,
+                totalRequestsCount: runtimeStats.totalRequestsCount,
+                totalRequestsCountByType: runtimeStats.totalRequestsCountByType,
+                totalRequestsCountByTarget: runtimeStats.totalRequestsCountByTarget,
+                ...reqIds ? {
+                    reqIds: Array.from(runtimeStats.activeRequestsIds.keys()),
+                    activeRequests: Array.from(runtimeStats.activeRequestsDetails.entries()).map(([id, details]) => ({ id, ...details })),
+                } : {},
             })
+        }
 
-        } else {
+        app.get(this.statsUrl, sendRuntimeStats)
+
+        if (!conf[RUNTIME_STATS_ACCESS_TOKEN_VAR_NAME]) {
             logger.warn({
-                msg: 'Runtime stats url disabled. It\'s impossible to get stats using GET query',
+                msg: 'Runtime stats token is not set. GET /api/runtime-stats without a token returns only a status code',
                 data: { howToEnable: `Add the ${RUNTIME_STATS_ACCESS_TOKEN_VAR_NAME} variable to env` },
             })
         }
