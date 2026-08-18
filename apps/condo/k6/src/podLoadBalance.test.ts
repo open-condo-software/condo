@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker/locale/ru'
 import dayjs from 'dayjs'
 import { check } from 'k6'
-import { Counter } from 'k6/metrics'
+import { Counter, Gauge, Rate } from 'k6/metrics'
 
 import {
     setupCondoAuth,
@@ -20,8 +20,17 @@ const BILLING_BALANCER_HEADERS = {
     'X-Balancer-Debug': '1',
 }
 
+// Per-request counters, labelled by { peer } tag so the output shows each pod's share
 const balancerPeerHits = new Counter('balancer_peer_hits')
-const seenPeers = {}
+
+// Fraction of requests where more than one distinct peer was seen so far in this VU
+const multiPeerRate = new Rate('balancer_multi_peer_rate')
+
+// Running count of distinct peers observed across all VUs (written as Gauge on each iteration)
+const distinctPeerCount = new Gauge('balancer_distinct_peer_count')
+
+// Shared across VUs — k6 runs in a single process, plain object is sufficient
+const seenPeers: Record<string, number> = {}
 
 export const options = {
     tags: { testid: 'podLoadBalance', serverUrl: __ENV.BASE_URL },
@@ -39,6 +48,10 @@ export const options = {
         checks: ['rate>0.85'],
         'checks{check:has balancer peer}': ['rate>0.95'],
         'checks{check:avoids sticking to one pod}': ['rate>0.8'],
+        // At least two distinct pod IPs must have served requests by end of run
+        balancer_distinct_peer_count: ['value>=2'],
+        // More than half of all iterations should see multiple peers already in the shared map
+        balancer_multi_peer_rate: ['rate>0.5'],
     },
 }
 
@@ -134,15 +147,23 @@ export function registerBillingReceiptsService (data) {
 
     const peer = getBalancerPeer(response)
     if (peer) {
-        seenPeers[peer] = 1
+        seenPeers[peer] = (seenPeers[peer] || 0) + 1
+        // Tag the counter so the summary shows per-pod request counts, e.g.:
+        //   balancer_peer_hits{peer="10.32.12.167"}: 54
+        //   balancer_peer_hits{peer="10.32.14.151"}: 48
         balancerPeerHits.add(1, { peer })
     }
+
+    const numDistinct = Object.keys(seenPeers).length
+    distinctPeerCount.add(numDistinct)
+    // true once at least two peers have been seen (after the warm-up window)
+    multiPeerRate.add(numDistinct >= 2 ? 1 : 0)
 
     check(response, {
         'receipt creation status is 200': (res) => res.status === 200,
         'receipts is created': (res) => areReceiptsCreated(res),
         'has balancer peer': () => Boolean(peer),
         // Overlapping slow billing mutations should not pin a VU onto one pod.
-        'avoids sticking to one pod': () => __ITER < 5 || Object.keys(seenPeers).length >= 2,
+        'avoids sticking to one pod': () => __ITER < 5 || numDistinct >= 2,
     })
 }
