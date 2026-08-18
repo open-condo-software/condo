@@ -240,6 +240,8 @@ const NewsItem = new GQLListSchema('NewsItem', {
             schemaDoc: 'The organization employee user who authored this news item.',
             type: 'Relationship',
             ref: 'User',
+            isRequired: true,
+            kmigratorOptions: { null: true },
             access: {
                 read: true,
                 create: access.canSetNewsItemUserField,
