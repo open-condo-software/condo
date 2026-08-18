@@ -85,11 +85,17 @@ const TaskIconsWrapper = styled.div<{ cursor?: 'pointer' | 'default' }>`
 const TaskIconsHoverSwitcher = ({ progress, taskStatus, removeTask }) => {
     const [isHovered, setIsHovered] = useState(false)
 
+    const handleClick = useCallback((event: React.MouseEvent) => {
+        event.preventDefault()
+        event.stopPropagation()
+        removeTask()
+    }, [removeTask])
+
     return (
         <TaskIconsWrapper
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            onClick={removeTask}
+            onClick={handleClick}
         >
             {
                 taskStatus === TASK_COMPLETED_STATUS
@@ -168,7 +174,7 @@ const handledTerminalStatesOfTasksIds = []
 /**
  * Polls tasks record for updates and handles its transition to completed status.
  */
-export const TaskProgressTracker: React.FC<ITaskProgressTrackerProps> = ({ task, isDesktop, isAllTasksFinished }) => {
+const TaskProgressTrackerImpl: React.FC<ITaskProgressTrackerProps> = ({ task, isDesktop, isAllTasksFinished }) => {
     const { storage, removeStrategy, calculateProgress, onComplete, onCancel, onError, translations } = task
     const { record, stopPolling } = storage.useTask(task.record.id)
 
@@ -176,28 +182,31 @@ export const TaskProgressTracker: React.FC<ITaskProgressTrackerProps> = ({ task,
 
     const removeTaskFromStorage = storage.useDeleteTask({}, () => {
         if (removeStrategy.includes(TASK_REMOVE_STRATEGY.PANEL)) {
-            deleteTaskFromContext(record)
+            deleteTaskFromContext(record || task.record)
         }
     })
 
-    const removeTaskFromUI = () => {
+    const removeTaskFromUI = useCallback(() => {
         if (removeStrategy.includes(TASK_REMOVE_STRATEGY.STORAGE)) {
-            removeTaskFromStorage(record)
+            removeTaskFromStorage(record || task.record)
         } else if (removeStrategy.includes(TASK_REMOVE_STRATEGY.PANEL)) {
-            deleteTaskFromContext(record)
+            deleteTaskFromContext(record || task.record)
         }
-    }
+    }, [removeStrategy, removeTaskFromStorage, record, task.record, deleteTaskFromContext])
 
     const cancelTaskAndRemoveFromUI = storage.useUpdateTask({ status: TASK_CANCELLED_STATUS }, removeTaskFromUI)
 
     const handleRemoveTask = useCallback(async () => {
+        const taskRecord = record || task.record
+        if (!taskRecord) return
+
         // Tasks under processing should be cancelled before removing from UI
-        if (record.status === TASK_PROCESSING_STATUS) {
-            cancelTaskAndRemoveFromUI({}, record)
+        if (taskRecord.status === TASK_PROCESSING_STATUS) {
+            cancelTaskAndRemoveFromUI({}, taskRecord)
         } else {
             removeTaskFromUI()
         }
-    }, [record, removeTaskFromUI])
+    }, [record, task.record, cancelTaskAndRemoveFromUI, removeTaskFromUI])
 
     useEffect(() => {
         if (record && record.status !== TASK_PROCESSING_STATUS) {
@@ -234,6 +243,14 @@ export const TaskProgressTracker: React.FC<ITaskProgressTrackerProps> = ({ task,
             isAllTasksFinished={isAllTasksFinished}
         />
     )
+}
+
+export const TaskProgressTracker: React.FC<ITaskProgressTrackerProps> = (props) => {
+    if (!props.task?.storage?.useTask || !props.task?.record?.id) {
+        return null
+    }
+
+    return <TaskProgressTrackerImpl {...props} />
 }
 
 const RIGHT_ALIGN_STYLE: React.CSSProperties = {
@@ -314,7 +331,7 @@ export const TasksProgress = ({ tasks }: ITasksProgressProps) => {
                     )}
                     <List
                         style={listStyle}
-                        dataSource={tasks}
+                        dataSource={tasks.filter((task) => task?.storage?.useTask && task?.record?.id)}
                         renderItem={(task) => (
                             <TaskProgressTracker
                                 key={task.record.id}

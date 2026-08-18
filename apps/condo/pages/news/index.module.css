@@ -1,0 +1,25 @@
+.custom-page-header {
+  padding: 0 !important;
+}
+
+.pageLayout {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 40px;
+  min-height: 0;
+  height: 100%;
+}
+
+@media (max-width: 991px) {
+  .pageLayout {
+    gap: 24px;
+  }
+}
+
+.tableContent {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
