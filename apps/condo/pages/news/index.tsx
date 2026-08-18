@@ -1,14 +1,30 @@
+import {
+    NewsItem as INewsItem,
+    NewsItemWhereInput,
+    SortNewsItemsBy,
+} from '@app/condo/schema'
 import { Col, Row, RowProps } from 'antd'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
+import omit from 'lodash/omit'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 
 import { Search } from '@open-condo/icons'
+import { useLazyQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, ActionBarProps, Button, Typography } from '@open-condo/ui'
+import {
+    ActionBar,
+    ActionBarProps,
+    Button,
+    FullTableState,
+    GetTableData,
+    Table,
+    TableRef,
+    Typography,
+} from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
@@ -16,67 +32,139 @@ import { PageHeader, PageWrapper } from '@condo/domains/common/components/contai
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
-import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
+import { DEFAULT_PAGE_SIZE } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
 import { usePreviousSortAndFilters } from '@condo/domains/common/hooks/usePreviousQueryParams'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
-import { useSearch } from '@condo/domains/common/hooks/useSearch'
+import { useTableSearch } from '@condo/domains/common/hooks/useSearch'
+import { useTableTranslations } from '@condo/domains/common/hooks/useTableTranslations'
 import { PageComponentType } from '@condo/domains/common/types'
-import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { defaultParseUrlQuery, defaultUpdateUrlQuery } from '@condo/domains/common/utils/tableUrls'
+import { NewsAudienceFilterSwitch } from '@condo/domains/news/components/NewsAudienceFilterSwitch'
 import { NewsReadPermissionRequired } from '@condo/domains/news/components/PageAccess'
+import { NEWS_ITEM_SOURCE_IDS } from '@condo/domains/news/constants/newsItemSourceIds'
+import { NewsItem as NewsItemGQL } from '@condo/domains/news/gql'
 import { useNewsItemsAccess } from '@condo/domains/news/hooks/useNewsItemsAccess'
 import { useTableColumns } from '@condo/domains/news/hooks/useTableColumns'
-import { useTableFilters } from '@condo/domains/news/hooks/useTableFilters'
+import { useTableFilters, UseNewsTableFiltersReturnType } from '@condo/domains/news/hooks/useTableFilters'
 import { NewsItem } from '@condo/domains/news/utils/clientSchema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
-import { IFilters } from '@condo/domains/ticket/utils/helpers'
+
+import styles from './index.module.css'
 
 
 const PAGE_ROW_GUTTER: RowProps['gutter'] = [0, 40]
+const HEADER_GUTTER: RowProps['gutter'] = [0, 16]
 const SORTABLE_PROPERTIES = ['number', 'createdAt']
 const NEWS_DEFAULT_SORT_BY = ['createdAt_DESC']
+const AUDIENCE_FILTER_KEY = 'audience'
 
-const NewsTableContainer = ({
+type BaseNewsQuery = {
+    organization: { id: string }
+    source: { id_in: string[] }
+}
+
+type NewsTableContainerProps = {
+    baseNewsQuery: BaseNewsQuery
+    filterMetas: UseNewsTableFiltersReturnType
+    tableRef: React.RefObject<TableRef | null>
+}
+
+const NewsTableContainer: React.FC<NewsTableContainerProps> = ({
+    baseNewsQuery,
     filterMetas,
-    sortBy,
-    searchNewsQuery,
-    loading,
+    tableRef,
 }) => {
     const intl = useIntl()
     const CreateNewsLabel = intl.formatMessage({ id: 'news.createNews' })
+    const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const router = useRouter()
-    const { offset } = useMemo(() => parseQuery(router.query), [router.query])
-
-    const currentPageIndex = useMemo(() => getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE), [offset])
     const { canManage } = useNewsItemsAccess()
-
-    const {
-        loading: isNewsFetching,
-        count: total,
-        objs: news,
-    } = NewsItem.useObjects({
-        sortBy,
-        where: searchNewsQuery,
-        first: DEFAULT_PAGE_SIZE,
-        skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
-    }, { fetchPolicy: 'network-only' })
-
+    const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, SORTABLE_PROPERTIES)
     const columns = useTableColumns(filterMetas)
+    const columnLabels = useTableTranslations()
+    const [search, handleSearchChange, setSearch] = useTableSearch(tableRef)
+
+    const { filters: urlFilters } = useMemo(() => parseQuery(router.query), [router.query])
+    const audience = urlFilters[AUDIENCE_FILTER_KEY]
+
+    const [fetchNews] = useLazyQuery(NewsItemGQL.GET_ALL_OBJS_WITH_COUNT_QUERY)
+    const initialTableState = useMemo(
+        () => defaultParseUrlQuery(router.query, DEFAULT_PAGE_SIZE),
+        [router.query],
+    )
+
+    const updateUrlQuery = useCallback((params: FullTableState) => {
+        const nextFilterState = omit(params.filterState, [AUDIENCE_FILTER_KEY])
+        if (audience) {
+            nextFilterState[AUDIENCE_FILTER_KEY] = audience
+        }
+
+        defaultUpdateUrlQuery(router, {
+            ...params,
+            filterState: nextFilterState,
+        })
+    }, [audience, router])
+
+    const dataSource: GetTableData<INewsItem> = useCallback(async ({
+        filterState,
+        sortState,
+        startRow,
+        endRow,
+        globalFilter,
+    }) => {
+        const where: NewsItemWhereInput = {
+            ...baseNewsQuery,
+            ...filtersToWhere({
+                ...omit(filterState, [AUDIENCE_FILTER_KEY]),
+                ...(audience ? { [AUDIENCE_FILTER_KEY]: audience } : {}),
+                search: globalFilter,
+            }),
+        }
+
+        try {
+            const { data } = await fetchNews({
+                variables: {
+                    where,
+                    sortBy: sortersToSortBy(sortState, NEWS_DEFAULT_SORT_BY) as SortNewsItemsBy[],
+                    first: endRow - startRow,
+                    skip: startRow,
+                },
+                fetchPolicy: 'network-only',
+            })
+
+            return {
+                rowData: data?.objs?.filter(Boolean) ?? [],
+                rowCount: data?.meta?.count ?? 0,
+            }
+        } catch (error) {
+            console.error('Failed to fetch news items', error)
+            return { rowData: [], rowCount: 0 }
+        }
+    }, [audience, baseNewsQuery, fetchNews, filtersToWhere, sortersToSortBy])
+
+    useEffect(() => {
+        tableRef.current?.api?.refetchData()
+    }, [audience, baseNewsQuery, tableRef])
 
     const handleAddNews = useCallback(async () => {
         await router.push('/news/create')
     }, [router])
 
-    const handleRowAction = useCallback((record) => {
-        return {
-            onClick: async () => {
-                await router.push(`/news/${record.id}`)
-            },
-        }
+    const handleRowClick = useCallback((record: INewsItem) => {
+        const hasSelectedText = globalThis.window?.getSelection?.()?.toString().trim()
+        if (hasSelectedText) return
+
+        router.push(`/news/${record.id}`)
     }, [router])
 
-    const isAllLoaded = !(loading || isNewsFetching)
+    const getRowId = useCallback((row: INewsItem) => row.id, [])
+
+    const onTableReady = useCallback((readyTableRef: TableRef) => {
+        setSearch(String(readyTableRef.api.getGlobalFilter() || ''))
+    }, [setSearch])
 
     const actionBarButtons: ActionBarProps['actions'] = useMemo(() => [
         canManage && <Button
@@ -90,13 +178,29 @@ const NewsTableContainer = ({
     return (
         <Row gutter={PAGE_ROW_GUTTER}>
             <Col span={24}>
-                <Table
-                    totalRows={total}
-                    loading={!isAllLoaded}
-                    dataSource={isAllLoaded ? news : null}
+                <TableFiltersContainer>
+                    <Input
+                        placeholder={SearchPlaceholder}
+                        onChange={(event) => handleSearchChange(event.target.value)}
+                        value={search}
+                        allowClear
+                        suffix={<Search size='medium' color={colors.gray[7]} />}
+                    />
+                </TableFiltersContainer>
+            </Col>
+            <Col span={24} data-cy='news__table'>
+                <Table<INewsItem>
+                    id='news-table'
+                    dataSource={dataSource}
                     columns={columns}
-                    data-cy='news__table'
-                    onRow={handleRowAction}
+                    onRowClick={handleRowClick}
+                    pageSize={DEFAULT_PAGE_SIZE}
+                    onTableStateChange={updateUrlQuery}
+                    initialTableState={initialTableState}
+                    columnLabels={columnLabels}
+                    getRowId={getRowId}
+                    onTableReady={onTableReady}
+                    ref={tableRef}
                 />
             </Col>
             {
@@ -112,13 +216,24 @@ const NewsTableContainer = ({
     )
 }
 
-const NewsPageContent = ({
+type NewsPageContentProps = {
+    baseNewsQuery: BaseNewsQuery
+    filterMetas: UseNewsTableFiltersReturnType
+    tableRef: React.RefObject<TableRef | null>
+    newsWithoutFiltersCount: number
+    newsWithoutFiltersCountLoading: boolean
+    newsError?: Error
+}
+
+const NewsPageContent: React.FC<NewsPageContentProps> = ({
     baseNewsQuery,
     filterMetas,
-    sortableProperties,
+    tableRef,
+    newsWithoutFiltersCount,
+    newsWithoutFiltersCountLoading,
+    newsError,
 }) => {
     const intl = useIntl()
-    const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.news.index.emptyList.header' })
     const EmptyListMessage = intl.formatMessage({ id: 'pages.condo.news.index.emptyList.title' })
     const PropertyGateLabel = intl.formatMessage({ id: 'pages.condo.news.index.propertyGate.header' })
@@ -127,19 +242,7 @@ const NewsPageContent = ({
     const CreateNews = intl.formatMessage({ id: 'news.createNews' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
 
-    const [search, changeSearch] = useSearch<IFilters>()
-    const handleSearchChange = useCallback((e) => {
-        changeSearch(e.target.value)
-    }, [changeSearch])
-
-    const router = useRouter()
-    const { filters, sorters } = parseQuery(router.query)
-    const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, sortableProperties)
-    const sortBy = sortersToSortBy(sorters, NEWS_DEFAULT_SORT_BY)
-    const searchNewsQuery = useMemo(() => ({ ...baseNewsQuery, ...filtersToWhere(filters) }),
-        [baseNewsQuery, filters, filtersToWhere])
     const { canManage } = useNewsItemsAccess()
-
     const { organization } = useOrganization()
 
     const {
@@ -147,12 +250,6 @@ const NewsPageContent = ({
         loading: propertiesLoading,
         error: propertiesError,
     } = Property.useCount({ where: { organization: { id: get(organization, 'id') } }, first: 1 })
-
-    const {
-        count: newsWithoutFiltersCount,
-        loading: newsWithoutFiltersCountLoading,
-        error: newsError,
-    } = NewsItem.useCount({ where: baseNewsQuery })
 
     const loading = newsWithoutFiltersCountLoading || propertiesLoading
     const error = newsError || propertiesError
@@ -188,25 +285,11 @@ const NewsPageContent = ({
     }
 
     return (
-        <Row gutter={PAGE_ROW_GUTTER} justify='space-between'>
-            <Col span={24}>
-                <TableFiltersContainer>
-                    <Input
-                        placeholder={SearchPlaceholder}
-                        onChange={handleSearchChange}
-                        value={search}
-                        allowClear
-                        suffix={<Search size='medium' color={colors.gray[7]}/>}
-                    />
-                </TableFiltersContainer>
-            </Col>
-            <NewsTableContainer
-                searchNewsQuery={searchNewsQuery}
-                sortBy={sortBy}
-                filterMetas={filterMetas}
-                loading={loading}
-            />
-        </Row>
+        <NewsTableContainer
+            baseNewsQuery={baseNewsQuery}
+            filterMetas={filterMetas}
+            tableRef={tableRef}
+        />
     )
 }
 
@@ -214,18 +297,32 @@ const NewsPage: PageComponentType = () => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.news.index.pageTitle' })
 
-    const { link, organization }  = useOrganization()
+    const { link, organization } = useOrganization()
     const employeeId = get(link, 'id')
     const { isLoading: isAccessLoading } = useNewsItemsAccess()
+    const tableRef = useRef<TableRef | null>(null)
 
     const { GlobalHints } = useGlobalHints()
     usePreviousSortAndFilters({ employeeSpecificKey: employeeId })
 
-    const baseNewsQuery = {
+    const baseNewsQuery = useMemo(() => ({
         organization: { id: organization.id },
-    }
+        source: {
+            id_in: [
+                NEWS_ITEM_SOURCE_IDS.NEWS_FORM,
+                NEWS_ITEM_SOURCE_IDS.REGISTRY,
+            ],
+        },
+    }), [organization.id])
 
     const filterMetas = useTableFilters()
+
+    const {
+        count: newsWithoutFiltersCount,
+        loading: newsWithoutFiltersCountLoading,
+        error: newsError,
+    } = NewsItem.useCount({ where: baseNewsQuery })
+    const isNewsExists = (newsWithoutFiltersCount ?? 0) > 0
 
     if (isAccessLoading) {
         return <LoadingOrErrorPage error='' loading={true}/>
@@ -238,14 +335,31 @@ const NewsPage: PageComponentType = () => {
             </Head>
             <PageWrapper>
                 {GlobalHints}
-                <PageHeader title={<Typography.Title>{PageTitleMessage}</Typography.Title>} />
-                <TablePageContent>
-                    <NewsPageContent
-                        baseNewsQuery={baseNewsQuery}
-                        filterMetas={filterMetas}
-                        sortableProperties={SORTABLE_PROPERTIES}
-                    />
-                </TablePageContent>
+                <div className={styles.pageLayout}>
+                    <Row justify='space-between' align='middle' gutter={HEADER_GUTTER}>
+                        <PageHeader
+                            className={styles.customPageHeader}
+                            title={<Typography.Title>{PageTitleMessage}</Typography.Title>}
+                        />
+                        {
+                            !newsWithoutFiltersCountLoading && isNewsExists && (
+                                <Col>
+                                    <NewsAudienceFilterSwitch />
+                                </Col>
+                            )
+                        }
+                    </Row>
+                    <TablePageContent className={styles.tableContent}>
+                        <NewsPageContent
+                            baseNewsQuery={baseNewsQuery}
+                            filterMetas={filterMetas}
+                            tableRef={tableRef}
+                            newsWithoutFiltersCount={newsWithoutFiltersCount}
+                            newsWithoutFiltersCountLoading={newsWithoutFiltersCountLoading}
+                            newsError={newsError}
+                        />
+                    </TablePageContent>
+                </div>
             </PageWrapper>
         </>
     )
