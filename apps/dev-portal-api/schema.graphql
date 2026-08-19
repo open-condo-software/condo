@@ -3225,6 +3225,7 @@ type B2BAppAccessRightSetHistoryRecord {
   canManageNewsItemScopes: Boolean
   canReadNewsItemFiles: Boolean
   canManageNewsItemFiles: Boolean
+  canManageNewsItemRecipientsExportTasks: Boolean
   canExecuteRegisterExternalPayments: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
@@ -3375,6 +3376,8 @@ input B2BAppAccessRightSetHistoryRecordWhereInput {
   canReadNewsItemFiles_not: Boolean
   canManageNewsItemFiles: Boolean
   canManageNewsItemFiles_not: Boolean
+  canManageNewsItemRecipientsExportTasks: Boolean
+  canManageNewsItemRecipientsExportTasks_not: Boolean
   canExecuteRegisterExternalPayments: Boolean
   canExecuteRegisterExternalPayments_not: Boolean
   canExecuteRegisterMetersReadings: Boolean
@@ -3596,6 +3599,8 @@ enum SortB2BAppAccessRightSetHistoryRecordsBy {
   canReadNewsItemFiles_DESC
   canManageNewsItemFiles_ASC
   canManageNewsItemFiles_DESC
+  canManageNewsItemRecipientsExportTasks_ASC
+  canManageNewsItemRecipientsExportTasks_DESC
   canExecuteRegisterExternalPayments_ASC
   canExecuteRegisterExternalPayments_DESC
   canExecuteRegisterMetersReadings_ASC
@@ -3679,6 +3684,7 @@ input B2BAppAccessRightSetHistoryRecordUpdateInput {
   canManageNewsItemScopes: Boolean
   canReadNewsItemFiles: Boolean
   canManageNewsItemFiles: Boolean
+  canManageNewsItemRecipientsExportTasks: Boolean
   canExecuteRegisterExternalPayments: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
@@ -3753,6 +3759,7 @@ input B2BAppAccessRightSetHistoryRecordCreateInput {
   canManageNewsItemScopes: Boolean
   canReadNewsItemFiles: Boolean
   canManageNewsItemFiles: Boolean
+  canManageNewsItemRecipientsExportTasks: Boolean
   canExecuteRegisterExternalPayments: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
@@ -3856,6 +3863,7 @@ type B2BAppAccessRightSet {
   canManageNewsItemScopes: Boolean
   canReadNewsItemFiles: Boolean
   canManageNewsItemFiles: Boolean
+  canManageNewsItemRecipientsExportTasks: Boolean
   canExecuteRegisterExternalPayments: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
@@ -3990,6 +3998,8 @@ input B2BAppAccessRightSetWhereInput {
   canReadNewsItemFiles_not: Boolean
   canManageNewsItemFiles: Boolean
   canManageNewsItemFiles_not: Boolean
+  canManageNewsItemRecipientsExportTasks: Boolean
+  canManageNewsItemRecipientsExportTasks_not: Boolean
   canExecuteRegisterExternalPayments: Boolean
   canExecuteRegisterExternalPayments_not: Boolean
   canExecuteRegisterMetersReadings: Boolean
@@ -4193,6 +4203,8 @@ enum SortB2BAppAccessRightSetsBy {
   canReadNewsItemFiles_DESC
   canManageNewsItemFiles_ASC
   canManageNewsItemFiles_DESC
+  canManageNewsItemRecipientsExportTasks_ASC
+  canManageNewsItemRecipientsExportTasks_DESC
   canExecuteRegisterExternalPayments_ASC
   canExecuteRegisterExternalPayments_DESC
   canExecuteRegisterMetersReadings_ASC
@@ -4276,6 +4288,7 @@ input B2BAppAccessRightSetUpdateInput {
   canManageNewsItemScopes: Boolean
   canReadNewsItemFiles: Boolean
   canManageNewsItemFiles: Boolean
+  canManageNewsItemRecipientsExportTasks: Boolean
   canExecuteRegisterExternalPayments: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
@@ -4347,6 +4360,7 @@ input B2BAppAccessRightSetCreateInput {
   canManageNewsItemScopes: Boolean
   canReadNewsItemFiles: Boolean
   canManageNewsItemFiles: Boolean
+  canManageNewsItemRecipientsExportTasks: Boolean
   canExecuteRegisterExternalPayments: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
