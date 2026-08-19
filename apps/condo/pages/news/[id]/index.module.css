@@ -1,0 +1,19 @@
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.header .page-header {
+  padding: 0 !important;
+}
+
+.header-meta {
+  display: flex;
+  flex-direction: column;
+  max-width: 846px;
+}
+
+.files-field :global(.condo-typography) {
+  width: 100%;
+}
