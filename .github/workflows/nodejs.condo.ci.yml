@@ -6,7 +6,8 @@ on:
       - main
 
   # NOTE: change pull_request_target to pull_request if you want to change the CI in your branch
-  pull_request: # FIXME: return "pull_request_target"
+  # FIXME: return "pull_request_target"
+  pull_request:
     types:
       - opened
       - reopened
@@ -962,7 +963,7 @@ jobs:
           npm i -g turbo
           yarn install --immutable
       - name: Prepare app
-        run: |
+        run: | 
           yarn workspace @app/resident-app build:deps
       - name: Run @app/resident-app tests
         run: yarn workspace @app/resident-app test
