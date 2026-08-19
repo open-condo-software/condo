@@ -23,11 +23,17 @@ describe('getNewsAudienceFilter', () => {
         expect(filter('')).toBeUndefined()
     })
 
-    it('returns unit-only scopes where for personal', () => {
+    it('returns a single unit-scope where for personal', () => {
         const where = filter(NEWS_AUDIENCE_PERSONAL)
 
         expect(where).toEqual({
             AND: [
+                {
+                    deletedAt: null,
+                },
+                {
+                    scopesCount: 1,
+                },
                 {
                     scopes_some: {
                         deletedAt: null,
@@ -44,21 +50,34 @@ describe('getNewsAudienceFilter', () => {
         })
     })
 
-    it('returns broad / non-unit where for common', () => {
+    it('returns the complement of personal where for common', () => {
         const where = filter(NEWS_AUDIENCE_COMMON)
 
-        expect(where.OR).toHaveLength(2)
-        expect(where.OR[0]).toEqual({
-            scopes_some: {
-                deletedAt: null,
-                type_in: expect.arrayContaining([NEWS_ITEM_SCOPE_TYPE_ORGANIZATION]),
-            },
-        })
-        expect(where.OR[1]).toEqual({
-            scopes_none: {
-                deletedAt: null,
-                type: NEWS_ITEM_SCOPE_TYPE_PROPERTY_UNIT_TYPE_UNIT_NAME,
-            },
+        expect(where).toEqual({
+            AND: [
+                {
+                    deletedAt: null,
+                },
+                {
+                    OR: [
+                        {
+                            scopesCount_not: 1,
+                        },
+                        {
+                            scopes_some: {
+                                deletedAt: null,
+                                type_in: expect.arrayContaining([NEWS_ITEM_SCOPE_TYPE_ORGANIZATION]),
+                            },
+                        },
+                        {
+                            scopes_none: {
+                                deletedAt: null,
+                                type: NEWS_ITEM_SCOPE_TYPE_PROPERTY_UNIT_TYPE_UNIT_NAME,
+                            },
+                        },
+                    ],
+                },
+            ],
         })
     })
 })
