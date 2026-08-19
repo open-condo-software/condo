@@ -1,4 +1,4 @@
-import { useGetNewsItemFilesQuery, GetNewsItemFilesQuery } from '@app/condo/gql'
+import { useGetNewsItemFilesQuery } from '@app/condo/gql'
 import {
     NewsItem as INewsItem, NewsItemSharingStatusType,
 } from '@app/condo/schema'
@@ -7,19 +7,20 @@ import dayjs from 'dayjs'
 import every from 'lodash/every'
 import get from 'lodash/get'
 import has from 'lodash/has'
+import throttle from 'lodash/throttle'
 import getConfig from 'next/config'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
+import { useLazyQuery } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar } from '@open-condo/ui'
-import { Typography, Button, Markdown } from '@open-condo/ui'
+import { ActionBar, Button, Markdown, Typography } from '@open-condo/ui'
 
 import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import {
@@ -39,15 +40,17 @@ import {
     FilesUploadList,
 } from '@condo/domains/news/components/FilesUploadList'
 import { NewsReadPermissionRequired } from '@condo/domains/news/components/PageAccess'
-import { RecipientCounter } from '@condo/domains/news/components/RecipientCounter'
 import { NewsItemScopeNoInstanceType } from '@condo/domains/news/components/types'
+import { NEWS_ITEM_SOURCE_TYPES } from '@condo/domains/news/constants/newsItemSourceTypes'
 import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
+import { GET_NEWS_ITEMS_RECIPIENTS_COUNTERS_MUTATION } from '@condo/domains/news/gql'
 import { useNewsItemsAccess } from '@condo/domains/news/hooks/useNewsItemsAccess'
 import { isPostponedNewsItem } from '@condo/domains/news/utils'
 import { NewsItem, NewsItemScope, NewsItemSharing } from '@condo/domains/news/utils/clientSchema'
-import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
+
+import styles from './index.module.css'
 
 
 const { publicRuntimeConfig: { newsItemsSendingDelay } } = getConfig()
@@ -55,28 +58,49 @@ const { publicRuntimeConfig: { newsItemsSendingDelay } } = getConfig()
 
 const PAGE_ROW_GUTTER: RowProps['gutter'] = [0, 40]
 const HORIZONTAL_ROW_GUTTER: RowProps['gutter'] = [0, 24]
-const HEADER_STYLES: React.CSSProperties = { padding: '0 0 20px 0 !important' }
 
 type FieldValueType = string | React.ReactNode | Array<any>
 interface IFieldPairRowProps <T extends FieldValueType> {
     fieldTitle: string
     fieldValue: T
     renderFieldValue?: (value: T) => React.ReactElement
+    align?: RowProps['align']
+    className?: string
 }
 const FieldPairRow = <T extends FieldValueType> (props: IFieldPairRowProps<T>): React.ReactNode => {
     const {
         fieldTitle,
         fieldValue,
         renderFieldValue,
+        align,
+        className,
     } = props
 
     const { breakpoints } = useLayoutContext()
 
     return (
-        <PageFieldRow title={fieldTitle} ellipsis labelSpan={!breakpoints.TABLET_LARGE ? 5 : 7}>
+        <PageFieldRow
+            title={fieldTitle}
+            ellipsis
+            labelSpan={!breakpoints.TABLET_LARGE ? 5 : 7}
+            align={align}
+            className={className}
+        >
             <NotDefinedField value={fieldValue} render={renderFieldValue}/>
         </PageFieldRow>
     )
+}
+
+const processNewsItemScopes = (newsItemScopes: NewsItemScopeNoInstanceType[]) => {
+    return newsItemScopes.map((scope) => {
+        const propertyId = get(scope, ['property', 'id'])
+
+        return {
+            property: propertyId ? { id: propertyId } : null,
+            unitType: get(scope, 'unitType', null),
+            unitName: get(scope, 'unitName', null),
+        }
+    })
 }
 
 const NewsItemCard: React.FC = () => {
@@ -86,8 +110,9 @@ const NewsItemCard: React.FC = () => {
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
     const NotFoundMsg = intl.formatMessage({ id: 'NotFound' })
     const SendAtLabel = intl.formatMessage({ id: 'pages.news.newsItemCard.field.sendAt' })
-    const TypeLabel = intl.formatMessage({ id: 'pages.news.newsItemCard.field.type' })
     const ValidBeforeLabel = intl.formatMessage({ id: 'pages.news.newsItemCard.field.validBefore' })
+    const SourceLabel = intl.formatMessage({ id: 'pages.news.newsItemCard.field.source' })
+    const WillReceiveLabel = intl.formatMessage({ id: 'pages.news.newsItemCard.field.willReceive' })
     const TitleLabel = intl.formatMessage({ id: 'pages.news.newsItemCard.field.title' })
     const BodyLabel = intl.formatMessage({ id: 'pages.news.newsItemCard.field.body' })
     const FilesLabel = intl.formatMessage({ id: 'pages.news.newsItemCard.field.files' })
@@ -110,7 +135,6 @@ const NewsItemCard: React.FC = () => {
 
     const { user } = useAuth()
     const { query, push } = useRouter()
-    const { organization } = useOrganization()
 
     const { canManage, isLoading: isAccessLoading } = useNewsItemsAccess()
 
@@ -201,21 +225,39 @@ const NewsItemCard: React.FC = () => {
         [NEWS_TYPE_EMERGENCY]: Emergency,
     }
     const newsItemType = typesNamesMapping[get(newsItem, 'type')] || ''
-    const createdBy = get(newsItem, 'createdBy.id', null)
-    const {
-        obj: employee,
-        loading: employeeLoading,
-        error: employeeError,
-    } = OrganizationEmployee.useObject({
-        where: {
-            organization: {
-                id: organization.id,
-            },
-            user: {
-                id: createdBy,
-            },
+    const authorUserId = get(newsItem, 'user.id', null)
+    const organizationId = get(newsItem, 'organization.id')
+
+    const [receiversCount, setReceiversCount] = useState<number | null>(null)
+    const [getCounters] = useLazyQuery(GET_NEWS_ITEMS_RECIPIENTS_COUNTERS_MUTATION, {
+        onCompleted: (data) => {
+            setReceiversCount(get(data, ['result', 'receiversCount'], 0))
         },
+        onError: () => {
+            setReceiversCount(null)
+        },
+        fetchPolicy: 'cache-first',
     })
+    const throttledGetCounters = useMemo(() => throttle(getCounters, 1500), [getCounters])
+    const processedNewsItemScopes = useMemo(
+        () => processNewsItemScopes(newsItemScopesNoInstance),
+        [newsItemScopesNoInstance],
+    )
+
+    useEffect(() => {
+        if (!organizationId) return
+
+        throttledGetCounters({
+            variables: {
+                data: {
+                    dv: 1,
+                    sender: getClientSideSenderInfo(),
+                    organization: { id: organizationId },
+                    newsItemScopes: processedNewsItemScopes,
+                },
+            },
+        })
+    }, [organizationId, processedNewsItemScopes, throttledGetCounters])
 
     const {
         objs: newsItemSharings,
@@ -243,10 +285,56 @@ const NewsItemCard: React.FC = () => {
         await updateNewsAction({ validBefore: deprecateDatetime }, newsItem)
     }, [updateNewsAction, newsItem])
 
-    const CreatedByLabel = intl.formatMessage({ id: 'pages.news.newsItemCard.author' }, {
-        createdBy: get(employee, 'name'),
-        isOwner: createdBy === user.id,
-    })
+    const AuthorLabel = intl.formatMessage({ id: 'pages.news.newsItemCard.author' })
+    const YouSuffix = intl.formatMessage({ id: 'pages.news.newsItemCard.author.you' })
+    const ValidBeforePrefix = intl.formatMessage({ id: 'pages.news.newsItemCard.header.validBefore' })
+    const authorName = get(newsItem, 'user.name')
+    const isOwner = authorUserId === user?.id
+    const sendAtDate = get(newsItem, 'sentAt') || get(newsItem, 'sendAt')
+    const headerSendAt = sendAtDate
+        ? intl.formatMessage(
+            { id: 'pages.news.newsItemCard.header.sendAt' },
+            { date: dayjs(sendAtDate).format('DD.MM.YYYY, HH:mm') },
+        )
+        : null
+    const headerType = newsItemType
+        ? intl.formatMessage({ id: 'pages.news.newsItemCard.header.type' }, { type: newsItemType.toLowerCase() })
+        : null
+    const validBeforeDate = get(newsItem, 'validBefore')
+        ? dayjs(newsItem.validBefore).format('D MMMM YYYY HH:mm')
+        : null
+    const headerLine1 = (headerSendAt || authorName) ? (
+        <>
+            {headerSendAt}
+            {headerSendAt && authorName ? ', ' : null}
+            {authorName && (
+                <>
+                    {AuthorLabel}{' '}
+                    <Typography.Text type='primary'>
+                        {authorName}{isOwner ? ` ${YouSuffix}` : ''}
+                    </Typography.Text>
+                </>
+            )}
+        </>
+    ) : null
+    const headerLine2 = (headerType || validBeforeDate) ? (
+        <>
+            {headerType}
+            {headerType && validBeforeDate ? ', ' : null}
+            {validBeforeDate && (
+                <>
+                    {ValidBeforePrefix}{' '}
+                    <Typography.Text type='primary'>{validBeforeDate}</Typography.Text>
+                </>
+            )}
+        </>
+    ) : null
+
+    const sourceNameKey = get(newsItem, 'source.name')
+        || (get(newsItem, 'source.type') === NEWS_ITEM_SOURCE_TYPES.REGISTRY
+            ? 'news.source.REGISTRY.name'
+            : 'news.source.NEWS_FORM.name')
+    const sourceName = intl.formatMessage({ id: sourceNameKey as FormatjsIntl.Message['ids'] })
 
     const isSent = get(newsItem, 'sentAt')
     const isSending = useMemo(() => {
@@ -257,24 +345,6 @@ const NewsItemCard: React.FC = () => {
         () => isPostponedNewsItem(newsItem, newsItemsSendingDelay) && !isSending,
         [newsItem, isSending]
     )
-    const formattedSendAt = useMemo(() => {
-        const dateToShow = get(newsItem, 'sendAt', null)
-        if (!dateToShow) return '—'
-
-        let status
-        if (isSending) {
-            status = SendingMessage
-        } else if (!isSent) {
-            status = NotSentMessage
-        }
-
-        return (
-            <>
-                {dayjs(dateToShow).format('YYYY.MM.DD HH:mm')}
-                {status && <Typography.Text type='secondary'> ({status})</Typography.Text>}
-            </>
-        )
-    }, [NotSentMessage, SendingMessage, isSending, isSent, newsItem])
 
     const formattedNewsItemSharingSendAt = (newsItemSharing) => {
         let dateToShow = get(newsItem, 'sendAt', null)
@@ -311,9 +381,9 @@ const NewsItemCard: React.FC = () => {
 
     const { modifyFiles } = useModifiedFiles()
 
-    const isLoading = employeeLoading || newsItemLoading || isAccessLoading || newsItemScopesLoading || propertyLoading || newsItemSharingsLoading || newsItemFilesLoading
-    const hasError = employeeError || newsItemError || newsItemScopesError || newsItemSharingsError
-    const isNotFound = !isLoading && (!employee || !newsItem)
+    const isLoading = newsItemLoading || isAccessLoading || newsItemScopesLoading || propertyLoading || newsItemSharingsLoading || newsItemFilesLoading
+    const hasError = newsItemError || newsItemScopesError || newsItemSharingsError
+    const isNotFound = !isLoading && !newsItem
     if (hasError || isLoading || isNotFound) {
         const errorToPrint = hasError ? ServerErrorMsg : isNotFound ? NotFoundMsg : null
         return <LoadingOrErrorPage loading={isLoading} error={errorToPrint}/>
@@ -329,24 +399,26 @@ const NewsItemCard: React.FC = () => {
                     <Row
                         gutter={PAGE_ROW_GUTTER}
                     >
-                        <Col span={24}>
+                        <Col span={24} className={styles.header}>
                             <PageHeader
-                                style={HEADER_STYLES}
-                                title={<Typography.Title>{PageTitleMsg}</Typography.Title>} />
-                            <Typography.Text type='secondary'>
-                                {CreatedByLabel}
-                            </Typography.Text>
+                                className={styles.pageHeader}
+                                title={<Typography.Title>{PageTitleMsg}</Typography.Title>}
+                            />
+                            <div className={styles.headerMeta}>
+                                {headerLine1 && (
+                                    <Typography.Text type='secondary'>{headerLine1}</Typography.Text>
+                                )}
+                                {headerLine2 && (
+                                    <Typography.Text type='secondary'>{headerLine2}</Typography.Text>
+                                )}
+                            </div>
                         </Col>
                         <Col span={24} lg={16}>
                             <FrontLayerContainer>
                                 <Row gutter={HORIZONTAL_ROW_GUTTER}>
                                     <FieldPairRow
-                                        fieldTitle={SendAtLabel}
-                                        fieldValue={formattedSendAt}
-                                    />
-                                    <FieldPairRow
-                                        fieldTitle={TypeLabel}
-                                        fieldValue={newsItemType}
+                                        fieldTitle={WillReceiveLabel}
+                                        fieldValue={receiversCount == null ? '—' : String(receiversCount)}
                                     />
                                     {
                                         newsItem.validBefore && (
@@ -356,6 +428,10 @@ const NewsItemCard: React.FC = () => {
                                             />
                                         )
                                     }
+                                    <FieldPairRow
+                                        fieldTitle={SourceLabel}
+                                        fieldValue={sourceName}
+                                    />
                                     <FieldPairRow
                                         fieldTitle={TitleLabel}
                                         fieldValue={newsItem.title}
@@ -370,6 +446,8 @@ const NewsItemCard: React.FC = () => {
                                             <FieldPairRow
                                                 fieldTitle={FilesLabel}
                                                 fieldValue={files}
+                                                align='top'
+                                                className={styles.filesField}
                                                 renderFieldValue={(files) => {
                                                     return (
                                                         <FilesUploadList
@@ -385,12 +463,6 @@ const NewsItemCard: React.FC = () => {
                                 </Row>
                             </FrontLayerContainer>
                         </Col>
-
-                        { canManage && (
-                            <Col span={24} sm={24} md={16} lg={8}>
-                                <RecipientCounter newsItemScopes={newsItemScopesNoInstance}/>
-                            </Col>
-                        ) }
 
                         { newsItemSharings.map(newsItemSharing => (
                             <>

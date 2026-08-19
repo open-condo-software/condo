@@ -18,14 +18,24 @@ const BROAD_SCOPE_TYPES = [
 ]
 
 /**
- * Personal ≈ unit-targeted news (property + unitType + unitName scopes only).
- * Common ≈ organization / property / section wide (or mixed) audience.
+ * Personal = news sent to exactly one apartment.
+ * `scopesCount` is denormalized at publish time (stays 0 for drafts).
+ * Combined with unit-scope type checks so a single org/property scope is not personal.
+ * Root `deletedAt: null` is required: nested `deletedAt` on scopes disables
+ * the softDeleted plugin's default filter on NewsItem.
  *
- * Exact "exactly one resident" needs a denormalized field; this approximation matches
- * debt news (1 unit scope) and usual mass news (org/property scopes).
+ * Common = everything that is not personal (org / property / section, mixed,
+ * or several apartments). Keystone where has no NOT, so this is the De Morgan
+ * of the personal AND.
  */
 const getPersonalAudienceWhere = () => ({
     AND: [
+        {
+            deletedAt: null,
+        },
+        {
+            scopesCount: 1,
+        },
         {
             scopes_some: {
                 deletedAt: null,
@@ -42,18 +52,28 @@ const getPersonalAudienceWhere = () => ({
 })
 
 const getCommonAudienceWhere = () => ({
-    OR: [
+    AND: [
         {
-            scopes_some: {
-                deletedAt: null,
-                type_in: BROAD_SCOPE_TYPES,
-            },
+            deletedAt: null,
         },
         {
-            scopes_none: {
-                deletedAt: null,
-                type: NEWS_ITEM_SCOPE_TYPE_PROPERTY_UNIT_TYPE_UNIT_NAME,
-            },
+            OR: [
+                {
+                    scopesCount_not: 1,
+                },
+                {
+                    scopes_some: {
+                        deletedAt: null,
+                        type_in: BROAD_SCOPE_TYPES,
+                    },
+                },
+                {
+                    scopes_none: {
+                        deletedAt: null,
+                        type: NEWS_ITEM_SCOPE_TYPE_PROPERTY_UNIT_TYPE_UNIT_NAME,
+                    },
+                },
+            ],
         },
     ],
 })
