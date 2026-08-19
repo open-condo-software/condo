@@ -29,6 +29,7 @@ type UploadDocumentsModalProps = {
         organization?: { connect: { id: string } }
         property?: { connect: { id: string } }
     }
+    withCategory?: boolean
 }
 
 const { publicRuntimeConfig: { fileClientId } } = getConfig()
@@ -39,7 +40,8 @@ const UploadDocumentsModal = ({
     openUploadModal, 
     setOpenUploadModal, 
     onComplete, 
-    initialCreateDocumentValue = {}, 
+    initialCreateDocumentValue = {},
+    withCategory = true,
 }: UploadDocumentsModalProps) => {
     const intl = useIntl()
     const { user } = useAuth()
@@ -253,7 +255,7 @@ const UploadDocumentsModal = ({
                                             <Button
                                                 type='primary'
                                                 onClick={() => uploadForm.submit()}
-                                                disabled={!category || isEmpty(filesWithoutError)}
+                                                disabled={(withCategory && !category) || isEmpty(filesWithoutError)}
                                                 loading={formSubmitting}
                                             >
                                                 {SaveMessage}
@@ -266,10 +268,16 @@ const UploadDocumentsModal = ({
                     )}
                 >
                     <Space size={24} direction='vertical'>
-                        <Typography.Text size='large' type='secondary'>
-                            {CategoryMessage}
-                        </Typography.Text>
-                        <DocumentCategoryFormItem />
+                        {
+                            withCategory && (
+                                <>
+                                    <Typography.Text size='large' type='secondary'>
+                                        {CategoryMessage}
+                                    </Typography.Text>
+                                    <DocumentCategoryFormItem />
+                                </>
+                            )
+                        }
                         <Space size={8} direction='vertical'>
                             <Typography.Text type='secondary' size='medium'>
                                 {MaxFileSizeMessage}
@@ -309,7 +317,7 @@ const UploadDocumentsModal = ({
 export const useUploadDocumentsModal = () => {
     const [openUploadModal, setOpenUploadModal] = useState<boolean>(false)
 
-    const UploadModal = (props: Pick<UploadDocumentsModalProps, 'onComplete' | 'initialCreateDocumentValue'>) => (
+    const UploadModal = (props: Pick<UploadDocumentsModalProps, 'onComplete' | 'initialCreateDocumentValue' | 'withCategory'>) => (
         <UploadDocumentsModal
             {...props}
             openUploadModal={openUploadModal}

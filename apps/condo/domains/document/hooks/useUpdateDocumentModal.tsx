@@ -1,7 +1,6 @@
 import { Document as DocumentType } from '@app/condo/schema'
 import { Col, Form, notification, Row } from 'antd'
 import dayjs from 'dayjs'
-import get from 'lodash/get'
 import { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { Download, Paperclip } from '@open-condo/icons'
@@ -18,7 +17,7 @@ import { Document } from '@condo/domains/document/utils/clientSchema'
 const FILE_WRAPPER_STYLE: CSSProperties = { width: '100%', backgroundColor: colors.gray[1], borderRadius: '8px', padding: '16px' }
 const FILE_NAME_WRAPPER_STYLE: CSSProperties = { display: 'flex', flexDirection: 'row', gap: '8px', alignItems: 'center' }
 
-const UpdateDocumentModal = ({ selectedDocument, setSelectedDocument, refetchDocuments }) => {
+const UpdateDocumentModal = ({ selectedDocument, setSelectedDocument, refetchDocuments, withCategory = true }) => {
     const intl = useIntl()
     const DownloadFileMessage = intl.formatMessage({ id: 'documents.updateDocumentModal.downloadMessage' })
     const DeleteMessage = intl.formatMessage({ id: 'Delete' })
@@ -57,8 +56,8 @@ const UpdateDocumentModal = ({ selectedDocument, setSelectedDocument, refetchDoc
     }, [ReadyMessage, closeModal, refetchDocuments, selectedDocument, softDeleteAction])
 
     const handleDownload = useCallback(async () => {
-        const url = get(selectedDocument, 'file.publicUrl')
-        const name = get(selectedDocument, 'file.originalFilename')
+        const url = selectedDocument?.file?.publicUrl
+        const name = selectedDocument?.file?.originalFilename
 
         await downloadFile({ url, name })
     }, [downloadFile, selectedDocument])
@@ -66,16 +65,18 @@ const UpdateDocumentModal = ({ selectedDocument, setSelectedDocument, refetchDoc
     const updateDocumentAction = useCallback(async (values) => {
         setLoading(true)
 
-        await updateAction({
-            category: { connect: { id: values.category } },
-        }, selectedDocument)
+        if (withCategory) {
+            await updateAction({
+                category: { connect: { id: values.category } },
+            }, selectedDocument)
+        }
 
         await refetchDocuments()
         closeModal()
         setLoading(false)
-    }, [closeModal, refetchDocuments, selectedDocument, updateAction])
+    }, [closeModal, refetchDocuments, selectedDocument, updateAction, withCategory])
 
-    const fileName = useMemo(() => get(selectedDocument, 'name'), [selectedDocument])
+    const fileName = useMemo(() => selectedDocument?.name, [selectedDocument])
 
     return (
         <>
@@ -89,7 +90,7 @@ const UpdateDocumentModal = ({ selectedDocument, setSelectedDocument, refetchDoc
                     width='small'
                     open={modalState === 'update'}
                     onCancel={closeModal}
-                    title={fileName}
+                    title='Прикрепленный файл'
                     footer={(
                         <Space size={16} direction='horizontal' wrap>
                             <Button type='secondary' danger onClick={openConfirmDeleteModal}>
@@ -113,8 +114,8 @@ const UpdateDocumentModal = ({ selectedDocument, setSelectedDocument, refetchDoc
                                                 type='primary'
                                                 onClick={() => updateForm.submit()}
                                                 disabled={
-                                                    get(selectedDocument, 'category.id') === categoryFromField &&
-                                                    get(selectedDocument, 'canReadByResident')  === canReadByResidentField
+                                                    (withCategory && selectedDocument?.category?.id === categoryFromField) &&
+                                                    selectedDocument?.canReadByResident === canReadByResidentField
                                                 }
                                                 loading={loading}
                                             >
@@ -136,16 +137,20 @@ const UpdateDocumentModal = ({ selectedDocument, setSelectedDocument, refetchDoc
                                         <Typography.Text size='medium'>{fileName}</Typography.Text>
                                     </div>
                                     <Typography.Text type='secondary' size='small'>
-                                        {dayjs(get(selectedDocument, 'createdAt')).format('DD.MM.YYYY')}
+                                        {dayjs(selectedDocument?.createdAt).format('DD.MM.YYYY')}
                                     </Typography.Text>
                                 </Space>
                             </div>
                         </Col>
-                        <Col span={24}>
-                            <DocumentCategoryFormItem
-                                initialValue={get(selectedDocument, 'category.id')}
-                            />
-                        </Col>
+                        {
+                            withCategory && (
+                                <Col span={24}>
+                                    <DocumentCategoryFormItem
+                                        initialValue={selectedDocument?.category?.id}
+                                    />
+                                </Col>
+                            )
+                        }
                     </Row>
                 </Modal>
             </FormWithAction>
