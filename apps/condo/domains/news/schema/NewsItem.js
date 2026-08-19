@@ -29,6 +29,7 @@ const {
     WRONG_SEND_DATE,
     NO_NEWS_ITEM_SCOPES,
 } = require('@condo/domains/news/constants/errors')
+const { NEWS_ITEM_SOURCE_IDS } = require('@condo/domains/news/constants/newsItemSourceIds')
 const { NEWS_TYPES, NEWS_TYPE_EMERGENCY, NEWS_TYPE_COMMON } = require('@condo/domains/news/constants/newsTypes')
 const { NEWS_ITEM_SCOPE_FIELDS } = require('@condo/domains/news/gql')
 const { NewsItemScope, NewsItemFile } = require('@condo/domains/news/utils/serverSchema')
@@ -222,6 +223,46 @@ const NewsItem = new GQLListSchema('NewsItem', {
             },
         },
 
+        source: {
+            schemaDoc: 'Origin of the news item: the news form, an external system, ...',
+            type: 'Relationship',
+            ref: 'NewsItemSource',
+            isRequired: true,
+            kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
+            access: {
+                read: true,
+                create: access.canManageNewsItems,
+                update: false,
+            },
+        },
+
+        user: {
+            schemaDoc: 'The organization employee user who authored this news item.',
+            type: 'Relationship',
+            ref: 'User',
+            isRequired: true,
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+            access: {
+                read: true,
+                create: access.canSetNewsItemUserField,
+                update: false,
+            },
+        },
+
+        scopesCount: {
+            schemaDoc: 'Number of NewsItemScope records for this news item. Computed once, when the ' +
+                'item transitions to isPublished=true (scopes can no longer change after that point). ' +
+                'Stays 0 for unpublished drafts.',
+            type: 'Integer',
+            isRequired: true,
+            defaultValue: 0,
+            access: {
+                read: true,
+                create: false,
+                update: false,
+            },
+        },
+
     },
     hooks: {
         resolveInput: async (args) => {
@@ -248,6 +289,18 @@ const NewsItem = new GQLListSchema('NewsItem', {
 
             if (!get(resultItemData, 'type')) {
                 resolvedData['type'] = NEWS_TYPE_COMMON
+            }
+
+            if (operation === 'create' && !get(resolvedData, 'source')) {
+                resolvedData['source'] = NEWS_ITEM_SOURCE_IDS.NEWS_FORM
+            }
+
+            if (operation === 'create' && !get(resolvedData, 'user')) {
+                resolvedData['user'] = get(context, 'authedItem.id') || null
+            }
+
+            if (operation === 'update' && isPublished && existingItem && !existingItem.isPublished) {
+                resolvedData['scopesCount'] = await NewsItemScope.count(context, { newsItem: { id: existingItem.id }, deletedAt: null })
             }
 
             if (!sendAt && isPublished && publishedAt) {

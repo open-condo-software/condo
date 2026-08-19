@@ -205,7 +205,14 @@ const getRefSchemaName = (schemaConfig, listKey) => {
     const schema = getSchemaCtx(listKey)
 
     const schemaFields = get(schema, 'list._fields', {})
-    return get(schemaFields, [pathToOrganizationId[0], 'ref'], null)
+    const ref = get(schemaFields, [pathToOrganizationId[0], 'ref'], null)
+
+    // A Relationship "ref" comes in two shapes:
+    //   - one-way:  "NewsItem"          -> the referenced list key is the whole string
+    //   - two-way:  "NewsItem.scopes"   -> "<referenced list key>.<back-reference field on that list>"
+    // We only need the list key (to build a query against it), so for the two-way shape we drop
+    // everything after the dot. Splitting on "." and taking the first part covers both shapes.
+    return ref ? ref.split('.')[0] : null
 }
 
 /**

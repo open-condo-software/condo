@@ -3219,7 +3219,13 @@ type B2BAppAccessRightSetHistoryRecord {
   canManageTicketFiles: Boolean
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
+  canReadNewsItems: Boolean
+  canManageNewsItems: Boolean
+  canReadNewsItemScopes: Boolean
+  canManageNewsItemScopes: Boolean
   canReadNewsItemFiles: Boolean
+  canManageNewsItemFiles: Boolean
+  canManageNewsItemRecipientsExportTasks: Boolean
   canExecuteRegisterExternalPayments: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
@@ -3227,6 +3233,7 @@ type B2BAppAccessRightSetHistoryRecord {
   canExecuteRegisterBillingReceipts: Boolean
   canExecuteRegisterBillingReceiptFile: Boolean
   canExecuteSetPaymentPosReceiptUrl: Boolean
+  canExecuteGetNewsItemsRecipientsCounters: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -3357,8 +3364,20 @@ input B2BAppAccessRightSetHistoryRecordWhereInput {
   canReadTicketCommentFiles_not: Boolean
   canManageTicketCommentFiles: Boolean
   canManageTicketCommentFiles_not: Boolean
+  canReadNewsItems: Boolean
+  canReadNewsItems_not: Boolean
+  canManageNewsItems: Boolean
+  canManageNewsItems_not: Boolean
+  canReadNewsItemScopes: Boolean
+  canReadNewsItemScopes_not: Boolean
+  canManageNewsItemScopes: Boolean
+  canManageNewsItemScopes_not: Boolean
   canReadNewsItemFiles: Boolean
   canReadNewsItemFiles_not: Boolean
+  canManageNewsItemFiles: Boolean
+  canManageNewsItemFiles_not: Boolean
+  canManageNewsItemRecipientsExportTasks: Boolean
+  canManageNewsItemRecipientsExportTasks_not: Boolean
   canExecuteRegisterExternalPayments: Boolean
   canExecuteRegisterExternalPayments_not: Boolean
   canExecuteRegisterMetersReadings: Boolean
@@ -3373,6 +3392,8 @@ input B2BAppAccessRightSetHistoryRecordWhereInput {
   canExecuteRegisterBillingReceiptFile_not: Boolean
   canExecuteSetPaymentPosReceiptUrl: Boolean
   canExecuteSetPaymentPosReceiptUrl_not: Boolean
+  canExecuteGetNewsItemsRecipientsCounters: Boolean
+  canExecuteGetNewsItemsRecipientsCounters_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -3566,8 +3587,20 @@ enum SortB2BAppAccessRightSetHistoryRecordsBy {
   canReadTicketCommentFiles_DESC
   canManageTicketCommentFiles_ASC
   canManageTicketCommentFiles_DESC
+  canReadNewsItems_ASC
+  canReadNewsItems_DESC
+  canManageNewsItems_ASC
+  canManageNewsItems_DESC
+  canReadNewsItemScopes_ASC
+  canReadNewsItemScopes_DESC
+  canManageNewsItemScopes_ASC
+  canManageNewsItemScopes_DESC
   canReadNewsItemFiles_ASC
   canReadNewsItemFiles_DESC
+  canManageNewsItemFiles_ASC
+  canManageNewsItemFiles_DESC
+  canManageNewsItemRecipientsExportTasks_ASC
+  canManageNewsItemRecipientsExportTasks_DESC
   canExecuteRegisterExternalPayments_ASC
   canExecuteRegisterExternalPayments_DESC
   canExecuteRegisterMetersReadings_ASC
@@ -3582,6 +3615,8 @@ enum SortB2BAppAccessRightSetHistoryRecordsBy {
   canExecuteRegisterBillingReceiptFile_DESC
   canExecuteSetPaymentPosReceiptUrl_ASC
   canExecuteSetPaymentPosReceiptUrl_DESC
+  canExecuteGetNewsItemsRecipientsCounters_ASC
+  canExecuteGetNewsItemsRecipientsCounters_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -3643,7 +3678,13 @@ input B2BAppAccessRightSetHistoryRecordUpdateInput {
   canManageTicketFiles: Boolean
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
+  canReadNewsItems: Boolean
+  canManageNewsItems: Boolean
+  canReadNewsItemScopes: Boolean
+  canManageNewsItemScopes: Boolean
   canReadNewsItemFiles: Boolean
+  canManageNewsItemFiles: Boolean
+  canManageNewsItemRecipientsExportTasks: Boolean
   canExecuteRegisterExternalPayments: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
@@ -3651,6 +3692,7 @@ input B2BAppAccessRightSetHistoryRecordUpdateInput {
   canExecuteRegisterBillingReceipts: Boolean
   canExecuteRegisterBillingReceiptFile: Boolean
   canExecuteSetPaymentPosReceiptUrl: Boolean
+  canExecuteGetNewsItemsRecipientsCounters: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -3711,7 +3753,13 @@ input B2BAppAccessRightSetHistoryRecordCreateInput {
   canManageTicketFiles: Boolean
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
+  canReadNewsItems: Boolean
+  canManageNewsItems: Boolean
+  canReadNewsItemScopes: Boolean
+  canManageNewsItemScopes: Boolean
   canReadNewsItemFiles: Boolean
+  canManageNewsItemFiles: Boolean
+  canManageNewsItemRecipientsExportTasks: Boolean
   canExecuteRegisterExternalPayments: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
@@ -3719,6 +3767,7 @@ input B2BAppAccessRightSetHistoryRecordCreateInput {
   canExecuteRegisterBillingReceipts: Boolean
   canExecuteRegisterBillingReceiptFile: Boolean
   canExecuteSetPaymentPosReceiptUrl: Boolean
+  canExecuteGetNewsItemsRecipientsCounters: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -3808,7 +3857,13 @@ type B2BAppAccessRightSet {
   canManageTicketFiles: Boolean
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
+  canReadNewsItems: Boolean
+  canManageNewsItems: Boolean
+  canReadNewsItemScopes: Boolean
+  canManageNewsItemScopes: Boolean
   canReadNewsItemFiles: Boolean
+  canManageNewsItemFiles: Boolean
+  canManageNewsItemRecipientsExportTasks: Boolean
   canExecuteRegisterExternalPayments: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
@@ -3816,6 +3871,7 @@ type B2BAppAccessRightSet {
   canExecuteRegisterBillingReceipts: Boolean
   canExecuteRegisterBillingReceiptFile: Boolean
   canExecuteSetPaymentPosReceiptUrl: Boolean
+  canExecuteGetNewsItemsRecipientsCounters: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -3930,8 +3986,20 @@ input B2BAppAccessRightSetWhereInput {
   canReadTicketCommentFiles_not: Boolean
   canManageTicketCommentFiles: Boolean
   canManageTicketCommentFiles_not: Boolean
+  canReadNewsItems: Boolean
+  canReadNewsItems_not: Boolean
+  canManageNewsItems: Boolean
+  canManageNewsItems_not: Boolean
+  canReadNewsItemScopes: Boolean
+  canReadNewsItemScopes_not: Boolean
+  canManageNewsItemScopes: Boolean
+  canManageNewsItemScopes_not: Boolean
   canReadNewsItemFiles: Boolean
   canReadNewsItemFiles_not: Boolean
+  canManageNewsItemFiles: Boolean
+  canManageNewsItemFiles_not: Boolean
+  canManageNewsItemRecipientsExportTasks: Boolean
+  canManageNewsItemRecipientsExportTasks_not: Boolean
   canExecuteRegisterExternalPayments: Boolean
   canExecuteRegisterExternalPayments_not: Boolean
   canExecuteRegisterMetersReadings: Boolean
@@ -3946,6 +4014,8 @@ input B2BAppAccessRightSetWhereInput {
   canExecuteRegisterBillingReceiptFile_not: Boolean
   canExecuteSetPaymentPosReceiptUrl: Boolean
   canExecuteSetPaymentPosReceiptUrl_not: Boolean
+  canExecuteGetNewsItemsRecipientsCounters: Boolean
+  canExecuteGetNewsItemsRecipientsCounters_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -4121,8 +4191,20 @@ enum SortB2BAppAccessRightSetsBy {
   canReadTicketCommentFiles_DESC
   canManageTicketCommentFiles_ASC
   canManageTicketCommentFiles_DESC
+  canReadNewsItems_ASC
+  canReadNewsItems_DESC
+  canManageNewsItems_ASC
+  canManageNewsItems_DESC
+  canReadNewsItemScopes_ASC
+  canReadNewsItemScopes_DESC
+  canManageNewsItemScopes_ASC
+  canManageNewsItemScopes_DESC
   canReadNewsItemFiles_ASC
   canReadNewsItemFiles_DESC
+  canManageNewsItemFiles_ASC
+  canManageNewsItemFiles_DESC
+  canManageNewsItemRecipientsExportTasks_ASC
+  canManageNewsItemRecipientsExportTasks_DESC
   canExecuteRegisterExternalPayments_ASC
   canExecuteRegisterExternalPayments_DESC
   canExecuteRegisterMetersReadings_ASC
@@ -4137,6 +4219,8 @@ enum SortB2BAppAccessRightSetsBy {
   canExecuteRegisterBillingReceiptFile_DESC
   canExecuteSetPaymentPosReceiptUrl_ASC
   canExecuteSetPaymentPosReceiptUrl_DESC
+  canExecuteGetNewsItemsRecipientsCounters_ASC
+  canExecuteGetNewsItemsRecipientsCounters_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -4198,7 +4282,13 @@ input B2BAppAccessRightSetUpdateInput {
   canManageTicketFiles: Boolean
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
+  canReadNewsItems: Boolean
+  canManageNewsItems: Boolean
+  canReadNewsItemScopes: Boolean
+  canManageNewsItemScopes: Boolean
   canReadNewsItemFiles: Boolean
+  canManageNewsItemFiles: Boolean
+  canManageNewsItemRecipientsExportTasks: Boolean
   canExecuteRegisterExternalPayments: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
@@ -4206,6 +4296,7 @@ input B2BAppAccessRightSetUpdateInput {
   canExecuteRegisterBillingReceipts: Boolean
   canExecuteRegisterBillingReceiptFile: Boolean
   canExecuteSetPaymentPosReceiptUrl: Boolean
+  canExecuteGetNewsItemsRecipientsCounters: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -4263,7 +4354,13 @@ input B2BAppAccessRightSetCreateInput {
   canManageTicketFiles: Boolean
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
+  canReadNewsItems: Boolean
+  canManageNewsItems: Boolean
+  canReadNewsItemScopes: Boolean
+  canManageNewsItemScopes: Boolean
   canReadNewsItemFiles: Boolean
+  canManageNewsItemFiles: Boolean
+  canManageNewsItemRecipientsExportTasks: Boolean
   canExecuteRegisterExternalPayments: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
@@ -4271,6 +4368,7 @@ input B2BAppAccessRightSetCreateInput {
   canExecuteRegisterBillingReceipts: Boolean
   canExecuteRegisterBillingReceiptFile: Boolean
   canExecuteSetPaymentPosReceiptUrl: Boolean
+  canExecuteGetNewsItemsRecipientsCounters: Boolean
   v: Int
   createdAt: String
   updatedAt: String

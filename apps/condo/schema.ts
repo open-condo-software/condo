@@ -3345,6 +3345,7 @@ export type B2BAppAccessRightSet = {
   _label_?: Maybe<Scalars['String']['output']>;
   /**  Link to B2BApp  */
   app?: Maybe<B2BApp>;
+  canExecuteGetNewsItemsRecipientsCounters?: Maybe<Scalars['Boolean']['output']>;
   canExecuteRegisterBillingReceiptFile?: Maybe<Scalars['Boolean']['output']>;
   canExecuteRegisterBillingReceipts?: Maybe<Scalars['Boolean']['output']>;
   canExecuteRegisterExternalPayments?: Maybe<Scalars['Boolean']['output']>;
@@ -3370,8 +3371,10 @@ export type B2BAppAccessRightSet = {
   canManageMeterReadings?: Maybe<Scalars['Boolean']['output']>;
   canManageMeterReportingPeriods?: Maybe<Scalars['Boolean']['output']>;
   canManageMeters?: Maybe<Scalars['Boolean']['output']>;
-  /**  Currently, this field is read-only. You cannot get manage access for the specified schema.  */
   canManageNewsItemFiles?: Maybe<Scalars['Boolean']['output']>;
+  canManageNewsItemRecipientsExportTasks?: Maybe<Scalars['Boolean']['output']>;
+  canManageNewsItemScopes?: Maybe<Scalars['Boolean']['output']>;
+  canManageNewsItems?: Maybe<Scalars['Boolean']['output']>;
   /**  Currently, this field is read-only. You cannot get manage access for the specified schema.  */
   canManageOrganizationEmployeeRoles?: Maybe<Scalars['Boolean']['output']>;
   /**  Currently, this field is read-only. You cannot get manage access for the specified schema.  */
@@ -3399,6 +3402,10 @@ export type B2BAppAccessRightSet = {
   canReadMeterReportingPeriods?: Maybe<Scalars['Boolean']['output']>;
   canReadMeters?: Maybe<Scalars['Boolean']['output']>;
   canReadNewsItemFiles?: Maybe<Scalars['Boolean']['output']>;
+  /**  Currently, this field is read-only. You cannot get read access for the specified schema.  */
+  canReadNewsItemRecipientsExportTasks?: Maybe<Scalars['Boolean']['output']>;
+  canReadNewsItemScopes?: Maybe<Scalars['Boolean']['output']>;
+  canReadNewsItems?: Maybe<Scalars['Boolean']['output']>;
   canReadOrganizationEmployeeRoles?: Maybe<Scalars['Boolean']['output']>;
   canReadOrganizationEmployees?: Maybe<Scalars['Boolean']['output']>;
   canReadOrganizations?: Maybe<Scalars['Boolean']['output']>;
@@ -3434,6 +3441,7 @@ export type B2BAppAccessRightSet = {
 
 export type B2BAppAccessRightSetCreateInput = {
   app?: InputMaybe<B2BAppRelateToOneInput>;
+  canExecuteGetNewsItemsRecipientsCounters?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterBillingReceiptFile?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterBillingReceipts?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterExternalPayments?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3455,6 +3463,9 @@ export type B2BAppAccessRightSetCreateInput = {
   canManageMeterReportingPeriods?: InputMaybe<Scalars['Boolean']['input']>;
   canManageMeters?: InputMaybe<Scalars['Boolean']['input']>;
   canManageNewsItemFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemRecipientsExportTasks?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemScopes?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItems?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOrganizationEmployeeRoles?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOrganizationEmployees?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOrganizations?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3478,6 +3489,9 @@ export type B2BAppAccessRightSetCreateInput = {
   canReadMeterReportingPeriods?: InputMaybe<Scalars['Boolean']['input']>;
   canReadMeters?: InputMaybe<Scalars['Boolean']['input']>;
   canReadNewsItemFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItemRecipientsExportTasks?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItemScopes?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItems?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizationEmployeeRoles?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizationEmployees?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizations?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3514,6 +3528,7 @@ export type B2BAppAccessRightSetHistoryRecord = {
    */
   _label_?: Maybe<Scalars['String']['output']>;
   app?: Maybe<Scalars['String']['output']>;
+  canExecuteGetNewsItemsRecipientsCounters?: Maybe<Scalars['Boolean']['output']>;
   canExecuteRegisterBillingReceiptFile?: Maybe<Scalars['Boolean']['output']>;
   canExecuteRegisterBillingReceipts?: Maybe<Scalars['Boolean']['output']>;
   canExecuteRegisterExternalPayments?: Maybe<Scalars['Boolean']['output']>;
@@ -3535,6 +3550,9 @@ export type B2BAppAccessRightSetHistoryRecord = {
   canManageMeterReportingPeriods?: Maybe<Scalars['Boolean']['output']>;
   canManageMeters?: Maybe<Scalars['Boolean']['output']>;
   canManageNewsItemFiles?: Maybe<Scalars['Boolean']['output']>;
+  canManageNewsItemRecipientsExportTasks?: Maybe<Scalars['Boolean']['output']>;
+  canManageNewsItemScopes?: Maybe<Scalars['Boolean']['output']>;
+  canManageNewsItems?: Maybe<Scalars['Boolean']['output']>;
   canManageOrganizationEmployeeRoles?: Maybe<Scalars['Boolean']['output']>;
   canManageOrganizationEmployees?: Maybe<Scalars['Boolean']['output']>;
   canManageOrganizations?: Maybe<Scalars['Boolean']['output']>;
@@ -3558,6 +3576,9 @@ export type B2BAppAccessRightSetHistoryRecord = {
   canReadMeterReportingPeriods?: Maybe<Scalars['Boolean']['output']>;
   canReadMeters?: Maybe<Scalars['Boolean']['output']>;
   canReadNewsItemFiles?: Maybe<Scalars['Boolean']['output']>;
+  canReadNewsItemRecipientsExportTasks?: Maybe<Scalars['Boolean']['output']>;
+  canReadNewsItemScopes?: Maybe<Scalars['Boolean']['output']>;
+  canReadNewsItems?: Maybe<Scalars['Boolean']['output']>;
   canReadOrganizationEmployeeRoles?: Maybe<Scalars['Boolean']['output']>;
   canReadOrganizationEmployees?: Maybe<Scalars['Boolean']['output']>;
   canReadOrganizations?: Maybe<Scalars['Boolean']['output']>;
@@ -3588,6 +3609,7 @@ export type B2BAppAccessRightSetHistoryRecord = {
 
 export type B2BAppAccessRightSetHistoryRecordCreateInput = {
   app?: InputMaybe<Scalars['String']['input']>;
+  canExecuteGetNewsItemsRecipientsCounters?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterBillingReceiptFile?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterBillingReceipts?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterExternalPayments?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3609,6 +3631,9 @@ export type B2BAppAccessRightSetHistoryRecordCreateInput = {
   canManageMeterReportingPeriods?: InputMaybe<Scalars['Boolean']['input']>;
   canManageMeters?: InputMaybe<Scalars['Boolean']['input']>;
   canManageNewsItemFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemRecipientsExportTasks?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemScopes?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItems?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOrganizationEmployeeRoles?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOrganizationEmployees?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOrganizations?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3632,6 +3657,9 @@ export type B2BAppAccessRightSetHistoryRecordCreateInput = {
   canReadMeterReportingPeriods?: InputMaybe<Scalars['Boolean']['input']>;
   canReadMeters?: InputMaybe<Scalars['Boolean']['input']>;
   canReadNewsItemFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItemRecipientsExportTasks?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItemScopes?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItems?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizationEmployeeRoles?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizationEmployees?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizations?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3667,6 +3695,7 @@ export enum B2BAppAccessRightSetHistoryRecordHistoryActionType {
 
 export type B2BAppAccessRightSetHistoryRecordUpdateInput = {
   app?: InputMaybe<Scalars['String']['input']>;
+  canExecuteGetNewsItemsRecipientsCounters?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterBillingReceiptFile?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterBillingReceipts?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterExternalPayments?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3688,6 +3717,9 @@ export type B2BAppAccessRightSetHistoryRecordUpdateInput = {
   canManageMeterReportingPeriods?: InputMaybe<Scalars['Boolean']['input']>;
   canManageMeters?: InputMaybe<Scalars['Boolean']['input']>;
   canManageNewsItemFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemRecipientsExportTasks?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemScopes?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItems?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOrganizationEmployeeRoles?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOrganizationEmployees?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOrganizations?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3711,6 +3743,9 @@ export type B2BAppAccessRightSetHistoryRecordUpdateInput = {
   canReadMeterReportingPeriods?: InputMaybe<Scalars['Boolean']['input']>;
   canReadMeters?: InputMaybe<Scalars['Boolean']['input']>;
   canReadNewsItemFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItemRecipientsExportTasks?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItemScopes?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItems?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizationEmployeeRoles?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizationEmployees?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizations?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3745,6 +3780,8 @@ export type B2BAppAccessRightSetHistoryRecordWhereInput = {
   app_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   app_not?: InputMaybe<Scalars['String']['input']>;
   app_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  canExecuteGetNewsItemsRecipientsCounters?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteGetNewsItemsRecipientsCounters_not?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterBillingReceiptFile?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterBillingReceiptFile_not?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterBillingReceipts?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3787,6 +3824,12 @@ export type B2BAppAccessRightSetHistoryRecordWhereInput = {
   canManageMeters_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageNewsItemFiles?: InputMaybe<Scalars['Boolean']['input']>;
   canManageNewsItemFiles_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemRecipientsExportTasks?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemRecipientsExportTasks_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemScopes?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemScopes_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItems?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItems_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOrganizationEmployeeRoles?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOrganizationEmployeeRoles_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOrganizationEmployees?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3833,6 +3876,12 @@ export type B2BAppAccessRightSetHistoryRecordWhereInput = {
   canReadMeters_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadNewsItemFiles?: InputMaybe<Scalars['Boolean']['input']>;
   canReadNewsItemFiles_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItemRecipientsExportTasks?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItemRecipientsExportTasks_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItemScopes?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItemScopes_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItems?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItems_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizationEmployeeRoles?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizationEmployeeRoles_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizationEmployees?: InputMaybe<Scalars['Boolean']['input']>;
@@ -4028,6 +4077,7 @@ export enum B2BAppAccessRightSetTypeType {
 
 export type B2BAppAccessRightSetUpdateInput = {
   app?: InputMaybe<B2BAppRelateToOneInput>;
+  canExecuteGetNewsItemsRecipientsCounters?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterBillingReceiptFile?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterBillingReceipts?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterExternalPayments?: InputMaybe<Scalars['Boolean']['input']>;
@@ -4049,6 +4099,9 @@ export type B2BAppAccessRightSetUpdateInput = {
   canManageMeterReportingPeriods?: InputMaybe<Scalars['Boolean']['input']>;
   canManageMeters?: InputMaybe<Scalars['Boolean']['input']>;
   canManageNewsItemFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemRecipientsExportTasks?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemScopes?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItems?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOrganizationEmployeeRoles?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOrganizationEmployees?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOrganizations?: InputMaybe<Scalars['Boolean']['input']>;
@@ -4072,6 +4125,9 @@ export type B2BAppAccessRightSetUpdateInput = {
   canReadMeterReportingPeriods?: InputMaybe<Scalars['Boolean']['input']>;
   canReadMeters?: InputMaybe<Scalars['Boolean']['input']>;
   canReadNewsItemFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItemRecipientsExportTasks?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItemScopes?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItems?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizationEmployeeRoles?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizationEmployees?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizations?: InputMaybe<Scalars['Boolean']['input']>;
@@ -4101,6 +4157,8 @@ export type B2BAppAccessRightSetWhereInput = {
   OR?: InputMaybe<Array<InputMaybe<B2BAppAccessRightSetWhereInput>>>;
   app?: InputMaybe<B2BAppWhereInput>;
   app_is_null?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteGetNewsItemsRecipientsCounters?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteGetNewsItemsRecipientsCounters_not?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterBillingReceiptFile?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterBillingReceiptFile_not?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterBillingReceipts?: InputMaybe<Scalars['Boolean']['input']>;
@@ -4143,6 +4201,12 @@ export type B2BAppAccessRightSetWhereInput = {
   canManageMeters_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageNewsItemFiles?: InputMaybe<Scalars['Boolean']['input']>;
   canManageNewsItemFiles_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemRecipientsExportTasks?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemRecipientsExportTasks_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemScopes?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemScopes_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItems?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItems_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOrganizationEmployeeRoles?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOrganizationEmployeeRoles_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageOrganizationEmployees?: InputMaybe<Scalars['Boolean']['input']>;
@@ -4189,6 +4253,12 @@ export type B2BAppAccessRightSetWhereInput = {
   canReadMeters_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadNewsItemFiles?: InputMaybe<Scalars['Boolean']['input']>;
   canReadNewsItemFiles_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItemRecipientsExportTasks?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItemRecipientsExportTasks_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItemScopes?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItemScopes_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItems?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItems_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizationEmployeeRoles?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizationEmployeeRoles_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizationEmployees?: InputMaybe<Scalars['Boolean']['input']>;
@@ -47929,6 +47999,14 @@ export type Mutation = {
   createNewsItemSharingHistoryRecords?: Maybe<Array<Maybe<NewsItemSharingHistoryRecord>>>;
   /**  Create multiple NewsItemSharing items.  */
   createNewsItemSharings?: Maybe<Array<Maybe<NewsItemSharing>>>;
+  /**  Create a single NewsItemSource item.  */
+  createNewsItemSource?: Maybe<NewsItemSource>;
+  /**  Create a single NewsItemSourceHistoryRecord item.  */
+  createNewsItemSourceHistoryRecord?: Maybe<NewsItemSourceHistoryRecord>;
+  /**  Create multiple NewsItemSourceHistoryRecord items.  */
+  createNewsItemSourceHistoryRecords?: Maybe<Array<Maybe<NewsItemSourceHistoryRecord>>>;
+  /**  Create multiple NewsItemSource items.  */
+  createNewsItemSources?: Maybe<Array<Maybe<NewsItemSource>>>;
   /**  Create a single NewsItemTemplate item.  */
   createNewsItemTemplate?: Maybe<NewsItemTemplate>;
   /**  Create a single NewsItemTemplateHistoryRecord item.  */
@@ -49166,6 +49244,14 @@ export type Mutation = {
   deleteNewsItemSharingHistoryRecords?: Maybe<Array<Maybe<NewsItemSharingHistoryRecord>>>;
   /**  Delete multiple NewsItemSharing items by ID.  */
   deleteNewsItemSharings?: Maybe<Array<Maybe<NewsItemSharing>>>;
+  /**  Delete a single NewsItemSource item by ID.  */
+  deleteNewsItemSource?: Maybe<NewsItemSource>;
+  /**  Delete a single NewsItemSourceHistoryRecord item by ID.  */
+  deleteNewsItemSourceHistoryRecord?: Maybe<NewsItemSourceHistoryRecord>;
+  /**  Delete multiple NewsItemSourceHistoryRecord items by ID.  */
+  deleteNewsItemSourceHistoryRecords?: Maybe<Array<Maybe<NewsItemSourceHistoryRecord>>>;
+  /**  Delete multiple NewsItemSource items by ID.  */
+  deleteNewsItemSources?: Maybe<Array<Maybe<NewsItemSource>>>;
   /**  Delete a single NewsItemTemplate item by ID.  */
   deleteNewsItemTemplate?: Maybe<NewsItemTemplate>;
   /**  Delete a single NewsItemTemplateHistoryRecord item by ID.  */
@@ -53652,6 +53738,14 @@ export type Mutation = {
   updateNewsItemSharingHistoryRecords?: Maybe<Array<Maybe<NewsItemSharingHistoryRecord>>>;
   /**  Update multiple NewsItemSharing items by ID.  */
   updateNewsItemSharings?: Maybe<Array<Maybe<NewsItemSharing>>>;
+  /**  Update a single NewsItemSource item by ID.  */
+  updateNewsItemSource?: Maybe<NewsItemSource>;
+  /**  Update a single NewsItemSourceHistoryRecord item by ID.  */
+  updateNewsItemSourceHistoryRecord?: Maybe<NewsItemSourceHistoryRecord>;
+  /**  Update multiple NewsItemSourceHistoryRecord items by ID.  */
+  updateNewsItemSourceHistoryRecords?: Maybe<Array<Maybe<NewsItemSourceHistoryRecord>>>;
+  /**  Update multiple NewsItemSource items by ID.  */
+  updateNewsItemSources?: Maybe<Array<Maybe<NewsItemSource>>>;
   /**  Update a single NewsItemTemplate item by ID.  */
   updateNewsItemTemplate?: Maybe<NewsItemTemplate>;
   /**  Update a single NewsItemTemplateHistoryRecord item by ID.  */
@@ -56168,6 +56262,26 @@ export type MutationCreateNewsItemSharingHistoryRecordsArgs = {
 
 export type MutationCreateNewsItemSharingsArgs = {
   data?: InputMaybe<Array<InputMaybe<NewsItemSharingsCreateInput>>>;
+};
+
+
+export type MutationCreateNewsItemSourceArgs = {
+  data?: InputMaybe<NewsItemSourceCreateInput>;
+};
+
+
+export type MutationCreateNewsItemSourceHistoryRecordArgs = {
+  data?: InputMaybe<NewsItemSourceHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateNewsItemSourceHistoryRecordsArgs = {
+  data?: InputMaybe<Array<InputMaybe<NewsItemSourceHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationCreateNewsItemSourcesArgs = {
+  data?: InputMaybe<Array<InputMaybe<NewsItemSourcesCreateInput>>>;
 };
 
 
@@ -59262,6 +59376,26 @@ export type MutationDeleteNewsItemSharingHistoryRecordsArgs = {
 
 
 export type MutationDeleteNewsItemSharingsArgs = {
+  ids?: InputMaybe<Array<Scalars['ID']['input']>>;
+};
+
+
+export type MutationDeleteNewsItemSourceArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteNewsItemSourceHistoryRecordArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteNewsItemSourceHistoryRecordsArgs = {
+  ids?: InputMaybe<Array<Scalars['ID']['input']>>;
+};
+
+
+export type MutationDeleteNewsItemSourcesArgs = {
   ids?: InputMaybe<Array<Scalars['ID']['input']>>;
 };
 
@@ -62791,6 +62925,28 @@ export type MutationUpdateNewsItemSharingsArgs = {
 };
 
 
+export type MutationUpdateNewsItemSourceArgs = {
+  data?: InputMaybe<NewsItemSourceUpdateInput>;
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationUpdateNewsItemSourceHistoryRecordArgs = {
+  data?: InputMaybe<NewsItemSourceHistoryRecordUpdateInput>;
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationUpdateNewsItemSourceHistoryRecordsArgs = {
+  data?: InputMaybe<Array<InputMaybe<NewsItemSourceHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationUpdateNewsItemSourcesArgs = {
+  data?: InputMaybe<Array<InputMaybe<NewsItemSourcesUpdateInput>>>;
+};
+
+
 export type MutationUpdateNewsItemTemplateArgs = {
   data?: InputMaybe<NewsItemTemplateUpdateInput>;
   id: Scalars['ID']['input'];
@@ -64210,6 +64366,8 @@ export type NewsItem = {
   /**  Date when the news item was published. Auto-calculated field  */
   publishedAt?: Maybe<Scalars['String']['output']>;
   scopes: Array<NewsItemScope>;
+  /**  Number of NewsItemScope records for this news item. Computed once, when the item transitions to isPublished=true (scopes can no longer change after that point). Stays 0 for unpublished drafts.  */
+  scopesCount?: Maybe<Scalars['Int']['output']>;
   /**
    *  Scheduled time for sending notifications.
    * If null while the “isPublished” flag is true, the value is automatically set to "publishedAt" + 15 seconds
@@ -64219,6 +64377,8 @@ export type NewsItem = {
   sender?: Maybe<SenderField>;
   /**  Date when the news item was sent to residents. Used internally to determine whether the message has already been delivered.  */
   sentAt?: Maybe<Scalars['String']['output']>;
+  /**  Origin of the news item: the news form, an external system, ...  */
+  source?: Maybe<NewsItemSource>;
   /**  Title of the news item  */
   title?: Maybe<Scalars['String']['output']>;
   /**  The news item type. The `common` type generates push messages no more than 1 per hour per single user. Also, the resident may disable push messages for this type. The `emergency` type will always be accompanied by a push message and shown at the top of the news list. Also, this type always has a news item validity date.  */
@@ -64226,6 +64386,8 @@ export type NewsItem = {
   updatedAt?: Maybe<Scalars['String']['output']>;
   /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
+  /**  The organization employee user who authored this news item.  */
+  user?: Maybe<User>;
   v?: Maybe<Scalars['Int']['output']>;
   /**  Date after which the news item is no longer relevant  */
   validBefore?: Maybe<Scalars['String']['output']>;
@@ -64265,13 +64427,16 @@ export type NewsItemCreateInput = {
   organization?: InputMaybe<OrganizationRelateToOneInput>;
   publishedAt?: InputMaybe<Scalars['String']['input']>;
   scopes?: InputMaybe<NewsItemScopeRelateToManyInput>;
+  scopesCount?: InputMaybe<Scalars['Int']['input']>;
   sendAt?: InputMaybe<Scalars['String']['input']>;
   sender?: InputMaybe<SenderFieldInput>;
   sentAt?: InputMaybe<Scalars['String']['input']>;
+  source?: InputMaybe<NewsItemSourceRelateToOneInput>;
   title?: InputMaybe<Scalars['String']['input']>;
   type?: InputMaybe<NewsItemTypeType>;
   updatedAt?: InputMaybe<Scalars['String']['input']>;
   updatedBy?: InputMaybe<UserRelateToOneInput>;
+  user?: InputMaybe<UserRelateToOneInput>;
   v?: InputMaybe<Scalars['Int']['input']>;
   validBefore?: InputMaybe<Scalars['String']['input']>;
 };
@@ -64623,13 +64788,16 @@ export type NewsItemHistoryRecord = {
   number?: Maybe<Scalars['JSON']['output']>;
   organization?: Maybe<Scalars['String']['output']>;
   publishedAt?: Maybe<Scalars['String']['output']>;
+  scopesCount?: Maybe<Scalars['Int']['output']>;
   sendAt?: Maybe<Scalars['String']['output']>;
   sender?: Maybe<Scalars['JSON']['output']>;
   sentAt?: Maybe<Scalars['String']['output']>;
+  source?: Maybe<Scalars['String']['output']>;
   title?: Maybe<Scalars['String']['output']>;
   type?: Maybe<Scalars['String']['output']>;
   updatedAt?: Maybe<Scalars['String']['output']>;
   updatedBy?: Maybe<Scalars['String']['output']>;
+  user?: Maybe<Scalars['String']['output']>;
   v?: Maybe<Scalars['Int']['output']>;
   validBefore?: Maybe<Scalars['String']['output']>;
 };
@@ -64648,13 +64816,16 @@ export type NewsItemHistoryRecordCreateInput = {
   number?: InputMaybe<Scalars['JSON']['input']>;
   organization?: InputMaybe<Scalars['String']['input']>;
   publishedAt?: InputMaybe<Scalars['String']['input']>;
+  scopesCount?: InputMaybe<Scalars['Int']['input']>;
   sendAt?: InputMaybe<Scalars['String']['input']>;
   sender?: InputMaybe<Scalars['JSON']['input']>;
   sentAt?: InputMaybe<Scalars['String']['input']>;
+  source?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
   type?: InputMaybe<Scalars['String']['input']>;
   updatedAt?: InputMaybe<Scalars['String']['input']>;
   updatedBy?: InputMaybe<Scalars['String']['input']>;
+  user?: InputMaybe<Scalars['String']['input']>;
   v?: InputMaybe<Scalars['Int']['input']>;
   validBefore?: InputMaybe<Scalars['String']['input']>;
 };
@@ -64679,13 +64850,16 @@ export type NewsItemHistoryRecordUpdateInput = {
   number?: InputMaybe<Scalars['JSON']['input']>;
   organization?: InputMaybe<Scalars['String']['input']>;
   publishedAt?: InputMaybe<Scalars['String']['input']>;
+  scopesCount?: InputMaybe<Scalars['Int']['input']>;
   sendAt?: InputMaybe<Scalars['String']['input']>;
   sender?: InputMaybe<Scalars['JSON']['input']>;
   sentAt?: InputMaybe<Scalars['String']['input']>;
+  source?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
   type?: InputMaybe<Scalars['String']['input']>;
   updatedAt?: InputMaybe<Scalars['String']['input']>;
   updatedBy?: InputMaybe<Scalars['String']['input']>;
+  user?: InputMaybe<Scalars['String']['input']>;
   v?: InputMaybe<Scalars['Int']['input']>;
   validBefore?: InputMaybe<Scalars['String']['input']>;
 };
@@ -64781,6 +64955,14 @@ export type NewsItemHistoryRecordWhereInput = {
   publishedAt_lte?: InputMaybe<Scalars['String']['input']>;
   publishedAt_not?: InputMaybe<Scalars['String']['input']>;
   publishedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  scopesCount?: InputMaybe<Scalars['Int']['input']>;
+  scopesCount_gt?: InputMaybe<Scalars['Int']['input']>;
+  scopesCount_gte?: InputMaybe<Scalars['Int']['input']>;
+  scopesCount_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  scopesCount_lt?: InputMaybe<Scalars['Int']['input']>;
+  scopesCount_lte?: InputMaybe<Scalars['Int']['input']>;
+  scopesCount_not?: InputMaybe<Scalars['Int']['input']>;
+  scopesCount_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
   sendAt?: InputMaybe<Scalars['String']['input']>;
   sendAt_gt?: InputMaybe<Scalars['String']['input']>;
   sendAt_gte?: InputMaybe<Scalars['String']['input']>;
@@ -64801,6 +64983,10 @@ export type NewsItemHistoryRecordWhereInput = {
   sentAt_lte?: InputMaybe<Scalars['String']['input']>;
   sentAt_not?: InputMaybe<Scalars['String']['input']>;
   sentAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  source?: InputMaybe<Scalars['String']['input']>;
+  source_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  source_not?: InputMaybe<Scalars['String']['input']>;
+  source_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   title?: InputMaybe<Scalars['String']['input']>;
   title_contains?: InputMaybe<Scalars['String']['input']>;
   title_contains_i?: InputMaybe<Scalars['String']['input']>;
@@ -64849,6 +65035,10 @@ export type NewsItemHistoryRecordWhereInput = {
   updatedBy_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   updatedBy_not?: InputMaybe<Scalars['String']['input']>;
   updatedBy_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  user?: InputMaybe<Scalars['String']['input']>;
+  user_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  user_not?: InputMaybe<Scalars['String']['input']>;
+  user_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   v?: InputMaybe<Scalars['Int']['input']>;
   v_gt?: InputMaybe<Scalars['Int']['input']>;
   v_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -66107,6 +66297,382 @@ export type NewsItemSharingsUpdateInput = {
   id: Scalars['ID']['input'];
 };
 
+/**  News item source. Web app (news form), external system, ...  */
+export type NewsItemSource = {
+  __typename?: 'NewsItemSource';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the NewsItemSource List config, or
+   *  2. As an alias to the field set on 'labelField' in the NewsItemSource List config, or
+   *  3. As an alias to a 'name' field on the NewsItemSource List (if one exists), or
+   *  4. As an alias to the 'id' field on the NewsItemSource List.
+   */
+  _label_?: Maybe<Scalars['String']['output']>;
+  createdAt?: Maybe<Scalars['String']['output']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']['output']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']['output']>;
+  id: Scalars['ID']['output'];
+  /**  (Read-only) Indicates whether a news source is default or custom.  */
+  isDefault?: Maybe<Scalars['Boolean']['output']>;
+  /**  Localized News item source name  */
+  name?: Maybe<Scalars['String']['output']>;
+  nameNonLocalized?: Maybe<Scalars['String']['output']>;
+  newId?: Maybe<Scalars['String']['output']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+  type?: Maybe<NewsItemSourceTypeType>;
+  updatedAt?: Maybe<Scalars['String']['output']>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  v?: Maybe<Scalars['Int']['output']>;
+};
+
+export type NewsItemSourceCreateInput = {
+  createdAt?: InputMaybe<Scalars['String']['input']>;
+  createdBy?: InputMaybe<UserRelateToOneInput>;
+  deletedAt?: InputMaybe<Scalars['String']['input']>;
+  dv?: InputMaybe<Scalars['Int']['input']>;
+  isDefault?: InputMaybe<Scalars['Boolean']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  newId?: InputMaybe<Scalars['String']['input']>;
+  sender?: InputMaybe<SenderFieldInput>;
+  type?: InputMaybe<NewsItemSourceTypeType>;
+  updatedAt?: InputMaybe<Scalars['String']['input']>;
+  updatedBy?: InputMaybe<UserRelateToOneInput>;
+  v?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/**  A keystone list  */
+export type NewsItemSourceHistoryRecord = {
+  __typename?: 'NewsItemSourceHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the NewsItemSourceHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the NewsItemSourceHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the NewsItemSourceHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the NewsItemSourceHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']['output']>;
+  createdAt?: Maybe<Scalars['String']['output']>;
+  createdBy?: Maybe<Scalars['String']['output']>;
+  deletedAt?: Maybe<Scalars['String']['output']>;
+  dv?: Maybe<Scalars['Int']['output']>;
+  history_action?: Maybe<NewsItemSourceHistoryRecordHistoryActionType>;
+  history_date?: Maybe<Scalars['String']['output']>;
+  history_id?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  isDefault?: Maybe<Scalars['Boolean']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  newId?: Maybe<Scalars['JSON']['output']>;
+  sender?: Maybe<Scalars['JSON']['output']>;
+  type?: Maybe<Scalars['String']['output']>;
+  updatedAt?: Maybe<Scalars['String']['output']>;
+  updatedBy?: Maybe<Scalars['String']['output']>;
+  v?: Maybe<Scalars['Int']['output']>;
+};
+
+export type NewsItemSourceHistoryRecordCreateInput = {
+  createdAt?: InputMaybe<Scalars['String']['input']>;
+  createdBy?: InputMaybe<Scalars['String']['input']>;
+  deletedAt?: InputMaybe<Scalars['String']['input']>;
+  dv?: InputMaybe<Scalars['Int']['input']>;
+  history_action?: InputMaybe<NewsItemSourceHistoryRecordHistoryActionType>;
+  history_date?: InputMaybe<Scalars['String']['input']>;
+  history_id?: InputMaybe<Scalars['String']['input']>;
+  isDefault?: InputMaybe<Scalars['Boolean']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  newId?: InputMaybe<Scalars['JSON']['input']>;
+  sender?: InputMaybe<Scalars['JSON']['input']>;
+  type?: InputMaybe<Scalars['String']['input']>;
+  updatedAt?: InputMaybe<Scalars['String']['input']>;
+  updatedBy?: InputMaybe<Scalars['String']['input']>;
+  v?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export enum NewsItemSourceHistoryRecordHistoryActionType {
+  C = 'c',
+  D = 'd',
+  U = 'u'
+}
+
+export type NewsItemSourceHistoryRecordUpdateInput = {
+  createdAt?: InputMaybe<Scalars['String']['input']>;
+  createdBy?: InputMaybe<Scalars['String']['input']>;
+  deletedAt?: InputMaybe<Scalars['String']['input']>;
+  dv?: InputMaybe<Scalars['Int']['input']>;
+  history_action?: InputMaybe<NewsItemSourceHistoryRecordHistoryActionType>;
+  history_date?: InputMaybe<Scalars['String']['input']>;
+  history_id?: InputMaybe<Scalars['String']['input']>;
+  isDefault?: InputMaybe<Scalars['Boolean']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  newId?: InputMaybe<Scalars['JSON']['input']>;
+  sender?: InputMaybe<Scalars['JSON']['input']>;
+  type?: InputMaybe<Scalars['String']['input']>;
+  updatedAt?: InputMaybe<Scalars['String']['input']>;
+  updatedBy?: InputMaybe<Scalars['String']['input']>;
+  v?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type NewsItemSourceHistoryRecordWhereInput = {
+  AND?: InputMaybe<Array<InputMaybe<NewsItemSourceHistoryRecordWhereInput>>>;
+  OR?: InputMaybe<Array<InputMaybe<NewsItemSourceHistoryRecordWhereInput>>>;
+  createdAt?: InputMaybe<Scalars['String']['input']>;
+  createdAt_gt?: InputMaybe<Scalars['String']['input']>;
+  createdAt_gte?: InputMaybe<Scalars['String']['input']>;
+  createdAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  createdAt_lt?: InputMaybe<Scalars['String']['input']>;
+  createdAt_lte?: InputMaybe<Scalars['String']['input']>;
+  createdAt_not?: InputMaybe<Scalars['String']['input']>;
+  createdAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  createdBy?: InputMaybe<Scalars['String']['input']>;
+  createdBy_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  createdBy_not?: InputMaybe<Scalars['String']['input']>;
+  createdBy_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  deletedAt?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_gt?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_gte?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  deletedAt_lt?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_lte?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_not?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  dv?: InputMaybe<Scalars['Int']['input']>;
+  dv_gt?: InputMaybe<Scalars['Int']['input']>;
+  dv_gte?: InputMaybe<Scalars['Int']['input']>;
+  dv_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  dv_lt?: InputMaybe<Scalars['Int']['input']>;
+  dv_lte?: InputMaybe<Scalars['Int']['input']>;
+  dv_not?: InputMaybe<Scalars['Int']['input']>;
+  dv_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  history_action?: InputMaybe<NewsItemSourceHistoryRecordHistoryActionType>;
+  history_action_in?: InputMaybe<Array<InputMaybe<NewsItemSourceHistoryRecordHistoryActionType>>>;
+  history_action_not?: InputMaybe<NewsItemSourceHistoryRecordHistoryActionType>;
+  history_action_not_in?: InputMaybe<Array<InputMaybe<NewsItemSourceHistoryRecordHistoryActionType>>>;
+  history_date?: InputMaybe<Scalars['String']['input']>;
+  history_date_gt?: InputMaybe<Scalars['String']['input']>;
+  history_date_gte?: InputMaybe<Scalars['String']['input']>;
+  history_date_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  history_date_lt?: InputMaybe<Scalars['String']['input']>;
+  history_date_lte?: InputMaybe<Scalars['String']['input']>;
+  history_date_not?: InputMaybe<Scalars['String']['input']>;
+  history_date_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  history_id?: InputMaybe<Scalars['String']['input']>;
+  history_id_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  history_id_not?: InputMaybe<Scalars['String']['input']>;
+  history_id_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  id?: InputMaybe<Scalars['ID']['input']>;
+  id_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  id_not?: InputMaybe<Scalars['ID']['input']>;
+  id_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  isDefault?: InputMaybe<Scalars['Boolean']['input']>;
+  isDefault_not?: InputMaybe<Scalars['Boolean']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  name_contains?: InputMaybe<Scalars['String']['input']>;
+  name_contains_i?: InputMaybe<Scalars['String']['input']>;
+  name_ends_with?: InputMaybe<Scalars['String']['input']>;
+  name_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  name_i?: InputMaybe<Scalars['String']['input']>;
+  name_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  name_not?: InputMaybe<Scalars['String']['input']>;
+  name_not_contains?: InputMaybe<Scalars['String']['input']>;
+  name_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  name_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  name_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  name_not_i?: InputMaybe<Scalars['String']['input']>;
+  name_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  name_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  name_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  name_starts_with?: InputMaybe<Scalars['String']['input']>;
+  name_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  newId?: InputMaybe<Scalars['JSON']['input']>;
+  newId_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  newId_not?: InputMaybe<Scalars['JSON']['input']>;
+  newId_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  sender?: InputMaybe<Scalars['JSON']['input']>;
+  sender_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  sender_not?: InputMaybe<Scalars['JSON']['input']>;
+  sender_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  type?: InputMaybe<Scalars['String']['input']>;
+  type_contains?: InputMaybe<Scalars['String']['input']>;
+  type_contains_i?: InputMaybe<Scalars['String']['input']>;
+  type_ends_with?: InputMaybe<Scalars['String']['input']>;
+  type_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  type_i?: InputMaybe<Scalars['String']['input']>;
+  type_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  type_not?: InputMaybe<Scalars['String']['input']>;
+  type_not_contains?: InputMaybe<Scalars['String']['input']>;
+  type_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  type_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  type_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  type_not_i?: InputMaybe<Scalars['String']['input']>;
+  type_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  type_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  type_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  type_starts_with?: InputMaybe<Scalars['String']['input']>;
+  type_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  updatedAt?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_gt?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_gte?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  updatedAt_lt?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_lte?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_not?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  updatedBy?: InputMaybe<Scalars['String']['input']>;
+  updatedBy_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  updatedBy_not?: InputMaybe<Scalars['String']['input']>;
+  updatedBy_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  v?: InputMaybe<Scalars['Int']['input']>;
+  v_gt?: InputMaybe<Scalars['Int']['input']>;
+  v_gte?: InputMaybe<Scalars['Int']['input']>;
+  v_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  v_lt?: InputMaybe<Scalars['Int']['input']>;
+  v_lte?: InputMaybe<Scalars['Int']['input']>;
+  v_not?: InputMaybe<Scalars['Int']['input']>;
+  v_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+};
+
+export type NewsItemSourceHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID']['input'];
+};
+
+export type NewsItemSourceHistoryRecordsCreateInput = {
+  data?: InputMaybe<NewsItemSourceHistoryRecordCreateInput>;
+};
+
+export type NewsItemSourceHistoryRecordsUpdateInput = {
+  data?: InputMaybe<NewsItemSourceHistoryRecordUpdateInput>;
+  id: Scalars['ID']['input'];
+};
+
+export type NewsItemSourceRelateToOneInput = {
+  connect?: InputMaybe<NewsItemSourceWhereUniqueInput>;
+  create?: InputMaybe<NewsItemSourceCreateInput>;
+  disconnect?: InputMaybe<NewsItemSourceWhereUniqueInput>;
+  disconnectAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+export enum NewsItemSourceTypeType {
+  NewsForm = 'news_form',
+  Registry = 'registry'
+}
+
+export type NewsItemSourceUpdateInput = {
+  createdAt?: InputMaybe<Scalars['String']['input']>;
+  createdBy?: InputMaybe<UserRelateToOneInput>;
+  deletedAt?: InputMaybe<Scalars['String']['input']>;
+  dv?: InputMaybe<Scalars['Int']['input']>;
+  isDefault?: InputMaybe<Scalars['Boolean']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  newId?: InputMaybe<Scalars['String']['input']>;
+  sender?: InputMaybe<SenderFieldInput>;
+  type?: InputMaybe<NewsItemSourceTypeType>;
+  updatedAt?: InputMaybe<Scalars['String']['input']>;
+  updatedBy?: InputMaybe<UserRelateToOneInput>;
+  v?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type NewsItemSourceWhereInput = {
+  AND?: InputMaybe<Array<InputMaybe<NewsItemSourceWhereInput>>>;
+  OR?: InputMaybe<Array<InputMaybe<NewsItemSourceWhereInput>>>;
+  createdAt?: InputMaybe<Scalars['String']['input']>;
+  createdAt_gt?: InputMaybe<Scalars['String']['input']>;
+  createdAt_gte?: InputMaybe<Scalars['String']['input']>;
+  createdAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  createdAt_lt?: InputMaybe<Scalars['String']['input']>;
+  createdAt_lte?: InputMaybe<Scalars['String']['input']>;
+  createdAt_not?: InputMaybe<Scalars['String']['input']>;
+  createdAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  createdBy?: InputMaybe<UserWhereInput>;
+  createdBy_is_null?: InputMaybe<Scalars['Boolean']['input']>;
+  deletedAt?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_gt?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_gte?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  deletedAt_lt?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_lte?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_not?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  dv?: InputMaybe<Scalars['Int']['input']>;
+  dv_gt?: InputMaybe<Scalars['Int']['input']>;
+  dv_gte?: InputMaybe<Scalars['Int']['input']>;
+  dv_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  dv_lt?: InputMaybe<Scalars['Int']['input']>;
+  dv_lte?: InputMaybe<Scalars['Int']['input']>;
+  dv_not?: InputMaybe<Scalars['Int']['input']>;
+  dv_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  id?: InputMaybe<Scalars['ID']['input']>;
+  id_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  id_not?: InputMaybe<Scalars['ID']['input']>;
+  id_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  isDefault?: InputMaybe<Scalars['Boolean']['input']>;
+  isDefault_not?: InputMaybe<Scalars['Boolean']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  name_contains?: InputMaybe<Scalars['String']['input']>;
+  name_contains_i?: InputMaybe<Scalars['String']['input']>;
+  name_ends_with?: InputMaybe<Scalars['String']['input']>;
+  name_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  name_i?: InputMaybe<Scalars['String']['input']>;
+  name_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  name_not?: InputMaybe<Scalars['String']['input']>;
+  name_not_contains?: InputMaybe<Scalars['String']['input']>;
+  name_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  name_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  name_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  name_not_i?: InputMaybe<Scalars['String']['input']>;
+  name_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  name_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  name_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  name_starts_with?: InputMaybe<Scalars['String']['input']>;
+  name_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  newId?: InputMaybe<Scalars['String']['input']>;
+  newId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  newId_not?: InputMaybe<Scalars['String']['input']>;
+  newId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  sender?: InputMaybe<SenderFieldInput>;
+  sender_in?: InputMaybe<Array<InputMaybe<SenderFieldInput>>>;
+  sender_not?: InputMaybe<SenderFieldInput>;
+  sender_not_in?: InputMaybe<Array<InputMaybe<SenderFieldInput>>>;
+  type?: InputMaybe<NewsItemSourceTypeType>;
+  type_in?: InputMaybe<Array<InputMaybe<NewsItemSourceTypeType>>>;
+  type_not?: InputMaybe<NewsItemSourceTypeType>;
+  type_not_in?: InputMaybe<Array<InputMaybe<NewsItemSourceTypeType>>>;
+  updatedAt?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_gt?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_gte?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  updatedAt_lt?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_lte?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_not?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  updatedBy?: InputMaybe<UserWhereInput>;
+  updatedBy_is_null?: InputMaybe<Scalars['Boolean']['input']>;
+  v?: InputMaybe<Scalars['Int']['input']>;
+  v_gt?: InputMaybe<Scalars['Int']['input']>;
+  v_gte?: InputMaybe<Scalars['Int']['input']>;
+  v_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  v_lt?: InputMaybe<Scalars['Int']['input']>;
+  v_lte?: InputMaybe<Scalars['Int']['input']>;
+  v_not?: InputMaybe<Scalars['Int']['input']>;
+  v_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+};
+
+export type NewsItemSourceWhereUniqueInput = {
+  id: Scalars['ID']['input'];
+};
+
+export type NewsItemSourcesCreateInput = {
+  data?: InputMaybe<NewsItemSourceCreateInput>;
+};
+
+export type NewsItemSourcesUpdateInput = {
+  data?: InputMaybe<NewsItemSourceUpdateInput>;
+  id: Scalars['ID']['input'];
+};
+
 /**  Template that helps compose news items quickly  */
 export type NewsItemTemplate = {
   __typename?: 'NewsItemTemplate';
@@ -66627,13 +67193,16 @@ export type NewsItemUpdateInput = {
   organization?: InputMaybe<OrganizationRelateToOneInput>;
   publishedAt?: InputMaybe<Scalars['String']['input']>;
   scopes?: InputMaybe<NewsItemScopeRelateToManyInput>;
+  scopesCount?: InputMaybe<Scalars['Int']['input']>;
   sendAt?: InputMaybe<Scalars['String']['input']>;
   sender?: InputMaybe<SenderFieldInput>;
   sentAt?: InputMaybe<Scalars['String']['input']>;
+  source?: InputMaybe<NewsItemSourceRelateToOneInput>;
   title?: InputMaybe<Scalars['String']['input']>;
   type?: InputMaybe<NewsItemTypeType>;
   updatedAt?: InputMaybe<Scalars['String']['input']>;
   updatedBy?: InputMaybe<UserRelateToOneInput>;
+  user?: InputMaybe<UserRelateToOneInput>;
   v?: InputMaybe<Scalars['Int']['input']>;
   validBefore?: InputMaybe<Scalars['String']['input']>;
 };
@@ -67020,6 +67589,14 @@ export type NewsItemWhereInput = {
   publishedAt_lte?: InputMaybe<Scalars['String']['input']>;
   publishedAt_not?: InputMaybe<Scalars['String']['input']>;
   publishedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  scopesCount?: InputMaybe<Scalars['Int']['input']>;
+  scopesCount_gt?: InputMaybe<Scalars['Int']['input']>;
+  scopesCount_gte?: InputMaybe<Scalars['Int']['input']>;
+  scopesCount_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  scopesCount_lt?: InputMaybe<Scalars['Int']['input']>;
+  scopesCount_lte?: InputMaybe<Scalars['Int']['input']>;
+  scopesCount_not?: InputMaybe<Scalars['Int']['input']>;
+  scopesCount_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
   /**  condition must be true for all nodes  */
   scopes_every?: InputMaybe<NewsItemScopeWhereInput>;
   /**  condition must be false for all nodes  */
@@ -67046,6 +67623,8 @@ export type NewsItemWhereInput = {
   sentAt_lte?: InputMaybe<Scalars['String']['input']>;
   sentAt_not?: InputMaybe<Scalars['String']['input']>;
   sentAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  source?: InputMaybe<NewsItemSourceWhereInput>;
+  source_is_null?: InputMaybe<Scalars['Boolean']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
   title_contains?: InputMaybe<Scalars['String']['input']>;
   title_contains_i?: InputMaybe<Scalars['String']['input']>;
@@ -67078,6 +67657,8 @@ export type NewsItemWhereInput = {
   updatedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   updatedBy?: InputMaybe<UserWhereInput>;
   updatedBy_is_null?: InputMaybe<Scalars['Boolean']['input']>;
+  user?: InputMaybe<UserWhereInput>;
+  user_is_null?: InputMaybe<Scalars['Boolean']['input']>;
   v?: InputMaybe<Scalars['Int']['input']>;
   v_gt?: InputMaybe<Scalars['Int']['input']>;
   v_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -78011,6 +78592,10 @@ export type Query = {
   NewsItemSharing?: Maybe<NewsItemSharing>;
   /**  Search for the NewsItemSharingHistoryRecord item with the matching ID.  */
   NewsItemSharingHistoryRecord?: Maybe<NewsItemSharingHistoryRecord>;
+  /**  Search for the NewsItemSource item with the matching ID.  */
+  NewsItemSource?: Maybe<NewsItemSource>;
+  /**  Search for the NewsItemSourceHistoryRecord item with the matching ID.  */
+  NewsItemSourceHistoryRecord?: Maybe<NewsItemSourceHistoryRecord>;
   /**  Search for the NewsItemTemplate item with the matching ID.  */
   NewsItemTemplate?: Maybe<NewsItemTemplate>;
   /**  Search for the NewsItemTemplateHistoryRecord item with the matching ID.  */
@@ -78627,6 +79212,10 @@ export type Query = {
   _NewsItemSharingHistoryRecordsMeta?: Maybe<_ListMeta>;
   /**  Retrieve the meta-data for the NewsItemSharing list.  */
   _NewsItemSharingsMeta?: Maybe<_ListMeta>;
+  /**  Retrieve the meta-data for the NewsItemSourceHistoryRecord list.  */
+  _NewsItemSourceHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Retrieve the meta-data for the NewsItemSource list.  */
+  _NewsItemSourcesMeta?: Maybe<_ListMeta>;
   /**  Retrieve the meta-data for the NewsItemTemplateHistoryRecord list.  */
   _NewsItemTemplateHistoryRecordsMeta?: Maybe<_ListMeta>;
   /**  Retrieve the meta-data for the NewsItemTemplate list.  */
@@ -79267,6 +79856,10 @@ export type Query = {
   _allNewsItemSharingHistoryRecordsMeta?: Maybe<_QueryMeta>;
   /**  Perform a meta-query on all NewsItemSharing items which match the where clause.  */
   _allNewsItemSharingsMeta?: Maybe<_QueryMeta>;
+  /**  Perform a meta-query on all NewsItemSourceHistoryRecord items which match the where clause.  */
+  _allNewsItemSourceHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Perform a meta-query on all NewsItemSource items which match the where clause.  */
+  _allNewsItemSourcesMeta?: Maybe<_QueryMeta>;
   /**  Perform a meta-query on all NewsItemTemplateHistoryRecord items which match the where clause.  */
   _allNewsItemTemplateHistoryRecordsMeta?: Maybe<_QueryMeta>;
   /**  Perform a meta-query on all NewsItemTemplate items which match the where clause.  */
@@ -79916,6 +80509,10 @@ export type Query = {
   allNewsItemSharingHistoryRecords?: Maybe<Array<Maybe<NewsItemSharingHistoryRecord>>>;
   /**  Search for all NewsItemSharing items which match the where clause.  */
   allNewsItemSharings?: Maybe<Array<Maybe<NewsItemSharing>>>;
+  /**  Search for all NewsItemSourceHistoryRecord items which match the where clause.  */
+  allNewsItemSourceHistoryRecords?: Maybe<Array<Maybe<NewsItemSourceHistoryRecord>>>;
+  /**  Search for all NewsItemSource items which match the where clause.  */
+  allNewsItemSources?: Maybe<Array<Maybe<NewsItemSource>>>;
   /**  Search for all NewsItemTemplateHistoryRecord items which match the where clause.  */
   allNewsItemTemplateHistoryRecords?: Maybe<Array<Maybe<NewsItemTemplateHistoryRecord>>>;
   /**  Search for all NewsItemTemplate items which match the where clause.  */
@@ -81395,6 +81992,16 @@ export type QueryNewsItemSharingArgs = {
 
 export type QueryNewsItemSharingHistoryRecordArgs = {
   where: NewsItemSharingHistoryRecordWhereUniqueInput;
+};
+
+
+export type QueryNewsItemSourceArgs = {
+  where: NewsItemSourceWhereUniqueInput;
+};
+
+
+export type QueryNewsItemSourceHistoryRecordArgs = {
+  where: NewsItemSourceHistoryRecordWhereUniqueInput;
 };
 
 
@@ -83860,6 +84467,26 @@ export type Query_AllNewsItemSharingsMetaArgs = {
   skip?: InputMaybe<Scalars['Int']['input']>;
   sortBy?: InputMaybe<Array<SortNewsItemSharingsBy>>;
   where?: InputMaybe<NewsItemSharingWhereInput>;
+};
+
+
+export type Query_AllNewsItemSourceHistoryRecordsMetaArgs = {
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Scalars['String']['input']>;
+  search?: InputMaybe<Scalars['String']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Array<SortNewsItemSourceHistoryRecordsBy>>;
+  where?: InputMaybe<NewsItemSourceHistoryRecordWhereInput>;
+};
+
+
+export type Query_AllNewsItemSourcesMetaArgs = {
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Scalars['String']['input']>;
+  search?: InputMaybe<Scalars['String']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Array<SortNewsItemSourcesBy>>;
+  where?: InputMaybe<NewsItemSourceWhereInput>;
 };
 
 
@@ -86965,6 +87592,26 @@ export type QueryAllNewsItemSharingsArgs = {
   skip?: InputMaybe<Scalars['Int']['input']>;
   sortBy?: InputMaybe<Array<SortNewsItemSharingsBy>>;
   where?: InputMaybe<NewsItemSharingWhereInput>;
+};
+
+
+export type QueryAllNewsItemSourceHistoryRecordsArgs = {
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Scalars['String']['input']>;
+  search?: InputMaybe<Scalars['String']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Array<SortNewsItemSourceHistoryRecordsBy>>;
+  where?: InputMaybe<NewsItemSourceHistoryRecordWhereInput>;
+};
+
+
+export type QueryAllNewsItemSourcesArgs = {
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Scalars['String']['input']>;
+  search?: InputMaybe<Scalars['String']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Array<SortNewsItemSourcesBy>>;
+  where?: InputMaybe<NewsItemSourceWhereInput>;
 };
 
 
@@ -93095,6 +93742,8 @@ export enum SortB2BAppAccessRightHistoryRecordsBy {
 }
 
 export enum SortB2BAppAccessRightSetHistoryRecordsBy {
+  CanExecuteGetNewsItemsRecipientsCountersAsc = 'canExecuteGetNewsItemsRecipientsCounters_ASC',
+  CanExecuteGetNewsItemsRecipientsCountersDesc = 'canExecuteGetNewsItemsRecipientsCounters_DESC',
   CanExecuteRegisterBillingReceiptFileAsc = 'canExecuteRegisterBillingReceiptFile_ASC',
   CanExecuteRegisterBillingReceiptFileDesc = 'canExecuteRegisterBillingReceiptFile_DESC',
   CanExecuteRegisterBillingReceiptsAsc = 'canExecuteRegisterBillingReceipts_ASC',
@@ -93137,6 +93786,12 @@ export enum SortB2BAppAccessRightSetHistoryRecordsBy {
   CanManageMetersDesc = 'canManageMeters_DESC',
   CanManageNewsItemFilesAsc = 'canManageNewsItemFiles_ASC',
   CanManageNewsItemFilesDesc = 'canManageNewsItemFiles_DESC',
+  CanManageNewsItemRecipientsExportTasksAsc = 'canManageNewsItemRecipientsExportTasks_ASC',
+  CanManageNewsItemRecipientsExportTasksDesc = 'canManageNewsItemRecipientsExportTasks_DESC',
+  CanManageNewsItemScopesAsc = 'canManageNewsItemScopes_ASC',
+  CanManageNewsItemScopesDesc = 'canManageNewsItemScopes_DESC',
+  CanManageNewsItemsAsc = 'canManageNewsItems_ASC',
+  CanManageNewsItemsDesc = 'canManageNewsItems_DESC',
   CanManageOrganizationEmployeeRolesAsc = 'canManageOrganizationEmployeeRoles_ASC',
   CanManageOrganizationEmployeeRolesDesc = 'canManageOrganizationEmployeeRoles_DESC',
   CanManageOrganizationEmployeesAsc = 'canManageOrganizationEmployees_ASC',
@@ -93183,6 +93838,12 @@ export enum SortB2BAppAccessRightSetHistoryRecordsBy {
   CanReadMetersDesc = 'canReadMeters_DESC',
   CanReadNewsItemFilesAsc = 'canReadNewsItemFiles_ASC',
   CanReadNewsItemFilesDesc = 'canReadNewsItemFiles_DESC',
+  CanReadNewsItemRecipientsExportTasksAsc = 'canReadNewsItemRecipientsExportTasks_ASC',
+  CanReadNewsItemRecipientsExportTasksDesc = 'canReadNewsItemRecipientsExportTasks_DESC',
+  CanReadNewsItemScopesAsc = 'canReadNewsItemScopes_ASC',
+  CanReadNewsItemScopesDesc = 'canReadNewsItemScopes_DESC',
+  CanReadNewsItemsAsc = 'canReadNewsItems_ASC',
+  CanReadNewsItemsDesc = 'canReadNewsItems_DESC',
   CanReadOrganizationEmployeeRolesAsc = 'canReadOrganizationEmployeeRoles_ASC',
   CanReadOrganizationEmployeeRolesDesc = 'canReadOrganizationEmployeeRoles_DESC',
   CanReadOrganizationEmployeesAsc = 'canReadOrganizationEmployees_ASC',
@@ -93230,6 +93891,8 @@ export enum SortB2BAppAccessRightSetHistoryRecordsBy {
 export enum SortB2BAppAccessRightSetsBy {
   AppAsc = 'app_ASC',
   AppDesc = 'app_DESC',
+  CanExecuteGetNewsItemsRecipientsCountersAsc = 'canExecuteGetNewsItemsRecipientsCounters_ASC',
+  CanExecuteGetNewsItemsRecipientsCountersDesc = 'canExecuteGetNewsItemsRecipientsCounters_DESC',
   CanExecuteRegisterBillingReceiptFileAsc = 'canExecuteRegisterBillingReceiptFile_ASC',
   CanExecuteRegisterBillingReceiptFileDesc = 'canExecuteRegisterBillingReceiptFile_DESC',
   CanExecuteRegisterBillingReceiptsAsc = 'canExecuteRegisterBillingReceipts_ASC',
@@ -93272,6 +93935,12 @@ export enum SortB2BAppAccessRightSetsBy {
   CanManageMetersDesc = 'canManageMeters_DESC',
   CanManageNewsItemFilesAsc = 'canManageNewsItemFiles_ASC',
   CanManageNewsItemFilesDesc = 'canManageNewsItemFiles_DESC',
+  CanManageNewsItemRecipientsExportTasksAsc = 'canManageNewsItemRecipientsExportTasks_ASC',
+  CanManageNewsItemRecipientsExportTasksDesc = 'canManageNewsItemRecipientsExportTasks_DESC',
+  CanManageNewsItemScopesAsc = 'canManageNewsItemScopes_ASC',
+  CanManageNewsItemScopesDesc = 'canManageNewsItemScopes_DESC',
+  CanManageNewsItemsAsc = 'canManageNewsItems_ASC',
+  CanManageNewsItemsDesc = 'canManageNewsItems_DESC',
   CanManageOrganizationEmployeeRolesAsc = 'canManageOrganizationEmployeeRoles_ASC',
   CanManageOrganizationEmployeeRolesDesc = 'canManageOrganizationEmployeeRoles_DESC',
   CanManageOrganizationEmployeesAsc = 'canManageOrganizationEmployees_ASC',
@@ -93318,6 +93987,12 @@ export enum SortB2BAppAccessRightSetsBy {
   CanReadMetersDesc = 'canReadMeters_DESC',
   CanReadNewsItemFilesAsc = 'canReadNewsItemFiles_ASC',
   CanReadNewsItemFilesDesc = 'canReadNewsItemFiles_DESC',
+  CanReadNewsItemRecipientsExportTasksAsc = 'canReadNewsItemRecipientsExportTasks_ASC',
+  CanReadNewsItemRecipientsExportTasksDesc = 'canReadNewsItemRecipientsExportTasks_DESC',
+  CanReadNewsItemScopesAsc = 'canReadNewsItemScopes_ASC',
+  CanReadNewsItemScopesDesc = 'canReadNewsItemScopes_DESC',
+  CanReadNewsItemsAsc = 'canReadNewsItems_ASC',
+  CanReadNewsItemsDesc = 'canReadNewsItems_DESC',
   CanReadOrganizationEmployeeRolesAsc = 'canReadOrganizationEmployeeRoles_ASC',
   CanReadOrganizationEmployeeRolesDesc = 'canReadOrganizationEmployeeRoles_DESC',
   CanReadOrganizationEmployeesAsc = 'canReadOrganizationEmployees_ASC',
@@ -98397,6 +99072,8 @@ export enum SortNewsItemHistoryRecordsBy {
   IsPublishedDesc = 'isPublished_DESC',
   PublishedAtAsc = 'publishedAt_ASC',
   PublishedAtDesc = 'publishedAt_DESC',
+  ScopesCountAsc = 'scopesCount_ASC',
+  ScopesCountDesc = 'scopesCount_DESC',
   SendAtAsc = 'sendAt_ASC',
   SendAtDesc = 'sendAt_DESC',
   SentAtAsc = 'sentAt_ASC',
@@ -98563,6 +99240,56 @@ export enum SortNewsItemSharingsBy {
   VDesc = 'v_DESC'
 }
 
+export enum SortNewsItemSourceHistoryRecordsBy {
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  IsDefaultAsc = 'isDefault_ASC',
+  IsDefaultDesc = 'isDefault_DESC',
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
+  TypeAsc = 'type_ASC',
+  TypeDesc = 'type_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC'
+}
+
+export enum SortNewsItemSourcesBy {
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  IsDefaultAsc = 'isDefault_ASC',
+  IsDefaultDesc = 'isDefault_DESC',
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
+  TypeAsc = 'type_ASC',
+  TypeDesc = 'type_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC'
+}
+
 export enum SortNewsItemTemplateHistoryRecordsBy {
   BodyAsc = 'body_ASC',
   BodyDesc = 'body_DESC',
@@ -98686,12 +99413,16 @@ export enum SortNewsItemsBy {
   OrganizationDesc = 'organization_DESC',
   PublishedAtAsc = 'publishedAt_ASC',
   PublishedAtDesc = 'publishedAt_DESC',
+  ScopesCountAsc = 'scopesCount_ASC',
+  ScopesCountDesc = 'scopesCount_DESC',
   ScopesAsc = 'scopes_ASC',
   ScopesDesc = 'scopes_DESC',
   SendAtAsc = 'sendAt_ASC',
   SendAtDesc = 'sendAt_DESC',
   SentAtAsc = 'sentAt_ASC',
   SentAtDesc = 'sentAt_DESC',
+  SourceAsc = 'source_ASC',
+  SourceDesc = 'source_DESC',
   TitleAsc = 'title_ASC',
   TitleDesc = 'title_DESC',
   TypeAsc = 'type_ASC',
@@ -98700,6 +99431,8 @@ export enum SortNewsItemsBy {
   UpdatedAtDesc = 'updatedAt_DESC',
   UpdatedByAsc = 'updatedBy_ASC',
   UpdatedByDesc = 'updatedBy_DESC',
+  UserAsc = 'user_ASC',
+  UserDesc = 'user_DESC',
   VAsc = 'v_ASC',
   VDesc = 'v_DESC',
   ValidBeforeAsc = 'validBefore_ASC',

@@ -33,6 +33,7 @@ const {
     publishTestNewsItem,
     createTestNewsItemScope,
     createTestNewsItemFile,
+    createTestNewsItemSource,
 } = require('@condo/domains/news/utils/testSchema')
 const {
     createTestOrganizationEmployeeRole,
@@ -260,6 +261,17 @@ describe('NewsItems', () => {
 
                 const [objUpdated] = await updateTestNewsItem(adminClient, objCreated.id, { type: null })
                 expect(objUpdated.type).toEqual(NEWS_TYPE_COMMON)
+            })
+
+            test('source is immutable after create', async () => {
+                const [objCreated] = await createTestNewsItem(adminClient, dummyO10n)
+                const [anotherSource] = await createTestNewsItemSource(adminClient)
+
+                await expectToThrowGraphQLRequestError(async () => {
+                    await updateTestNewsItem(adminClient, objCreated.id, {
+                        source: { connect: { id: anotherSource.id } },
+                    })
+                }, 'Field "source" is not defined by type "NewsItemUpdateInput"')
             })
         })
 

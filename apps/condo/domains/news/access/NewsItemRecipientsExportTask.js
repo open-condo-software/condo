@@ -7,7 +7,9 @@ const get = require('lodash/get')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
+const { canManageObjectsAsB2BAppServiceUser } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
 const { checkPermissionsInEmployedOrganizations } = require('@condo/domains/organization/utils/accessSchema')
+const { SERVICE } = require('@condo/domains/user/constants/common')
 
 
 async function canReadNewsItemRecipientsExportTasks ({ authentication: { item: user } }) {
@@ -16,19 +18,27 @@ async function canReadNewsItemRecipientsExportTasks ({ authentication: { item: u
 
     if (user.isAdmin) return {}
 
+    // NOTE: B2B service accounts never read this list back — condo's own generic task poller
+    // (getProcessingTasks / TasksContextProvider) already surfaces it to the real user this task
+    // was created for, since `user` is set to them, not the service account, on create.
     return { user: { id: user.id } }
 }
 
-async function canManageNewsItemRecipientsExportTasks ({
-    authentication: { item: user },
-    originalInput,
-    operation,
-    itemId,
-    context,
-}) {
+async function canManageNewsItemRecipientsExportTasks (args) {
+    const {
+        authentication: { item: user },
+        originalInput,
+        operation,
+        itemId,
+        context,
+    } = args
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
+
+    if (user.type === SERVICE) {
+        return await canManageObjectsAsB2BAppServiceUser(args)
+    }
 
     if (operation === 'create') {
         const organizationId = get(originalInput, ['organization', 'connect', 'id'])

@@ -1692,6 +1692,8 @@
   "news.filed.shareNews.button": "Enviar noticias",
   "news.initialOrganizationNewsItem.body": "¡El administrador <NOMBRE DE COMPAÑÍA> le da la bienvenida a la aplicación Doma!\nTrabajamos cada día para hacer más cómoda la convivencia en su comunidad. Estamos siempre a su disposición para responder a sus preguntas sobre el mantenimiento del edificio y proporcionar un informe detallado sobre el trabajo del administrador.\n\nCómo ponerse en contacto con nosotros:\n1. Reporta nueva incidencia a través de la aplicación móvil: puede hacerlo en la sección ¨Incidencias¨.\n2. Llama al número del servicio de emergencias: +34 XXX XXX XXX, disponible 24/7.\n3. Llame a la oficina: +34 XXX XXX XXX, abierto <HORAS DE TRABAJO>.\n4. Visite la oficina: <DIRECCIÓN Y HORAS DE TRABAJO>.\n\nEn la aplicación, le enviaremos noticias importantes. Gracias por elegirnos ❤️",
   "news.initialOrganizationNewsItem.title": "Mensaje de su administrador de comunidad 📩",
+  "news.source.NEWS_FORM.name": "Noticias",
+  "news.source.REGISTRY.name": "Registros",
   "news.template.category.cleaning": "🧹 Limpieza",
   "news.template.category.electricity": "💡 Electricidad",
   "news.template.category.electricityAndElevators": "💡 Electricidad y ascensores",

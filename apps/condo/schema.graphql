@@ -69449,6 +69449,9 @@ type NewsItemHistoryRecord {
   sentAt: String
   isPublished: Boolean
   publishedAt: String
+  source: String
+  user: String
+  scopesCount: Int
   id: ID!
   v: Int
   createdAt: String
@@ -69563,6 +69566,22 @@ input NewsItemHistoryRecordWhereInput {
   publishedAt_gte: String
   publishedAt_in: [String]
   publishedAt_not_in: [String]
+  source: String
+  source_not: String
+  source_in: [String]
+  source_not_in: [String]
+  user: String
+  user_not: String
+  user_in: [String]
+  user_not_in: [String]
+  scopesCount: Int
+  scopesCount_not: Int
+  scopesCount_lt: Int
+  scopesCount_lte: Int
+  scopesCount_gt: Int
+  scopesCount_gte: Int
+  scopesCount_in: [Int]
+  scopesCount_not_in: [Int]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -69662,6 +69681,8 @@ enum SortNewsItemHistoryRecordsBy {
   isPublished_DESC
   publishedAt_ASC
   publishedAt_DESC
+  scopesCount_ASC
+  scopesCount_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -69691,6 +69712,9 @@ input NewsItemHistoryRecordUpdateInput {
   sentAt: String
   isPublished: Boolean
   publishedAt: String
+  source: String
+  user: String
+  scopesCount: Int
   v: Int
   createdAt: String
   updatedAt: String
@@ -69721,6 +69745,9 @@ input NewsItemHistoryRecordCreateInput {
   sentAt: String
   isPublished: Boolean
   publishedAt: String
+  source: String
+  user: String
+  scopesCount: Int
   v: Int
   createdAt: String
   updatedAt: String
@@ -69754,6 +69781,13 @@ input NewsItemScopeRelateToManyInput {
 type ShortScopesField {
   count: Int!
   firstOnes: [NewsItemScope]!
+}
+
+input NewsItemSourceRelateToOneInput {
+  create: NewsItemSourceCreateInput
+  connect: NewsItemSourceWhereUniqueInput
+  disconnect: NewsItemSourceWhereUniqueInput
+  disconnectAll: Boolean
 }
 
 """ News item created by an organization for residents' mobile devices """
@@ -69811,6 +69845,16 @@ type NewsItem {
 
   """ Date when the news item was published. Auto-calculated field """
   publishedAt: String
+
+  """ Origin of the news item: the news form, an external system, ... """
+  source: NewsItemSource
+
+  """ The organization employee user who authored this news item. """
+  user: User
+
+  """ Number of NewsItemScope records for this news item. Computed once, when the item transitions to isPublished=true (scopes can no longer change after that point). Stays 0 for unpublished drafts. 
+  """
+  scopesCount: Int
   id: ID!
   v: Int
   createdAt: String
@@ -69930,6 +69974,18 @@ input NewsItemWhereInput {
   publishedAt_gte: String
   publishedAt_in: [String]
   publishedAt_not_in: [String]
+  source: NewsItemSourceWhereInput
+  source_is_null: Boolean
+  user: UserWhereInput
+  user_is_null: Boolean
+  scopesCount: Int
+  scopesCount_not: Int
+  scopesCount_lt: Int
+  scopesCount_lte: Int
+  scopesCount_gt: Int
+  scopesCount_gte: Int
+  scopesCount_in: [Int]
+  scopesCount_not_in: [Int]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -70015,6 +70071,12 @@ enum SortNewsItemsBy {
   isPublished_DESC
   publishedAt_ASC
   publishedAt_DESC
+  source_ASC
+  source_DESC
+  user_ASC
+  user_DESC
+  scopesCount_ASC
+  scopesCount_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -70045,6 +70107,9 @@ input NewsItemUpdateInput {
   sentAt: String
   isPublished: Boolean
   publishedAt: String
+  source: NewsItemSourceRelateToOneInput
+  user: UserRelateToOneInput
+  scopesCount: Int
   v: Int
   createdAt: String
   updatedAt: String
@@ -70073,6 +70138,9 @@ input NewsItemCreateInput {
   sentAt: String
   isPublished: Boolean
   publishedAt: String
+  source: NewsItemSourceRelateToOneInput
+  user: UserRelateToOneInput
+  scopesCount: Int
   v: Int
   createdAt: String
   updatedAt: String
@@ -72806,6 +72874,432 @@ input NewsItemFileCreateInput {
 
 input NewsItemFilesCreateInput {
   data: NewsItemFileCreateInput
+}
+
+enum NewsItemSourceHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type NewsItemSourceHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the NewsItemSourceHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the NewsItemSourceHistoryRecord List config, or
+   3. As an alias to a 'name' field on the NewsItemSourceHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the NewsItemSourceHistoryRecord List.
+  """
+  _label_: String
+  type: String
+  name: String
+  isDefault: Boolean
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: NewsItemSourceHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input NewsItemSourceHistoryRecordWhereInput {
+  AND: [NewsItemSourceHistoryRecordWhereInput]
+  OR: [NewsItemSourceHistoryRecordWhereInput]
+  type: String
+  type_not: String
+  type_contains: String
+  type_not_contains: String
+  type_starts_with: String
+  type_not_starts_with: String
+  type_ends_with: String
+  type_not_ends_with: String
+  type_i: String
+  type_not_i: String
+  type_contains_i: String
+  type_not_contains_i: String
+  type_starts_with_i: String
+  type_not_starts_with_i: String
+  type_ends_with_i: String
+  type_not_ends_with_i: String
+  type_in: [String]
+  type_not_in: [String]
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
+  isDefault: Boolean
+  isDefault_not: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: NewsItemSourceHistoryRecordHistoryActionType
+  history_action_not: NewsItemSourceHistoryRecordHistoryActionType
+  history_action_in: [NewsItemSourceHistoryRecordHistoryActionType]
+  history_action_not_in: [NewsItemSourceHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input NewsItemSourceHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortNewsItemSourceHistoryRecordsBy {
+  type_ASC
+  type_DESC
+  name_ASC
+  name_DESC
+  isDefault_ASC
+  isDefault_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input NewsItemSourceHistoryRecordUpdateInput {
+  type: String
+  name: String
+  isDefault: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: NewsItemSourceHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input NewsItemSourceHistoryRecordsUpdateInput {
+  id: ID!
+  data: NewsItemSourceHistoryRecordUpdateInput
+}
+
+input NewsItemSourceHistoryRecordCreateInput {
+  type: String
+  name: String
+  isDefault: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: NewsItemSourceHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input NewsItemSourceHistoryRecordsCreateInput {
+  data: NewsItemSourceHistoryRecordCreateInput
+}
+
+enum NewsItemSourceTypeType {
+  news_form
+  registry
+}
+
+""" News item source. Web app (news form), external system, ... """
+type NewsItemSource {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the NewsItemSource List config, or
+   2. As an alias to the field set on 'labelField' in the NewsItemSource List config, or
+   3. As an alias to a 'name' field on the NewsItemSource List (if one exists), or
+   4. As an alias to the 'id' field on the NewsItemSource List.
+  """
+  _label_: String
+  type: NewsItemSourceTypeType
+
+  """ Localized News item source name """
+  name: String
+  nameNonLocalized: String
+
+  """ (Read-only) Indicates whether a news source is default or custom. """
+  isDefault: Boolean
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input NewsItemSourceWhereInput {
+  AND: [NewsItemSourceWhereInput]
+  OR: [NewsItemSourceWhereInput]
+  type: NewsItemSourceTypeType
+  type_not: NewsItemSourceTypeType
+  type_in: [NewsItemSourceTypeType]
+  type_not_in: [NewsItemSourceTypeType]
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
+  isDefault: Boolean
+  isDefault_not: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input NewsItemSourceWhereUniqueInput {
+  id: ID!
+}
+
+enum SortNewsItemSourcesBy {
+  type_ASC
+  type_DESC
+  name_ASC
+  name_DESC
+  isDefault_ASC
+  isDefault_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input NewsItemSourceUpdateInput {
+  type: NewsItemSourceTypeType
+  name: String
+  isDefault: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input NewsItemSourcesUpdateInput {
+  id: ID!
+  data: NewsItemSourceUpdateInput
+}
+
+input NewsItemSourceCreateInput {
+  type: NewsItemSourceTypeType
+  name: String
+  isDefault: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input NewsItemSourcesCreateInput {
+  data: NewsItemSourceCreateInput
 }
 
 enum B2BAppHistoryRecordHistoryActionType {
@@ -79616,8 +80110,14 @@ type B2BAppAccessRightSetHistoryRecord {
   canManageTicketFiles: Boolean
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
+  canReadNewsItems: Boolean
+  canManageNewsItems: Boolean
+  canReadNewsItemScopes: Boolean
+  canManageNewsItemScopes: Boolean
   canReadNewsItemFiles: Boolean
   canManageNewsItemFiles: Boolean
+  canReadNewsItemRecipientsExportTasks: Boolean
+  canManageNewsItemRecipientsExportTasks: Boolean
   canExecuteRegisterExternalPayments: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
@@ -79625,6 +80125,7 @@ type B2BAppAccessRightSetHistoryRecord {
   canExecuteRegisterBillingReceipts: Boolean
   canExecuteRegisterBillingReceiptFile: Boolean
   canExecuteSetPaymentPosReceiptUrl: Boolean
+  canExecuteGetNewsItemsRecipientsCounters: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -79773,10 +80274,22 @@ input B2BAppAccessRightSetHistoryRecordWhereInput {
   canReadTicketCommentFiles_not: Boolean
   canManageTicketCommentFiles: Boolean
   canManageTicketCommentFiles_not: Boolean
+  canReadNewsItems: Boolean
+  canReadNewsItems_not: Boolean
+  canManageNewsItems: Boolean
+  canManageNewsItems_not: Boolean
+  canReadNewsItemScopes: Boolean
+  canReadNewsItemScopes_not: Boolean
+  canManageNewsItemScopes: Boolean
+  canManageNewsItemScopes_not: Boolean
   canReadNewsItemFiles: Boolean
   canReadNewsItemFiles_not: Boolean
   canManageNewsItemFiles: Boolean
   canManageNewsItemFiles_not: Boolean
+  canReadNewsItemRecipientsExportTasks: Boolean
+  canReadNewsItemRecipientsExportTasks_not: Boolean
+  canManageNewsItemRecipientsExportTasks: Boolean
+  canManageNewsItemRecipientsExportTasks_not: Boolean
   canExecuteRegisterExternalPayments: Boolean
   canExecuteRegisterExternalPayments_not: Boolean
   canExecuteRegisterMetersReadings: Boolean
@@ -79791,6 +80304,8 @@ input B2BAppAccessRightSetHistoryRecordWhereInput {
   canExecuteRegisterBillingReceiptFile_not: Boolean
   canExecuteSetPaymentPosReceiptUrl: Boolean
   canExecuteSetPaymentPosReceiptUrl_not: Boolean
+  canExecuteGetNewsItemsRecipientsCounters: Boolean
+  canExecuteGetNewsItemsRecipientsCounters_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -80002,10 +80517,22 @@ enum SortB2BAppAccessRightSetHistoryRecordsBy {
   canReadTicketCommentFiles_DESC
   canManageTicketCommentFiles_ASC
   canManageTicketCommentFiles_DESC
+  canReadNewsItems_ASC
+  canReadNewsItems_DESC
+  canManageNewsItems_ASC
+  canManageNewsItems_DESC
+  canReadNewsItemScopes_ASC
+  canReadNewsItemScopes_DESC
+  canManageNewsItemScopes_ASC
+  canManageNewsItemScopes_DESC
   canReadNewsItemFiles_ASC
   canReadNewsItemFiles_DESC
   canManageNewsItemFiles_ASC
   canManageNewsItemFiles_DESC
+  canReadNewsItemRecipientsExportTasks_ASC
+  canReadNewsItemRecipientsExportTasks_DESC
+  canManageNewsItemRecipientsExportTasks_ASC
+  canManageNewsItemRecipientsExportTasks_DESC
   canExecuteRegisterExternalPayments_ASC
   canExecuteRegisterExternalPayments_DESC
   canExecuteRegisterMetersReadings_ASC
@@ -80020,6 +80547,8 @@ enum SortB2BAppAccessRightSetHistoryRecordsBy {
   canExecuteRegisterBillingReceiptFile_DESC
   canExecuteSetPaymentPosReceiptUrl_ASC
   canExecuteSetPaymentPosReceiptUrl_DESC
+  canExecuteGetNewsItemsRecipientsCounters_ASC
+  canExecuteGetNewsItemsRecipientsCounters_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -80090,8 +80619,14 @@ input B2BAppAccessRightSetHistoryRecordUpdateInput {
   canManageTicketFiles: Boolean
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
+  canReadNewsItems: Boolean
+  canManageNewsItems: Boolean
+  canReadNewsItemScopes: Boolean
+  canManageNewsItemScopes: Boolean
   canReadNewsItemFiles: Boolean
   canManageNewsItemFiles: Boolean
+  canReadNewsItemRecipientsExportTasks: Boolean
+  canManageNewsItemRecipientsExportTasks: Boolean
   canExecuteRegisterExternalPayments: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
@@ -80099,6 +80634,7 @@ input B2BAppAccessRightSetHistoryRecordUpdateInput {
   canExecuteRegisterBillingReceipts: Boolean
   canExecuteRegisterBillingReceiptFile: Boolean
   canExecuteSetPaymentPosReceiptUrl: Boolean
+  canExecuteGetNewsItemsRecipientsCounters: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -80168,8 +80704,14 @@ input B2BAppAccessRightSetHistoryRecordCreateInput {
   canManageTicketFiles: Boolean
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
+  canReadNewsItems: Boolean
+  canManageNewsItems: Boolean
+  canReadNewsItemScopes: Boolean
+  canManageNewsItemScopes: Boolean
   canReadNewsItemFiles: Boolean
   canManageNewsItemFiles: Boolean
+  canReadNewsItemRecipientsExportTasks: Boolean
+  canManageNewsItemRecipientsExportTasks: Boolean
   canExecuteRegisterExternalPayments: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
@@ -80177,6 +80719,7 @@ input B2BAppAccessRightSetHistoryRecordCreateInput {
   canExecuteRegisterBillingReceipts: Boolean
   canExecuteRegisterBillingReceiptFile: Boolean
   canExecuteSetPaymentPosReceiptUrl: Boolean
+  canExecuteGetNewsItemsRecipientsCounters: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -80299,11 +80842,17 @@ type B2BAppAccessRightSet {
   canManageTicketFiles: Boolean
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
+  canReadNewsItems: Boolean
+  canManageNewsItems: Boolean
+  canReadNewsItemScopes: Boolean
+  canManageNewsItemScopes: Boolean
   canReadNewsItemFiles: Boolean
-
-  """ Currently, this field is read-only. You cannot get manage access for the specified schema. 
-  """
   canManageNewsItemFiles: Boolean
+
+  """ Currently, this field is read-only. You cannot get read access for the specified schema. 
+  """
+  canReadNewsItemRecipientsExportTasks: Boolean
+  canManageNewsItemRecipientsExportTasks: Boolean
   canExecuteRegisterExternalPayments: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
@@ -80311,6 +80860,7 @@ type B2BAppAccessRightSet {
   canExecuteRegisterBillingReceipts: Boolean
   canExecuteRegisterBillingReceiptFile: Boolean
   canExecuteSetPaymentPosReceiptUrl: Boolean
+  canExecuteGetNewsItemsRecipientsCounters: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -80455,10 +81005,22 @@ input B2BAppAccessRightSetWhereInput {
   canReadTicketCommentFiles_not: Boolean
   canManageTicketCommentFiles: Boolean
   canManageTicketCommentFiles_not: Boolean
+  canReadNewsItems: Boolean
+  canReadNewsItems_not: Boolean
+  canManageNewsItems: Boolean
+  canManageNewsItems_not: Boolean
+  canReadNewsItemScopes: Boolean
+  canReadNewsItemScopes_not: Boolean
+  canManageNewsItemScopes: Boolean
+  canManageNewsItemScopes_not: Boolean
   canReadNewsItemFiles: Boolean
   canReadNewsItemFiles_not: Boolean
   canManageNewsItemFiles: Boolean
   canManageNewsItemFiles_not: Boolean
+  canReadNewsItemRecipientsExportTasks: Boolean
+  canReadNewsItemRecipientsExportTasks_not: Boolean
+  canManageNewsItemRecipientsExportTasks: Boolean
+  canManageNewsItemRecipientsExportTasks_not: Boolean
   canExecuteRegisterExternalPayments: Boolean
   canExecuteRegisterExternalPayments_not: Boolean
   canExecuteRegisterMetersReadings: Boolean
@@ -80473,6 +81035,8 @@ input B2BAppAccessRightSetWhereInput {
   canExecuteRegisterBillingReceiptFile_not: Boolean
   canExecuteSetPaymentPosReceiptUrl: Boolean
   canExecuteSetPaymentPosReceiptUrl_not: Boolean
+  canExecuteGetNewsItemsRecipientsCounters: Boolean
+  canExecuteGetNewsItemsRecipientsCounters_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -80666,10 +81230,22 @@ enum SortB2BAppAccessRightSetsBy {
   canReadTicketCommentFiles_DESC
   canManageTicketCommentFiles_ASC
   canManageTicketCommentFiles_DESC
+  canReadNewsItems_ASC
+  canReadNewsItems_DESC
+  canManageNewsItems_ASC
+  canManageNewsItems_DESC
+  canReadNewsItemScopes_ASC
+  canReadNewsItemScopes_DESC
+  canManageNewsItemScopes_ASC
+  canManageNewsItemScopes_DESC
   canReadNewsItemFiles_ASC
   canReadNewsItemFiles_DESC
   canManageNewsItemFiles_ASC
   canManageNewsItemFiles_DESC
+  canReadNewsItemRecipientsExportTasks_ASC
+  canReadNewsItemRecipientsExportTasks_DESC
+  canManageNewsItemRecipientsExportTasks_ASC
+  canManageNewsItemRecipientsExportTasks_DESC
   canExecuteRegisterExternalPayments_ASC
   canExecuteRegisterExternalPayments_DESC
   canExecuteRegisterMetersReadings_ASC
@@ -80684,6 +81260,8 @@ enum SortB2BAppAccessRightSetsBy {
   canExecuteRegisterBillingReceiptFile_DESC
   canExecuteSetPaymentPosReceiptUrl_ASC
   canExecuteSetPaymentPosReceiptUrl_DESC
+  canExecuteGetNewsItemsRecipientsCounters_ASC
+  canExecuteGetNewsItemsRecipientsCounters_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -80754,8 +81332,14 @@ input B2BAppAccessRightSetUpdateInput {
   canManageTicketFiles: Boolean
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
+  canReadNewsItems: Boolean
+  canManageNewsItems: Boolean
+  canReadNewsItemScopes: Boolean
+  canManageNewsItemScopes: Boolean
   canReadNewsItemFiles: Boolean
   canManageNewsItemFiles: Boolean
+  canReadNewsItemRecipientsExportTasks: Boolean
+  canManageNewsItemRecipientsExportTasks: Boolean
   canExecuteRegisterExternalPayments: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
@@ -80763,6 +81347,7 @@ input B2BAppAccessRightSetUpdateInput {
   canExecuteRegisterBillingReceipts: Boolean
   canExecuteRegisterBillingReceiptFile: Boolean
   canExecuteSetPaymentPosReceiptUrl: Boolean
+  canExecuteGetNewsItemsRecipientsCounters: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -80829,8 +81414,14 @@ input B2BAppAccessRightSetCreateInput {
   canManageTicketFiles: Boolean
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
+  canReadNewsItems: Boolean
+  canManageNewsItems: Boolean
+  canReadNewsItemScopes: Boolean
+  canManageNewsItemScopes: Boolean
   canReadNewsItemFiles: Boolean
   canManageNewsItemFiles: Boolean
+  canReadNewsItemRecipientsExportTasks: Boolean
+  canManageNewsItemRecipientsExportTasks: Boolean
   canExecuteRegisterExternalPayments: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
@@ -80838,6 +81429,7 @@ input B2BAppAccessRightSetCreateInput {
   canExecuteRegisterBillingReceipts: Boolean
   canExecuteRegisterBillingReceiptFile: Boolean
   canExecuteSetPaymentPosReceiptUrl: Boolean
+  canExecuteGetNewsItemsRecipientsCounters: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -99518,6 +100110,34 @@ type Query {
   """ Retrieve the meta-data for the NewsItemFile list. """
   _NewsItemFilesMeta: _ListMeta
 
+  """ Search for all NewsItemSourceHistoryRecord items which match the where clause. 
+  """
+  allNewsItemSourceHistoryRecords(where: NewsItemSourceHistoryRecordWhereInput, search: String, sortBy: [SortNewsItemSourceHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [NewsItemSourceHistoryRecord]
+
+  """ Search for the NewsItemSourceHistoryRecord item with the matching ID. 
+  """
+  NewsItemSourceHistoryRecord(where: NewsItemSourceHistoryRecordWhereUniqueInput!): NewsItemSourceHistoryRecord
+
+  """ Perform a meta-query on all NewsItemSourceHistoryRecord items which match the where clause. 
+  """
+  _allNewsItemSourceHistoryRecordsMeta(where: NewsItemSourceHistoryRecordWhereInput, search: String, sortBy: [SortNewsItemSourceHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the NewsItemSourceHistoryRecord list. """
+  _NewsItemSourceHistoryRecordsMeta: _ListMeta
+
+  """ Search for all NewsItemSource items which match the where clause. """
+  allNewsItemSources(where: NewsItemSourceWhereInput, search: String, sortBy: [SortNewsItemSourcesBy!], orderBy: String, first: Int, skip: Int): [NewsItemSource]
+
+  """ Search for the NewsItemSource item with the matching ID. """
+  NewsItemSource(where: NewsItemSourceWhereUniqueInput!): NewsItemSource
+
+  """ Perform a meta-query on all NewsItemSource items which match the where clause. 
+  """
+  _allNewsItemSourcesMeta(where: NewsItemSourceWhereInput, search: String, sortBy: [SortNewsItemSourcesBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the NewsItemSource list. """
+  _NewsItemSourcesMeta: _ListMeta
+
   """ Search for all B2BAppHistoryRecord items which match the where clause. 
   """
   allB2BAppHistoryRecords(where: B2BAppHistoryRecordWhereInput, search: String, sortBy: [SortB2BAppHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [B2BAppHistoryRecord]
@@ -105230,6 +105850,42 @@ type Mutation {
 
   """ Delete multiple NewsItemFile items by ID. """
   deleteNewsItemFiles(ids: [ID!]): [NewsItemFile]
+
+  """ Create a single NewsItemSourceHistoryRecord item. """
+  createNewsItemSourceHistoryRecord(data: NewsItemSourceHistoryRecordCreateInput): NewsItemSourceHistoryRecord
+
+  """ Create multiple NewsItemSourceHistoryRecord items. """
+  createNewsItemSourceHistoryRecords(data: [NewsItemSourceHistoryRecordsCreateInput]): [NewsItemSourceHistoryRecord]
+
+  """ Update a single NewsItemSourceHistoryRecord item by ID. """
+  updateNewsItemSourceHistoryRecord(id: ID!, data: NewsItemSourceHistoryRecordUpdateInput): NewsItemSourceHistoryRecord
+
+  """ Update multiple NewsItemSourceHistoryRecord items by ID. """
+  updateNewsItemSourceHistoryRecords(data: [NewsItemSourceHistoryRecordsUpdateInput]): [NewsItemSourceHistoryRecord]
+
+  """ Delete a single NewsItemSourceHistoryRecord item by ID. """
+  deleteNewsItemSourceHistoryRecord(id: ID!): NewsItemSourceHistoryRecord
+
+  """ Delete multiple NewsItemSourceHistoryRecord items by ID. """
+  deleteNewsItemSourceHistoryRecords(ids: [ID!]): [NewsItemSourceHistoryRecord]
+
+  """ Create a single NewsItemSource item. """
+  createNewsItemSource(data: NewsItemSourceCreateInput): NewsItemSource
+
+  """ Create multiple NewsItemSource items. """
+  createNewsItemSources(data: [NewsItemSourcesCreateInput]): [NewsItemSource]
+
+  """ Update a single NewsItemSource item by ID. """
+  updateNewsItemSource(id: ID!, data: NewsItemSourceUpdateInput): NewsItemSource
+
+  """ Update multiple NewsItemSource items by ID. """
+  updateNewsItemSources(data: [NewsItemSourcesUpdateInput]): [NewsItemSource]
+
+  """ Delete a single NewsItemSource item by ID. """
+  deleteNewsItemSource(id: ID!): NewsItemSource
+
+  """ Delete multiple NewsItemSource items by ID. """
+  deleteNewsItemSources(ids: [ID!]): [NewsItemSource]
 
   """ Create a single B2BAppHistoryRecord item. """
   createB2BAppHistoryRecord(data: B2BAppHistoryRecordCreateInput): B2BAppHistoryRecord
