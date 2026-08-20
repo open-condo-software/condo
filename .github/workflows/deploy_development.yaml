@@ -84,3 +84,6 @@ jobs:
           WERF_SET_CI_REF: "ci.werf.io/ref=${GITHUB_REF_NAME}"
           WERF_REPO: ${{ secrets.DOCKER_REGISTRY }}/condo/condo
           WERF_REPO_CONTAINER_REGISTRY: default
+          DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
+          TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+          TURBO_API: ${{ secrets.TURBO_API }}
