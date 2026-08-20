@@ -338,6 +338,15 @@ describe('PublishB2BAppService', () => {
                     type: CONDO_APP_NOT_FOUND,
                 }, 'result')
             })
+            test('Must update publishedAt field after successful publishing', async () => {
+                expect(app).toHaveProperty('developmentPublishedAt', null)
+                const [firstResult] = await publishB2BAppByTestClient(user, app, { info: true })
+                expect(firstResult).toHaveProperty('success', true)
+
+                const apiApp = await B2BApp.getOne(admin, { id: app.id })
+                expect(apiApp).toHaveProperty('developmentPublishedAt')
+                expect(apiApp.developmentPublishedAt).not.toBeNull()
+            })
         })
         describe('B2BAppAccessRight + B2BAppAccessRightSet', () => {
             test('B2BAppAccessRight must be created in condo if not previously exists', async () => {

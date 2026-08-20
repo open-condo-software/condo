@@ -25,7 +25,7 @@ const { B2BApp, B2BAppPublishRequest, B2BAppAccessRightSet, B2BAppAccessRight } 
 const { locker } = require('@dev-portal-api/domains/miniapp/utils/serverSchema/locks')
 
 const { extractDevicePermissionsForCondo, getEnvironmentalPermissionsFieldsSelection } = require('./fields/devicePermissions')
-const { getEnvironmentalFieldsSelection } = require('./fields/environmental')
+const { getEnvironmentalFieldsSelection, getEnvironmentalFieldName } = require('./fields/environmental')
 const { PERMISSION_FIELDS } = require('./fields/rightSetPermissions')
 const { getOIDCClientWhere } = require('./GetOIDCClientService')
 
@@ -486,7 +486,10 @@ const PublishB2BAppService = new GQLCustomSchema('PublishB2BAppService', {
             access: access.canPublishB2BApp,
             schema: 'publishB2BApp(data: PublishB2BAppInput!): PublishB2BAppOutput',
             resolver: wrapResolverWithLock(async (parent, args, context) => {
-                const { data: { app: { id }, options, environment } } = args
+                const { data: { app: { id }, options, environment, dv, sender } } = args
+
+                const publishingTime = dayjs().toISOString()
+                const publishingField = getEnvironmentalFieldName(environment, 'publishedAt')
 
                 const app = await B2BApp.getOne(
                     context,
@@ -546,6 +549,12 @@ const PublishB2BAppService = new GQLCustomSchema('PublishB2BAppService', {
 
                 // Step 4. If OIDC client was created, publish must enable it for usage
                 await syncOIDCClient({ args, serverClient, condoApp, localApp: app })
+
+                await B2BApp.update(context, app.id, {
+                    dv,
+                    sender,
+                    [publishingField]: publishingTime,
+                })
 
                 return {
                     success: true,

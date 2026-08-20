@@ -124,7 +124,7 @@ const B2BAppAccessRightSet = new GQLListSchema('B2BAppAccessRightSet', {
         exportable(),
         modifiable({
             onModify: async ({ environment, updatedItem, existingItem }) => {
-                if (updatedItem['staus'] === B2B_APP_ACCESS_RIGHT_SET_APPROVED_STATUS || existingItem?.['status'] === B2B_APP_ACCESS_RIGHT_SET_APPROVED_STATUS) {
+                if (updatedItem['status'] === B2B_APP_ACCESS_RIGHT_SET_APPROVED_STATUS || existingItem?.['status'] === B2B_APP_ACCESS_RIGHT_SET_APPROVED_STATUS) {
                     await publishB2BApp.delay(updatedItem.app, environment)
                 }
             },

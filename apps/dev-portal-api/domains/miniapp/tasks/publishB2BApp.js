@@ -25,7 +25,7 @@ async function publishB2BApp (appId, environment) {
         await publishB2BAppUtil(context, {
             data: {
                 dv: 1,
-                sender: 'publish-b2b-app-task',
+                sender: { dv: 1, fingerprint: 'publish-b2b-app-task' },
                 app: { id: appId },
                 environment,
                 options: { info: true },

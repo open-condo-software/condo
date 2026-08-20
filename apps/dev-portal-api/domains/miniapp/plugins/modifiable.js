@@ -118,7 +118,7 @@ function modifiable ({
                 const previousModifiedAt = existingItem?.[FIELD_NAME]
                 const currentModifiedAt = updatedItem[FIELD_NAME]
                 if (previousModifiedAt !== currentModifiedAt) {
-                    await onModify({ environment, existingItem, updatedItem })
+                    await onModify?.({ environment, existingItem, updatedItem })
                 }
             } else {
                 for (const environment of AVAILABLE_ENVIRONMENTS) {
