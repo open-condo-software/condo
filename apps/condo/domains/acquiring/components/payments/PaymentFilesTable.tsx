@@ -295,7 +295,7 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
             </Col>
             <Col style={BOTTOM_PADDING_LIKE_ACTION_BAR}></Col>
             <PaymentsFileDetailsModal
-                open={Boolean(openedPaymentsFileId)}
+                open={Boolean(openedPaymentsFile)}
                 onClose={handleClosePaymentsFileModal}
                 onDownload={handleDownloadPaymentsFile}
                 paymentsFile={openedPaymentsFile}
