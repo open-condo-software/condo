@@ -206,9 +206,7 @@ export const CreateTicketForm: React.FC = () => {
 
     const [isSubmitting, setIsSubmitting] = useState(false)
 
-    const createAction = useCallback(async ({ attachCallRecord, ...variables }) => {
-        setIsSubmitting(true)
-
+    const createTicketFromForm = useCallback(async ({ attachCallRecord, ...variables }) => {
         let deadline = variables?.deadline
         if (deadline && deadline.isToday()) {
             deadline = deadline.endOf('day')
@@ -292,6 +290,17 @@ export const CreateTicketForm: React.FC = () => {
         return ticket
     }, [createTicketAction, organization.id, getCompletedNotification, getPaymentLink, intl, createInvoiceAction, getPublishTicketInvoices, requestFeature, isTicketObserversEnabled])
 
+    const createAction = useCallback(async ({ attachCallRecord, ...variables }) => {
+        setIsSubmitting(true)
+
+        try {
+            return await createTicketFromForm({ attachCallRecord, ...variables })
+        } catch (error) {
+            setIsSubmitting(false)
+            throw error
+        }
+    }, [createTicketFromForm])
+
     const initialValues = useMemo(() => ({
         ...initialValuesFromQuery,
         assignee: userId,
@@ -308,11 +317,10 @@ export const CreateTicketForm: React.FC = () => {
                 organization={organization}
                 autoAssign
                 OnCompletedMsg={null}
-                afterActionCompleted={() => setIsSubmitting(false)}
                 isExisted={false}
             >
                 {({ handleSave, isLoading, form }) => <CreateTicketActionBar handleSave={handleSave} isLoading={isSubmitting || isLoading} form={form} />}
             </BaseTicketForm>
         </Tour.Provider>
-    ), [createAction, initialValues, organization])
+    ), [createAction, initialValues, organization, isSubmitting])
 }
