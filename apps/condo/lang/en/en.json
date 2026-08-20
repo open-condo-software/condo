@@ -328,7 +328,7 @@
   "accrualsAndPayments.payments.type.registry.details.downloadLabel": "Download",
   "accrualsAndPayments.payments.type.registry.details.paymentsAmountAndCount": "Payments amount and count",
   "accrualsAndPayments.payments.type.registry.details.paymentOrderNumber": "Payment order number",
-  "accrualsAndPayments.payments.type.registry.details.paymentOrderText": "Номер платежного поручения",
+  "accrualsAndPayments.payments.type.registry.details.paymentOrderText": "Payment order number",
   "accrualsAndPayments.payments.type.registry.details.paymentsAmount": "Payments amount",
   "accrualsAndPayments.payments.type.registry.details.paymentsCount": "Payments count",
   "accrualsAndPayments.payments.type.registry.details.period": "Period",

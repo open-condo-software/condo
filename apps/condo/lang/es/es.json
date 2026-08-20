@@ -328,7 +328,7 @@
   "accrualsAndPayments.payments.type.registry.details.downloadLabel": "Descargar",
   "accrualsAndPayments.payments.type.registry.details.paymentsAmountAndCount": "Importe y cantidad de pagos",
   "accrualsAndPayments.payments.type.registry.details.paymentOrderNumber": "Número de orden de pago",
-  "accrualsAndPayments.payments.type.registry.details.paymentOrderText": "Номер платежного поручения",
+  "accrualsAndPayments.payments.type.registry.details.paymentOrderText": "Número de orden de pago",
   "accrualsAndPayments.payments.type.registry.details.paymentsAmount": "Importe de los pagos",
   "accrualsAndPayments.payments.type.registry.details.paymentsCount": "Cantidad de pagos",
   "accrualsAndPayments.payments.type.registry.details.period": "Período",

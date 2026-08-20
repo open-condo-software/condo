@@ -1,8 +1,7 @@
 import { PaymentsFile as PaymentsFileType } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import dayjs from 'dayjs'
-import get from 'lodash/get'
-import React, { useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Button, List, Modal, Tag } from '@open-condo/ui'
@@ -53,18 +52,18 @@ export const PaymentsFileDetailsModal: React.FC<PaymentsFileDetailsModalProps> =
     const Period = intl.formatMessage({ id: 'accrualsAndPayments.payments.type.registry.details.period' })
     const DownloadLabel = intl.formatMessage({ id: 'accrualsAndPayments.payments.type.registry.details.downloadLabel' })
 
-    const amount = intl.formatNumber(Number.parseFloat(String(get(paymentsFile, 'amount') || '0')), { style: 'currency', currency })
-    const amountWithoutFees = intl.formatNumber(Number.parseFloat(String(get(paymentsFile, 'amountWithoutFees') || '0')), { style: 'currency', currency })
-    const paymentsCount = Number(get(paymentsFile, 'paymentsCount') || 0)
-    const paymentOrder = get(paymentsFile, 'paymentOrder') || getPaymentsOrderFromBankComment(get(paymentsFile, 'bankComment'), PaymentOrderText)
+    const amount = intl.formatNumber(Number.parseFloat(String(paymentsFile?.amount || '0')), { style: 'currency', currency })
+    const amountWithoutFees = intl.formatNumber(Number.parseFloat(String(paymentsFile?.amountWithoutFees || '0')), { style: 'currency', currency })
+    const paymentsCount = Number(paymentsFile?.paymentsCount || 0)
+    const paymentOrder = paymentsFile?.paymentOrder || getPaymentsOrderFromBankComment(paymentsFile?.bankComment, PaymentOrderText)
 
     const generalInfoRows = useMemo<ListProps['dataSource']>(() => ([
-        { label: CreationDate, value: get(paymentsFile, 'loadedAt') ? formatDateTime(get(paymentsFile, 'loadedAt')) : '' },
-        { label: RegistryName, value: get(paymentsFile, 'name') },
+        { label: CreationDate, value: paymentsFile?.loadedAt ? formatDateTime(paymentsFile.loadedAt) : '' },
+        { label: RegistryName, value: paymentsFile?.name || '' },
         {
             label: Period,
-            value: get(paymentsFile, 'paymentPeriodStartDate') && get(paymentsFile, 'paymentPeriodEndDay')
-                ? `${formatDate(get(paymentsFile, 'paymentPeriodStartDate'))} - ${formatDate(get(paymentsFile, 'paymentPeriodEndDay'))}`
+            value: paymentsFile?.paymentPeriodStartDate && paymentsFile?.paymentPeriodEndDay
+                ? `${formatDate(paymentsFile.paymentPeriodStartDate)} - ${formatDate(paymentsFile.paymentPeriodEndDay)}`
                 : '',
         },
     ].filter(({ value }) => Boolean(value))), [CreationDate, Period, RegistryName, paymentsFile])
@@ -78,20 +77,20 @@ export const PaymentsFileDetailsModal: React.FC<PaymentsFileDetailsModalProps> =
     ].filter(({ value }) => Boolean(value))), [PaymentsAmountAndCount, TransferredToBankAccount, amount, amountWithoutFees, paymentsCount])
 
     const bankInfoRows = useMemo<ListProps['dataSource']>(() => ([
-        { label: BankAccount, value: get(paymentsFile, 'bankAccount') },
+        { label: BankAccount, value: paymentsFile?.bankAccount || '' },
         { label: PaymentOrderNumber, value: paymentOrder },
-    ].filter(({ value }) => Boolean(value))), [BankAccount, PaymentOrderNumber, paymentOrder, paymentsFile])
+    ].filter(({ value }) => Boolean(value))), [BankAccount, PaymentOrderNumber, paymentOrder, paymentsFile?.bankAccount])
 
     const modalTitle = intl.formatMessage({ id: 'accrualsAndPayments.payments.type.registry.details.registryTitle' }, {
-        number: get(paymentsFile, 'number') || '',
+        number: paymentsFile?.number || '',
     })
 
-    const handleDownload = async () => {
-        const fileId = get(paymentsFile, 'id')
+    const handleDownload = useCallback(async () => {
+        const fileId = paymentsFile?.id
         if (!fileId) return
 
         await onDownload(fileId)
-    }
+    }, [onDownload, paymentsFile?.id])
 
     const modalProps: ModalProps = {
         open,
@@ -106,14 +105,14 @@ export const PaymentsFileDetailsModal: React.FC<PaymentsFileDetailsModalProps> =
         <Modal {...modalProps}>
             {paymentsFile && (
                 <Row gutter={[0, CONTENT_SIZE]}>
-                    {paymentsFile.status && (  
-                        <Tag  
-                            bgColor={paymentsFile.status === PAYMENTS_FILE_NEW_STATUS ? colors.blue[5] : colors.gray[7]}  
-                            textColor={colors.white}  
-                        >  
-                            {intl.formatMessage({ id: `accrualsAndPayments.payments.type.registry.status.${paymentsFile.status}` as FormatjsIntl.Message['ids'] })}  
-                        </Tag>  
-                    )}  
+                    {paymentsFile.status && (
+                        <Tag
+                            bgColor={paymentsFile.status === PAYMENTS_FILE_NEW_STATUS ? colors.blue[5] : colors.gray[7]}
+                            textColor={colors.white}
+                        >
+                            {intl.formatMessage({ id: `accrualsAndPayments.payments.type.registry.status.${paymentsFile.status}` as FormatjsIntl.Message['ids'] })}
+                        </Tag>
+                    )}
                     <Col span={24}>
                         <List dataSource={generalInfoRows} />
                     </Col>

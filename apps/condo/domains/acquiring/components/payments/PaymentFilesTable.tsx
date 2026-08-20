@@ -187,6 +187,12 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
     }, [selectedRegistryKeys, updateSelectedRegistryKeys])
 
     const handlePaymentsFileRowClick = useCallback((record: IPaymentsFile) => ({
+        onKeyDown: (event) => {
+            if (event.key !== 'Enter' && event.key !== ' ') return
+
+            event.preventDefault()
+            setOpenedPaymentsFileId(record.id)
+        },
         onClick: (event) => {
             const selection = window.getSelection()
             if (selection && selection.type === 'Range') return
@@ -196,6 +202,7 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
 
             setOpenedPaymentsFileId(record.id)
         },
+        tabIndex: 0,
     }), [])
 
     const rowSelection: TableRowSelection<IPaymentsFile> = useMemo(() => ({
