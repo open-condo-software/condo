@@ -189,6 +189,7 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
     const handlePaymentsFileRowClick = useCallback((record: IPaymentsFile) => ({
         onKeyDown: (event) => {
             if (event.key !== 'Enter' && event.key !== ' ') return
+            if (event.target !== event.currentTarget) return
 
             event.preventDefault()
             setOpenedPaymentsFileId(record.id)
