@@ -6,12 +6,12 @@
 **/.DS_Store
 **/Thumbs.db
 **/Dockerfile
+!/Dockerfile
 **/node_modules
 **/.next
 **/.turbo
 **/dist
 **/out
-!/out
 **/.idea
 **/.kmigrator
 **/docs
