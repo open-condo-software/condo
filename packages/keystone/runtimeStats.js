@@ -266,23 +266,9 @@ class RuntimeStatsMiddleware {
                 runtimeStats.totalRequestsCountByType[requestType] = (runtimeStats.totalRequestsCountByType[requestType] || 0) + 1
                 runtimeStats.totalRequestsCountByTarget[requestTarget] = (runtimeStats.totalRequestsCountByTarget[requestTarget] || 0) + 1
 
-                // SSR race condition: Check if response finished during type/target detection
-                // For SSR requests (e.g., Next.js /property), the response may be sent while we're
-                // detecting request type/target. If we register cleanup handlers after 'finish' has
-                // already fired, the handlers will never execute, causing counters to never decrement.
-                if (res.writableEnded) {
-                    logger.warn({
-                        msg: 'Response already finished before cleanup handlers registered',
-                        reqId: req.id,
-                        url: req.url,
-                        data: { method: req.method, requestType, requestTarget },
-                    })
-                    return next()
-                }
-
-                res.on('close', cleanup)
-                res.on('finish', cleanup)
-
+                // Increment before registering handlers so cleanup always sees the entry.
+                // If finish/close fires between on() and add(), cleanup would delete nothing
+                // and cleaned=true would prevent the decrement from ever happening.
                 runtimeStats.activeRequestsIds.add(req.id)
                 runtimeStats.activeRequestsDetails.set(req.id, {
                     type: requestType,
@@ -294,6 +280,18 @@ class RuntimeStatsMiddleware {
 
                 runtimeStats.activeRequestsCountByType[requestType] = (runtimeStats.activeRequestsCountByType[requestType] || 0) + 1
                 runtimeStats.activeRequestsCountByTarget[requestTarget] = (runtimeStats.activeRequestsCountByTarget[requestTarget] || 0) + 1
+
+                // Check writableEnded again after incrementing — if response already finished
+                // during the lines above, cleanup handlers would fire immediately on registration
+                // and correctly decrement since the entry is now in the set.
+                res.on('close', cleanup)
+                res.on('finish', cleanup)
+
+                // If the response already ended before we registered handlers, call cleanup
+                // manually — the close/finish events will not fire retroactively.
+                if (res.writableEnded) {
+                    cleanup()
+                }
             } catch (err) {
                 logger.error({
                     msg: 'runtimeStatsMiddleware error',
