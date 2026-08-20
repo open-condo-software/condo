@@ -26,9 +26,9 @@ const setupCondoAuth = () => {
 const sendAuthorizedRequest = (data, payload, extraHeaders = {}) => {
     return http.post(BASE_API_URL, JSON.stringify(payload), {
         headers: {
+            ...extraHeaders,
             'Authorization': `Bearer ${data.token}`,
             'Content-Type': 'application/json',
-            ...extraHeaders,
         },
     })
 }

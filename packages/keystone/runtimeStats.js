@@ -18,15 +18,19 @@ const RUNTIME_STATS_MAX_ACTIVE_REQUESTS_VAR_NAME = 'RUNTIME_STATS_MAX_ACTIVE_REQ
 function isAccessTokenValid (token) {
     const accessToken = conf[RUNTIME_STATS_ACCESS_TOKEN_VAR_NAME]
     if (!token || !accessToken) return false
-    if (token.length !== accessToken.length) return false
+    if (typeof token !== 'string' || typeof accessToken !== 'string') return false
 
-    return crypto.timingSafeEqual(Buffer.from(token), Buffer.from(accessToken))
+    const tokenBuffer = Buffer.from(token)
+    const accessTokenBuffer = Buffer.from(accessToken)
+    if (tokenBuffer.length !== accessTokenBuffer.length) return false
+
+    return crypto.timingSafeEqual(tokenBuffer, accessTokenBuffer)
 }
 
 function parseMaxActiveRequests (value) {
-    const parsed = parseInt(value, 10)
+    const parsed = Number(value)
     if (!Number.isFinite(parsed) || parsed <= 0) return 0
-    return parsed
+    return Math.floor(parsed)
 }
 
 const IS_BUILD_PHASE = conf.PHASE === 'build'
@@ -217,14 +221,17 @@ class RuntimeStatsMiddleware {
         app.use(function runtimeStatsMiddleware (req, res, next) {
             let requestTarget
             let requestType
+            // Server-side tracking key: never use client-supplied req.id as Set/Map key
+            // (duplicate x-request-id values would collide and leak counters).
+            const trackingId = crypto.randomUUID()
 
             let cleaned = false
             const cleanup = () => {
                 if (cleaned) return
                 cleaned = true
 
-                runtimeStats.activeRequestsIds.delete(req.id)
-                runtimeStats.activeRequestsDetails.delete(req.id)
+                runtimeStats.activeRequestsIds.delete(trackingId)
+                runtimeStats.activeRequestsDetails.delete(trackingId)
 
                 if (requestType && runtimeStats.activeRequestsCountByType[requestType] !== undefined) {
                     runtimeStats.activeRequestsCountByType[requestType] = Math.max(0, runtimeStats.activeRequestsCountByType[requestType] - 1)
@@ -233,7 +240,7 @@ class RuntimeStatsMiddleware {
                         msg: 'Cleanup called but requestType not set or counter undefined',
                         reqId: req.id,
                         url: req.url,
-                        data: { requestType, hasCounter: runtimeStats.activeRequestsCountByType[requestType] !== undefined },
+                        data: { requestType, trackingId, hasCounter: runtimeStats.activeRequestsCountByType[requestType] !== undefined },
                     })
                 }
 
@@ -244,18 +251,13 @@ class RuntimeStatsMiddleware {
                         msg: 'Cleanup called but requestTarget not set or counter undefined',
                         reqId: req.id,
                         url: req.url,
-                        data: { requestTarget, hasCounter: runtimeStats.activeRequestsCountByTarget[requestTarget] !== undefined },
+                        data: { requestTarget, trackingId, hasCounter: runtimeStats.activeRequestsCountByTarget[requestTarget] !== undefined },
                     })
                 }
             }
 
             try {
                 if (shouldSkipTracking(req)) {
-                    return next()
-                }
-
-                if (!req.id) {
-                    logger.warn({ msg: 'Request has no ID, skipping runtime stats tracking', data: { url: req.url, method: req.method } })
                     return next()
                 }
 
@@ -269,8 +271,9 @@ class RuntimeStatsMiddleware {
                 // Increment before registering handlers so cleanup always sees the entry.
                 // If finish/close fires between on() and add(), cleanup would delete nothing
                 // and cleaned=true would prevent the decrement from ever happening.
-                runtimeStats.activeRequestsIds.add(req.id)
-                runtimeStats.activeRequestsDetails.set(req.id, {
+                runtimeStats.activeRequestsIds.add(trackingId)
+                runtimeStats.activeRequestsDetails.set(trackingId, {
+                    reqId: req.id,
                     type: requestType,
                     target: requestTarget,
                     url: req.url,
@@ -287,9 +290,9 @@ class RuntimeStatsMiddleware {
                 res.on('close', cleanup)
                 res.on('finish', cleanup)
 
-                // If the response already ended before we registered handlers, call cleanup
-                // manually — the close/finish events will not fire retroactively.
-                if (res.writableEnded) {
+                // If the response already ended/destroyed before we registered handlers, call
+                // cleanup manually — close/finish will not fire retroactively.
+                if (res.writableEnded || res.destroyed) {
                     cleanup()
                 }
             } catch (err) {

@@ -133,10 +133,16 @@ export function registerBillingReceipt (data) {
         },
     })
 
-    const receiptsResponse = response.json('data.result') as Array<{
+    let receiptsResponse: Array<{
         id: string
         property: { id: string, address: string, addressKey: string }
-    }>
+    }> = []
+    try {
+        const parsed = response.json('data.result')
+        receiptsResponse = Array.isArray(parsed) ? parsed : []
+    } catch (err) {
+        receiptsResponse = []
+    }
 
     check(response, {
         'receipt creation status is 200': (res) => res.status === 200,
@@ -144,7 +150,7 @@ export function registerBillingReceipt (data) {
     })
 
     return {
-        receipts: Array.isArray(receiptsResponse) ? receiptsResponse : [],
+        receipts: receiptsResponse,
         unitName,
         address,
         accountNumberPrefix,

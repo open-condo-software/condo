@@ -147,10 +147,16 @@ const registerBillingReceipts = (data) => {
         },
     })
 
-    const receiptsResponse = response.json('data.result') as Array<{
+    let receiptsResponse: Array<{
         id: string
         property: { id: string, address: string, addressKey: string }
-    }>
+    }> = []
+    try {
+        const parsed = response.json('data.result')
+        receiptsResponse = Array.isArray(parsed) ? parsed : []
+    } catch (err) {
+        receiptsResponse = []
+    }
 
     check(response, {
         'receipt creation status is 200': (res) => res.status === 200,
@@ -158,7 +164,7 @@ const registerBillingReceipts = (data) => {
     })
 
     return {
-        receipts: Array.isArray(receiptsResponse) ? receiptsResponse : [],
+        receipts: receiptsResponse,
         unitName,
         address,
         accountNumberPrefix,
@@ -168,15 +174,26 @@ const registerBillingReceipts = (data) => {
 export function registerBillingReceiptFileCase (data) {
     const receipts = Array.isArray(data.receipts) ? data.receipts : []
     const receipt = receipts[Math.floor(Math.random() * Math.max(receipts.length, 1))] // NOSONAR
+
+    if (!receipt?.id) {
+        check(null, {
+            'receipt id is present before file registration': () => false,
+        })
+        return
+    }
+
     const response = registerBillingReceiptFile(
         data,
         data.billingContext.id,
-        receipt && receipt.id,
+        receipt.id,
         data.base64EncodedPDF,
     )
-    const registerResponse = response.json('data.obj') as {
-        id: string
-        status: string
+    let registerResponse: { id: string, status: string } | undefined
+    try {
+        const parsed = response.json('data.obj')
+        registerResponse = parsed && typeof parsed === 'object' ? parsed as { id: string, status: string } : undefined
+    } catch (err) {
+        registerResponse = undefined
     }
 
     check(response, {
