@@ -10,32 +10,38 @@ COPY --from=python /usr/local/ /usr/local/
 COPY --from=node /usr/local/ /usr/local/
 COPY --from=node /opt/ /opt/
 
+ENV LANG=C.UTF-8 \
+	NODE_ENV=production \
+	NEXT_TELEMETRY_DISABLED=1 \
+	TURBO_TELEMETRY_DISABLED=1
+
 # Add app user/group! Clean packages and fix links! Check version! And install some extra packages!
 RUN set -ex \
 	&& groupadd -r app --gid=999 \
 	&& useradd --system --create-home --home /app --gid 999 --uid=999 --shell /bin/bash app \
 	&& rm -f /usr/local/bin/docker-entrypoint.sh \
+	&& apt-get update \
+	&& apt-get install -y --no-install-recommends libjemalloc2 \
+	&& rm -rf /var/lib/apt/lists/* \
 	&& python --version \
 	&& pip --version \
 	&& node --version \
 	&& yarn --version \
 	&& python3 -m pip install 'psycopg2-binary==2.9.10' && python3 -m pip install 'Django==5.2' \
-    && echo "OK"
+	&& echo "OK"
 
 # Installer
 FROM base AS installer
 
 WORKDIR /app
-# Copy pruned monorepo (only package.json + yarn.lock)
-COPY --chown=app:app ./out /app
-# Copy yarn berry
-COPY --chown=app:app ./.yarn /app/.yarn
-COPY --chown=app:app ./.yarnrc.yml /app/.yarnrc.yml
+# Copy only dependency manifests for better layer caching (no prune.sh / out/ required)
+COPY --parents --chown=app:app package.json yarn.lock .yarnrc.yml .yarn ./
+COPY --parents --chown=app:app **/package.json **/yarn.lock ./
 RUN --mount=type=cache,target=/usr/local/share/.cache/yarn \
-    yarn install --immutable --inline-builds
+	yarn install --immutable --inline-builds
 
 # Builder
-FROM base as builder
+FROM base AS builder
 
 ARG TURBO_TEAM
 ARG TURBO_TOKEN
@@ -64,13 +70,13 @@ RUN echo "# Build time .env config!" >> /app/.env && \
 RUN chmod +x ./bin/run_condo_domain_tests.sh
 
 RUN --mount=type=cache,target=/usr/local/share/.cache/yarn \
-    --mount=type=cache,target=/app/.turbo \
-    set -ex \
-    && yarn build \
-    && rm -rf /app/out \
-    && rm -rf /app/.env  \
-    && rm -rf /app/.config /app/.cache /app/.docker  \
-    && ls -lah /app/
+	--mount=type=cache,target=/app/.turbo \
+	set -ex \
+	&& yarn build \
+	&& rm -rf /app/out \
+	&& rm -rf /app/.env  \
+	&& rm -rf /app/.config /app/.cache /app/.docker  \
+	&& ls -lah /app/
 
 # Runtime container
 FROM base
