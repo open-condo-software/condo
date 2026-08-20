@@ -12,11 +12,12 @@ const { getSharedConstraintsValidator } = require('@dev-portal-api/domains/commo
 const { FileAdapter, getFileMetaAfterChange, getMimeTypesValidator } = require('@dev-portal-api/domains/common/utils/files')
 const { INVALID_APP_URL } = require('@dev-portal-api/domains/miniapp/constants/errors')
 const { exportable } = require('@dev-portal-api/domains/miniapp/plugins/exportable')
+const { modifiable } = require('@dev-portal-api/domains/miniapp/plugins/modifiable')
+const { publishB2BApp } = require('@dev-portal-api/domains/miniapp/tasks/publishB2BApp')
 const { canReadAppSchemas, canManageAppSchemas } = require('@dev-portal-api/domains/miniapp/utils/serverSchema/access')
 
 const { getEnvironmentalPermissionsFields } = require('./fields/devicePermissions')
 const { getEnvironmentalFields } = require('./fields/environmental')
-const { getModifiedAtFields } = require('./fields/modifiedAt')
 const { OIDC_CLIENT_ID_FIELD } = require('./fields/oidcClientId')
 
 const LOGO_FILE_ADAPTER = new FileAdapter('B2BApps/logos', true)
@@ -132,7 +133,6 @@ const B2BApp = new GQLListSchema('B2BApp', {
         }),
         ...getEnvironmentalFields('oidcClientId', OIDC_CLIENT_ID_FIELD),
         ...getEnvironmentalPermissionsFields({ listKey: 'B2BApp' }),
-        ...getModifiedAtFields(),
         ...getEnvironmentalFields('publishedAt', {
             schemaDoc: 'The last time a mini-app was published on the {environment} environment',
             type: 'DateTimeUtc',
@@ -149,7 +149,22 @@ const B2BApp = new GQLListSchema('B2BApp', {
         afterChange: LOGO_META_AFTER_CHANGE,
         validateInput: getSharedConstraintsValidator(['B2CApp']),
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), exportable(), historical(), analytical()],
+    plugins: [
+        uuided(),
+        versioned(),
+        tracked(),
+        softDeleted(),
+        dvAndSender(),
+        exportable(),
+        modifiable({
+            environmentField: null,
+            onModify: async ({ environment, updatedItem }) => {
+                await publishB2BApp.delay(updatedItem.id, environment)
+            },
+        }),
+        historical(),
+        analytical(),
+    ],
     access: {
         read: canReadAppSchemas,
         create: canManageAppSchemas,

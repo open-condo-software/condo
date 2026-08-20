@@ -13,6 +13,8 @@ const access = require('@dev-portal-api/domains/miniapp/access/B2BAppAccessRight
 const { B2B_APP_ACCESS_RIGHT_UNIQUE_APP_CONSTRAINT } = require('@dev-portal-api/domains/miniapp/constants/constraints')
 const { AVAILABLE_ENVIRONMENTS, PROD_ENVIRONMENT } = require('@dev-portal-api/domains/miniapp/constants/publishing')
 const { exportable } = require('@dev-portal-api/domains/miniapp/plugins/exportable')
+const { modifiable } = require('@dev-portal-api/domains/miniapp/plugins/modifiable')
+const { publishB2BApp } = require('@dev-portal-api/domains/miniapp/tasks/publishB2BApp')
 
 
 
@@ -71,7 +73,21 @@ const B2BAppAccessRight = new GQLListSchema('B2BAppAccessRight', {
             },
         ],
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), exportable(), historical(), analytical()],
+    plugins: [
+        uuided(),
+        versioned(),
+        tracked(),
+        softDeleted(),
+        dvAndSender(),
+        exportable(),
+        modifiable({
+            onModify: async ({ environment, updatedItem }) => {
+                await publishB2BApp.delay(updatedItem.app, environment)
+            },
+        }),
+        historical(),
+        analytical(),
+    ],
     access: {
         read: access.canReadB2BAppAccessRights,
         create: access.canManageB2BAppAccessRights,
