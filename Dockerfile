@@ -31,12 +31,26 @@ RUN set -ex \
 	&& echo "OK"
 
 # Installer
+# NOTE: werf's Dockerfile parser does not support COPY --parents, so we copy the
+# context and keep only package manifests before yarn install (no prune.sh / out/).
 FROM base AS installer
 
+WORKDIR /tmp/src
+COPY --chown=app:app . .
+RUN set -ex \
+	&& mkdir -p /app \
+	&& find . \( -name package.json -o -name yarn.lock \) \
+		-not -path '*/node_modules/*' \
+		-not -path './out/*' \
+	| while read -r f; do \
+		mkdir -p "/app/$(dirname "$f")" \
+		&& cp "$f" "/app/$f"; \
+	done \
+	&& cp -a .yarn /app/.yarn \
+	&& cp .yarnrc.yml /app/ \
+	&& rm -rf /tmp/src
+
 WORKDIR /app
-# Copy only dependency manifests for better layer caching (no prune.sh / out/ required)
-COPY --parents --chown=app:app package.json yarn.lock .yarnrc.yml .yarn ./
-COPY --parents --chown=app:app **/package.json **/yarn.lock ./
 RUN --mount=type=cache,target=/usr/local/share/.cache/yarn \
 	yarn install --immutable --inline-builds
 
