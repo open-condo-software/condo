@@ -11,6 +11,7 @@ import {
     createBillingIntegrationOrganizationContext,
     sendAuthorizedRequest,
     registerBillingReceiptFile,
+    areReceiptsCreated,
 } from './utils'
 
 const RECEIPT_PER_ACCOUNT_NUMBER = 50
@@ -146,13 +147,20 @@ const registerBillingReceipts = (data) => {
         },
     })
 
-    const receiptsResponse = response.json('data.result') as Array<{
-        id: string, property: { id: string, address: string, addressKey: string }
-    }>
+    let receiptsResponse: Array<{
+        id: string
+        property: { id: string, address: string, addressKey: string }
+    }> = []
+    try {
+        const parsed = response.json('data.result')
+        receiptsResponse = Array.isArray(parsed) ? parsed : []
+    } catch (err) {
+        receiptsResponse = []
+    }
 
     check(response, {
         'receipt creation status is 200': (res) => res.status === 200,
-        'receipts is created': () => receiptsResponse.every(e => e.id !== undefined),
+        'receipts is created': (res) => areReceiptsCreated(res),
     })
 
     return {
@@ -164,21 +172,35 @@ const registerBillingReceipts = (data) => {
 }
 
 export function registerBillingReceiptFileCase (data) {
-    const receipt = data.receipts[Math.floor(Math.random() * data.receipts.length)] // NOSONAR
+    const receipts = Array.isArray(data.receipts) ? data.receipts : []
+    const receipt = receipts[Math.floor(Math.random() * Math.max(receipts.length, 1))] // NOSONAR
+
+    if (!receipt?.id) {
+        check(null, {
+            'receipt id is present before file registration': () => false,
+        })
+        return
+    }
+
     const response = registerBillingReceiptFile(
         data,
         data.billingContext.id,
         receipt.id,
         data.base64EncodedPDF,
     )
-    const registerResponse = response.json('data.obj') as {
-        id: string
-        status: string
+    let registerResponse: { id: string, status: string } | undefined
+    try {
+        const parsed = response.json('data.obj')
+        registerResponse = parsed && typeof parsed === 'object' ? parsed as { id: string, status: string } : undefined
+    } catch (err) {
+        registerResponse = undefined
     }
 
     check(response, {
         'resident billing receipt file response is 200': (res) => res.status === 200,
-        'resident billing receipt file id data provided': () => registerResponse.id !== undefined,
-        'resident billing receipt file status data provided': () => registerResponse.status === 'CREATED' || registerResponse.status === 'UPDATED' || registerResponse.status === 'SKIPPED',
+        'resident billing receipt file id data provided': () => Boolean(registerResponse && registerResponse.id),
+        'resident billing receipt file status data provided': () => Boolean(registerResponse && (
+            registerResponse.status === 'CREATED' || registerResponse.status === 'UPDATED' || registerResponse.status === 'SKIPPED'
+        )),
     })
 }

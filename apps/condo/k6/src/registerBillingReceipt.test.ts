@@ -8,6 +8,7 @@ import {
     createBillingIntegration,
     createBillingIntegrationOrganizationContext,
     sendAuthorizedRequest,
+    areReceiptsCreated,
 } from './utils'
 
 const RECEIPT_PER_ACCOUNT_NUMBER = 50
@@ -132,13 +133,20 @@ export function registerBillingReceipt (data) {
         },
     })
 
-    const receiptsResponse = response.json('data.result') as Array<{
-        id: string, property: { id: string, address: string, addressKey: string }
-    }>
+    let receiptsResponse: Array<{
+        id: string
+        property: { id: string, address: string, addressKey: string }
+    }> = []
+    try {
+        const parsed = response.json('data.result')
+        receiptsResponse = Array.isArray(parsed) ? parsed : []
+    } catch (err) {
+        receiptsResponse = []
+    }
 
     check(response, {
         'receipt creation status is 200': (res) => res.status === 200,
-        'receipts is created': () => receiptsResponse.every(e => e.id !== undefined),
+        'receipts is created': (res) => areReceiptsCreated(res),
     })
 
     return {

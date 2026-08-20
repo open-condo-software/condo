@@ -2,7 +2,6 @@ import { faker } from '@faker-js/faker/locale/ru'
 import http from 'k6/http'
 
 import { buildFakeAddressAndMeta } from '../../domains/property/utils/testSchema/factories'
-import { MIN_PASSWORD_LENGTH } from '@condo/domains/user/constants/common'
 
 const BASE_API_URL = __ENV.BASE_URL + '/admin/api'
 const AUTH_REQS = { email: __ENV.AUTH_EMAIL, password: __ENV.AUTH_PASSWORD }
@@ -24,13 +23,23 @@ const setupCondoAuth = () => {
     }
 }
 
-const sendAuthorizedRequest = (data, payload) => {
+const sendAuthorizedRequest = (data, payload, extraHeaders = {}) => {
     return http.post(BASE_API_URL, JSON.stringify(payload), {
         headers: {
+            ...extraHeaders,
             'Authorization': `Bearer ${data.token}`,
             'Content-Type': 'application/json',
         },
     })
+}
+
+const areReceiptsCreated = (res) => {
+    try {
+        const result = res.json('data.result')
+        return Array.isArray(result) && result.length > 0 && result.every((item) => Boolean(item && item.id))
+    } catch (err) {
+        return false
+    }
 }
 
 const createOrganization = (data) => sendAuthorizedRequest(data, {
@@ -294,4 +303,5 @@ export {
     signInAsUser,
     resetOrganization,
     BASE_API_URL,
+    areReceiptsCreated,
 }

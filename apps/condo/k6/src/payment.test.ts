@@ -8,6 +8,7 @@ import {
     createBillingIntegration,
     createBillingIntegrationOrganizationContext,
     sendAuthorizedRequest,
+    areReceiptsCreated,
 } from './utils'
 
 const DURATION = '60s'
@@ -38,7 +39,8 @@ export function setup () {
     const billingContext = createBillingIntegrationOrganizationContext(
         { token },
         { id: organizationId },
-        billingIntegration.json('data.obj')
+        billingIntegration.json('data.obj'),
+        { status: 'Finished' },
     )
 
     return {
@@ -114,10 +116,8 @@ export function registerBillingReceiptsService (data) {
         },
     })
 
-    const receiptsResponse = response.json('data.result') as Array<{ id: string }>
-
     check(response, {
         'receipt creation status is 200': (res) => res.status === 200,
-        'receipts is created': () => receiptsResponse.every(e => e.id !== undefined),
+        'receipts is created': (res) => areReceiptsCreated(res),
     })
 }

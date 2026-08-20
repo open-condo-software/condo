@@ -13,6 +13,25 @@ const SEND_METRICS_INTERVAL_IN_MS = 1000
 const X_TARGET_OPTIONS_VAR_NAME = 'X_TARGET_OPTIONS'
 const RUNTIME_STATS_ACCESS_TOKEN_VAR_NAME = 'RUNTIME_STATS_ACCESS_TOKEN'
 const RUNTIME_STATS_ENABLE_VAR_NAME = 'RUNTIME_STATS_ENABLE'
+const RUNTIME_STATS_MAX_ACTIVE_REQUESTS_VAR_NAME = 'RUNTIME_STATS_MAX_ACTIVE_REQUESTS'
+
+function isAccessTokenValid (token) {
+    const accessToken = conf[RUNTIME_STATS_ACCESS_TOKEN_VAR_NAME]
+    if (!token || !accessToken) return false
+    if (typeof token !== 'string' || typeof accessToken !== 'string') return false
+
+    const tokenBuffer = Buffer.from(token)
+    const accessTokenBuffer = Buffer.from(accessToken)
+    if (tokenBuffer.length !== accessTokenBuffer.length) return false
+
+    return crypto.timingSafeEqual(tokenBuffer, accessTokenBuffer)
+}
+
+function parseMaxActiveRequests (value) {
+    const parsed = Number(value)
+    if (!Number.isFinite(parsed) || parsed <= 0) return 0
+    return Math.floor(parsed)
+}
 
 const IS_BUILD_PHASE = conf.PHASE === 'build'
 const IS_WORKER_PROCESS = conf.PHASE === 'worker'
@@ -22,11 +41,18 @@ const logger = getLogger('runtime-stats')
 class RuntimeStatsMiddleware {
     constructor ({
         statsUrl = '/api/runtime-stats',
+        maxActiveRequests,
     } = {}) {
         this.statsUrl = statsUrl
+        this.maxActiveRequests = parseMaxActiveRequests(
+            maxActiveRequests !== undefined
+                ? maxActiveRequests
+                : conf[RUNTIME_STATS_MAX_ACTIVE_REQUESTS_VAR_NAME],
+        )
         this.requestTargetOptions = (conf[X_TARGET_OPTIONS_VAR_NAME] || '').split(',').filter(Boolean)
         this.requestTypeOptions = ['api', 'graphql', 'oidc', 'wellKnown', 'healthCheck', 'other']
         this.metricsIntervalId = null
+        this.wasReady = true
     }
 
     /**
@@ -75,6 +101,36 @@ class RuntimeStatsMiddleware {
         return this.requestTargetOptions.includes(xTargetHeader) ? xTargetHeader : 'other'
     }
 
+    /**
+     * Balancer scrapes /api/runtime-stats and kube probes hit health URLs.
+     * Those must not inflate activeRequestsCount.
+     * @private
+     * @param req
+     * @returns {boolean}
+     */
+    shouldSkipTracking (req) {
+        let pathname
+        try {
+            pathname = new URL(`${conf['SERVER_URL']}${req.url}`).pathname
+        } catch (err) {
+            pathname = String(req.url || '').split('?')[0]
+        }
+
+        if (pathname === this.statsUrl || pathname === `${this.statsUrl}/`) {
+            return true
+        }
+
+        if (pathname === '/.well-known/apollo/server-health') {
+            return true
+        }
+
+        if (pathname === DEFAULT_HEALTHCHECK_URL || pathname.startsWith(`${DEFAULT_HEALTHCHECK_URL}/`)) {
+            return true
+        }
+
+        return false
+    }
+
     async prepareMiddleware ({ keystone }) {
         if (conf[RUNTIME_STATS_ENABLE_VAR_NAME] !== 'true') {
             logger.info({ msg: 'runtime stats disabled' })
@@ -85,6 +141,13 @@ class RuntimeStatsMiddleware {
             logger.warn({
                 msg: 'There are no options for x-target header. All queries will relate to the `other` group.',
                 data: { howToFix: `Add the ${X_TARGET_OPTIONS_VAR_NAME} variable to env. For example: 'condo-app,billing,cc-app'` },
+            })
+        }
+
+        if (this.maxActiveRequests > 0) {
+            logger.info({
+                msg: 'max active requests enabled',
+                data: { maxActiveRequests: this.maxActiveRequests, statsUrl: this.statsUrl },
             })
         }
 
@@ -153,18 +216,22 @@ class RuntimeStatsMiddleware {
 
         const detectRequestType = this.detectRequestType.bind(this)
         const detectRequestTarget = this.detectRequestTarget.bind(this)
+        const shouldSkipTracking = this.shouldSkipTracking.bind(this)
 
         app.use(function runtimeStatsMiddleware (req, res, next) {
             let requestTarget
             let requestType
+            // Server-side tracking key: never use client-supplied req.id as Set/Map key
+            // (duplicate x-request-id values would collide and leak counters).
+            const trackingId = crypto.randomUUID()
 
             let cleaned = false
             const cleanup = () => {
                 if (cleaned) return
                 cleaned = true
 
-                runtimeStats.activeRequestsIds.delete(req.id)
-                runtimeStats.activeRequestsDetails.delete(req.id)
+                runtimeStats.activeRequestsIds.delete(trackingId)
+                runtimeStats.activeRequestsDetails.delete(trackingId)
 
                 if (requestType && runtimeStats.activeRequestsCountByType[requestType] !== undefined) {
                     runtimeStats.activeRequestsCountByType[requestType] = Math.max(0, runtimeStats.activeRequestsCountByType[requestType] - 1)
@@ -173,7 +240,7 @@ class RuntimeStatsMiddleware {
                         msg: 'Cleanup called but requestType not set or counter undefined',
                         reqId: req.id,
                         url: req.url,
-                        data: { requestType, hasCounter: runtimeStats.activeRequestsCountByType[requestType] !== undefined },
+                        data: { requestType, trackingId, hasCounter: runtimeStats.activeRequestsCountByType[requestType] !== undefined },
                     })
                 }
 
@@ -184,14 +251,13 @@ class RuntimeStatsMiddleware {
                         msg: 'Cleanup called but requestTarget not set or counter undefined',
                         reqId: req.id,
                         url: req.url,
-                        data: { requestTarget, hasCounter: runtimeStats.activeRequestsCountByTarget[requestTarget] !== undefined },
+                        data: { requestTarget, trackingId, hasCounter: runtimeStats.activeRequestsCountByTarget[requestTarget] !== undefined },
                     })
                 }
             }
 
             try {
-                if (!req.id) {
-                    logger.warn({ msg: 'Request has no ID, skipping runtime stats tracking', data: { url: req.url, method: req.method } })
+                if (shouldSkipTracking(req)) {
                     return next()
                 }
 
@@ -202,25 +268,12 @@ class RuntimeStatsMiddleware {
                 runtimeStats.totalRequestsCountByType[requestType] = (runtimeStats.totalRequestsCountByType[requestType] || 0) + 1
                 runtimeStats.totalRequestsCountByTarget[requestTarget] = (runtimeStats.totalRequestsCountByTarget[requestTarget] || 0) + 1
 
-                // SSR race condition: Check if response finished during type/target detection
-                // For SSR requests (e.g., Next.js /property), the response may be sent while we're
-                // detecting request type/target. If we register cleanup handlers after 'finish' has
-                // already fired, the handlers will never execute, causing counters to never decrement.
-                if (res.writableEnded) {
-                    logger.warn({
-                        msg: 'Response already finished before cleanup handlers registered',
-                        reqId: req.id,
-                        url: req.url,
-                        data: { method: req.method, requestType, requestTarget },
-                    })
-                    return next()
-                }
-
-                res.on('close', cleanup)
-                res.on('finish', cleanup)
-
-                runtimeStats.activeRequestsIds.add(req.id)
-                runtimeStats.activeRequestsDetails.set(req.id, {
+                // Increment before registering handlers so cleanup always sees the entry.
+                // If finish/close fires between on() and add(), cleanup would delete nothing
+                // and cleaned=true would prevent the decrement from ever happening.
+                runtimeStats.activeRequestsIds.add(trackingId)
+                runtimeStats.activeRequestsDetails.set(trackingId, {
+                    reqId: req.id,
                     type: requestType,
                     target: requestTarget,
                     url: req.url,
@@ -230,6 +283,18 @@ class RuntimeStatsMiddleware {
 
                 runtimeStats.activeRequestsCountByType[requestType] = (runtimeStats.activeRequestsCountByType[requestType] || 0) + 1
                 runtimeStats.activeRequestsCountByTarget[requestTarget] = (runtimeStats.activeRequestsCountByTarget[requestTarget] || 0) + 1
+
+                // Check writableEnded again after incrementing — if response already finished
+                // during the lines above, cleanup handlers would fire immediately on registration
+                // and correctly decrement since the entry is now in the set.
+                res.on('close', cleanup)
+                res.on('finish', cleanup)
+
+                // If the response already ended/destroyed before we registered handlers, call
+                // cleanup manually — close/finish will not fire retroactively.
+                if (res.writableEnded || res.destroyed) {
+                    cleanup()
+                }
             } catch (err) {
                 logger.error({
                     msg: 'runtimeStatsMiddleware error',
@@ -241,36 +306,57 @@ class RuntimeStatsMiddleware {
             next()
         })
 
-        if (conf[RUNTIME_STATS_ACCESS_TOKEN_VAR_NAME]) {
-            app.get(this.statsUrl, (req, res) => {
-                const token = req.query['token']
-                const reqIds = req.query['reqIds']
-                const accessToken = conf[RUNTIME_STATS_ACCESS_TOKEN_VAR_NAME]
+        const sendRuntimeStats = (req, res) => {
+            const activeRequestsCount = runtimeStats.activeRequestsIds.size
+            const maxActiveRequests = this.maxActiveRequests
+            const ready = maxActiveRequests <= 0 || activeRequestsCount < maxActiveRequests
+            const token = req.query['token']
 
-                const isTokenOk = !!token && !!accessToken
-                    && token.length === accessToken.length
-                    && crypto.timingSafeEqual(Buffer.from(token), Buffer.from(accessToken))
+            if (ready !== this.wasReady) {
+                logger.warn({
+                    msg: ready
+                        ? 'active requests below max, pod ready'
+                        : 'active requests at max, pod not ready',
+                    data: { activeRequestsCount, maxActiveRequests },
+                })
+                this.wasReady = ready
+            }
 
-                if (isTokenOk) {
-                    res.json({
-                        activeRequestsCount: runtimeStats.activeRequestsIds.size,
-                        activeRequestsCountByType: runtimeStats.activeRequestsCountByType,
-                        activeRequestsCountByTarget: runtimeStats.activeRequestsCountByTarget,
-                        totalRequestsCount: runtimeStats.totalRequestsCount,
-                        totalRequestsCountByType: runtimeStats.totalRequestsCountByType,
-                        totalRequestsCountByTarget: runtimeStats.totalRequestsCountByTarget,
-                        ...reqIds ? {
-                            reqIds: Array.from(runtimeStats.activeRequestsIds.keys()),
-                            activeRequests: Array.from(runtimeStats.activeRequestsDetails.entries()).map(([id, details]) => ({ id, ...details })),
-                        } : {},
-                    })
-                } else {
-                    res.status(403).send()
-                }
+            const status = ready ? 200 : 503
+
+            if (!token) {
+                // Kube httpGet probes cannot send a token from env. Status alone is
+                // enough for readiness; do not leak counters without a valid token.
+                return res.status(status).end()
+            }
+
+            if (!isAccessTokenValid(token)) {
+                return res.status(403).send()
+            }
+
+            const reqIds = req.query['reqIds']
+
+            return res.status(status).json({
+                ready,
+                maxActiveRequests,
+                activeRequestsCount,
+                activeRequestsCountByType: runtimeStats.activeRequestsCountByType,
+                activeRequestsCountByTarget: runtimeStats.activeRequestsCountByTarget,
+                totalRequestsCount: runtimeStats.totalRequestsCount,
+                totalRequestsCountByType: runtimeStats.totalRequestsCountByType,
+                totalRequestsCountByTarget: runtimeStats.totalRequestsCountByTarget,
+                ...reqIds ? {
+                    reqIds: Array.from(runtimeStats.activeRequestsIds.keys()),
+                    activeRequests: Array.from(runtimeStats.activeRequestsDetails.entries()).map(([id, details]) => ({ id, ...details })),
+                } : {},
             })
-        } else {
+        }
+
+        app.get(this.statsUrl, sendRuntimeStats)
+
+        if (!conf[RUNTIME_STATS_ACCESS_TOKEN_VAR_NAME]) {
             logger.warn({
-                msg: 'Runtime stats url disabled. It\'s impossible to get stats using GET query',
+                msg: 'Runtime stats token is not set. GET /api/runtime-stats without a token returns only a status code',
                 data: { howToEnable: `Add the ${RUNTIME_STATS_ACCESS_TOKEN_VAR_NAME} variable to env` },
             })
         }
