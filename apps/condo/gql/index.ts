@@ -6010,6 +6010,62 @@ export type GetOrganizationActivatedSubscriptionsQueryHookResult = ReturnType<ty
 export type GetOrganizationActivatedSubscriptionsLazyQueryHookResult = ReturnType<typeof useGetOrganizationActivatedSubscriptionsLazyQuery>;
 export type GetOrganizationActivatedSubscriptionsSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationActivatedSubscriptionsSuspenseQuery>;
 export type GetOrganizationActivatedSubscriptionsQueryResult = Apollo.QueryResult<Types.GetOrganizationActivatedSubscriptionsQuery, Types.GetOrganizationActivatedSubscriptionsQueryVariables>;
+export const GetOrganizationActiveFeatureSubscriptionContextsDocument = gql`
+    query getOrganizationActiveFeatureSubscriptionContexts($organizationId: ID!) {
+  featureSubscriptionContexts: allSubscriptionContexts(
+    where: {organization: {id: $organizationId}, status: DONE, subscriptionPlan: {planType: feature}}
+    sortBy: [createdAt_DESC]
+    first: 100
+  ) {
+    id
+    bindingId
+    startAt
+    endAt
+    isTrial
+    subscriptionPlan {
+      id
+      name
+      planType
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetOrganizationActiveFeatureSubscriptionContextsQuery__
+ *
+ * To run a query within a React component, call `useGetOrganizationActiveFeatureSubscriptionContextsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOrganizationActiveFeatureSubscriptionContextsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetOrganizationActiveFeatureSubscriptionContextsQuery({
+ *   variables: {
+ *      organizationId: // value for 'organizationId'
+ *   },
+ * });
+ */
+export function useGetOrganizationActiveFeatureSubscriptionContextsQuery(baseOptions: Apollo.QueryHookOptions<Types.GetOrganizationActiveFeatureSubscriptionContextsQuery, Types.GetOrganizationActiveFeatureSubscriptionContextsQueryVariables> & ({ variables: Types.GetOrganizationActiveFeatureSubscriptionContextsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetOrganizationActiveFeatureSubscriptionContextsQuery, Types.GetOrganizationActiveFeatureSubscriptionContextsQueryVariables>(GetOrganizationActiveFeatureSubscriptionContextsDocument, options);
+      }
+export function useGetOrganizationActiveFeatureSubscriptionContextsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetOrganizationActiveFeatureSubscriptionContextsQuery, Types.GetOrganizationActiveFeatureSubscriptionContextsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetOrganizationActiveFeatureSubscriptionContextsQuery, Types.GetOrganizationActiveFeatureSubscriptionContextsQueryVariables>(GetOrganizationActiveFeatureSubscriptionContextsDocument, options);
+        }
+// @ts-ignore
+export function useGetOrganizationActiveFeatureSubscriptionContextsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<Types.GetOrganizationActiveFeatureSubscriptionContextsQuery, Types.GetOrganizationActiveFeatureSubscriptionContextsQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetOrganizationActiveFeatureSubscriptionContextsQuery, Types.GetOrganizationActiveFeatureSubscriptionContextsQueryVariables>;
+export function useGetOrganizationActiveFeatureSubscriptionContextsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetOrganizationActiveFeatureSubscriptionContextsQuery, Types.GetOrganizationActiveFeatureSubscriptionContextsQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetOrganizationActiveFeatureSubscriptionContextsQuery | undefined, Types.GetOrganizationActiveFeatureSubscriptionContextsQueryVariables>;
+export function useGetOrganizationActiveFeatureSubscriptionContextsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetOrganizationActiveFeatureSubscriptionContextsQuery, Types.GetOrganizationActiveFeatureSubscriptionContextsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetOrganizationActiveFeatureSubscriptionContextsQuery, Types.GetOrganizationActiveFeatureSubscriptionContextsQueryVariables>(GetOrganizationActiveFeatureSubscriptionContextsDocument, options);
+        }
+export type GetOrganizationActiveFeatureSubscriptionContextsQueryHookResult = ReturnType<typeof useGetOrganizationActiveFeatureSubscriptionContextsQuery>;
+export type GetOrganizationActiveFeatureSubscriptionContextsLazyQueryHookResult = ReturnType<typeof useGetOrganizationActiveFeatureSubscriptionContextsLazyQuery>;
+export type GetOrganizationActiveFeatureSubscriptionContextsSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationActiveFeatureSubscriptionContextsSuspenseQuery>;
+export type GetOrganizationActiveFeatureSubscriptionContextsQueryResult = Apollo.QueryResult<Types.GetOrganizationActiveFeatureSubscriptionContextsQuery, Types.GetOrganizationActiveFeatureSubscriptionContextsQueryVariables>;
 export const GetOrganizationTrialSubscriptionsDocument = gql`
     query getOrganizationTrialSubscriptions($organizationId: ID!) {
   trialSubscriptions: allSubscriptionContexts(

@@ -112,8 +112,8 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
     } = useEmailConfirmationNotification()
 
     const {
-        message: subscriptionExpirationMessage,
-        markAsRead: markSubscriptionExpirationMessageAsRead,
+        messages: subscriptionExpirationMessages,
+        markAllAsRead: markSubscriptionExpirationMessagesAsRead,
     } = useSubscriptionExpirationNotification()
 
     const {
@@ -125,13 +125,13 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
 
     const userMessagesWithCustomMessages = useMemo(() => [
         emailConfirmationMessage,
-        subscriptionExpirationMessage,
+        ...subscriptionExpirationMessages,
         ...subscriptionPaymentMessages,
         ...(userMessages || []),
     ]
         .filter(Boolean)
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    , [userMessages, emailConfirmationMessage, subscriptionExpirationMessage, subscriptionPaymentMessages])
+    , [userMessages, emailConfirmationMessage, subscriptionExpirationMessages, subscriptionPaymentMessages])
 
     // Set initial settings to state
     useEffect(() => {
@@ -161,13 +161,13 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
 
     const messageHandlers = useMemo(() => [
         markEmailConfirmationMessageAsRead,
-        markSubscriptionExpirationMessageAsRead,
+        markSubscriptionExpirationMessagesAsRead,
         markPaymentReminderAsRead,
         markPaymentSuccessAsRead,
         markPaymentErrorAsRead,
     ], [
         markEmailConfirmationMessageAsRead,
-        markSubscriptionExpirationMessageAsRead,
+        markSubscriptionExpirationMessagesAsRead,
         markPaymentReminderAsRead,
         markPaymentSuccessAsRead,
         markPaymentErrorAsRead,
