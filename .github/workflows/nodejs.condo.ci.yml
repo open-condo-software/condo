@@ -91,6 +91,7 @@ jobs:
           file: Dockerfile
           push: true
           tags: ${{ env.DOCKER_IMAGE_FULL }}
+          target: runtime
           build-args: |
             REGISTRY=${{ secrets.DOCKER_REGISTRY }}/doma/utils
             TURBO_TEAM=condo-ci
