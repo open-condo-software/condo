@@ -901,8 +901,11 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         }
 
         if (currentStep === 1) {
-            fieldsToValidate = ['templates', 'title', 'body', 'property', 'properties', 'hasAllProperties', 'unitNames', 'sectionIds']
             const res = form.getFieldsValue(true)
+            fieldsToValidate = ['templates', 'title', 'body', 'hasAllProperties', 'unitNames', 'sectionIds']
+            if (!res.hasAllProperties) {
+                fieldsToValidate.push('property', 'properties')
+            }
 
             setSelectedTitle(res.title)
             setSelectedBody(res.body)
@@ -946,7 +949,10 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const handleSharingAppFormSubmit = async ({ values, ctx, form }) => {
         try {
             if (!ctx.newsSharingConfig.customFormUrl) {
-                const fieldsToValidate = ['templates', 'title', 'body', 'customSelect', 'hasAllCustom']
+                const fieldsToValidate = ['templates', 'title', 'body', 'hasAllCustom']
+                if (!form.getFieldValue('hasAllCustom')) {
+                    fieldsToValidate.push('customSelect')
+                }
 
                 await form.validateFields(fieldsToValidate)
             }

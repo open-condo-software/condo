@@ -115,9 +115,13 @@ const FeatureFlagsProviderWrapper: React.FC<React.PropsWithChildren<FeatureFlags
     }, [features, userIsLoading, organizationIsLoading])
 
     useEffect(() => {
+        const organizationId = get(organization, 'id')
+
+        // Skip undefined organization so miniapps can set it via updateContext
+        // (they have no OrganizationProvider — id comes from launch params)
         updateContext({
             isSupport: isSupport || isAdmin,
-            organization: get(organization, 'id'),
+            ...(organizationId ? { organization: organizationId } : {}),
             userId,
             embeddingContextPlatform,
             embeddingContextAppId,

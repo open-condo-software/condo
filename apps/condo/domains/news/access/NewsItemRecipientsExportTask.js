@@ -7,7 +7,7 @@ const get = require('lodash/get')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
-const { canManageObjectsAsB2BAppServiceUser } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
+const { canManageNewsAsB2BAppServiceUser } = require('@condo/domains/news/utils/accessSchema/b2bNewsAccess')
 const { checkPermissionsInEmployedOrganizations } = require('@condo/domains/organization/utils/accessSchema')
 const { SERVICE } = require('@condo/domains/user/constants/common')
 
@@ -36,13 +36,13 @@ async function canManageNewsItemRecipientsExportTasks (args) {
     if (user.deletedAt) return false
     if (user.isAdmin) return true
 
-    if (user.type === SERVICE) {
-        return await canManageObjectsAsB2BAppServiceUser(args)
-    }
-
     if (operation === 'create') {
         const organizationId = get(originalInput, ['organization', 'connect', 'id'])
         if (!organizationId) return false
+
+        if (user.type === SERVICE) {
+            return await canManageNewsAsB2BAppServiceUser(args, organizationId)
+        }
 
         return await checkPermissionsInEmployedOrganizations(context, user, organizationId, 'canReadNewsItems')
     } else if (operation === 'update' && itemId) {
@@ -51,6 +51,10 @@ async function canManageNewsItemRecipientsExportTasks (args) {
         const { organization: organizationId } = task
 
         if (!organizationId) return false
+
+        if (user.type === SERVICE) {
+            return await canManageNewsAsB2BAppServiceUser(args, organizationId)
+        }
 
         return await checkPermissionsInEmployedOrganizations(context, user, organizationId, 'canReadNewsItems')
     }
