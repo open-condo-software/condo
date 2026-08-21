@@ -62,7 +62,7 @@ export const TicketSubmitButton: React.FC<IErrorsContainerProps> = ({
             onClick={handleSave}
             type='primary'
             loading={isLoading}
-            disabled={disabledCondition}
+            disabled={disabledCondition || isLoading}
             data-cy={get(otherProps, 'data-cy')}
         >
             {ApplyChangesMessage}

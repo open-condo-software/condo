@@ -290,6 +290,7 @@ const FormWithAction: React.FC<IFormWithAction> = (props) => {
     const [innerForm] = Form.useForm()
     const form = formInstance ? formInstance : innerForm
     const [isLoading, setIsLoading] = useState(false)
+    const isSubmittingRef = useRef(false)
 
     let create = null
 
@@ -313,7 +314,16 @@ const FormWithAction: React.FC<IFormWithAction> = (props) => {
 
     const _handleSubmit = useCallback((values) => {
         if (handleSubmit) {
-            return handleSubmit(values)
+            let result
+            try {
+                result = handleSubmit(values)
+            } catch (err) {
+                isSubmittingRef.current = false
+                throw err
+            }
+            return Promise.resolve(result).finally(() => {
+                isSubmittingRef.current = false
+            })
         }
         if (values.hasOwnProperty(NON_FIELD_ERROR_NAME)) delete values[NON_FIELD_ERROR_NAME]
         let data
@@ -337,9 +347,11 @@ const FormWithAction: React.FC<IFormWithAction> = (props) => {
                     errors = [{ name: err.field || NON_FIELD_ERROR_NAME, errors: [String(err.message)] }]
                 }
                 form.setFields(errors)
+                isSubmittingRef.current = false
                 return
             } else {
                 form.setFields([{ name: NON_FIELD_ERROR_NAME, errors: [ClientSideErrorMsg] }])
+                isSubmittingRef.current = false
                 throw err  // unknown error, rethrow it (**)
             }
         }
@@ -362,6 +374,7 @@ const FormWithAction: React.FC<IFormWithAction> = (props) => {
             },
             onFinally: () => {
                 setIsLoading(false)
+                isSubmittingRef.current = false
             },
             intl,
             form,
@@ -375,8 +388,14 @@ const FormWithAction: React.FC<IFormWithAction> = (props) => {
     function handleSave () {
         // TODO(zuch) Possible bug: If user press save button and form not touched he will stay on edit screen with no response from system
         // if (form.isFieldsTouched()) {
+        if (isSubmittingRef.current) return
+        isSubmittingRef.current = true
         form.submit()
         //}
+    }
+
+    function handleSubmitFailed () {
+        isSubmittingRef.current = false
     }
 
     const errors = {}
@@ -399,7 +418,6 @@ const FormWithAction: React.FC<IFormWithAction> = (props) => {
         <Form
             form={form}
             layout={layout}
-            onFinish={_handleSubmit}
             initialValues={initialValues}
             validateTrigger={validateTrigger}
             onValuesChange={handleChange}
@@ -407,6 +425,8 @@ const FormWithAction: React.FC<IFormWithAction> = (props) => {
             scrollToFirstError
             style={style}
             {...formProps}
+            onFinish={_handleSubmit}
+            onFinishFailed={handleSubmitFailed}
         >
             <Form.Item hidden={isNonFieldErrorHidden} className='ant-non-field-error' name={NON_FIELD_ERROR_NAME}><Input /></Form.Item>
             {isFunction(children) ? children({ handleSave, isLoading, handleSubmit: _handleSubmit, form }) : children}
