@@ -314,7 +314,20 @@ const FormWithAction: React.FC<IFormWithAction> = (props) => {
 
     const _handleSubmit = useCallback((values) => {
         if (handleSubmit) {
-            return handleSubmit(values)
+            let result
+            try {
+                result = handleSubmit(values)
+            } catch (err) {
+                isSubmittingRef.current = false
+                throw err
+            }
+            if (result && typeof result.finally === 'function') {
+                return result.finally(() => {
+                    isSubmittingRef.current = false
+                })
+            }
+            isSubmittingRef.current = false
+            return result
         }
         if (values.hasOwnProperty(NON_FIELD_ERROR_NAME)) delete values[NON_FIELD_ERROR_NAME]
         let data
