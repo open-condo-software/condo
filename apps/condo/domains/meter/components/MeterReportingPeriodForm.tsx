@@ -93,7 +93,6 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
 
     const [isOrganizationPeriod, setIsOrganizationPeriod] = useState(false)
     const [selectedPropertyId, setSelectedPropertyId] = useState()
-    const [restrictionEndDay, setRestrictionEndDay] = useState(null)
 
     const { breakpoints } = useLayoutContext()
     const isSmallWindow = !breakpoints.TABLET_LARGE
@@ -106,6 +105,7 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
         isOrganizationPeriod: isCreateMode ? false : get(reportingPeriodRecord, 'property') === null,
         restrictionEndDay: isCreateMode ? null : get(reportingPeriodRecord, 'restrictionEndDay'),
     }), [isCreateMode, reportingPeriodRecord])
+    const [restrictionEndDay, setRestrictionEndDay] = useState(formInitialValues.restrictionEndDay)
 
     const startNumberRef = useRef<number>(formInitialValues.notifyStartDay)
     const finishNumberRef = useRef<number>(formInitialValues.notifyEndDay)
