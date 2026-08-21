@@ -321,13 +321,9 @@ const FormWithAction: React.FC<IFormWithAction> = (props) => {
                 isSubmittingRef.current = false
                 throw err
             }
-            if (result && typeof result.finally === 'function') {
-                return result.finally(() => {
-                    isSubmittingRef.current = false
-                })
-            }
-            isSubmittingRef.current = false
-            return result
+            return Promise.resolve(result).finally(() => {
+                isSubmittingRef.current = false
+            })
         }
         if (values.hasOwnProperty(NON_FIELD_ERROR_NAME)) delete values[NON_FIELD_ERROR_NAME]
         let data
@@ -422,8 +418,6 @@ const FormWithAction: React.FC<IFormWithAction> = (props) => {
         <Form
             form={form}
             layout={layout}
-            onFinish={_handleSubmit}
-            onFinishFailed={handleSubmitFailed}
             initialValues={initialValues}
             validateTrigger={validateTrigger}
             onValuesChange={handleChange}
@@ -431,6 +425,8 @@ const FormWithAction: React.FC<IFormWithAction> = (props) => {
             scrollToFirstError
             style={style}
             {...formProps}
+            onFinish={_handleSubmit}
+            onFinishFailed={handleSubmitFailed}
         >
             <Form.Item hidden={isNonFieldErrorHidden} className='ant-non-field-error' name={NON_FIELD_ERROR_NAME}><Input /></Form.Item>
             {isFunction(children) ? children({ handleSave, isLoading, handleSubmit: _handleSubmit, form }) : children}
