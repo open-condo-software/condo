@@ -46,6 +46,8 @@ jobs:
           name: id_rsa
           known_hosts: ${{ secrets.SSH_DOCK_SERVER_KNOWN_HOSTS }}
           if_key_exists: replace
+      - name: Prune package manifests for Docker deps layer
+        run: bash bin/prune.sh
       - name: Converge
         uses: werf/actions/converge@v1.2
         with:
