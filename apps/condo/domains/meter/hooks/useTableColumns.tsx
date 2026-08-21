@@ -208,12 +208,12 @@ export function useTableColumns <T> (
             render: getResourceRender(intl, isMeter, search),
             filterIcon: getFilterIcon,
         },
-        isPropertyMeter && !isMeter ? undefined : {
+        isPropertyMeter ? undefined : {
             title: PlaceMessage,
             filteredValue: getFilteredValue(filters, 'place'),
             dataIndex: isMeter ? 'place' : ['meter', 'place'],
             key: 'place',
-            width: isPropertyMeter ? '25%' : '8%',
+            width: '8%',
             filterDropdown: getFilterDropdownByKey(filterMetas, 'place'),
             render: getTextRender(search),
             filterIcon: getFilterIcon,
