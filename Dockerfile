@@ -30,27 +30,14 @@ RUN set -ex \
 	&& python3 -m pip install 'psycopg2-binary==2.9.10' && python3 -m pip install 'Django==5.2' \
 	&& echo "OK"
 
-# Installer
-# NOTE: werf's Dockerfile parser does not support COPY --parents, so we copy the
-# context and keep only package manifests before yarn install (no prune.sh / out/).
+# Installer / deps: only package manifests (from bin/prune.sh → ./out)
+# so yarn install is reused when application source changes.
 FROM base AS installer
 
-WORKDIR /tmp/src
-COPY --chown=app:app . .
-RUN set -ex \
-	&& mkdir -p /app \
-	&& find . \( -name package.json -o -name yarn.lock \) \
-		-not -path '*/node_modules/*' \
-		-not -path './out/*' \
-	| while read -r f; do \
-		mkdir -p "/app/$(dirname "$f")" \
-		&& cp "$f" "/app/$f"; \
-	done \
-	&& cp -a .yarn /app/.yarn \
-	&& cp .yarnrc.yml /app/ \
-	&& rm -rf /tmp/src
-
 WORKDIR /app
+COPY --chown=app:app ./out /app
+COPY --chown=app:app ./.yarn /app/.yarn
+COPY --chown=app:app ./.yarnrc.yml /app/.yarnrc.yml
 RUN --mount=type=cache,target=/usr/local/share/.cache/yarn \
 	yarn install --immutable --inline-builds
 
@@ -92,8 +79,8 @@ RUN --mount=type=cache,target=/usr/local/share/.cache/yarn \
 	&& rm -rf /app/.config /app/.cache /app/.docker  \
 	&& ls -lah /app/
 
-# Runtime container
-FROM base
+# Runtime container (werf target: runtime)
+FROM base AS runtime
 USER app:app
 WORKDIR /app
 COPY --from=builder --chown=app:app /app /app
