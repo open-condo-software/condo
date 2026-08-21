@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.7
 # Single Dockerfile for CI tests and Werf deploy.
 #
-# CI path (default for build-push-action --target runtime):
+# CI path (build-push-action --target runtime):
 #   base → installer → builder → runtime
 #
 # Werf path (cached stages linked via dependencies / build-args):
@@ -10,6 +10,10 @@
 #   apps          → target: werf-runtime    (FROM $BASE_IMAGE, build FROM $DEPS_IMAGE)
 
 ARG REGISTRY=docker.io
+# Global defaults required: werf resolves all FROM lines even for unused stages.
+# Overridden by werf dependencies imports when building werf-* targets.
+ARG BASE_IMAGE=busybox:1.36
+ARG DEPS_IMAGE=busybox:1.36
 
 FROM ${REGISTRY}/python:3.14-slim-bookworm AS python
 FROM ${REGISTRY}/node:24-bookworm-slim AS node
@@ -99,9 +103,6 @@ COPY --from=builder --chown=app:app /app /app
 # Werf-only stages: reuse published apps-base / apps-deps images via build-args
 # (not built by CI --target runtime)
 # -----------------------------------------------------------------------------
-ARG BASE_IMAGE
-ARG DEPS_IMAGE
-
 FROM ${BASE_IMAGE} AS werf-installer
 
 WORKDIR /app
