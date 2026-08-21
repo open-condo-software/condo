@@ -1,9 +1,30 @@
 project: condo
 configVersion: 1
 ---
+# Intermediate: OS + Node/Python runtime (cached when Dockerfile base stage is unchanged)
+image: apps-base
+final: false
+dockerfile: Dockerfile
+target: base
+args:
+  REGISTRY: {{ env "DOCKER_REGISTRY" }}/doma/utils
+---
+# Intermediate: yarn install from pruned manifests only (cached when lockfiles/package.json unchanged)
+image: apps-deps
+final: false
+dockerfile: Dockerfile
+target: installer
+contextAddFiles:
+  - out/
+args:
+  REGISTRY: {{ env "DOCKER_REGISTRY" }}/doma/utils
+---
+# Final Node image used by all app/worker/migration pods
 image: apps
 dockerfile: Dockerfile
-context: .
+target: runtime
+contextAddFiles:
+  - out/
 args:
   REGISTRY: {{ env "DOCKER_REGISTRY" }}/doma/utils
   TURBO_TEAM: condo-ci

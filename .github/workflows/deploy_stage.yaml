@@ -37,6 +37,8 @@ jobs:
           if_key_exists: replace
       - name: Set env for branch name
         run: echo "BRANCH_NAME=$(echo ${GITHUB_REF##*/} | sed 's/\_/-/g')" >> $GITHUB_ENV
+      - name: Prune package manifests for Docker deps layer
+        run: bash bin/prune.sh
       - name: Converge
         uses: werf/actions/converge@v1.2
         with:
