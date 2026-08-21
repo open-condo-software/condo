@@ -1590,6 +1590,8 @@ type B2BAppHistoryRecord {
   sender: JSON
   developmentExportId: String
   productionExportId: String
+  developmentModifiedAt: String
+  productionModifiedAt: String
   history_date: String
   history_action: B2BAppHistoryRecordHistoryActionType
   history_id: String
@@ -1890,6 +1892,22 @@ input B2BAppHistoryRecordWhereInput {
   productionExportId_not_ends_with_i: String
   productionExportId_in: [String]
   productionExportId_not_in: [String]
+  developmentModifiedAt: String
+  developmentModifiedAt_not: String
+  developmentModifiedAt_lt: String
+  developmentModifiedAt_lte: String
+  developmentModifiedAt_gt: String
+  developmentModifiedAt_gte: String
+  developmentModifiedAt_in: [String]
+  developmentModifiedAt_not_in: [String]
+  productionModifiedAt: String
+  productionModifiedAt_not: String
+  productionModifiedAt_lt: String
+  productionModifiedAt_lte: String
+  productionModifiedAt_gt: String
+  productionModifiedAt_gte: String
+  productionModifiedAt_in: [String]
+  productionModifiedAt_not_in: [String]
   history_date: String
   history_date_not: String
   history_date_lt: String
@@ -1973,6 +1991,10 @@ enum SortB2BAppHistoryRecordsBy {
   developmentExportId_DESC
   productionExportId_ASC
   productionExportId_DESC
+  developmentModifiedAt_ASC
+  developmentModifiedAt_DESC
+  productionModifiedAt_ASC
+  productionModifiedAt_DESC
   history_date_ASC
   history_date_DESC
   history_action_ASC
@@ -2015,6 +2037,8 @@ input B2BAppHistoryRecordUpdateInput {
   sender: JSON
   developmentExportId: String
   productionExportId: String
+  developmentModifiedAt: String
+  productionModifiedAt: String
   history_date: String
   history_action: B2BAppHistoryRecordHistoryActionType
   history_id: String
@@ -2061,6 +2085,8 @@ input B2BAppHistoryRecordCreateInput {
   sender: JSON
   developmentExportId: String
   productionExportId: String
+  developmentModifiedAt: String
+  productionModifiedAt: String
   history_date: String
   history_action: B2BAppHistoryRecordHistoryActionType
   history_id: String
@@ -2223,6 +2249,14 @@ type B2BApp {
   """ ID of this entity in the production environment. If set, subsequent publications to this environment will update the entity with the specified ID. 
   """
   productionExportId: String
+
+  """ Last time mini-app information relative to development environment was modified. Used to auto-publish need detection 
+  """
+  developmentModifiedAt: String
+
+  """ Last time mini-app information relative to production environment was modified. Used to auto-publish need detection 
+  """
+  productionModifiedAt: String
 }
 
 input B2BAppWhereInput {
@@ -2502,6 +2536,22 @@ input B2BAppWhereInput {
   productionExportId_not_ends_with_i: String
   productionExportId_in: [String]
   productionExportId_not_in: [String]
+  developmentModifiedAt: String
+  developmentModifiedAt_not: String
+  developmentModifiedAt_lt: String
+  developmentModifiedAt_lte: String
+  developmentModifiedAt_gt: String
+  developmentModifiedAt_gte: String
+  developmentModifiedAt_in: [String]
+  developmentModifiedAt_not_in: [String]
+  productionModifiedAt: String
+  productionModifiedAt_not: String
+  productionModifiedAt_lt: String
+  productionModifiedAt_lte: String
+  productionModifiedAt_gt: String
+  productionModifiedAt_gte: String
+  productionModifiedAt_in: [String]
+  productionModifiedAt_not_in: [String]
 }
 
 input B2BAppWhereUniqueInput {
@@ -2575,6 +2625,10 @@ enum SortB2BAppsBy {
   developmentExportId_DESC
   productionExportId_ASC
   productionExportId_DESC
+  developmentModifiedAt_ASC
+  developmentModifiedAt_DESC
+  productionModifiedAt_ASC
+  productionModifiedAt_DESC
 }
 
 input B2BAppUpdateInput {
@@ -2613,6 +2667,8 @@ input B2BAppUpdateInput {
   sender: SenderFieldInput
   developmentExportId: String
   productionExportId: String
+  developmentModifiedAt: String
+  productionModifiedAt: String
 }
 
 input B2BAppsUpdateInput {
@@ -2656,6 +2712,8 @@ input B2BAppCreateInput {
   sender: SenderFieldInput
   developmentExportId: String
   productionExportId: String
+  developmentModifiedAt: String
+  productionModifiedAt: String
 }
 
 input B2BAppsCreateInput {
@@ -2693,6 +2751,7 @@ type B2BAppAccessRightHistoryRecord {
   sender: JSON
   developmentExportId: String
   productionExportId: String
+  modifiedAt: String
   history_date: String
   history_action: B2BAppAccessRightHistoryRecordHistoryActionType
   history_id: String
@@ -2823,6 +2882,14 @@ input B2BAppAccessRightHistoryRecordWhereInput {
   productionExportId_not_ends_with_i: String
   productionExportId_in: [String]
   productionExportId_not_in: [String]
+  modifiedAt: String
+  modifiedAt_not: String
+  modifiedAt_lt: String
+  modifiedAt_lte: String
+  modifiedAt_gt: String
+  modifiedAt_gte: String
+  modifiedAt_in: [String]
+  modifiedAt_not_in: [String]
   history_date: String
   history_date_not: String
   history_date_lt: String
@@ -2866,6 +2933,8 @@ enum SortB2BAppAccessRightHistoryRecordsBy {
   developmentExportId_DESC
   productionExportId_ASC
   productionExportId_DESC
+  modifiedAt_ASC
+  modifiedAt_DESC
   history_date_ASC
   history_date_DESC
   history_action_ASC
@@ -2887,6 +2956,7 @@ input B2BAppAccessRightHistoryRecordUpdateInput {
   sender: JSON
   developmentExportId: String
   productionExportId: String
+  modifiedAt: String
   history_date: String
   history_action: B2BAppAccessRightHistoryRecordHistoryActionType
   history_id: String
@@ -2912,6 +2982,7 @@ input B2BAppAccessRightHistoryRecordCreateInput {
   sender: JSON
   developmentExportId: String
   productionExportId: String
+  modifiedAt: String
   history_date: String
   history_action: B2BAppAccessRightHistoryRecordHistoryActionType
   history_id: String
@@ -2980,6 +3051,10 @@ type B2BAppAccessRight {
   """ ID of this entity in the production environment. If set, subsequent publications to this environment will update the entity with the specified ID. 
   """
   productionExportId: String
+
+  """ Last time mini-app information relative to specific environment was modified. Used to auto-publish need detection 
+  """
+  modifiedAt: String
 }
 
 input B2BAppAccessRightWhereInput {
@@ -3087,6 +3162,14 @@ input B2BAppAccessRightWhereInput {
   productionExportId_not_ends_with_i: String
   productionExportId_in: [String]
   productionExportId_not_in: [String]
+  modifiedAt: String
+  modifiedAt_not: String
+  modifiedAt_lt: String
+  modifiedAt_lte: String
+  modifiedAt_gt: String
+  modifiedAt_gte: String
+  modifiedAt_in: [String]
+  modifiedAt_not_in: [String]
 }
 
 input B2BAppAccessRightWhereUniqueInput {
@@ -3120,6 +3203,8 @@ enum SortB2BAppAccessRightsBy {
   developmentExportId_DESC
   productionExportId_ASC
   productionExportId_DESC
+  modifiedAt_ASC
+  modifiedAt_DESC
 }
 
 input B2BAppAccessRightUpdateInput {
@@ -3137,6 +3222,7 @@ input B2BAppAccessRightUpdateInput {
   sender: SenderFieldInput
   developmentExportId: String
   productionExportId: String
+  modifiedAt: String
 }
 
 input B2BAppAccessRightsUpdateInput {
@@ -3159,6 +3245,7 @@ input B2BAppAccessRightCreateInput {
   sender: SenderFieldInput
   developmentExportId: String
   productionExportId: String
+  modifiedAt: String
 }
 
 input B2BAppAccessRightsCreateInput {
@@ -3246,6 +3333,7 @@ type B2BAppAccessRightSetHistoryRecord {
   sender: JSON
   developmentExportId: String
   productionExportId: String
+  modifiedAt: String
   history_date: String
   history_action: B2BAppAccessRightSetHistoryRecordHistoryActionType
   history_id: String
@@ -3490,6 +3578,14 @@ input B2BAppAccessRightSetHistoryRecordWhereInput {
   productionExportId_not_ends_with_i: String
   productionExportId_in: [String]
   productionExportId_not_in: [String]
+  modifiedAt: String
+  modifiedAt_not: String
+  modifiedAt_lt: String
+  modifiedAt_lte: String
+  modifiedAt_gt: String
+  modifiedAt_gte: String
+  modifiedAt_in: [String]
+  modifiedAt_not_in: [String]
   history_date: String
   history_date_not: String
   history_date_lt: String
@@ -3633,6 +3729,8 @@ enum SortB2BAppAccessRightSetHistoryRecordsBy {
   developmentExportId_DESC
   productionExportId_ASC
   productionExportId_DESC
+  modifiedAt_ASC
+  modifiedAt_DESC
   history_date_ASC
   history_date_DESC
   history_action_ASC
@@ -3704,6 +3802,7 @@ input B2BAppAccessRightSetHistoryRecordUpdateInput {
   sender: JSON
   developmentExportId: String
   productionExportId: String
+  modifiedAt: String
   history_date: String
   history_action: B2BAppAccessRightSetHistoryRecordHistoryActionType
   history_id: String
@@ -3779,6 +3878,7 @@ input B2BAppAccessRightSetHistoryRecordCreateInput {
   sender: JSON
   developmentExportId: String
   productionExportId: String
+  modifiedAt: String
   history_date: String
   history_action: B2BAppAccessRightSetHistoryRecordHistoryActionType
   history_id: String
@@ -3901,6 +4001,10 @@ type B2BAppAccessRightSet {
   """ ID of this entity in the production environment. If set, subsequent publications to this environment will update the entity with the specified ID. 
   """
   productionExportId: String
+
+  """ Last time mini-app information relative to specific environment was modified. Used to auto-publish need detection 
+  """
+  modifiedAt: String
 }
 
 input B2BAppAccessRightSetWhereInput {
@@ -4108,6 +4212,14 @@ input B2BAppAccessRightSetWhereInput {
   productionExportId_not_ends_with_i: String
   productionExportId_in: [String]
   productionExportId_not_in: [String]
+  modifiedAt: String
+  modifiedAt_not: String
+  modifiedAt_lt: String
+  modifiedAt_lte: String
+  modifiedAt_gt: String
+  modifiedAt_gte: String
+  modifiedAt_in: [String]
+  modifiedAt_not_in: [String]
 }
 
 input B2BAppAccessRightSetWhereUniqueInput {
@@ -4241,6 +4353,8 @@ enum SortB2BAppAccessRightSetsBy {
   developmentExportId_DESC
   productionExportId_ASC
   productionExportId_DESC
+  modifiedAt_ASC
+  modifiedAt_DESC
 }
 
 input B2BAppAccessRightSetUpdateInput {
@@ -4308,6 +4422,7 @@ input B2BAppAccessRightSetUpdateInput {
   sender: SenderFieldInput
   developmentExportId: String
   productionExportId: String
+  modifiedAt: String
 }
 
 input B2BAppAccessRightSetsUpdateInput {
@@ -4380,6 +4495,7 @@ input B2BAppAccessRightSetCreateInput {
   sender: SenderFieldInput
   developmentExportId: String
   productionExportId: String
+  modifiedAt: String
 }
 
 input B2BAppAccessRightSetsCreateInput {
@@ -4877,6 +4993,8 @@ type B2CAppHistoryRecord {
   sender: JSON
   developmentExportId: String
   productionExportId: String
+  developmentModifiedAt: String
+  productionModifiedAt: String
   history_date: String
   history_action: B2CAppHistoryRecordHistoryActionType
   history_id: String
@@ -5143,6 +5261,22 @@ input B2CAppHistoryRecordWhereInput {
   productionExportId_not_ends_with_i: String
   productionExportId_in: [String]
   productionExportId_not_in: [String]
+  developmentModifiedAt: String
+  developmentModifiedAt_not: String
+  developmentModifiedAt_lt: String
+  developmentModifiedAt_lte: String
+  developmentModifiedAt_gt: String
+  developmentModifiedAt_gte: String
+  developmentModifiedAt_in: [String]
+  developmentModifiedAt_not_in: [String]
+  productionModifiedAt: String
+  productionModifiedAt_not: String
+  productionModifiedAt_lt: String
+  productionModifiedAt_lte: String
+  productionModifiedAt_gt: String
+  productionModifiedAt_gte: String
+  productionModifiedAt_in: [String]
+  productionModifiedAt_not_in: [String]
   history_date: String
   history_date_not: String
   history_date_lt: String
@@ -5244,6 +5378,10 @@ enum SortB2CAppHistoryRecordsBy {
   developmentExportId_DESC
   productionExportId_ASC
   productionExportId_DESC
+  developmentModifiedAt_ASC
+  developmentModifiedAt_DESC
+  productionModifiedAt_ASC
+  productionModifiedAt_DESC
   history_date_ASC
   history_date_DESC
   history_action_ASC
@@ -5294,6 +5432,8 @@ input B2CAppHistoryRecordUpdateInput {
   sender: JSON
   developmentExportId: String
   productionExportId: String
+  developmentModifiedAt: String
+  productionModifiedAt: String
   history_date: String
   history_action: B2CAppHistoryRecordHistoryActionType
   history_id: String
@@ -5348,6 +5488,8 @@ input B2CAppHistoryRecordCreateInput {
   sender: JSON
   developmentExportId: String
   productionExportId: String
+  developmentModifiedAt: String
+  productionModifiedAt: String
   history_date: String
   history_action: B2CAppHistoryRecordHistoryActionType
   history_id: String
@@ -5525,6 +5667,14 @@ type B2CApp {
   """ ID of this entity in the production environment. If set, subsequent publications to this environment will update the entity with the specified ID. 
   """
   productionExportId: String
+
+  """ Last time mini-app information relative to development environment was modified. Used to auto-publish need detection 
+  """
+  developmentModifiedAt: String
+
+  """ Last time mini-app information relative to production environment was modified. Used to auto-publish need detection 
+  """
+  productionModifiedAt: String
 }
 
 input B2CAppWhereInput {
@@ -5770,6 +5920,22 @@ input B2CAppWhereInput {
   productionExportId_not_ends_with_i: String
   productionExportId_in: [String]
   productionExportId_not_in: [String]
+  developmentModifiedAt: String
+  developmentModifiedAt_not: String
+  developmentModifiedAt_lt: String
+  developmentModifiedAt_lte: String
+  developmentModifiedAt_gt: String
+  developmentModifiedAt_gte: String
+  developmentModifiedAt_in: [String]
+  developmentModifiedAt_not_in: [String]
+  productionModifiedAt: String
+  productionModifiedAt_not: String
+  productionModifiedAt_lt: String
+  productionModifiedAt_lte: String
+  productionModifiedAt_gt: String
+  productionModifiedAt_gte: String
+  productionModifiedAt_in: [String]
+  productionModifiedAt_not_in: [String]
 }
 
 input B2CAppWhereUniqueInput {
@@ -5859,6 +6025,10 @@ enum SortB2CAppsBy {
   developmentExportId_DESC
   productionExportId_ASC
   productionExportId_DESC
+  developmentModifiedAt_ASC
+  developmentModifiedAt_DESC
+  productionModifiedAt_ASC
+  productionModifiedAt_DESC
 }
 
 input B2CAppUpdateInput {
@@ -5905,6 +6075,8 @@ input B2CAppUpdateInput {
   sender: SenderFieldInput
   developmentExportId: String
   productionExportId: String
+  developmentModifiedAt: String
+  productionModifiedAt: String
 }
 
 input B2CAppsUpdateInput {
@@ -5956,6 +6128,8 @@ input B2CAppCreateInput {
   sender: SenderFieldInput
   developmentExportId: String
   productionExportId: String
+  developmentModifiedAt: String
+  productionModifiedAt: String
 }
 
 input B2CAppsCreateInput {

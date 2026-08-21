@@ -14,7 +14,9 @@ const { B2B_APP_ACCESS_RIGHT_SET_APPROVED_STATUS, B2B_APP_ACCESS_RIGHT_SET_STATU
 const { B2B_APP_ACCESS_RIGHT_SET_UNIQUE_APP_STATUS_CONSTRAINT } = require('@dev-portal-api/domains/miniapp/constants/constraints')
 const { AVAILABLE_ENVIRONMENTS, PROD_ENVIRONMENT } = require('@dev-portal-api/domains/miniapp/constants/publishing')
 const { exportable } = require('@dev-portal-api/domains/miniapp/plugins/exportable')
+const { modifiable } = require('@dev-portal-api/domains/miniapp/plugins/modifiable')
 const { getAppAccessRightSetDiffField } = require('@dev-portal-api/domains/miniapp/schema/fields/rightSetDiff')
+const { publishB2BApp } = require('@dev-portal-api/domains/miniapp/tasks/publishB2BApp')
 const { B2BAppAccessRightSet: B2BAppAccessRightSetUtils } = require('@dev-portal-api/domains/miniapp/utils/serverSchema')
 const { locker } = require('@dev-portal-api/domains/miniapp/utils/serverSchema/locks')
 
@@ -113,7 +115,23 @@ const B2BAppAccessRightSet = new GQLListSchema('B2BAppAccessRightSet', {
             }
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), exportable(), historical(), analytical()],
+    plugins: [
+        uuided(),
+        versioned(),
+        tracked(),
+        softDeleted(),
+        dvAndSender(),
+        exportable(),
+        modifiable({
+            onModify: async ({ environment, updatedItem, existingItem }) => {
+                if (updatedItem['status'] === B2B_APP_ACCESS_RIGHT_SET_APPROVED_STATUS || existingItem?.['status'] === B2B_APP_ACCESS_RIGHT_SET_APPROVED_STATUS) {
+                    await publishB2BApp.delay(updatedItem.app, environment)
+                }
+            },
+        }),
+        historical(),
+        analytical(),
+    ],
     kmigratorOptions: {
         constraints: [
             {

@@ -1,18 +1,26 @@
+const path = require('path')
+
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
-const { makeClient } = require('@open-condo/keystone/test.utils')
+const conf = require('@open-condo/config')
+const { makeClient, getUploadingFile } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
+const { B2B_APP_CATEGORIES, CONTEXT_IN_PROGRESS_STATUS, CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
+const { getDevicePermissions } = require('@condo/domains/miniapp/schema/fields/devicePermissions')
 const { AVAILABLE_ENVIRONMENTS } = require('@dev-portal-api/domains/miniapp/constants/publishing')
 const { getEnvironmentalFieldName } = require('@dev-portal-api/domains/miniapp/schema/fields/environmental')
 const {
     B2BApp,
     createTestB2BApp,
+    publishB2BAppByTestClient,
+    createOIDCClientByTestClient,
+    changeOIDCClientByTestClient,
     updateTestB2BApp,
     updateTestB2BApps,
 } = require('@dev-portal-api/domains/miniapp/utils/testSchema')
@@ -21,6 +29,9 @@ const {
     makeLoggedInSupportClient,
     makeRegisteredAndLoggedInUser,
 } = require('@dev-portal-api/domains/user/utils/testSchema')
+
+const FAKE_B2B_APP_LOGO_PATH = path.resolve(conf.PROJECT_ROOT, 'apps/dev-portal-api/domains/miniapp/utils/testSchema/assets/logo.png')
+
 
 describe('B2BApp', () => {
     let admin
@@ -192,6 +203,94 @@ describe('B2BApp', () => {
                 expect.objectContaining({ id: firstApp.id, name }),
                 expect.objectContaining({ id: secondApp.id, deletedAt: expect.stringContaining('') }),
             ]))
+        })
+    })
+    describe('Field resolve input tests', () => {
+        describe('modifiedAt', () => {
+            const commonFields = {
+                name: () => faker.commerce.productName(),
+                developer: () => faker.company.name(),
+                developerUrl: () => faker.internet.url(),
+                shortDescription: () => faker.lorem.sentence(),
+                detailedDescription: () => faker.lorem.paragraph(),
+                category: () => faker.helpers.arrayElement(B2B_APP_CATEGORIES),
+                contextDefaultStatus: () => faker.helpers.arrayElement([CONTEXT_IN_PROGRESS_STATUS, CONTEXT_FINISHED_STATUS]),
+                logo: async (client) => {
+                    return await getUploadingFile(FAKE_B2B_APP_LOGO_PATH, {
+                        user: { id: client?.user?.id },
+                        fileClientId: conf['FILE_CLIENT_ID'],
+                        modelNames: ['B2BApp'],
+                        dv: 1,
+                        sender: { dv: 1, fingerprint: 'test-test' },
+                    }, client, conf.SERVER_URL)
+                },
+            }
+            const environmentalFields = {
+                appUrl: () => {
+                    const rawUrl = new URL(faker.internet.url())
+                    if (rawUrl.protocol !== 'https:') {
+                        rawUrl.protocol = 'https:'
+                    }
+                    return rawUrl.toString()
+                },
+                ...Object.fromEntries(getDevicePermissions({ listKey: 'B2BApp' }).map(permission => [`${permission}Allowed`, () => faker.datatype.boolean()])),
+            }
+            const ignoredFields = {
+                dv: () => 1,
+                sender: () => ({ dv: 1, fingerprint: 'test-test' }),
+            }
+            describe('Must update modifiedAt fields for all environments if common field changed', () => {
+                test.each(Object.keys(commonFields))('%p field', async (fieldName) => {
+                    const [app] = await createTestB2BApp(user)
+                    expect(app).toHaveProperty('developmentModifiedAt', expect.stringContaining(''))
+                    expect(app).toHaveProperty('productionModifiedAt', expect.stringContaining(''))
+                    const fieldValue = await commonFields[fieldName](user)
+                    const [updatedApp] = await updateTestB2BApp(user, app.id, { [fieldName]: fieldValue })
+                    expect(updatedApp.developmentModifiedAt).not.toEqual(app.developmentModifiedAt)
+                    expect(updatedApp.productionModifiedAt).not.toEqual(app.productionModifiedAt)
+                })
+            })
+            describe('Must update modifiedAt for specific environment if environmental field changed', () => {
+                describe.each(AVAILABLE_ENVIRONMENTS)('%p environment',  (environment) => {
+                    test.each(Object.keys(environmentalFields))('%p field', async (fieldName) => {
+                        const [app] = await createTestB2BApp(user)
+
+                        const envModifiedAt = getEnvironmentalFieldName(environment, 'modifiedAt')
+                        const otherModifiedAt = getEnvironmentalFieldName(environment === 'development' ? 'production' : 'development', 'modifiedAt')
+
+                        expect(app).toHaveProperty(envModifiedAt, expect.stringContaining(''))
+                        expect(app).toHaveProperty(otherModifiedAt, expect.stringContaining(''))
+
+                        const envFieldName = getEnvironmentalFieldName(environment, fieldName)
+                        const fieldValue = await environmentalFields[fieldName](user)
+                        const [updatedApp] = await updateTestB2BApp(user, app.id, { [envFieldName]: fieldValue })
+
+                        expect(updatedApp[envModifiedAt]).not.toEqual(app[envModifiedAt])
+                        expect(updatedApp[otherModifiedAt]).toEqual(app[otherModifiedAt])
+                    })
+                })
+            })
+            describe('Must not update modifiedAt fields for non-related fields', () => {
+                test.each(Object.keys(ignoredFields))('%p field', async (fieldName) => {
+                    const [app] = await createTestB2BApp(user)
+                    expect(app).toHaveProperty('developmentModifiedAt', expect.stringContaining(''))
+                    expect(app).toHaveProperty('productionModifiedAt', expect.stringContaining(''))
+                    const fieldValue = await ignoredFields[fieldName](user)
+                    const [updatedApp] = await updateTestB2BApp(user, app.id, { [fieldName]: fieldValue })
+                    expect(updatedApp.developmentModifiedAt).toEqual(app.developmentModifiedAt)
+                    expect(updatedApp.productionModifiedAt).toEqual(app.productionModifiedAt)
+                })
+                test('"publishedAt" field', async () => {
+                    const [app] = await createTestB2BApp(user)
+                    expect(app).toHaveProperty('developmentModifiedAt', expect.stringContaining(''))
+                    expect(app).toHaveProperty('productionModifiedAt', expect.stringContaining(''))
+                    const [result] = await publishB2BAppByTestClient(user, app)
+                    expect(result).toHaveProperty('success', true)
+                    const updatedApp = await B2BApp.getOne(user, { id: app.id })
+                    expect(updatedApp).toHaveProperty('developmentModifiedAt', app.developmentModifiedAt)
+                    expect(updatedApp).toHaveProperty('productionModifiedAt', app.productionModifiedAt)
+                })
+            })
         })
     })
     describe('Field access tests', () => {
