@@ -158,9 +158,11 @@ export const GetPaymentsFilesDocument = gql`
     paymentPeriodEndDay
     paymentsCount
     amount
+    amountWithoutFees
     name
     status
     paymentOrder
+    bankComment
   }
   meta: _allPaymentsFilesMeta(where: $where) {
     count

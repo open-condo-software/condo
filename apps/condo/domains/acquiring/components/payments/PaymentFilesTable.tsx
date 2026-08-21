@@ -6,6 +6,7 @@ import { Gutter } from 'antd/lib/grid/row'
 import { TableRowSelection } from 'antd/lib/table/interface'
 import dayjs, { Dayjs } from 'dayjs'
 import debounce from 'lodash/debounce'
+import getConfig from 'next/config'
 import { NextRouter, useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
@@ -16,6 +17,7 @@ import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button, Checkbox, Space } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
+import { PaymentsFileDetailsModal } from '@condo/domains/acquiring/components/payments/PaymentsFileDetailsModal'
 import { PaymentsSummary } from '@condo/domains/acquiring/components/payments/PaymentsSummary'
 import useDownloadPaymentsFiles from '@condo/domains/acquiring/hooks/useDownloadPaymentsFiles'
 import { usePaymentsFilesTableColumns } from '@condo/domains/acquiring/hooks/usePaymentsFilesTableColumns'
@@ -39,13 +41,14 @@ import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/
 
 const SORTABLE_PROPERTIES = ['amount', 'loadedAt']
 const PAYMENTS_DEFAULT_SORT_BY = ['loadedAt_DESC']
-const DEFAULT_CURRENCY_CODE = 'RUB'
 const DEFAULT_DATE_RANGE: [Dayjs, Dayjs] = [dayjs().subtract(1, 'week'), dayjs()]
 const DEBOUNCE_TIMEOUT = 400
 
 const ROW_GUTTER: [Gutter, Gutter] = [0, 24]
 const TAP_BAR_ROW_GUTTER: [Gutter, Gutter] = [8, 20]
 const BOTTOM_PADDING_LIKE_ACTION_BAR: CSSProperties = { paddingBottom: '104px' }
+
+const { publicRuntimeConfig: { defaultCurrencyCode } } = getConfig()
 
 
 const PaymentFilesTableContent: React.FC = (): JSX.Element => {
@@ -68,11 +71,12 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
 
     const { filters, sorters, offset } = parseQuery(router.query)
 
-    const currencyCode = billingContexts.find(({ integration }) => !!integration.currencyCode)?.integration?.currencyCode ?? DEFAULT_CURRENCY_CODE
+    const currencyCode = billingContexts.find(({ integration }) => !!integration.currencyCode)?.integration?.currencyCode ?? defaultCurrencyCode
 
     const tableColumns = usePaymentsFilesTableColumns(currencyCode)
     const queryMetas = usePaymentsFilesTableFilters(organizationId)
     const [isFilesDownloading, setIsFilesDownloading] = useState(false)
+    const [openedPaymentsFileId, setOpenedPaymentsFileId] = useState<string | null>(null)
     const [selectedRegistryKeys, setSelectedRegistryKeys] = useState<string[]>(() => getInitialSelectedRegistryKeys(router))
     const CountSelectedRegistryMessage = intl.formatMessage({ id: 'ItemsSelectedCount' }, { count: selectedRegistryKeys.length })
 
@@ -108,6 +112,7 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
 
     const paymentsFiles = useMemo(() => data?.paymentsFiles?.filter(Boolean) || [], [data?.paymentsFiles])
     const total = useMemo(() => data?.meta?.count, [data?.meta?.count])
+    const openedPaymentsFile = useMemo(() => paymentsFiles.find(({ id }) => id === openedPaymentsFileId) || null, [openedPaymentsFileId, paymentsFiles])
 
     const { downloadPaymentsFiles } = useDownloadPaymentsFiles(refetch)
     const selectedRowKeysByPage = useMemo(() => {
@@ -127,6 +132,14 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
     const handleResetSelectedRegistry = useCallback(() => {
         setSelectedRegistryKeys([])
     }, [])
+
+    const handleClosePaymentsFileModal = useCallback(() => {
+        setOpenedPaymentsFileId(null)
+    }, [])
+
+    const handleDownloadPaymentsFile = useCallback(async (fileId: string) => {
+        await downloadPaymentsFiles([fileId])
+    }, [downloadPaymentsFiles])
 
     const handleDownloadClick = async () => {
         setIsFilesDownloading(true)
@@ -172,6 +185,26 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
             updateSelectedRegistryKeys(selectedRegistryKeys.filter(key => selectedKey !== key))
         }
     }, [selectedRegistryKeys, updateSelectedRegistryKeys])
+
+    const handlePaymentsFileRowClick = useCallback((record: IPaymentsFile) => ({
+        onKeyDown: (event) => {
+            if (event.key !== 'Enter' && event.key !== ' ') return
+            if (event.target !== event.currentTarget) return
+
+            event.preventDefault()
+            setOpenedPaymentsFileId(record.id)
+        },
+        onClick: (event) => {
+            const selection = window.getSelection()
+            if (selection && selection.type === 'Range') return
+
+            const targetColumn = (event.target as HTMLElement).closest('td')
+            if (targetColumn?.cellIndex === 0) return
+
+            setOpenedPaymentsFileId(record.id)
+        },
+        tabIndex: 0,
+    }), [])
 
     const rowSelection: TableRowSelection<IPaymentsFile> = useMemo(() => ({
         selectedRowKeys: selectedRowKeysByPage,
@@ -239,6 +272,7 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
                         totalRows={total}
                         columns={tableColumns}
                         rowSelection={rowSelection}
+                        onRow={handlePaymentsFileRowClick}
                     />
                 </Space>
             </Col>
@@ -268,6 +302,13 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
                 )}
             </Col>
             <Col style={BOTTOM_PADDING_LIKE_ACTION_BAR}></Col>
+            <PaymentsFileDetailsModal
+                open={Boolean(openedPaymentsFile)}
+                onClose={handleClosePaymentsFileModal}
+                onDownload={handleDownloadPaymentsFile}
+                paymentsFile={openedPaymentsFile}
+                currency={currencyCode}
+            />
         </Row>
     )
 }
