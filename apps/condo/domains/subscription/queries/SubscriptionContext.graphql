@@ -29,6 +29,29 @@ query getOrganizationActivatedSubscriptions($organizationId: ID!) {
     }
 }
 
+query getOrganizationActiveFeatureSubscriptionContexts($organizationId: ID!) {
+    featureSubscriptionContexts: allSubscriptionContexts(
+        where: {
+            organization: { id: $organizationId }
+            status: DONE
+            subscriptionPlan: { planType: feature }
+        }
+        sortBy: [createdAt_DESC]
+        first: 100
+    ) {
+        id
+        bindingId
+        startAt
+        endAt
+        isTrial
+        subscriptionPlan {
+            id
+            name
+            planType
+        }
+    }
+}
+
 query getOrganizationTrialSubscriptions($organizationId: ID!) {
     trialSubscriptions: allSubscriptionContexts(
         where: {
