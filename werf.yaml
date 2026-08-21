@@ -1,7 +1,7 @@
 project: condo
 configVersion: 1
 ---
-# Intermediate: OS + Node/Python runtime (cached when Dockerfile base stage is unchanged)
+# Dockerfile target: base — OS + Node/Python (cached until base stage changes)
 image: apps-base
 final: false
 dockerfile: Dockerfile
@@ -9,28 +9,41 @@ target: base
 args:
   REGISTRY: {{ env "DOCKER_REGISTRY" }}/doma/utils
 ---
-# Intermediate: yarn install from pruned manifests only (cached when lockfiles/package.json unchanged)
+# Dockerfile target: werf-installer — yarn install FROM apps-base
+# Cached until package manifests (./out) change
 image: apps-deps
 final: false
 dockerfile: Dockerfile
-target: installer
+target: werf-installer
 contextAddFiles:
   - out/
 args:
   REGISTRY: {{ env "DOCKER_REGISTRY" }}/doma/utils
+dependencies:
+  - image: apps-base
+    imports:
+      - type: ImageName
+        targetBuildArg: BASE_IMAGE
 ---
-# Final Node image used by all app/worker/migration pods
+# Dockerfile target: werf-runtime — yarn build FROM apps-deps, runtime FROM apps-base
 image: apps
 dockerfile: Dockerfile
-target: runtime
-contextAddFiles:
-  - out/
+target: werf-runtime
 args:
   REGISTRY: {{ env "DOCKER_REGISTRY" }}/doma/utils
   TURBO_TEAM: condo-ci
   TURBO_REMOTE_ONLY: "true"
   TURBO_TOKEN: {{ env "TURBO_TOKEN" }}
   TURBO_API: {{ env "TURBO_API" }}
+dependencies:
+  - image: apps-base
+    imports:
+      - type: ImageName
+        targetBuildArg: BASE_IMAGE
+  - image: apps-deps
+    imports:
+      - type: ImageName
+        targetBuildArg: DEPS_IMAGE
 ---
 image: valkeyreview
 from: valkey/valkey:8.0.2
