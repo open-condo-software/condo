@@ -961,6 +961,9 @@ jobs:
         run: |
           npm i -g turbo
           yarn install --immutable
+      - name: Prepare app
+        run: | 
+          yarn workspace @app/resident-app build:deps
       - name: Run @app/resident-app tests
         run: yarn workspace @app/resident-app test
         env:
