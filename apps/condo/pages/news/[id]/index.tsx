@@ -420,14 +420,6 @@ const NewsItemCard: React.FC = () => {
                                         fieldTitle={WillReceiveLabel}
                                         fieldValue={receiversCount == null ? '—' : String(receiversCount)}
                                     />
-                                    {
-                                        newsItem.validBefore && (
-                                            <FieldPairRow
-                                                fieldTitle={ValidBeforeLabel}
-                                                fieldValue={dayjs(newsItem.validBefore).format('YYYY.MM.DD HH:mm')}
-                                            />
-                                        )
-                                    }
                                     <FieldPairRow
                                         fieldTitle={SourceLabel}
                                         fieldValue={sourceName}

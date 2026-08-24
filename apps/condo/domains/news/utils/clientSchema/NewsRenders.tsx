@@ -17,6 +17,7 @@ import { colors } from '@open-condo/ui/colors'
 import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { LOCALES } from '@condo/domains/common/constants/locale'
+import { NEWS_ITEM_SOURCE_TYPES } from '@condo/domains/news/constants/newsItemSourceTypes'
 import { NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
 import { getCompactAddressPropertiesRender } from '@condo/domains/property/utils/clientSchema/Renders'
 
@@ -30,6 +31,8 @@ type GetRenderBodyType = (search: FilterValue) => GetRenderType
 type GetRenderNewsDateType = (intl: IntlShape, search: FilterValue) => GetRenderType
 
 type GetTypeRenderType = (intl: IntlShape, search: FilterValue) => GetRenderType
+
+type GetRenderSourceType = (intl: IntlShape, search: FilterValue) => GetRenderType
 
 type GetRenderPropertiesType = (intl: IntlShape, search: FilterValue) => GetRenderType
 
@@ -53,6 +56,18 @@ const getNewsDate = (intl, stringDate: string, format: string): string => {
     const locale = get(LOCALES, intl.locale, DEFAULT_LOCALE)
     const date = dayjs(stringDate).locale(locale)
     return date.format(format)
+}
+
+export const getRenderSource: GetRenderSourceType = (intl, search) => (source) => {
+    if (!source) return '—'
+
+    const sourceNameKey = get(source, 'name')
+        || (get(source, 'type') === NEWS_ITEM_SOURCE_TYPES.REGISTRY
+            ? 'news.source.REGISTRY.name'
+            : 'news.source.NEWS_FORM.name')
+    const sourceName = intl.formatMessage({ id: sourceNameKey as FormatjsIntl.Message['ids'] })
+
+    return getTableCellRenderer({ search, ellipsis: true })(sourceName)
 }
 
 export const getRenderTitle: GetRenderTitleType = (search) => (body) => {

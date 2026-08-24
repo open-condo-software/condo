@@ -13,7 +13,7 @@ import {
 } from '@open-condo/icons'
 import { Button, Dropdown } from '@open-condo/ui/src'
 import { ColumnSettings } from '@open-condo/ui/src/components/Table/components/ColumnSettings'
-import { DROPDOWN_TRIGGER_CLICK, DROPDOWN_TRIGGER_HOVER } from '@open-condo/ui/src/components/Table/constants'
+import { COLUMN_ID_SELECTION, DROPDOWN_TRIGGER_CLICK, DROPDOWN_TRIGGER_HOVER } from '@open-condo/ui/src/components/Table/constants'
 import type { 
     TableLabels, 
     ColumnDefWithId,
@@ -355,8 +355,9 @@ export function TableHeader <TData> ({
                         key={header.id}
                         data-header-id={header.id}
                         className={classNames(
-                            'condo-table-th', 
-                            (header.column.getIsSorted() || header.column.getIsFiltered()) && 'condo-table-th-active', 
+                            'condo-table-th',
+                            header.column.id === COLUMN_ID_SELECTION && 'condo-table-th-selection',
+                            (header.column.getIsSorted() || header.column.getIsFiltered()) && 'condo-table-th-active',
                             header.column.getIsResizing() && 'condo-table-th-resizing'
                         )}
                         style={{ 

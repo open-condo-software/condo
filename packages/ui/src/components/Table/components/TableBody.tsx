@@ -1,4 +1,5 @@
 import { Table, flexRender, RowData } from '@tanstack/react-table'
+import classNames from 'classnames'
 import React, { useCallback } from 'react'
 import { createPortal } from 'react-dom'
 
@@ -10,6 +11,7 @@ import type {
 type TableBodyProps<TData extends RowData = RowData> = Readonly<{
     table: Table<TData>
     onRowClick?: (record: TData) => void
+    getRowClassName?: (record: TData) => string | undefined
     dataLoading: boolean
     columnLabels: TableLabels
     tableContainerRef: React.RefObject<HTMLDivElement> | null
@@ -18,7 +20,8 @@ type TableBodyProps<TData extends RowData = RowData> = Readonly<{
 
 export function TableBody <TData extends RowData = RowData> ({ 
     table, 
-    onRowClick, 
+    onRowClick,
+    getRowClassName,
     dataLoading,
     columnLabels,
     tableContainerRef,
@@ -70,7 +73,7 @@ export function TableBody <TData extends RowData = RowData> ({
                 {rows.map(row => (
                     <div
                         key={row.id}
-                        className='condo-table-tr'
+                        className={classNames('condo-table-tr', getRowClassName?.(row.original))}
                         role={onRowClick ? 'button' : undefined}
                         tabIndex={onRowClick ? 0 : undefined}
                         onClick={() => onRowClick?.(row.original)}
