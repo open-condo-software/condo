@@ -157,6 +157,8 @@ const B2BApp = new GQLListSchema('B2BApp', {
         dvAndSender(),
         exportable(),
         modifiable({
+            // NOTE: API was not ready to handle app deletion events yet
+            trackDeletion: false,
             environmentField: null,
             onModify: async ({ environment, updatedItem }) => {
                 await publishB2BApp.delay(updatedItem.id, environment)

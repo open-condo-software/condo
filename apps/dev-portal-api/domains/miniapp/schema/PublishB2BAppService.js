@@ -22,7 +22,7 @@ const { APP_NOT_FOUND, FIRST_PUBLISH_WITHOUT_INFO, PUBLISH_NOT_ALLOWED, CONDO_AP
 const { B2B_APP_DEFAULT_LOGO_PATH } = require('@dev-portal-api/domains/miniapp/constants/publishing')
 const { PROD_ENVIRONMENT, PUBLISH_REQUEST_APPROVED_STATUS } = require('@dev-portal-api/domains/miniapp/constants/publishing')
 const { B2BApp, B2BAppPublishRequest, B2BAppAccessRightSet, B2BAppAccessRight } = require('@dev-portal-api/domains/miniapp/utils/serverSchema')
-const { locker } = require('@dev-portal-api/domains/miniapp/utils/serverSchema/locks')
+const { wrapResolverWithEnvironmentLock } = require('@dev-portal-api/domains/miniapp/utils/serverSchema/locks')
 
 const { extractDevicePermissionsForCondo, getEnvironmentalPermissionsFieldsSelection } = require('./fields/devicePermissions')
 const { getEnvironmentalFieldsSelection, getEnvironmentalFieldName } = require('./fields/environmental')
@@ -72,19 +72,6 @@ function getExportIdField (environment) {
 
 function getAppUrlField (environment) {
     return `${environment}AppUrl`
-}
-
-function wrapResolverWithLock (originalResolver) {
-    return async function (parent, args, contextValue, info) {
-        const { data: { app: { id }, environment } } = args
-        const lock = await locker.acquireAppLock(id, environment)
-
-        try {
-            return await originalResolver(parent, args, contextValue, info)
-        } finally {
-            await lock.release()
-        }
-    }
 }
 
 async function publishAppChanges ({ app, condoApp, serverClient, args, context }) {
@@ -485,7 +472,7 @@ const PublishB2BAppService = new GQLCustomSchema('PublishB2BAppService', {
         {
             access: access.canPublishB2BApp,
             schema: 'publishB2BApp(data: PublishB2BAppInput!): PublishB2BAppOutput',
-            resolver: wrapResolverWithLock(async (parent, args, context) => {
+            resolver: wrapResolverWithEnvironmentLock(async (parent, args, context) => {
                 const { data: { app: { id }, options, environment, dv, sender } } = args
 
                 const publishingTime = dayjs().toISOString()

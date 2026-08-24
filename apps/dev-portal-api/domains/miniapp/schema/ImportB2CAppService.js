@@ -11,6 +11,7 @@ const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 const { wrapUploadFile } = require('@open-condo/keystone/upload')
 
+
 const { REMOTE_SYSTEM } = require('@dev-portal-api/domains/common/constants/common')
 const { MULTIPLE_FOUND } = require('@dev-portal-api/domains/common/constants/errors')
 const { productionClient, developmentClient } = require('@dev-portal-api/domains/common/utils/serverClients')
@@ -19,6 +20,7 @@ const { APP_NOT_FOUND } = require('@dev-portal-api/domains/miniapp/constants/err
 const { PUBLISH_REQUEST_APPROVED_STATUS, PROD_ENVIRONMENT, DEV_ENVIRONMENT } = require('@dev-portal-api/domains/miniapp/constants/publishing')
 const { getEnvironmentalFieldsSelection } = require('@dev-portal-api/domains/miniapp/schema/fields/environmental')
 const { B2CApp, B2CAppBuild, B2CAppPublishRequest, B2CAppAccessRight } = require('@dev-portal-api/domains/miniapp/utils/serverSchema')
+const { wrapResolverWithAllEnvironmentLock } = require('@dev-portal-api/domains/miniapp/utils/serverSchema/locks')
 
 const ERRORS = {
     DEV_APP_NOT_FOUND: {
@@ -427,7 +429,7 @@ const ImportB2CAppService = new GQLCustomSchema('ImportB2CAppService', {
         {
             access: access.canImportB2CApp,
             schema: 'importB2CApp(data: ImportB2CAppInput!): ImportB2CAppOutput',
-            resolver: async (parent, args, context) => {
+            resolver: wrapResolverWithAllEnvironmentLock(async (parent, args, context) => {
                 const { data: { dv, sender, options, to: { app: { id: appId } } } } = args
 
                 // Step 0. Resolve conflicts if necessary (app was already published for some reason)
@@ -475,7 +477,7 @@ const ImportB2CAppService = new GQLCustomSchema('ImportB2CAppService', {
                 return {
                     success: true,
                 }
-            },
+            }),
         },
     ],
 })

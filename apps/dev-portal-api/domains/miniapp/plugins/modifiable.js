@@ -91,25 +91,34 @@ function _getField (environment, ignoredFields) {
  * @param {{
  *   onModify?: (args: { environment: string, existingItem: Record<string, unknown>, updatedItem: Record<string, unknown> }) => Promise<void>
  *   environmentField?: string
+ *   trackDeletion?: boolean
  * }} options
  * @param {Function} [options.onModify] - Callback invoked after a change is detected. Receives `{ environment, existingItem, updatedItem }`.
  * @param {string} [options.environmentField] - Name of the field that stores the current environment.
  *   If provided, a single `modifiedAt` field is used for all environments.
  *   If omitted, separate `modifiedAt` fields are created per environment (e.g., `devModifiedAt`, `prodModifiedAt`).
+ * @param {boolean} [options.trackDeletion] - Whether to track deletion events. Defaults to `true`.
  * @returns {{ plugin: Function }} A Keystone plugin builder.
  */
 function modifiable ({
     onModify,
+    trackDeletion = true,
     environmentField = 'environment',
 }) {
+    const ignoredFields = new Set(IGNORED_FIELDS)
+    if (trackDeletion && ignoredFields.has('deletedAt')) {
+        ignoredFields.delete('deletedAt')
+    }
+
+
     return plugin(({ fields = {}, hooks = {}, ...rest }) => {
         // NOTE: if model has separate environment field, then we add just "modifiedAt" field
         // if model has no separate environment field, then we add "modifiedAt" field for each environment
         const newFields =
             !environmentField
-                ? getEnvironmentalFields(FIELD_NAME, (environment) => _getField(environment, IGNORED_FIELDS))
+                ? getEnvironmentalFields(FIELD_NAME, (environment) => _getField(environment, [...ignoredFields]))
                 : ({
-                    [FIELD_NAME]: _getField(null, IGNORED_FIELDS),
+                    [FIELD_NAME]: _getField(null, [...ignoredFields]),
                 })
 
         async function afterChange ({ existingItem, updatedItem }) {

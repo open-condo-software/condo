@@ -149,6 +149,8 @@ const B2CApp = new GQLListSchema('B2CApp', {
         dvAndSender(),
         exportable(),
         modifiable({
+            // NOTE: API was not ready to handle app deletion events yet
+            trackDeletion: false,
             environmentField: null,
             onModify: async ({ environment, updatedItem }) => {
                 // TODO: add separate task

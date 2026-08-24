@@ -43,6 +43,7 @@ const {
     B2CAppPublishRequest,
     B2CAppAccessRight,
 } = require('@dev-portal-api/domains/miniapp/utils/serverSchema/index')
+const { wrapResolverWithEnvironmentLock } = require('@dev-portal-api/domains/miniapp/utils/serverSchema/locks')
 
 const { getEnvironmentalPermissionsFieldsSelection, extractDevicePermissionsForCondo } = require('./fields/devicePermissions')
 const { getEnvironmentalFieldsSelection, getEnvironmentalFieldName } = require('./fields/environmental')
@@ -84,27 +85,6 @@ const ERRORS = {
 }
 
 const logger = getLogger()
-const locker = new KVLocker({
-    retryCount: 10,
-    retryDelay: 500,
-    retryJitter: 100,
-    lockDuration: 60_000,
-})
-
-function wrapResolverWithLock (originalResolver) {
-    return async function (parent, args, contextValue, info) {
-        const { data: { app: { id }, environment } } = args
-
-        const lockKey = `publishB2CApp:${id}:${environment}`
-        const lock = await locker.acquire(lockKey)
-
-        try {
-            return await originalResolver(parent, args, contextValue, info)
-        } finally {
-            await lock.release()
-        }
-    }
-}
 
 function getExportIdField (environment) {
     return `${environment}ExportId`
@@ -523,7 +503,7 @@ const PublishB2CAppService = new GQLCustomSchema('PublishB2CAppService', {
         {
             access: access.canPublishB2CApp,
             schema: 'publishB2CApp(data: PublishB2CAppInput!): PublishB2CAppOutput',
-            resolver: wrapResolverWithLock(async (parent, args, context) => {
+            resolver: wrapResolverWithEnvironmentLock(async (parent, args, context) => {
                 const { data: { app: { id }, options, environment, dv, sender } } = args
 
                 const publishingTime = dayjs().toISOString()
