@@ -8,6 +8,7 @@ import { RenderTableCell, TableColumn } from '@open-condo/ui'
 import { getFilterComponentByKey, TableFiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import {
     getRenderBody,
+    getRenderSource,
     getRenderNewsDate,
     getRenderProperties,
     getRenderTitle,
@@ -22,6 +23,7 @@ const COLUMNS_WIDTH = {
     resend: '4%',
     number: '5.8%',
     type: '12%',
+    source: '12%',
     title: '16.1%',
     body: '27.6%',
     compactScopes: '20%',
@@ -34,6 +36,7 @@ export const useTableColumns = (
     const intl = useIntl()
     const NumberMessage = intl.formatMessage({ id: 'ticketsTable.Number' })
     const TypeMessage = intl.formatMessage({ id: 'global.type' })
+    const SourceMessage = intl.formatMessage({ id: 'pages.condo.news.index.tableField.source' })
     const TitleMessage = intl.formatMessage({ id: 'Title' })
     const BodyMessage = intl.formatMessage({ id: 'pages.condo.news.index.tableField.body' })
     const AddressesMessage = intl.formatMessage({ id: 'pages.condo.news.index.tableField.addresses' })
@@ -55,6 +58,11 @@ export const useTableColumns = (
 
     const renderType = useCallback<RenderTableCell<INewsItem, INewsItem['type']>>(
         (type, newsItem, _, globalFilter) => getTypeRender(intl, globalFilter)(type, newsItem),
+        [intl],
+    )
+
+    const renderSource = useCallback<RenderTableCell<INewsItem, INewsItem['source']>>(
+        (source, newsItem, _, globalFilter) => getRenderSource(intl, globalFilter)(source, newsItem),
         [intl],
     )
 
@@ -106,6 +114,15 @@ export const useTableColumns = (
             initialSize: COLUMNS_WIDTH.type,
         },
         {
+            id: 'source',
+            header: SourceMessage,
+            dataKey: 'source',
+            render: renderSource,
+            enableSorting: false,
+            initialSize: COLUMNS_WIDTH.source,
+            filterComponent: getFilterComponentByKey(filterMetas, 'source'),
+        },
+        {
             id: 'title',
             header: TitleMessage,
             dataKey: 'title',
@@ -143,6 +160,7 @@ export const useTableColumns = (
         BodyMessage,
         DateMessage,
         NumberMessage,
+        SourceMessage,
         TitleMessage,
         TypeMessage,
         filterMetas,
@@ -150,6 +168,7 @@ export const useTableColumns = (
         renderNewsDate,
         renderProperties,
         renderResendNews,
+        renderSource,
         renderTitle,
         renderType,
     ])
