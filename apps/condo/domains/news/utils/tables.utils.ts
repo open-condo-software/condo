@@ -1,27 +1,27 @@
-const {
+import { NewsItemScopeTypeType, NewsItemWhereInput } from '@app/condo/schema'
+
+import { FilterType } from '@condo/domains/common/utils/tables.utils'
+import {
     NEWS_ITEM_SCOPE_TYPE_ORGANIZATION,
     NEWS_ITEM_SCOPE_TYPE_PROPERTY,
     NEWS_ITEM_SCOPE_TYPE_PROPERTY_UNIT_TYPE,
     NEWS_ITEM_SCOPE_TYPE_PROPERTY_UNIT_TYPE_UNIT_NAME,
     NEWS_ITEM_SCOPE_TYPE_UNKNOWN,
-} = require('@condo/domains/news/constants/scopesTypes')
+} from '@condo/domains/news/constants/scopesTypes'
 
-/** @typedef {import('@app/condo/schema').NewsItemScopeTypeType} NewsItemScopeTypeType */
 
-const NEWS_AUDIENCE_ALL = 'all'
-const NEWS_AUDIENCE_PERSONAL = 'personal'
-const NEWS_AUDIENCE_COMMON = 'common'
+export const NEWS_AUDIENCE_ALL = 'all'
+export const NEWS_AUDIENCE_PERSONAL = 'personal'
+export const NEWS_AUDIENCE_COMMON = 'common'
 
-/** @type {NewsItemScopeTypeType[]} */
-const BROAD_SCOPE_TYPES = [
+const BROAD_SCOPE_TYPES: NewsItemScopeTypeType[] = [
     NEWS_ITEM_SCOPE_TYPE_ORGANIZATION,
     NEWS_ITEM_SCOPE_TYPE_PROPERTY,
     NEWS_ITEM_SCOPE_TYPE_PROPERTY_UNIT_TYPE,
     NEWS_ITEM_SCOPE_TYPE_UNKNOWN,
 ]
 
-/** @type {NewsItemScopeTypeType} */
-const PERSONAL_SCOPE_TYPE = NEWS_ITEM_SCOPE_TYPE_PROPERTY_UNIT_TYPE_UNIT_NAME
+const PERSONAL_SCOPE_TYPE: NewsItemScopeTypeType = NEWS_ITEM_SCOPE_TYPE_PROPERTY_UNIT_TYPE_UNIT_NAME
 
 /**
  * Personal = news sent to exactly one apartment.
@@ -34,7 +34,7 @@ const PERSONAL_SCOPE_TYPE = NEWS_ITEM_SCOPE_TYPE_PROPERTY_UNIT_TYPE_UNIT_NAME
  * or several apartments). Keystone where has no NOT, so this is the De Morgan
  * of the personal AND.
  */
-const getPersonalAudienceWhere = () => ({
+const getPersonalAudienceWhere = (): NewsItemWhereInput => ({
     AND: [
         {
             deletedAt: null,
@@ -57,7 +57,7 @@ const getPersonalAudienceWhere = () => ({
     ],
 })
 
-const getCommonAudienceWhere = () => ({
+const getCommonAudienceWhere = (): NewsItemWhereInput => ({
     AND: [
         {
             deletedAt: null,
@@ -84,7 +84,7 @@ const getCommonAudienceWhere = () => ({
     ],
 })
 
-const getNewsAudienceFilter = () => {
+export const getNewsAudienceFilter = (): FilterType<NewsItemWhereInput> => {
     return function getWhereQuery (option) {
         if (!option || option === NEWS_AUDIENCE_ALL) return
 
@@ -96,13 +96,4 @@ const getNewsAudienceFilter = () => {
             return getCommonAudienceWhere()
         }
     }
-}
-
-module.exports = {
-    NEWS_AUDIENCE_ALL,
-    NEWS_AUDIENCE_PERSONAL,
-    NEWS_AUDIENCE_COMMON,
-    getNewsAudienceFilter,
-    getPersonalAudienceWhere,
-    getCommonAudienceWhere,
 }
