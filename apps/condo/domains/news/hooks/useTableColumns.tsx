@@ -87,19 +87,17 @@ export const useTableColumns = (
     )
 
     return useMemo((): TableColumn<INewsItem>[] => {
-        const resendColumn: TableColumn<INewsItem> = {
-            id: 'resend',
-            header: '',
-            render: renderResendNews,
-            enableSorting: false,
-            enableColumnSettings: false,
-            enableColumnResize: false,
-            initialSize: COLUMNS_WIDTH.resend,
-            minSize: 48,
-        }
-
         return [
-            resendColumn,
+            {
+                id: 'resend',
+                header: '',
+                render: renderResendNews,
+                enableSorting: false,
+                enableColumnSettings: false,
+                enableColumnResize: false,
+                initialSize: COLUMNS_WIDTH.resend,
+                minSize: 48,
+            },
             {
                 id: 'number',
                 header: NumberMessage,

@@ -13,7 +13,7 @@ import {
     NEWS_AUDIENCE_ALL,
     NEWS_AUDIENCE_COMMON,
     NEWS_AUDIENCE_PERSONAL,
-} from '@condo/domains/news/utils/audienceFilters'
+} from '@condo/domains/news/utils/tables.utils'
 
 
 const STORAGE_KEY = 'news-audience-tour-seen'
