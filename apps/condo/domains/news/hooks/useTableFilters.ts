@@ -4,7 +4,7 @@ import { useMemo } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 
 import { ComponentType, TableFiltersMeta } from '@condo/domains/common/utils/filters.utils'
-import { getDayRangeFilter, getFilter, getStringContainsFilter } from '@condo/domains/common/utils/tables.utils'
+import { FilterType, getDayRangeFilter, getFilter, getStringContainsFilter } from '@condo/domains/common/utils/tables.utils'
 import { NEWS_ITEM_SOURCE_IDS } from '@condo/domains/news/constants/newsItemSourceIds'
 import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
 import { getNewsAudienceFilter } from '@condo/domains/news/utils/audienceFilters'
@@ -14,7 +14,7 @@ const sourceFilter = getFilter(['source', 'id'], 'array', 'string', 'in')
 const filterDateRange = getDayRangeFilter('createdAt')
 const bodyFilter = getStringContainsFilter('body')
 const titleFilter = getStringContainsFilter('title')
-const audienceFilter = getNewsAudienceFilter()
+const audienceFilter = getNewsAudienceFilter() as FilterType<INewsItemWhereInput>
 
 export type UseNewsTableFiltersReturnType = Array<TableFiltersMeta<INewsItemWhereInput>>
 
@@ -41,12 +41,12 @@ export const useTableFilters = (): UseNewsTableFiltersReturnType => {
 
     return useMemo(() => {
         return [
-            {   
-                keyword: 'search', 
+            {
+                keyword: 'search',
                 filters: [
                     titleFilter,
                     bodyFilter,
-                ], 
+                ],
                 combineType: 'OR',
             },
             {

@@ -16,6 +16,10 @@ import { useNewsItemRecipientsExportTaskUIInterface } from '@condo/domains/news/
 
 const TRACKABLE_CONDO_TASK_SCHEMA_NAMES = new Set<TrackableCondoTaskSchemaName>(['NewsItemRecipientsExportTask'])
 
+type ShowProgressBarParamsValidator = (
+    params: unknown
+) => { success: true, data: ShowProgressBarParams } | { success: false, error: string }
+
 const ShowProgressBarParamsSchema = z.object({
     message: z.string(),
     description: z.string().optional(),
@@ -137,7 +141,7 @@ export function useProgressBarHandlers () {
             'condo-bridge',
             'CondoWebAppShowProgressBar',
             '*',
-            zodSchemaToValidator(ShowProgressBarParamsSchema),
+            zodSchemaToValidator(ShowProgressBarParamsSchema) as ShowProgressBarParamsValidator,
             ({ params, source }) => {
                 const sourceOrigin = new URL(source.type === 'frame' ? source.ref.src : window.location.href).origin
 
