@@ -79,7 +79,7 @@ Provider is selected by `type` inside `EMAIL_API_CONFIG`:
 
 Zod validates only common required fields (`api_url`, `from`); any additional keys are accepted.
 Optional `doNotSendEmails: true` skips the provider call (useful in local/dev).
-Inline CID images can be passed via `meta.inlineAttachments` (Mailgun uses `inline`; other providers rewrite `cid:` to data URIs).
+Inline CID images can be passed via `meta.inlineAttachments` (Mailgun uses `inline`; Unisender Go uses `inline_attachments` with `cid:` kept in HTML; Sendsay rewrites `cid:` to data URIs).
 
 ## How to add a new provider
 
@@ -110,6 +110,9 @@ EMAIL_API_CONFIG='{"type":"unisendergo","api_url":"https://go1.unisender.ru/ru/t
 
 - `token` — Unisender Go API key (`X-API-KEY`)
 - `from` — sender email, optionally with display name (`Name <email@domain>`)
+- Tags (`useTags`): message types are truncated to **50** characters (Unisender Go API limit)
+- BCC recipients must use addresses on a domain verified in Unisender Go
+- Failure context always includes numeric HTTP `status` (Unisender `status: "error"` is kept as `providerStatus`)
 
 API key: Unisender Go dashboard → Account → Security → API key
 (or project-level key under Settings → Projects).
