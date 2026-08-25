@@ -86,8 +86,8 @@ export const useTableColumns = (
         [intl],
     )
 
-    return useMemo(() => [
-        {
+    return useMemo((): TableColumn<INewsItem>[] => {
+        const resendColumn: TableColumn<INewsItem> = {
             id: 'resend',
             header: '',
             render: renderResendNews,
@@ -96,66 +96,70 @@ export const useTableColumns = (
             enableColumnResize: false,
             initialSize: COLUMNS_WIDTH.resend,
             minSize: 48,
-        },
-        {
-            id: 'number',
-            header: NumberMessage,
-            dataKey: 'number',
-            enableSorting: true,
-            initialSize: COLUMNS_WIDTH.number,
-        },
-        {
-            id: 'type',
-            header: TypeMessage,
-            dataKey: 'type',
-            render: renderType,
-            enableSorting: false,
-            filterComponent: getFilterComponentByKey(filterMetas, 'type'),
-            initialSize: COLUMNS_WIDTH.type,
-        },
-        {
-            id: 'source',
-            header: SourceMessage,
-            dataKey: 'source',
-            render: renderSource,
-            enableSorting: false,
-            initialSize: COLUMNS_WIDTH.source,
-            filterComponent: getFilterComponentByKey(filterMetas, 'source'),
-        },
-        {
-            id: 'title',
-            header: TitleMessage,
-            dataKey: 'title',
-            render: renderTitle,
-            enableSorting: false,
-            initialSize: COLUMNS_WIDTH.title,
-        },
-        {
-            id: 'body',
-            header: BodyMessage,
-            dataKey: 'body',
-            render: renderBody,
-            enableSorting: false,
-            initialSize: COLUMNS_WIDTH.body,
-        },
-        {
-            id: 'compactScopes',
-            header: AddressesMessage,
-            dataKey: 'compactScopes',
-            render: renderProperties,
-            enableSorting: false,
-            initialSize: COLUMNS_WIDTH.compactScopes,
-        },
-        {
-            id: 'createdAt',
-            header: DateMessage,
-            dataKey: 'createdAt',
-            render: renderNewsDate,
-            enableSorting: true,
-            filterComponent: getFilterComponentByKey(filterMetas, 'createdAt'),
-            initialSize: COLUMNS_WIDTH.createdAt,
-        },
-    ], [
+        }
+
+        return [
+            resendColumn,
+            {
+                id: 'number',
+                header: NumberMessage,
+                dataKey: 'number',
+                enableSorting: true,
+                initialSize: COLUMNS_WIDTH.number,
+            },
+            {
+                id: 'type',
+                header: TypeMessage,
+                dataKey: 'type',
+                render: renderType,
+                enableSorting: false,
+                filterComponent: getFilterComponentByKey(filterMetas, 'type'),
+                initialSize: COLUMNS_WIDTH.type,
+            },
+            {
+                id: 'source',
+                header: SourceMessage,
+                dataKey: 'source',
+                render: renderSource,
+                enableSorting: false,
+                initialSize: COLUMNS_WIDTH.source,
+                filterComponent: getFilterComponentByKey(filterMetas, 'source'),
+            },
+            {
+                id: 'title',
+                header: TitleMessage,
+                dataKey: 'title',
+                render: renderTitle,
+                enableSorting: false,
+                initialSize: COLUMNS_WIDTH.title,
+            },
+            {
+                id: 'body',
+                header: BodyMessage,
+                dataKey: 'body',
+                render: renderBody,
+                enableSorting: false,
+                initialSize: COLUMNS_WIDTH.body,
+            },
+            {
+                id: 'compactScopes',
+                header: AddressesMessage,
+                dataKey: 'compactScopes',
+                render: renderProperties,
+                enableSorting: false,
+                initialSize: COLUMNS_WIDTH.compactScopes,
+            },
+            {
+                id: 'createdAt',
+                header: DateMessage,
+                dataKey: 'createdAt',
+                render: renderNewsDate,
+                enableSorting: true,
+                filterComponent: getFilterComponentByKey(filterMetas, 'createdAt'),
+                initialSize: COLUMNS_WIDTH.createdAt,
+            },
+        ]
+    }, [
         AddressesMessage,
         BodyMessage,
         DateMessage,

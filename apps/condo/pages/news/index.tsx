@@ -222,7 +222,7 @@ type NewsPageContentProps = {
     tableRef: React.RefObject<TableRef | null>
     newsWithoutFiltersCount: number
     newsWithoutFiltersCountLoading: boolean
-    newsError?: Error
+    newsError?: string
 }
 
 const NewsPageContent: React.FC<NewsPageContentProps> = ({

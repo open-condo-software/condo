@@ -1,6 +1,6 @@
 import { NewsItem as INewsItem } from '@app/condo/schema'
 import styled from '@emotion/styled'
-import { FilterValue, ColumnType } from 'antd/es/table/interface'
+import { FilterValue } from 'antd/es/table/interface'
 import { TextProps } from 'antd/es/typography/Text'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
@@ -22,19 +22,30 @@ import { NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
 import { getCompactAddressPropertiesRender } from '@condo/domains/property/utils/clientSchema/Renders'
 
 
-type GetRenderType = ColumnType<INewsItem>['render']
+type NewsTableSearch = string | undefined
 
-type GetRenderTitleType = (search: FilterValue) => GetRenderType
+type GetRenderTitleType = (search: NewsTableSearch) => (title: INewsItem['title']) => React.ReactNode
 
-type GetRenderBodyType = (search: FilterValue) => GetRenderType
+type GetRenderBodyType = (search: NewsTableSearch) => (body: INewsItem['body']) => React.ReactNode
 
-type GetRenderNewsDateType = (intl: IntlShape, search: FilterValue) => GetRenderType
+type GetRenderNewsDateType = (intl: IntlShape, search: NewsTableSearch) => (
+    createdAt: INewsItem['createdAt'],
+    news: INewsItem,
+) => React.ReactNode
 
-type GetTypeRenderType = (intl: IntlShape, search: FilterValue) => GetRenderType
+type GetTypeRenderType = (intl: IntlShape, search: NewsTableSearch) => (
+    text: INewsItem['type'],
+    newsItem: INewsItem,
+) => React.ReactNode
 
-type GetRenderSourceType = (intl: IntlShape, search: FilterValue) => GetRenderType
+type GetRenderSourceType = (intl: IntlShape, search: NewsTableSearch) => (
+    source: INewsItem['source'],
+    newsItem?: INewsItem,
+) => React.ReactNode
 
-type GetRenderPropertiesType = (intl: IntlShape, search: FilterValue) => GetRenderType
+type GetRenderPropertiesType = (intl: IntlShape, search: NewsTableSearch) => (
+    compactScopes: INewsItem['compactScopes'],
+) => React.ReactNode
 
 // TODO(DOMA-6153): rewrite to css-modules after migrating from custom style loader plugins
 export const ResendButton = styled.div`
@@ -155,5 +166,5 @@ export const getRenderProperties: GetRenderPropertiesType = (intl, search) => (c
         return '—'
     }
 
-    return getCompactAddressPropertiesRender(search)(intl, firstOnesProperties, scopeCount, MoreAddressesMessage)
+    return getCompactAddressPropertiesRender(search as unknown as FilterValue)(intl, firstOnesProperties, scopeCount, MoreAddressesMessage)
 }

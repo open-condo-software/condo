@@ -6,16 +6,22 @@ const {
     NEWS_ITEM_SCOPE_TYPE_UNKNOWN,
 } = require('@condo/domains/news/constants/scopesTypes')
 
+/** @typedef {import('@app/condo/schema').NewsItemScopeTypeType} NewsItemScopeTypeType */
+
 const NEWS_AUDIENCE_ALL = 'all'
 const NEWS_AUDIENCE_PERSONAL = 'personal'
 const NEWS_AUDIENCE_COMMON = 'common'
 
+/** @type {NewsItemScopeTypeType[]} */
 const BROAD_SCOPE_TYPES = [
     NEWS_ITEM_SCOPE_TYPE_ORGANIZATION,
     NEWS_ITEM_SCOPE_TYPE_PROPERTY,
     NEWS_ITEM_SCOPE_TYPE_PROPERTY_UNIT_TYPE,
     NEWS_ITEM_SCOPE_TYPE_UNKNOWN,
 ]
+
+/** @type {NewsItemScopeTypeType} */
+const PERSONAL_SCOPE_TYPE = NEWS_ITEM_SCOPE_TYPE_PROPERTY_UNIT_TYPE_UNIT_NAME
 
 /**
  * Personal = news sent to exactly one apartment.
@@ -39,7 +45,7 @@ const getPersonalAudienceWhere = () => ({
         {
             scopes_some: {
                 deletedAt: null,
-                type: NEWS_ITEM_SCOPE_TYPE_PROPERTY_UNIT_TYPE_UNIT_NAME,
+                type: PERSONAL_SCOPE_TYPE,
             },
         },
         {
@@ -70,7 +76,7 @@ const getCommonAudienceWhere = () => ({
                 {
                     scopes_none: {
                         deletedAt: null,
-                        type: NEWS_ITEM_SCOPE_TYPE_PROPERTY_UNIT_TYPE_UNIT_NAME,
+                        type: PERSONAL_SCOPE_TYPE,
                     },
                 },
             ],

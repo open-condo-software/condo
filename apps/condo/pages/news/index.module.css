@@ -2,22 +2,22 @@
   padding: 0 !important;
 }
 
-.pageLayout {
+.page-layout {
   display: flex;
   flex: 1;
   flex-direction: column;
   gap: 40px;
-  min-height: 0;
   height: 100%;
+  min-height: 0;
 }
 
 @media (max-width: 991px) {
-  .pageLayout {
+  .page-layout {
     gap: 24px;
   }
 }
 
-.tableContent {
+.table-content {
   display: flex;
   flex: 1;
   flex-direction: column;
