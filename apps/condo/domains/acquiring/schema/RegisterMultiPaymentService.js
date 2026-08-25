@@ -87,9 +87,9 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 const { sender, recurrentPaymentContext } = data
                 const groupedReceipts = data?.groupedReceipts || []
                 const invoices = data?.invoices || []
-                const addressKey = data?.addressKey
-                const unitType = data?.unitType
-                const unitName = data?.unitName
+                let addressKey = data?.addressKey
+                let unitType = data?.unitType
+                let unitName = data?.unitName
                 const authedItemId = context.authedItem?.id
 
                 checkDvAndSender(data, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
