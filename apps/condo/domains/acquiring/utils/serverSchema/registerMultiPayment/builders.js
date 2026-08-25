@@ -49,6 +49,9 @@ async function buildReceiptPaymentInputs ({
     receiptsByIds,
     acquiringContextsByConsumerId,
     billingIntegrationCurrencyCode,
+    addressKey,
+    unitType,
+    unitName,
     sender,
     context,
 }) {
@@ -94,6 +97,9 @@ async function buildReceiptPaymentInputs ({
                 organization: { connect: { id: acquiringContext.organization } },
                 recipientBic: receipt.recipient.bic,
                 recipientBankAccount: receipt.recipient.bankAccount,
+                addressKey,
+                unitType,
+                unitName,
                 ...paymentCommissionFields,
             })
         }
@@ -106,6 +112,9 @@ async function buildInvoicePaymentInputs ({
     foundInvoices,
     acquiringContext,
     acquiringIntegration,
+    addressKey,
+    unitType,
+    unitName,
     sender,
     context,
 }) {
@@ -137,6 +146,9 @@ async function buildInvoicePaymentInputs ({
             organization: { connect: { id: organizationId } },
             recipientBic: routingNumber,
             recipientBankAccount: bankAccount,
+            addressKey,
+            unitType,
+            unitName,
             ...paymentCommissionFields,
         })
     }

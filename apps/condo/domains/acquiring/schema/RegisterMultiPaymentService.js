@@ -70,7 +70,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
         },
         {
             access: true,
-            type: 'input RegisterMultiPaymentInput { dv: Int!, sender: SenderFieldInput!, groupedReceipts: [RegisterMultiPaymentServiceConsumerInput!], recurrentPaymentContext: RecurrentPaymentContextWhereUniqueInput, invoices: [InvoiceWhereUniqueInput!] }',
+            type: 'input RegisterMultiPaymentInput { dv: Int!, sender: SenderFieldInput!, groupedReceipts: [RegisterMultiPaymentServiceConsumerInput!], recurrentPaymentContext: RecurrentPaymentContextWhereUniqueInput, invoices: [InvoiceWhereUniqueInput!], addressKey: String, unitType: String, unitName: String }',
         },
         {
             access: true,
@@ -87,6 +87,9 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 const { sender, recurrentPaymentContext } = data
                 const groupedReceipts = data?.groupedReceipts || []
                 const invoices = data?.invoices || []
+                const addressKey = data?.addressKey
+                const unitType = data?.unitType
+                const unitName = data?.unitName
                 const authedItemId = context.authedItem?.id
 
                 checkDvAndSender(data, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
@@ -186,6 +189,27 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     await validateRecurrentPaymentContext(recurrentPaymentContext.id, context)
                 }
 
+                const hasAnyAddressField = addressKey != null || unitType != null || unitName != null
+                const hasAllAddressFields = addressKey != null && unitType != null && unitName != null
+
+                if (hasAnyAddressField && !hasAllAddressFields) {
+                    throw new GQLError(ERRORS.WRONG_ADDRESS_FIELDS, context)
+                }
+
+                if (!hasAllAddressFields) {
+                    if (mode === REQUEST_MODE.RECEIPTS && residentsById) {
+                        const firstResident = Object.values(residentsById)[0]
+                        addressKey = firstResident?.addressKey || null
+                        unitType = firstResident?.unitType || null
+                        unitName = firstResident?.unitName || null
+                    } else if (mode === REQUEST_MODE.INVOICES && foundInvoices && foundInvoices.length > 0) {
+                        const firstInvoice = foundInvoices[0]
+                        unitType = firstInvoice?.unitType || null
+                        unitName = firstInvoice?.unitName || null
+                        addressKey = firstInvoice?.property?.addressKey || null
+                    }
+                }
+
                 const paymentCreateInputs = mode === REQUEST_MODE.RECEIPTS
                     ? await buildReceiptPaymentInputs({
                         groupedReceipts,
@@ -193,6 +217,9 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                         receiptsByIds,
                         acquiringContextsByConsumerId,
                         billingIntegrationCurrencyCode,
+                        addressKey,
+                        unitType,
+                        unitName,
                         sender,
                         context,
                     })
@@ -200,6 +227,9 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                         foundInvoices,
                         acquiringContext: acquiringContexts[0],
                         acquiringIntegration,
+                        addressKey,
+                        unitType,
+                        unitName,
                         sender,
                         context,
                     })

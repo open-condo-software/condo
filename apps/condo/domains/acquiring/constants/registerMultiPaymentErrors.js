@@ -252,6 +252,13 @@ const REGISTER_MULTI_PAYMENT_ERRORS = {
         type: NOT_FOUND,
         message: 'Cannot find all BillingIntegration for specified receipts',
     },
+    WRONG_ADDRESS_FIELDS: {
+        mutation: 'registerMultiPayment',
+        variable: ['data'],
+        code: BAD_USER_INPUT,
+        type: WRONG_VALUE,
+        message: 'Address fields (addressKey, unitType, unitName) must be provided together or not at all',
+    },
 }
 
 module.exports = {

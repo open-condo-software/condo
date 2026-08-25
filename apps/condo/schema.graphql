@@ -64197,6 +64197,9 @@ type PaymentHistoryRecord {
   recipientBankAccount: String
   recipient: JSON
   rawAddress: String
+  addressKey: String
+  unitType: String
+  unitName: String
   importId: String
   frozenDistribution: JSON
   frozenSplits: JSON
@@ -64467,6 +64470,60 @@ input PaymentHistoryRecordWhereInput {
   rawAddress_not_ends_with_i: String
   rawAddress_in: [String]
   rawAddress_not_in: [String]
+  addressKey: String
+  addressKey_not: String
+  addressKey_contains: String
+  addressKey_not_contains: String
+  addressKey_starts_with: String
+  addressKey_not_starts_with: String
+  addressKey_ends_with: String
+  addressKey_not_ends_with: String
+  addressKey_i: String
+  addressKey_not_i: String
+  addressKey_contains_i: String
+  addressKey_not_contains_i: String
+  addressKey_starts_with_i: String
+  addressKey_not_starts_with_i: String
+  addressKey_ends_with_i: String
+  addressKey_not_ends_with_i: String
+  addressKey_in: [String]
+  addressKey_not_in: [String]
+  unitType: String
+  unitType_not: String
+  unitType_contains: String
+  unitType_not_contains: String
+  unitType_starts_with: String
+  unitType_not_starts_with: String
+  unitType_ends_with: String
+  unitType_not_ends_with: String
+  unitType_i: String
+  unitType_not_i: String
+  unitType_contains_i: String
+  unitType_not_contains_i: String
+  unitType_starts_with_i: String
+  unitType_not_starts_with_i: String
+  unitType_ends_with_i: String
+  unitType_not_ends_with_i: String
+  unitType_in: [String]
+  unitType_not_in: [String]
+  unitName: String
+  unitName_not: String
+  unitName_contains: String
+  unitName_not_contains: String
+  unitName_starts_with: String
+  unitName_not_starts_with: String
+  unitName_ends_with: String
+  unitName_not_ends_with: String
+  unitName_i: String
+  unitName_not_i: String
+  unitName_contains_i: String
+  unitName_not_contains_i: String
+  unitName_starts_with_i: String
+  unitName_not_starts_with_i: String
+  unitName_ends_with_i: String
+  unitName_not_ends_with_i: String
+  unitName_in: [String]
+  unitName_not_in: [String]
   importId: String
   importId_not: String
   importId_contains: String
@@ -64628,6 +64685,12 @@ enum SortPaymentHistoryRecordsBy {
   recipientBankAccount_DESC
   rawAddress_ASC
   rawAddress_DESC
+  addressKey_ASC
+  addressKey_DESC
+  unitType_ASC
+  unitType_DESC
+  unitName_ASC
+  unitName_DESC
   importId_ASC
   importId_DESC
   posReceiptUrl_ASC
@@ -64676,6 +64739,9 @@ input PaymentHistoryRecordUpdateInput {
   recipientBankAccount: String
   recipient: JSON
   rawAddress: String
+  addressKey: String
+  unitType: String
+  unitName: String
   importId: String
   frozenDistribution: JSON
   frozenSplits: JSON
@@ -64725,6 +64791,9 @@ input PaymentHistoryRecordCreateInput {
   recipientBankAccount: String
   recipient: JSON
   rawAddress: String
+  addressKey: String
+  unitType: String
+  unitName: String
   importId: String
   frozenDistribution: JSON
   frozenSplits: JSON
@@ -64943,6 +65012,14 @@ enum PaymentStatusType {
   WITHDRAWN
 }
 
+enum PaymentUnitTypeType {
+  parking
+  flat
+  apartment
+  commercial
+  warehouse
+}
+
 """ Information about completed transaction from user to a specific organization 
 """
 type Payment {
@@ -65044,6 +65121,18 @@ type Payment {
 
   """ Non-normalized address that was imported from the organization """
   rawAddress: String
+
+  """ Address key that identifies which resident made the payment. Used for anonymous invoice payments via mobile app 
+  """
+  addressKey: String
+
+  """ Type of unit, such as parking lot or flat. Used together with unitName to identify which resident made the payment 
+  """
+  unitType: PaymentUnitTypeType
+
+  """ Property unit name. Used together with unitType to identify which resident made the payment for anonymous invoice payments via mobile app 
+  """
+  unitName: String
 
   """ Id of object in external service which represents current item. Mostly used for internal needs of integration services for matching our objects with theirs 
   """
@@ -65294,6 +65383,46 @@ input PaymentWhereInput {
   rawAddress_not_ends_with_i: String
   rawAddress_in: [String]
   rawAddress_not_in: [String]
+  addressKey: String
+  addressKey_not: String
+  addressKey_contains: String
+  addressKey_not_contains: String
+  addressKey_starts_with: String
+  addressKey_not_starts_with: String
+  addressKey_ends_with: String
+  addressKey_not_ends_with: String
+  addressKey_i: String
+  addressKey_not_i: String
+  addressKey_contains_i: String
+  addressKey_not_contains_i: String
+  addressKey_starts_with_i: String
+  addressKey_not_starts_with_i: String
+  addressKey_ends_with_i: String
+  addressKey_not_ends_with_i: String
+  addressKey_in: [String]
+  addressKey_not_in: [String]
+  unitType: PaymentUnitTypeType
+  unitType_not: PaymentUnitTypeType
+  unitType_in: [PaymentUnitTypeType]
+  unitType_not_in: [PaymentUnitTypeType]
+  unitName: String
+  unitName_not: String
+  unitName_contains: String
+  unitName_not_contains: String
+  unitName_starts_with: String
+  unitName_not_starts_with: String
+  unitName_ends_with: String
+  unitName_not_ends_with: String
+  unitName_i: String
+  unitName_not_i: String
+  unitName_contains_i: String
+  unitName_not_contains_i: String
+  unitName_starts_with_i: String
+  unitName_not_starts_with_i: String
+  unitName_ends_with_i: String
+  unitName_not_ends_with_i: String
+  unitName_in: [String]
+  unitName_not_in: [String]
   importId: String
   importId_not: String
   importId_contains: String
@@ -65445,6 +65574,12 @@ enum SortPaymentsBy {
   recipientBankAccount_DESC
   rawAddress_ASC
   rawAddress_DESC
+  addressKey_ASC
+  addressKey_DESC
+  unitType_ASC
+  unitType_DESC
+  unitName_ASC
+  unitName_DESC
   importId_ASC
   importId_DESC
   posReceiptUrl_ASC
@@ -65493,6 +65628,9 @@ input PaymentUpdateInput {
   recipientBankAccount: String
   recipient: RecipientFieldInput
   rawAddress: String
+  addressKey: String
+  unitType: PaymentUnitTypeType
+  unitName: String
   importId: String
   frozenDistribution: JSON
   frozenSplits: JSON
@@ -65539,6 +65677,9 @@ input PaymentCreateInput {
   recipientBankAccount: String
   recipient: RecipientFieldInput
   rawAddress: String
+  addressKey: String
+  unitType: PaymentUnitTypeType
+  unitName: String
   importId: String
   frozenDistribution: JSON
   frozenSplits: JSON
@@ -95926,6 +96067,9 @@ input RegisterMultiPaymentInput {
   groupedReceipts: [RegisterMultiPaymentServiceConsumerInput!]
   recurrentPaymentContext: RecurrentPaymentContextWhereUniqueInput
   invoices: [InvoiceWhereUniqueInput!]
+  addressKey: String
+  unitType: String
+  unitName: String
 }
 
 type RegisterMultiPaymentOutput {
