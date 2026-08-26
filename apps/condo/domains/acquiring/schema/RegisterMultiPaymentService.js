@@ -34,6 +34,7 @@ const {
     loadAcquiringContextsForConsumers,
     loadAcquiringContextsForInvoices,
 } = require('@condo/domains/acquiring/utils/serverSchema/registerMultiPayment/loaders')
+const { find } = require('@open-condo/keystone/schema')
 const {
     validateAcquiringIntegrationExists,
     validateAllPaymentAmountsPositive,
@@ -87,9 +88,9 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 const { sender, recurrentPaymentContext } = data
                 const groupedReceipts = data?.groupedReceipts || []
                 const invoices = data?.invoices || []
-                let addressKey = data?.addressKey
-                let unitType = data?.unitType
-                let unitName = data?.unitName
+                const inputAddressKey = data?.addressKey
+                const inputUnitType = data?.unitType
+                const inputUnitName = data?.unitName
                 const authedItemId = context.authedItem?.id
 
                 checkDvAndSender(data, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
@@ -189,24 +190,74 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     await validateRecurrentPaymentContext(recurrentPaymentContext.id, context)
                 }
 
-                const hasAnyAddressField = addressKey != null || unitType != null || unitName != null
-                const hasAllAddressFields = addressKey != null && unitType != null && unitName != null
+                const hasAnyAddressField = inputAddressKey != null || inputUnitType != null || inputUnitName != null
+                const hasAllAddressFields = inputAddressKey != null && inputUnitType != null && inputUnitName != null
 
                 if (hasAnyAddressField && !hasAllAddressFields) {
                     throw new GQLError(ERRORS.WRONG_ADDRESS_FIELDS, context)
                 }
 
-                if (!hasAllAddressFields) {
-                    if (mode === REQUEST_MODE.RECEIPTS && residentsById) {
-                        const firstResident = Object.values(residentsById)[0]
-                        addressKey = firstResident?.addressKey || null
-                        unitType = firstResident?.unitType || null
-                        unitName = firstResident?.unitName || null
+                let resolvedAddressKey, resolvedUnitType, resolvedUnitName
+
+                if (hasAllAddressFields) {
+                    // User explicitly passed all three fields — convert scalar values to maps per entity in a single pass
+                    if (mode === REQUEST_MODE.RECEIPTS) {
+                        const resolved = groupedReceipts.reduce((acc, group) => {
+                            for (const receiptInfo of group.receipts) {
+                                acc.addressKey[receiptInfo.id] = inputAddressKey
+                                acc.unitType[receiptInfo.id] = inputUnitType
+                                acc.unitName[receiptInfo.id] = inputUnitName
+                            }
+                            return acc
+                        }, { addressKey: {}, unitType: {}, unitName: {} })
+                        resolvedAddressKey = resolved.addressKey
+                        resolvedUnitType = resolved.unitType
+                        resolvedUnitName = resolved.unitName
                     } else if (mode === REQUEST_MODE.INVOICES && foundInvoices && foundInvoices.length > 0) {
-                        const firstInvoice = foundInvoices[0]
-                        unitType = firstInvoice?.unitType || null
-                        unitName = firstInvoice?.unitName || null
-                        addressKey = firstInvoice?.property?.addressKey || null
+                        const resolved = foundInvoices.reduce((acc, inv) => {
+                            acc.addressKey[inv.id] = inputAddressKey
+                            acc.unitType[inv.id] = inputUnitType
+                            acc.unitName[inv.id] = inputUnitName
+                            return acc
+                        }, { addressKey: {}, unitType: {}, unitName: {} })
+                        resolvedAddressKey = resolved.addressKey
+                        resolvedUnitType = resolved.unitType
+                        resolvedUnitName = resolved.unitName
+                    }
+                } else {
+                    if (mode === REQUEST_MODE.RECEIPTS && residentsById) {
+                        // build address maps per receipt in a single pass
+                        // (each receipt belongs to a serviceConsumer with its resident)
+                        const resolved = groupedReceipts.reduce((acc, group) => {
+                            const serviceConsumer = consumersByIds[group.serviceConsumer.id]
+                            const resident = residentsById[serviceConsumer?.resident]
+                            for (const receiptInfo of group.receipts) {
+                                acc.addressKey[receiptInfo.id] = resident?.addressKey ?? null
+                                acc.unitType[receiptInfo.id] = resident?.unitType ?? null
+                                acc.unitName[receiptInfo.id] = resident?.unitName ?? null
+                            }
+                            return acc
+                        }, { addressKey: {}, unitType: {}, unitName: {} })
+                        resolvedAddressKey = resolved.addressKey
+                        resolvedUnitType = resolved.unitType
+                        resolvedUnitName = resolved.unitName
+                    } else if (mode === REQUEST_MODE.INVOICES && foundInvoices && foundInvoices.length > 0) {
+                        const propertyIds = foundInvoices.map(inv => inv.property).filter(Boolean)
+                        const properties = propertyIds.length > 0
+                            ? await find('Property', { id_in: propertyIds })
+                            : []
+                        const propertyById = Object.fromEntries(properties.map(p => [p.id, p]))
+
+                        const resolved = foundInvoices.reduce((acc, inv) => {
+                            const property = propertyById[inv.property]
+                            acc.addressKey[inv.id] = property?.addressKey ?? null
+                            acc.unitType[inv.id] = inv?.unitType ?? null
+                            acc.unitName[inv.id] = inv?.unitName ?? null
+                            return acc
+                        }, { addressKey: {}, unitType: {}, unitName: {} })
+                        resolvedAddressKey = resolved.addressKey
+                        resolvedUnitType = resolved.unitType
+                        resolvedUnitName = resolved.unitName
                     }
                 }
 
@@ -217,9 +268,9 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                         receiptsByIds,
                         acquiringContextsByConsumerId,
                         billingIntegrationCurrencyCode,
-                        addressKey,
-                        unitType,
-                        unitName,
+                        resolvedAddressKey,
+                        resolvedUnitType,
+                        resolvedUnitName,
                         sender,
                         context,
                     })
@@ -227,9 +278,9 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                         foundInvoices,
                         acquiringContext: acquiringContexts[0],
                         acquiringIntegration,
-                        addressKey,
-                        unitType,
-                        unitName,
+                        resolvedAddressKey,
+                        resolvedUnitType,
+                        resolvedUnitName,
                         sender,
                         context,
                     })
