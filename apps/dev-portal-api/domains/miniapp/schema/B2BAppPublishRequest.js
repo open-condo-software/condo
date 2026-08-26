@@ -12,10 +12,12 @@ const access = require('@dev-portal-api/domains/miniapp/access/B2BAppPublishRequ
 const { B2B_APP_PUBLISH_REQUEST_UNIQUE_CONSTRAINT } = require('@dev-portal-api/domains/miniapp/constants/constraints')
 const { APPROVE_NOT_ALLOWED } = require('@dev-portal-api/domains/miniapp/constants/errors')
 const {
+    PROD_ENVIRONMENT,
     PUBLISH_REQUEST_APPROVED_STATUS,
     PUBLISH_REQUEST_STATUS_OPTIONS,
     PUBLISH_REQUEST_PENDING_STATUS,
 } = require('@dev-portal-api/domains/miniapp/constants/publishing')
+const { publishB2BApp } = require('@dev-portal-api/domains/miniapp/tasks/publishB2BApp')
 
 const ERRORS = {
     APPROVE_NOT_ALLOWED: {
@@ -118,6 +120,11 @@ const B2BAppPublishRequest = new GQLListSchema('B2BAppPublishRequest', {
                 if (!newItem['isAppTested'] || !newItem['isContractSigned'] || !newItem['isInfoApproved']) {
                     throw new GQLError(ERRORS.APPROVE_NOT_ALLOWED, context)
                 }
+            }
+        },
+        async afterChange ({ updatedItem }) {
+            if (updatedItem['status'] === PUBLISH_REQUEST_APPROVED_STATUS && !updatedItem['deletedAt']) {
+                await publishB2BApp.delay(updatedItem['app'], PROD_ENVIRONMENT)
             }
         },
     },

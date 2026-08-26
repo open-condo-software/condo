@@ -23,13 +23,11 @@ async function publishB2BApp (appId, environment) {
 
     try {
         await publishB2BAppUtil(context, {
-            data: {
-                dv: 1,
-                sender: { dv: 1, fingerprint: 'publish-b2b-app-task' },
-                app: { id: appId },
-                environment,
-                options: { info: true },
-            },
+            dv: 1,
+            sender: { dv: 1, fingerprint: 'publish-b2b-app-task' },
+            app: { id: appId },
+            environment,
+            options: { info: true },
         })
         logger.info({
             msg: 'Application was successfully synced with condo',
