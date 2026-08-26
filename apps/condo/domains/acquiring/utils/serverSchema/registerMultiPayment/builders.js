@@ -43,15 +43,35 @@ async function resolveReceiptAmount ({
     return String(Big(receipt.toPay).minus(Big(paidAmount)))
 }
 
+/**
+ * Builds payment input objects for a multi-payment request grouped by receipts.
+ *
+ * Each receipt from `groupedReceipts` gets its own Payment record with address
+ * information resolved from the corresponding resident of the owning serviceConsumer.
+ *
+ * @param {Object} params
+ * @param {Array<Object>} params.groupedReceipts - Receipts grouped by serviceConsumer.
+ *   Each element: { serviceConsumer: { id: string }, receipts: Array<{ id: string }>, amountDistribution?: Array<{ receipt: { id: string }, amount: string }> }
+ * @param {Record<string, Object>} params.consumersByIds - Map of serviceConsumer objects by ID.
+ * @param {Record<string, Object>} params.receiptsByIds - Map of receipt objects by ID.
+ * @param {Record<string, Object>} params.acquiringContextsByConsumerId - Map of acquiringContext by consumer ID.
+ * @param {string} params.billingIntegrationCurrencyCode - Currency code for payments.
+ * @param {Record<string, string>} params.addressKeysMap - Map from receipt.id → addressKey.
+ * @param {Record<string, string>} params.unitTypesMap - Map from receipt.id → unitType.
+ * @param {Record<string, string>} params.unitNamesMap - Map from receipt.id → unitName.
+ * @param {Object} params.sender - Sender field for dv/double-version validation.
+ * @param {Object} params.context - Keystone context.
+ * @returns {Promise<Array<Object>>} Array of payment input objects ready for `Payment.create()`.
+ */
 async function buildReceiptPaymentInputs ({
     groupedReceipts,
     consumersByIds,
     receiptsByIds,
     acquiringContextsByConsumerId,
     billingIntegrationCurrencyCode,
-    addressKey,
-    unitType,
-    unitName,
+    addressKeysMap,
+    unitTypesMap,
+    unitNamesMap,
     sender,
     context,
 }) {
@@ -84,6 +104,10 @@ async function buildReceiptPaymentInputs ({
             const { type, explicitFee = '0', implicitFee = '0', fromReceiptAmountFee = '0' } = feeCalculator.calculate(amount)
             const paymentCommissionFields = buildCommissionFields({ type, explicitFee, implicitFee, fromReceiptAmountFee })
 
+            const receiptAddressKey = addressKeysMap[receiptInfo.id] ?? null
+            const receiptUnitType = unitTypesMap[receiptInfo.id] ?? null
+            const receiptUnitName = unitNamesMap[receiptInfo.id] ?? null
+
             paymentCreateInputs.push({
                 dv: 1,
                 sender,
@@ -97,9 +121,9 @@ async function buildReceiptPaymentInputs ({
                 organization: { connect: { id: acquiringContext.organization } },
                 recipientBic: receipt.recipient.bic,
                 recipientBankAccount: receipt.recipient.bankAccount,
-                addressKey,
-                unitType,
-                unitName,
+                addressKey: receiptAddressKey,
+                unitType: receiptUnitType,
+                unitName: receiptUnitName,
                 ...paymentCommissionFields,
             })
         }
@@ -108,13 +132,30 @@ async function buildReceiptPaymentInputs ({
     return paymentCreateInputs
 }
 
+/**
+ * Builds payment input objects for a multi-payment request grouped by invoices.
+ *
+ * Each invoice gets its own Payment record with address information resolved from
+ * the invoice's property (or directly from the invoice fields if no property is linked).
+ *
+ * @param {Object} params
+ * @param {Array<Object>} params.foundInvoices - Invoice objects to create payments for.
+ * @param {Object} params.acquiringContext - The acquiring context associated with these invoices.
+ * @param {Object} params.acquiringIntegration - The acquiring integration configuration (fee schemas, supported billing integrations, hostUrl).
+ * @param {Record<string, string>} params.addressKeysMap - Map from invoice.id → addressKey.
+ * @param {Record<string, string>} params.unitTypesMap - Map from invoice.id → unitType.
+ * @param {Record<string, string>} params.unitNamesMap - Map from invoice.id → unitName.
+ * @param {Object} params.sender - Sender field for dv/double-version validation.
+ * @param {Object} params.context - Keystone context.
+ * @returns {Promise<Array<Object>>} Array of payment input objects ready for `Payment.create()`.
+ */
 async function buildInvoicePaymentInputs ({
     foundInvoices,
     acquiringContext,
     acquiringIntegration,
-    addressKey,
-    unitType,
-    unitName,
+    addressKeysMap,
+    unitTypesMap,
+    unitNamesMap,
     sender,
     context,
 }) {
@@ -134,6 +175,10 @@ async function buildInvoicePaymentInputs ({
         const { type, explicitFee = '0', implicitFee = '0', fromReceiptAmountFee = '0' } = feeCalculator.calculate(amount)
         const paymentCommissionFields = buildCommissionFields({ type, explicitFee, implicitFee, fromReceiptAmountFee })
 
+        const invoiceAddressKey = addressKeysMap[invoice.id] ?? null
+        const invoiceUnitType = unitTypesMap[invoice.id] ?? null
+        const invoiceUnitName = unitNamesMap[invoice.id] ?? null
+
         paymentCreateInputs.push({
             dv: 1,
             sender,
@@ -146,9 +191,9 @@ async function buildInvoicePaymentInputs ({
             organization: { connect: { id: organizationId } },
             recipientBic: routingNumber,
             recipientBankAccount: bankAccount,
-            addressKey,
-            unitType,
-            unitName,
+            addressKey: invoiceAddressKey,
+            unitType: invoiceUnitType,
+            unitName: invoiceUnitName,
             ...paymentCommissionFields,
         })
     }
