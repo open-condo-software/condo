@@ -4,15 +4,7 @@ import ym from 'react-yandex-metrika'
 
 import type { AnalyticsPlugin } from '@open-condo/miniapp-utils'
 
-/**
- * Bridges Metrika into the generic analytics layer:
- * - exposes its own client_id as a visitor id, so other providers can link to it
- * - receives other providers' visitor ids through the standard "identify" traits,
- *   and forwards them into Metrika's own "userParams"
- *
- * The actual Metrika SDK/counter setup and page-view tracking live in the
- * <YandexMetrika/> component — this plugin only bridges ids between systems.
- */
+// Only bridges visitor ids with other providers; counter setup and hit tracking live in <YandexMetrika/>
 export const yMetrikaAnalyticsPlugin: AnalyticsPlugin = {
     name: 'yMetrika',
     identify: ({ payload }) => {
