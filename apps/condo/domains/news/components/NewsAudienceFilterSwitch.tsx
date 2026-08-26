@@ -35,13 +35,6 @@ const NewsAudienceFilterTour: React.FC<NewsAudienceFilterTourProps> = ({ title, 
 
     useEffect(() => {
         const handleClick = (event: MouseEvent) => {
-            const target = event.target
-            if (target instanceof Element && (
-                target.closest('#news-audience-filter') ||
-                target.closest('.condo-popover')
-            )) {
-                return
-            }
             setCurrentStep(-1)
         }
         document.addEventListener('click', handleClick, true)
