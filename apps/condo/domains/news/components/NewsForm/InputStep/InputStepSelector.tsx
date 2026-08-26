@@ -265,7 +265,7 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
                                 <HiddenBlock hide={newsItemForOneProperty}>
                                     <GraphQlSearchInputWithCheckAll
                                         checkAllFieldName='hasAllProperties'
-                                        checkAllInitialValue={!!form.getFieldValue('hasAllProperties') || !!initialFormValues?.hasAllProperties}
+                                        checkAllInitialValue={!!initialFormValues?.hasAllProperties}
                                         selectFormItemProps={propertySelectFormItemProps}
                                         selectProps={propertySelectProps(form)}
                                         onCheckBoxChange={propertyCheckboxChange(form)}
@@ -326,7 +326,7 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
                                     CheckAllMessage={CheckAllLabel}
                                     checkAllFieldName='hasAllCustom'
                                     selectProps={customSelectProps}
-                                    checkAllInitialValue={!!form.getFieldValue('hasAllCustom') || !!initialValues?.hasAllCustom}
+                                    checkAllInitialValue={!!initialValues?.hasAllCustom}
                                     onCheckBoxChange={customCheckboxChange()}
                                     form={form}
                                     selectFormItemProps={customSelectFormItemProps}

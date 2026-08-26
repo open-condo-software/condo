@@ -503,6 +503,16 @@ export type GetNewsItemsRecipientsCountersQueryVariables = Types.Exact<{
 
 export type GetNewsItemsRecipientsCountersQuery = { __typename?: 'Query', result?: { __typename?: 'GetNewsItemsRecipientsCountersOutput', propertiesCount: number, unitsCount: number, receiversCount: number } | null };
 
+export type GetNewsItemsForTableQueryVariables = Types.Exact<{
+  where?: Types.InputMaybe<Types.NewsItemWhereInput>;
+  first?: Types.InputMaybe<Types.Scalars['Int']['input']>;
+  skip?: Types.InputMaybe<Types.Scalars['Int']['input']>;
+  sortBy?: Types.InputMaybe<Array<Types.SortNewsItemsBy> | Types.SortNewsItemsBy>;
+}>;
+
+
+export type GetNewsItemsForTableQuery = { __typename?: 'Query', objs?: Array<{ __typename?: 'NewsItem', id: string, number?: number | null, type?: Types.NewsItemTypeType | null, title?: string | null, body?: string | null, sendAt?: string | null, sentAt?: string | null, isPublished?: boolean | null, validBefore?: string | null, createdAt?: string | null, source?: { __typename?: 'NewsItemSource', id: string, type?: Types.NewsItemSourceTypeType | null, name?: string | null } | null, compactScopes?: { __typename?: 'ShortScopesField', count: number, firstOnes: Array<{ __typename?: 'NewsItemScope', id: string, unitType?: Types.NewsItemScopeUnitTypeType | null, unitName?: string | null, property?: { __typename?: 'Property', id: string, address?: string | null, addressMeta?: { __typename?: 'AddressMetaField', data: { __typename?: 'AddressMetaDataField', street_with_type?: string | null, house_type?: string | null, house?: string | null, block_type?: string | null, block?: string | null, flat_type?: string | null, flat?: string | null, region_type_full?: string | null, region: string, region_with_type?: string | null, city_with_type?: string | null, city?: string | null, settlement_with_type?: string | null, area_with_type?: string | null } } | null } | null } | null> } | null } | null> | null, meta?: { __typename?: '_QueryMeta', count?: number | null } | null };
+
 export type CreateNewsItemFileMutationVariables = Types.Exact<{
   data: Types.NewsItemFileCreateInput;
 }>;

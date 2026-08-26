@@ -1,3 +1,4 @@
+import { useGetNewsItemsForTableLazyQuery } from '@app/condo/gql'
 import {
     NewsItem as INewsItem,
     NewsItemWhereInput,
@@ -12,7 +13,6 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 
 import { Search } from '@open-condo/icons'
-import { useLazyQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import {
@@ -45,7 +45,6 @@ import { defaultParseUrlQuery, defaultUpdateUrlQuery } from '@condo/domains/comm
 import { NewsAudienceFilterSwitch } from '@condo/domains/news/components/NewsAudienceFilterSwitch'
 import { NewsReadPermissionRequired } from '@condo/domains/news/components/PageAccess'
 import { NEWS_ITEM_SOURCE_IDS } from '@condo/domains/news/constants/newsItemSourceIds'
-import { NewsItem as NewsItemGQL } from '@condo/domains/news/gql'
 import { useNewsItemsAccess } from '@condo/domains/news/hooks/useNewsItemsAccess'
 import { useTableColumns } from '@condo/domains/news/hooks/useTableColumns'
 import { useTableFilters, UseNewsTableFiltersReturnType } from '@condo/domains/news/hooks/useTableFilters'
@@ -90,7 +89,7 @@ const NewsTableContainer: React.FC<NewsTableContainerProps> = ({
     const { filters: urlFilters } = useMemo(() => parseQuery(router.query), [router.query])
     const audience = urlFilters[AUDIENCE_FILTER_KEY]
 
-    const [fetchNews] = useLazyQuery(NewsItemGQL.GET_ALL_OBJS_WITH_COUNT_QUERY)
+    const [fetchNews] = useGetNewsItemsForTableLazyQuery()
     const initialTableState = useMemo(
         () => defaultParseUrlQuery(router.query, DEFAULT_PAGE_SIZE),
         [router.query],
@@ -135,8 +134,10 @@ const NewsTableContainer: React.FC<NewsTableContainerProps> = ({
                 fetchPolicy: 'network-only',
             })
 
+            const rowData = (data?.objs?.filter(Boolean) ?? []) as unknown as INewsItem[]
+
             return {
-                rowData: data?.objs?.filter(Boolean) ?? [],
+                rowData,
                 rowCount: data?.meta?.count ?? 0,
             }
         } catch (error) {
@@ -145,7 +146,14 @@ const NewsTableContainer: React.FC<NewsTableContainerProps> = ({
         }
     }, [audience, baseNewsQuery, fetchNews, filtersToWhere, sortersToSortBy])
 
+    const isInitialRefetchSkipped = useRef(true)
+
     useEffect(() => {
+        if (isInitialRefetchSkipped.current) {
+            isInitialRefetchSkipped.current = false
+            return
+        }
+
         tableRef.current?.api?.refetchData()
     }, [audience, baseNewsQuery, tableRef])
 
@@ -299,6 +307,7 @@ const NewsPage: PageComponentType = () => {
 
     const { link, organization } = useOrganization()
     const employeeId = get(link, 'id')
+    const organizationId = organization?.id
     const { isLoading: isAccessLoading } = useNewsItemsAccess()
     const tableRef = useRef<TableRef | null>(null)
 
@@ -306,14 +315,14 @@ const NewsPage: PageComponentType = () => {
     usePreviousSortAndFilters({ employeeSpecificKey: employeeId })
 
     const baseNewsQuery = useMemo(() => ({
-        organization: { id: organization.id },
+        organization: { id: organizationId ?? '' },
         source: {
             id_in: [
                 NEWS_ITEM_SOURCE_IDS.NEWS_FORM,
                 NEWS_ITEM_SOURCE_IDS.REGISTRY,
             ],
         },
-    }), [organization.id])
+    }), [organizationId])
 
     const filterMetas = useTableFilters()
 
@@ -321,10 +330,10 @@ const NewsPage: PageComponentType = () => {
         count: newsWithoutFiltersCount,
         loading: newsWithoutFiltersCountLoading,
         error: newsError,
-    } = NewsItem.useCount({ where: baseNewsQuery })
+    } = NewsItem.useCount({ where: baseNewsQuery }, { skip: !organizationId })
     const isNewsExists = (newsWithoutFiltersCount ?? 0) > 0
 
-    if (isAccessLoading) {
+    if (isAccessLoading || !organizationId) {
         return <LoadingOrErrorPage error='' loading={true}/>
     }
 

@@ -30,11 +30,20 @@ const NewsAudienceFilterTour: React.FC<NewsAudienceFilterTourProps> = ({ title, 
     const { setCurrentStep } = Tour.useTourContext()
 
     useEffect(() => {
-        try { localStorage.setItem(STORAGE_KEY, '1') } catch (e) { console.error(e) }
+        try { localStorage.setItem(STORAGE_KEY, '1') } catch { /* ignore */ }
     }, [])
 
     useEffect(() => {
-        const handleClick = () => setCurrentStep(-1)
+        const handleClick = (event: MouseEvent) => {
+            const target = event.target
+            if (target instanceof Element && (
+                target.closest('#news-audience-filter') ||
+                target.closest('.condo-popover')
+            )) {
+                return
+            }
+            setCurrentStep(-1)
+        }
         document.addEventListener('click', handleClick, true)
         return () => document.removeEventListener('click', handleClick, true)
     }, [setCurrentStep])
@@ -82,9 +91,7 @@ export const NewsAudienceFilterSwitch: React.FC = () => {
             if (localStorage.getItem(STORAGE_KEY) !== '1') {
                 setShowTour(true)
             }
-        } catch (e) {
-            console.error(e)
-        }
+        } catch { /* ignore */ }
     }, [TABLET_SMALL])
 
     const handleRadioChange = useCallback(async (event) => {

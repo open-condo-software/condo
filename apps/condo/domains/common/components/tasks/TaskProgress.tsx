@@ -296,7 +296,8 @@ export const TasksProgress = ({ tasks }: ITasksProgressProps) => {
         overflowY: 'auto',
     }
 
-    const isAllTasksFinished = tasks.every(task => task.record.status !== TASK_PROCESSING_STATUS)
+    const visibleTasks = tasks.filter((task) => task?.storage?.useTask && task?.record?.id)
+    const isAllTasksFinished = visibleTasks.every(task => task.record.status !== TASK_PROCESSING_STATUS)
     const chevronIcon = collapsed ? <ChevronDown size='medium' /> : <ChevronUp size='medium' />
 
     return (
@@ -331,7 +332,7 @@ export const TasksProgress = ({ tasks }: ITasksProgressProps) => {
                     )}
                     <List
                         style={listStyle}
-                        dataSource={tasks.filter((task) => task?.storage?.useTask && task?.record?.id)}
+                        dataSource={visibleTasks}
                         renderItem={(task) => (
                             <TaskProgressTracker
                                 key={task.record.id}

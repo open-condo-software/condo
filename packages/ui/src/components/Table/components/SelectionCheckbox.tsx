@@ -18,7 +18,6 @@ export function SelectionCheckbox ({ checked, disabled, indeterminate, tooltip, 
             onClick={(e) => e.stopPropagation()}
             onKeyDown={(e) => e.stopPropagation()}
             onTouchStart={(e) => e.stopPropagation()}
-            role='button'
         >
             <Checkbox
                 checked={checked}

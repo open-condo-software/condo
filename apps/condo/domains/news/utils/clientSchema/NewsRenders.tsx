@@ -72,11 +72,12 @@ const getNewsDate = (intl, stringDate: string, format: string): string => {
 export const getRenderSource: GetRenderSourceType = (intl, search) => (source) => {
     if (!source) return '—'
 
-    const sourceNameKey = get(source, 'name')
-        || (get(source, 'type') === NEWS_ITEM_SOURCE_TYPES.REGISTRY
-            ? 'news.source.REGISTRY.name'
-            : 'news.source.NEWS_FORM.name')
-    const sourceName = intl.formatMessage({ id: sourceNameKey as FormatjsIntl.Message['ids'] })
+    const sourceName = get(source, 'name')
+        || intl.formatMessage({
+            id: get(source, 'type') === NEWS_ITEM_SOURCE_TYPES.REGISTRY
+                ? 'news.source.REGISTRY.name'
+                : 'news.source.NEWS_FORM.name',
+        })
 
     return getTableCellRenderer({ search, ellipsis: true })(sourceName)
 }

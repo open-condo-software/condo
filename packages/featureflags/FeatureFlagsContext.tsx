@@ -11,7 +11,7 @@ import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
 import { NextPage } from 'next'
 import getConfig from 'next/config'
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
 
 import { isSSR } from '@open-condo/miniapp-utils'
 import { useEmbeddingContext } from '@open-condo/miniapp-utils/helpers/embeddingContext'
@@ -66,6 +66,9 @@ const FeatureFlagsProviderWrapper: React.FC<React.PropsWithChildren<FeatureFlags
     const isSupport = get(user, 'isSupport', false)
     const isAdmin = get(user, 'isAdmin', false)
     const userId = get(user, 'id', null)
+    // Last org id written by OrganizationProvider. Miniapps have no provider and set
+    // `organization` via updateContext (launch params) — we must not overwrite that.
+    const providerOwnedOrganizationIdRef = useRef(null)
 
     const updateContext = useCallback((context) => {
         const previousContext = growthbook.getAttributes()
@@ -117,15 +120,24 @@ const FeatureFlagsProviderWrapper: React.FC<React.PropsWithChildren<FeatureFlags
     useEffect(() => {
         const organizationId = get(organization, 'id')
 
-        // Skip undefined organization so miniapps can set it via updateContext
-        // (they have no OrganizationProvider — id comes from launch params)
-        updateContext({
+        // updateContext merges into current GrowthBook attributes, so omitting `organization`
+        // would leave a stale org after the user leaves. Always write the provider-owned value
+        // (id or null) when OrganizationProvider has/had one. Miniapps never get an id from
+        // useOrganization — skip the key so their updateContext({ organization }) still wins.
+        const nextContext = {
             isSupport: isSupport || isAdmin,
-            ...(organizationId ? { organization: organizationId } : {}),
             userId,
             embeddingContextPlatform,
             embeddingContextAppId,
-        })
+            ...(organizationId
+                ? { organization: organizationId }
+                : providerOwnedOrganizationIdRef.current
+                    ? { organization: null }
+                    : {}),
+        }
+
+        providerOwnedOrganizationIdRef.current = organizationId || null
+        updateContext(nextContext)
     }, [updateContext, isAdmin, isSupport, organization, userId, embeddingContextPlatform, embeddingContextAppId])
 
     return (
