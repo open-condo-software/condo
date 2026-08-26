@@ -6,6 +6,7 @@ const Big = require('big.js')
 const { GQLError } = require('@open-condo/keystone/errors')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
+const { find } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/acquiring/access/RegisterMultiPaymentService')
 const { DEFAULT_MULTIPAYMENT_SERVICE_CATEGORY } = require('@condo/domains/acquiring/constants/payment')
@@ -34,7 +35,6 @@ const {
     loadAcquiringContextsForConsumers,
     loadAcquiringContextsForInvoices,
 } = require('@condo/domains/acquiring/utils/serverSchema/registerMultiPayment/loaders')
-const { find } = require('@open-condo/keystone/schema')
 const {
     validateAcquiringIntegrationExists,
     validateAllPaymentAmountsPositive,
