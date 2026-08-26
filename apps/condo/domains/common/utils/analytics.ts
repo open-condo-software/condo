@@ -150,6 +150,7 @@ type UserData = {
     type?: string | null
     role?: string | null
     'organization.id'?: string | null
+    ym_client_id?: string | null
 }
 
 type AppGroups =

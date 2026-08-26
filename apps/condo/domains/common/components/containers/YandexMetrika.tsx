@@ -9,6 +9,8 @@ import ym, { YMInitializer } from 'react-yandex-metrika'
 import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
 
+import { analytics } from '@condo/domains/common/utils/analytics'
+
 
 const YandexMetrika = () => {
     const { publicRuntimeConfig } = getConfig()
@@ -35,8 +37,16 @@ const YandexMetrika = () => {
     }, [organizationId, role, userId, yandexMetrikaID])
 
     useEffect(() => {
+        if (!yandexMetrikaID || !userId) return
+
+        ym('getClientID', (clientID: string) => {
+            if (clientID) analytics.identify(userId, { ym_client_id: clientID })
+        })
+    }, [yandexMetrikaID, userId])
+
+    useEffect(() => {
         if (!yandexMetrikaID) return
-    
+
         ym('hit', window.location.href)
     
         const routeChangeComplete = () => {
