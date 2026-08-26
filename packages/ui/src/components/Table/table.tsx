@@ -41,13 +41,14 @@ function getPageIndexFromStartRow (startRow: number, pageSize: number): number {
     return Math.floor(startRow / pageSize)
 }
 
-function getHeaderSelectionState (rows: { getIsSelected: () => boolean }[]): { checked: boolean, indeterminate: boolean } {
-    const selectedCount = rows.filter(row => row.getIsSelected()).length
-    const allRowsSelected = rows.length > 0 && selectedCount === rows.length
+function getHeaderSelectionState (rows: { getCanSelect: () => boolean, getIsSelected: () => boolean }[]): { checked: boolean, indeterminate: boolean } {
+    const selectableRows = rows.filter(row => row.getCanSelect())
+    const selectedCount = selectableRows.filter(row => row.getIsSelected()).length
+    const allSelectableSelected = selectableRows.length > 0 && selectedCount === selectableRows.length
 
     return {
-        checked: allRowsSelected,
-        indeterminate: selectedCount > 0 && !allRowsSelected,
+        checked: allSelectableSelected,
+        indeterminate: selectedCount > 0 && !allSelectableSelected,
     }
 }
 

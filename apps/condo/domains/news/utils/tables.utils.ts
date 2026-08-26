@@ -15,21 +15,18 @@ export const NEWS_AUDIENCE_PERSONAL = 'personal'
 export const NEWS_AUDIENCE_COMMON = 'common'
 
 const BROAD_SCOPE_TYPES: NewsItemScopeTypeType[] = [
-    NEWS_ITEM_SCOPE_TYPE_ORGANIZATION,
-    NEWS_ITEM_SCOPE_TYPE_PROPERTY,
-    NEWS_ITEM_SCOPE_TYPE_PROPERTY_UNIT_TYPE,
-    NEWS_ITEM_SCOPE_TYPE_UNKNOWN,
+    NEWS_ITEM_SCOPE_TYPE_ORGANIZATION as NewsItemScopeTypeType,
+    NEWS_ITEM_SCOPE_TYPE_PROPERTY as NewsItemScopeTypeType,
+    NEWS_ITEM_SCOPE_TYPE_PROPERTY_UNIT_TYPE as NewsItemScopeTypeType,
+    NEWS_ITEM_SCOPE_TYPE_UNKNOWN as NewsItemScopeTypeType,
 ]
 
-const PERSONAL_SCOPE_TYPE: NewsItemScopeTypeType = NEWS_ITEM_SCOPE_TYPE_PROPERTY_UNIT_TYPE_UNIT_NAME
+const PERSONAL_SCOPE_TYPE = NEWS_ITEM_SCOPE_TYPE_PROPERTY_UNIT_TYPE_UNIT_NAME as NewsItemScopeTypeType
 
 /**
  * Personal = news sent to exactly one apartment.
  * `scopesCount` is denormalized at publish time (stays 0 for drafts).
  * Combined with unit-scope type checks so a single org/property scope is not personal.
- * Root `deletedAt: null` is required: nested `deletedAt` on scopes disables
- * the softDeleted plugin's default filter on NewsItem.
- *
  * Common = everything that is not personal (org / property / section, mixed,
  * or several apartments). Keystone where has no NOT, so this is the De Morgan
  * of the personal AND.
@@ -37,20 +34,15 @@ const PERSONAL_SCOPE_TYPE: NewsItemScopeTypeType = NEWS_ITEM_SCOPE_TYPE_PROPERTY
 const getPersonalAudienceWhere = (): NewsItemWhereInput => ({
     AND: [
         {
-            deletedAt: null,
-        },
-        {
             scopesCount: 1,
         },
         {
             scopes_some: {
-                deletedAt: null,
                 type: PERSONAL_SCOPE_TYPE,
             },
         },
         {
             scopes_none: {
-                deletedAt: null,
                 type_in: BROAD_SCOPE_TYPES,
             },
         },
@@ -60,22 +52,17 @@ const getPersonalAudienceWhere = (): NewsItemWhereInput => ({
 const getCommonAudienceWhere = (): NewsItemWhereInput => ({
     AND: [
         {
-            deletedAt: null,
-        },
-        {
             OR: [
                 {
                     scopesCount_not: 1,
                 },
                 {
                     scopes_some: {
-                        deletedAt: null,
                         type_in: BROAD_SCOPE_TYPES,
                     },
                 },
                 {
                     scopes_none: {
-                        deletedAt: null,
                         type: PERSONAL_SCOPE_TYPE,
                     },
                 },

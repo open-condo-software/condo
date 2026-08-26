@@ -3346,6 +3346,84 @@ export type GetNewsItemsRecipientsCountersQueryHookResult = ReturnType<typeof us
 export type GetNewsItemsRecipientsCountersLazyQueryHookResult = ReturnType<typeof useGetNewsItemsRecipientsCountersLazyQuery>;
 export type GetNewsItemsRecipientsCountersSuspenseQueryHookResult = ReturnType<typeof useGetNewsItemsRecipientsCountersSuspenseQuery>;
 export type GetNewsItemsRecipientsCountersQueryResult = Apollo.QueryResult<Types.GetNewsItemsRecipientsCountersQuery, Types.GetNewsItemsRecipientsCountersQueryVariables>;
+export const GetNewsItemsForTableDocument = gql`
+    query getNewsItemsForTable($where: NewsItemWhereInput, $first: Int, $skip: Int, $sortBy: [SortNewsItemsBy!]) {
+  objs: allNewsItems(where: $where, first: $first, skip: $skip, sortBy: $sortBy) {
+    id
+    number
+    type
+    title
+    body
+    sendAt
+    sentAt
+    isPublished
+    validBefore
+    createdAt
+    source {
+      id
+      type
+      name
+    }
+    compactScopes {
+      count
+      firstOnes {
+        id
+        unitType
+        unitName
+        property {
+          id
+          address
+          addressMeta {
+            ...AddressMetaForTableAddress
+          }
+        }
+      }
+    }
+  }
+  meta: _allNewsItemsMeta(where: $where) {
+    count
+  }
+}
+    ${AddressMetaForTableAddressFragmentDoc}`;
+
+/**
+ * __useGetNewsItemsForTableQuery__
+ *
+ * To run a query within a React component, call `useGetNewsItemsForTableQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetNewsItemsForTableQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetNewsItemsForTableQuery({
+ *   variables: {
+ *      where: // value for 'where'
+ *      first: // value for 'first'
+ *      skip: // value for 'skip'
+ *      sortBy: // value for 'sortBy'
+ *   },
+ * });
+ */
+export function useGetNewsItemsForTableQuery(baseOptions?: Apollo.QueryHookOptions<Types.GetNewsItemsForTableQuery, Types.GetNewsItemsForTableQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetNewsItemsForTableQuery, Types.GetNewsItemsForTableQueryVariables>(GetNewsItemsForTableDocument, options);
+      }
+export function useGetNewsItemsForTableLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetNewsItemsForTableQuery, Types.GetNewsItemsForTableQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetNewsItemsForTableQuery, Types.GetNewsItemsForTableQueryVariables>(GetNewsItemsForTableDocument, options);
+        }
+// @ts-ignore
+export function useGetNewsItemsForTableSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<Types.GetNewsItemsForTableQuery, Types.GetNewsItemsForTableQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetNewsItemsForTableQuery, Types.GetNewsItemsForTableQueryVariables>;
+export function useGetNewsItemsForTableSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetNewsItemsForTableQuery, Types.GetNewsItemsForTableQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetNewsItemsForTableQuery | undefined, Types.GetNewsItemsForTableQueryVariables>;
+export function useGetNewsItemsForTableSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetNewsItemsForTableQuery, Types.GetNewsItemsForTableQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetNewsItemsForTableQuery, Types.GetNewsItemsForTableQueryVariables>(GetNewsItemsForTableDocument, options);
+        }
+export type GetNewsItemsForTableQueryHookResult = ReturnType<typeof useGetNewsItemsForTableQuery>;
+export type GetNewsItemsForTableLazyQueryHookResult = ReturnType<typeof useGetNewsItemsForTableLazyQuery>;
+export type GetNewsItemsForTableSuspenseQueryHookResult = ReturnType<typeof useGetNewsItemsForTableSuspenseQuery>;
+export type GetNewsItemsForTableQueryResult = Apollo.QueryResult<Types.GetNewsItemsForTableQuery, Types.GetNewsItemsForTableQueryVariables>;
 export const CreateNewsItemFileDocument = gql`
     mutation createNewsItemFile($data: NewsItemFileCreateInput!) {
   newsItemFile: createNewsItemFile(data: $data) {

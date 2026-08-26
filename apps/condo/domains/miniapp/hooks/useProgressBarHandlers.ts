@@ -1,7 +1,7 @@
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import pickBy from 'lodash/pickBy'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { z } from 'zod'
 
 import type { ShowProgressBarParams, ShowProgressBarData, TrackableCondoTaskSchemaName, UpdateProgressBarParams, UpdateProgressBarData, GetActiveProgressBarsParams, GetActiveProgressBarsData } from '@open-condo/bridge'
@@ -65,7 +65,7 @@ export function useProgressBarHandlers () {
                 ...newsItemRecipientsExportTaskUIInterface,
                 record: {
                     id: externalTaskId,
-                    status: TASK_PROCESSING_STATUS,
+                    status: TASK_PROCESSING_STATUS as 'processing',
                     __typename: 'NewsItemRecipientsExportTask',
                 },
             })
@@ -91,14 +91,15 @@ export function useProgressBarHandlers () {
 
         return { barId: id }
         // TODO(DOMA-5171): Adding miniAppTaskUIInterface in deps causing rerender hell!
-    }, [userId])
+    }, [userId, addTask, newsItemRecipientsExportTaskUIInterface, createTaskOp])
 
     const getActiveProgressBars = useCallback((origin: string) => {
         return {
             bars: tasks
                 .map(task => task.record)
-                .filter(task => task.sender === origin &&
-                    task.user && task.user && task.user.id === userId &&
+                .filter(task => task &&
+                    task.sender === origin &&
+                    task.user?.id === userId &&
                     task.status === TASK_PROCESSING_STATUS &&
                     typeof task.progress === 'number'
                 )
@@ -134,7 +135,23 @@ export function useProgressBarHandlers () {
 
         return { updated: true }
         // TODO(DOMA-5171): Adding miniAppTaskUIInterface in deps causing rerender hell!
-    }, [userId])
+    }, [userId, updateTaskOperation])
+
+    const showProgressBarRef = useRef(showProgressBar)
+    const updateProgressBarRef = useRef(updateProgressBar)
+    const getActiveProgressBarsRef = useRef(getActiveProgressBars)
+
+    useEffect(() => {
+        showProgressBarRef.current = showProgressBar
+    }, [showProgressBar])
+
+    useEffect(() => {
+        updateProgressBarRef.current = updateProgressBar
+    }, [updateProgressBar])
+
+    useEffect(() => {
+        getActiveProgressBarsRef.current = getActiveProgressBars
+    }, [getActiveProgressBars])
 
     useEffect(() => {
         addHandler<ShowProgressBarParams, ShowProgressBarData>(
@@ -145,7 +162,7 @@ export function useProgressBarHandlers () {
             ({ params, source }) => {
                 const sourceOrigin = new URL(source.type === 'frame' ? source.ref.src : window.location.href).origin
 
-                return showProgressBar(params, sourceOrigin)
+                return showProgressBarRef.current(params, sourceOrigin)
             }
         )
 
@@ -157,7 +174,7 @@ export function useProgressBarHandlers () {
             ({ params, source }) => {
                 const sourceOrigin = new URL(source.type === 'frame' ? source.ref.src : window.location.href).origin
 
-                return updateProgressBar(params, sourceOrigin)
+                return updateProgressBarRef.current(params, sourceOrigin)
             }
         )
 
@@ -168,8 +185,8 @@ export function useProgressBarHandlers () {
             zodSchemaToValidator(z.strictObject({})),
             ({ source }) => {
                 const sourceOrigin = new URL(source.type === 'frame' ? source.ref.src : window.location.href).origin
-                return getActiveProgressBars(sourceOrigin)
+                return getActiveProgressBarsRef.current(sourceOrigin)
             }
         )
-    }, [addHandler, getActiveProgressBars, showProgressBar, updateProgressBar])
+    }, [addHandler])
 }

@@ -1,0 +1,42 @@
+query getNewsItemsForTable ($where: NewsItemWhereInput, $first: Int, $skip: Int, $sortBy: [SortNewsItemsBy!]) {
+    objs: allNewsItems(
+        where: $where
+        first: $first
+        skip: $skip
+        sortBy: $sortBy
+    ) {
+        id
+        number
+        type
+        title
+        body
+        sendAt
+        sentAt
+        isPublished
+        validBefore
+        createdAt
+        source {
+            id
+            type
+            name
+        }
+        compactScopes {
+            count
+            firstOnes {
+                id
+                unitType
+                unitName
+                property {
+                    id
+                    address
+                    addressMeta {
+                        ...AddressMetaForTableAddress
+                    }
+                }
+            }
+        }
+    }
+    meta: _allNewsItemsMeta(where: $where) {
+        count
+    }
+}

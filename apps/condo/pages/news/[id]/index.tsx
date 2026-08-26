@@ -6,7 +6,6 @@ import {
 } from '@app/condo/schema'
 import { Col, notification, Row, RowProps } from 'antd'
 import dayjs from 'dayjs'
-import every from 'lodash/every'
 import has from 'lodash/has'
 import throttle from 'lodash/throttle'
 import getConfig from 'next/config'
@@ -42,6 +41,7 @@ import {
     FilesUploadList,
 } from '@condo/domains/news/components/FilesUploadList'
 import { NewsReadPermissionRequired } from '@condo/domains/news/components/PageAccess'
+import { RecipientCounter } from '@condo/domains/news/components/RecipientCounter'
 import { NewsItemScopeNoInstanceType } from '@condo/domains/news/components/types'
 import { NEWS_ITEM_SOURCE_TYPES } from '@condo/domains/news/constants/newsItemSourceTypes'
 import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
@@ -109,7 +109,7 @@ const getNewsItemScopesNoInstance = (
     newsItemScopes: NewsItemScopeNoInstanceType[],
     property: NewsItemScopeNoInstanceType['property'],
 ): NewsItemScopeNoInstanceType[] => {
-    const isAllScopesHaveProperty = every(newsItemScopes, newsItemScope => {
+    const isAllScopesHaveProperty = newsItemScopes.every(newsItemScope => {
         return has(newsItemScope, ['property', 'id'])
     })
 
@@ -123,7 +123,7 @@ const getNewsItemScopesNoInstance = (
         })
     }
 
-    const isAllScopesHaveSameProperty = every(newsItemScopes, newsItemScope => {
+    const isAllScopesHaveSameProperty = newsItemScopes.every(newsItemScope => {
         return newsItemScope.property.id === newsItemScopes[0].property.id
     })
 
@@ -138,18 +138,22 @@ const getNewsItemScopesNoInstance = (
     }
 
     return newsItemScopes.map(newsItemScope => {
-        return { property: newsItemScope.property }
+        return {
+            property: newsItemScope.property,
+            unitName: newsItemScope.unitName,
+            unitType: newsItemScope.unitType,
+        }
     })
 }
 
-const getNewsItemSourceNameKey = (newsItem?: INewsItem | null) => {
+const getNewsItemSourceName = (newsItem: INewsItem | null | undefined, intl: IntlShape): string => {
     if (newsItem?.source?.name) return newsItem.source.name
 
     if (newsItem?.source?.type === NEWS_ITEM_SOURCE_TYPES.REGISTRY) {
-        return 'news.source.REGISTRY.name'
+        return intl.formatMessage({ id: 'news.source.REGISTRY.name' })
     }
 
-    return 'news.source.NEWS_FORM.name'
+    return intl.formatMessage({ id: 'news.source.NEWS_FORM.name' })
 }
 
 const renderBodyFieldValue = (value: string | React.ReactNode) => {
@@ -459,7 +463,7 @@ const NewsItemCard: React.FC = () => {
     )
 
     useEffect(() => {
-        if (!organizationId) return
+        if (!organizationId || newsItemScopesLoading) return
 
         throttledGetCounters({
             variables: {
@@ -471,7 +475,9 @@ const NewsItemCard: React.FC = () => {
                 },
             },
         })
-    }, [organizationId, processedNewsItemScopes, throttledGetCounters])
+
+        return () => throttledGetCounters.cancel()
+    }, [organizationId, newsItemScopesLoading, processedNewsItemScopes, throttledGetCounters])
 
     const {
         objs: newsItemSharings,
@@ -485,9 +491,7 @@ const NewsItemCard: React.FC = () => {
 
     const { modifyFiles } = useModifiedFiles()
 
-    const sourceName = intl.formatMessage({
-        id: getNewsItemSourceNameKey(newsItem) as FormatjsIntl.Message['ids'],
-    })
+    const sourceName = getNewsItemSourceName(newsItem, intl)
     const receiversCountValue = receiversCount == null ? '—' : String(receiversCount)
     const shouldShowFiles = isNewsItemFilesEnabled || Boolean(files?.length)
 
@@ -566,6 +570,11 @@ const NewsItemCard: React.FC = () => {
                                 </Row>
                             </FrontLayerContainer>
                         </Col>
+                        { canManage && (
+                            <Col span={24} sm={24} md={16} lg={8}>
+                                <RecipientCounter newsItemScopes={newsItemScopesNoInstance}/>
+                            </Col>
+                        ) }
 
                         { newsItemSharings.map(newsItemSharing => (
                             <>

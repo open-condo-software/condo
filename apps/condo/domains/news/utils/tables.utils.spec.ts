@@ -26,20 +26,15 @@ describe('Table utils', () => {
             expect(where).toEqual({
                 AND: [
                     {
-                        deletedAt: null,
-                    },
-                    {
                         scopesCount: 1,
                     },
                     {
                         scopes_some: {
-                            deletedAt: null,
                             type: NEWS_ITEM_SCOPE_TYPE_PROPERTY_UNIT_TYPE_UNIT_NAME,
                         },
                     },
                     {
                         scopes_none: {
-                            deletedAt: null,
                             type_in: expect.arrayContaining([NEWS_ITEM_SCOPE_TYPE_ORGANIZATION]),
                         },
                     },
@@ -53,22 +48,17 @@ describe('Table utils', () => {
             expect(where).toEqual({
                 AND: [
                     {
-                        deletedAt: null,
-                    },
-                    {
                         OR: [
                             {
                                 scopesCount_not: 1,
                             },
                             {
                                 scopes_some: {
-                                    deletedAt: null,
                                     type_in: expect.arrayContaining([NEWS_ITEM_SCOPE_TYPE_ORGANIZATION]),
                                 },
                             },
                             {
                                 scopes_none: {
-                                    deletedAt: null,
                                     type: NEWS_ITEM_SCOPE_TYPE_PROPERTY_UNIT_TYPE_UNIT_NAME,
                                 },
                             },
