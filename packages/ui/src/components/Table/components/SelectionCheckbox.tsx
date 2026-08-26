@@ -1,8 +1,8 @@
+import type { CheckboxChangeEvent } from 'antd/lib/checkbox'
 import React from 'react'
 
 import { Checkbox, Tooltip } from '@open-condo/ui/src'
 
-import type { CheckboxChangeEvent } from 'antd/lib/checkbox'
 
 type SelectionCheckboxProps = {
     checked: boolean

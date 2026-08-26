@@ -65,11 +65,12 @@ async function countUnitLevelRecipientsForProperty (organizationId, property, pr
     }
 
     if (Object.keys(scopesUnitNamesByUnitType).length > 0) {
-        receiversCount += (await countUniqueUnitsFromResidentsByProperty(
+        const unitLevelResidentsCount = Number(await countUniqueUnitsFromResidentsByProperty(
             organizationId,
             property.id,
             scopesUnitNamesByUnitType,
         )) || 0
+        receiversCount += unitLevelResidentsCount
     }
 
     const typeWideUnitTypes = Object.keys(typeWideByUnitType)
@@ -159,7 +160,7 @@ async function countUnitLevelRecipients (newsItemScopes, organizationId) {
             scopesUnitsByProperties[property.id],
         )
         unitsCount += propertyCounters.unitsCount
-        receiversCount += propertyCounters.receiversCount
+        receiversCount += Number(propertyCounters.receiversCount) || 0
     }
 
     return { propertiesCount, unitsCount, receiversCount }
