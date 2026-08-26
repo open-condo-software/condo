@@ -125,7 +125,7 @@ function modifiable ({
             if (environmentField) {
                 const environment = updatedItem[environmentField]
                 const previousModifiedAt = existingItem?.[FIELD_NAME]?.getTime()
-                const currentModifiedAt = updatedItem[FIELD_NAME].getTime()
+                const currentModifiedAt = updatedItem[FIELD_NAME]?.getTime()
                 if (previousModifiedAt !== currentModifiedAt) {
                     await onModify?.({ environment, existingItem, updatedItem })
                 }
@@ -133,7 +133,7 @@ function modifiable ({
                 for (const environment of AVAILABLE_ENVIRONMENTS) {
                     const fieldName = getEnvironmentalFieldName(environment, FIELD_NAME)
                     const previousModifiedAt = existingItem?.[fieldName]?.getTime()
-                    const currentModifiedAt = updatedItem[fieldName].getTime()
+                    const currentModifiedAt = updatedItem[fieldName]?.getTime()
                     if (previousModifiedAt !== currentModifiedAt) {
                         await onModify?.({ environment, existingItem, updatedItem })
                     }
