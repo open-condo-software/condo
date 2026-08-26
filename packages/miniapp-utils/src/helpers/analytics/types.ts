@@ -7,8 +7,13 @@ export type AnalyticsConfig = {
     plugins?: AnalyticsPlugin[]
 }
 
-export type AnalyticsInstanceWithGroups<GroupNames extends string> = AnalyticsInstance & {
+export type VisitorIdMethods = {
+    getVisitorId?: () => Promise<string | undefined>
+}
+
+export type AnalyticsInstanceWithGroups<GroupNames extends string> = Omit<AnalyticsInstance, 'plugins'> & {
     groups: Set<GroupNames>
+    plugins: Record<string, VisitorIdMethods>
 }
 
 export type AnyPayload = Record<string, any>

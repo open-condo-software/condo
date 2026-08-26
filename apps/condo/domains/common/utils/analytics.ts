@@ -4,12 +4,15 @@ import getConfig from 'next/config'
 import { Analytics, isSSR, isDebug } from '@open-condo/miniapp-utils'
 import type { AnalyticsPlugin } from '@open-condo/miniapp-utils'
 
+import { yMetrikaAnalyticsPlugin } from '@condo/domains/common/utils/analyticsPlugins/yMetrika'
+
 const nextConfig = getConfig()
 
 const appName = nextConfig?.publicRuntimeConfig?.appName
 const currentVersion = nextConfig?.publicRuntimeConfig?.currentVersion
 const posthogApiHost = nextConfig?.publicRuntimeConfig?.posthogApiHost
 const posthogApiKey = nextConfig?.publicRuntimeConfig?.posthogApiKey
+const yandexMetrikaID = nextConfig?.publicRuntimeConfig?.yandexMetrikaID
 
 // TODO: Remove the types after components replaces with ones from @open-condo/ui
 
@@ -150,7 +153,6 @@ type UserData = {
     type?: string | null
     role?: string | null
     'organization.id'?: string | null
-    ym_client_id?: string | null
 }
 
 type AppGroups =
@@ -163,7 +165,7 @@ function initAnalytics (): Analytics<EventsData, UserData, AppGroups> {
     const plugins: Array<AnalyticsPlugin> = []
 
     if (posthogApiKey && posthogApiHost && !isSSR()) {
-        plugins.push(postHog({
+        const posthogPlugin = postHog({
             enabled: true,
             token: posthogApiKey,
             options: {
@@ -176,7 +178,19 @@ function initAnalytics (): Analytics<EventsData, UserData, AppGroups> {
                 debug: isDebug(),
                 autocapture: false,
             },
-        }))
+        })
+
+        plugins.push({
+            ...posthogPlugin,
+            methods: {
+                ...posthogPlugin.methods,
+                getVisitorId: async () => posthogPlugin.methods.getDistinctId(),
+            },
+        })
+    }
+
+    if (yandexMetrikaID && !isSSR()) {
+        plugins.push(yMetrikaAnalyticsPlugin)
     }
 
     return new Analytics<EventsData, UserData, AppGroups>({

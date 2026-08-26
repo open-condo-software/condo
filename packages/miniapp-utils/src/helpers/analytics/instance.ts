@@ -100,7 +100,7 @@ export class Analytics<
                 GroupingMiddlewarePlugin,
                 ...(config.plugins || []),
             ],
-        }) as AnalyticsInstanceWithGroups<GroupNames>
+        }) as unknown as AnalyticsInstanceWithGroups<GroupNames>
         this._analytics.groups = this._groups
     }
 
@@ -138,6 +138,21 @@ export class Analytics<
      */
     async identify<Key extends keyof UserData> (userId: string, userData?: Pick<UserData, Key>): Promise<void> {
         await this._analytics.identify(userId, userData)
+
+        void this._collectVisitorIds().then((visitorIds) => {
+            if (Object.keys(visitorIds).length) {
+                this._analytics.identify(userId, visitorIds)
+            }
+        })
+    }
+
+    private async _collectVisitorIds (): Promise<Record<string, string>> {
+        const entries = await Promise.all(
+            Object.entries(this._analytics.plugins)
+                .map(async ([name, plugin]) => [name, await plugin.getVisitorId?.()])
+        )
+
+        return Object.fromEntries(entries.filter((entry) => Boolean(entry[1])))
     }
 
     /**
