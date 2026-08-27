@@ -211,7 +211,8 @@ const resolveInlineAttachments = async (meta, attachmentOptions) => {
 }
 
 /**
- * Rewrites `cid:filename` references in HTML to data URIs (for non-Mailgun providers).
+ * Rewrites `cid:filename` references in HTML to data URIs.
+ * Used by providers without native CID inline parts (e.g. Sendsay).
  * @param {string|null|undefined} html
  * @param {Array<{ originalFilename: string, mimetype: string, buffer: Buffer }>} inlines
  * @returns {string|null|undefined}
@@ -361,11 +362,26 @@ class MailgunEmail {
 class UnisenderGoEmail {
     static type = 'unisendergo'
 
+    /** @see https://godocs.unisender.ru/web-api-ref#email-send */
+    static MAX_TAG_LENGTH = 50
+
     isConfigured = false
 
     static normalizeApiUrl (apiUrl) {
         if (!apiUrl || typeof apiUrl !== 'string') return ''
         return apiUrl.replace(/\/+$/, '')
+    }
+
+    /**
+     * Maps a resolved attachment buffer to Unisender Go attachment / inline_attachments shape.
+     * @see https://godocs.unisender.ru/web-api-ref#email-send
+     */
+    static toPart ({ mimetype, originalFilename, buffer }, defaultName) {
+        return {
+            type: mimetype || 'application/octet-stream',
+            name: originalFilename || defaultName,
+            content: buffer.toString('base64'),
+        }
     }
 
     constructor (config) {
@@ -445,10 +461,8 @@ class UnisenderGoEmail {
             message.from_name = this.fromName
         }
 
-        const inlineAttachments = await resolveInlineAttachments(meta, this.attachmentOptions)
-        const htmlWithInlines = applyInlineAttachmentsToHtml(html, inlineAttachments)
-        if (htmlWithInlines) {
-            message.body.html = htmlWithInlines
+        if (html) {
+            message.body.html = html
         }
         if (text) {
             message.body.plaintext = text
@@ -463,7 +477,7 @@ class UnisenderGoEmail {
         }
 
         if (this.useTags && messageType && typeof messageType === 'string') {
-            message.tags = [messageType]
+            message.tags = [messageType.slice(0, UnisenderGoEmail.MAX_TAG_LENGTH)]
         }
 
         if (this.useAttachingData && meta && !isEmpty(meta.attachingData)) {
@@ -489,12 +503,16 @@ class UnisenderGoEmail {
             message.attachments = await Promise.all(meta.attachments.map(async (attachment) => {
                 const { mimetype, originalFilename } = attachment
                 const buffer = await resolveAttachmentBuffer(attachment, this.attachmentOptions)
-                return {
-                    type: mimetype || 'application/octet-stream',
-                    name: originalFilename || 'attachment',
-                    content: buffer.toString('base64'),
-                }
+                return UnisenderGoEmail.toPart({ mimetype, originalFilename, buffer }, 'attachment')
             }))
+        }
+
+        const inlineAttachments = await resolveInlineAttachments(meta, this.attachmentOptions)
+        if (!isEmpty(inlineAttachments)) {
+            // Keep `cid:filename` in HTML; `name` must match the cid reference.
+            message.inline_attachments = inlineAttachments.map(
+                (part) => UnisenderGoEmail.toPart(part, 'inline'),
+            )
         }
 
         // Allow callers to pass through supported Unisender Go message fields.
@@ -518,11 +536,16 @@ class UnisenderGoEmail {
         }
 
         const isSent = result.ok && get(context, 'status') === 'success'
-        if (!isSent && !get(context, 'status')) {
-            return [false, { ...context, status: result.status, text: responseText }]
+        if (isSent) {
+            return [true, context]
         }
 
-        return [isSent, context]
+        // Numeric HTTP `status` for callers; Unisender body `status` kept as `providerStatus`.
+        return [false, {
+            ...context,
+            providerStatus: get(context, 'status'),
+            status: result.status,
+        }]
     }
 }
 

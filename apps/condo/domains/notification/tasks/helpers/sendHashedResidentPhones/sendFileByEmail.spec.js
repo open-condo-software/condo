@@ -64,4 +64,32 @@ describe('sendFileByEmail', () => {
 
         expect(status).toBe(502)
     })
+
+    it('returns 500 when provider status is not a numeric HTTP error code', async () => {
+        isEmailAdapterConfigured.mockReturnValue(true)
+        const send = jest.fn().mockResolvedValue([false, { status: 'error', code: 101 }])
+        EmailAdapter.mockImplementation(() => ({ send }))
+
+        const status = await sendFileByEmail({
+            stream: Readable.from(['x']),
+            filename: 'phones.csv',
+            toEmail: 'marketing@example.com',
+        })
+
+        expect(status).toBe(500)
+    })
+
+    it('returns 500 when provider reports failure with a non-error HTTP status', async () => {
+        isEmailAdapterConfigured.mockReturnValue(true)
+        const send = jest.fn().mockResolvedValue([false, { status: 200, providerStatus: 'error' }])
+        EmailAdapter.mockImplementation(() => ({ send }))
+
+        const status = await sendFileByEmail({
+            stream: Readable.from(['x']),
+            filename: 'phones.csv',
+            toEmail: 'marketing@example.com',
+        })
+
+        expect(status).toBe(500)
+    })
 })
