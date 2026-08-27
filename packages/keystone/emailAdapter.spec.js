@@ -542,8 +542,65 @@ describe('Email adapters', () => {
             })
 
             expect(isOk).toBe(false)
-            expect(context.status).toBe('error')
+            expect(context.status).toBe(400)
+            expect(context.providerStatus).toBe('error')
             expect(context.code).toBe(101)
+            expect(context.message).toBe('Invalid API key')
+            expect(context.text).toBeUndefined()
+        })
+
+        it('truncates messageType tags to Unisender Go 50-char limit', async () => {
+            fetch.mockResolvedValue(createJsonResponse(200, {
+                status: 'success',
+                job_id: 'job-tag',
+                emails: ['user@example.com'],
+            }))
+
+            const longType = 'RECURRENT_PAYMENT_PROCEEDING_ACQUIRING_PAYMENT_PROCEED_ERROR_MESSAGE'
+            expect(longType.length).toBeGreaterThan(50)
+
+            const adapter = new EmailAdapter()
+            await adapter.send({
+                to: 'user@example.com',
+                subject: 'Hello',
+                text: 'Plain text',
+                messageType: longType,
+            })
+
+            const body = JSON.parse(fetch.mock.calls[0][1].body)
+            expect(body.message.tags).toEqual([longType.slice(0, 50)])
+        })
+
+        it('sends meta.inlineAttachments as Unisender inline_attachments and keeps cid in HTML', async () => {
+            fetch.mockResolvedValue(createJsonResponse(200, {
+                status: 'success',
+                job_id: 'job-inline',
+                emails: ['user@example.com'],
+            }))
+
+            const logoBytes = Buffer.from('logo-bytes')
+            const adapter = new EmailAdapter()
+            const [isOk] = await adapter.send({
+                to: 'user@example.com',
+                subject: 'With logo',
+                html: '<img src="cid:logo.png" />',
+                meta: {
+                    inlineAttachments: [{
+                        buffer: logoBytes,
+                        mimetype: 'image/png',
+                        originalFilename: 'logo.png',
+                    }],
+                },
+            })
+
+            expect(isOk).toBe(true)
+            const body = JSON.parse(fetch.mock.calls[0][1].body)
+            expect(body.message.body.html).toBe('<img src="cid:logo.png" />')
+            expect(body.message.inline_attachments).toEqual([{
+                type: 'image/png',
+                name: 'logo.png',
+                content: logoBytes.toString('base64'),
+            }])
         })
 
         it('returns false with raw text when response is not JSON', async () => {

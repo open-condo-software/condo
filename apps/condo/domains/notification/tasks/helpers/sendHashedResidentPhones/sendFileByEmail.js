@@ -37,7 +37,10 @@ async function sendFileByEmail ({ stream, filename, toEmail }) {
     })
 
     if (isOk) return 200
-    return get(context, 'status') || 500
+
+    // Failure must be a 4xx/5xx HTTP code; ignore provider strings like "error".
+    const status = Number(get(context, 'status'))
+    return Number.isInteger(status) && status >= 400 ? status : 500
 }
 
 module.exports = {
