@@ -5,6 +5,7 @@
 const pick = require('lodash/pick')
 
 const { userIsAdminOrIsSupport, isSoftDelete } = require('@open-condo/keystone/access')
+const { graphqlCtx } = require('@open-condo/keystone/KSv5v6/utils/graphqlCtx')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { getByCondition } = require('@open-condo/keystone/schema')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
@@ -66,7 +67,13 @@ const B2BAppAccessRightSet = new GQLListSchema('B2BAppAccessRightSet', {
             const environment = item.environment
             const isSoftDeleteOperation = isSoftDelete(originalInput)
             let lock
-            if (!isSoftDeleteOperation) {
+
+            // NOTE: if skipAccessControl is true -> CRUD operation is triggered from server utils
+            // It can happen it 2 cases:
+            // a. Soft-delete few lines below
+            // b. ImportB2BApp mutation
+            // In both cases we don't need to acquire lock, since it's already acquired in context (by parent CRUD operation or ImportB2BApp mutation)
+            if (!context.skipAccessControl) {
                 lock = await locker.acquireAppLock(appId, environment)
             }
             let status = item.status

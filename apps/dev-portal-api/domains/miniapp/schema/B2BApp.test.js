@@ -19,8 +19,6 @@ const {
     B2BApp,
     createTestB2BApp,
     publishB2BAppByTestClient,
-    createOIDCClientByTestClient,
-    changeOIDCClientByTestClient,
     updateTestB2BApp,
     updateTestB2BApps,
 } = require('@dev-portal-api/domains/miniapp/utils/testSchema')

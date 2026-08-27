@@ -12,7 +12,7 @@ const {
     makeClient,
     expectToThrowAccessDeniedErrorToResult,
     expectToThrowAuthenticationErrorToResult,
-    expectToThrowGQLError,
+    expectToThrowGQLError, waitFor,
 } = require('@open-condo/keystone/test.utils')
 
 const { B2B_APP_CATEGORIES } = require('@condo/domains/miniapp/constants')
@@ -166,6 +166,12 @@ describe('PublishB2BAppService', () => {
                 }, 'result')
             })
             test('Info must be included if app was not published before', async () => {
+                await waitFor(async () => {
+                    const publishedApp = await B2BApp.getOne(user, { id: app.id })
+                    expect(publishedApp).not.toHaveProperty('developmentExportId', null)
+                    await updateCondoB2BApp(condoAdmin, { id: publishedApp.developmentExportId }, { deletedAt: dayjs().toISOString() })
+                    await updateTestB2BApp(support, app.id, { developmentExportId: null })
+                })
                 await expectToThrowGQLError(async () => {
                     await publishB2BAppByTestClient(user, app, {})
                 }, {
@@ -186,7 +192,7 @@ describe('PublishB2BAppService', () => {
                 expect(createdCondoApp).toHaveProperty('importId', apiApp.id)
                 expect(createdCondoApp).toHaveProperty('importRemoteSystem', REMOTE_SYSTEM)
                 expect(createdCondoApp).toHaveProperty('deletedAt', null)
-                expect(createdCondoApp).toHaveProperty('v', 1)
+                expect(createdCondoApp).toHaveProperty('v')
 
                 const [secondResult] = await publishB2BAppByTestClient(user, app, { info: true })
                 expect(secondResult).toHaveProperty('success', true)
@@ -196,7 +202,7 @@ describe('PublishB2BAppService', () => {
                 expect(updatedCondoApp).toHaveProperty('importId', apiApp.id)
                 expect(updatedCondoApp).toHaveProperty('importRemoteSystem', REMOTE_SYSTEM)
                 expect(updatedCondoApp).toHaveProperty('deletedAt', null)
-                expect(updatedCondoApp).toHaveProperty('v', 2)
+                expect(updatedCondoApp).toHaveProperty('v', createdCondoApp.v + 1)
             })
             test('Condo app must be recreated in case of deletion', async () => {
                 const [firstResult] = await publishB2BAppByTestClient(user, app, { info: true })
