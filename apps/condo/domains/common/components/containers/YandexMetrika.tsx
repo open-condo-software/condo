@@ -14,13 +14,13 @@ const YandexMetrika = () => {
         if (!yandexMetrikaID) return
 
         ym('hit', window.location.href)
-    
+
         const routeChangeComplete = () => {
             ym('hit', window.location.pathname)
         }
-    
+
         router.events.on('routeChangeComplete', routeChangeComplete)
-    
+
         return () => {
             router.events.off('routeChangeComplete', routeChangeComplete)
         }
