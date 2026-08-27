@@ -5,6 +5,7 @@
 const pick = require('lodash/pick')
 
 const { userIsAdminOrIsSupport, isSoftDelete } = require('@open-condo/keystone/access')
+const { graphqlCtx } = require('@open-condo/keystone/KSv5v6/utils/graphqlCtx')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { getByCondition } = require('@open-condo/keystone/schema')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
@@ -14,7 +15,9 @@ const { B2B_APP_ACCESS_RIGHT_SET_APPROVED_STATUS, B2B_APP_ACCESS_RIGHT_SET_STATU
 const { B2B_APP_ACCESS_RIGHT_SET_UNIQUE_APP_STATUS_CONSTRAINT } = require('@dev-portal-api/domains/miniapp/constants/constraints')
 const { AVAILABLE_ENVIRONMENTS, PROD_ENVIRONMENT } = require('@dev-portal-api/domains/miniapp/constants/publishing')
 const { exportable } = require('@dev-portal-api/domains/miniapp/plugins/exportable')
+const { modifiable } = require('@dev-portal-api/domains/miniapp/plugins/modifiable')
 const { getAppAccessRightSetDiffField } = require('@dev-portal-api/domains/miniapp/schema/fields/rightSetDiff')
+const { publishB2BApp } = require('@dev-portal-api/domains/miniapp/tasks/publishB2BApp')
 const { B2BAppAccessRightSet: B2BAppAccessRightSetUtils } = require('@dev-portal-api/domains/miniapp/utils/serverSchema')
 const { locker } = require('@dev-portal-api/domains/miniapp/utils/serverSchema/locks')
 
@@ -64,7 +67,13 @@ const B2BAppAccessRightSet = new GQLListSchema('B2BAppAccessRightSet', {
             const environment = item.environment
             const isSoftDeleteOperation = isSoftDelete(originalInput)
             let lock
-            if (!isSoftDeleteOperation) {
+
+            // NOTE: if skipAccessControl is true -> CRUD operation is triggered from server utils
+            // It can happen it 2 cases:
+            // a. Soft-delete few lines below
+            // b. ImportB2BApp mutation
+            // In both cases we don't need to acquire lock, since it's already acquired in context (by parent CRUD operation or ImportB2BApp mutation)
+            if (!context.skipAccessControl) {
                 lock = await locker.acquireAppLock(appId, environment)
             }
             let status = item.status
@@ -113,7 +122,27 @@ const B2BAppAccessRightSet = new GQLListSchema('B2BAppAccessRightSet', {
             }
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), exportable(), historical(), analytical()],
+    plugins: [
+        uuided(),
+        versioned(),
+        tracked(),
+        softDeleted(),
+        dvAndSender(),
+        exportable(),
+        modifiable({
+            onModify: async ({ environment, updatedItem, existingItem }) => {
+                // Skip task duplication during soft delete cleanup
+                if (updatedItem['deletedAt'] && !existingItem?.['deletedAt'] && updatedItem.sender.fingerprint === 'clear-existing-right-set') {
+                    return
+                }
+                if (updatedItem['status'] === B2B_APP_ACCESS_RIGHT_SET_APPROVED_STATUS || existingItem?.['status'] === B2B_APP_ACCESS_RIGHT_SET_APPROVED_STATUS) {
+                    await publishB2BApp.delay(updatedItem.app, environment)
+                }
+            },
+        }),
+        historical(),
+        analytical(),
+    ],
     kmigratorOptions: {
         constraints: [
             {

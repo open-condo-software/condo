@@ -16,6 +16,8 @@ const {
 } = require('@dev-portal-api/domains/miniapp/constants/constraints')
 const { AVAILABLE_ENVIRONMENTS, PROD_ENVIRONMENT } = require('@dev-portal-api/domains/miniapp/constants/publishing')
 const { exportable } = require('@dev-portal-api/domains/miniapp/plugins/exportable')
+const { modifiable } = require('@dev-portal-api/domains/miniapp/plugins/modifiable')
+const { publishB2CApp } = require('@dev-portal-api/domains/miniapp/tasks/publishB2CApp')
 
 
 
@@ -75,7 +77,21 @@ const B2CAppAccessRight = new GQLListSchema('B2CAppAccessRight', {
             },
         ],
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), exportable(), historical(), analytical()],
+    plugins: [
+        uuided(),
+        versioned(),
+        tracked(),
+        softDeleted(),
+        dvAndSender(),
+        exportable(),
+        modifiable({
+            onModify: async ({ environment, updatedItem }) => {
+                await publishB2CApp.delay(updatedItem.app, environment)
+            },
+        }),
+        historical(),
+        analytical(),
+    ],
     access: {
         read: access.canReadB2CAppAccessRights,
         create: access.canManageB2CAppAccessRights,
