@@ -20,7 +20,7 @@ const {
 const { WEBHOOK_EVENT_PAYMENTS_FILE_STATUS_UPDATED } = require('@condo/domains/common/constants/webhooks')
 const {  MONEY_AMOUNT_FIELD } = require('@condo/domains/common/schema/fields')
 const { convertFileNameToUTF8 } = require('@condo/domains/common/utils/fixFileNameEncoding')
-const { url: URL, secret: SECRET, acquiringIntegrationId: ACQUIRING_INTEGRATION_ID } = conf.PAYMENTS_FILE_WEBHOOK_CONFIG ? JSON.parse(conf.PAYMENTS_FILE_WEBHOOK_CONFIG) : {}
+const { url: URL, secret: SECRET, acquiringIntegrationId: ACQUIRING_INTEGRATION_ID = null } = conf.PAYMENTS_FILE_WEBHOOK_CONFIG ? JSON.parse(conf.PAYMENTS_FILE_WEBHOOK_CONFIG) : {}
 
 const Adapter = new FileAdapter(PAYMENTS_FILES_FOLDER_NAME)
 
