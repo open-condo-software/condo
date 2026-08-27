@@ -13,14 +13,13 @@ import {
 } from '@tanstack/react-table'
 import React, { forwardRef, useImperativeHandle, useMemo, useState, useEffect, useCallback, useRef } from 'react'
 
-import { SelectionCheckbox } from '@open-condo/ui/src/components/Table/components/SelectionCheckbox'
+import { getSelectionColumnDef } from '@open-condo/ui/src/components/Table/components/SelectionColumn'
 import { TableBody } from '@open-condo/ui/src/components/Table/components/TableBody'
 import { TableHeader } from '@open-condo/ui/src/components/Table/components/TableHeader'
 import { TablePagination } from '@open-condo/ui/src/components/Table/components/TablePagination'
 import {
     DEFAULT_MIN_SIZE,
-    DEFAULT_PAGE_SIZE, 
-    COLUMN_ID_SELECTION,
+    DEFAULT_PAGE_SIZE,
 } from '@open-condo/ui/src/components/Table/constants'
 import { useTableSetting } from '@open-condo/ui/src/components/Table/hooks/useTableSetting'
 import type { 
@@ -39,27 +38,6 @@ import { renderTextWithTooltip } from '@open-condo/ui/src/components/Table/utils
 
 function getPageIndexFromStartRow (startRow: number, pageSize: number): number {
     return Math.floor(startRow / pageSize)
-}
-
-function getHeaderSelectionState (rows: { getCanSelect: () => boolean, getIsSelected: () => boolean }[]): { checked: boolean, indeterminate: boolean } {
-    const selectableRows = rows.filter(row => row.getCanSelect())
-    const selectedCount = selectableRows.filter(row => row.getIsSelected()).length
-    const allSelectableSelected = selectableRows.length > 0 && selectedCount === selectableRows.length
-
-    return {
-        checked: allSelectableSelected,
-        indeterminate: selectedCount > 0 && !allSelectableSelected,
-    }
-}
-
-function toggleAllSelectableRows (table: {
-    getRowModel: () => { rows: Array<{ getCanSelect: () => boolean, getIsSelected: () => boolean }> }
-    toggleAllRowsSelected: (value?: boolean) => void
-}): void {
-    const selectableRows = table.getRowModel().rows.filter(row => row.getCanSelect())
-    const allSelectableSelected = selectableRows.length > 0 && selectableRows.every(row => row.getIsSelected())
-
-    table.toggleAllRowsSelected(!allSelectableSelected)
 }
 
 /**
@@ -99,39 +77,7 @@ function TableComponent<TData extends RowData = RowData> (
     const tableColumns = useMemo(() => {
         const resultColumns: ColumnDefWithId<TData>[] = []
         if (rowSelectionOptions?.enableRowSelection) {
-            resultColumns.push(columnHelper.display({
-                id: COLUMN_ID_SELECTION,
-                header: ({ table }) => {
-                    const { checked, indeterminate } = getHeaderSelectionState(table.getRowModel().rows)
-
-                    return (
-                        <SelectionCheckbox
-                            checked={checked}
-                            indeterminate={indeterminate}
-                            onChange={() => toggleAllSelectableRows(table)}
-                        />
-                    )
-                },
-                cell: ({ row }) => (
-                    <SelectionCheckbox
-                        checked={row.getIsSelected()}
-                        disabled={!row.getCanSelect()}
-                        tooltip={rowSelectionOptions.getCheckboxTooltip?.(row.original)}
-                        onChange={row.getToggleSelectedHandler()}
-                    />
-                ),
-                minSize: 48,
-                enableSorting: false,
-                enableColumnFilter: false,
-                meta: {
-                    enableColumnSettings: false,
-                    enableColumnMenu: false,
-                    enableColumnResize: false,
-                    initialVisibility: true,
-                    initialSize: 48,
-                    initialOrder: 0,
-                },
-            }) as ColumnDefWithId<TData>)
+            resultColumns.push(getSelectionColumnDef(rowSelectionOptions.getCheckboxTooltip))
         }
 
         columns.forEach(c => {

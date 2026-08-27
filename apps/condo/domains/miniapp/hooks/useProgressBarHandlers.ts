@@ -4,7 +4,7 @@ import pickBy from 'lodash/pickBy'
 import { useCallback, useEffect, useRef } from 'react'
 import { z } from 'zod'
 
-import type { ShowProgressBarParams, ShowProgressBarData, TrackableCondoTaskSchemaName, UpdateProgressBarParams, UpdateProgressBarData, GetActiveProgressBarsParams, GetActiveProgressBarsData } from '@open-condo/bridge'
+import type { ShowProgressBarParams, ShowProgressBarData, UpdateProgressBarParams, UpdateProgressBarData, GetActiveProgressBarsParams, GetActiveProgressBarsData } from '@open-condo/bridge'
 import { generateUUIDv4 } from '@open-condo/miniapp-utils'
 import { usePostMessageContext, zodSchemaToValidator } from '@open-condo/miniapp-utils/helpers/messaging'
 import { useAuth } from '@open-condo/next/auth'
@@ -12,9 +12,6 @@ import { useAuth } from '@open-condo/next/auth'
 import { useTasks } from '@condo/domains/common/components/tasks/TasksContextProvider'
 import { TASK_PROCESSING_STATUS, TASK_COMPLETED_STATUS } from '@condo/domains/common/constants/tasks'
 import { useMiniappTaskUIInterface } from '@condo/domains/common/hooks/useMiniappTaskUIInterface'
-import { useNewsItemRecipientsExportTaskUIInterface } from '@condo/domains/news/hooks/useNewsItemRecipientsExportTaskUIInterface'
-
-const TRACKABLE_CONDO_TASK_SCHEMA_NAMES = new Set<TrackableCondoTaskSchemaName>(['NewsItemRecipientsExportTask'])
 
 type ShowProgressBarParamsValidator = (
     params: unknown
@@ -24,8 +21,6 @@ const ShowProgressBarParamsSchema = z.object({
     message: z.string(),
     description: z.string().optional(),
     externalTaskId: z.string().optional(),
-    // string, not enum: unknown names must not fail the whole method (fall back to MiniAppTask)
-    schemaName: z.string().optional(),
 })
 const UpdateProgressBarParamsSchema = z.object({
     barId: z.string(),
@@ -41,7 +36,6 @@ export function useProgressBarHandlers () {
     const { user } = useAuth()
     const { addTask, tasks, updateTask } = useTasks()
     const { MiniAppTask: miniAppTaskUIInterface } = useMiniappTaskUIInterface()
-    const { NewsItemRecipientsExportTask: newsItemRecipientsExportTaskUIInterface } = useNewsItemRecipientsExportTaskUIInterface()
 
     const userId = get(user, 'id', null)
     const { addHandler } = usePostMessageContext()
@@ -57,22 +51,8 @@ export function useProgressBarHandlers () {
         message,
         description,
         externalTaskId,
-        schemaName,
     }: ShowProgressBarParams,
     origin: string) => {
-        if (schemaName && externalTaskId && TRACKABLE_CONDO_TASK_SCHEMA_NAMES.has(schemaName)) {
-            addTask({
-                ...newsItemRecipientsExportTaskUIInterface,
-                record: {
-                    id: externalTaskId,
-                    status: TASK_PROCESSING_STATUS as 'processing',
-                    __typename: 'NewsItemRecipientsExportTask',
-                },
-            })
-
-            return { barId: externalTaskId }
-        }
-
         const id = generateUUIDv4()
         const taskRecord = {
             id,
@@ -91,7 +71,7 @@ export function useProgressBarHandlers () {
 
         return { barId: id }
         // TODO(DOMA-5171): Adding miniAppTaskUIInterface in deps causing rerender hell!
-    }, [userId, addTask, newsItemRecipientsExportTaskUIInterface, createTaskOp])
+    }, [userId, createTaskOp])
 
     const getActiveProgressBars = useCallback((origin: string) => {
         return {
