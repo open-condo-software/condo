@@ -6069,6 +6069,7 @@ type B2CAppAccessRightHistoryRecord {
   sender: JSON
   developmentExportId: String
   productionExportId: String
+  modifiedAt: String
   history_date: String
   history_action: B2CAppAccessRightHistoryRecordHistoryActionType
   history_id: String
@@ -6199,6 +6200,14 @@ input B2CAppAccessRightHistoryRecordWhereInput {
   productionExportId_not_ends_with_i: String
   productionExportId_in: [String]
   productionExportId_not_in: [String]
+  modifiedAt: String
+  modifiedAt_not: String
+  modifiedAt_lt: String
+  modifiedAt_lte: String
+  modifiedAt_gt: String
+  modifiedAt_gte: String
+  modifiedAt_in: [String]
+  modifiedAt_not_in: [String]
   history_date: String
   history_date_not: String
   history_date_lt: String
@@ -6242,6 +6251,8 @@ enum SortB2CAppAccessRightHistoryRecordsBy {
   developmentExportId_DESC
   productionExportId_ASC
   productionExportId_DESC
+  modifiedAt_ASC
+  modifiedAt_DESC
   history_date_ASC
   history_date_DESC
   history_action_ASC
@@ -6263,6 +6274,7 @@ input B2CAppAccessRightHistoryRecordUpdateInput {
   sender: JSON
   developmentExportId: String
   productionExportId: String
+  modifiedAt: String
   history_date: String
   history_action: B2CAppAccessRightHistoryRecordHistoryActionType
   history_id: String
@@ -6288,6 +6300,7 @@ input B2CAppAccessRightHistoryRecordCreateInput {
   sender: JSON
   developmentExportId: String
   productionExportId: String
+  modifiedAt: String
   history_date: String
   history_action: B2CAppAccessRightHistoryRecordHistoryActionType
   history_id: String
@@ -6356,6 +6369,10 @@ type B2CAppAccessRight {
   """ ID of this entity in the production environment. If set, subsequent publications to this environment will update the entity with the specified ID. 
   """
   productionExportId: String
+
+  """ Last time mini-app information relative to specific environment was modified. Used to auto-publish need detection 
+  """
+  modifiedAt: String
 }
 
 input B2CAppAccessRightWhereInput {
@@ -6463,6 +6480,14 @@ input B2CAppAccessRightWhereInput {
   productionExportId_not_ends_with_i: String
   productionExportId_in: [String]
   productionExportId_not_in: [String]
+  modifiedAt: String
+  modifiedAt_not: String
+  modifiedAt_lt: String
+  modifiedAt_lte: String
+  modifiedAt_gt: String
+  modifiedAt_gte: String
+  modifiedAt_in: [String]
+  modifiedAt_not_in: [String]
 }
 
 input B2CAppAccessRightWhereUniqueInput {
@@ -6496,6 +6521,8 @@ enum SortB2CAppAccessRightsBy {
   developmentExportId_DESC
   productionExportId_ASC
   productionExportId_DESC
+  modifiedAt_ASC
+  modifiedAt_DESC
 }
 
 input B2CAppAccessRightUpdateInput {
@@ -6513,6 +6540,7 @@ input B2CAppAccessRightUpdateInput {
   sender: SenderFieldInput
   developmentExportId: String
   productionExportId: String
+  modifiedAt: String
 }
 
 input B2CAppAccessRightsUpdateInput {
@@ -6535,6 +6563,7 @@ input B2CAppAccessRightCreateInput {
   sender: SenderFieldInput
   developmentExportId: String
   productionExportId: String
+  modifiedAt: String
 }
 
 input B2CAppAccessRightsCreateInput {

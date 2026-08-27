@@ -18,6 +18,7 @@ const { B2C_APP_TYPES, B2C_APP_CORDOVA_TYPE } = require('@dev-portal-api/domains
 const { INVALID_APP_URL } = require('@dev-portal-api/domains/miniapp/constants/errors')
 const { exportable } = require('@dev-portal-api/domains/miniapp/plugins/exportable')
 const { modifiable } = require('@dev-portal-api/domains/miniapp/plugins/modifiable')
+const { publishB2CApp } = require('@dev-portal-api/domains/miniapp/tasks/publishB2CApp')
 const { canReadAppSchemas, canManageAppSchemas } = require('@dev-portal-api/domains/miniapp/utils/serverSchema/access')
 
 const { getEnvironmentalPermissionsFields } = require('./fields/devicePermissions')
@@ -153,8 +154,7 @@ const B2CApp = new GQLListSchema('B2CApp', {
             trackDeletion: false,
             environmentField: null,
             onModify: async ({ environment, updatedItem }) => {
-                // TODO: add separate task
-                console.log('B2CApp modified', { environment, updatedItem })
+                await publishB2CApp.delay(updatedItem.id, environment)
             },
         }),
         historical(),

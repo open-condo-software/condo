@@ -15,7 +15,9 @@ const {
     PUBLISH_REQUEST_PENDING_STATUS,
     PUBLISH_REQUEST_APPROVED_STATUS,
     PUBLISH_REQUEST_STATUS_OPTIONS,
+    PROD_ENVIRONMENT,
 } = require('@dev-portal-api/domains/miniapp/constants/publishing')
+const { publishB2CApp } = require('@dev-portal-api/domains/miniapp/tasks/publishB2CApp')
 
 const ERRORS = {
     APPROVE_NOT_ALLOWED: {
@@ -117,6 +119,11 @@ const B2CAppPublishRequest = new GQLListSchema('B2CAppPublishRequest', {
                 if (!newItem['isAppTested'] || !newItem['isContractSigned'] || !newItem['isInfoApproved']) {
                     throw new GQLError(ERRORS.APPROVE_NOT_ALLOWED, context)
                 }
+            }
+        },
+        async afterChange ({ updatedItem }) {
+            if (updatedItem['status'] === PUBLISH_REQUEST_APPROVED_STATUS && !updatedItem['deletedAt']) {
+                await publishB2CApp.delay(updatedItem['app'], PROD_ENVIRONMENT)
             }
         },
     },
