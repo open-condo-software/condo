@@ -124,16 +124,19 @@ const FeatureFlagsProviderWrapper: React.FC<React.PropsWithChildren<FeatureFlags
         // would leave a stale org after the user leaves. Always write the provider-owned value
         // (id or null) when OrganizationProvider has/had one. Miniapps never get an id from
         // useOrganization — skip the key so their updateContext({ organization }) still wins.
+        let organizationAttributes = {}
+        if (organizationId) {
+            organizationAttributes = { organization: organizationId }
+        } else if (providerOwnedOrganizationIdRef.current) {
+            organizationAttributes = { organization: null }
+        }
+
         const nextContext = {
             isSupport: isSupport || isAdmin,
             userId,
             embeddingContextPlatform,
             embeddingContextAppId,
-            ...(organizationId
-                ? { organization: organizationId }
-                : providerOwnedOrganizationIdRef.current
-                    ? { organization: null }
-                    : {}),
+            ...organizationAttributes,
         }
 
         providerOwnedOrganizationIdRef.current = organizationId || null
