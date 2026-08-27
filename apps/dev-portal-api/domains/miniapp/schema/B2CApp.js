@@ -17,11 +17,14 @@ const {
 const { B2C_APP_TYPES, B2C_APP_CORDOVA_TYPE } = require('@dev-portal-api/domains/miniapp/constants/b2c')
 const { INVALID_APP_URL } = require('@dev-portal-api/domains/miniapp/constants/errors')
 const { exportable } = require('@dev-portal-api/domains/miniapp/plugins/exportable')
+const { modifiable } = require('@dev-portal-api/domains/miniapp/plugins/modifiable')
+const { publishB2CApp } = require('@dev-portal-api/domains/miniapp/tasks/publishB2CApp')
 const { canReadAppSchemas, canManageAppSchemas } = require('@dev-portal-api/domains/miniapp/utils/serverSchema/access')
 
 const { getEnvironmentalPermissionsFields } = require('./fields/devicePermissions')
 const { getEnvironmentalFields } = require('./fields/environmental')
 const { OIDC_CLIENT_ID_FIELD } = require('./fields/oidcClientId')
+
 
 const LOGO_FILE_ADAPTER = new FileAdapter('B2CApps/logos', true)
 const LOGO_META_AFTER_CHANGE = getFileMetaAfterChange(LOGO_FILE_ADAPTER, 'logo')
@@ -139,7 +142,24 @@ const B2CApp = new GQLListSchema('B2CApp', {
         validateInput: getSharedConstraintsValidator(['B2BApp']),
         afterChange: LOGO_META_AFTER_CHANGE,
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), exportable(), historical(), analytical()],
+    plugins: [
+        uuided(),
+        versioned(),
+        tracked(),
+        softDeleted(),
+        dvAndSender(),
+        exportable(),
+        modifiable({
+            // NOTE: API was not ready to handle app deletion events yet
+            trackDeletion: false,
+            environmentField: null,
+            onModify: async ({ environment, updatedItem }) => {
+                await publishB2CApp.delay(updatedItem.id, environment)
+            },
+        }),
+        historical(),
+        analytical(),
+    ],
     access: {
         read: canReadAppSchemas,
         create: canManageAppSchemas,

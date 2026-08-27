@@ -7,12 +7,19 @@ function _capitalize (str) {
 
 
 function getEnvironmentalFields (fieldName, field) {
+    const fieldFn = typeof field === 'function' ? field : () => field
+
     return Object.fromEntries(
-        AVAILABLE_ENVIRONMENTS.map(environment => [getEnvironmentalFieldName(environment, fieldName), {
-            ...field,
-            schemaDoc: field.schemaDoc?.replaceAll('{environment}', environment),
-            adminDoc: field.adminDoc?.replaceAll('{environment}', environment),
-        }])
+        AVAILABLE_ENVIRONMENTS.map(environment => {
+            const environmentalFieldName = getEnvironmentalFieldName(environment, fieldName)
+            const environmentalField = fieldFn(environment)
+
+            return [environmentalFieldName, {
+                ...environmentalField,
+                schemaDoc: environmentalField.schemaDoc?.replaceAll('{environment}', environment),
+                adminDoc: environmentalField.adminDoc?.replaceAll('{environment}', environment),
+            }]
+        })
     )
 }
 

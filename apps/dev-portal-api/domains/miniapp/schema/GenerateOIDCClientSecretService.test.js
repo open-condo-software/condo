@@ -8,7 +8,7 @@ const omit = require('lodash/omit')
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
 const { GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { makeClient } = require('@open-condo/keystone/test.utils')
+const { makeClient, waitFor } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAccessDeniedErrorToResult,
     expectToThrowAuthenticationErrorToResult,
@@ -56,7 +56,11 @@ describe('GenerateOIDCClientSecretService', () => {
         anonymous = await makeClient()
         condoAdmin = await makeLoggedInCondoAdminClient();
 
-        [b2cApp] = await createTestB2CApp(b2cUser);
+        [b2cApp] = await createTestB2CApp(b2cUser)
+        await waitFor(async () => {
+            const publishedApp = await B2CApp.getOne(b2cUser, { id: b2cApp.id })
+            expect(publishedApp).not.toHaveProperty('developmentExportId', null)
+        });
         [b2cOIDCClient] = await createOIDCClientByTestClient(b2cUser, b2cApp)
         initialCondoB2COidcClient = await CondoOIDCClient.getOne(condoAdmin, { id: b2cOIDCClient.id });
 

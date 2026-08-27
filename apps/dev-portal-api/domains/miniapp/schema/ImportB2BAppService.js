@@ -19,13 +19,12 @@ const { developmentClient, productionClient } = require('@dev-portal-api/domains
 const access = require('@dev-portal-api/domains/miniapp/access/ImportB2BAppService')
 const { B2B_APP_ACCESS_RIGHT_SET_APPROVED_STATUS } = require('@dev-portal-api/domains/miniapp/constants/b2bAppAccessRightSet')
 const { APP_NOT_FOUND, ARG_NOT_SPECIFIED } = require('@dev-portal-api/domains/miniapp/constants/errors')
-const { DEV_ENVIRONMENT, PROD_ENVIRONMENT } = require('@dev-portal-api/domains/miniapp/constants/publishing')
+const { DEV_ENVIRONMENT, PROD_ENVIRONMENT, PUBLISH_REQUEST_APPROVED_STATUS } = require('@dev-portal-api/domains/miniapp/constants/publishing')
 const { B2BApp, B2BAppAccessRight, B2BAppAccessRightSet, B2BAppPublishRequest } = require('@dev-portal-api/domains/miniapp/utils/serverSchema')
+const { wrapResolverWithAllEnvironmentLock } = require('@dev-portal-api/domains/miniapp/utils/serverSchema/locks')
 
 const { getEnvironmentalFieldsSelection, getEnvironmentalFieldName } = require('./fields/environmental')
 const { PERMISSION_FIELDS } = require('./fields/rightSetPermissions')
-
-const { PUBLISH_REQUEST_APPROVED_STATUS } = require('../constants/publishing')
 
 
 const ERRORS = {
@@ -431,12 +430,8 @@ const ImportB2BAppService = new GQLCustomSchema('ImportB2BAppService', {
         {
             access: access.canImportB2BApp,
             schema: 'importB2BApp(data: ImportB2BAppInput!): ImportB2BAppOutput',
-            resolver: async (parent, args, context, info, extra = {}) => {
-                const {
-                    data: {
-                        to: { app: { id: appId } },
-                    },
-                } = args
+            resolver: wrapResolverWithAllEnvironmentLock(async (parent, args, context, info, extra = {}) => {
+                const { data: { to: { app: { id: appId } } } } = args
 
                 const developmentAppId = get(args, ['data', 'from', 'developmentApp', 'id'])
                 const productionAppId = get(args, ['data', 'from', 'productionApp', 'id'])
@@ -464,7 +459,7 @@ const ImportB2BAppService = new GQLCustomSchema('ImportB2BAppService', {
                 return {
                     success: true,
                 }
-            },
+            }),
         },
     ],
     

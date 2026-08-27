@@ -499,13 +499,14 @@ jobs:
         run: |
           docker exec condo-container sh -c "yarn workspace @app/condo start" 2>&1 > ./test_logs/dev_portal_api.condo.dev.log &
           docker exec condo-container sh -c "yarn workspace @app/dev-portal-api start" 2>&1 > ./test_logs/dev_portal_api.dev-portal-api.dev.log &
+          docker exec condo-container sh -c "yarn workspace @app/dev-portal-api worker" 2>&1 > ./test_logs/dev_portal_api.dev-portal-api-worker.dev.log &
           docker exec condo-container sh -c "node bin/wait-apps-apis.js -f condo dev-portal-api"
           docker exec \
           -e PROMETHEUS_RW_SERVER_URL=$PROMETHEUS_RW_SERVER_URL \
           -e PROMETHEUS_USER=$PROMETHEUS_USER \
           -e PROMETHEUS_PASSWORD=$PROMETHEUS_PASSWORD \
           -e GH_REF_NAME=$GH_REF_NAME \
-          condo-container sh -c "yarn workspace @app/dev-portal-api test" 2>&1 > ./test_logs/dev_portal_api.tests.log
+          condo-container sh -c "yarn workspace @app/dev-portal-api test --workerIdleMemoryLimit='256MB' --testTimeout=15000 -w=3 --forceExit --bail" 2>&1 > ./test_logs/dev_portal_api.tests.log
         env:
           PROMETHEUS_RW_SERVER_URL: ${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }}
           PROMETHEUS_USER: ${{ secrets.K6_PROMETHEUS_USER }}

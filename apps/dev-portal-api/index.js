@@ -25,6 +25,7 @@ const apps = () => {
 }
 
 const tasks = () => [
+    require('@dev-portal-api/domains/miniapp/tasks'),
     getWebhookTasks(),
 ]
 

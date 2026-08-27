@@ -16,7 +16,7 @@ const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId created
 const EXPORT_FIELDS = getEnvironmentalFieldsSelection(['exportId'])
 
 const B2B_APP_PERMISSIONS_FIELDS = getEnvironmentalFieldsSelection(getDevicePermissions({ listKey: 'B2BApp' }).map(field => getDevicePermissionFieldName(field).substring(2)))
-const B2B_APP_FIELDS = `{ name developer developerUrl shortDescription detailedDescription category contextDefaultStatus logo { publicUrl originalFilename } ${getEnvironmentalFieldsSelection(['oidcClientId', 'appUrl'])} ${B2B_APP_PERMISSIONS_FIELDS} ${COMMON_FIELDS} ${EXPORT_FIELDS} }`
+const B2B_APP_FIELDS = `{ name developer developerUrl shortDescription detailedDescription category contextDefaultStatus logo { publicUrl originalFilename } ${getEnvironmentalFieldsSelection(['oidcClientId', 'appUrl', 'modifiedAt', 'publishedAt'])} ${B2B_APP_PERMISSIONS_FIELDS} ${COMMON_FIELDS} ${EXPORT_FIELDS} }`
 const B2BApp = generateGqlQueries('B2BApp', B2B_APP_FIELDS)
 
 const B2B_APP_ACCESS_RIGHT_FIELDS = `{ app { id } condoUserId condoUserEmail environment ${COMMON_FIELDS} ${EXPORT_FIELDS} }`

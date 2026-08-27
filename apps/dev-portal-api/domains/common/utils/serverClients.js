@@ -9,6 +9,7 @@ const { REMOTE_SYSTEM } = require('@dev-portal-api/domains/common/constants/comm
 const { MULTIPLE_FOUND } = require('@dev-portal-api/domains/common/constants/errors')
 const { DEFAULT_LOCALE } = require('@dev-portal-api/domains/common/constants/locales')
 const { SEND_MESSAGE_MUTATION } = require('@dev-portal-api/domains/common/gql')
+const { AVAILABLE_ENVIRONMENTS } = require('@dev-portal-api/domains/miniapp/constants/publishing')
 
 const DEV_AUTH_CONFIG = JSON.parse(conf['CONDO_DEV_BOT_CONFIG'] || '{}')
 const PROD_AUTH_CONFIG = JSON.parse(conf['CONDO_PROD_BOT_CONFIG'] || '{}')
@@ -63,12 +64,19 @@ class CondoClient extends ApolloServerClient {
         searchConditions.push({ AND: [{ importId: id, importRemoteSystem: REMOTE_SYSTEM }] })
         const objs = await this.getModels({
             modelGql,
-            first: 2,
+            // NOTE: There can be 1 match by id, and N matches for each environment (in case multiple environments share single condo instance)
+            first: 1 + AVAILABLE_ENVIRONMENTS.length,
             where: {
                 OR: searchConditions,
             },
         })
         if (objs.length > 1) {
+            const objById = objs.find(obj => obj.id === exportId)
+
+            if (objById) {
+                return objById
+            }
+
             throw new GQLError(ERRORS.MULTIPLE_FOUND, context)
         }
 
