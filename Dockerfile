@@ -8,10 +8,12 @@
 #   apps-base     → target: base
 #   apps-deps     → target: werf-installer  (FROM $BASE_IMAGE)
 #   apps          → target: werf-runtime    (FROM $BASE_IMAGE, build FROM $DEPS_IMAGE)
+#
+# BASE_IMAGE / DEPS_IMAGE default to busybox for werf config parsing (werf resolves all
+# FROM lines). CI passes BASE_IMAGE=base and DEPS_IMAGE=werf-installer so incidental
+# werf-stage cache rebuilds use local stages with node/yarn instead of busybox.
 
 ARG REGISTRY=docker.io
-# Global defaults required: werf resolves all FROM lines even for unused stages.
-# Overridden by werf dependencies imports when building werf-* targets.
 ARG BASE_IMAGE=busybox:1.36
 ARG DEPS_IMAGE=busybox:1.36
 
@@ -101,7 +103,6 @@ COPY --from=builder --chown=app:app /app /app
 
 # -----------------------------------------------------------------------------
 # Werf-only stages: reuse published apps-base / apps-deps images via build-args
-# (not built by CI --target runtime)
 # -----------------------------------------------------------------------------
 FROM ${BASE_IMAGE} AS werf-installer
 
@@ -115,7 +116,6 @@ RUN --mount=type=cache,target=/usr/local/share/.cache/yarn \
 FROM ${DEPS_IMAGE} AS werf-builder
 
 ARG TURBO_TEAM
-ARG TURBO_TOKEN
 ARG TURBO_API
 ARG TURBO_REMOTE_ONLY=false
 
@@ -123,7 +123,6 @@ WORKDIR /app
 COPY --chown=app:app . /app
 
 ENV TURBO_TEAM=$TURBO_TEAM
-ENV TURBO_TOKEN=$TURBO_TOKEN
 ENV TURBO_API=$TURBO_API
 ENV TURBO_REMOTE_ONLY=$TURBO_REMOTE_ONLY
 
@@ -137,7 +136,8 @@ RUN echo "# Build time .env config!" >> /app/.env && \
 
 RUN chmod +x ./bin/run_condo_domain_tests.sh
 
-RUN --mount=type=cache,target=/usr/local/share/.cache/yarn \
+RUN --mount=type=secret,id=TURBO_TOKEN,env=TURBO_TOKEN \
+	--mount=type=cache,target=/usr/local/share/.cache/yarn \
 	--mount=type=cache,target=/app/.turbo \
 	set -ex \
 	&& yarn build \
