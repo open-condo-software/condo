@@ -6,9 +6,11 @@ config:
       - PULL_USER
       - PULL_PERSONAL_ACCESS_KEY
       - DOCKER_REGISTRY
-      - TURBO_TOKEN
       - TURBO_API
       - PREBUILT_APPS_IMAGE
+  secrets:
+    allowEnvVariables:
+      - TURBO_TOKEN
   stapel:
     allowFromLatest: true
   dockerfile:
