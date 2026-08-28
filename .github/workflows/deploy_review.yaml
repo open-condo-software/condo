@@ -47,6 +47,8 @@ jobs:
         run: echo "REVIEW_NAMESPACE=$(echo review-${GITHUB_REF##*/} | sed 's/[^a-zA-Z0-9_-]//g; s/_/-/g')" >> $GITHUB_ENV
       - name: Set env url prefix
         run: echo "REVIEW_URL_PREFIX=$(echo ${GITHUB_REF##*/} | sed 's/[^a-zA-Z0-9_-]//g; s/_/-/g' | cut -c -30)" >> $GITHUB_ENV
+      - name: Resolve prebuilt apps image
+        run: bash bin/resolve_prebuilt_apps_image.sh "${{ secrets.DOCKER_REGISTRY }}" "${{ github.sha }}"
       - name: Prune package manifests for Docker deps layer
         run: bash bin/prune.sh
       - name: Converge

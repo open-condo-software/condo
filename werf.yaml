@@ -1,5 +1,11 @@
 project: condo
 configVersion: 1
+{{ if ne (env "PREBUILT_APPS_IMAGE" "") "" }}
+---
+image: apps
+from: {{ env "PREBUILT_APPS_IMAGE" }}
+fromLatest: true
+{{ else }}
 ---
 # Dockerfile target: base — OS + Node/Python (cached until base stage changes)
 image: apps-base
@@ -44,6 +50,7 @@ dependencies:
     imports:
       - type: ImageName
         targetBuildArg: DEPS_IMAGE
+{{ end }}
 ---
 image: valkeyreview
 from: valkey/valkey:8.0.2
