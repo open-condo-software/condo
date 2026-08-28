@@ -1,6 +1,6 @@
 import { Form, notification } from 'antd'
 import get from 'lodash/get'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
 
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
@@ -43,10 +43,13 @@ export const PublishingSection: React.FC<{ id: string }> = ({ id }) => {
 
     const handleEnvironmentChange = useCallback<Required<SelectProps>['onChange']>((value) => {
         setEnvironment(value as AppEnvironment)
-        if (value === PROD_ENVIRONMENT) {
+    }, [])
+
+    useEffect(() => {
+        if (environment === PROD_ENVIRONMENT) {
             fetchPublishRequests()
         }
-    }, [fetchPublishRequests])
+    }, [environment, fetchPublishRequests])
 
     return (
         <Section>
