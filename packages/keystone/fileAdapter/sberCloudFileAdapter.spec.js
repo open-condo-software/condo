@@ -1,5 +1,7 @@
 const { Readable } = require('stream')
 
+const CONTENT = Buffer.from('0123456789abcdef')
+
 const { faker } = require('@faker-js/faker')
 const ObsClient = require('esdk-obs-nodejs')
 const jwt = require('jsonwebtoken')
@@ -24,6 +26,12 @@ jest.mock('@open-condo/keystone/logging', () => ({
 const conf = require('@open-condo/config')
 
 const { SberCloudFileAdapter } = require('./sberCloudFileAdapter')
+
+async function streamToBuffer (stream) {
+    const chunks = []
+    for await (const chunk of stream) chunks.push(chunk)
+    return Buffer.concat(chunks)
+}
 
 describe('SberCloudFileAdapter', () => {
     let mockS3Client
@@ -130,6 +138,62 @@ describe('SberCloudFileAdapter', () => {
             })
 
             expect(result).toBe(id)
+        })
+    })
+
+    describe('ranged reads', () => {
+        const file = { filename: 'registry.txt' }
+
+        beforeEach(() => {
+            mockS3Client.getObjectMetadata = jest.fn().mockResolvedValue({
+                CommonMsg: { Status: 200 },
+                InterfaceResult: { ContentLength: CONTENT.length },
+            })
+            mockS3Client.getObject = jest.fn((params, callback) => callback(null, {
+                CommonMsg: { Status: 200 },
+                InterfaceResult: { Content: Readable.from([CONTENT.subarray(2, 6)]) },
+            }))
+        })
+
+        it('gets file size from OBS metadata', async () => {
+            const adapter = new SberCloudFileAdapter(config)
+
+            await expect(adapter.getFileSize(file)).resolves.toBe(CONTENT.length)
+            expect(mockS3Client.getObjectMetadata).toHaveBeenCalledWith({
+                Bucket: 'test-bucket',
+                Key: 'test-folder/registry.txt',
+            })
+        })
+
+        it('requests and returns an exact byte range', async () => {
+            const adapter = new SberCloudFileAdapter(config)
+
+            await expect(adapter.readRange(file, 2, 4)).resolves.toEqual(CONTENT.subarray(2, 6))
+            expect(mockS3Client.getObject).toHaveBeenCalledWith(expect.objectContaining({
+                Bucket: 'test-bucket',
+                Key: 'test-folder/registry.txt',
+                Range: 'bytes=2-5',
+                SaveAsStream: true,
+            }), expect.any(Function))
+        })
+
+        it('preserves transient OBS status on ranged-read errors', async () => {
+            const adapter = new SberCloudFileAdapter(config)
+            mockS3Client.getObject.mockImplementationOnce((params, callback) => callback(null, {
+                CommonMsg: { Status: 503 },
+            }))
+
+            await expect(adapter.readRange(file, 2, 4)).rejects.toMatchObject({
+                message: 'Unable to read registry file range: OBS status 503',
+                statusCode: 503,
+            })
+        })
+
+        it('creates a full object stream', async () => {
+            const adapter = new SberCloudFileAdapter(config)
+            const stream = await adapter.createReadStream(file)
+
+            await expect(streamToBuffer(stream)).resolves.toEqual(CONTENT.subarray(2, 6))
         })
     })
 
