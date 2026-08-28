@@ -27,6 +27,30 @@ async function updateAppEnvFileClients (appName) {
     await updateAppEnvFile(appName, 'FILE_SECRET', appName + '-secret')
 }
 
+async function updateAppEnvPaymentsFileWebhookConfig (appName) {
+    await updateAppEnvFile(appName, 'PAYMENTS_FILE_WEBHOOK_CONFIG', async (prev) => {
+        if (prev) {
+            return prev
+        }
+
+        const integration = {
+            hostUrl: 'https://testtest.com',
+            explicitFeeDistributionSchema: [],
+        }
+
+        const { stdout } = await safeExec(
+            `yarn workspace @app/${appName} node ./bin/create-acquiring-integration.js 'Payments file webhook' '${JSON.stringify(integration)}'`
+        )
+        const acquiringIntegrationId = stdout.trim().split('\n').pop()
+
+        return JSON.stringify({
+            url: 'https://testtest.com',
+            secret: 'secret',
+            acquiringIntegrationId,
+        })
+    })
+}
+
 async function prepareSubscriptionPaymentRecipient (appName) {
     const existingOrgId = await getAppEnvValue(appName, 'SUBSCRIPTION_PAYMENT_RECIPIENT')
     if (existingOrgId) {
@@ -48,6 +72,7 @@ async function main () {
     await updateAppEnvFileClients(appName)
     await prepareSubscriptionPaymentRecipient(appName)
     await prepareAppEnvLocalAdminUsers(appName)
+    await updateAppEnvPaymentsFileWebhookConfig(appName)
     const { keystone: context } = await prepareKeystoneExpressApp(path.resolve('./index.js'), { excludeApps: ['NextApp', 'AdminUIApp'] })
 
     const adminEmail = await getAppEnvValue(appName, 'DEFAULT_TEST_ADMIN_IDENTITY')

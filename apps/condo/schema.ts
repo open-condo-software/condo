@@ -121469,7 +121469,7 @@ export type WebhookPayload = {
   deletedAt?: Maybe<Scalars['String']['output']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']['output']>;
-  /**  Type of event that triggered this webhook. Custom events: payment.status.updated, subscription.activated. Auto-generated events from models with webHooked() plugin: ModelName.created, ModelName.updated, ModelName.deleted (e.g., Payment.created, Ticket.updated).  */
+  /**  Type of event that triggered this webhook. Custom events: payment.status.updated, subscription.activated, paymentsFile.status.updated. Auto-generated events from models with webHooked() plugin: ModelName.created, ModelName.updated, ModelName.deleted (e.g., Payment.created, Ticket.updated).  */
   eventType?: Maybe<Scalars['String']['output']>;
   /**  Timestamp after which no more send attempts will be made  */
   expiresAt?: Maybe<Scalars['String']['output']>;
