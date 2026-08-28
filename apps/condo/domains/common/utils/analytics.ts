@@ -1,8 +1,10 @@
-import postHog from '@metro-fs/analytics-plugin-posthog'
 import getConfig from 'next/config'
 
 import { Analytics, isSSR, isDebug } from '@open-condo/miniapp-utils'
 import type { AnalyticsPlugin } from '@open-condo/miniapp-utils'
+
+import { postHogAnalyticsPlugin } from '@condo/domains/common/utils/analyticsPlugins/postHog'
+import { yMetrikaAnalyticsPlugin } from '@condo/domains/common/utils/analyticsPlugins/yMetrika'
 
 const nextConfig = getConfig()
 
@@ -10,6 +12,7 @@ const appName = nextConfig?.publicRuntimeConfig?.appName
 const currentVersion = nextConfig?.publicRuntimeConfig?.currentVersion
 const posthogApiHost = nextConfig?.publicRuntimeConfig?.posthogApiHost
 const posthogApiKey = nextConfig?.publicRuntimeConfig?.posthogApiKey
+const yandexMetrikaID = nextConfig?.publicRuntimeConfig?.yandexMetrikaID
 
 // TODO: Remove the types after components replaces with ones from @open-condo/ui
 
@@ -162,7 +165,7 @@ function initAnalytics (): Analytics<EventsData, UserData, AppGroups> {
     const plugins: Array<AnalyticsPlugin> = []
 
     if (posthogApiKey && posthogApiHost && !isSSR()) {
-        plugins.push(postHog({
+        plugins.push(postHogAnalyticsPlugin({
             enabled: true,
             token: posthogApiKey,
             options: {
@@ -176,6 +179,10 @@ function initAnalytics (): Analytics<EventsData, UserData, AppGroups> {
                 autocapture: false,
             },
         }))
+    }
+
+    if (yandexMetrikaID && !isSSR()) {
+        plugins.push(yMetrikaAnalyticsPlugin)
     }
 
     return new Analytics<EventsData, UserData, AppGroups>({

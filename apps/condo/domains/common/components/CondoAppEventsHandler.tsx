@@ -31,6 +31,7 @@ export const CondoAppEventsHandler: FC = () => {
                         name: user?.name,
                         type: user?.type || STAFF,
                         role: employee?.role?.nameNonLocalized,
+                        roleName: employee?.role?.name,
                         organization: {
                             id: employee?.organization?.id,
                             features: employee?.organization?.features,
@@ -40,7 +41,7 @@ export const CondoAppEventsHandler: FC = () => {
                 analytics.reset()
             }
         }
-    }, [userLoading, user, employee?.organization?.id, employee?.role?.nameNonLocalized, employee?.organization?.features])
+    }, [userLoading, user, employee?.organization?.id, employee?.role?.name, employee?.role?.nameNonLocalized, employee?.organization?.features])
 
     // Routing tracking
     useEffect(() => {
