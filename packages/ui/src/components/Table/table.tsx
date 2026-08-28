@@ -40,6 +40,21 @@ function getPageIndexFromStartRow (startRow: number, pageSize: number): number {
     return Math.floor(startRow / pageSize)
 }
 
+function getEnableRowSelection<TData extends RowData> (
+    rowSelectionOptions: TableProps<TData>['rowSelectionOptions']
+): boolean | ((row: { original: TData }) => boolean) {
+    if (!rowSelectionOptions?.enableRowSelection) {
+        return false
+    }
+
+    const { isRowSelectable } = rowSelectionOptions
+    if (!isRowSelectable) {
+        return true
+    }
+
+    return (row) => Boolean(isRowSelectable(row.original))
+}
+
 /**
  * @deprecated This component is experimental. API may change at any time without notice.
  * 
@@ -392,11 +407,7 @@ function TableComponent<TData extends RowData = RowData> (
         onColumnVisibilityChange: onColumnVisibilityChange,
         onColumnOrderChange: onColumnOrderChange,
         onColumnSizingChange: onColumnSizingChange,
-        enableRowSelection: rowSelectionOptions?.enableRowSelection
-            ? (rowSelectionOptions.isRowSelectable
-                ? (row) => Boolean(rowSelectionOptions.isRowSelectable?.(row.original))
-                : true)
-            : false,
+        enableRowSelection: getEnableRowSelection(rowSelectionOptions),
         getRowId: getRowId,
         defaultColumn: {
             filterFn: 'equals',
