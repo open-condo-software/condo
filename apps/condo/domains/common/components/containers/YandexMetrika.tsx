@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import ym, { YMInitializer } from 'react-yandex-metrika'
 
 
+// TODO(DOMA-13520): move it to common/util/analyticsPlugin/yMetrica.ts
 const YandexMetrika = () => {
     const { publicRuntimeConfig } = getConfig()
     const { yandexMetrikaID } = publicRuntimeConfig

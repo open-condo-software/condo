@@ -17,7 +17,11 @@ export const yMetrikaAnalyticsPlugin: AnalyticsPlugin = {
             roleNameNonLocalized: payload.traits.role,
         }, isNil)
 
-        ym('userParams', { ...payload.traits, ...overridedParams })
+        const visitorIds = Object.fromEntries(
+            (payload.visitorIdKeys ?? []).map((key: string) => [key, payload.traits[key]])
+        )
+
+        ym('userParams', { ...visitorIds, ...overridedParams })
     },
     methods: {
         getVisitorId: () => new Promise<string | undefined>((resolve) => {

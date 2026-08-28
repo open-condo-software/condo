@@ -18,8 +18,12 @@ async function _shareVisitorIds (data: PluginIdentifyData): Promise<PluginIdenti
             .map(async ([name, plugin]) => [name, await withTimeout(plugin.getVisitorId?.())] as const)
     )
 
+    payload.visitorIdKeys = []
     for (const [name, id] of entries) {
-        if (id) payload.traits[name] = id
+        if (id) {
+            payload.traits[name] = id
+            payload.visitorIdKeys.push(name)
+        }
     }
 
     return data
