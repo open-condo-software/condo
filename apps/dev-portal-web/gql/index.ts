@@ -70,6 +70,7 @@ export type B2BAppAccessRightCreateInput = {
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   environment?: InputMaybe<AppEnvironment>;
+  modifiedAt?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['String']['input']>;
   productionExportId?: InputMaybe<Scalars['String']['input']>;
   sender?: InputMaybe<SenderFieldInput>;
@@ -90,6 +91,7 @@ export type B2BAppAccessRightHistoryRecordCreateInput = {
   history_action?: InputMaybe<B2BAppAccessRightHistoryRecordHistoryActionType>;
   history_date?: InputMaybe<Scalars['String']['input']>;
   history_id?: InputMaybe<Scalars['String']['input']>;
+  modifiedAt?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['JSON']['input']>;
   productionExportId?: InputMaybe<Scalars['String']['input']>;
   sender?: InputMaybe<Scalars['JSON']['input']>;
@@ -116,6 +118,7 @@ export type B2BAppAccessRightHistoryRecordUpdateInput = {
   history_action?: InputMaybe<B2BAppAccessRightHistoryRecordHistoryActionType>;
   history_date?: InputMaybe<Scalars['String']['input']>;
   history_id?: InputMaybe<Scalars['String']['input']>;
+  modifiedAt?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['JSON']['input']>;
   productionExportId?: InputMaybe<Scalars['String']['input']>;
   sender?: InputMaybe<Scalars['JSON']['input']>;
@@ -219,6 +222,14 @@ export type B2BAppAccessRightHistoryRecordWhereInput = {
   id_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   id_not?: InputMaybe<Scalars['ID']['input']>;
   id_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  modifiedAt?: InputMaybe<Scalars['String']['input']>;
+  modifiedAt_gt?: InputMaybe<Scalars['String']['input']>;
+  modifiedAt_gte?: InputMaybe<Scalars['String']['input']>;
+  modifiedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  modifiedAt_lt?: InputMaybe<Scalars['String']['input']>;
+  modifiedAt_lte?: InputMaybe<Scalars['String']['input']>;
+  modifiedAt_not?: InputMaybe<Scalars['String']['input']>;
+  modifiedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   newId?: InputMaybe<Scalars['JSON']['input']>;
   newId_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
   newId_not?: InputMaybe<Scalars['JSON']['input']>;
@@ -282,6 +293,7 @@ export type B2BAppAccessRightHistoryRecordsUpdateInput = {
 
 export type B2BAppAccessRightSetCreateInput = {
   app?: InputMaybe<B2BAppRelateToOneInput>;
+  canExecuteGetNewsItemsRecipientsCounters?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterBillingReceiptFile?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterBillingReceipts?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterExternalPayments?: InputMaybe<Scalars['Boolean']['input']>;
@@ -297,6 +309,10 @@ export type B2BAppAccessRightSetCreateInput = {
   canManageMeterReadings?: InputMaybe<Scalars['Boolean']['input']>;
   canManageMeterReportingPeriods?: InputMaybe<Scalars['Boolean']['input']>;
   canManageMeters?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemRecipientsExportTasks?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemScopes?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItems?: InputMaybe<Scalars['Boolean']['input']>;
   canManageProperties?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTicketCommentFiles?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTicketComments?: InputMaybe<Scalars['Boolean']['input']>;
@@ -316,6 +332,8 @@ export type B2BAppAccessRightSetCreateInput = {
   canReadMeterReportingPeriods?: InputMaybe<Scalars['Boolean']['input']>;
   canReadMeters?: InputMaybe<Scalars['Boolean']['input']>;
   canReadNewsItemFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItemScopes?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItems?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizationEmployeeRoles?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizationEmployees?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizations?: InputMaybe<Scalars['Boolean']['input']>;
@@ -331,6 +349,7 @@ export type B2BAppAccessRightSetCreateInput = {
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   environment?: InputMaybe<AppEnvironment>;
+  modifiedAt?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['String']['input']>;
   productionExportId?: InputMaybe<Scalars['String']['input']>;
   sender?: InputMaybe<SenderFieldInput>;
@@ -342,6 +361,7 @@ export type B2BAppAccessRightSetCreateInput = {
 
 export type B2BAppAccessRightSetHistoryRecordCreateInput = {
   app?: InputMaybe<Scalars['String']['input']>;
+  canExecuteGetNewsItemsRecipientsCounters?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterBillingReceiptFile?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterBillingReceipts?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterExternalPayments?: InputMaybe<Scalars['Boolean']['input']>;
@@ -357,6 +377,10 @@ export type B2BAppAccessRightSetHistoryRecordCreateInput = {
   canManageMeterReadings?: InputMaybe<Scalars['Boolean']['input']>;
   canManageMeterReportingPeriods?: InputMaybe<Scalars['Boolean']['input']>;
   canManageMeters?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemRecipientsExportTasks?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemScopes?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItems?: InputMaybe<Scalars['Boolean']['input']>;
   canManageProperties?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTicketCommentFiles?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTicketComments?: InputMaybe<Scalars['Boolean']['input']>;
@@ -376,6 +400,8 @@ export type B2BAppAccessRightSetHistoryRecordCreateInput = {
   canReadMeterReportingPeriods?: InputMaybe<Scalars['Boolean']['input']>;
   canReadMeters?: InputMaybe<Scalars['Boolean']['input']>;
   canReadNewsItemFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItemScopes?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItems?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizationEmployeeRoles?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizationEmployees?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizations?: InputMaybe<Scalars['Boolean']['input']>;
@@ -394,6 +420,7 @@ export type B2BAppAccessRightSetHistoryRecordCreateInput = {
   history_action?: InputMaybe<B2BAppAccessRightSetHistoryRecordHistoryActionType>;
   history_date?: InputMaybe<Scalars['String']['input']>;
   history_id?: InputMaybe<Scalars['String']['input']>;
+  modifiedAt?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['JSON']['input']>;
   productionExportId?: InputMaybe<Scalars['String']['input']>;
   sender?: InputMaybe<Scalars['JSON']['input']>;
@@ -411,6 +438,7 @@ export enum B2BAppAccessRightSetHistoryRecordHistoryActionType {
 
 export type B2BAppAccessRightSetHistoryRecordUpdateInput = {
   app?: InputMaybe<Scalars['String']['input']>;
+  canExecuteGetNewsItemsRecipientsCounters?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterBillingReceiptFile?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterBillingReceipts?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterExternalPayments?: InputMaybe<Scalars['Boolean']['input']>;
@@ -426,6 +454,10 @@ export type B2BAppAccessRightSetHistoryRecordUpdateInput = {
   canManageMeterReadings?: InputMaybe<Scalars['Boolean']['input']>;
   canManageMeterReportingPeriods?: InputMaybe<Scalars['Boolean']['input']>;
   canManageMeters?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemRecipientsExportTasks?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemScopes?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItems?: InputMaybe<Scalars['Boolean']['input']>;
   canManageProperties?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTicketCommentFiles?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTicketComments?: InputMaybe<Scalars['Boolean']['input']>;
@@ -445,6 +477,8 @@ export type B2BAppAccessRightSetHistoryRecordUpdateInput = {
   canReadMeterReportingPeriods?: InputMaybe<Scalars['Boolean']['input']>;
   canReadMeters?: InputMaybe<Scalars['Boolean']['input']>;
   canReadNewsItemFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItemScopes?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItems?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizationEmployeeRoles?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizationEmployees?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizations?: InputMaybe<Scalars['Boolean']['input']>;
@@ -463,6 +497,7 @@ export type B2BAppAccessRightSetHistoryRecordUpdateInput = {
   history_action?: InputMaybe<B2BAppAccessRightSetHistoryRecordHistoryActionType>;
   history_date?: InputMaybe<Scalars['String']['input']>;
   history_id?: InputMaybe<Scalars['String']['input']>;
+  modifiedAt?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['JSON']['input']>;
   productionExportId?: InputMaybe<Scalars['String']['input']>;
   sender?: InputMaybe<Scalars['JSON']['input']>;
@@ -479,6 +514,8 @@ export type B2BAppAccessRightSetHistoryRecordWhereInput = {
   app_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   app_not?: InputMaybe<Scalars['String']['input']>;
   app_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  canExecuteGetNewsItemsRecipientsCounters?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteGetNewsItemsRecipientsCounters_not?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterBillingReceiptFile?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterBillingReceiptFile_not?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterBillingReceipts?: InputMaybe<Scalars['Boolean']['input']>;
@@ -509,6 +546,14 @@ export type B2BAppAccessRightSetHistoryRecordWhereInput = {
   canManageMeterReportingPeriods_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageMeters?: InputMaybe<Scalars['Boolean']['input']>;
   canManageMeters_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemFiles_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemRecipientsExportTasks?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemRecipientsExportTasks_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemScopes?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemScopes_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItems?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItems_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageProperties?: InputMaybe<Scalars['Boolean']['input']>;
   canManageProperties_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTicketCommentFiles?: InputMaybe<Scalars['Boolean']['input']>;
@@ -547,6 +592,10 @@ export type B2BAppAccessRightSetHistoryRecordWhereInput = {
   canReadMeters_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadNewsItemFiles?: InputMaybe<Scalars['Boolean']['input']>;
   canReadNewsItemFiles_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItemScopes?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItemScopes_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItems?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItems_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizationEmployeeRoles?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizationEmployeeRoles_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizationEmployees?: InputMaybe<Scalars['Boolean']['input']>;
@@ -649,6 +698,14 @@ export type B2BAppAccessRightSetHistoryRecordWhereInput = {
   id_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   id_not?: InputMaybe<Scalars['ID']['input']>;
   id_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  modifiedAt?: InputMaybe<Scalars['String']['input']>;
+  modifiedAt_gt?: InputMaybe<Scalars['String']['input']>;
+  modifiedAt_gte?: InputMaybe<Scalars['String']['input']>;
+  modifiedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  modifiedAt_lt?: InputMaybe<Scalars['String']['input']>;
+  modifiedAt_lte?: InputMaybe<Scalars['String']['input']>;
+  modifiedAt_not?: InputMaybe<Scalars['String']['input']>;
+  modifiedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   newId?: InputMaybe<Scalars['JSON']['input']>;
   newId_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
   newId_not?: InputMaybe<Scalars['JSON']['input']>;
@@ -735,6 +792,7 @@ export enum B2BAppAccessRightSetStatusType {
 
 export type B2BAppAccessRightSetUpdateInput = {
   app?: InputMaybe<B2BAppRelateToOneInput>;
+  canExecuteGetNewsItemsRecipientsCounters?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterBillingReceiptFile?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterBillingReceipts?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterExternalPayments?: InputMaybe<Scalars['Boolean']['input']>;
@@ -750,6 +808,10 @@ export type B2BAppAccessRightSetUpdateInput = {
   canManageMeterReadings?: InputMaybe<Scalars['Boolean']['input']>;
   canManageMeterReportingPeriods?: InputMaybe<Scalars['Boolean']['input']>;
   canManageMeters?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemRecipientsExportTasks?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemScopes?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItems?: InputMaybe<Scalars['Boolean']['input']>;
   canManageProperties?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTicketCommentFiles?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTicketComments?: InputMaybe<Scalars['Boolean']['input']>;
@@ -769,6 +831,8 @@ export type B2BAppAccessRightSetUpdateInput = {
   canReadMeterReportingPeriods?: InputMaybe<Scalars['Boolean']['input']>;
   canReadMeters?: InputMaybe<Scalars['Boolean']['input']>;
   canReadNewsItemFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItemScopes?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItems?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizationEmployeeRoles?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizationEmployees?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizations?: InputMaybe<Scalars['Boolean']['input']>;
@@ -784,6 +848,7 @@ export type B2BAppAccessRightSetUpdateInput = {
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   environment?: InputMaybe<AppEnvironment>;
+  modifiedAt?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['String']['input']>;
   productionExportId?: InputMaybe<Scalars['String']['input']>;
   sender?: InputMaybe<SenderFieldInput>;
@@ -798,6 +863,8 @@ export type B2BAppAccessRightSetWhereInput = {
   OR?: InputMaybe<Array<InputMaybe<B2BAppAccessRightSetWhereInput>>>;
   app?: InputMaybe<B2BAppWhereInput>;
   app_is_null?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteGetNewsItemsRecipientsCounters?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteGetNewsItemsRecipientsCounters_not?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterBillingReceiptFile?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterBillingReceiptFile_not?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterBillingReceipts?: InputMaybe<Scalars['Boolean']['input']>;
@@ -828,6 +895,14 @@ export type B2BAppAccessRightSetWhereInput = {
   canManageMeterReportingPeriods_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageMeters?: InputMaybe<Scalars['Boolean']['input']>;
   canManageMeters_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemFiles?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemFiles_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemRecipientsExportTasks?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemRecipientsExportTasks_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemScopes?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItemScopes_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItems?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageNewsItems_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageProperties?: InputMaybe<Scalars['Boolean']['input']>;
   canManageProperties_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTicketCommentFiles?: InputMaybe<Scalars['Boolean']['input']>;
@@ -866,6 +941,10 @@ export type B2BAppAccessRightSetWhereInput = {
   canReadMeters_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadNewsItemFiles?: InputMaybe<Scalars['Boolean']['input']>;
   canReadNewsItemFiles_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItemScopes?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItemScopes_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItems?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadNewsItems_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizationEmployeeRoles?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizationEmployeeRoles_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadOrganizationEmployees?: InputMaybe<Scalars['Boolean']['input']>;
@@ -936,6 +1015,14 @@ export type B2BAppAccessRightSetWhereInput = {
   id_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   id_not?: InputMaybe<Scalars['ID']['input']>;
   id_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  modifiedAt?: InputMaybe<Scalars['String']['input']>;
+  modifiedAt_gt?: InputMaybe<Scalars['String']['input']>;
+  modifiedAt_gte?: InputMaybe<Scalars['String']['input']>;
+  modifiedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  modifiedAt_lt?: InputMaybe<Scalars['String']['input']>;
+  modifiedAt_lte?: InputMaybe<Scalars['String']['input']>;
+  modifiedAt_not?: InputMaybe<Scalars['String']['input']>;
+  modifiedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   newId?: InputMaybe<Scalars['String']['input']>;
   newId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   newId_not?: InputMaybe<Scalars['String']['input']>;
@@ -1008,6 +1095,7 @@ export type B2BAppAccessRightUpdateInput = {
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   environment?: InputMaybe<AppEnvironment>;
+  modifiedAt?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['String']['input']>;
   productionExportId?: InputMaybe<Scalars['String']['input']>;
   sender?: InputMaybe<SenderFieldInput>;
@@ -1077,6 +1165,14 @@ export type B2BAppAccessRightWhereInput = {
   id_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   id_not?: InputMaybe<Scalars['ID']['input']>;
   id_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  modifiedAt?: InputMaybe<Scalars['String']['input']>;
+  modifiedAt_gt?: InputMaybe<Scalars['String']['input']>;
+  modifiedAt_gte?: InputMaybe<Scalars['String']['input']>;
+  modifiedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  modifiedAt_lt?: InputMaybe<Scalars['String']['input']>;
+  modifiedAt_lte?: InputMaybe<Scalars['String']['input']>;
+  modifiedAt_not?: InputMaybe<Scalars['String']['input']>;
+  modifiedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   newId?: InputMaybe<Scalars['String']['input']>;
   newId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   newId_not?: InputMaybe<Scalars['String']['input']>;
@@ -1150,6 +1246,11 @@ export enum B2BAppContextAction {
   Disconnect = 'disconnect'
 }
 
+export enum B2BAppContextDefaultStatusType {
+  Finished = 'Finished',
+  InProgress = 'InProgress'
+}
+
 export enum B2BAppContextStatus {
   Error = 'Error',
   Finished = 'Finished',
@@ -1158,6 +1259,7 @@ export enum B2BAppContextStatus {
 
 export type B2BAppCreateInput = {
   category?: InputMaybe<B2BAppCategoryType>;
+  contextDefaultStatus?: InputMaybe<B2BAppContextDefaultStatusType>;
   createdAt?: InputMaybe<Scalars['String']['input']>;
   createdBy?: InputMaybe<UserRelateToOneInput>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
@@ -1170,6 +1272,7 @@ export type B2BAppCreateInput = {
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
   developmentFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentModifiedAt?: InputMaybe<Scalars['String']['input']>;
   developmentOidcClientId?: InputMaybe<Scalars['ID']['input']>;
   developmentPublishedAt?: InputMaybe<Scalars['String']['input']>;
   developmentSpeakerSelectionAllowed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1183,6 +1286,7 @@ export type B2BAppCreateInput = {
   productionExportId?: InputMaybe<Scalars['String']['input']>;
   productionFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionModifiedAt?: InputMaybe<Scalars['String']['input']>;
   productionOidcClientId?: InputMaybe<Scalars['ID']['input']>;
   productionPublishedAt?: InputMaybe<Scalars['String']['input']>;
   productionSpeakerSelectionAllowed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1195,6 +1299,7 @@ export type B2BAppCreateInput = {
 
 export type B2BAppHistoryRecordCreateInput = {
   category?: InputMaybe<Scalars['String']['input']>;
+  contextDefaultStatus?: InputMaybe<Scalars['String']['input']>;
   createdAt?: InputMaybe<Scalars['String']['input']>;
   createdBy?: InputMaybe<Scalars['String']['input']>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
@@ -1207,6 +1312,7 @@ export type B2BAppHistoryRecordCreateInput = {
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
   developmentFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentModifiedAt?: InputMaybe<Scalars['String']['input']>;
   developmentOidcClientId?: InputMaybe<Scalars['ID']['input']>;
   developmentPublishedAt?: InputMaybe<Scalars['String']['input']>;
   developmentSpeakerSelectionAllowed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1223,6 +1329,7 @@ export type B2BAppHistoryRecordCreateInput = {
   productionExportId?: InputMaybe<Scalars['String']['input']>;
   productionFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionModifiedAt?: InputMaybe<Scalars['String']['input']>;
   productionOidcClientId?: InputMaybe<Scalars['ID']['input']>;
   productionPublishedAt?: InputMaybe<Scalars['String']['input']>;
   productionSpeakerSelectionAllowed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1241,6 +1348,7 @@ export enum B2BAppHistoryRecordHistoryActionType {
 
 export type B2BAppHistoryRecordUpdateInput = {
   category?: InputMaybe<Scalars['String']['input']>;
+  contextDefaultStatus?: InputMaybe<Scalars['String']['input']>;
   createdAt?: InputMaybe<Scalars['String']['input']>;
   createdBy?: InputMaybe<Scalars['String']['input']>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
@@ -1253,6 +1361,7 @@ export type B2BAppHistoryRecordUpdateInput = {
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
   developmentFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentModifiedAt?: InputMaybe<Scalars['String']['input']>;
   developmentOidcClientId?: InputMaybe<Scalars['ID']['input']>;
   developmentPublishedAt?: InputMaybe<Scalars['String']['input']>;
   developmentSpeakerSelectionAllowed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1269,6 +1378,7 @@ export type B2BAppHistoryRecordUpdateInput = {
   productionExportId?: InputMaybe<Scalars['String']['input']>;
   productionFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionModifiedAt?: InputMaybe<Scalars['String']['input']>;
   productionOidcClientId?: InputMaybe<Scalars['ID']['input']>;
   productionPublishedAt?: InputMaybe<Scalars['String']['input']>;
   productionSpeakerSelectionAllowed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1300,6 +1410,24 @@ export type B2BAppHistoryRecordWhereInput = {
   category_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   category_starts_with?: InputMaybe<Scalars['String']['input']>;
   category_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  contextDefaultStatus?: InputMaybe<Scalars['String']['input']>;
+  contextDefaultStatus_contains?: InputMaybe<Scalars['String']['input']>;
+  contextDefaultStatus_contains_i?: InputMaybe<Scalars['String']['input']>;
+  contextDefaultStatus_ends_with?: InputMaybe<Scalars['String']['input']>;
+  contextDefaultStatus_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  contextDefaultStatus_i?: InputMaybe<Scalars['String']['input']>;
+  contextDefaultStatus_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  contextDefaultStatus_not?: InputMaybe<Scalars['String']['input']>;
+  contextDefaultStatus_not_contains?: InputMaybe<Scalars['String']['input']>;
+  contextDefaultStatus_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  contextDefaultStatus_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  contextDefaultStatus_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  contextDefaultStatus_not_i?: InputMaybe<Scalars['String']['input']>;
+  contextDefaultStatus_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  contextDefaultStatus_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  contextDefaultStatus_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  contextDefaultStatus_starts_with?: InputMaybe<Scalars['String']['input']>;
+  contextDefaultStatus_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   createdAt?: InputMaybe<Scalars['String']['input']>;
   createdAt_gt?: InputMaybe<Scalars['String']['input']>;
   createdAt_gte?: InputMaybe<Scalars['String']['input']>;
@@ -1404,6 +1532,14 @@ export type B2BAppHistoryRecordWhereInput = {
   developmentFullscreenAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   developmentMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentMicrophoneAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentModifiedAt?: InputMaybe<Scalars['String']['input']>;
+  developmentModifiedAt_gt?: InputMaybe<Scalars['String']['input']>;
+  developmentModifiedAt_gte?: InputMaybe<Scalars['String']['input']>;
+  developmentModifiedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  developmentModifiedAt_lt?: InputMaybe<Scalars['String']['input']>;
+  developmentModifiedAt_lte?: InputMaybe<Scalars['String']['input']>;
+  developmentModifiedAt_not?: InputMaybe<Scalars['String']['input']>;
+  developmentModifiedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   developmentOidcClientId?: InputMaybe<Scalars['ID']['input']>;
   developmentOidcClientId_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   developmentOidcClientId_not?: InputMaybe<Scalars['ID']['input']>;
@@ -1516,6 +1652,14 @@ export type B2BAppHistoryRecordWhereInput = {
   productionFullscreenAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   productionMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionMicrophoneAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  productionModifiedAt?: InputMaybe<Scalars['String']['input']>;
+  productionModifiedAt_gt?: InputMaybe<Scalars['String']['input']>;
+  productionModifiedAt_gte?: InputMaybe<Scalars['String']['input']>;
+  productionModifiedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  productionModifiedAt_lt?: InputMaybe<Scalars['String']['input']>;
+  productionModifiedAt_lte?: InputMaybe<Scalars['String']['input']>;
+  productionModifiedAt_not?: InputMaybe<Scalars['String']['input']>;
+  productionModifiedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   productionOidcClientId?: InputMaybe<Scalars['ID']['input']>;
   productionOidcClientId_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   productionOidcClientId_not?: InputMaybe<Scalars['ID']['input']>;
@@ -1893,6 +2037,7 @@ export type B2BAppRelateToOneInput = {
 
 export type B2BAppUpdateInput = {
   category?: InputMaybe<B2BAppCategoryType>;
+  contextDefaultStatus?: InputMaybe<B2BAppContextDefaultStatusType>;
   createdAt?: InputMaybe<Scalars['String']['input']>;
   createdBy?: InputMaybe<UserRelateToOneInput>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
@@ -1905,6 +2050,7 @@ export type B2BAppUpdateInput = {
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
   developmentFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentModifiedAt?: InputMaybe<Scalars['String']['input']>;
   developmentOidcClientId?: InputMaybe<Scalars['ID']['input']>;
   developmentPublishedAt?: InputMaybe<Scalars['String']['input']>;
   developmentSpeakerSelectionAllowed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1918,6 +2064,7 @@ export type B2BAppUpdateInput = {
   productionExportId?: InputMaybe<Scalars['String']['input']>;
   productionFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionModifiedAt?: InputMaybe<Scalars['String']['input']>;
   productionOidcClientId?: InputMaybe<Scalars['ID']['input']>;
   productionPublishedAt?: InputMaybe<Scalars['String']['input']>;
   productionSpeakerSelectionAllowed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1935,6 +2082,10 @@ export type B2BAppWhereInput = {
   category_in?: InputMaybe<Array<InputMaybe<B2BAppCategoryType>>>;
   category_not?: InputMaybe<B2BAppCategoryType>;
   category_not_in?: InputMaybe<Array<InputMaybe<B2BAppCategoryType>>>;
+  contextDefaultStatus?: InputMaybe<B2BAppContextDefaultStatusType>;
+  contextDefaultStatus_in?: InputMaybe<Array<InputMaybe<B2BAppContextDefaultStatusType>>>;
+  contextDefaultStatus_not?: InputMaybe<B2BAppContextDefaultStatusType>;
+  contextDefaultStatus_not_in?: InputMaybe<Array<InputMaybe<B2BAppContextDefaultStatusType>>>;
   createdAt?: InputMaybe<Scalars['String']['input']>;
   createdAt_gt?: InputMaybe<Scalars['String']['input']>;
   createdAt_gte?: InputMaybe<Scalars['String']['input']>;
@@ -2051,6 +2202,14 @@ export type B2BAppWhereInput = {
   developmentFullscreenAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   developmentMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentMicrophoneAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentModifiedAt?: InputMaybe<Scalars['String']['input']>;
+  developmentModifiedAt_gt?: InputMaybe<Scalars['String']['input']>;
+  developmentModifiedAt_gte?: InputMaybe<Scalars['String']['input']>;
+  developmentModifiedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  developmentModifiedAt_lt?: InputMaybe<Scalars['String']['input']>;
+  developmentModifiedAt_lte?: InputMaybe<Scalars['String']['input']>;
+  developmentModifiedAt_not?: InputMaybe<Scalars['String']['input']>;
+  developmentModifiedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   developmentOidcClientId?: InputMaybe<Scalars['ID']['input']>;
   developmentOidcClientId_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   developmentOidcClientId_not?: InputMaybe<Scalars['ID']['input']>;
@@ -2147,6 +2306,14 @@ export type B2BAppWhereInput = {
   productionFullscreenAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   productionMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionMicrophoneAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  productionModifiedAt?: InputMaybe<Scalars['String']['input']>;
+  productionModifiedAt_gt?: InputMaybe<Scalars['String']['input']>;
+  productionModifiedAt_gte?: InputMaybe<Scalars['String']['input']>;
+  productionModifiedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  productionModifiedAt_lt?: InputMaybe<Scalars['String']['input']>;
+  productionModifiedAt_lte?: InputMaybe<Scalars['String']['input']>;
+  productionModifiedAt_not?: InputMaybe<Scalars['String']['input']>;
+  productionModifiedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   productionOidcClientId?: InputMaybe<Scalars['ID']['input']>;
   productionOidcClientId_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   productionOidcClientId_not?: InputMaybe<Scalars['ID']['input']>;
@@ -2225,6 +2392,7 @@ export type B2CAppAccessRightCreateInput = {
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   environment?: InputMaybe<AppEnvironment>;
+  modifiedAt?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['String']['input']>;
   productionExportId?: InputMaybe<Scalars['String']['input']>;
   sender?: InputMaybe<SenderFieldInput>;
@@ -2245,6 +2413,7 @@ export type B2CAppAccessRightHistoryRecordCreateInput = {
   history_action?: InputMaybe<B2CAppAccessRightHistoryRecordHistoryActionType>;
   history_date?: InputMaybe<Scalars['String']['input']>;
   history_id?: InputMaybe<Scalars['String']['input']>;
+  modifiedAt?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['JSON']['input']>;
   productionExportId?: InputMaybe<Scalars['String']['input']>;
   sender?: InputMaybe<Scalars['JSON']['input']>;
@@ -2271,6 +2440,7 @@ export type B2CAppAccessRightHistoryRecordUpdateInput = {
   history_action?: InputMaybe<B2CAppAccessRightHistoryRecordHistoryActionType>;
   history_date?: InputMaybe<Scalars['String']['input']>;
   history_id?: InputMaybe<Scalars['String']['input']>;
+  modifiedAt?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['JSON']['input']>;
   productionExportId?: InputMaybe<Scalars['String']['input']>;
   sender?: InputMaybe<Scalars['JSON']['input']>;
@@ -2374,6 +2544,14 @@ export type B2CAppAccessRightHistoryRecordWhereInput = {
   id_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   id_not?: InputMaybe<Scalars['ID']['input']>;
   id_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  modifiedAt?: InputMaybe<Scalars['String']['input']>;
+  modifiedAt_gt?: InputMaybe<Scalars['String']['input']>;
+  modifiedAt_gte?: InputMaybe<Scalars['String']['input']>;
+  modifiedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  modifiedAt_lt?: InputMaybe<Scalars['String']['input']>;
+  modifiedAt_lte?: InputMaybe<Scalars['String']['input']>;
+  modifiedAt_not?: InputMaybe<Scalars['String']['input']>;
+  modifiedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   newId?: InputMaybe<Scalars['JSON']['input']>;
   newId_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
   newId_not?: InputMaybe<Scalars['JSON']['input']>;
@@ -2444,6 +2622,7 @@ export type B2CAppAccessRightUpdateInput = {
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   environment?: InputMaybe<AppEnvironment>;
+  modifiedAt?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['String']['input']>;
   productionExportId?: InputMaybe<Scalars['String']['input']>;
   sender?: InputMaybe<SenderFieldInput>;
@@ -2513,6 +2692,14 @@ export type B2CAppAccessRightWhereInput = {
   id_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   id_not?: InputMaybe<Scalars['ID']['input']>;
   id_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  modifiedAt?: InputMaybe<Scalars['String']['input']>;
+  modifiedAt_gt?: InputMaybe<Scalars['String']['input']>;
+  modifiedAt_gte?: InputMaybe<Scalars['String']['input']>;
+  modifiedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  modifiedAt_lt?: InputMaybe<Scalars['String']['input']>;
+  modifiedAt_lte?: InputMaybe<Scalars['String']['input']>;
+  modifiedAt_not?: InputMaybe<Scalars['String']['input']>;
+  modifiedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   newId?: InputMaybe<Scalars['String']['input']>;
   newId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   newId_not?: InputMaybe<Scalars['String']['input']>;
@@ -2956,6 +3143,7 @@ export type B2CAppCreateInput = {
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
   developmentFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentModifiedAt?: InputMaybe<Scalars['String']['input']>;
   developmentOidcClientId?: InputMaybe<Scalars['ID']['input']>;
   developmentPublishedAt?: InputMaybe<Scalars['String']['input']>;
   developmentPushNotificationsAllowed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -2975,6 +3163,7 @@ export type B2CAppCreateInput = {
   productionExportId?: InputMaybe<Scalars['String']['input']>;
   productionFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionModifiedAt?: InputMaybe<Scalars['String']['input']>;
   productionOidcClientId?: InputMaybe<Scalars['ID']['input']>;
   productionPublishedAt?: InputMaybe<Scalars['String']['input']>;
   productionPushNotificationsAllowed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3002,6 +3191,7 @@ export type B2CAppHistoryRecordCreateInput = {
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
   developmentFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentModifiedAt?: InputMaybe<Scalars['String']['input']>;
   developmentOidcClientId?: InputMaybe<Scalars['ID']['input']>;
   developmentPublishedAt?: InputMaybe<Scalars['String']['input']>;
   developmentPushNotificationsAllowed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3024,6 +3214,7 @@ export type B2CAppHistoryRecordCreateInput = {
   productionExportId?: InputMaybe<Scalars['String']['input']>;
   productionFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionModifiedAt?: InputMaybe<Scalars['String']['input']>;
   productionOidcClientId?: InputMaybe<Scalars['ID']['input']>;
   productionPublishedAt?: InputMaybe<Scalars['String']['input']>;
   productionPushNotificationsAllowed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3057,6 +3248,7 @@ export type B2CAppHistoryRecordUpdateInput = {
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
   developmentFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentModifiedAt?: InputMaybe<Scalars['String']['input']>;
   developmentOidcClientId?: InputMaybe<Scalars['ID']['input']>;
   developmentPublishedAt?: InputMaybe<Scalars['String']['input']>;
   developmentPushNotificationsAllowed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3079,6 +3271,7 @@ export type B2CAppHistoryRecordUpdateInput = {
   productionExportId?: InputMaybe<Scalars['String']['input']>;
   productionFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionModifiedAt?: InputMaybe<Scalars['String']['input']>;
   productionOidcClientId?: InputMaybe<Scalars['ID']['input']>;
   productionPublishedAt?: InputMaybe<Scalars['String']['input']>;
   productionPushNotificationsAllowed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3183,6 +3376,14 @@ export type B2CAppHistoryRecordWhereInput = {
   developmentFullscreenAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   developmentMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentMicrophoneAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentModifiedAt?: InputMaybe<Scalars['String']['input']>;
+  developmentModifiedAt_gt?: InputMaybe<Scalars['String']['input']>;
+  developmentModifiedAt_gte?: InputMaybe<Scalars['String']['input']>;
+  developmentModifiedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  developmentModifiedAt_lt?: InputMaybe<Scalars['String']['input']>;
+  developmentModifiedAt_lte?: InputMaybe<Scalars['String']['input']>;
+  developmentModifiedAt_not?: InputMaybe<Scalars['String']['input']>;
+  developmentModifiedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   developmentOidcClientId?: InputMaybe<Scalars['ID']['input']>;
   developmentOidcClientId_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   developmentOidcClientId_not?: InputMaybe<Scalars['ID']['input']>;
@@ -3307,6 +3508,14 @@ export type B2CAppHistoryRecordWhereInput = {
   productionFullscreenAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   productionMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionMicrophoneAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  productionModifiedAt?: InputMaybe<Scalars['String']['input']>;
+  productionModifiedAt_gt?: InputMaybe<Scalars['String']['input']>;
+  productionModifiedAt_gte?: InputMaybe<Scalars['String']['input']>;
+  productionModifiedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  productionModifiedAt_lt?: InputMaybe<Scalars['String']['input']>;
+  productionModifiedAt_lte?: InputMaybe<Scalars['String']['input']>;
+  productionModifiedAt_not?: InputMaybe<Scalars['String']['input']>;
+  productionModifiedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   productionOidcClientId?: InputMaybe<Scalars['ID']['input']>;
   productionOidcClientId_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   productionOidcClientId_not?: InputMaybe<Scalars['ID']['input']>;
@@ -3708,6 +3917,7 @@ export type B2CAppUpdateInput = {
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
   developmentFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentModifiedAt?: InputMaybe<Scalars['String']['input']>;
   developmentOidcClientId?: InputMaybe<Scalars['ID']['input']>;
   developmentPublishedAt?: InputMaybe<Scalars['String']['input']>;
   developmentPushNotificationsAllowed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3727,6 +3937,7 @@ export type B2CAppUpdateInput = {
   productionExportId?: InputMaybe<Scalars['String']['input']>;
   productionFullscreenAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  productionModifiedAt?: InputMaybe<Scalars['String']['input']>;
   productionOidcClientId?: InputMaybe<Scalars['ID']['input']>;
   productionPublishedAt?: InputMaybe<Scalars['String']['input']>;
   productionPushNotificationsAllowed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3829,6 +4040,14 @@ export type B2CAppWhereInput = {
   developmentFullscreenAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   developmentMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   developmentMicrophoneAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  developmentModifiedAt?: InputMaybe<Scalars['String']['input']>;
+  developmentModifiedAt_gt?: InputMaybe<Scalars['String']['input']>;
+  developmentModifiedAt_gte?: InputMaybe<Scalars['String']['input']>;
+  developmentModifiedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  developmentModifiedAt_lt?: InputMaybe<Scalars['String']['input']>;
+  developmentModifiedAt_lte?: InputMaybe<Scalars['String']['input']>;
+  developmentModifiedAt_not?: InputMaybe<Scalars['String']['input']>;
+  developmentModifiedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   developmentOidcClientId?: InputMaybe<Scalars['ID']['input']>;
   developmentOidcClientId_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   developmentOidcClientId_not?: InputMaybe<Scalars['ID']['input']>;
@@ -3937,6 +4156,14 @@ export type B2CAppWhereInput = {
   productionFullscreenAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
   productionMicrophoneAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   productionMicrophoneAllowed_not?: InputMaybe<Scalars['Boolean']['input']>;
+  productionModifiedAt?: InputMaybe<Scalars['String']['input']>;
+  productionModifiedAt_gt?: InputMaybe<Scalars['String']['input']>;
+  productionModifiedAt_gte?: InputMaybe<Scalars['String']['input']>;
+  productionModifiedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  productionModifiedAt_lt?: InputMaybe<Scalars['String']['input']>;
+  productionModifiedAt_lte?: InputMaybe<Scalars['String']['input']>;
+  productionModifiedAt_not?: InputMaybe<Scalars['String']['input']>;
+  productionModifiedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   productionOidcClientId?: InputMaybe<Scalars['ID']['input']>;
   productionOidcClientId_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   productionOidcClientId_not?: InputMaybe<Scalars['ID']['input']>;
@@ -4783,6 +5010,27 @@ export enum ImportAppConflictPolicy {
   SetNull = 'setNull'
 }
 
+export type ImportB2BAppFromInput = {
+  developmentApp?: InputMaybe<B2BAppWhereUniqueInput>;
+  productionApp?: InputMaybe<B2BAppWhereUniqueInput>;
+};
+
+export type ImportB2BAppInput = {
+  dv: Scalars['Int']['input'];
+  from: ImportB2BAppFromInput;
+  options: ImportB2BAppOptionsInput;
+  sender: SenderFieldInput;
+  to: ImportB2BAppToInput;
+};
+
+export type ImportB2BAppOptionsInput = {
+  conflictPolicy: ImportAppConflictPolicy;
+};
+
+export type ImportB2BAppToInput = {
+  app: B2BAppWhereUniqueInput;
+};
+
 export type ImportB2CAppFromInput = {
   developmentApp?: InputMaybe<B2CAppWhereUniqueInput>;
   productionApp?: InputMaybe<B2CAppWhereUniqueInput>;
@@ -4864,6 +5112,8 @@ export enum SortB2BAppAccessRightHistoryRecordsBy {
   HistoryDateDesc = 'history_date_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
+  ModifiedAtAsc = 'modifiedAt_ASC',
+  ModifiedAtDesc = 'modifiedAt_DESC',
   ProductionExportIdAsc = 'productionExportId_ASC',
   ProductionExportIdDesc = 'productionExportId_DESC',
   UpdatedAtAsc = 'updatedAt_ASC',
@@ -4873,6 +5123,8 @@ export enum SortB2BAppAccessRightHistoryRecordsBy {
 }
 
 export enum SortB2BAppAccessRightSetHistoryRecordsBy {
+  CanExecuteGetNewsItemsRecipientsCountersAsc = 'canExecuteGetNewsItemsRecipientsCounters_ASC',
+  CanExecuteGetNewsItemsRecipientsCountersDesc = 'canExecuteGetNewsItemsRecipientsCounters_DESC',
   CanExecuteRegisterBillingReceiptFileAsc = 'canExecuteRegisterBillingReceiptFile_ASC',
   CanExecuteRegisterBillingReceiptFileDesc = 'canExecuteRegisterBillingReceiptFile_DESC',
   CanExecuteRegisterBillingReceiptsAsc = 'canExecuteRegisterBillingReceipts_ASC',
@@ -4903,6 +5155,14 @@ export enum SortB2BAppAccessRightSetHistoryRecordsBy {
   CanManageMeterReportingPeriodsDesc = 'canManageMeterReportingPeriods_DESC',
   CanManageMetersAsc = 'canManageMeters_ASC',
   CanManageMetersDesc = 'canManageMeters_DESC',
+  CanManageNewsItemFilesAsc = 'canManageNewsItemFiles_ASC',
+  CanManageNewsItemFilesDesc = 'canManageNewsItemFiles_DESC',
+  CanManageNewsItemRecipientsExportTasksAsc = 'canManageNewsItemRecipientsExportTasks_ASC',
+  CanManageNewsItemRecipientsExportTasksDesc = 'canManageNewsItemRecipientsExportTasks_DESC',
+  CanManageNewsItemScopesAsc = 'canManageNewsItemScopes_ASC',
+  CanManageNewsItemScopesDesc = 'canManageNewsItemScopes_DESC',
+  CanManageNewsItemsAsc = 'canManageNewsItems_ASC',
+  CanManageNewsItemsDesc = 'canManageNewsItems_DESC',
   CanManagePropertiesAsc = 'canManageProperties_ASC',
   CanManagePropertiesDesc = 'canManageProperties_DESC',
   CanManageTicketCommentFilesAsc = 'canManageTicketCommentFiles_ASC',
@@ -4941,6 +5201,10 @@ export enum SortB2BAppAccessRightSetHistoryRecordsBy {
   CanReadMetersDesc = 'canReadMeters_DESC',
   CanReadNewsItemFilesAsc = 'canReadNewsItemFiles_ASC',
   CanReadNewsItemFilesDesc = 'canReadNewsItemFiles_DESC',
+  CanReadNewsItemScopesAsc = 'canReadNewsItemScopes_ASC',
+  CanReadNewsItemScopesDesc = 'canReadNewsItemScopes_DESC',
+  CanReadNewsItemsAsc = 'canReadNewsItems_ASC',
+  CanReadNewsItemsDesc = 'canReadNewsItems_DESC',
   CanReadOrganizationEmployeeRolesAsc = 'canReadOrganizationEmployeeRoles_ASC',
   CanReadOrganizationEmployeeRolesDesc = 'canReadOrganizationEmployeeRoles_DESC',
   CanReadOrganizationEmployeesAsc = 'canReadOrganizationEmployees_ASC',
@@ -4975,6 +5239,8 @@ export enum SortB2BAppAccessRightSetHistoryRecordsBy {
   HistoryDateDesc = 'history_date_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
+  ModifiedAtAsc = 'modifiedAt_ASC',
+  ModifiedAtDesc = 'modifiedAt_DESC',
   ProductionExportIdAsc = 'productionExportId_ASC',
   ProductionExportIdDesc = 'productionExportId_DESC',
   StatusAsc = 'status_ASC',
@@ -4988,6 +5254,8 @@ export enum SortB2BAppAccessRightSetHistoryRecordsBy {
 export enum SortB2BAppAccessRightSetsBy {
   AppAsc = 'app_ASC',
   AppDesc = 'app_DESC',
+  CanExecuteGetNewsItemsRecipientsCountersAsc = 'canExecuteGetNewsItemsRecipientsCounters_ASC',
+  CanExecuteGetNewsItemsRecipientsCountersDesc = 'canExecuteGetNewsItemsRecipientsCounters_DESC',
   CanExecuteRegisterBillingReceiptFileAsc = 'canExecuteRegisterBillingReceiptFile_ASC',
   CanExecuteRegisterBillingReceiptFileDesc = 'canExecuteRegisterBillingReceiptFile_DESC',
   CanExecuteRegisterBillingReceiptsAsc = 'canExecuteRegisterBillingReceipts_ASC',
@@ -5018,6 +5286,14 @@ export enum SortB2BAppAccessRightSetsBy {
   CanManageMeterReportingPeriodsDesc = 'canManageMeterReportingPeriods_DESC',
   CanManageMetersAsc = 'canManageMeters_ASC',
   CanManageMetersDesc = 'canManageMeters_DESC',
+  CanManageNewsItemFilesAsc = 'canManageNewsItemFiles_ASC',
+  CanManageNewsItemFilesDesc = 'canManageNewsItemFiles_DESC',
+  CanManageNewsItemRecipientsExportTasksAsc = 'canManageNewsItemRecipientsExportTasks_ASC',
+  CanManageNewsItemRecipientsExportTasksDesc = 'canManageNewsItemRecipientsExportTasks_DESC',
+  CanManageNewsItemScopesAsc = 'canManageNewsItemScopes_ASC',
+  CanManageNewsItemScopesDesc = 'canManageNewsItemScopes_DESC',
+  CanManageNewsItemsAsc = 'canManageNewsItems_ASC',
+  CanManageNewsItemsDesc = 'canManageNewsItems_DESC',
   CanManagePropertiesAsc = 'canManageProperties_ASC',
   CanManagePropertiesDesc = 'canManageProperties_DESC',
   CanManageTicketCommentFilesAsc = 'canManageTicketCommentFiles_ASC',
@@ -5056,6 +5332,10 @@ export enum SortB2BAppAccessRightSetsBy {
   CanReadMetersDesc = 'canReadMeters_DESC',
   CanReadNewsItemFilesAsc = 'canReadNewsItemFiles_ASC',
   CanReadNewsItemFilesDesc = 'canReadNewsItemFiles_DESC',
+  CanReadNewsItemScopesAsc = 'canReadNewsItemScopes_ASC',
+  CanReadNewsItemScopesDesc = 'canReadNewsItemScopes_DESC',
+  CanReadNewsItemsAsc = 'canReadNewsItems_ASC',
+  CanReadNewsItemsDesc = 'canReadNewsItems_DESC',
   CanReadOrganizationEmployeeRolesAsc = 'canReadOrganizationEmployeeRoles_ASC',
   CanReadOrganizationEmployeeRolesDesc = 'canReadOrganizationEmployeeRoles_DESC',
   CanReadOrganizationEmployeesAsc = 'canReadOrganizationEmployees_ASC',
@@ -5088,6 +5368,8 @@ export enum SortB2BAppAccessRightSetsBy {
   EnvironmentDesc = 'environment_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
+  ModifiedAtAsc = 'modifiedAt_ASC',
+  ModifiedAtDesc = 'modifiedAt_DESC',
   ProductionExportIdAsc = 'productionExportId_ASC',
   ProductionExportIdDesc = 'productionExportId_DESC',
   StatusAsc = 'status_ASC',
@@ -5119,6 +5401,8 @@ export enum SortB2BAppAccessRightsBy {
   EnvironmentDesc = 'environment_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
+  ModifiedAtAsc = 'modifiedAt_ASC',
+  ModifiedAtDesc = 'modifiedAt_DESC',
   ProductionExportIdAsc = 'productionExportId_ASC',
   ProductionExportIdDesc = 'productionExportId_DESC',
   UpdatedAtAsc = 'updatedAt_ASC',
@@ -5132,6 +5416,8 @@ export enum SortB2BAppAccessRightsBy {
 export enum SortB2BAppHistoryRecordsBy {
   CategoryAsc = 'category_ASC',
   CategoryDesc = 'category_DESC',
+  ContextDefaultStatusAsc = 'contextDefaultStatus_ASC',
+  ContextDefaultStatusDesc = 'contextDefaultStatus_DESC',
   CreatedAtAsc = 'createdAt_ASC',
   CreatedAtDesc = 'createdAt_DESC',
   DeletedAtAsc = 'deletedAt_ASC',
@@ -5152,6 +5438,8 @@ export enum SortB2BAppHistoryRecordsBy {
   DevelopmentFullscreenAllowedDesc = 'developmentFullscreenAllowed_DESC',
   DevelopmentMicrophoneAllowedAsc = 'developmentMicrophoneAllowed_ASC',
   DevelopmentMicrophoneAllowedDesc = 'developmentMicrophoneAllowed_DESC',
+  DevelopmentModifiedAtAsc = 'developmentModifiedAt_ASC',
+  DevelopmentModifiedAtDesc = 'developmentModifiedAt_DESC',
   DevelopmentOidcClientIdAsc = 'developmentOidcClientId_ASC',
   DevelopmentOidcClientIdDesc = 'developmentOidcClientId_DESC',
   DevelopmentPublishedAtAsc = 'developmentPublishedAt_ASC',
@@ -5180,6 +5468,8 @@ export enum SortB2BAppHistoryRecordsBy {
   ProductionFullscreenAllowedDesc = 'productionFullscreenAllowed_DESC',
   ProductionMicrophoneAllowedAsc = 'productionMicrophoneAllowed_ASC',
   ProductionMicrophoneAllowedDesc = 'productionMicrophoneAllowed_DESC',
+  ProductionModifiedAtAsc = 'productionModifiedAt_ASC',
+  ProductionModifiedAtDesc = 'productionModifiedAt_DESC',
   ProductionOidcClientIdAsc = 'productionOidcClientId_ASC',
   ProductionOidcClientIdDesc = 'productionOidcClientId_DESC',
   ProductionPublishedAtAsc = 'productionPublishedAt_ASC',
@@ -5253,6 +5543,8 @@ export enum SortB2BAppPublishRequestsBy {
 export enum SortB2BAppsBy {
   CategoryAsc = 'category_ASC',
   CategoryDesc = 'category_DESC',
+  ContextDefaultStatusAsc = 'contextDefaultStatus_ASC',
+  ContextDefaultStatusDesc = 'contextDefaultStatus_DESC',
   CreatedAtAsc = 'createdAt_ASC',
   CreatedAtDesc = 'createdAt_DESC',
   CreatedByAsc = 'createdBy_ASC',
@@ -5277,6 +5569,8 @@ export enum SortB2BAppsBy {
   DevelopmentFullscreenAllowedDesc = 'developmentFullscreenAllowed_DESC',
   DevelopmentMicrophoneAllowedAsc = 'developmentMicrophoneAllowed_ASC',
   DevelopmentMicrophoneAllowedDesc = 'developmentMicrophoneAllowed_DESC',
+  DevelopmentModifiedAtAsc = 'developmentModifiedAt_ASC',
+  DevelopmentModifiedAtDesc = 'developmentModifiedAt_DESC',
   DevelopmentOidcClientIdAsc = 'developmentOidcClientId_ASC',
   DevelopmentOidcClientIdDesc = 'developmentOidcClientId_DESC',
   DevelopmentPublishedAtAsc = 'developmentPublishedAt_ASC',
@@ -5301,6 +5595,8 @@ export enum SortB2BAppsBy {
   ProductionFullscreenAllowedDesc = 'productionFullscreenAllowed_DESC',
   ProductionMicrophoneAllowedAsc = 'productionMicrophoneAllowed_ASC',
   ProductionMicrophoneAllowedDesc = 'productionMicrophoneAllowed_DESC',
+  ProductionModifiedAtAsc = 'productionModifiedAt_ASC',
+  ProductionModifiedAtDesc = 'productionModifiedAt_DESC',
   ProductionOidcClientIdAsc = 'productionOidcClientId_ASC',
   ProductionOidcClientIdDesc = 'productionOidcClientId_DESC',
   ProductionPublishedAtAsc = 'productionPublishedAt_ASC',
@@ -5336,6 +5632,8 @@ export enum SortB2CAppAccessRightHistoryRecordsBy {
   HistoryDateDesc = 'history_date_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
+  ModifiedAtAsc = 'modifiedAt_ASC',
+  ModifiedAtDesc = 'modifiedAt_DESC',
   ProductionExportIdAsc = 'productionExportId_ASC',
   ProductionExportIdDesc = 'productionExportId_DESC',
   UpdatedAtAsc = 'updatedAt_ASC',
@@ -5363,6 +5661,8 @@ export enum SortB2CAppAccessRightsBy {
   EnvironmentDesc = 'environment_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
+  ModifiedAtAsc = 'modifiedAt_ASC',
+  ModifiedAtDesc = 'modifiedAt_DESC',
   ProductionExportIdAsc = 'productionExportId_ASC',
   ProductionExportIdDesc = 'productionExportId_DESC',
   UpdatedAtAsc = 'updatedAt_ASC',
@@ -5450,6 +5750,8 @@ export enum SortB2CAppHistoryRecordsBy {
   DevelopmentFullscreenAllowedDesc = 'developmentFullscreenAllowed_DESC',
   DevelopmentMicrophoneAllowedAsc = 'developmentMicrophoneAllowed_ASC',
   DevelopmentMicrophoneAllowedDesc = 'developmentMicrophoneAllowed_DESC',
+  DevelopmentModifiedAtAsc = 'developmentModifiedAt_ASC',
+  DevelopmentModifiedAtDesc = 'developmentModifiedAt_DESC',
   DevelopmentOidcClientIdAsc = 'developmentOidcClientId_ASC',
   DevelopmentOidcClientIdDesc = 'developmentOidcClientId_DESC',
   DevelopmentPublishedAtAsc = 'developmentPublishedAt_ASC',
@@ -5490,6 +5792,8 @@ export enum SortB2CAppHistoryRecordsBy {
   ProductionFullscreenAllowedDesc = 'productionFullscreenAllowed_DESC',
   ProductionMicrophoneAllowedAsc = 'productionMicrophoneAllowed_ASC',
   ProductionMicrophoneAllowedDesc = 'productionMicrophoneAllowed_DESC',
+  ProductionModifiedAtAsc = 'productionModifiedAt_ASC',
+  ProductionModifiedAtDesc = 'productionModifiedAt_DESC',
   ProductionOidcClientIdAsc = 'productionOidcClientId_ASC',
   ProductionOidcClientIdDesc = 'productionOidcClientId_DESC',
   ProductionPublishedAtAsc = 'productionPublishedAt_ASC',
@@ -5593,6 +5897,8 @@ export enum SortB2CAppsBy {
   DevelopmentFullscreenAllowedDesc = 'developmentFullscreenAllowed_DESC',
   DevelopmentMicrophoneAllowedAsc = 'developmentMicrophoneAllowed_ASC',
   DevelopmentMicrophoneAllowedDesc = 'developmentMicrophoneAllowed_DESC',
+  DevelopmentModifiedAtAsc = 'developmentModifiedAt_ASC',
+  DevelopmentModifiedAtDesc = 'developmentModifiedAt_DESC',
   DevelopmentOidcClientIdAsc = 'developmentOidcClientId_ASC',
   DevelopmentOidcClientIdDesc = 'developmentOidcClientId_DESC',
   DevelopmentPublishedAtAsc = 'developmentPublishedAt_ASC',
@@ -5629,6 +5935,8 @@ export enum SortB2CAppsBy {
   ProductionFullscreenAllowedDesc = 'productionFullscreenAllowed_DESC',
   ProductionMicrophoneAllowedAsc = 'productionMicrophoneAllowed_ASC',
   ProductionMicrophoneAllowedDesc = 'productionMicrophoneAllowed_DESC',
+  ProductionModifiedAtAsc = 'productionModifiedAt_ASC',
+  ProductionModifiedAtDesc = 'productionModifiedAt_DESC',
   ProductionOidcClientIdAsc = 'productionOidcClientId_ASC',
   ProductionOidcClientIdDesc = 'productionOidcClientId_DESC',
   ProductionPublishedAtAsc = 'productionPublishedAt_ASC',
