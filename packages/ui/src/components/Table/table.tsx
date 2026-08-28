@@ -326,7 +326,7 @@ function TableComponent<TData extends RowData = RowData> (
             onRowSelectionChangeRef.current?.(Object.keys(filteredSelection))
             return filteredSelection
         })
-    }, [filterUnselectableRows, tableData])
+    }, [filterUnselectableRows, tableData, rowSelectionOptions?.isRowSelectable])
 
     const handleSortingChange = useCallback((updaterOrValue: Updater<SortingState>) => {
         // NOTE: If we change sorting, we need to reset pagination to the first page and reset row selection
