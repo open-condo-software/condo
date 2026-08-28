@@ -8,6 +8,9 @@ config:
       - DOCKER_REGISTRY
       - TURBO_TOKEN
       - TURBO_API
+      - PREBUILT_APPS_IMAGE
+  stapel:
+    allowFromLatest: true
   dockerfile:
     allowContextAddFiles:
       - out
