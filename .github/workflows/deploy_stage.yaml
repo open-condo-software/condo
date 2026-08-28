@@ -37,6 +37,8 @@ jobs:
           if_key_exists: replace
       - name: Set env for branch name
         run: echo "BRANCH_NAME=$(echo ${GITHUB_REF##*/} | sed 's/\_/-/g')" >> $GITHUB_ENV
+      - name: Resolve prebuilt apps image
+        run: bash bin/resolve_prebuilt_apps_image.sh "${{ secrets.DOCKER_REGISTRY }}" "${{ github.sha }}"
       - name: Prune package manifests for Docker deps layer
         run: bash bin/prune.sh
       - name: Converge
