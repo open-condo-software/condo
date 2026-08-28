@@ -138,11 +138,11 @@ const PaymentsFile = new GQLListSchema('PaymentsFile', {
         afterChange: async ({ context, operation, existingItem, updatedItem }) => {
             const previousStatus = existingItem?.status
             const newStatus = updatedItem?.status
-            const statusChanged = operation === 'update' &&
+            const isDownloaded = operation === 'update' &&
                 previousStatus !== newStatus &&
                 newStatus === PAYMENTS_FILE_DOWNLOADED_STATUS
 
-            if (statusChanged) {
+            if (isDownloaded) {
                 const payload = {
                     ...existingItem,
                     ...updatedItem,
