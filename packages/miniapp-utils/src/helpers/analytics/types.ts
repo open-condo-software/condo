@@ -31,8 +31,6 @@ export type PluginIdentifyData = AnyPayload & {
     payload: AnyPayload & {
         userId: string
         traits: AnyPayload
-        /** Names of the "traits" keys that are other providers' visitor ids, not regular user data */
-        visitorIdKeys?: string[]
     }
 }
 
