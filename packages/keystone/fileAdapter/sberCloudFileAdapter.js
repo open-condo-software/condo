@@ -4,7 +4,10 @@ const { getItem, getItems } = require('@open-keystone/server-side-graphql-client
 const ObsClient = require('esdk-obs-nodejs')
 const express = require('express')
 const jwt = require('jsonwebtoken')
-const { get, isEmpty, isString, isNil } = require('lodash')
+const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
+const isNil = require('lodash/isNil')
+const isString = require('lodash/isString')
 
 const { SERVER_URL, SBERCLOUD_OBS_CONFIG } = require('@open-condo/config')
 const conf = require('@open-condo/config')
@@ -14,6 +17,7 @@ const { UUID_REGEXP } = require('./constants')
 const { getFileServicePublicOrigin } = require('./origins')
 const { serveStorageFile } = require('./serveStorageFile')
 
+const { readFileFromStream } = require('../file/utils')
 
 const logger = getLogger('cloud-ru-file-adapter')
 const PUBLIC_URL_TTL = 60 * 60 * 24 * 30 // 1 MONTH IN SECONDS FOR ANY PUBLIC URL
@@ -99,6 +103,77 @@ class SberCloudFileAdapter {
         this.saveFileName = config.saveFileName
         this.acl = new SberCloudObsAcl(config)
         this._appClients = conf['FILE_UPLOAD_CONFIG'] ? get(JSON.parse(conf['FILE_UPLOAD_CONFIG']), 'clients', {}) : {}
+    }
+
+    getObjectKey (file) {
+        return `${this.folder}/${file.filename}`
+    }
+
+    async getFileSize (file) {
+        const result = await this.s3.getObjectMetadata({
+            Bucket: this.bucket,
+            Key: this.getObjectKey(file),
+        })
+        const status = Number(result?.CommonMsg?.Status || 0)
+        if (status >= 300) {
+            throw new Error(`Unable to stat registry file: OBS status ${status}`)
+        }
+        const contentLength = result?.InterfaceResult?.ContentLength
+            || result?.InterfaceResult?.Headers?.['content-length']
+            || result?.InterfaceResult?.Headers?.['Content-Length']
+        const size = Number(contentLength)
+        if (!Number.isFinite(size)) {
+            throw new Error('Unable to determine registry file size')
+        }
+        return size
+    }
+
+    async readRange (file, offset, length) {
+        console.log(this.constructor.name, 'readRange', file, offset, length)
+        if (length === 0) return Buffer.alloc(0)
+        const response = await new Promise((resolve, reject) => {
+            this.s3.getObject({
+                Bucket: this.bucket,
+                Key: this.getObjectKey(file),
+                Range: `bytes=${offset}-${offset + length - 1}`,
+                SaveAsStream: true,
+            }, (error, result) => error ? reject(error) : resolve(result))
+        })
+        const status = Number(response?.CommonMsg?.Status || 0)
+        if (status >= 300) {
+            const error = new Error(`Unable to read registry file range: OBS status ${status}`)
+            error.statusCode = status
+            throw error
+        }
+        const content = response?.InterfaceResult?.Content
+        if (!content) return Buffer.alloc(0)
+        let returnBuffer
+        if (Buffer.isBuffer(content)) returnBuffer = content
+        else if (typeof content === 'string') returnBuffer = Buffer.from(content)
+        else returnBuffer = await readFileFromStream(content)
+
+        if (returnBuffer.length > length) {
+            logger.info({ msg: 'Ranged GET returned invalid buffer length', data: { expectedLength: length, returnedLength: returnBuffer.length } })
+        }
+
+        return returnBuffer
+    }
+
+    async createReadStream (file) {
+        return new Promise((resolve, reject) => {
+            this.s3.getObject({
+                Bucket: this.bucket,
+                Key: this.getObjectKey(file),
+                SaveAsStream: true,
+            }, (error, result) => {
+                if (error) return reject(error)
+                const status = Number(result?.CommonMsg?.Status || 0)
+                if (status >= 300 || !result?.InterfaceResult?.Content) {
+                    return reject(new Error(`Unable to create registry file stream: OBS status ${status}`))
+                }
+                return resolve(result.InterfaceResult.Content)
+            })
+        })
     }
 
     errorFromCommonMsg ({ CommonMsg: { Status, Message } }) {
