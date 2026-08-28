@@ -7,6 +7,10 @@ export type AnalyticsConfig = {
     plugins?: AnalyticsPlugin[]
 }
 
+export type PluginMethods = {
+    getVisitorId?: () => Promise<string | undefined>
+}
+
 export type AnalyticsInstanceWithGroups<GroupNames extends string> = AnalyticsInstance & {
     groups: Set<GroupNames>
 }
@@ -18,6 +22,15 @@ export type PluginTrackData = AnyPayload & {
     instance: AnalyticsInstanceWithGroups<string>
     payload: AnyPayload & {
         properties: AnyPayload
+    }
+}
+
+export type PluginIdentifyData = AnyPayload & {
+    abort(): void
+    instance: AnalyticsInstanceWithGroups<string>
+    payload: AnyPayload & {
+        userId: string
+        traits: AnyPayload
     }
 }
 
