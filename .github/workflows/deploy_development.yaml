@@ -2,6 +2,9 @@ name: "[development] Deploy"
 
 concurrency: deploy_develop.yaml
 
+permissions:
+  contents: read
+
 on:
   workflow_dispatch:
   workflow_run:
@@ -15,7 +18,13 @@ on:
 jobs:
   converge:
     name: "[development] Deploy"
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (
+        github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.event == 'push' &&
+        github.event.workflow_run.head_repository.full_name == github.repository
+      )
     runs-on: self-hosted
     env:
       WERF_SECRET_KEY: ${{ secrets.WERF_SECRET_KEY }}
