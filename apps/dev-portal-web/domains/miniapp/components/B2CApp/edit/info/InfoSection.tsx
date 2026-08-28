@@ -26,7 +26,7 @@ export const InfoSection: React.FC<{ id: string }> = ({ id }) => {
             <SubSection title={CommonInfoSubtitle}>
                 <CommonInfoSubsection id={id}/>
             </SubSection>
-            {Boolean(data?.app?.type === B2CAppTypeType.Web) && (
+            {data?.app?.type === B2CAppTypeType.Web && (
                 <SubSection title={EntryPointsSubtitle}>
                     <EntrypointsSubsection id={id} type='b2c'/>
                 </SubSection>

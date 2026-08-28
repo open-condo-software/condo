@@ -11,7 +11,6 @@ import { useContainerSize } from '@open-condo/ui/hooks'
 
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@/domains/common/hooks/useValidations'
-import { AuthenticatedUserType, useAuth } from '@/domains/user/utils/auth'
 
 import { AppCard } from './AppCard'
 
@@ -62,7 +61,6 @@ const APP_TYPES = [
         key: B2B_WEB_APP_VALUE,
         icon: <Monitor size='medium'/>,
         value: B2B_WEB_APP_VALUE,
-        disabled: (user: AuthenticatedUserType) => !(user?.isSupport || user?.isAdmin),
         span: 24,
     },
 ]
@@ -81,7 +79,6 @@ type AppTypeSelectorProps = {
 
 const AppTypeSelector: React.FC<AppTypeSelectorProps> = ({ onChange, value }) => {
     const [{ width }, setRef] = useContainerSize()
-    const { user } = useAuth()
 
     return (
         <Row gutter={APP_CARDS_ROW_GUTTER} ref={setRef}>
@@ -97,7 +94,6 @@ const AppTypeSelector: React.FC<AppTypeSelectorProps> = ({ onChange, value }) =>
                         )}
                         checked={value === appType.value}
                         onClick={() => onChange(appType.value)}
-                        disabled={appType.disabled?.(user)}
                     />
                 </Col>
             ))}

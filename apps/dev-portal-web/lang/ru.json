@@ -243,6 +243,9 @@
   "pages.apps.any.id.sections.serviceUser.userSettings.editUserForm.subsection.credentials.label": "Информация о сервисном пользователе",
   "pages.apps.any.id.sections.serviceUser.userSettings.editUserForm.items.email.label": "Email",
 
+  "pages.apps.any.id.sections.publishing.autoPublishView.title": "Автопубликация включена",
+  "pages.apps.any.id.sections.publishing.autoPublishView.description": "Все изменения публикуются на {environment} стенд автоматически",
+
   "pages.apps.b2b.id.sections.info.title": "Информация",
   "pages.apps.b2b.id.sections.info.commonInfo.subtitle": "Общая информация",
   "pages.apps.b2b.id.sections.info.commonInfo.form.items.name.label": "Название приложения",
@@ -357,9 +360,6 @@
 
   "pages.apps.b2b.id.sections.publishing.title": "Публикация",
   "pages.apps.b2b.id.sections.publishing.publishForm.items.stand.label": "Выберите окружение",
-  "pages.apps.b2b.id.sections.publishing.publishForm.items.components.label": "Выберите, какие изменения хотите опубликовать",
-  "pages.apps.b2b.id.sections.publishing.publishForm.items.info.label": "Информация о приложении",
-  "pages.apps.b2b.id.sections.publishing.publishForm.actions.publish": "Опубликовать",
 
   "pages.apps.b2c.id.sections.info.title": "Информация",
   "pages.apps.b2c.id.sections.info.commonInfo.subtitle": "Общая информация",
@@ -434,9 +434,6 @@
   "pages.apps.b2c.id.sections.publishing.settings.form.fields.webTransformEnabled.checkbox.hint.text": "При публикации новой сборки ваш cordova-архив будет автоматически преобразован в статическое веб-приложение и развёрнут в нашей инфраструктуре, чтобы жители могли пользоваться вашим мини-приложением на всех поверхностях, включая браузеры, мессенджеры, нативные и встроенные приложения",
   "pages.apps.b2c.id.sections.publishing.settings.form.fields.webTransformEnabled.checkbox.hint.label": "Подробнее про веб-публикацию",
   "pages.apps.b2c.id.sections.publishing.publishing.subtitle": "Публикация приложения",
-  "pages.apps.b2c.id.sections.publishing.publishForm.items.components.label": "Выберите, какие изменения хотите опубликовать",
-  "pages.apps.b2c.id.sections.publishing.publishForm.items.info.label": "Информация о приложении",
-  "pages.apps.b2c.id.sections.publishing.publishForm.items.build.label": "Сборка приложения",
   "pages.apps.b2c.id.sections.publishing.publishForm.items.build.select.placeholder": "Выберите сборку",
   "pages.apps.b2c.id.sections.publishing.publishForm.actions.publish": "Опубликовать"
 }

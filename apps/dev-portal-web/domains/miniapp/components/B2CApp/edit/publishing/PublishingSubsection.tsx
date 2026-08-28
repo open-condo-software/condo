@@ -3,11 +3,17 @@ import React, { useMemo } from 'react'
 import { useIntl } from 'react-intl'
 
 import { SubDivider } from '@/domains/common/components/SubDivider'
+import { AutoPublishView } from '@/domains/miniapp/components/Publishing/AutoPublishView'
 
 import { PublishForm } from './PublishForm'
 import { RequestStatusInfo } from './RequestStatusInfo'
 
-import { AppEnvironment, useAllB2CAppPublishRequestsQuery, B2CAppPublishRequestStatusType } from '@/gql'
+import {
+    AppEnvironment,
+    B2CAppPublishRequestStatusType, B2CAppTypeType,
+    useAllB2CAppPublishRequestsQuery,
+    useGetB2CAppQuery,
+} from '@/gql'
 
 type PublishingSubsectionProps = {
     id: string
@@ -22,16 +28,25 @@ export const PublishingSubsection: React.FC<PublishingSubsectionProps> = ({ envi
         variables: { appId: id },
         skip: environment !== AppEnvironment.Production,
     })
+    const { data } = useGetB2CAppQuery({
+        variables: {
+            id,
+        },
+    })
     const publishRequest = get(requestsData, ['requests', '0'], null)
     const publishRequestStatus = get(publishRequest, 'status')
 
     const SubsectionContent = useMemo(() => {
-        if ((environment !== AppEnvironment.Production || publishRequestStatus === B2CAppPublishRequestStatusType.Approved)) {
-            return <PublishForm id={id} environment={environment}/>
+        if (environment === AppEnvironment.Production && publishRequestStatus !== B2CAppPublishRequestStatusType.Approved) {
+            return <RequestStatusInfo request={publishRequest} appId={id} loading={requestsLoading}/>
         }
 
-        return <RequestStatusInfo request={publishRequest} appId={id} loading={requestsLoading}/>
-    }, [environment, id, publishRequest, publishRequestStatus, requestsLoading])
+        if (data?.app?.type === B2CAppTypeType.Web) {
+            return <AutoPublishView environment={environment}/>
+        }
+
+        return <PublishForm id={id} environment={environment}/>
+    }, [data?.app?.type, environment, id, publishRequest, publishRequestStatus, requestsLoading])
 
     return (
         <>
