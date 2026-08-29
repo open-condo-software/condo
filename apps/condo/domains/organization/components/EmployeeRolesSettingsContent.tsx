@@ -49,7 +49,7 @@ import {
     useEmployeeRoleTicketVisibilityInfoTableColumns,
 } from '@condo/domains/organization/hooks/useEmployeeRolesTableColumns'
 import { OrganizationEmployeeRole } from '@condo/domains/organization/utils/clientSchema'
-import { getRelatedPermissionsTranslations } from '@condo/domains/organization/utils/roles.utils'
+import { filterB2BAppsData, getRelatedPermissionsTranslations } from '@condo/domains/organization/utils/roles.utils'
 
 
 const MEDIUM_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
@@ -345,7 +345,7 @@ const ExpandableRow = ({ permissionsGroup, employeeRoles, permissionsState, setP
 }
 
 export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
-    connectedB2BApps, employeeRoles, b2BAppRoles, b2BAppPermissions,
+    connectedB2BApps: filteredConnectedB2BApps, employeeRoles, b2BAppRoles: filteredB2BAppRoles, b2BAppPermissions: filteredB2BAppPermissions,
     loading, softDeleteB2BAppRoleAction, updateB2BAppRoleAction, createB2BAppRoleAction,
     updateOrganizationEmployeeRoleAction, refetchEmployeeRoles, useEmployeeRolesTableData,
 }) => {
@@ -355,7 +355,7 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
     const CreateLabel = intl.formatMessage({ id: 'Create' })
     const RoleCreationLimitReachedTooltip = intl.formatMessage({ id: 'pages.condo.employeeRole.tooltip.roleCreationLimitReached' }, { max: MAX_ROLE_COUNT })
 
-    const tableData: PermissionsGroup[] = useEmployeeRolesTableData(connectedB2BApps, b2BAppPermissions)
+    const tableData: PermissionsGroup[] = useEmployeeRolesTableData(filteredConnectedB2BApps, filteredB2BAppPermissions)
     const tableColumns = useEmployeeRolesTableColumns(employeeRoles)
 
     const { selectEmployee, employee } = useOrganization()
@@ -378,21 +378,21 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
                         ...acc,
                         [employeeRole.id]: {
                             organizationPermissions: pick(employeeRole, organizationPermissionsToPick),
-                            b2bAppRoles: connectedB2BApps.reduce((acc, b2bApp) => {
+                            b2bAppRoles: filteredConnectedB2BApps.reduce((acc, b2bApp) => {
                                 const appId = b2bApp.id
-                                const b2bRole = b2BAppRoles.find(b2bAppRole =>
+                                const b2bRole = filteredB2BAppRoles.find(b2bAppRole =>
                                     get(b2bAppRole, 'role.id') === employeeRole.id && get(b2bAppRole, 'app.id') === b2bApp.id)
 
                                 return {
                                     ...acc,
-                                    [b2bApp.id]: createInitialB2BAppPermissionsState({ appId, b2BAppPermissions, b2bRole }),
+                                    [b2bApp.id]: createInitialB2BAppPermissionsState({ appId, b2BAppPermissions: filteredB2BAppPermissions, b2bRole }),
                                 }
                             }, {}),
                         },
                     }
                 }, {}))
         }
-    }, [b2BAppPermissions, b2BAppRoles, connectedB2BApps, employeeRoles, loadingState])
+    }, [filteredB2BAppPermissions, filteredB2BAppRoles, filteredConnectedB2BApps, employeeRoles, loadingState])
 
     useEffect(() => {
         if (!loadingState) {
@@ -433,8 +433,8 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
                     employeeRoleId,
                     initialB2bRolePermissions,
                     newB2bRolePermissions,
-                    b2BAppPermissions,
-                    b2BAppRoles,
+                    b2BAppPermissions: filteredB2BAppPermissions,
+                    b2BAppRoles: filteredB2BAppRoles,
                     createB2BAppRoleAction,
                     updateB2BAppRoleAction,
                     softDeleteB2BAppRoleAction,
@@ -457,7 +457,7 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
         setSubmitActionProcessing(false)
 
         await selectEmployee(employee?.id)
-    }, [b2BAppPermissions, b2BAppRoles, createB2BAppRoleAction, employeeRoles, initialPermissionsState, intl, employee, permissionsState, refetchEmployeeRoles, selectEmployee, softDeleteB2BAppRoleAction, updateB2BAppRoleAction, updateOrganizationEmployeeRoleAction])
+    }, [filteredB2BAppPermissions, filteredB2BAppRoles, createB2BAppRoleAction, employeeRoles, initialPermissionsState, intl, employee, permissionsState, refetchEmployeeRoles, selectEmployee, softDeleteB2BAppRoleAction, updateB2BAppRoleAction, updateOrganizationEmployeeRoleAction])
 
     const getExpandedRowRender = useCallback((permissionsGroup: PermissionsGroup) => (
         <ExpandableRow
@@ -515,7 +515,7 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
                 <ExpandableTable
                     loading={loading}
                     pagination={false}
-                    totalRows={connectedB2BApps.length}
+                    totalRows={filteredConnectedB2BApps.length}
                     dataSource={tableData}
                     columns={tableColumns}
                     data-cy='employeeRoles__table'
@@ -558,27 +558,35 @@ export const EmployeeRolesSettingsContent = ({ useEmployeeRolesTableData }) => {
     , [b2bAppContexts])
 
     const {
+        loading: isB2BAppPermissionsLoading,
+        objs: b2BAppPermissions,
+    } = B2BAppPermission.useObjects({
+        where: { app: { id_in: connectedB2BApps.map(b2bApp => get(b2bApp, 'id')) } },
+    })
+
+    const filteredConnectedB2BAppsForRolesQuery = useMemo(() =>
+        filterB2BAppsData(connectedB2BApps, b2BAppPermissions).connectedB2BApps
+    , [connectedB2BApps, b2BAppPermissions])
+
+    const {
         loading: isB2BAppRolesLoading,
         objs: b2BAppRoles,
         refetch: refetchB2BAppRoles,
     } = B2BAppRole.useObjects({
         where: {
             role: { id_in: employeeRoles.map(role => role.id) },
-            app: { id_in: connectedB2BApps.map(context => context.id) },
+            app: { id_in: filteredConnectedB2BAppsForRolesQuery.map(context => context.id) },
         },
     })
+
+    const { connectedB2BApps: filteredConnectedB2BApps, b2BAppPermissions: filteredB2BAppPermissions, b2BAppRoles: filteredB2BAppRoles } = useMemo(() =>
+        filterB2BAppsData(connectedB2BApps, b2BAppPermissions, b2BAppRoles)
+    , [connectedB2BApps, b2BAppPermissions, b2BAppRoles])
 
     const createB2BAppRoleAction = B2BAppRole.useCreate({}, async () => await refetchB2BAppRoles())
     const softDeleteB2BAppRoleAction = B2BAppRole.useSoftDelete(async () => await refetchB2BAppRoles())
     const updateB2BAppRoleAction = B2BAppRole.useUpdate({}, async () => await refetchB2BAppRoles())
     const updateOrganizationEmployeeRoleAction = OrganizationEmployeeRole.useUpdate({})
-
-    const {
-        loading: isB2BAppPermissionsLoading,
-        objs: b2BAppPermissions,
-    } = B2BAppPermission.useObjects({
-        where: { app: { id_in: connectedB2BApps.map(b2bApp => get(b2bApp, 'id')) } },
-    })
 
     const loading = isEmployeeRolesLoading || isB2BAppRolesLoading || isB2BAppPermissionsLoading || b2bAppContextsLoading
 
@@ -589,10 +597,10 @@ export const EmployeeRolesSettingsContent = ({ useEmployeeRolesTableData }) => {
         softDeleteB2BAppRoleAction={softDeleteB2BAppRoleAction}
         updateB2BAppRoleAction={updateB2BAppRoleAction}
         updateOrganizationEmployeeRoleAction={updateOrganizationEmployeeRoleAction}
-        connectedB2BApps={connectedB2BApps}
+        connectedB2BApps={filteredConnectedB2BApps}
         employeeRoles={employeeRoles}
-        b2BAppRoles={b2BAppRoles}
-        b2BAppPermissions={b2BAppPermissions}
+        b2BAppRoles={filteredB2BAppRoles}
+        b2BAppPermissions={filteredB2BAppPermissions}
         useEmployeeRolesTableData={useEmployeeRolesTableData}
     />
 }
