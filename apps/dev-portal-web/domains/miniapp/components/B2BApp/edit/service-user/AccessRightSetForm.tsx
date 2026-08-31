@@ -186,7 +186,6 @@ export const AccessRightSetForm: React.FC<AccessRightSetFormProps> = ({ id, envi
     const SaveButtonLabel = intl.formatMessage({ id: 'global.actions.save' })
     const FormSectionTitle = intl.formatMessage({ id: 'pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.title' })
     const ApprovedSuccessMessageTitle = intl.formatMessage({ id: 'pages.apps.any.id.notifications.successSave.title' })
-    const ApprovedSuccessMessageDescription = intl.formatMessage({ id: 'pages.apps.any.id.notifications.successSave.description' })
     const PendingSuccessMessageTitle = intl.formatMessage({ id: 'pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.notifications.pending.success.message' })
     const PendingSuccessMessageDescription = intl.formatMessage({ id: 'pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.notifications.pending.success.description' })
 
@@ -282,9 +281,9 @@ export const AccessRightSetForm: React.FC<AccessRightSetFormProps> = ({ id, envi
     const onError = useMutationErrorHandler()
     const onCompleted = useCallback((data: CreateB2BAppAccessRightSetMutation) => {
         const message = data.rightSet?.status === B2BAppAccessRightSetStatusType.Approved ? ApprovedSuccessMessageTitle : PendingSuccessMessageTitle
-        const description = data.rightSet?.status === B2BAppAccessRightSetStatusType.Approved ? ApprovedSuccessMessageDescription : PendingSuccessMessageDescription
-        notification.success({ message, description, duration: 20 })
-    }, [ApprovedSuccessMessageDescription, ApprovedSuccessMessageTitle, PendingSuccessMessageDescription, PendingSuccessMessageTitle])
+        const description = data.rightSet?.status === B2BAppAccessRightSetStatusType.Approved ? undefined : PendingSuccessMessageDescription
+        notification.success({ message, description, duration: description ? 20 : undefined })
+    }, [ApprovedSuccessMessageTitle, PendingSuccessMessageDescription, PendingSuccessMessageTitle])
     const [createRightSet] = useCreateB2BAppAccessRightSetMutation({
         refetchQueries: [
             { query: GetB2BAppAccessRightSetsForAppDocument, variables: rightSetVariables },

@@ -58,8 +58,6 @@ export const RegisterUserModal: React.FC<RegisterUserModalProps> = ({ onClose, o
     const ModalTitle = intl.formatMessage({ id: 'pages.apps.any.id.sections.serviceUser.userSettings.registerUserForm.modal.title' })
     const ContinueActionLabel = intl.formatMessage({ id: 'pages.apps.any.id.sections.serviceUser.userSettings.registerUserForm.actions.continue' })
     const SuccessNotificationTitle = intl.formatMessage({ id: 'pages.apps.any.id.sections.serviceUser.userSettings.registerUserForm.notifications.success.title' })
-    const SuccessNotificationDescription = intl.formatMessage({ id: 'pages.apps.any.id.sections.serviceUser.userSettings.registerUserForm.notifications.success.description' })
-
     const [form] = Form.useForm()
 
     const [actionTTL, { startCountdown, resetCountdown }] = useCountdown({
@@ -118,9 +116,9 @@ export const RegisterUserModal: React.FC<RegisterUserModalProps> = ({ onClose, o
         registerServiceUserErrorHandler(error)
     }, [registerServiceUserErrorHandler])
     const onRegisterServiceUserCompleted = useCallback(() => {
-        notification.success({ message: SuccessNotificationTitle, description: SuccessNotificationDescription, duration: 15 })
+        notification.success({ message: SuccessNotificationTitle })
         onClose()
-    }, [SuccessNotificationDescription, SuccessNotificationTitle, onClose])
+    }, [SuccessNotificationTitle, onClose])
     const refetchQueries = useMemo(() => appType === 'B2C'
         ? [{ query: AllB2CAppAccessRightsDocument, variables: { environment, appId: id } }]
         : [{ query: AllB2BAppAccessRightsDocument, variables: { environment, appId: id } }]
