@@ -41,7 +41,7 @@ export const getManyPropertiesAddressRender = (search: FilterValue) => {
     }
 }
 
-export const getCompactAddressPropertiesRender = (search: FilterValue) => (intl, firstOnesProperties, count, CustomMoreAddressesMessage?) => {
+export const getCompactAddressPropertiesRender = (search?: FilterValue | string) => (intl, firstOnesProperties, count, CustomMoreAddressesMessage?) => {
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
     const MoreAddressesMessage = CustomMoreAddressesMessage || intl.formatMessage({ id: 'pages.condo.settings.propertyScope.propertiesCount' })
     const AndMessage = intl.formatMessage({ id: 'And' })

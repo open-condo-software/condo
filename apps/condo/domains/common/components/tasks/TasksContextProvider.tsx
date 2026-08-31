@@ -145,28 +145,30 @@ const TasksContextProvider = <TTaskRecord extends BaseTaskRecord = BaseTaskRecor
             }
         },
         updateTask: (record) => {
+            const [existingTask, index] = findExistingTaskById(record.id)
+            if (!existingTask) {
+                console.error('Task record not found to update', record)
+                return
+            }
             setTasks(prevTasks => {
-                const index = prevTasks.findIndex((task) => task.record?.id === record.id)
-                if (index === -1) {
-                    console.error('Task record not found to update', record)
-                    return prevTasks
+                const updatedTask = {
+                    ...prevTasks[index],
+                    record,
                 }
-                const existingTask = prevTasks[index]
                 forceUpdate()
                 return [
                     ...prevTasks.slice(0, index),
-                    {
-                        ...existingTask,
-                        record: {
-                            ...existingTask.record,
-                            ...record,
-                        },
-                    },
+                    updatedTask,
                     ...prevTasks.slice(index + 1),
                 ]
             })
         },
         deleteTask: (record) => {
+            const [existingTask] = findExistingTaskById(record.id)
+            if (!existingTask) {
+                console.error('Task record not found', record)
+                return
+            }
             setTasks(prevState => prevState.filter((task) => task.record.id !== record.id))
             forceUpdate()
         },
@@ -174,9 +176,9 @@ const TasksContextProvider = <TTaskRecord extends BaseTaskRecord = BaseTaskRecor
             tasks.forEach(task => {
                 const { storage, removeStrategy, record } = task
 
-                if (storage && removeStrategy.includes(TASK_REMOVE_STRATEGY.STORAGE)) {
-                    const deleteTask = storage.useDeleteTask({ id: record.id }, () => null)
-                    deleteTask(record)
+                // TODO(DOMA-13521): delete fn returned by useDeleteTask is not called; MiniApp tasks stay in localStorage after close-all
+                if (removeStrategy.includes(TASK_REMOVE_STRATEGY.STORAGE)) {
+                    storage.useDeleteTask({ id: record.id }, () => null)
                 }
             })
             setTasks([])
