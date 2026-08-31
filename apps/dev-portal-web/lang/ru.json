@@ -144,7 +144,6 @@
 
   "pages.apps.any.id.menu.title": "Настройки приложения",
   "pages.apps.any.id.notifications.successSave.title": "Изменения сохранены",
-  "pages.apps.any.id.notifications.successSave.description": "Не забудьте опубликовать изменения на соответствующий стенд, чтобы они вступили в силу",
   "pages.apps.any.id.notifications.successPublish.title": "Изменения опубликованы",
   "pages.apps.any.id.notifications.colorCopied.title": "Цвет скопирован",
 
@@ -239,7 +238,6 @@
   "pages.apps.any.id.sections.serviceUser.userSettings.registerUserForm.actions.changeEmail": "Изменить email",
   "pages.apps.any.id.sections.serviceUser.userSettings.registerUserForm.actions.resendCode": "Отправить код еще раз",
   "pages.apps.any.id.sections.serviceUser.userSettings.registerUserForm.notifications.success.title": "Сервисный пользователь успешно зарегистрирован",
-  "pages.apps.any.id.sections.serviceUser.userSettings.registerUserForm.notifications.success.description": "Он привяжется к приложению на стенде при следующей публикации приложения, а пароль от него был выслан на указанный email",
   "pages.apps.any.id.sections.serviceUser.userSettings.editUserForm.subsection.credentials.label": "Информация о сервисном пользователе",
   "pages.apps.any.id.sections.serviceUser.userSettings.editUserForm.items.email.label": "Email",
 
@@ -347,7 +345,7 @@
   "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.notifications.pending.success.message": "Запрос на изменение доступов отправлен",
   "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.notifications.pending.success.description": "Мы провалидируем изменения, после чего они будут доступны для публикации",
   "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.alert.pending.message": "Запрос на изменение прав находится на этапе модерации",
-  "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.alert.pending.description": "Как только мы рассмотрим запрос, изменение прав применится автоматически и будет доступным для публикации",
+  "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.alert.pending.description": "Как только мы рассмотрим запрос, изменение прав применится автоматически, а это уведомление пропадёт",
   "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.alert.pending.actions.viewChanges": "Посмотреть изменения",
   "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.actions.compare": "Сравнить с {environment}",
   "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.compareModal.title": "Права на {environment}",

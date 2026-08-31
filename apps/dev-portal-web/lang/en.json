@@ -144,7 +144,6 @@
 
   "pages.apps.any.id.menu.title": "App settings",
   "pages.apps.any.id.notifications.successSave.title": "Changes have been saved",
-  "pages.apps.any.id.notifications.successSave.description": "Don't forget to publish the changes to the corresponding stand for them to take effect",
   "pages.apps.any.id.notifications.successPublish.title": "Changes have been published",
   "pages.apps.any.id.notifications.colorCopied.title": "Color copied",
 
@@ -239,7 +238,6 @@
   "pages.apps.any.id.sections.serviceUser.userSettings.registerUserForm.actions.changeEmail": "Change email",
   "pages.apps.any.id.sections.serviceUser.userSettings.registerUserForm.actions.resendCode": "Resend the code",
   "pages.apps.any.id.sections.serviceUser.userSettings.registerUserForm.notifications.success.title": "The service user has been successfully registered",
-  "pages.apps.any.id.sections.serviceUser.userSettings.registerUserForm.notifications.success.description": "It will be linked to the application on the environment after the next publication of the application. The password for it was sent to specified email address",
   "pages.apps.any.id.sections.serviceUser.userSettings.editUserForm.subsection.credentials.label": "Service user info",
   "pages.apps.any.id.sections.serviceUser.userSettings.editUserForm.items.email.label": "Email",
 
@@ -347,7 +345,7 @@
   "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.notifications.pending.success.message": "Access change request sent",
   "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.notifications.pending.success.description": "We will validate the changes, after which they will be available for publication",
   "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.alert.pending.message": "The request to change permissions is currently being reviewed",
-  "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.alert.pending.description": "Once we review the request, the permission change will take effect automatically and will be available for publication",
+  "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.alert.pending.description": "Once we review the request, the permission change will take effect automatically and this notification will be removed",
   "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.alert.pending.actions.viewChanges": "View changes",
   "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.actions.compare": "Compare with {environment}",
   "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.compareModal.title": "Permissions on {environment}",

@@ -54,7 +54,7 @@ const devicePermissions = getEnvironmentalPermissionsFieldsSelection({ listKey: 
     .map(key => `is${key.substring('development'.length)}`)
     .join(' ')
 
-const CondoB2BApp = generateGQLTestUtils(generateGqlQueries('B2BApp', `{ id name developer developerUrl shortDescription detailedDescription category contextDefaultStatus logo { publicUrl } importId importRemoteSystem deletedAt v ${devicePermissions} oidcClient { id importId importRemoteSystem } }`))
+const CondoB2BApp = generateGQLTestUtils(generateGqlQueries('B2BApp', `{ id name developer developerUrl shortDescription detailedDescription category contextDefaultStatus logo { publicUrl } isHidden importId importRemoteSystem deletedAt v ${devicePermissions} oidcClient { id importId importRemoteSystem } }`))
 const CondoB2BAppAccessRight = generateGQLTestUtils(generateGqlQueries('B2BAppAccessRight', `{ id v app { id } user { id } accessRightSet { id v ${Object.keys(PERMISSION_FIELDS).join(' ')} importId importRemoteSystem } importId importRemoteSystem }`))
 const CondoOIDCClient = generateGQLTestUtils(generateGqlQueries('OidcClient', '{ id deletedAt isEnabled clientId payload }'))
 
@@ -352,6 +352,72 @@ describe('PublishB2BAppService', () => {
                 const apiApp = await B2BApp.getOne(admin, { id: app.id })
                 expect(apiApp).toHaveProperty('developmentPublishedAt')
                 expect(apiApp.developmentPublishedAt).not.toBeNull()
+            })
+            describe('isHidden field',  () => {
+                test('App must not be hidden on development environment', async () => {
+                    let publishedApp
+                    await waitFor(async () => {
+                        publishedApp = await B2BApp.getOne(user, { id: app.id })
+                        expect(publishedApp).not.toHaveProperty('developmentExportId', null)
+                    })
+
+                    const condoApp = await CondoB2BApp.getOne(condoAdmin, { id: publishedApp.developmentExportId })
+                    expect(condoApp).toHaveProperty('id')
+                    expect(condoApp).toHaveProperty('isHidden', false)
+                })
+                test('App must be hidden on first publish (creation)', async () => {
+                    const [request] = await createTestB2BAppPublishRequest(support, app, {
+                        isAppTested: true,
+                        isContractSigned: true,
+                        isInfoApproved: true,
+                        status: PUBLISH_REQUEST_APPROVED_STATUS,
+                    })
+                    expect(request).toHaveProperty('id')
+
+                    let publishedApp
+                    await waitFor(async () => {
+                        publishedApp = await B2BApp.getOne(user, { id: app.id })
+                        expect(publishedApp).not.toHaveProperty('productionExportId', null)
+                    })
+
+                    const condoApp = await CondoB2BApp.getOne(condoAdmin, { id: publishedApp.productionExportId })
+                    expect(condoApp).toHaveProperty('id')
+                    expect(condoApp).toHaveProperty('isHidden', true)
+                })
+                test('isHidden must not be touched on subsequent publishes', async () => {
+                    const [request] = await createTestB2BAppPublishRequest(support, app, {
+                        isAppTested: true,
+                        isContractSigned: true,
+                        isInfoApproved: true,
+                        status: PUBLISH_REQUEST_APPROVED_STATUS,
+                    })
+                    expect(request).toHaveProperty('id')
+
+                    let publishedApp
+                    await waitFor(async () => {
+                        publishedApp = await B2BApp.getOne(user, { id: app.id })
+                        expect(publishedApp).not.toHaveProperty('productionExportId', null)
+                    })
+
+                    const condoApp = await CondoB2BApp.getOne(condoAdmin, { id: publishedApp.productionExportId })
+                    expect(condoApp).toHaveProperty('id')
+                    expect(condoApp).toHaveProperty('isHidden', true)
+
+                    const updatedCondoApp = await CondoB2BApp.update(condoAdmin, publishedApp.productionExportId, {
+                        dv: 1,
+                        sender: { dv: 1, fingerprint: 'test-test' },
+                        isHidden: false,
+                    })
+                    expect(updatedCondoApp).toHaveProperty('id')
+                    expect(updatedCondoApp).toHaveProperty('isHidden', false)
+
+                    const [publishResult] = await publishB2BAppByTestClient(user, app, { info: true }, PROD_ENVIRONMENT)
+                    expect(publishResult).toHaveProperty('success', true)
+
+                    const finalCondoApp = await CondoB2BApp.getOne(condoAdmin, { id: publishedApp.productionExportId })
+                    expect(finalCondoApp).toHaveProperty('id')
+                    expect(finalCondoApp).toHaveProperty('isHidden', false)
+                })
             })
         })
         describe('B2BAppAccessRight + B2BAppAccessRightSet', () => {
