@@ -22,28 +22,26 @@ import { NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
 import { getCompactAddressPropertiesRender } from '@condo/domains/property/utils/clientSchema/Renders'
 
 
-type NewsTableSearch = string | undefined
+type GetRenderTitleType = (search?: FilterValue | string) => (title: INewsItem['title']) => React.ReactNode
 
-type GetRenderTitleType = (search: NewsTableSearch) => (title: INewsItem['title']) => React.ReactNode
+type GetRenderBodyType = (search?: FilterValue | string) => (body: INewsItem['body']) => React.ReactNode
 
-type GetRenderBodyType = (search: NewsTableSearch) => (body: INewsItem['body']) => React.ReactNode
-
-type GetRenderNewsDateType = (intl: IntlShape, search: NewsTableSearch) => (
+type GetRenderNewsDateType = (intl: IntlShape, search?: FilterValue | string) => (
     createdAt: INewsItem['createdAt'],
     news: INewsItem,
 ) => React.ReactNode
 
-type GetTypeRenderType = (intl: IntlShape, search: NewsTableSearch) => (
+type GetTypeRenderType = (intl: IntlShape, search?: FilterValue | string) => (
     text: INewsItem['type'],
     newsItem: INewsItem,
 ) => React.ReactNode
 
-type GetRenderSourceType = (intl: IntlShape, search: NewsTableSearch) => (
+type GetRenderSourceType = (intl: IntlShape, search?: FilterValue | string) => (
     source: INewsItem['source'],
     newsItem?: INewsItem,
 ) => React.ReactNode
 
-type GetRenderPropertiesType = (intl: IntlShape, search: NewsTableSearch) => (
+type GetRenderPropertiesType = (intl: IntlShape, search?: FilterValue | string) => (
     compactScopes: INewsItem['compactScopes'],
 ) => React.ReactNode
 
@@ -167,5 +165,5 @@ export const getRenderProperties: GetRenderPropertiesType = (intl, search) => (c
         return '—'
     }
 
-    return getCompactAddressPropertiesRender(search as unknown as FilterValue)(intl, firstOnesProperties, scopeCount, MoreAddressesMessage)
+    return getCompactAddressPropertiesRender(search)(intl, firstOnesProperties, scopeCount, MoreAddressesMessage)
 }
