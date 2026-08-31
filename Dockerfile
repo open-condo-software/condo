@@ -136,10 +136,11 @@ RUN echo "# Build time .env config!" >> /app/.env && \
 
 RUN chmod +x ./bin/run_condo_domain_tests.sh
 
-RUN --mount=type=secret,id=TURBO_TOKEN,env=TURBO_TOKEN \
+RUN --mount=type=secret,id=TURBO_TOKEN,required=false \
 	--mount=type=cache,target=/usr/local/share/.cache/yarn \
 	--mount=type=cache,target=/app/.turbo \
 	set -ex \
+	&& if [ -f /run/secrets/TURBO_TOKEN ]; then export TURBO_TOKEN="$(cat /run/secrets/TURBO_TOKEN)"; fi \
 	&& yarn build \
 	&& rm -rf /app/out \
 	&& rm -rf /app/.env \
