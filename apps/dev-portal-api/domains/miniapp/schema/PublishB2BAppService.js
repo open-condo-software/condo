@@ -146,7 +146,7 @@ async function publishAppChanges ({ app, condoApp, serverClient, args, context }
         // App not found -> create new one
         // NOTE: initial publish must be done with isHidden flag set to true,
         // so it can be tested on production before showing to users
-        appPayload.isHidden = true
+        appPayload.isHidden = environment === PROD_ENVIRONMENT
 
         logger.info({
             msg: 'condo app not found. Creating new one',
