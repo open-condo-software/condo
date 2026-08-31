@@ -7,34 +7,11 @@ from: {{ env "PREBUILT_APPS_IMAGE" }}
 fromLatest: true
 {{ else }}
 ---
-# Dockerfile target: base — OS + Node/Python (cached until base stage changes)
-image: apps-base
-final: false
-dockerfile: Dockerfile
-target: base
-args:
-  REGISTRY: {{ env "DOCKER_REGISTRY" }}/doma/utils
----
-# Dockerfile target: werf-installer — yarn install FROM apps-base
-# Cached until package manifests (./out) change
-image: apps-deps
-final: false
-dockerfile: Dockerfile
-target: werf-installer
-contextAddFiles:
-  - out/
-args:
-  REGISTRY: {{ env "DOCKER_REGISTRY" }}/doma/utils
-dependencies:
-  - image: apps-base
-    imports:
-      - type: ImageName
-        targetBuildArg: BASE_IMAGE
----
-# Dockerfile target: werf-runtime — yarn build FROM apps-deps, runtime FROM apps-base
 image: apps
 dockerfile: Dockerfile
-target: werf-runtime
+target: runtime
+contextAddFiles:
+  - out/
 args:
   REGISTRY: {{ env "DOCKER_REGISTRY" }}/doma/utils
   TURBO_TEAM: condo-ci
@@ -42,15 +19,6 @@ args:
   TURBO_API: {{ env "TURBO_API" }}
 secrets:
   - env: TURBO_TOKEN
-dependencies:
-  - image: apps-base
-    imports:
-      - type: ImageName
-        targetBuildArg: BASE_IMAGE
-  - image: apps-deps
-    imports:
-      - type: ImageName
-        targetBuildArg: DEPS_IMAGE
 {{ end }}
 ---
 image: valkeyreview
