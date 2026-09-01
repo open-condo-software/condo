@@ -90180,12 +90180,16 @@ export type RegisterMultiPaymentForVirtualReceiptOutput = {
 };
 
 export type RegisterMultiPaymentInput = {
-  addressKey?: InputMaybe<Scalars['String']['input']>;
   dv: Scalars['Int']['input'];
   groupedReceipts?: InputMaybe<Array<RegisterMultiPaymentServiceConsumerInput>>;
-  invoices?: InputMaybe<Array<InvoiceWhereUniqueInput>>;
+  invoices?: InputMaybe<Array<RegisterMultiPaymentInvoiceInput>>;
   recurrentPaymentContext?: InputMaybe<RecurrentPaymentContextWhereUniqueInput>;
   sender: SenderFieldInput;
+};
+
+export type RegisterMultiPaymentInvoiceInput = {
+  addressKey?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
   unitName?: InputMaybe<Scalars['String']['input']>;
   unitType?: InputMaybe<Scalars['String']['input']>;
 };

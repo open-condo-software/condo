@@ -96061,15 +96061,19 @@ input RegisterMultiPaymentServiceConsumerInput {
   amountDistribution: [RegisterMultiPaymentReceiptAmountInput!]
 }
 
+input RegisterMultiPaymentInvoiceInput {
+  id: ID!
+  addressKey: String
+  unitType: String
+  unitName: String
+}
+
 input RegisterMultiPaymentInput {
   dv: Int!
   sender: SenderFieldInput!
   groupedReceipts: [RegisterMultiPaymentServiceConsumerInput!]
   recurrentPaymentContext: RecurrentPaymentContextWhereUniqueInput
-  invoices: [InvoiceWhereUniqueInput!]
-  addressKey: String
-  unitType: String
-  unitName: String
+  invoices: [RegisterMultiPaymentInvoiceInput!]
 }
 
 type RegisterMultiPaymentOutput {

@@ -1776,35 +1776,6 @@ describe('RegisterMultiPaymentService', () => {
         })
     })
     describe('Address fields (addressKey, unitType, unitName) passthrough', () => {
-        test('Should pass addressKey, unitType, unitName to Payment records when paying for receipts', async () => {
-            const { commonData, batches } = await makePayerWithMultipleConsumers(1, 1)
-            const [batch] = batches
-            const addressKey = faker.datatype.uuid()
-            const unitType = PARKING_UNIT_TYPE
-            const unitName = faker.random.alphaNumeric(5)
-
-            const payload = [{
-                serviceConsumer: { id: batch.serviceConsumer.id },
-                receipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })),
-            }]
-
-            const [{ multiPaymentId }] = await registerMultiPaymentByTestClient(commonData.client, payload, {
-                addressKey,
-                unitType,
-                unitName,
-            })
-
-            const multiPayment = await MultiPayment.getOne(commonData.admin, { id: multiPaymentId })
-            const payments = await Payment.getAll(commonData.admin, { id_in: multiPayment.payments.map(({ id }) => id) })
-
-            expect(payments).not.toHaveLength(0)
-            for (const payment of payments) {
-                expect(payment).toHaveProperty('addressKey', addressKey)
-                expect(payment).toHaveProperty('unitType', unitType)
-                expect(payment).toHaveProperty('unitName', unitName)
-            }
-        })
-
         test('Should pass addressKey, unitType, unitName to Payment records when paying for invoices', async () => {
             const [o10n] = await createTestOrganization(adminClient)
             const [property] = await createTestProperty(adminClient, o10n)
@@ -1853,80 +1824,91 @@ describe('RegisterMultiPaymentService', () => {
             // Verify the invoice was created with FLAT_UNIT_TYPE
             expect(invoice).toHaveProperty('unitType', FLAT_UNIT_TYPE)
 
+            // Test 1: all three fields passed together
             const scalarAddressKey = faker.datatype.uuid()
-            const [{ multiPaymentId }] = await registerMultiPaymentByTestClient(residentClient, null, {
-                invoices: [pick(invoice, 'id')],
-                addressKey: scalarAddressKey,
-                unitType,
-                unitName,
+            const [{ multiPaymentId: multiPaymentId1 }] = await registerMultiPaymentByTestClient(residentClient, null, {
+                invoices: [{
+                    id: invoice.id,
+                    addressKey: scalarAddressKey,
+                    unitType,
+                    unitName,
+                }],
             })
 
-            const multiPayment = await MultiPayment.getOne(adminClient, { id: multiPaymentId })
-            const payments = await Payment.getAll(adminClient, { id_in: multiPayment.payments.map(({ id }) => id) })
+            const multiPayment1 = await MultiPayment.getOne(adminClient, { id: multiPaymentId1 })
+            const payments1 = await Payment.getAll(adminClient, { id_in: multiPayment1.payments.map(({ id }) => id) })
 
-            expect(payments).not.toHaveLength(0)
-            for (const payment of payments) {
+            expect(payments1).not.toHaveLength(0)
+            for (const payment of payments1) {
                 expect(payment).toHaveProperty('addressKey', scalarAddressKey)
+                expect(payment).toHaveProperty('unitType', unitType)
+                expect(payment).toHaveProperty('unitName', unitName)
+            }
+
+            // Test 2: addressKey only (unitType and unitName omitted)
+            const addressKeyOnly = faker.datatype.uuid()
+            const [{ multiPaymentId: multiPaymentId2 }] = await registerMultiPaymentByTestClient(residentClient, null, {
+                invoices: [{
+                    id: invoice.id,
+                    addressKey: addressKeyOnly,
+                }],
+            })
+
+            const multiPayment2 = await MultiPayment.getOne(adminClient, { id: multiPaymentId2 })
+            const payments2 = await Payment.getAll(adminClient, { id_in: multiPayment2.payments.map(({ id }) => id) })
+
+            expect(payments2).not.toHaveLength(0)
+            for (const payment of payments2) {
+                expect(payment).toHaveProperty('addressKey', addressKeyOnly)
+                expect(payment).toHaveProperty('unitType', null)
+                expect(payment).toHaveProperty('unitName', null)
+            }
+
+            // Test 3: unitType and unitName together (no addressKey)
+            const [{ multiPaymentId: multiPaymentId3 }] = await registerMultiPaymentByTestClient(residentClient, null, {
+                invoices: [{
+                    id: invoice.id,
+                    unitType,
+                    unitName,
+                }],
+            })
+
+            const multiPayment3 = await MultiPayment.getOne(adminClient, { id: multiPaymentId3 })
+            const payments3 = await Payment.getAll(adminClient, { id_in: multiPayment3.payments.map(({ id }) => id) })
+
+            expect(payments3).not.toHaveLength(0)
+            for (const payment of payments3) {
+                expect(payment).toHaveProperty('addressKey', null)
                 expect(payment).toHaveProperty('unitType', unitType)
                 expect(payment).toHaveProperty('unitName', unitName)
             }
         })
 
-        describe('Validation: all three fields must be passed together', () => {
-            test.each([
-                ['addressKey only', { addressKey: faker.datatype.uuid() }],
-                ['unitType only', { unitType: PARKING_UNIT_TYPE }],
-                ['unitName only', { unitName: faker.random.alphaNumeric(5) }],
-                ['addressKey + unitType', { addressKey: faker.datatype.uuid(), unitType: PARKING_UNIT_TYPE }],
-                ['unitType + unitName', { unitType: PARKING_UNIT_TYPE, unitName: faker.random.alphaNumeric(5) }],
-                ['addressKey + unitName', { addressKey: faker.datatype.uuid(), unitName: faker.random.alphaNumeric(5) }],
-            ])('Receipts mode: WRONG_ADDRESS_FIELDS when %p passed', async (_, extraArgs) => {
-                const { commonData, batches } = await makePayerWithMultipleConsumers(1, 1)
-                const [batch] = batches
+        describe('Invoice address fields validation', () => {
+            let invoice
+            let residentClient
 
-                const payload = [{
-                    serviceConsumer: { id: batch.serviceConsumer.id },
-                    receipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })),
-                }]
-
-                await expectToThrowGQLErrorToResult(async () => {
-                    await registerMultiPaymentByTestClient(commonData.client, payload, extraArgs)
-                }, ERRORS.WRONG_ADDRESS_FIELDS)
-            })
-
-            test.each([
-                ['addressKey only', { addressKey: faker.datatype.uuid() }],
-                ['unitType only', { unitType: FLAT_UNIT_TYPE }],
-                ['unitName only', { unitName: faker.lorem.word() }],
-                ['addressKey + unitType', { addressKey: faker.datatype.uuid(), unitType: FLAT_UNIT_TYPE }],
-                ['unitType + unitName', { unitType: FLAT_UNIT_TYPE, unitName: faker.lorem.word() }],
-                ['addressKey + unitName', { addressKey: faker.datatype.uuid(), unitName: faker.lorem.word() }],
-            ])('Invoices mode: WRONG_ADDRESS_FIELDS when %p passed', async (_, extraArgs) => {
+            beforeAll(async () => {
                 const [o10n] = await createTestOrganization(adminClient)
                 const [property] = await createTestProperty(adminClient, o10n)
-
-                const residentClient = await makeClientWithResidentUser()
-
+                residentClient = await makeClientWithResidentUser()
                 await registerResidentByTestClient(residentClient, {
                     address: property.address,
                     addressMeta: property.addressMeta,
                     unitType: FLAT_UNIT_TYPE,
-                    unitName: faker.lorem.word(),
+                    unitName: 'test',
                 })
-
                 const staffClient = await makeClientWithStaffUser()
                 const [role] = await createTestOrganizationEmployeeRole(adminClient, o10n, {
                     canManageInvoices: true,
                     canManageContacts: true,
                 })
                 await createTestOrganizationEmployee(adminClient, o10n, staffClient.user, role)
-
                 const [contact] = await createTestContact(staffClient, o10n, property, {
                     phone: residentClient.userAttrs.phone,
                     unitType: FLAT_UNIT_TYPE,
-                    unitName: faker.lorem.word(),
+                    unitName: 'test-unit',
                 })
-
                 await createTestAcquiringIntegrationContext(adminClient, o10n, dummyAcquiringIntegration, {
                     invoiceStatus: CONTEXT_FINISHED_STATUS,
                     invoiceRecipient: createTestRecipient(),
@@ -1935,21 +1917,136 @@ describe('RegisterMultiPaymentService', () => {
                         percent: '5',
                     }],
                 })
-
-                const [invoice] = await createTestInvoice(staffClient, o10n, {
+                ;[invoice] = await createTestInvoice(staffClient, o10n, {
                     property: { connect: { id: property.id } },
                     unitType: FLAT_UNIT_TYPE,
-                    unitName: faker.lorem.word(),
+                    unitName: 'test-unit',
+                    contact: { connect: { id: contact.id } },
+                    status: INVOICE_STATUS_PUBLISHED,
+                })
+            })
+
+            test.each([
+                'unitType without unitName',
+                'unitName without unitType',
+                'unitType + addressKey without unitName',
+                'unitName + addressKey without unitType',
+            ])('Should throw INVOICE_ADDRESS_FIELDS_MISMATCH when %p', async (testCase) => {
+                let invoiceInput
+                if (testCase === 'unitType without unitName') {
+                    invoiceInput = { id: invoice.id, unitType: PARKING_UNIT_TYPE }
+                } else if (testCase === 'unitName without unitType') {
+                    invoiceInput = { id: invoice.id, unitName: faker.lorem.word() }
+                } else if (testCase === 'unitType + addressKey without unitName') {
+                    invoiceInput = { id: invoice.id, unitType: PARKING_UNIT_TYPE, addressKey: faker.datatype.uuid() }
+                } else {
+                    invoiceInput = { id: invoice.id, unitName: faker.lorem.word(), addressKey: faker.datatype.uuid() }
+                }
+                await expectToThrowGQLErrorToResult(async () => {
+                    await registerMultiPaymentByTestClient(residentClient, null, {
+                        invoices: [invoiceInput],
+                    })
+                }, ERRORS.INVOICE_ADDRESS_FIELDS_MISMATCH)
+            })
+
+            test('Should allow addressKey without unitType and unitName', async () => {
+                const addressKey = faker.datatype.uuid()
+                const [{ multiPaymentId }] = await registerMultiPaymentByTestClient(residentClient, null, {
+                    invoices: [{
+                        id: invoice.id,
+                        addressKey,
+                    }],
+                })
+                const multiPayment = await MultiPayment.getOne(adminClient, { id: multiPaymentId })
+                const payments = await Payment.getAll(adminClient, { id_in: multiPayment.payments.map(({ id }) => id) })
+
+                expect(payments).not.toHaveLength(0)
+                for (const payment of payments) {
+                    expect(payment).toHaveProperty('addressKey', addressKey)
+                    expect(payment).toHaveProperty('unitType', null)
+                    expect(payment).toHaveProperty('unitName', null)
+                }
+            })
+
+            test('Should allow unitType + unitName together without addressKey', async () => {
+                const [{ multiPaymentId }] = await registerMultiPaymentByTestClient(residentClient, null, {
+                    invoices: [{
+                        id: invoice.id,
+                        unitType: PARKING_UNIT_TYPE,
+                        unitName: faker.lorem.word(),
+                    }],
+                })
+                const multiPayment = await MultiPayment.getOne(adminClient, { id: multiPaymentId })
+                const payments = await Payment.getAll(adminClient, { id_in: multiPayment.payments.map(({ id }) => id) })
+
+                expect(payments).not.toHaveLength(0)
+                for (const payment of payments) {
+                    expect(payment).toHaveProperty('addressKey', null)
+                    expect(payment).toHaveProperty('unitType', PARKING_UNIT_TYPE)
+                    expect(payment).toHaveProperty('unitName')
+                }
+            })
+
+            test('Should allow all three fields together', async () => {
+                const addressKey = faker.datatype.uuid()
+                const [{ multiPaymentId }] = await registerMultiPaymentByTestClient(residentClient, null, {
+                    invoices: [{
+                        id: invoice.id,
+                        addressKey,
+                        unitType: PARKING_UNIT_TYPE,
+                        unitName: faker.lorem.word(),
+                    }],
+                })
+                const multiPayment = await MultiPayment.getOne(adminClient, { id: multiPaymentId })
+                const payments = await Payment.getAll(adminClient, { id_in: multiPayment.payments.map(({ id }) => id) })
+
+                expect(payments).not.toHaveLength(0)
+                for (const payment of payments) {
+                    expect(payment).toHaveProperty('addressKey', addressKey)
+                    expect(payment).toHaveProperty('unitType', PARKING_UNIT_TYPE)
+                    expect(payment).toHaveProperty('unitName')
+                }
+            })
+
+            test('Should validate each invoice independently — one valid, one invalid', async () => {
+                const [o10n] = await createTestOrganization(adminClient)
+                const [property] = await createTestProperty(adminClient, o10n)
+                await createTestAcquiringIntegrationContext(adminClient, o10n, dummyAcquiringIntegration, {
+                    invoiceStatus: CONTEXT_FINISHED_STATUS,
+                    invoiceRecipient: createTestRecipient(),
+                    invoiceImplicitFeeDistributionSchema: [{
+                        recipient: 'organization',
+                        percent: '5',
+                    }],
+                })
+                const staffClient = await makeClientWithStaffUser()
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, o10n, {
+                    canManageInvoices: true,
+                    canManageContacts: true,
+                })
+                await createTestOrganizationEmployee(adminClient, o10n, staffClient.user, role)
+                const [contact] = await createTestContact(staffClient, o10n, property, {
+                    phone: residentClient.userAttrs.phone,
+                    unitType: FLAT_UNIT_TYPE,
+                    unitName: 'test',
+                })
+                const [secondInvoice] = await createTestInvoice(staffClient, o10n, {
+                    property: { connect: { id: property.id } },
+                    unitType: FLAT_UNIT_TYPE,
+                    unitName: 'test',
                     contact: { connect: { id: contact.id } },
                     status: INVOICE_STATUS_PUBLISHED,
                 })
 
+                // First invoice is valid (addressKey only), second is invalid (unitType without unitName)
                 await expectToThrowGQLErrorToResult(async () => {
                     await registerMultiPaymentByTestClient(residentClient, null, {
-                        invoices: [pick(invoice, 'id')],
-                        ...extraArgs,
+                        invoices: [
+                            { id: invoice.id, addressKey: faker.datatype.uuid() },
+                            { id: secondInvoice.id, unitType: PARKING_UNIT_TYPE },
+                        ],
                     })
-                }, ERRORS.WRONG_ADDRESS_FIELDS)
+                }, ERRORS.INVOICE_ADDRESS_FIELDS_MISMATCH)
             })
         })
 
@@ -2002,37 +2099,7 @@ describe('RegisterMultiPaymentService', () => {
         })
 
         describe('Scalar address fields applied to all payments when explicitly passed', () => {
-            test('Receipts mode: scalar addressKey/unitType/unitName applied to all payments when 3 receipts', async () => {
-                const { commonData, batches } = await makePayerWithMultipleConsumers(1, 3)
-                const [batch] = batches
-                const addressKey = faker.datatype.uuid()
-                const unitType = FLAT_UNIT_TYPE
-                const unitName = faker.lorem.word()
-
-                const payload = [{
-                    serviceConsumer: { id: batch.serviceConsumer.id },
-                    receipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })),
-                }]
-
-                const [{ multiPaymentId }] = await registerMultiPaymentByTestClient(commonData.client, payload, {
-                    addressKey,
-                    unitType,
-                    unitName,
-                })
-
-                const multiPayment = await MultiPayment.getOne(commonData.admin, { id: multiPaymentId })
-                const payments = await Payment.getAll(commonData.admin, { id_in: multiPayment.payments.map(({ id }) => id) })
-
-                // 3 receipts → 3 payments, all with identical address fields
-                expect(payments).toHaveLength(3)
-                for (const payment of payments) {
-                    expect(payment).toHaveProperty('addressKey', addressKey)
-                    expect(payment).toHaveProperty('unitType', unitType)
-                    expect(payment).toHaveProperty('unitName', unitName)
-                }
-            })
-
-            test('Invoices mode: scalar addressKey/unitType/unitName applied to all payments when 3 invoices', async () => {
+            test('Invoices mode: same address fields applied to all payments when 3 invoices', async () => {
                 const [o10n] = await createTestOrganization(adminClient)
                 const residentClient = await makeClientWithResidentUser()
 
@@ -2084,10 +2151,12 @@ describe('RegisterMultiPaymentService', () => {
                 const scalarUnitName = faker.lorem.word()
 
                 const [{ multiPaymentId }] = await registerMultiPaymentByTestClient(residentClient, null, {
-                    invoices: invoices.map(inv => pick(inv, 'id')),
-                    addressKey: scalarAddressKey,
-                    unitType: scalarUnitType,
-                    unitName: scalarUnitName,
+                    invoices: invoices.map(inv => ({
+                        id: inv.id,
+                        addressKey: scalarAddressKey,
+                        unitType: scalarUnitType,
+                        unitName: scalarUnitName,
+                    })),
                 })
 
                 const multiPayment = await MultiPayment.getOne(adminClient, { id: multiPaymentId })
@@ -2149,7 +2218,7 @@ describe('RegisterMultiPaymentService', () => {
                 }
             })
 
-            test('Invoices mode: each invoice gets address fields from its own property when 3 invoices', async () => {
+            test('Invoices mode: address fields are null when not provided in invoice input', async () => {
                 const [o10n] = await createTestOrganization(adminClient)
                 const residentClient = await makeClientWithResidentUser()
 
@@ -2176,26 +2245,19 @@ describe('RegisterMultiPaymentService', () => {
                 })
 
                 const invoices = []
-                const expectedFields = []
 
                 for (let i = 0; i < 3; i++) {
                     const [property] = await createTestProperty(adminClient, o10n)
-                    const unitName = faker.lorem.word()
-                    expectedFields.push({
-                        unitType: FLAT_UNIT_TYPE,
-                        unitName,
-                    })
-
                     const [contact] = await createTestContact(staffClient, o10n, property, {
                         phone: residentClient.userAttrs.phone,
                         unitType: FLAT_UNIT_TYPE,
-                        unitName: unitName,
+                        unitName: faker.lorem.word(),
                     })
 
                     const [invoice] = await createTestInvoice(staffClient, o10n, {
                         property: { connect: { id: property.id } },
                         unitType: FLAT_UNIT_TYPE,
-                        unitName: unitName,
+                        unitName: faker.lorem.word(),
                         contact: { connect: { id: contact.id } },
                         status: INVOICE_STATUS_PUBLISHED,
                     })
@@ -2212,15 +2274,15 @@ describe('RegisterMultiPaymentService', () => {
 
                 expect(payments).toHaveLength(3)
 
+                // Without address fields in invoice input, all address fields should be null
                 for (const payment of payments) {
-                    const invoice = invoices.find(inv => inv.id === payment.invoice.id)
-                    const idx = invoices.indexOf(invoice)
-                    expect(payment).toHaveProperty('unitType', expectedFields[idx].unitType)
-                    expect(payment).toHaveProperty('unitName', expectedFields[idx].unitName)
+                    expect(payment).toHaveProperty('addressKey', null)
+                    expect(payment).toHaveProperty('unitType', null)
+                    expect(payment).toHaveProperty('unitName', null)
                 }
             })
 
-            test('Invoices mode: address fields collected from Invoice and Invoice.property', async () => {
+            test('Invoices mode: address fields are null when not provided in invoice input (single invoice)', async () => {
                 const [o10n] = await createTestOrganization(adminClient)
                 const [property] = await createTestProperty(adminClient, o10n)
 
@@ -2268,7 +2330,7 @@ describe('RegisterMultiPaymentService', () => {
                 expect(invoice).toHaveProperty('unitType', FLAT_UNIT_TYPE)
                 expect(invoice).toHaveProperty('unitName', testUnitName)
 
-                // Call without address fields - should fallback to invoice + property
+                // Call without address fields — without address fields in invoice input, all address fields should be null
                 const [{ multiPaymentId }] = await registerMultiPaymentByTestClient(residentClient, null, {
                     invoices: [pick(invoice, 'id')],
                 })
@@ -2278,10 +2340,9 @@ describe('RegisterMultiPaymentService', () => {
 
                 expect(payments).not.toHaveLength(0)
                 for (const payment of payments) {
-                    // addressKey may be null if property.addressKey is not set (depends on address service)
-                    // unitType and unitName come from the invoice itself, so they should always be set
-                    expect(payment).toHaveProperty('unitType', FLAT_UNIT_TYPE)
-                    expect(payment).toHaveProperty('unitName', testUnitName)
+                    expect(payment).toHaveProperty('addressKey', null)
+                    expect(payment).toHaveProperty('unitType', null)
+                    expect(payment).toHaveProperty('unitName', null)
                 }
             })
         })
