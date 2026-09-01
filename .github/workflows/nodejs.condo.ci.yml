@@ -33,7 +33,7 @@ jobs:
     name: Authorize PR
     runs-on: ubuntu-22.04
     environment:
-      ${{ github.event_name == 'pull_request_target' &&
+      ${{ github.event_name == 'pull_request' &&
       github.event.pull_request.head.repo.full_name != github.repository &&
       'external' || 'internal' }}
     outputs:
@@ -44,6 +44,7 @@ jobs:
   build-image:
     name: Build Docker Image
     needs: authorize
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: build-runners
     outputs:
       DOCKER_IMAGE: ${{ env.DOCKER_IMAGE }}
@@ -91,7 +92,6 @@ jobs:
           file: Dockerfile
           push: true
           tags: ${{ env.DOCKER_IMAGE_FULL }}
-          target: runtime
           build-args: |
             REGISTRY=${{ secrets.DOCKER_REGISTRY }}/doma/utils
             TURBO_TEAM=condo-ci
