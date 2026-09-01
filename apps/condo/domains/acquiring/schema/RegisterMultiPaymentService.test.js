@@ -838,7 +838,7 @@ describe('RegisterMultiPaymentService', () => {
                     accountNumber: billingAccount.number,
                 })
 
-                const payload =  [
+                const payload = [
                     {
                         serviceConsumer: { id: batches[0].serviceConsumer.id },
                         receipts: [{ id: batches[0].billingReceipts[0].id }],
@@ -1272,8 +1272,8 @@ describe('RegisterMultiPaymentService', () => {
                 await utils.init()
                 await utils.updateAcquiringIntegration({
                     explicitFeeDistributionSchema: [
-                        { 'recipient':'acquiring', 'percent':'1.0' },
-                        { 'recipient':'service', 'percent':'0.2' },
+                        { 'recipient': 'acquiring', 'percent': '1.0' },
+                        { 'recipient': 'service', 'percent': '0.2' },
                     ],
                 })
             })
@@ -1835,8 +1835,7 @@ describe('RegisterMultiPaymentService', () => {
                 }],
             })
 
-            const multiPayment1 = await MultiPayment.getOne(adminClient, { id: multiPaymentId1 })
-            const payments1 = await Payment.getAll(adminClient, { id_in: multiPayment1.payments.map(({ id }) => id) })
+            const payments1 = await Payment.getAll(adminClient, { multiPayment: { id: multiPaymentId1 } })
 
             expect(payments1).not.toHaveLength(0)
             for (const payment of payments1) {
@@ -1854,33 +1853,13 @@ describe('RegisterMultiPaymentService', () => {
                 }],
             })
 
-            const multiPayment2 = await MultiPayment.getOne(adminClient, { id: multiPaymentId2 })
-            const payments2 = await Payment.getAll(adminClient, { id_in: multiPayment2.payments.map(({ id }) => id) })
+            const payments2 = await Payment.getAll(adminClient, { multiPayment: { id: multiPaymentId2 } })
 
             expect(payments2).not.toHaveLength(0)
             for (const payment of payments2) {
                 expect(payment).toHaveProperty('addressKey', addressKeyOnly)
                 expect(payment).toHaveProperty('unitType', null)
                 expect(payment).toHaveProperty('unitName', null)
-            }
-
-            // Test 3: unitType and unitName together (no addressKey)
-            const [{ multiPaymentId: multiPaymentId3 }] = await registerMultiPaymentByTestClient(residentClient, null, {
-                invoices: [{
-                    id: invoice.id,
-                    unitType,
-                    unitName,
-                }],
-            })
-
-            const multiPayment3 = await MultiPayment.getOne(adminClient, { id: multiPaymentId3 })
-            const payments3 = await Payment.getAll(adminClient, { id_in: multiPayment3.payments.map(({ id }) => id) })
-
-            expect(payments3).not.toHaveLength(0)
-            for (const payment of payments3) {
-                expect(payment).toHaveProperty('addressKey', null)
-                expect(payment).toHaveProperty('unitType', unitType)
-                expect(payment).toHaveProperty('unitName', unitName)
             }
         })
 
@@ -1916,8 +1895,8 @@ describe('RegisterMultiPaymentService', () => {
                         recipient: 'organization',
                         percent: '5',
                     }],
-                })
-                ;[invoice] = await createTestInvoice(staffClient, o10n, {
+                });
+                [invoice] = await createTestInvoice(staffClient, o10n, {
                     property: { connect: { id: property.id } },
                     unitType: FLAT_UNIT_TYPE,
                     unitName: 'test-unit',
@@ -1927,24 +1906,16 @@ describe('RegisterMultiPaymentService', () => {
             })
 
             test.each([
-                'unitType without unitName',
-                'unitName without unitType',
-                'unitType + addressKey without unitName',
-                'unitName + addressKey without unitType',
-            ])('Should throw INVOICE_ADDRESS_FIELDS_MISMATCH when %p', async (testCase) => {
-                let invoiceInput
-                if (testCase === 'unitType without unitName') {
-                    invoiceInput = { id: invoice.id, unitType: PARKING_UNIT_TYPE }
-                } else if (testCase === 'unitName without unitType') {
-                    invoiceInput = { id: invoice.id, unitName: faker.lorem.word() }
-                } else if (testCase === 'unitType + addressKey without unitName') {
-                    invoiceInput = { id: invoice.id, unitType: PARKING_UNIT_TYPE, addressKey: faker.datatype.uuid() }
-                } else {
-                    invoiceInput = { id: invoice.id, unitName: faker.lorem.word(), addressKey: faker.datatype.uuid() }
-                }
+                ['unitType without unitName', () => ({ id: invoice.id, unitType: PARKING_UNIT_TYPE })],
+                ['unitName without unitType', () => ({ id: invoice.id, unitName: faker.lorem.word() })],
+                ['unitType + addressKey without unitName', () => ({ id: invoice.id, unitType: PARKING_UNIT_TYPE, addressKey: faker.datatype.uuid() })],
+                ['unitName + addressKey without unitType', () => ({ id: invoice.id, unitName: faker.lorem.word(), addressKey: faker.datatype.uuid() })],
+                ['unitType without addressKey', () => ({ id: invoice.id, unitType: PARKING_UNIT_TYPE, unitName: faker.lorem.word() })],
+                ['unitName without addressKey', () => ({ id: invoice.id, unitName: faker.lorem.word() })],
+            ])('Should throw INVOICE_ADDRESS_FIELDS_MISMATCH when %p', async (_, getInvoiceInput) => {
                 await expectToThrowGQLErrorToResult(async () => {
                     await registerMultiPaymentByTestClient(residentClient, null, {
-                        invoices: [invoiceInput],
+                        invoices: [getInvoiceInput()],
                     })
                 }, ERRORS.INVOICE_ADDRESS_FIELDS_MISMATCH)
             })
@@ -1968,23 +1939,16 @@ describe('RegisterMultiPaymentService', () => {
                 }
             })
 
-            test('Should allow unitType + unitName together without addressKey', async () => {
-                const [{ multiPaymentId }] = await registerMultiPaymentByTestClient(residentClient, null, {
-                    invoices: [{
-                        id: invoice.id,
-                        unitType: PARKING_UNIT_TYPE,
-                        unitName: faker.lorem.word(),
-                    }],
-                })
-                const multiPayment = await MultiPayment.getOne(adminClient, { id: multiPaymentId })
-                const payments = await Payment.getAll(adminClient, { id_in: multiPayment.payments.map(({ id }) => id) })
-
-                expect(payments).not.toHaveLength(0)
-                for (const payment of payments) {
-                    expect(payment).toHaveProperty('addressKey', null)
-                    expect(payment).toHaveProperty('unitType', PARKING_UNIT_TYPE)
-                    expect(payment).toHaveProperty('unitName')
-                }
+            test('Should reject unitType + unitName without addressKey', async () => {
+                await expectToThrowGQLErrorToResult(async () => {
+                    await registerMultiPaymentByTestClient(residentClient, null, {
+                        invoices: [{
+                            id: invoice.id,
+                            unitType: PARKING_UNIT_TYPE,
+                            unitName: faker.lorem.word(),
+                        }],
+                    })
+                }, ERRORS.INVOICE_ADDRESS_FIELDS_MISMATCH)
             })
 
             test('Should allow all three fields together', async () => {
