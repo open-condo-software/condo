@@ -54,11 +54,9 @@ async function resolveReceiptAmount ({
  *   Each element: { serviceConsumer: { id: string }, receipts: Array<{ id: string }>, amountDistribution?: Array<{ receipt: { id: string }, amount: string }> }
  * @param {Record<string, Object>} params.consumersByIds - Map of serviceConsumer objects by ID.
  * @param {Record<string, Object>} params.receiptsByIds - Map of receipt objects by ID.
+ * @param {Record<string, Object>} params.residentsById - Map of resident objects by ID.
  * @param {Record<string, Object>} params.acquiringContextsByConsumerId - Map of acquiringContext by consumer ID.
  * @param {string} params.billingIntegrationCurrencyCode - Currency code for payments.
- * @param {Record<string, string>} params.addressKeysMap - Map from receipt.id → addressKey.
- * @param {Record<string, string>} params.unitTypesMap - Map from receipt.id → unitType.
- * @param {Record<string, string>} params.unitNamesMap - Map from receipt.id → unitName.
  * @param {Object} params.sender - Sender field for dv/double-version validation.
  * @param {Object} params.context - Keystone context.
  * @returns {Promise<Array<Object>>} Array of payment input objects ready for `Payment.create()`.
@@ -67,11 +65,9 @@ async function buildReceiptPaymentInputs ({
     groupedReceipts,
     consumersByIds,
     receiptsByIds,
+    residentsById,
     acquiringContextsByConsumerId,
     billingIntegrationCurrencyCode,
-    addressKeysMap,
-    unitTypesMap,
-    unitNamesMap,
     sender,
     context,
 }) {
@@ -79,6 +75,7 @@ async function buildReceiptPaymentInputs ({
 
     for (const group of groupedReceipts) {
         const serviceConsumer = consumersByIds[group.serviceConsumer.id]
+        const resident = residentsById[serviceConsumer?.resident]
         const acquiringContext = acquiringContextsByConsumerId[serviceConsumer.id]
         const amountDistributions = group.amountDistribution || []
         const formula = await getAcquiringIntegrationContextFormula(context, acquiringContext.id)
@@ -104,9 +101,9 @@ async function buildReceiptPaymentInputs ({
             const { type, explicitFee = '0', implicitFee = '0', fromReceiptAmountFee = '0' } = feeCalculator.calculate(amount)
             const paymentCommissionFields = buildCommissionFields({ type, explicitFee, implicitFee, fromReceiptAmountFee })
 
-            const receiptAddressKey = addressKeysMap[receiptInfo.id] ?? null
-            const receiptUnitType = unitTypesMap[receiptInfo.id] ?? null
-            const receiptUnitName = unitNamesMap[receiptInfo.id] ?? null
+            const addressKey = resident?.addressKey ?? null
+            const unitType = resident?.unitType ?? null
+            const unitName = resident?.unitName ?? null
 
             paymentCreateInputs.push({
                 dv: 1,
@@ -121,9 +118,9 @@ async function buildReceiptPaymentInputs ({
                 organization: { connect: { id: acquiringContext.organization } },
                 recipientBic: receipt.recipient.bic,
                 recipientBankAccount: receipt.recipient.bankAccount,
-                addressKey: receiptAddressKey,
-                unitType: receiptUnitType,
-                unitName: receiptUnitName,
+                addressKey,
+                unitType,
+                unitName,
                 ...paymentCommissionFields,
             })
         }
