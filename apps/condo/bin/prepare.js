@@ -33,13 +33,29 @@ async function updateAppEnvPaymentsFileWebhookConfig (appName) {
             return prev
         }
 
-        const integration = {
-            hostUrl: 'https://testtest.com',
-            explicitFeeDistributionSchema: [],
+        const billingIntegration = {
+            shortDescription: 'short desc',
+            detailedDescription: 'short desc',
+            targetDescription: 'target desc',
+            bannerColor: '#FFFFFF',
+            receiptsLoadingTime: 'once a day',
+            setupUrl: 'https://testtest.com',
+            appUrl: 'https://testtest.com',
+            currencyCode: 'RUB',
         }
 
+        const acquiringIntegration = {
+            hostUrl: 'https://testtest.com',
+            explicitFeeDistributionSchema: [],
+            type: 'EXTERNAL_IMPORT',
+        }
+
+        await safeExec(
+            `yarn workspace @app/${appName} node ./bin/create-billing-integration.js 'Payments file webhook' '${JSON.stringify(billingIntegration)}'`
+        )
+
         const { stdout } = await safeExec(
-            `yarn workspace @app/${appName} node ./bin/create-acquiring-integration.js 'Payments file webhook' '${JSON.stringify(integration)}'`
+            `yarn workspace @app/${appName} node ./bin/create-acquiring-integration.js 'Payments file webhook' '${JSON.stringify(acquiringIntegration)}'`
         )
         const acquiringIntegrationId = stdout.trim().split('\n').pop()
 
