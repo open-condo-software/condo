@@ -6,7 +6,6 @@ const Big = require('big.js')
 const { GQLError } = require('@open-condo/keystone/errors')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
-const { find } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/acquiring/access/RegisterMultiPaymentService')
 const { DEFAULT_MULTIPAYMENT_SERVICE_CATEGORY } = require('@condo/domains/acquiring/constants/payment')
@@ -49,6 +48,7 @@ const {
     validateNoDuplicateReceipts,
     validateNoDuplicateServiceConsumers,
     validateNoRecurrentPaymentContextForInvoiceMode,
+    validateInvoiceAddressFields,
     validateReceiptBelongsToServiceConsumer,
     validateReceiptsHavePositiveToPay,
     validateSingleAcquiringIntegration,
@@ -71,7 +71,11 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
         },
         {
             access: true,
-            type: 'input RegisterMultiPaymentInput { dv: Int!, sender: SenderFieldInput!, groupedReceipts: [RegisterMultiPaymentServiceConsumerInput!], recurrentPaymentContext: RecurrentPaymentContextWhereUniqueInput, invoices: [InvoiceWhereUniqueInput!], addressKey: String, unitType: String, unitName: String }',
+            type: 'input RegisterMultiPaymentInvoiceInput { id: ID!, addressKey: String, unitType: String, unitName: String }',
+        },
+        {
+            access: true,
+            type: 'input RegisterMultiPaymentInput { dv: Int!, sender: SenderFieldInput!, groupedReceipts: [RegisterMultiPaymentServiceConsumerInput!], recurrentPaymentContext: RecurrentPaymentContextWhereUniqueInput, invoices: [RegisterMultiPaymentInvoiceInput!] }',
         },
         {
             access: true,
@@ -88,9 +92,6 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 const { sender, recurrentPaymentContext } = data
                 const groupedReceipts = data?.groupedReceipts || []
                 const invoices = data?.invoices || []
-                const inputAddressKey = data?.addressKey
-                const inputUnitType = data?.unitType
-                const inputUnitName = data?.unitName
                 const authedItemId = context.authedItem?.id
 
                 checkDvAndSender(data, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
@@ -105,6 +106,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 } else if (mode === REQUEST_MODE.INVOICES) {
                     validateNoDuplicateInvoices(invoices, context)
                     validateNoRecurrentPaymentContextForInvoiceMode(recurrentPaymentContext, context)
+                    validateInvoiceAddressFields(invoices, context)
                 } else {
                     throw new GQLError(ERRORS.INVALID_REQUEST_MODE, context)
                 }
@@ -190,75 +192,23 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     await validateRecurrentPaymentContext(recurrentPaymentContext.id, context)
                 }
 
-                const hasAnyAddressField = inputAddressKey != null || inputUnitType != null || inputUnitName != null
-                const hasAllAddressFields = inputAddressKey != null && inputUnitType != null && inputUnitName != null
-
-                if (hasAnyAddressField && !hasAllAddressFields) {
-                    throw new GQLError(ERRORS.WRONG_ADDRESS_FIELDS, context)
-                }
-
                 let resolvedAddressKey, resolvedUnitType, resolvedUnitName
 
-                if (hasAllAddressFields) {
-                    // User explicitly passed all three fields — convert scalar values to maps per entity in a single pass
-                    if (mode === REQUEST_MODE.RECEIPTS) {
-                        const resolved = groupedReceipts.reduce((acc, group) => {
-                            for (const receiptInfo of group.receipts) {
-                                acc.addressKey[receiptInfo.id] = inputAddressKey
-                                acc.unitType[receiptInfo.id] = inputUnitType
-                                acc.unitName[receiptInfo.id] = inputUnitName
-                            }
-                            return acc
-                        }, { addressKey: {}, unitType: {}, unitName: {} })
-                        resolvedAddressKey = resolved.addressKey
-                        resolvedUnitType = resolved.unitType
-                        resolvedUnitName = resolved.unitName
-                    } else if (mode === REQUEST_MODE.INVOICES && foundInvoices && foundInvoices.length > 0) {
-                        const resolved = foundInvoices.reduce((acc, inv) => {
-                            acc.addressKey[inv.id] = inputAddressKey
-                            acc.unitType[inv.id] = inputUnitType
-                            acc.unitName[inv.id] = inputUnitName
-                            return acc
-                        }, { addressKey: {}, unitType: {}, unitName: {} })
-                        resolvedAddressKey = resolved.addressKey
-                        resolvedUnitType = resolved.unitType
-                        resolvedUnitName = resolved.unitName
-                    }
-                } else {
-                    if (mode === REQUEST_MODE.RECEIPTS && residentsById) {
-                        // build address maps per receipt in a single pass
-                        // (each receipt belongs to a serviceConsumer with its resident)
-                        const resolved = groupedReceipts.reduce((acc, group) => {
-                            const serviceConsumer = consumersByIds[group.serviceConsumer.id]
-                            const resident = residentsById[serviceConsumer?.resident]
-                            for (const receiptInfo of group.receipts) {
-                                acc.addressKey[receiptInfo.id] = resident?.addressKey ?? null
-                                acc.unitType[receiptInfo.id] = resident?.unitType ?? null
-                                acc.unitName[receiptInfo.id] = resident?.unitName ?? null
-                            }
-                            return acc
-                        }, { addressKey: {}, unitType: {}, unitName: {} })
-                        resolvedAddressKey = resolved.addressKey
-                        resolvedUnitType = resolved.unitType
-                        resolvedUnitName = resolved.unitName
-                    } else if (mode === REQUEST_MODE.INVOICES && foundInvoices && foundInvoices.length > 0) {
-                        const propertyIds = foundInvoices.map(inv => inv.property).filter(Boolean)
-                        const properties = propertyIds.length > 0
-                            ? await find('Property', { id_in: propertyIds })
-                            : []
-                        const propertyById = Object.fromEntries(properties.map(p => [p.id, p]))
-
-                        const resolved = foundInvoices.reduce((acc, inv) => {
-                            const property = propertyById[inv.property]
-                            acc.addressKey[inv.id] = property?.addressKey ?? null
-                            acc.unitType[inv.id] = inv?.unitType ?? null
-                            acc.unitName[inv.id] = inv?.unitName ?? null
-                            return acc
-                        }, { addressKey: {}, unitType: {}, unitName: {} })
-                        resolvedAddressKey = resolved.addressKey
-                        resolvedUnitType = resolved.unitType
-                        resolvedUnitName = resolved.unitName
-                    }
+                // For receipts — resolve address from resident data
+                if (mode === REQUEST_MODE.RECEIPTS && residentsById) {
+                    const resolved = groupedReceipts.reduce((acc, group) => {
+                        const serviceConsumer = consumersByIds[group.serviceConsumer.id]
+                        const resident = residentsById[serviceConsumer?.resident]
+                        for (const receiptInfo of group.receipts) {
+                            acc.addressKey[receiptInfo.id] = resident?.addressKey ?? null
+                            acc.unitType[receiptInfo.id] = resident?.unitType ?? null
+                            acc.unitName[receiptInfo.id] = resident?.unitName ?? null
+                        }
+                        return acc
+                    }, { addressKey: {}, unitType: {}, unitName: {} })
+                    resolvedAddressKey = resolved.addressKey
+                    resolvedUnitType = resolved.unitType
+                    resolvedUnitName = resolved.unitName
                 }
 
                 const paymentCreateInputs = mode === REQUEST_MODE.RECEIPTS
@@ -276,11 +226,9 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     })
                     : await buildInvoicePaymentInputs({
                         foundInvoices,
+                        invoicesWithAddress: invoices,
                         acquiringContext: acquiringContexts[0],
                         acquiringIntegration,
-                        addressKeysMap: resolvedAddressKey,
-                        unitTypesMap: resolvedUnitType,
-                        unitNamesMap: resolvedUnitName,
                         sender,
                         context,
                     })

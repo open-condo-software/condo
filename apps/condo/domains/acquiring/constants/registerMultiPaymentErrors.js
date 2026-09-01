@@ -252,12 +252,12 @@ const REGISTER_MULTI_PAYMENT_ERRORS = {
         type: NOT_FOUND,
         message: 'Cannot find all BillingIntegration for specified receipts',
     },
-    WRONG_ADDRESS_FIELDS: {
+    INVOICE_ADDRESS_FIELDS_MISMATCH: {
         mutation: 'registerMultiPayment',
-        variable: ['data'],
+        variable: ['data', 'invoices', '[]'],
         code: BAD_USER_INPUT,
         type: WRONG_VALUE,
-        message: 'Address fields (addressKey, unitType, unitName) must be provided together or not at all',
+        message: 'Invoice address fields: unitType and unitName must be provided together. addressKey can be provided alone.',
     },
 }
 

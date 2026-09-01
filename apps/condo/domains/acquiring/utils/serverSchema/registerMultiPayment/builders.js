@@ -135,31 +135,36 @@ async function buildReceiptPaymentInputs ({
 /**
  * Builds payment input objects for a multi-payment request grouped by invoices.
  *
- * Each invoice gets its own Payment record with address information resolved from
- * the invoice's property (or directly from the invoice fields if no property is linked).
+ * Each invoice gets its own Payment record with address information taken directly
+ * from the corresponding invoice input (invoicesWithAddress).
  *
  * @param {Object} params
  * @param {Array<Object>} params.foundInvoices - Invoice objects to create payments for.
+ * @param {Array<Object>} params.invoicesWithAddress - Invoice input objects with address fields: [{ id, addressKey, unitType, unitName }].
  * @param {Object} params.acquiringContext - The acquiring context associated with these invoices.
  * @param {Object} params.acquiringIntegration - The acquiring integration configuration (fee schemas, supported billing integrations, hostUrl).
- * @param {Record<string, string>} params.addressKeysMap - Map from invoice.id → addressKey.
- * @param {Record<string, string>} params.unitTypesMap - Map from invoice.id → unitType.
- * @param {Record<string, string>} params.unitNamesMap - Map from invoice.id → unitName.
  * @param {Object} params.sender - Sender field for dv/double-version validation.
  * @param {Object} params.context - Keystone context.
  * @returns {Promise<Array<Object>>} Array of payment input objects ready for `Payment.create()`.
  */
 async function buildInvoicePaymentInputs ({
     foundInvoices,
+    invoicesWithAddress,
     acquiringContext,
     acquiringIntegration,
-    addressKeysMap,
-    unitTypesMap,
-    unitNamesMap,
     sender,
     context,
 }) {
     const paymentCreateInputs = []
+
+    // Build a map from invoice id → address fields for quick lookup
+    const addressMap = Object.fromEntries(
+        invoicesWithAddress.map(inv => [inv.id, {
+            addressKey: inv.addressKey ?? null,
+            unitType: inv.unitType ?? null,
+            unitName: inv.unitName ?? null,
+        }]),
+    )
 
     for (const invoice of foundInvoices) {
         const frozenInvoice = await freezeInvoice(invoice)
@@ -175,9 +180,7 @@ async function buildInvoicePaymentInputs ({
         const { type, explicitFee = '0', implicitFee = '0', fromReceiptAmountFee = '0' } = feeCalculator.calculate(amount)
         const paymentCommissionFields = buildCommissionFields({ type, explicitFee, implicitFee, fromReceiptAmountFee })
 
-        const invoiceAddressKey = addressKeysMap[invoice.id] ?? null
-        const invoiceUnitType = unitTypesMap[invoice.id] ?? null
-        const invoiceUnitName = unitNamesMap[invoice.id] ?? null
+        const { addressKey: invoiceAddressKey, unitType: invoiceUnitType, unitName: invoiceUnitName } = addressMap[invoice.id] ?? {}
 
         paymentCreateInputs.push({
             dv: 1,
