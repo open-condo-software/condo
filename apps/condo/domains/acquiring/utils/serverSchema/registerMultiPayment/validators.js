@@ -170,11 +170,17 @@ function validateNoRecurrentPaymentContextForInvoiceMode (recurrentPaymentContex
 
 function validateInvoiceAddressFields (invoices, context) {
     for (const invoice of invoices) {
-        const hasUnitType = invoice.unitType != null
-        const hasUnitName = invoice.unitName != null
+        const hasAddressKey = !!invoice.addressKey
+        const hasUnitType = !!invoice.unitType
+        const hasUnitName = !!invoice.unitName
 
-        // unitType and unitName must be passed together
+        // unitType and unitName must be passed together (both present or both absent)
         if (hasUnitType !== hasUnitName) {
+            throw new GQLError(ERRORS.INVOICE_ADDRESS_FIELDS_MISMATCH, context)
+        }
+
+        // unitType and unitName are only allowed when addressKey is present
+        if (hasAddressKey === false && (hasUnitType || hasUnitName)) {
             throw new GQLError(ERRORS.INVOICE_ADDRESS_FIELDS_MISMATCH, context)
         }
     }
