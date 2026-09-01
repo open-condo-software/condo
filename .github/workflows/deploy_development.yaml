@@ -55,7 +55,9 @@ jobs:
       - name: Set env for branch name
         run: echo "BRANCH_NAME=$(echo ${GITHUB_REF##*/} | sed 's/\_/-/g')" >> $GITHUB_ENV
       - name: Resolve prebuilt apps image
-        run: bash bin/resolve_prebuilt_apps_image.sh "${{ secrets.DOCKER_REGISTRY }}" "${{ env.DEPLOY_SHA }}"
+        env:
+          DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
+        run: bash bin/resolve_prebuilt_apps_image.sh "$DOCKER_REGISTRY" "${{ env.DEPLOY_SHA }}"
       - name: Prune package manifests for Docker deps layer
         run: bash bin/prune.sh
       - name: Converge

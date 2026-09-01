@@ -16,8 +16,7 @@ args:
   TURBO_TEAM: condo-ci
   TURBO_REMOTE_ONLY: "true"
   TURBO_API: {{ env "TURBO_API" }}
-secrets:
-  - env: TURBO_TOKEN
+  TURBO_TOKEN: {{ env "TURBO_TOKEN" }}
 {{ end }}
 ---
 image: valkeyreview
