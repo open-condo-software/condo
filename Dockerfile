@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.7
-# Single Dockerfile for CI tests and Werf deploy (target: runtime).
+# Single Dockerfile for CI tests and Werf deploy.
 #   base → installer → builder → runtime
 
 ARG REGISTRY=docker.io

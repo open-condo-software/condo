@@ -9,7 +9,6 @@ fromLatest: true
 ---
 image: apps
 dockerfile: Dockerfile
-target: runtime
 contextAddFiles:
   - out/
 args:
