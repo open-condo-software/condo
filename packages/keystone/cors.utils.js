@@ -2,6 +2,8 @@
 // RegExp explain:
 // wildcardToRegExp('*.example.ai') = /^[^.]*?\.example\.ai$/
 // start of string + any character except dot + escaped remain part + end of string
+// wildcardToRegExp('https://*.example.ai') = /^https:\/\/[^.]*?\.example\.ai$/
+// handles protocol prefixes
 
 function wildcardToRegExp (input) {
     // not a ReDoS case: it's a part of internal configuration proceeding
@@ -16,7 +18,14 @@ function escape (input) {
 /** @deprecated it's part of internal API use prepareKeystone instead */
 function parseCorsSettings (settings) {
     if (settings && typeof settings === 'object') {
-        if (typeof settings.origin === 'string' && settings.origin.indexOf('*') !== -1) {
+        if (Array.isArray(settings.origin)) {
+            settings.origin = settings.origin.map(origin => {
+                if (typeof origin === 'string' && origin.indexOf('*') !== -1) {
+                    return wildcardToRegExp(origin)
+                }
+                return origin
+            })
+        } else if (typeof settings.origin === 'string' && settings.origin.indexOf('*') !== -1) {
             settings.origin = wildcardToRegExp(settings.origin)
         }
     }

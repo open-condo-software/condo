@@ -10,6 +10,15 @@ describe('CORS with wild card settings', () => {
         expect(origin.test('v1.example.ai')).toBeTruthy()
     })
 
+    it('should work with https protocol prefix', () => {
+        const setting = { origin: 'https://*.example.ai' }
+        const { origin } = parseCorsSettings(setting)
+        expect(origin.test('https://v1.example.ai')).toBeTruthy()
+        expect(origin.test('https://cc.example.ai')).toBeTruthy()
+        expect(origin.test('http://v1.example.ai')).toBeFalsy() // http should be denied
+        expect(origin.test('v1.example.ai')).toBeFalsy() // no protocol should be denied
+    })
+
     it('should deny sub sub domain ', () => {
         const setting = { origin: '*.example.ai' }
         const { origin } = parseCorsSettings(setting)
@@ -34,13 +43,36 @@ describe('CORS simple settings', () => {
     })
 
     it('should not modify config on array of origins ', () => {
-        const domains = ['v1.example.ai', 'cc.example.ai', '*.example.ai']
+        const domains = ['v1.example.ai', 'cc.example.ai', '*.miniapps.example.ai']
         const setting = { origin: domains }
         const { origin } = parseCorsSettings(setting)
         expect(origin).toHaveLength(3)
-        domains.forEach((domain, index) => {
-            expect(origin[index]).toEqual(domains[index])
-        })
+        expect(origin[0]).toEqual('v1.example.ai')
+        expect(origin[1]).toEqual('cc.example.ai')
+        expect(origin[2]).toBeInstanceOf(RegExp) // Wildcard should be converted to RegExp
+    })
+
+    it('should convert wildcards in array to RegExp', () => {
+        const domains = ['v1.example.ai', '*.miniapps.example.ai', 'cc.example.ai']
+        const setting = { origin: domains }
+        const { origin } = parseCorsSettings(setting)
+        expect(origin).toHaveLength(3)
+        expect(origin[0]).toEqual('v1.example.ai')
+        expect(origin[1]).toBeInstanceOf(RegExp)
+        expect(origin[1].test('app1.miniapps.example.ai')).toBeTruthy()
+        expect(origin[1].test('evil.com')).toBeFalsy()
+        expect(origin[2]).toEqual('cc.example.ai')
+    })
+
+    it('should handle multiple wildcards in array', () => {
+        const domains = ['*.example.ai', '*.miniapps.example.ai']
+        const setting = { origin: domains }
+        const { origin } = parseCorsSettings(setting)
+        expect(origin).toHaveLength(2)
+        expect(origin[0]).toBeInstanceOf(RegExp)
+        expect(origin[0].test('app.example.ai')).toBeTruthy()
+        expect(origin[1]).toBeInstanceOf(RegExp)
+        expect(origin[1].test('app.miniapps.example.ai')).toBeTruthy()
     })
 
     it('should not modify not wildcard string in origin ', () => {
