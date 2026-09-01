@@ -77,8 +77,10 @@ RUN --mount=type=secret,id=TURBO_TOKEN,required=false \
 	--mount=type=cache,target=/usr/local/share/.cache/yarn \
 	--mount=type=cache,target=/app/.turbo \
 	set -ex \
-	&& if [ -f /run/secrets/TURBO_TOKEN ]; then set +x && export TURBO_TOKEN="$(cat /run/secrets/TURBO_TOKEN)" && set -x; \
-	elif [ -n "${TURBO_TOKEN}" ]; then set +x && export TURBO_TOKEN="${TURBO_TOKEN}" && set -x; fi \
+	&& set +x \
+	&& if [ -f /run/secrets/TURBO_TOKEN ]; then export TURBO_TOKEN="$(cat /run/secrets/TURBO_TOKEN)"; \
+	elif [ -n "${TURBO_TOKEN}" ]; then export TURBO_TOKEN="${TURBO_TOKEN}"; fi \
+	&& set -x \
 	&& yarn build \
 	&& rm -rf /app/out \
 	&& rm -rf /app/.env \

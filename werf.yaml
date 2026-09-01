@@ -14,7 +14,7 @@ contextAddFiles:
 args:
   REGISTRY: {{ env "DOCKER_REGISTRY" }}/doma/utils
   TURBO_TEAM: condo-ci
-  TURBO_REMOTE_ONLY: "true"
+  TURBO_REMOTE_ONLY: {{ env "TURBO_REMOTE_ONLY" | default "true" }}
   TURBO_API: {{ env "TURBO_API" }}
   TURBO_TOKEN: {{ env "TURBO_TOKEN" }}
 {{ end }}
