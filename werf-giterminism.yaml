@@ -7,10 +7,8 @@ config:
       - PULL_PERSONAL_ACCESS_KEY
       - DOCKER_REGISTRY
       - TURBO_API
-      - PREBUILT_APPS_IMAGE
-  secrets:
-    allowEnvVariables:
       - TURBO_TOKEN
+      - PREBUILT_APPS_IMAGE
   stapel:
     allowFromLatest: true
   dockerfile:
