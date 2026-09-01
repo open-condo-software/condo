@@ -536,7 +536,8 @@ describe('OIDC', () => {
                 'isSupport': false,
                 'name': client.user.name,
             })
-            expect(await getAccessToken(tokenSet.access_token, client)).toMatchObject({
+            const accessTokenData = await getAccessToken(tokenSet.access_token, client)
+            expect(accessTokenData).toMatchObject({
                 'accountId': client.user.id,
                 'clientId': clientId,
                 'expiresWithSession': true,
@@ -544,6 +545,9 @@ describe('OIDC', () => {
                 'kind': 'AccessToken',
                 'scope': 'openid',
             })
+            // Verify TTL for authorization_code flow is 1 year
+            const ttl = accessTokenData.exp - accessTokenData.iat
+            expect(ttl).toEqual(1 * 60 * 60 * 24 * 365) // 1 year in seconds
 
             // 5) check requests by accessToken to /admin/api
 
@@ -645,7 +649,8 @@ describe('OIDC', () => {
                 'isSupport': false,
                 'name': client.user.name,
             })
-            expect(await getAccessToken(tokenSet.access_token, client)).toMatchObject({
+            const accessTokenData = await getAccessToken(tokenSet.access_token, client)
+            expect(accessTokenData).toMatchObject({
                 'accountId': client.user.id,
                 'clientId': clientId,
                 'expiresWithSession': true,
@@ -653,6 +658,9 @@ describe('OIDC', () => {
                 'kind': 'AccessToken',
                 'scope': 'openid',
             })
+            // Verify TTL for authorization_code flow is 1 year
+            const ttl = accessTokenData.exp - accessTokenData.iat
+            expect(ttl).toEqual(1 * 60 * 60 * 24 * 365) // 1 year in seconds
 
             // 5) check requests by accessToken to /admin/api
 
@@ -741,7 +749,8 @@ describe('OIDC', () => {
                 'isSupport': false,
                 'name': client.user.name,
             })
-            expect(await getAccessToken(params.access_token, client)).toMatchObject({
+            const accessTokenData = await getAccessToken(params.access_token, client)
+            expect(accessTokenData).toMatchObject({
                 'accountId': client.user.id,
                 'clientId': clientId,
                 'expiresWithSession': true,
@@ -749,6 +758,9 @@ describe('OIDC', () => {
                 'kind': 'AccessToken',
                 'scope': 'openid',
             })
+            // Verify TTL for implicit flow is 1 day
+            const ttl = accessTokenData.exp - accessTokenData.iat
+            expect(ttl).toEqual(1 * 24 * 60 * 60) // 1 day in seconds
 
             // 5) check requests by accessToken to /admin/api
 
@@ -872,6 +884,11 @@ describe('OIDC', () => {
             const params = issuerClient.callbackParams(res1.url)
             const tokenSet = await issuerClient.callback(uri, params, { ...checks })
             expect(tokenSet.access_token).toBeTruthy()
+
+            // Verify TTL for authorization_code flow is 1 year
+            const accessTokenData = await getAccessToken(tokenSet.access_token, client)
+            const ttl = accessTokenData.exp - accessTokenData.iat
+            expect(ttl).toEqual(1 * 60 * 60 * 24 * 365) // 1 year in seconds
         })
     })
     describe('Phone and Email Scopes', () => {
