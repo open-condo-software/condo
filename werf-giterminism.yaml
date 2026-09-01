@@ -8,6 +8,7 @@ config:
       - DOCKER_REGISTRY
       - TURBO_API
       - TURBO_TOKEN
+      - TURBO_REMOTE_ONLY
       - PREBUILT_APPS_IMAGE
   stapel:
     allowFromLatest: true
