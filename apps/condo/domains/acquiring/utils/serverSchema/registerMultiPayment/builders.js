@@ -155,7 +155,7 @@ async function buildInvoicePaymentInputs ({
     const paymentCreateInputs = []
 
     // Build a map from invoice id → address fields for quick lookup
-    const addressMap = Object.fromEntries(
+    const explicitAddressMap = Object.fromEntries(
         invoicesWithAddress.map(inv => [inv.id, {
             addressKey: inv.addressKey ?? null,
             unitType: inv.unitType ?? null,
@@ -177,7 +177,15 @@ async function buildInvoicePaymentInputs ({
         const { type, explicitFee = '0', implicitFee = '0', fromReceiptAmountFee = '0' } = feeCalculator.calculate(amount)
         const paymentCommissionFields = buildCommissionFields({ type, explicitFee, implicitFee, fromReceiptAmountFee })
 
-        const { addressKey: invoiceAddressKey, unitType: invoiceUnitType, unitName: invoiceUnitName } = addressMap[invoice.id] ?? {}
+        const explicitAddressData = explicitAddressMap[invoice.id] ?? {}
+        const property = frozenInvoice?.data?.property
+
+        // All-or-nothing: either use all address fields from input, or fallback to invoice/property
+        const hasExplicitAddressFields = !!(explicitAddressData.addressKey || explicitAddressData.unitType || explicitAddressData.unitName)
+
+        const addressKey = hasExplicitAddressFields ? (explicitAddressData.addressKey ?? null) : (property?.addressKey ?? null)
+        const unitType = hasExplicitAddressFields ? (explicitAddressData.unitType ?? null) : (invoice.unitType ?? null)
+        const unitName = hasExplicitAddressFields ? (explicitAddressData.unitName ?? null) : (invoice.unitName ?? null)
 
         paymentCreateInputs.push({
             dv: 1,
@@ -191,9 +199,9 @@ async function buildInvoicePaymentInputs ({
             organization: { connect: { id: organizationId } },
             recipientBic: routingNumber,
             recipientBankAccount: bankAccount,
-            addressKey: invoiceAddressKey,
-            unitType: invoiceUnitType,
-            unitName: invoiceUnitName,
+            addressKey,
+            unitType,
+            unitName,
             ...paymentCommissionFields,
         })
     }
