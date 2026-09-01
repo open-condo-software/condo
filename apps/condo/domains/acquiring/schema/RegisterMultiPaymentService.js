@@ -192,35 +192,14 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     await validateRecurrentPaymentContext(recurrentPaymentContext.id, context)
                 }
 
-                let resolvedAddressKey, resolvedUnitType, resolvedUnitName
-
-                // For receipts — resolve address from resident data
-                if (mode === REQUEST_MODE.RECEIPTS && residentsById) {
-                    const resolved = groupedReceipts.reduce((acc, group) => {
-                        const serviceConsumer = consumersByIds[group.serviceConsumer.id]
-                        const resident = residentsById[serviceConsumer?.resident]
-                        for (const receiptInfo of group.receipts) {
-                            acc.addressKey[receiptInfo.id] = resident?.addressKey ?? null
-                            acc.unitType[receiptInfo.id] = resident?.unitType ?? null
-                            acc.unitName[receiptInfo.id] = resident?.unitName ?? null
-                        }
-                        return acc
-                    }, { addressKey: {}, unitType: {}, unitName: {} })
-                    resolvedAddressKey = resolved.addressKey
-                    resolvedUnitType = resolved.unitType
-                    resolvedUnitName = resolved.unitName
-                }
-
                 const paymentCreateInputs = mode === REQUEST_MODE.RECEIPTS
                     ? await buildReceiptPaymentInputs({
                         groupedReceipts,
                         consumersByIds,
                         receiptsByIds,
+                        residentsById,
                         acquiringContextsByConsumerId,
                         billingIntegrationCurrencyCode,
-                        addressKeysMap: resolvedAddressKey,
-                        unitTypesMap: resolvedUnitType,
-                        unitNamesMap: resolvedUnitName,
                         sender,
                         context,
                     })
