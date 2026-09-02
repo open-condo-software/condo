@@ -849,7 +849,7 @@ __metadata:
     iconv-lite: "npm:^0.6.3"
     jest: "catalog:"
     jest-jasmine2: "catalog:"
-    jose: "npm:2.0.5"
+    jose: "npm:2.0.7"
     js-cookie: "npm:^3.0.8"
     jschardet: "npm:^3.0.0"
     json-rules-engine: "npm:^7.3.1"
@@ -26624,12 +26624,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jose@npm:2.0.5":
-  version: 2.0.5
-  resolution: "jose@npm:2.0.5"
+"jose@npm:2.0.7":
+  version: 2.0.7
+  resolution: "jose@npm:2.0.7"
   dependencies:
     "@panva/asn1.js": "npm:^1.0.0"
-  checksum: 10/7db5bb1baea31d71090235d33ed07f5a39026c6582ba0ba00594a6b0acee926034f1152f68c1a37c71595c7ab4385c00ab1a2a108e2c06f935397c947475316f
+  checksum: 10/c28daeb534a3a335e7e5020da3911a85f0336ca28a3cf9832d1ff92234d36a3e58a72f4e30487aa9289e0f4e00dd551cf832ccd762474737d1ce00457f2f34bd
   languageName: node
   linkType: hard
 
