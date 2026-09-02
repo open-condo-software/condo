@@ -1,0 +1,37 @@
+{
+  "name": "create-condo-app",
+  "version": "0.0.0-development",
+  "description": "Create condo miniapps with single command",
+  "keywords": [
+    "condo",
+    "open-condo-software",
+    "miniapps",
+    "utils",
+    "React",
+    "NextJS"
+  ],
+  "homepage": "https://github.com/open-condo-software/condo/blob/main/packages/create-condo-app/README.md",
+  "bugs": {
+    "url": "https://github.com/open-condo-software/condo/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/open-condo-software/condo.git",
+    "directory": "packages/create-condo-app"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Matthew Savelev",
+    "email": "matthew@doma.ai",
+    "url": "https://github.com/SavelevMatthew"
+  },
+  "files": [
+    "dist"
+  ],
+  "bin": {
+    "create-condo-app": "dist/index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
