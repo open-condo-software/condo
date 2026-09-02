@@ -47,7 +47,9 @@ jobs:
           known_hosts: ${{ secrets.SSH_DOCK_SERVER_KNOWN_HOSTS }}
           if_key_exists: replace
       - name: Resolve prebuilt apps image
-        run: bash bin/resolve_prebuilt_apps_image.sh "${{ secrets.DOCKER_REGISTRY }}" "${{ github.sha }}"
+        env:
+          DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
+        run: bash bin/resolve_prebuilt_apps_image.sh "$DOCKER_REGISTRY" "${{ github.sha }}"
       - name: Prune package manifests for Docker deps layer
         run: bash bin/prune.sh
       - name: Converge
