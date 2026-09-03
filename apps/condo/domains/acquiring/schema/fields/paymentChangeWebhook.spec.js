@@ -20,6 +20,8 @@ const {
     applyWebhookSecretGeneration,
 } = require('./paymentChangeWebhook')
 
+const fakeHttpsUrl = () => faker.internet.url().replace(/^http:/, 'https:')
+
 describe('paymentChangeWebhook', () => {
     setFakeClientMode(index)
 
@@ -31,7 +33,7 @@ describe('paymentChangeWebhook', () => {
 
     describe('isWebhookUrlInWhitelist', () => {
         test('should return true when URL is in whitelist', async () => {
-            const testUrl = faker.internet.url()
+            const testUrl = fakeHttpsUrl()
             await createTestPaymentStatusChangeWebhookUrl(adminClient, {
                 url: testUrl,
                 isEnabled: true,
@@ -43,7 +45,7 @@ describe('paymentChangeWebhook', () => {
         })
 
         test('should return false when URL is not in whitelist', async () => {
-            const testUrl = faker.internet.url()
+            const testUrl = fakeHttpsUrl()
 
             const result = await isWebhookUrlInWhitelist(testUrl)
 
@@ -51,7 +53,7 @@ describe('paymentChangeWebhook', () => {
         })
 
         test('should return false when URL is disabled', async () => {
-            const testUrl = faker.internet.url()
+            const testUrl = fakeHttpsUrl()
             await createTestPaymentStatusChangeWebhookUrl(adminClient, {
                 url: testUrl,
                 isEnabled: false,
@@ -84,7 +86,7 @@ describe('paymentChangeWebhook', () => {
     describe('applyWebhookSecretGeneration', () => {
         describe('setting new URL generates secret', () => {
             test('should generate secret when URL is set for the first time', () => {
-                const testUrl = faker.internet.url()
+                const testUrl = fakeHttpsUrl()
                 const resolvedData = { paymentStatusChangeWebhookUrl: testUrl }
                 const existingItem = {}
 
@@ -96,8 +98,8 @@ describe('paymentChangeWebhook', () => {
             })
 
             test('should generate new secret when URL is changed to a different URL', () => {
-                const oldUrl = faker.internet.url()
-                const newUrl = faker.internet.url()
+                const oldUrl = fakeHttpsUrl()
+                const newUrl = fakeHttpsUrl()
                 const oldSecret = crypto.randomBytes(32).toString('hex')
                 
                 const resolvedData = { paymentStatusChangeWebhookUrl: newUrl }
@@ -114,7 +116,7 @@ describe('paymentChangeWebhook', () => {
             })
 
             test('should not generate new secret when URL is unchanged', () => {
-                const testUrl = faker.internet.url()
+                const testUrl = fakeHttpsUrl()
                 const existingSecret = crypto.randomBytes(32).toString('hex')
                 
                 const resolvedData = { paymentStatusChangeWebhookUrl: testUrl }
@@ -131,7 +133,7 @@ describe('paymentChangeWebhook', () => {
 
         describe('clearing URL clears secret', () => {
             test('should clear secret when URL is set to null', () => {
-                const oldUrl = faker.internet.url()
+                const oldUrl = fakeHttpsUrl()
                 const oldSecret = crypto.randomBytes(32).toString('hex')
                 
                 const resolvedData = { paymentStatusChangeWebhookUrl: null }
@@ -146,7 +148,7 @@ describe('paymentChangeWebhook', () => {
             })
 
             test('should clear secret when URL is set to undefined', () => {
-                const oldUrl = faker.internet.url()
+                const oldUrl = fakeHttpsUrl()
                 const oldSecret = crypto.randomBytes(32).toString('hex')
                 
                 const resolvedData = { paymentStatusChangeWebhookUrl: undefined }
@@ -161,7 +163,7 @@ describe('paymentChangeWebhook', () => {
             })
 
             test('should clear secret when URL is set to empty string', () => {
-                const oldUrl = faker.internet.url()
+                const oldUrl = fakeHttpsUrl()
                 const oldSecret = crypto.randomBytes(32).toString('hex')
                 
                 const resolvedData = { paymentStatusChangeWebhookUrl: '' }
@@ -177,7 +179,7 @@ describe('paymentChangeWebhook', () => {
             })
 
             test('should not clear secret when URL is not being changed', () => {
-                const testUrl = faker.internet.url()
+                const testUrl = fakeHttpsUrl()
                 const existingSecret = crypto.randomBytes(32).toString('hex')
                 
                 const resolvedData = { someOtherField: 'value' }
@@ -205,7 +207,7 @@ describe('paymentChangeWebhook', () => {
             })
 
             test('should normalize empty string and clear secret when existing URL present', () => {
-                const oldUrl = faker.internet.url()
+                const oldUrl = fakeHttpsUrl()
                 const oldSecret = crypto.randomBytes(32).toString('hex')
                 
                 const resolvedData = { paymentStatusChangeWebhookUrl: '' }
@@ -223,7 +225,7 @@ describe('paymentChangeWebhook', () => {
 
         describe('edge cases', () => {
             test('should handle missing existingItem gracefully', () => {
-                const testUrl = faker.internet.url()
+                const testUrl = fakeHttpsUrl()
                 const resolvedData = { paymentStatusChangeWebhookUrl: testUrl }
 
                 const result = applyWebhookSecretGeneration({ resolvedData, existingItem: undefined })
@@ -233,7 +235,7 @@ describe('paymentChangeWebhook', () => {
             })
 
             test('should handle empty resolvedData', () => {
-                const testUrl = faker.internet.url()
+                const testUrl = fakeHttpsUrl()
                 const existingSecret = crypto.randomBytes(32).toString('hex')
                 
                 const resolvedData = {}
@@ -250,7 +252,7 @@ describe('paymentChangeWebhook', () => {
             })
 
             test('should generate secret when setting URL from null', () => {
-                const testUrl = faker.internet.url()
+                const testUrl = fakeHttpsUrl()
                 const resolvedData = { paymentStatusChangeWebhookUrl: testUrl }
                 const existingItem = {
                     paymentStatusChangeWebhookUrl: null,
