@@ -16,7 +16,8 @@ COPY --from=node /opt/ /opt/
 ENV LANG=C.UTF-8 \
 	NODE_ENV=production \
 	NEXT_TELEMETRY_DISABLED=1 \
-	TURBO_TELEMETRY_DISABLED=1
+	TURBO_TELEMETRY_DISABLED=1 \
+	LD_PRELOAD=libjemalloc.so.2
 
 # Add app user/group! Clean packages and fix links! Check version! And install some extra packages!
 RUN set -ex \
