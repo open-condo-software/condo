@@ -28,6 +28,83 @@ function _isResidentAppProxy (req) {
     return RESIDENT_APP_PROXY_IPS.includes(req?.originalIp)
 }
 
+function _corsMiddleware (req, res, next) {
+    // When request goes "miniapp" -> "condo/oidc/auth" (from "resident-app" or "condo"), cross-site redirect occurs
+    // In such cases user-agents must set origin to "null" to hide redirecting endpoint, but expose referer
+    // as initial page (in our case its "resident-app" or "condo")
+    const refererHeader = req.headers['referer']
+    const originHeader = req.headers['origin']
+
+    const allowedOrigins = [RESIDENT_APP_DOMAIN, CONDO_DOMAIN].filter(Boolean)
+
+    if (!refererHeader || originHeader !== 'null') {
+        return next()
+    }
+
+    let refererOrigin = ''
+    try {
+        refererOrigin = new URL(refererHeader).origin
+    } catch {
+        // eslint hack for no empty block :)
+    }
+
+    if (!allowedOrigins.includes(refererOrigin)) {
+        return next()
+    }
+
+    // Since this is part of cross-origin redirect,
+    // it's not handled by CORS env so we should set ACAO-header explicitly to "null"
+    // NOTE: originHeader value is checked to null above
+    // nosemgrep: javascript.express.security.cors-misconfiguration.cors-misconfiguration
+    res.set('Access-Control-Allow-Origin', originHeader)
+
+
+    return next()
+}
+
+function _residentAppProxyMiddleware (req, res, next) {
+    // NOTE: we need to redirect OIDC request from resident app to itself. Whole pipeline looks like this:
+    // 1. Web-miniapp inside resident app calls postMessage to start auth process by URL
+    // 2. Parent app (resident-app) stores auth cookie and does fetch request to miniapp.example.com/api/oidc/auth
+    // 3. Miniapp knows only about condo, so it redirects to condo.example.com/oidc/auth where auth cookie is not stored
+    // So our goal is to catch this situation, performing redirect to resident-app, so auth cookie is handled correctly
+
+    const url = req.url
+    // First of all, we need to catch only auth route (initial request)
+    if (!url || !url.startsWith('/auth')) return next()
+
+    const refererHeader = req.headers['referer']
+    const originHeader = req.headers['origin']
+
+    if (!refererHeader || originHeader !== 'null') {
+        return next()
+    }
+
+    let refererOrigin = ''
+    try {
+        refererOrigin = new URL(refererHeader).origin
+    } catch {
+        // eslint hack for no empty block :)
+    }
+
+    // If request is already redirected to resident-app and now proxied, we should not redirect again (infinity redirect loop prevention)
+    // When resident-app proxying the request, it sets "via" header
+    // We can detect it by IP and "via" header.
+    // (ip only is not enough for local development, where everything is localhost (::1))
+    if (_isResidentAppProxy(req)) {
+        return next()
+    }
+
+    // NOTE: if request coming from resident-app and condo API current user is not resident we should trigger re-authorization
+    const userType = req?.user?.type
+    if (userType !== RESIDENT && RESIDENT_APP_DOMAIN && refererOrigin === RESIDENT_APP_DOMAIN) {
+        // /api/auth/oidc/auth?client_id=...
+        return res.redirect(`${RESIDENT_APP_DOMAIN}/api/auth${req.originalUrl}`)
+    }
+
+    return next()
+}
+
 class OIDCMiddleware {
     prepareMiddleware ({ keystone }) {
         // NOTE(pahaz): #MEMORYLEAK it's memory leak at:
@@ -60,7 +137,7 @@ class OIDCMiddleware {
         // NOTE(SavelevMatthew): small middleware to adjust redirect uri
         app.post('/oidc/token', getOIDCSharedRedirectURIHandler(provider))
 
-        app.get('/oidc/interaction/:uid', setNoCache, async (req, res) => {
+        app.get('/oidc/interaction/:uid', setNoCache, _corsMiddleware, async (req, res) => {
             /*
                 This code is based on: https://github.com/panva/node-oidc-provider/blob/main/example/routes/express.js
 
@@ -171,63 +248,7 @@ class OIDCMiddleware {
                 })
             }
         })
-        app.use('/oidc', (req, res, next) => {
-            // NOTE: we need to redirect OIDC request from resident app to itself. Whole pipeline looks like this:
-            // 1. Web-miniapp inside resident app calls postMessage to start auth process by URL
-            // 2. Parent app (resident-app) stores auth cookie and does fetch request to miniapp.example.com/api/oidc/auth
-            // 3. Miniapp knows only about condo, so it redirects to condo.example.com/oidc/auth where auth cookie is not stored
-            // So our goal is to catch this situation, performing redirect to resident-app, so auth cookie is handled correctly
-
-            const url = req.url
-            // First of all, we need to catch only auth route (initial request)
-            if (!url || !url.startsWith('/auth')) return next()
-
-            // When request goes "miniapp" -> "condo/oidc/auth" (from "resident-app" or "condo"), cross-site redirect occurs
-            // In such cases user-agents must set origin to "null" to hide redirecting endpoint, but expose referer
-            // as initial page (in our case its "resident-app" or "condo")
-            const refererHeader = req.headers['referer']
-            const originHeader = req.headers['origin']
-
-            const allowedOrigins = [RESIDENT_APP_DOMAIN, CONDO_DOMAIN].filter(Boolean)
-
-            if (!refererHeader || originHeader !== 'null') {
-                return next()
-            }
-
-            let refererOrigin = ''
-            try {
-                refererOrigin = new URL(refererHeader).origin
-            } catch {
-                // eslint hack for no empty block :)
-            }
-
-            if (!allowedOrigins.includes(refererOrigin)) {
-                return next()
-            }
-
-            // If request is already redirected to resident-app and now proxied, we should not redirect again (infinity redirect loop prevention)
-            // When resident-app proxying the request, it sets "via" header
-            // We can detect it by IP and "via" header.
-            // (ip only is not enough for local development, where everything is localhost (::1))
-            if (_isResidentAppProxy(req)) {
-                return next()
-            }
-
-            // Since this is part of cross-origin redirect,
-            // it's not handled by CORS env so we should set ACAO-header explicitly to "null"
-            // NOTE: originHeader value is checked to null above
-            // nosemgrep: javascript.express.security.cors-misconfiguration.cors-misconfiguration
-            res.set('Access-Control-Allow-Origin', originHeader)
-
-            // NOTE: if request coming from resident-app and condo API current user is not resident we should trigger re-authorization
-            const userType = req?.user?.type
-            if (userType !== RESIDENT && RESIDENT_APP_DOMAIN && refererOrigin === RESIDENT_APP_DOMAIN) {
-                // /api/auth/oidc/auth?client_id=...
-                return res.redirect(`${RESIDENT_APP_DOMAIN}/api/auth${req.originalUrl}`)
-            }
-
-            return next()
-        }, provider.callback())
+        app.use('/oidc', _corsMiddleware, _residentAppProxyMiddleware, provider.callback())
         
         return app
     }
