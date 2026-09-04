@@ -20,7 +20,7 @@ const ERRORS = {
 /**
  * Validates that a URL is either:
  * 1. A valid HTTPS URL (always allowed), or
- * 2. A valid HTTP URL (only in non-production environments)
+ * 2. A valid HTTP URL pointing to localhost (allowed for local dev and CI test servers)
  */
 function isValidWebhookUrl (url) {
     if (!url || typeof url !== 'string') {
@@ -39,13 +39,8 @@ function isValidWebhookUrl (url) {
         return true
     }
 
-    // In production, only HTTPS is allowed
-    if (process.env.NODE_ENV === 'production') {
-        return false
-    }
-
-    // Allow HTTP in non-production environments (for testing purposes)
-    if (parsedUrl.protocol === 'http:') {
+    // Allow HTTP only for localhost (local dev and CI test servers)
+    if (parsedUrl.protocol === 'http:' && parsedUrl.hostname === 'localhost') {
         return true
     }
 
