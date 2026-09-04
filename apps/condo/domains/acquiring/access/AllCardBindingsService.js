@@ -3,12 +3,22 @@
  */
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
+const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
+
 async function canAllCardBindings ({ args: { data: { user: { id: userId } } }, authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
+    
+    if (user.type === SERVICE) {
+        return true
+    }
+    
+    if (user.type === RESIDENT) {
+        return userId === user.id
+    }
 
-    return !!userId
+    return false
 }
 
 /*
