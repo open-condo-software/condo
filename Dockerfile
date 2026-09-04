@@ -14,7 +14,6 @@ COPY --from=node /usr/local/ /usr/local/
 COPY --from=node /opt/ /opt/
 
 ENV LANG=C.UTF-8 \
-	NODE_ENV=production \
 	NEXT_TELEMETRY_DISABLED=1 \
 	TURBO_TELEMETRY_DISABLED=1 \
 	LD_PRELOAD=libjemalloc.so.2
