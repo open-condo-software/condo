@@ -13,14 +13,13 @@ import {
 } from '@tanstack/react-table'
 import React, { forwardRef, useImperativeHandle, useMemo, useState, useEffect, useCallback, useRef } from 'react'
 
-import { Checkbox } from '@open-condo/ui/src'
+import { getSelectionColumnDef } from '@open-condo/ui/src/components/Table/components/SelectionColumn'
 import { TableBody } from '@open-condo/ui/src/components/Table/components/TableBody'
 import { TableHeader } from '@open-condo/ui/src/components/Table/components/TableHeader'
 import { TablePagination } from '@open-condo/ui/src/components/Table/components/TablePagination'
 import {
     DEFAULT_MIN_SIZE,
-    DEFAULT_PAGE_SIZE, 
-    COLUMN_ID_SELECTION,
+    DEFAULT_PAGE_SIZE,
 } from '@open-condo/ui/src/components/Table/constants'
 import { useTableSetting } from '@open-condo/ui/src/components/Table/hooks/useTableSetting'
 import type { 
@@ -37,35 +36,23 @@ import '@open-condo/ui/src/components/Table/types'
 import { getFilterComponentByKey } from '@open-condo/ui/src/components/Table/utils/filterComponents'
 import { renderTextWithTooltip } from '@open-condo/ui/src/components/Table/utils/renderCellUtils'
 
-import type { CheckboxChangeEvent } from 'antd/lib/checkbox'
-
 function getPageIndexFromStartRow (startRow: number, pageSize: number): number {
     return Math.floor(startRow / pageSize)
 }
 
-type SelectionCheckboxProps = {
-    checked: boolean
-    indeterminate?: boolean
-    disabled?: boolean
-    onChange: (event: CheckboxChangeEvent) => void
-}
+function getEnableRowSelection<TData extends RowData> (
+    rowSelectionOptions: TableProps<TData>['rowSelectionOptions']
+): boolean | ((row: { original: TData }) => boolean) {
+    if (!rowSelectionOptions?.enableRowSelection) {
+        return false
+    }
 
-function SelectionCheckbox ({ checked, disabled, indeterminate, onChange }: SelectionCheckboxProps) {
-    return (
-        <span 
-            onClick={(e) => e.stopPropagation()}
-            onKeyDown={(e) => e.stopPropagation()}
-            onTouchStart={(e) => e.stopPropagation()}
-            role='button'
-        >
-            <Checkbox
-                checked={checked}
-                indeterminate={indeterminate}
-                disabled={disabled}
-                onChange={onChange}
-            />
-        </span>
-    )
+    const { isRowSelectable } = rowSelectionOptions
+    if (!isRowSelectable) {
+        return true
+    }
+
+    return (row) => Boolean(isRowSelectable(row.original))
 }
 
 /**
@@ -94,6 +81,7 @@ function TableComponent<TData extends RowData = RowData> (
         storageKey = `table-settings-${id}`,
         columnLabels = {},
         onRowClick,
+        getRowClassName,
         rowSelectionOptions,
         onTableReady,
         getRowId,
@@ -104,34 +92,7 @@ function TableComponent<TData extends RowData = RowData> (
     const tableColumns = useMemo(() => {
         const resultColumns: ColumnDefWithId<TData>[] = []
         if (rowSelectionOptions?.enableRowSelection) {
-            resultColumns.push(columnHelper.display({
-                id: COLUMN_ID_SELECTION,
-                header: ({ table }) => (
-                    <SelectionCheckbox
-                        checked={table.getIsAllRowsSelected()}
-                        indeterminate={table.getIsSomeRowsSelected()}
-                        onChange={table.getToggleAllRowsSelectedHandler()}
-                    />
-                ),
-                cell: ({ row }) => (
-                    <SelectionCheckbox
-                        checked={row.getIsSelected()}
-                        disabled={!row.getCanSelect()}
-                        onChange={row.getToggleSelectedHandler()}
-                    />
-                ),
-                minSize: 48,
-                enableSorting: false,
-                enableColumnFilter: false,
-                meta: {
-                    enableColumnSettings: false,
-                    enableColumnMenu: false,
-                    enableColumnResize: false,
-                    initialVisibility: true,
-                    initialSize: 48,
-                    initialOrder: 0,
-                },
-            }) as ColumnDefWithId<TData>)
+            resultColumns.push(getSelectionColumnDef(rowSelectionOptions.getCheckboxTooltip))
         }
 
         columns.forEach(c => {
@@ -192,7 +153,7 @@ function TableComponent<TData extends RowData = RowData> (
         })
 
         return resultColumns
-    }, [columns, columnHelper, defaultColumn, rowSelectionOptions?.enableRowSelection, globalFilter])
+    }, [columns, columnHelper, defaultColumn, globalFilter, rowSelectionOptions?.enableRowSelection, rowSelectionOptions?.getCheckboxTooltip])
 
     const [sorting, setSorting] = useState<SortingState>(
         initialTableState.sortState
@@ -309,15 +270,63 @@ function TableComponent<TData extends RowData = RowData> (
         })
     }, [])
 
+    const tableDataRef = useRef(tableData)
+    const getRowIdRef = useRef(getRowId)
+    const isRowSelectableRef = useRef(rowSelectionOptions?.isRowSelectable)
+    const onRowSelectionChangeRef = useRef(rowSelectionOptions?.onRowSelectionChange)
+
+    useEffect(() => {
+        tableDataRef.current = tableData
+    }, [tableData])
+
+    useEffect(() => {
+        getRowIdRef.current = getRowId
+    }, [getRowId])
+
+    useEffect(() => {
+        isRowSelectableRef.current = rowSelectionOptions?.isRowSelectable
+        onRowSelectionChangeRef.current = rowSelectionOptions?.onRowSelectionChange
+    }, [rowSelectionOptions])
+
+    const filterUnselectableRows = useCallback((selection: RowSelectionState): RowSelectionState => {
+        const isRowSelectable = isRowSelectableRef.current
+        if (!isRowSelectable) return selection
+
+        const getId = getRowIdRef.current
+        let changed = false
+        const nextSelection = { ...selection }
+
+        tableDataRef.current.forEach((record, index) => {
+            if (isRowSelectable(record)) return
+            const id = getId ? String(getId(record, index)) : String(index)
+            if (nextSelection[id]) {
+                delete nextSelection[id]
+                changed = true
+            }
+        })
+
+        return changed ? nextSelection : selection
+    }, [])
+
     const handleRowSelectionChange = useCallback((updaterOrValue: Updater<RowSelectionState>) => {
         setRowSelection(prev => {
             const newRowSelection = typeof updaterOrValue === 'function' ? updaterOrValue(prev) : updaterOrValue
-            if (rowSelectionOptions?.onRowSelectionChange) {
-                rowSelectionOptions.onRowSelectionChange(Object.keys(newRowSelection))
+            const filteredSelection = filterUnselectableRows(newRowSelection)
+            if (onRowSelectionChangeRef.current) {
+                onRowSelectionChangeRef.current(Object.keys(filteredSelection))
             }
-            return newRowSelection
+            return filteredSelection
         })
-    }, [rowSelectionOptions])
+    }, [filterUnselectableRows])
+
+    useEffect(() => {
+        setRowSelection(prev => {
+            const filteredSelection = filterUnselectableRows(prev)
+            if (filteredSelection === prev) return prev
+            onRowSelectionChangeRef.current?.(Object.keys(filteredSelection))
+            return filteredSelection
+        })
+    }, [filterUnselectableRows, tableData, rowSelectionOptions?.isRowSelectable])
 
     const handleSortingChange = useCallback((updaterOrValue: Updater<SortingState>) => {
         // NOTE: If we change sorting, we need to reset pagination to the first page and reset row selection
@@ -398,7 +407,7 @@ function TableComponent<TData extends RowData = RowData> (
         onColumnVisibilityChange: onColumnVisibilityChange,
         onColumnOrderChange: onColumnOrderChange,
         onColumnSizingChange: onColumnSizingChange,
-        enableRowSelection: rowSelectionOptions?.enableRowSelection ?? false,
+        enableRowSelection: getEnableRowSelection(rowSelectionOptions),
         getRowId: getRowId,
         defaultColumn: {
             filterFn: 'equals',
@@ -486,17 +495,17 @@ function TableComponent<TData extends RowData = RowData> (
                 setColumnFilters(Object.entries(tableState.filterState).map(([key, value]) => ({ id: key, value: value })))
                 setSorting(tableState.sortState)
                 setGlobalFilter(tableState.globalFilter)
-                setRowSelection(tableState.rowSelectionState.reduce((acc, selectedRow) => {
+                setRowSelection(filterUnselectableRows(tableState.rowSelectionState.reduce((acc, selectedRow) => {
                     acc[selectedRow] = true
                     return acc
-                }, {} as RowSelectionState))
+                }, {} as RowSelectionState)))
             },
         }
 
         const tableRef = { api }
 
         return tableRef
-    }, [table, fetchData, pageSize])
+    }, [table, fetchData, filterUnselectableRows, pageSize])
 
     const tableContainerRef = useRef<HTMLDivElement>(null)
 
@@ -517,6 +526,7 @@ function TableComponent<TData extends RowData = RowData> (
                     <TableBody<TData>
                         table={table}
                         onRowClick={onRowClick}
+                        getRowClassName={getRowClassName}
                         dataLoading={internalLoading}
                         columnLabels={columnLabels}
                         tableContainerRef={tableContainerRef}

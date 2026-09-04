@@ -44,8 +44,10 @@ export type DefaultColumn = {
 
 export type RowSelectionState = string[]
 
-export type RowSelectionOptions = {
+export type RowSelectionOptions<TData extends RowData = RowData> = {
     enableRowSelection: boolean
+    isRowSelectable?: (record: TData) => boolean
+    getCheckboxTooltip?: (record: TData) => ReactNode
     onRowSelectionChange?: (rowSelectionState: RowSelectionState) => void
 }
 
@@ -151,7 +153,8 @@ export interface TableProps<TData extends RowData = RowData> {
     storageKey?: string
     columnLabels?: TableLabels
     onRowClick?: (record: TData) => void
-    rowSelectionOptions?: RowSelectionOptions
+    getRowClassName?: (record: TData) => string | undefined
+    rowSelectionOptions?: RowSelectionOptions<TData>
     onTableReady?: (tableRef: TableRef) => void
 }
 

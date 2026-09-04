@@ -14,6 +14,7 @@ interface IPageFieldRowProps {
     ellipsis?: boolean | EllipsisConfig
     lineWrapping?: TypographyTextProps['lineWrapping']
     align?: RowProps['align']
+    className?: string
 }
 
 const HORIZONTAL_GUTTER: RowProps['gutter'] = [16, 0]
@@ -21,10 +22,10 @@ const VERTICAL_GUTTER: RowProps['gutter'] = [0, 16]
 
 const PageFieldRow: React.FC<IPageFieldRowProps> = (props) => {
     const { breakpoints } = useLayoutContext()
-    const { labelSpan = 6, title, children, ellipsis, lineWrapping, align } = props
+    const { labelSpan = 6, title, children, ellipsis, lineWrapping, align, className } = props
 
     return (
-        <Col span={24}>
+        <Col span={24} className={className}>
             <Row gutter={!breakpoints.TABLET_LARGE ? VERTICAL_GUTTER : HORIZONTAL_GUTTER} align={align}>
                 <Col md={labelSpan} xs={24}>
                     <Typography.Paragraph ellipsis={ellipsis} title={title} type='secondary'>{title}</Typography.Paragraph>

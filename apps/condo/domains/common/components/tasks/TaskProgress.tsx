@@ -180,13 +180,13 @@ export const TaskProgressTracker: React.FC<ITaskProgressTrackerProps> = ({ task,
         }
     })
 
-    const removeTaskFromUI = () => {
+    const removeTaskFromUI = useCallback(() => {
         if (removeStrategy.includes(TASK_REMOVE_STRATEGY.STORAGE)) {
             removeTaskFromStorage(record)
         } else if (removeStrategy.includes(TASK_REMOVE_STRATEGY.PANEL)) {
             deleteTaskFromContext(record)
         }
-    }
+    }, [removeStrategy, removeTaskFromStorage, record, deleteTaskFromContext])
 
     const cancelTaskAndRemoveFromUI = storage.useUpdateTask({ status: TASK_CANCELLED_STATUS }, removeTaskFromUI)
 
@@ -197,7 +197,7 @@ export const TaskProgressTracker: React.FC<ITaskProgressTrackerProps> = ({ task,
         } else {
             removeTaskFromUI()
         }
-    }, [record, removeTaskFromUI])
+    }, [record, cancelTaskAndRemoveFromUI, removeTaskFromUI])
 
     useEffect(() => {
         if (record && record.status !== TASK_PROCESSING_STATUS) {
@@ -279,7 +279,8 @@ export const TasksProgress = ({ tasks }: ITasksProgressProps) => {
         overflowY: 'auto',
     }
 
-    const isAllTasksFinished = tasks.every(task => task.record.status !== TASK_PROCESSING_STATUS)
+    const visibleTasks = tasks.filter((task) => task?.storage?.useTask && task?.record?.id)
+    const isAllTasksFinished = visibleTasks.every(task => task.record.status !== TASK_PROCESSING_STATUS)
     const chevronIcon = collapsed ? <ChevronDown size='medium' /> : <ChevronUp size='medium' />
 
     return (
@@ -314,7 +315,7 @@ export const TasksProgress = ({ tasks }: ITasksProgressProps) => {
                     )}
                     <List
                         style={listStyle}
-                        dataSource={tasks}
+                        dataSource={visibleTasks}
                         renderItem={(task) => (
                             <TaskProgressTracker
                                 key={task.record.id}

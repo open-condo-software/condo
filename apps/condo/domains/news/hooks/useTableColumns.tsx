@@ -1,44 +1,52 @@
+import { NewsItem as INewsItem, NewsItemWhereInput } from '@app/condo/schema'
 import get from 'lodash/get'
-import { useRouter } from 'next/router'
 import { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { RenderTableCell, TableColumn } from '@open-condo/ui'
 
-import { getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
-import { getFilteredValue } from '@condo/domains/common/utils/helpers'
-import { parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { UseNewsTableFiltersReturnType } from '@condo/domains/news/hooks/useTableFilters'
-import { getRenderBody, getRenderTitle, getRenderNewsDate, ResendNewsButton, getTypeRender, getRenderProperties } from '@condo/domains/news/utils/clientSchema/NewsRenders'
+import { getFilterComponentByKey, TableFiltersMeta } from '@condo/domains/common/utils/filters.utils'
+import {
+    getRenderBody,
+    getRenderSource,
+    getRenderNewsDate,
+    getRenderProperties,
+    getRenderTitle,
+    getTypeRender,
+    ResendNewsButton,
+} from '@condo/domains/news/utils/clientSchema/NewsRenders'
 
 import { useNewsItemsAccess } from './useNewsItemsAccess'
+
 
 const COLUMNS_WIDTH = {
     resend: '4%',
     number: '5.8%',
     type: '12%',
+    source: '12%',
     title: '16.1%',
     body: '27.6%',
     compactScopes: '20%',
     createdAt: '14.5%',
 }
 
-export const useTableColumns = (filterMetas: UseNewsTableFiltersReturnType) => {
+export const useTableColumns = (
+    filterMetas: Array<TableFiltersMeta<NewsItemWhereInput>>,
+): TableColumn<INewsItem>[] => {
     const intl = useIntl()
     const NumberMessage = intl.formatMessage({ id: 'ticketsTable.Number' })
     const TypeMessage = intl.formatMessage({ id: 'global.type' })
+    const SourceMessage = intl.formatMessage({ id: 'pages.condo.news.index.tableField.source' })
     const TitleMessage = intl.formatMessage({ id: 'Title' })
     const BodyMessage = intl.formatMessage({ id: 'pages.condo.news.index.tableField.body' })
     const AddressesMessage = intl.formatMessage({ id: 'pages.condo.news.index.tableField.addresses' })
     const DateMessage = intl.formatMessage({ id: 'pages.condo.news.index.tableField.date' })
 
-    const router = useRouter()
     const { canManage } = useNewsItemsAccess()
-    const { filters } = parseQuery(router.query)
-    const search = getFilteredValue(filters, 'search')
-    
-    const renderResendNews = useCallback((_, newsItem) => {
+
+    const renderResendNews = useCallback<RenderTableCell<INewsItem>>((_, newsItem) => {
         const isSentAt = get(newsItem, 'sentAt', null)
-        if (!isSentAt || !canManage) return
+        if (!isSentAt || !canManage) return null
 
         return (
             <ResendNewsButton
@@ -48,66 +56,122 @@ export const useTableColumns = (filterMetas: UseNewsTableFiltersReturnType) => {
         )
     }, [canManage, intl])
 
-    const renderType = useMemo(() => getTypeRender(intl, search), [intl, search])
-    const renderTitle = useMemo(() => getRenderTitle(search), [search])
-    const renderBody = useMemo(() => getRenderBody(search), [search])
-    const renderProperties = useMemo(() => getRenderProperties(intl, search), [intl, search])
-    const renderNewsDate = useMemo(() => getRenderNewsDate(intl, search), [intl, search])
+    const renderType = useCallback<RenderTableCell<INewsItem, INewsItem['type']>>(
+        (type, newsItem, _, globalFilter) => getTypeRender(intl, globalFilter)(type, newsItem),
+        [intl],
+    )
 
-    return useMemo(() => {
+    const renderSource = useCallback<RenderTableCell<INewsItem, INewsItem['source']>>(
+        (source, newsItem, _, globalFilter) => getRenderSource(intl, globalFilter)(source, newsItem),
+        [intl],
+    )
+
+    const renderTitle = useCallback<RenderTableCell<INewsItem, INewsItem['title']>>(
+        (title, _, __, globalFilter) => getRenderTitle(globalFilter)(title),
+        [],
+    )
+
+    const renderBody = useCallback<RenderTableCell<INewsItem, INewsItem['body']>>(
+        (body, _, __, globalFilter) => getRenderBody(globalFilter)(body),
+        [],
+    )
+
+    const renderProperties = useCallback<RenderTableCell<INewsItem, INewsItem['compactScopes']>>(
+        (compactScopes, _, __, globalFilter) => getRenderProperties(intl, globalFilter)(compactScopes),
+        [intl],
+    )
+
+    const renderNewsDate = useCallback<RenderTableCell<INewsItem, INewsItem['createdAt']>>(
+        (createdAt, newsItem, _, globalFilter) => getRenderNewsDate(intl, globalFilter)(createdAt, newsItem),
+        [intl],
+    )
+
+    return useMemo((): TableColumn<INewsItem>[] => {
         return [
             {
-                title: '',
-                dataIndex: 'resend',
-                key: 'resend',
-                width: COLUMNS_WIDTH.resend,
+                id: 'resend',
+                header: '',
                 render: renderResendNews,
+                enableSorting: false,
+                enableColumnSettings: false,
+                enableColumnResize: false,
+                initialSize: COLUMNS_WIDTH.resend,
+                minSize: 48,
             },
             {
-                title: NumberMessage,
-                dataIndex: 'number',
-                key: 'number',
-                sorter: true,
-                width: COLUMNS_WIDTH.number,
+                id: 'number',
+                header: NumberMessage,
+                dataKey: 'number',
+                enableSorting: true,
+                initialSize: COLUMNS_WIDTH.number,
             },
             {
-                title: TypeMessage,
-                dataIndex: 'type',
-                key: 'type',
-                width: COLUMNS_WIDTH.type,
+                id: 'type',
+                header: TypeMessage,
+                dataKey: 'type',
                 render: renderType,
-                filterDropdown: getFilterDropdownByKey(filterMetas, 'type'),
+                enableSorting: false,
+                filterComponent: getFilterComponentByKey(filterMetas, 'type'),
+                initialSize: COLUMNS_WIDTH.type,
             },
             {
-                title: TitleMessage,
-                dataIndex: 'title',
-                key: 'title',
-                width: COLUMNS_WIDTH.title,
+                id: 'source',
+                header: SourceMessage,
+                dataKey: 'source',
+                render: renderSource,
+                enableSorting: false,
+                initialSize: COLUMNS_WIDTH.source,
+                filterComponent: getFilterComponentByKey(filterMetas, 'source'),
+            },
+            {
+                id: 'title',
+                header: TitleMessage,
+                dataKey: 'title',
                 render: renderTitle,
+                enableSorting: false,
+                initialSize: COLUMNS_WIDTH.title,
             },
             {
-                title: BodyMessage,
-                dataIndex: 'body',
-                key: 'body',
-                width: COLUMNS_WIDTH.body,
+                id: 'body',
+                header: BodyMessage,
+                dataKey: 'body',
                 render: renderBody,
+                enableSorting: false,
+                initialSize: COLUMNS_WIDTH.body,
             },
             {
-                title: AddressesMessage,
-                dataIndex: 'compactScopes',
-                key: 'compactScopes',
-                width: COLUMNS_WIDTH.compactScopes,
+                id: 'compactScopes',
+                header: AddressesMessage,
+                dataKey: 'compactScopes',
                 render: renderProperties,
+                enableSorting: false,
+                initialSize: COLUMNS_WIDTH.compactScopes,
             },
             {
-                title: DateMessage,
-                dataIndex: 'createdAt',
-                key: 'createdAt',
-                width: COLUMNS_WIDTH.createdAt,
-                sorter: true,
+                id: 'createdAt',
+                header: DateMessage,
+                dataKey: 'createdAt',
                 render: renderNewsDate,
-                filterDropdown: getFilterDropdownByKey(filterMetas, 'createdAt'),
+                enableSorting: true,
+                filterComponent: getFilterComponentByKey(filterMetas, 'createdAt'),
+                initialSize: COLUMNS_WIDTH.createdAt,
             },
         ]
-    }, [renderResendNews, NumberMessage, TypeMessage, renderType, filterMetas, TitleMessage, renderTitle, BodyMessage, renderBody, AddressesMessage, renderProperties, DateMessage, renderNewsDate])
+    }, [
+        AddressesMessage,
+        BodyMessage,
+        DateMessage,
+        NumberMessage,
+        SourceMessage,
+        TitleMessage,
+        TypeMessage,
+        filterMetas,
+        renderBody,
+        renderNewsDate,
+        renderProperties,
+        renderResendNews,
+        renderSource,
+        renderTitle,
+        renderType,
+    ])
 }

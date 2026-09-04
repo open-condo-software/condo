@@ -1,6 +1,6 @@
 import { NewsItem as INewsItem } from '@app/condo/schema'
 import styled from '@emotion/styled'
-import { FilterValue, ColumnType } from 'antd/es/table/interface'
+import { FilterValue } from 'antd/es/table/interface'
 import { TextProps } from 'antd/es/typography/Text'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
@@ -17,21 +17,33 @@ import { colors } from '@open-condo/ui/colors'
 import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { LOCALES } from '@condo/domains/common/constants/locale'
+import { NEWS_ITEM_SOURCE_TYPES } from '@condo/domains/news/constants/newsItemSourceTypes'
 import { NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
 import { getCompactAddressPropertiesRender } from '@condo/domains/property/utils/clientSchema/Renders'
 
 
-type GetRenderType = ColumnType<INewsItem>['render']
+type GetRenderTitleType = (search?: FilterValue | string) => (title: INewsItem['title']) => React.ReactNode
 
-type GetRenderTitleType = (search: FilterValue) => GetRenderType
+type GetRenderBodyType = (search?: FilterValue | string) => (body: INewsItem['body']) => React.ReactNode
 
-type GetRenderBodyType = (search: FilterValue) => GetRenderType
+type GetRenderNewsDateType = (intl: IntlShape, search?: FilterValue | string) => (
+    createdAt: INewsItem['createdAt'],
+    news: INewsItem,
+) => React.ReactNode
 
-type GetRenderNewsDateType = (intl: IntlShape, search: FilterValue) => GetRenderType
+type GetTypeRenderType = (intl: IntlShape, search?: FilterValue | string) => (
+    text: INewsItem['type'],
+    newsItem: INewsItem,
+) => React.ReactNode
 
-type GetTypeRenderType = (intl: IntlShape, search: FilterValue) => GetRenderType
+type GetRenderSourceType = (intl: IntlShape, search?: FilterValue | string) => (
+    source: INewsItem['source'],
+    newsItem?: INewsItem,
+) => React.ReactNode
 
-type GetRenderPropertiesType = (intl: IntlShape, search: FilterValue) => GetRenderType
+type GetRenderPropertiesType = (intl: IntlShape, search?: FilterValue | string) => (
+    compactScopes: INewsItem['compactScopes'],
+) => React.ReactNode
 
 // TODO(DOMA-6153): rewrite to css-modules after migrating from custom style loader plugins
 export const ResendButton = styled.div`
@@ -53,6 +65,19 @@ const getNewsDate = (intl, stringDate: string, format: string): string => {
     const locale = get(LOCALES, intl.locale, DEFAULT_LOCALE)
     const date = dayjs(stringDate).locale(locale)
     return date.format(format)
+}
+
+export const getRenderSource: GetRenderSourceType = (intl, search) => (source) => {
+    if (!source) return '—'
+
+    const sourceName = get(source, 'name')
+        || intl.formatMessage({
+            id: get(source, 'type') === NEWS_ITEM_SOURCE_TYPES.REGISTRY
+                ? 'news.source.REGISTRY.name'
+                : 'news.source.NEWS_FORM.name',
+        })
+
+    return getTableCellRenderer({ search, ellipsis: true })(sourceName)
 }
 
 export const getRenderTitle: GetRenderTitleType = (search) => (body) => {

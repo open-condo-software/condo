@@ -176,6 +176,7 @@ const TasksContextProvider = <TTaskRecord extends BaseTaskRecord = BaseTaskRecor
             tasks.forEach(task => {
                 const { storage, removeStrategy, record } = task
 
+                // TODO(DOMA-13521): delete fn returned by useDeleteTask is not called; MiniApp tasks stay in localStorage after close-all
                 if (removeStrategy.includes(TASK_REMOVE_STRATEGY.STORAGE)) {
                     storage.useDeleteTask({ id: record.id }, () => null)
                 }
