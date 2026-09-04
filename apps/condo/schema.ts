@@ -63,11 +63,15 @@ export type AcquiringIntegration = {
   createdAt?: Maybe<Scalars['String']['output']>;
   /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Endpoint for deleting a user's saved payment card  */
+  deleteUserCardUrl?: Maybe<Scalars['String']['output']>;
   deletedAt?: Maybe<Scalars['String']['output']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']['output']>;
   /**  Contains information about the default distribution of explicit fee. Each part is paid by the user on top of original amount if there is no part with the same name in the integration context. Otherwise, the part is ignored as it is paid by recipient  */
   explicitFeeDistributionSchema?: Maybe<Array<FeeDistributionField>>;
+  /**  Endpoint for retrieving a user's saved payment cards  */
+  getUserCardsUrl?: Maybe<Scalars['String']['output']>;
   /**  Url to acquiring integration service. Mobile devices will use it communicate with external acquiring. List of endpoints is the same for all of them.  */
   hostUrl?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
@@ -1159,9 +1163,11 @@ export type AcquiringIntegrationCreateInput = {
   contextDefaultStatus?: InputMaybe<AcquiringIntegrationContextDefaultStatusType>;
   createdAt?: InputMaybe<Scalars['String']['input']>;
   createdBy?: InputMaybe<UserRelateToOneInput>;
+  deleteUserCardUrl?: InputMaybe<Scalars['String']['input']>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   explicitFeeDistributionSchema?: InputMaybe<Array<FeeDistributionFieldInput>>;
+  getUserCardsUrl?: InputMaybe<Scalars['String']['input']>;
   hostUrl?: InputMaybe<Scalars['String']['input']>;
   isHidden?: InputMaybe<Scalars['Boolean']['input']>;
   maximumPaymentAmount?: InputMaybe<Scalars['String']['input']>;
@@ -1193,9 +1199,11 @@ export type AcquiringIntegrationHistoryRecord = {
   contextDefaultStatus?: Maybe<Scalars['String']['output']>;
   createdAt?: Maybe<Scalars['String']['output']>;
   createdBy?: Maybe<Scalars['String']['output']>;
+  deleteUserCardUrl?: Maybe<Scalars['String']['output']>;
   deletedAt?: Maybe<Scalars['String']['output']>;
   dv?: Maybe<Scalars['Int']['output']>;
   explicitFeeDistributionSchema?: Maybe<Scalars['JSON']['output']>;
+  getUserCardsUrl?: Maybe<Scalars['String']['output']>;
   history_action?: Maybe<AcquiringIntegrationHistoryRecordHistoryActionType>;
   history_date?: Maybe<Scalars['String']['output']>;
   history_id?: Maybe<Scalars['String']['output']>;
@@ -1221,9 +1229,11 @@ export type AcquiringIntegrationHistoryRecordCreateInput = {
   contextDefaultStatus?: InputMaybe<Scalars['String']['input']>;
   createdAt?: InputMaybe<Scalars['String']['input']>;
   createdBy?: InputMaybe<Scalars['String']['input']>;
+  deleteUserCardUrl?: InputMaybe<Scalars['String']['input']>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   explicitFeeDistributionSchema?: InputMaybe<Scalars['JSON']['input']>;
+  getUserCardsUrl?: InputMaybe<Scalars['String']['input']>;
   history_action?: InputMaybe<AcquiringIntegrationHistoryRecordHistoryActionType>;
   history_date?: InputMaybe<Scalars['String']['input']>;
   history_id?: InputMaybe<Scalars['String']['input']>;
@@ -1254,9 +1264,11 @@ export type AcquiringIntegrationHistoryRecordUpdateInput = {
   contextDefaultStatus?: InputMaybe<Scalars['String']['input']>;
   createdAt?: InputMaybe<Scalars['String']['input']>;
   createdBy?: InputMaybe<Scalars['String']['input']>;
+  deleteUserCardUrl?: InputMaybe<Scalars['String']['input']>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   explicitFeeDistributionSchema?: InputMaybe<Scalars['JSON']['input']>;
+  getUserCardsUrl?: InputMaybe<Scalars['String']['input']>;
   history_action?: InputMaybe<AcquiringIntegrationHistoryRecordHistoryActionType>;
   history_date?: InputMaybe<Scalars['String']['input']>;
   history_id?: InputMaybe<Scalars['String']['input']>;
@@ -1311,6 +1323,24 @@ export type AcquiringIntegrationHistoryRecordWhereInput = {
   createdBy_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   createdBy_not?: InputMaybe<Scalars['String']['input']>;
   createdBy_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  deleteUserCardUrl?: InputMaybe<Scalars['String']['input']>;
+  deleteUserCardUrl_contains?: InputMaybe<Scalars['String']['input']>;
+  deleteUserCardUrl_contains_i?: InputMaybe<Scalars['String']['input']>;
+  deleteUserCardUrl_ends_with?: InputMaybe<Scalars['String']['input']>;
+  deleteUserCardUrl_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  deleteUserCardUrl_i?: InputMaybe<Scalars['String']['input']>;
+  deleteUserCardUrl_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  deleteUserCardUrl_not?: InputMaybe<Scalars['String']['input']>;
+  deleteUserCardUrl_not_contains?: InputMaybe<Scalars['String']['input']>;
+  deleteUserCardUrl_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  deleteUserCardUrl_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  deleteUserCardUrl_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  deleteUserCardUrl_not_i?: InputMaybe<Scalars['String']['input']>;
+  deleteUserCardUrl_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  deleteUserCardUrl_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  deleteUserCardUrl_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  deleteUserCardUrl_starts_with?: InputMaybe<Scalars['String']['input']>;
+  deleteUserCardUrl_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
   deletedAt_gt?: InputMaybe<Scalars['String']['input']>;
   deletedAt_gte?: InputMaybe<Scalars['String']['input']>;
@@ -1331,6 +1361,24 @@ export type AcquiringIntegrationHistoryRecordWhereInput = {
   explicitFeeDistributionSchema_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
   explicitFeeDistributionSchema_not?: InputMaybe<Scalars['JSON']['input']>;
   explicitFeeDistributionSchema_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  getUserCardsUrl?: InputMaybe<Scalars['String']['input']>;
+  getUserCardsUrl_contains?: InputMaybe<Scalars['String']['input']>;
+  getUserCardsUrl_contains_i?: InputMaybe<Scalars['String']['input']>;
+  getUserCardsUrl_ends_with?: InputMaybe<Scalars['String']['input']>;
+  getUserCardsUrl_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  getUserCardsUrl_i?: InputMaybe<Scalars['String']['input']>;
+  getUserCardsUrl_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  getUserCardsUrl_not?: InputMaybe<Scalars['String']['input']>;
+  getUserCardsUrl_not_contains?: InputMaybe<Scalars['String']['input']>;
+  getUserCardsUrl_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  getUserCardsUrl_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  getUserCardsUrl_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  getUserCardsUrl_not_i?: InputMaybe<Scalars['String']['input']>;
+  getUserCardsUrl_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  getUserCardsUrl_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  getUserCardsUrl_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  getUserCardsUrl_starts_with?: InputMaybe<Scalars['String']['input']>;
+  getUserCardsUrl_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   history_action?: InputMaybe<AcquiringIntegrationHistoryRecordHistoryActionType>;
   history_action_in?: InputMaybe<Array<InputMaybe<AcquiringIntegrationHistoryRecordHistoryActionType>>>;
   history_action_not?: InputMaybe<AcquiringIntegrationHistoryRecordHistoryActionType>;
@@ -1538,9 +1586,11 @@ export type AcquiringIntegrationUpdateInput = {
   contextDefaultStatus?: InputMaybe<AcquiringIntegrationContextDefaultStatusType>;
   createdAt?: InputMaybe<Scalars['String']['input']>;
   createdBy?: InputMaybe<UserRelateToOneInput>;
+  deleteUserCardUrl?: InputMaybe<Scalars['String']['input']>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   explicitFeeDistributionSchema?: InputMaybe<Array<FeeDistributionFieldInput>>;
+  getUserCardsUrl?: InputMaybe<Scalars['String']['input']>;
   hostUrl?: InputMaybe<Scalars['String']['input']>;
   isHidden?: InputMaybe<Scalars['Boolean']['input']>;
   maximumPaymentAmount?: InputMaybe<Scalars['String']['input']>;
@@ -1582,6 +1632,24 @@ export type AcquiringIntegrationWhereInput = {
   createdAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   createdBy?: InputMaybe<UserWhereInput>;
   createdBy_is_null?: InputMaybe<Scalars['Boolean']['input']>;
+  deleteUserCardUrl?: InputMaybe<Scalars['String']['input']>;
+  deleteUserCardUrl_contains?: InputMaybe<Scalars['String']['input']>;
+  deleteUserCardUrl_contains_i?: InputMaybe<Scalars['String']['input']>;
+  deleteUserCardUrl_ends_with?: InputMaybe<Scalars['String']['input']>;
+  deleteUserCardUrl_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  deleteUserCardUrl_i?: InputMaybe<Scalars['String']['input']>;
+  deleteUserCardUrl_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  deleteUserCardUrl_not?: InputMaybe<Scalars['String']['input']>;
+  deleteUserCardUrl_not_contains?: InputMaybe<Scalars['String']['input']>;
+  deleteUserCardUrl_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  deleteUserCardUrl_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  deleteUserCardUrl_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  deleteUserCardUrl_not_i?: InputMaybe<Scalars['String']['input']>;
+  deleteUserCardUrl_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  deleteUserCardUrl_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  deleteUserCardUrl_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  deleteUserCardUrl_starts_with?: InputMaybe<Scalars['String']['input']>;
+  deleteUserCardUrl_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
   deletedAt_gt?: InputMaybe<Scalars['String']['input']>;
   deletedAt_gte?: InputMaybe<Scalars['String']['input']>;
@@ -1602,6 +1670,24 @@ export type AcquiringIntegrationWhereInput = {
   explicitFeeDistributionSchema_in?: InputMaybe<Array<InputMaybe<Array<FeeDistributionFieldInput>>>>;
   explicitFeeDistributionSchema_not?: InputMaybe<Array<FeeDistributionFieldInput>>;
   explicitFeeDistributionSchema_not_in?: InputMaybe<Array<InputMaybe<Array<FeeDistributionFieldInput>>>>;
+  getUserCardsUrl?: InputMaybe<Scalars['String']['input']>;
+  getUserCardsUrl_contains?: InputMaybe<Scalars['String']['input']>;
+  getUserCardsUrl_contains_i?: InputMaybe<Scalars['String']['input']>;
+  getUserCardsUrl_ends_with?: InputMaybe<Scalars['String']['input']>;
+  getUserCardsUrl_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  getUserCardsUrl_i?: InputMaybe<Scalars['String']['input']>;
+  getUserCardsUrl_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  getUserCardsUrl_not?: InputMaybe<Scalars['String']['input']>;
+  getUserCardsUrl_not_contains?: InputMaybe<Scalars['String']['input']>;
+  getUserCardsUrl_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  getUserCardsUrl_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  getUserCardsUrl_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  getUserCardsUrl_not_i?: InputMaybe<Scalars['String']['input']>;
+  getUserCardsUrl_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  getUserCardsUrl_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  getUserCardsUrl_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  getUserCardsUrl_starts_with?: InputMaybe<Scalars['String']['input']>;
+  getUserCardsUrl_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   hostUrl?: InputMaybe<Scalars['String']['input']>;
   hostUrl_contains?: InputMaybe<Scalars['String']['input']>;
   hostUrl_contains_i?: InputMaybe<Scalars['String']['input']>;
@@ -1971,6 +2057,15 @@ export type AddressMetaFieldInput = {
   dv: Scalars['Int']['input'];
   unrestricted_value: Scalars['String']['input'];
   value: Scalars['String']['input'];
+};
+
+export type AllCardBindingsInput = {
+  user: UserWhereUniqueInput;
+};
+
+export type AllCardBindingsOutput = {
+  __typename?: 'AllCardBindingsOutput';
+  cardTokens: Array<CardToken>;
 };
 
 export type AllMiniAppsInput = {
@@ -25122,6 +25217,18 @@ export type CallRecordsUpdateInput = {
   id: Scalars['ID']['input'];
 };
 
+export type CardToken = {
+  __typename?: 'CardToken';
+  acquiringIntegrationIds: Array<Scalars['String']['output']>;
+  bankCountryCode?: Maybe<Scalars['String']['output']>;
+  bankName?: Maybe<Scalars['String']['output']>;
+  cardNumber: Scalars['String']['output'];
+  createdAt: Scalars['String']['output'];
+  expiration: Scalars['String']['output'];
+  id: Scalars['String']['output'];
+  paymentSystem: Scalars['String']['output'];
+};
+
 export type ChangePasswordWithTokenInput = {
   dv: Scalars['Int']['input'];
   password: Scalars['String']['input'];
@@ -28960,6 +29067,16 @@ export type CustomValuesCreateInput = {
 export type CustomValuesUpdateInput = {
   data?: InputMaybe<CustomValueUpdateInput>;
   id: Scalars['ID']['input'];
+};
+
+export type DeleteCardBindingInput = {
+  cardId: Scalars['String']['input'];
+  user: UserWhereUniqueInput;
+};
+
+export type DeleteCardBindingOutput = {
+  __typename?: 'DeleteCardBindingOutput';
+  status: Scalars['String']['output'];
 };
 
 export enum DevicePlatformType {
@@ -48870,6 +48987,7 @@ export type Mutation = {
   deleteCallRecordHistoryRecords?: Maybe<Array<Maybe<CallRecordHistoryRecord>>>;
   /**  Delete multiple CallRecord items by ID.  */
   deleteCallRecords?: Maybe<Array<Maybe<CallRecord>>>;
+  deleteCardBinding?: Maybe<DeleteCardBindingOutput>;
   /**  Delete a single ConfirmEmailAction item by ID.  */
   deleteConfirmEmailAction?: Maybe<ConfirmEmailAction>;
   /**  Delete a single ConfirmEmailActionHistoryRecord item by ID.  */
@@ -58442,6 +58560,11 @@ export type MutationDeleteCallRecordHistoryRecordsArgs = {
 
 export type MutationDeleteCallRecordsArgs = {
   ids?: InputMaybe<Array<Scalars['ID']['input']>>;
+};
+
+
+export type MutationDeleteCardBindingArgs = {
+  data: DeleteCardBindingInput;
 };
 
 
@@ -80322,6 +80445,7 @@ export type Query = {
   allCallRecordHistoryRecords?: Maybe<Array<Maybe<CallRecordHistoryRecord>>>;
   /**  Search for all CallRecord items which match the where clause.  */
   allCallRecords?: Maybe<Array<Maybe<CallRecord>>>;
+  allCardBindings?: Maybe<AllCardBindingsOutput>;
   /**  Search for all ConfirmEmailActionHistoryRecord items which match the where clause.  */
   allConfirmEmailActionHistoryRecords?: Maybe<Array<Maybe<ConfirmEmailActionHistoryRecord>>>;
   /**  Search for all ConfirmEmailAction items which match the where clause.  */
@@ -86657,6 +86781,11 @@ export type QueryAllCallRecordsArgs = {
   skip?: InputMaybe<Scalars['Int']['input']>;
   sortBy?: InputMaybe<Array<SortCallRecordsBy>>;
   where?: InputMaybe<CallRecordWhereInput>;
+};
+
+
+export type QueryAllCardBindingsArgs = {
+  data: AllCardBindingsInput;
 };
 
 
@@ -93528,10 +93657,14 @@ export enum SortAcquiringIntegrationHistoryRecordsBy {
   ContextDefaultStatusDesc = 'contextDefaultStatus_DESC',
   CreatedAtAsc = 'createdAt_ASC',
   CreatedAtDesc = 'createdAt_DESC',
+  DeleteUserCardUrlAsc = 'deleteUserCardUrl_ASC',
+  DeleteUserCardUrlDesc = 'deleteUserCardUrl_DESC',
   DeletedAtAsc = 'deletedAt_ASC',
   DeletedAtDesc = 'deletedAt_DESC',
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
+  GetUserCardsUrlAsc = 'getUserCardsUrl_ASC',
+  GetUserCardsUrlDesc = 'getUserCardsUrl_DESC',
   HistoryActionAsc = 'history_action_ASC',
   HistoryActionDesc = 'history_action_DESC',
   HistoryDateAsc = 'history_date_ASC',
@@ -93573,10 +93706,14 @@ export enum SortAcquiringIntegrationsBy {
   CreatedAtDesc = 'createdAt_DESC',
   CreatedByAsc = 'createdBy_ASC',
   CreatedByDesc = 'createdBy_DESC',
+  DeleteUserCardUrlAsc = 'deleteUserCardUrl_ASC',
+  DeleteUserCardUrlDesc = 'deleteUserCardUrl_DESC',
   DeletedAtAsc = 'deletedAt_ASC',
   DeletedAtDesc = 'deletedAt_DESC',
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
+  GetUserCardsUrlAsc = 'getUserCardsUrl_ASC',
+  GetUserCardsUrlDesc = 'getUserCardsUrl_DESC',
   HostUrlAsc = 'hostUrl_ASC',
   HostUrlDesc = 'hostUrl_DESC',
   IdAsc = 'id_ASC',
