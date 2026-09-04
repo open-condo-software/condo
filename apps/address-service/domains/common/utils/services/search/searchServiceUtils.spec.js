@@ -1,6 +1,6 @@
 const { faker } = require('@faker-js/faker')
 
-const { PULLENTI_PROVIDER } = require('@address-service/domains/common/constants/providers')
+const { PROVIDERS } = require('@address-service/domains/common/constants/providers')
 
 jest.mock('./heuristicMatcher', () => ({
     findAddressByHeuristics: jest.fn(),
@@ -124,53 +124,30 @@ describe('Search service utils', () => {
             jest.clearAllMocks()
         })
 
-        test('should not save to database when provider is PULLENTI_PROVIDER', async () => {
-            const pullentiAddressData = {
-                ...addressData,
-                meta: {
-                    ...addressData.meta,
-                    provider: { name: PULLENTI_PROVIDER },
-                },
-            }
+        describe('should save to database', () => {
+            test.each(PROVIDERS)('data from %s provider', async (provider) => {
+                const addressDataWithProvider = {
+                    ...addressData,
+                    meta: {
+                        ...addressData.meta,
+                        provider: { name: provider },
+                    },
+                }
+                await createOrUpdateAddressWithSource(
+                    context,
+                    addressServerUtils,
+                    addressSourceServerUtils,
+                    addressDataWithProvider,
+                    'test-address',
+                    dvSender
+                )
 
-            const result = await createOrUpdateAddressWithSource(
-                context,
-                addressServerUtils,
-                addressSourceServerUtils,
-                pullentiAddressData,
-                'test-address',
-                dvSender
-            )
-
-            expect(result).toEqual({
-                id: 'pullenti:test-key',
-                overrides: null,
-                ...pullentiAddressData,
+                // Verify database operations were performed
+                expect(addressServerUtils.getOne).toHaveBeenCalled()
+                expect(addressServerUtils.create).toHaveBeenCalled()
+                expect(addressSourceServerUtils.getOne).toHaveBeenCalled()
+                expect(addressSourceServerUtils.create).toHaveBeenCalled()
             })
-
-            // Verify no database operations were performed
-            expect(addressServerUtils.getOne).not.toHaveBeenCalled()
-            expect(addressServerUtils.create).not.toHaveBeenCalled()
-            expect(addressSourceServerUtils.getOne).not.toHaveBeenCalled()
-            expect(addressSourceServerUtils.create).not.toHaveBeenCalled()
-            expect(addressSourceServerUtils.update).not.toHaveBeenCalled()
-        })
-
-        test('should save to database when provider is not PULLENTI_PROVIDER', async () => {
-            await createOrUpdateAddressWithSource(
-                context,
-                addressServerUtils,
-                addressSourceServerUtils,
-                addressData,
-                'test-address',
-                dvSender
-            )
-
-            // Verify database operations were performed
-            expect(addressServerUtils.getOne).toHaveBeenCalled()
-            expect(addressServerUtils.create).toHaveBeenCalled()
-            expect(addressSourceServerUtils.getOne).toHaveBeenCalled()
-            expect(addressSourceServerUtils.create).toHaveBeenCalled()
         })
 
         test('should use heuristic match when heuristics are provided and match exists', async () => {
