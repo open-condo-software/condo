@@ -164,7 +164,7 @@ export const useMultipleFileUploadHook = ({
             />
         )
         return UploadWrapper
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
     }, [...dependenciesForRerenderUploadComponent])
     return {
         UploadComponent,

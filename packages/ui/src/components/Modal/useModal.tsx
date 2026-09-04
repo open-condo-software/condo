@@ -55,7 +55,7 @@ const HookModal = React.forwardRef<HookModalRef, HookModalProps>((
     const close = useCallback((...args: AnyArgs) => {
         setOpen(false)
         if (innerConfig.onCancel) {
-            // eslint-disable-next-line @typescript-eslint/no-empty-function
+             
             innerConfig.onCancel(() => {}, ...args.slice(1))
         }
 

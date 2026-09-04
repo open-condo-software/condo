@@ -28,24 +28,25 @@ export const renderTextWithTooltip = <TValue = unknown>({
     type = 'primary',
     extraTitle,
     extraTooltipProps,
-}: RenderTextWithTooltipProps = {}) => function RenderTextWithTooltipComponent (text: TValue) {
-    const title = getTitleMessage({ text, extraTitle, postfix })
+}: RenderTextWithTooltipProps = {}) =>
+        function RenderTextWithTooltipComponent (text: TValue) {
+            const title = getTitleMessage({ text, extraTitle, postfix }) 
     
-    const booleanEllipsisValue = ellipsis ? ELLIPSIS_SETTINGS : false
-    const ellipsisConfig = typeof ellipsis === 'boolean' ? booleanEllipsisValue : ellipsis
-    const displayText = text == null ? '' : String(text)
+            const booleanEllipsisValue = ellipsis ? ELLIPSIS_SETTINGS : false
+            const ellipsisConfig = typeof ellipsis === 'boolean' ? booleanEllipsisValue : ellipsis
+            const displayText = text == null ? '' : String(text)
 
-    return (
-        <Tooltip 
-            title={title} 
-            placement='topLeft'
-            {...extraTooltipProps}
-        >
-            <span>
-                <Typography.Paragraph ellipsis={ellipsisConfig} size='medium' type={type}>
-                    {displayText}
-                </Typography.Paragraph>
-            </span>
-        </Tooltip>
-    )
-}
+            return (
+                <Tooltip 
+                    title={title} 
+                    placement='topLeft'
+                    {...extraTooltipProps}
+                >
+                    <span>
+                        <Typography.Paragraph ellipsis={ellipsisConfig} size='medium' type={type}>
+                            {displayText}
+                        </Typography.Paragraph>
+                    </span>
+                </Tooltip>
+            )
+        }

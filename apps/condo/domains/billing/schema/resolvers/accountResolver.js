@@ -34,7 +34,7 @@ class AccountResolver extends Resolver {
     // If receipt input has importId from integration - then connected account will not be created, only updated
     async createIndexByImportId (receiptIndex) {
         const receiptImportIds = []
-        for (const [,receipt] of Object.entries(receiptIndex)) {
+        for (const [, receipt] of Object.entries(receiptIndex)) {
             if (receipt.importId) {
                 receiptImportIds.push(receipt.importId)
             }

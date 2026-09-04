@@ -163,7 +163,7 @@ export class PostMessageController extends EventTarget {
 
     // ---- HANDLER REGISTRATION METHODS ----
 
-    addHandler<Params extends EventParams, Result extends HandlerResult>(
+    addHandler<Params extends EventParams, Result extends HandlerResult> (
         eventType: EventType,
         eventName: EventName,
         handlerScope: HandlerScope,
@@ -181,7 +181,7 @@ export class PostMessageController extends EventTarget {
         eventHandlers[eventName] = { validator, handler } as HandlerMethods<EventParams, HandlerResult>
     }
 
-    addMiddleware<Params extends EventParams, Result extends HandlerResult>(mw: Middleware<Params, Result>): MiddlewareId {
+    addMiddleware<Params extends EventParams, Result extends HandlerResult> (mw: Middleware<Params, Result>): MiddlewareId {
         const { scope } = mw
         if (!this.#registeredMiddlewares[scope]) {
             this.#registeredMiddlewares[scope] = []

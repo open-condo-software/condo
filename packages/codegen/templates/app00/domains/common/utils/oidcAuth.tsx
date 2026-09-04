@@ -7,8 +7,8 @@ import React, { useCallback, useContext, useEffect, useMemo, useState } from 're
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 
-import { useLaunchParams } from '@{{name}}/domains/common/hooks/useLaunchParams'
 import { LoadingOrError } from '@{{name}}/domains/common/components/containers/LoadingOrError'
+import { useLaunchParams } from '@{{name}}/domains/common/hooks/useLaunchParams'
 
 
 const { publicRuntimeConfig: { serverUrl, condoUrl } } = getConfig()

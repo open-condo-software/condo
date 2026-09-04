@@ -41,7 +41,7 @@ const UpdateAddress = (props) => {
     const location = useLocation()
     const [actualizeAddress] = useMutation(ACTUALIZE_ADDRESSES_MUTATION)
     const onClick = useCallback(() => {
-        // eslint-disable-next-line no-restricted-globals
+         
         const confirmed = confirm(
             'Actualize this address?\n\n' +
             'This will re-fetch the address data from the suggestion provider, ' +
@@ -110,7 +110,7 @@ const ResolveAddressDuplicate = () => {
     const onClick = useCallback(() => {
         if (!possibleDuplicate) return
 
-        // eslint-disable-next-line no-restricted-globals
+         
         const choice = prompt(
             `This address is a possible duplicate of:\n${possibleDuplicate.address} (${possibleDuplicate.id})\n\n` +
             'Type "merge" to MERGE (this address will be removed, all sources moved to the existing one)\n' +

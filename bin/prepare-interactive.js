@@ -8,7 +8,7 @@ const path = require('node:path')
 // Lightweight, modern prompts like create-next-app
 let prompts
 try {
-    // eslint-disable-next-line import/no-extraneous-dependencies
+     
     prompts = require('prompts')
 } catch (e) { // NOSONAR
     console.error('\n❌ Dependencies are not installed. Please install them first:')

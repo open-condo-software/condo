@@ -4,7 +4,6 @@ import { GenericContainer } from 'testcontainers'
 
 import { addAppPrefix } from './addAppPrefix'
 
-import type { Redis } from 'ioredis'
 import type { StartedTestContainer } from 'testcontainers'
 
 import { getAppPrefixedKey } from '@/utils/kvdb/keyPrefix'
@@ -49,7 +48,6 @@ function getMatchers (keyPrefix: string, queueNames: Array<string>): Array<RegEx
 
 describe('addAppPrefix', () => {
     let container: StartedTestContainer | undefined
-    let client: Redis | undefined
     let port: number
     let host: string
     beforeAll(async () => {
@@ -58,7 +56,6 @@ describe('addAppPrefix', () => {
         host = container.getHost()
     }, STARTUP_TIMEOUT_IN_MS)
     afterAll(async () => {
-        await client?.quit()
         await container?.stop()
     }, CLEANUP_TIMEOUT_IN_MS)
 

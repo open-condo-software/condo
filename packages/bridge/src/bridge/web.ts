@@ -27,7 +27,7 @@ export class WebCondoBridge implements CondoBridge {
         }
     }
 
-    #sendMessage<K extends AnyRequestMethodName>(method: K, params?: RequestParams<K> & RequestId) {
+    #sendMessage<K extends AnyRequestMethodName> (method: K, params?: RequestParams<K> & RequestId) {
         if (typeof window !== 'undefined') {
             // NOTE: bridge as transport can be used for many platforms with different origins
             // nosemgrep: javascript.browser.security.wildcard-postmessage-configuration.wildcard-postmessage-configuration

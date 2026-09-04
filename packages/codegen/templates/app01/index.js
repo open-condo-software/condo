@@ -1,8 +1,9 @@
-const { HealthCheck, getPostgresHealthCheck, getRedisHealthCheck } = require('@open-condo/keystone/healthCheck')
-const { StitchSchemaMiddleware } = require('@open-condo/keystone/stitchSchema')
 const { CondoOIDCMiddleware } = require('@app/{{name}}/middlewares/oidc')
+
 const { FeaturesMiddleware } = require('@open-condo/featureflags/FeaturesMiddleware')
+const { HealthCheck, getPostgresHealthCheck, getRedisHealthCheck } = require('@open-condo/keystone/healthCheck')
 const { prepareKeystone } = require('@open-condo/keystone/KSv5v6/v5/prepareKeystone')
+const { StitchSchemaMiddleware } = require('@open-condo/keystone/stitchSchema')
 
 
 const schemas = () => [

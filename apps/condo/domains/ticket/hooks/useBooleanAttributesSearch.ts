@@ -35,12 +35,12 @@ export const useBooleanAttributesSearch = <F> (attributeNames: string[]): UseBoo
     const handleChangeAllAttributesWithoutUpdateQuery = useCallback((filters) => {
         const attributes = get(filters, 'attributes', [])
         setAttributes(getAttributesValue(attributeNames, attributes))
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+         
     }, [])
 
     const handleResetAllWithoutUpdateQuery = useCallback(() => {
         setAttributes(getAttributesValue(attributeNames, []))
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+         
     }, [])
 
     useEffect(() => {

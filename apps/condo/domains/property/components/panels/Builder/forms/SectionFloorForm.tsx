@@ -84,7 +84,7 @@ const AddSectionFloorForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh
             builder.removePreviewSectionFloor()
         }
         refresh()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+         
     }, [floor, section, unitsOnFloor, unitType])
 
     const unitSubtypeOptions = useMemo(() => (

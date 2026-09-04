@@ -18,7 +18,7 @@ class AbstractHeuristicStrategy {
      * @param {string} value
      * @returns {Promise<Array>}
      */
-    // eslint-disable-next-line no-unused-vars
+     
     async findConflicts (value) {
         throw new Error('findConflicts must be implemented')
     }
@@ -28,7 +28,7 @@ class AbstractHeuristicStrategy {
      * @param {string} value
      * @returns {Object}
      */
-    // eslint-disable-next-line no-unused-vars
+     
     buildExtraFields (value) {
         return {}
     }
@@ -43,7 +43,7 @@ class AbstractHeuristicStrategy {
      * @param {Array<{type: string, value: string, reliability: number}>} allIncoming
      * @returns {Promise<boolean>}
      */
-    // eslint-disable-next-line no-unused-vars
+     
     async isConflictVetoed (existingAddressId, thisHeuristic, allIncoming) {
         return false
     }

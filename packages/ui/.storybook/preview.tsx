@@ -16,7 +16,7 @@ export const parameters = {
         },
     },
     backgrounds: { disable: true },
-    layout: 'fullscreen'
+    layout: 'fullscreen',
 }
 
 export const decorators = [
@@ -24,5 +24,5 @@ export const decorators = [
         <PaddedContentWrapper>
             <Story/>
         </PaddedContentWrapper>
-    )
+    ),
 ]

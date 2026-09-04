@@ -217,7 +217,7 @@ class OIDCMiddleware {
                     grant.addOIDCClaims(details.missingOIDCClaims)
                 }
                 if (details.missingResourceScopes) {
-                    // eslint-disable-next-line no-restricted-syntax
+                     
                     for (const [indicator, scopes] of Object.entries(details.missingResourceScopes)) {
                         logger.warn({
                             msg: 'add resource scope ',

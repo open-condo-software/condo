@@ -7,7 +7,7 @@ const SPACE_SYMBOL_LABLES = {
     '\v': '\\v',
     '\u00A0': '\\u00A0 (&nbsp;)',
 }
-// eslint-disable-next-line no-useless-escape
+ 
 const ESCAPABLE_SYMBOLS = `-[]{}()*+?.,\\/^$|#${SPACE_SYMBOLS}`
 const ESCAPABLE_SYMBOLS_REGEX = /[-[\]{}()*+?.,\\/^$|#\s]/g
 const ESCAPE_WITH = '\\$&'

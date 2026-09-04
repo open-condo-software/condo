@@ -38,11 +38,11 @@ const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production' && conf.DD_TRACE_ENABL
 if (IS_ENABLE_DD_TRACE) {
     // Note: it's slightly modified default templates! Ported from source code.
 
-    // eslint-disable-next-line
+     
     const blockedTemplateHtml = path.join(__filename, '..', '.ddtrace', 'blockedTemplate.html')
-    // eslint-disable-next-line
+     
     const blockedTemplateJson = path.join(__filename, '..', '.ddtrace', 'blockedTemplate.json')
-    // eslint-disable-next-line
+     
     const blockedTemplateGraphql = path.join(__filename, '..', '.ddtrace', 'blockedTemplateGraphql.json')
 
     const isDDLog = conf.DD_TRACE_LOGGING === 'true'

@@ -11,7 +11,7 @@ export type MessagesType = { [Locale in AvailableLocales]: { [Key in MessagesKey
 
 // NOTE: Override global interface allows us to use autocomplete in intl
 declare global {
-    // eslint-disable-next-line @typescript-eslint/no-namespace
+     
     namespace FormatjsIntl {
         interface Message {
             ids: MessagesKeysType

@@ -48,7 +48,7 @@ function createRequestResolver () {
             return requestId
         },
 
-        resolve<T>(requestId: RequestIdType, data: T, isSuccess: (data: T) => boolean) {
+        resolve<T> (requestId: RequestIdType, data: T, isSuccess: (data: T) => boolean) {
             const controller = controllers[requestId]
 
             if (controller) {
@@ -63,7 +63,7 @@ function createRequestResolver () {
     }
 }
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+ 
 export function promisifySend (
     send: <Method extends AnyRequestMethodName>(method: Method, params?: RequestParams<Method> & RequestId) => void,
     subscribe: (listener: CondoBridgeSubscriptionListener) => void

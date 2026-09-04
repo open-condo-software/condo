@@ -1,7 +1,7 @@
 // eslint-disable-next-line import/order
 const { fetch } = require('@open-condo/keystone/fetch')
 
-// eslint-disable-next-line import/order
+ 
 const dayjs = require('dayjs')
 const jose = require('jose')
 const jwtDecode = require('jwt-decode')

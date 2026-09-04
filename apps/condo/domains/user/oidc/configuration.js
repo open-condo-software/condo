@@ -104,7 +104,7 @@ module.exports = function createConfiguration (context, conf) {
             return undefined
         },
         interactions: {
-            url (ctx, interaction) { // eslint-disable-line no-unused-vars
+            url (ctx, interaction) {  
                 return `/oidc/interaction/${interaction.uid}`
             },
         },

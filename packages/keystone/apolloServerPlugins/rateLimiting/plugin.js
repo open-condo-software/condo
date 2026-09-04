@@ -24,12 +24,14 @@ const { extractQueriesAndMutationsFromRequest } = require('../utils/requests')
 /** @implements {import('apollo-server-plugin-base').ApolloServerPlugin} */
 class ApolloRateLimitingPlugin {
     /** @type {import('@open-keystone/keystone').Keystone} */
+    // eslint-disable-next-line no-unused-private-class-members
     #keystone = null
     /** @type {Record<string, string>} */
     #listReadQueries = {}
     /** @type {Record<string, string>} */
     #listMetaReadQueries = {}
     /** @type {Record<string, Array<string>>} */
+    // eslint-disable-next-line no-unused-private-class-members
     #queriesArgList = {}
     /** @type {Record<string, Record<string, string>>} */
     #listRelations = {}

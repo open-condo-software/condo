@@ -28,6 +28,7 @@ const tokenScopesSchema = z.union([
  */
 class ApolloTokenScopesPlugin {
     /** @type {import('@open-keystone/keystone').Keystone} */
+    // eslint-disable-next-line no-unused-private-class-members
     #keystone = null
 
     /**

@@ -259,7 +259,7 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
     useEffect(() => {
         refetch()
         refetchFiles()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
     }, [])
 
     const ticketSourceType = useMemo(() => get(obj, ['source', 'type']), [obj])

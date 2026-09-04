@@ -1,3 +1,5 @@
+const { generateCondoServerUtils } = require('@open-condo/codegen/generate.condo.server.utils')
+
 const {
     serverGql: {
         B2BAppRole: B2BAppRoleGQL,
@@ -7,7 +9,6 @@ const {
     },
 } = require('@{{name}}/domains/condo/gql')
 
-const { generateCondoServerUtils } = require('@open-condo/codegen/generate.condo.server.utils')
 
 
 const B2BAppRole = generateCondoServerUtils(B2BAppRoleGQL)

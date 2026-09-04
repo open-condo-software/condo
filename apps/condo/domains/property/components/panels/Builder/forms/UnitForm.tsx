@@ -82,7 +82,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplic
             setUnitType(mapUnit.unitType)
             setIsValidationErrorVisible(false)
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+         
     }, [builder])
 
     useEffect(() => {
@@ -92,7 +92,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplic
         } else {
             builder.removePreviewUnit(renameNextUnits.current)
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+         
     }, [label, floor, section, mode, unitType])
 
     const resetForm = useCallback(() => {

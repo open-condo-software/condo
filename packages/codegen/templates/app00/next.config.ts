@@ -1,6 +1,8 @@
 import conf from '@open-condo/config'
-import {antGlobalVariables} from '@condo/domains/common/constants/style'
-import {DEFAULT_LOCALE} from '@{{name}}/domains/common/constants'
+
+import { antGlobalVariables } from '@condo/domains/common/constants/style'
+import { DEFAULT_LOCALE } from '@{{name}}/domains/common/constants'
+
 import type { NextConfig } from 'next'
 
 const serverUrl = conf['SERVER_URL']

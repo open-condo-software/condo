@@ -20,7 +20,7 @@ export function generateUUIDv4 (): string {
         // Fallback for CJS Node < 15 where globalThis.crypto is absent.
         // Wrapped in try/catch so bundlers (webpack/esbuild) can tree-shake it safely.
         try {
-            // eslint-disable-next-line @typescript-eslint/no-var-requires
+             
             const { randomBytes } = require('crypto')
             randomValues = randomBytes(16)
         } catch {

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* eslint-disable no-console */
+ 
 const Knex = require('knex')
 const { hideBin } = require('yargs/helpers')
 const yargs = require('yargs/yargs')
@@ -332,7 +332,7 @@ async function migrateColumn ({ schema, table, column, type }) {
 
     const limit = createLimiter(Math.max(1, argv.concurrency))
 
-    // eslint-disable-next-line no-constant-condition
+     
     while (true) {
         // Build select with aliases for stability
         const selectParts = [{ _id: qid(pk) }, { _val: qid(column) }]

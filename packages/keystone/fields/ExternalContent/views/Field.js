@@ -50,7 +50,7 @@ const ExternalContentField = ({ onChange, field, errors, value = '{}', isDisable
         if (resolvedContent) {
             setEditValue(typeof resolvedContent === 'string' ? resolvedContent : JSON.stringify(resolvedContent, null, 2))
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+         
     }, [resolvedContent])
 
     const canRead = errors.every(

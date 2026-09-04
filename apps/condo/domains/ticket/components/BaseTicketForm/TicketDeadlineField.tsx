@@ -113,7 +113,7 @@ export const TicketDeadlineField = ({ initialValues, form }) => {
             form.setFields([{ name: 'deadline', value: autoDeadlineValue }])
             setIsAutoDetectedDeadlineValue(true)
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+         
     }, [isExistedTicket, ticketSettingId])
 
     return (

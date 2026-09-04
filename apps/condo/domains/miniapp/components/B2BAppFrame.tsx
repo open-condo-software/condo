@@ -180,7 +180,7 @@ export const B2BAppFrame: React.FC<B2BAppFrameProps>  = ({ src, metadata, initia
             return onRegister(event)
         }
         // NOTE: router intentionally excluded — useRouter() changes identity on every navigation and would reload the iframe
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+         
     }, [
         actions,
         addHandler,

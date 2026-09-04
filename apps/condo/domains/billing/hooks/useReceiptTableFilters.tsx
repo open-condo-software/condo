@@ -99,7 +99,7 @@ export function useReceiptTableFilters (defaultPeriod: string | null, search: st
         [categories]
     )
     // NOTE: Keep options reference stable while data content is unchanged, to avoid filter component remounts.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
     const categoryOptions = useMemo(() => convertToOptions(categories, 'name', 'id'), [categoryOptionsKey])
     return useMemo(() => {
         return [

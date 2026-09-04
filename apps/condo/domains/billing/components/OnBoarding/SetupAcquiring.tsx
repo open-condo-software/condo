@@ -144,7 +144,7 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
         }
         // NOTE: Does not include createAction and refetch in deps,
         // since it will trigger createContext twice and useObject will be broken :)
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+         
     }, [
         acquiringLoading,
         acquiringError,

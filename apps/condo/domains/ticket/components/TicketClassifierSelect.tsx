@@ -286,7 +286,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
             // clear all loaded data from helper
             ClassifierLoader.clear()
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
     }, [])
 
     // We build options for every select with care - not to break selection
@@ -444,7 +444,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
             )
         }
         return ClassifiersEditorWrapper
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
     }, [])
 
     return {

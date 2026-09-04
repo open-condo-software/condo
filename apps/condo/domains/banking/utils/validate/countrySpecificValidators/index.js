@@ -21,7 +21,7 @@ const countrySpecificValidators = {
  */
 const getCountrySpecificValidator = (field, country) => {
 	
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
+     
     const defaultValidator = () => {}
 	
     return get(countrySpecificValidators, [country, field], defaultValidator )

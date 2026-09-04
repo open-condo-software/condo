@@ -74,7 +74,7 @@ const Prompt: React.FC<React.PropsWithChildren<IPromptProps>> = ({ children, tit
                 form.submit = oldFormSubmit
             }
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+         
     }, [])
     return (
         <Modal

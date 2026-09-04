@@ -117,7 +117,7 @@ export class ListHelper {
      * Includes validation of data integrity by checking for broken references
      * (references to objects that don't exist in the cache).
      */
-    private _readPage<TData, TOptions extends FieldFunctionOptions>(
+    private _readPage<TData, TOptions extends FieldFunctionOptions> (
         existing: ReadonlyArray<TData> | undefined,
         options: TOptions
     ): Array<TData> | undefined {
@@ -144,7 +144,7 @@ export class ListHelper {
      * Includes validation of data integrity by checking for broken references
      * (references to objects that don't exist in the cache).
      */
-    private _readAll<TData, TOptions extends FieldFunctionOptions>(
+    private _readAll<TData, TOptions extends FieldFunctionOptions> (
         existing: ReadonlyArray<TData> | undefined,
         options: TOptions
     ): Array<TData> | undefined {
@@ -165,7 +165,7 @@ export class ListHelper {
     /**
      * Read function, which implements bypassing cache, so queries are forced to go to network
      */
-    private _networkOnlyRead<TData>(): Array<TData> | undefined {
+    private _networkOnlyRead<TData> (): Array<TData> | undefined {
         return undefined
     }
 
@@ -187,7 +187,7 @@ export class ListHelper {
     /**
      * Merges a new data batch with an existing cache based on the pagination arguments
      */
-    mergeLists<TData, TOptions extends FieldFunctionOptions>(
+    mergeLists<TData, TOptions extends FieldFunctionOptions> (
         existing: ReadonlyArray<TData> | undefined,
         incoming: ReadonlyArray<TData>,
         options: TOptions

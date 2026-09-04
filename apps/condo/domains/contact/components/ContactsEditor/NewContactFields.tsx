@@ -233,7 +233,7 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
 
 NewContactFields.defaultProps = {
     displayMinusButton: false,
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
+     
     onClickMinusButton: () => {
     },
 }

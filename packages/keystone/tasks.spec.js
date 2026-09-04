@@ -16,7 +16,7 @@ describe('tasks', () => {
     })
 
     afterAll(async () => {
-        await Promise.all(Array.from(taskQueues.entries()).map(([,queue]) => queue.close()))
+        await Promise.all(Array.from(taskQueues.entries()).map(([, queue]) => queue.close()))
     })
 
     test('createTask result', () => {

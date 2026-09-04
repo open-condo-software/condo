@@ -109,7 +109,7 @@ export class Analytics<
      * Tracks type-safe business events. Recommended to use in most cases in app's codebase.
      * To add an event, modify "Events" generic.
      */
-    async track<EventName extends Extract<keyof Events, string>>(eventName: EventName, eventData: Events[EventName]): Promise<void> {
+    async track<EventName extends Extract<keyof Events, string>> (eventName: EventName, eventData: Events[EventName]): Promise<void> {
         await this._analytics.track(eventName, eventData)
     }
 
