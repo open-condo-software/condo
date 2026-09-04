@@ -4,35 +4,65 @@ const {
     makeLoggedInAdminClient,
     makeClient,
     expectToThrowAuthenticationErrorToResult,
+    expectToThrowAccessDeniedErrorToResult,
 } = require('@open-condo/keystone/test.utils')
 
 const {
     allCardBindingsByTestClient,
 } = require('@condo/domains/acquiring/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const {
+    makeClientWithResidentUser,
+    makeClientWithServiceUser,
+} = require('@condo/domains/user/utils/testSchema')
 
 describe('AllCardBindingsService', () => {
-    test('admin: execute', async () => {
+    test('admin: can execute for any cards', async () => {
         const client = await makeLoggedInAdminClient()
 
-        const [result] = await allCardBindingsByTestClient(client, { user: { id: faker.datatype.uuid() } })
+        const [result] = await allCardBindingsByTestClient(client, {
+            user: { id: faker.datatype.uuid() },
+        })
 
         expect(result.cardTokens).toHaveLength(0)
     })
 
-    test('user: execute', async () => {
-        const client = await makeClientWithNewRegisteredAndLoggedInUser()
+    test('resident: can execute for own cards', async () => {
+        const client = await makeClientWithResidentUser()
 
-        const [result] = await allCardBindingsByTestClient(client, { user: { id: faker.datatype.uuid() } })
+        const [result] = await allCardBindingsByTestClient(client, {
+            user: { id: client.user.id },
+        })
 
         expect(result.cardTokens).toHaveLength(0)
     })
 
-    test('anonymous: execute', async () => {
+    test('resident: cannot execute for other users cards', async () => {
+        const client = await makeClientWithResidentUser()
+
+        await expectToThrowAccessDeniedErrorToResult(async () => {
+            await allCardBindingsByTestClient(client, {
+                user: { id: faker.datatype.uuid() },
+            })
+        })
+    })
+
+    test('service: can execute for any cards', async () => {
+        const client = await makeClientWithServiceUser()
+
+        const [result] = await allCardBindingsByTestClient(client, {
+            user: { id: faker.datatype.uuid() },
+        })
+
+        expect(result.cardTokens).toHaveLength(0)
+    })
+
+    test('anonymous: cannot execute', async () => {
         const client = await makeClient()
 
         await expectToThrowAuthenticationErrorToResult(async () => {
-            await allCardBindingsByTestClient(client, { user: { id: faker.datatype.uuid() } })
+            await allCardBindingsByTestClient(client, {
+                user: { id: faker.datatype.uuid() },
+            })
         })
     })
 })
