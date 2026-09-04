@@ -178,6 +178,16 @@ const BillingReceiptFile = new GQLListSchema('BillingReceiptFile', {
         delete: false,
         auth: true,
     },
+    kmigratorOptions: {
+        constraints: [
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['context', 'importId'],
+                condition: 'Q(deletedAt__isnull=True)',
+                name: 'billingReceiptFile_unique_context_and_importId',
+            },
+        ],
+    },
     hooks: {
         afterChange: async ({ context, operation, updatedItem, listKey }) => {
             if (updatedItem && Adapter.acl && Adapter.acl.setMeta) {
