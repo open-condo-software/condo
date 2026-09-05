@@ -636,7 +636,7 @@ export const AIChat: React.FC<AIChatProps> = ({
                                     <Button
                                         key={skill.id}
                                         type='secondary'
-                                        size='small'
+                                        size='medium'
                                         block
                                         icon={isSelected ? <Check size='small' /> : undefined}
                                         onClick={() => {
