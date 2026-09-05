@@ -57,9 +57,15 @@ function validateScopeRelations (skill, addValidationError) {
     }
 }
 
+/**
+ * @deprecated This model is experimental – its API might change in the future.
+ * Use at your own risk
+ */
 const AISkill = new GQLListSchema('AISkill', {
-    schemaDoc: 'AI assistant skill in Agent Skills format. Can be provided by a B2BApp (miniapp) or created by users. Used by the AI assistant in the ai-engineer section',
+    schemaDoc: 'Warning: This model is experimental – its API might change in the future. AI assistant skill in agentskills (https://agentskills.io/specification) format. Can be provided by a B2BApp (miniapp) or created by users. Used by the AI assistant',
     fields: {
+
+        // Below is API from https://agentskills.io/specification
 
         name: {
             schemaDoc: 'Agent Skills spec name; lowercase slug, max 64 characters.',
@@ -71,16 +77,6 @@ const AISkill = new GQLListSchema('AISkill', {
             schemaDoc: 'Agent Skills spec description; usage summary, max 1024 characters.',
             type: 'Text',
             isRequired: true,
-        },
-
-        displayName: {
-            schemaDoc: 'Optional user-facing skill name shown in the interface.',
-            type: 'Text',
-        },
-
-        displayDescription: {
-            schemaDoc: 'Optional user-facing skill description shown in the interface.',
-            type: 'Text',
         },
 
         content: {
@@ -109,6 +105,8 @@ const AISkill = new GQLListSchema('AISkill', {
             type: 'Text',
         },
 
+        // Other fields
+        
         locale: {
             schemaDoc: 'Locale of the user-facing skill fields.',
             type: 'Select',
@@ -116,35 +114,11 @@ const AISkill = new GQLListSchema('AISkill', {
             isRequired: true,
         },
 
-        meta: {
-            schemaDoc: 'Additional arbitrary data about the skill.',
-            type: 'Json',
-        },
-
         isPublic: {
-            schemaDoc: 'Whether users can see and invoke the skill.',
+            schemaDoc: 'If true – users can see and invoke the skill.',
             type: 'Checkbox',
             isRequired: true,
             defaultValue: false,
-        },
-
-        image: {
-            ...LOGO_FIELD,
-            schemaDoc: 'Skill illustration image. Shown on skill cards and detail view.',
-        },
-
-        examples: {
-            schemaDoc: 'Array of example prompt strings shown as suggestion tags under chat input.',
-            type: 'Json',
-            graphQLInputType: '[String!]',
-            graphQLReturnType: '[String!]',
-        },
-
-        b2bApp: {
-            schemaDoc: 'B2BApp whose miniapp created this skill.',
-            type: 'Relationship',
-            ref: 'B2BApp',
-            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
 
         scope: {
@@ -155,6 +129,33 @@ const AISkill = new GQLListSchema('AISkill', {
             defaultValue: 'global',
         },
 
+        displayName: {
+            schemaDoc: 'Optional user-facing skill name shown in the interface.',
+            type: 'Text',
+        },
+
+        displayDescription: {
+            schemaDoc: 'Optional user-facing skill description shown in the interface.',
+            type: 'Text',
+        },
+
+        meta: {
+            schemaDoc: 'Additional arbitrary data about the skill.',
+            type: 'Json',
+        },
+
+        image: {
+            ...LOGO_FIELD,
+            schemaDoc: 'Skill illustration image. Shown on skill cards and detail view.',
+        },
+
+        examples: {
+            schemaDoc: 'Array of example prompt strings',
+            type: 'Json',
+            graphQLInputType: '[String!]',
+            graphQLReturnType: '[String!]',
+        },
+
         organization: {
             schemaDoc: 'Organization for org-scoped skills. Required when scope=organization.',
             type: 'Relationship',
@@ -163,9 +164,16 @@ const AISkill = new GQLListSchema('AISkill', {
         },
 
         user: {
-            schemaDoc: 'User for personal skills. Required when scope=personal.',
+            schemaDoc: 'User for personal skills. Required when scope=personal. Might differ from createdBy',
             type: 'Relationship',
             ref: 'User',
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+        },
+
+        b2bApp: {
+            schemaDoc: 'B2BApp which created this skill.',
+            type: 'Relationship',
+            ref: 'B2BApp',
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
 
@@ -184,7 +192,6 @@ const AISkill = new GQLListSchema('AISkill', {
         create: access.canManageAISkills,
         update: access.canManageAISkills,
         delete: false,
-        auth: true,
     },
 })
 

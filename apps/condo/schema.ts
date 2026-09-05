@@ -34,20 +34,24 @@ export type AiSkill = {
    *  4. As an alias to the 'id' field on the AISkill List.
    */
   _label_?: Maybe<Scalars['String']['output']>;
-  /**  Space-separated string of pre-approved tools the skill may use. Optional.  */
+  /**  Agent Skills spec allowed-tools; optional and experimental.  */
   allowedTools?: Maybe<Scalars['String']['output']>;
-  /**  B2BApp that provides this skill. If set, this skill originated from a miniapp.  */
+  /**  B2BApp whose miniapp created this skill.  */
   b2bApp?: Maybe<B2BApp>;
-  /**  Environment requirements. Max 500 characters. Optional.  */
+  /**  Agent Skills spec compatibility; optional, max 500 characters.  */
   compatibility?: Maybe<Scalars['String']['output']>;
-  /**  Markdown instructions body. The procedural content the AI follows when the skill runs.  */
+  /**  Agent Skills specification Markdown body containing AI instructions.  */
   content?: Maybe<Scalars['String']['output']>;
   createdAt?: Maybe<Scalars['String']['output']>;
   /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']['output']>;
-  /**  What the skill does and when to use it. Max 1024 characters. The AI uses this to decide when to trigger the skill.  */
+  /**  Agent Skills spec description; usage summary, max 1024 characters.  */
   description?: Maybe<Scalars['String']['output']>;
+  /**  Optional user-facing skill description shown in the interface.  */
+  displayDescription?: Maybe<Scalars['String']['output']>;
+  /**  Optional user-facing skill name shown in the interface.  */
+  displayName?: Maybe<Scalars['String']['output']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']['output']>;
   /**  Array of example prompt strings shown as suggestion tags under chat input.  */
@@ -55,16 +59,22 @@ export type AiSkill = {
   id: Scalars['ID']['output'];
   /**  Skill illustration image. Shown on skill cards and detail view.  */
   image?: Maybe<File>;
-  /**  License name or reference to a bundled license file. Optional.  */
+  /**  Whether users can see and invoke the skill.  */
+  isPublic?: Maybe<Scalars['Boolean']['output']>;
+  /**  Optional Agent Skills specification license or bundled license file.  */
   license?: Maybe<Scalars['String']['output']>;
-  /**  Arbitrary key-value mapping for additional metadata. Optional.  */
+  /**  Locale of the user-facing skill fields.  */
+  locale?: Maybe<AiSkillLocaleType>;
+  /**  Additional arbitrary data about the skill.  */
+  meta?: Maybe<Scalars['JSON']['output']>;
+  /**  Optional Agent Skills specification key-value metadata.  */
   metadata?: Maybe<Scalars['JSON']['output']>;
-  /**  Skill name. Lowercase letters, numbers, and hyphens only. Max 64 characters.  */
+  /**  Agent Skills spec name; lowercase slug, max 64 characters.  */
   name?: Maybe<Scalars['String']['output']>;
   newId?: Maybe<Scalars['String']['output']>;
   /**  Organization for org-scoped skills. Required when scope=organization.  */
   organization?: Maybe<Organization>;
-  /**  Visibility scope. "global" = all users. "organization" = org employees. "personal" = creator only.  */
+  /**  Availability: global, organization, personal, or connected B2BApp.  */
   scope?: Maybe<AiSkillScopeType>;
   /**  Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
@@ -85,10 +95,15 @@ export type AiSkillCreateInput = {
   createdBy?: InputMaybe<UserRelateToOneInput>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
+  displayDescription?: InputMaybe<Scalars['String']['input']>;
+  displayName?: InputMaybe<Scalars['String']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   examples?: InputMaybe<Array<Scalars['String']['input']>>;
   image?: InputMaybe<Scalars['FileMeta']['input']>;
+  isPublic?: InputMaybe<Scalars['Boolean']['input']>;
   license?: InputMaybe<Scalars['String']['input']>;
+  locale?: InputMaybe<AiSkillLocaleType>;
+  meta?: InputMaybe<Scalars['JSON']['input']>;
   metadata?: InputMaybe<Scalars['JSON']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['String']['input']>;
@@ -120,6 +135,8 @@ export type AiSkillHistoryRecord = {
   createdBy?: Maybe<Scalars['String']['output']>;
   deletedAt?: Maybe<Scalars['String']['output']>;
   description?: Maybe<Scalars['String']['output']>;
+  displayDescription?: Maybe<Scalars['String']['output']>;
+  displayName?: Maybe<Scalars['String']['output']>;
   dv?: Maybe<Scalars['Int']['output']>;
   examples?: Maybe<Scalars['JSON']['output']>;
   history_action?: Maybe<AiSkillHistoryRecordHistoryActionType>;
@@ -127,7 +144,10 @@ export type AiSkillHistoryRecord = {
   history_id?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   image?: Maybe<Scalars['JSON']['output']>;
+  isPublic?: Maybe<Scalars['Boolean']['output']>;
   license?: Maybe<Scalars['String']['output']>;
+  locale?: Maybe<Scalars['String']['output']>;
+  meta?: Maybe<Scalars['JSON']['output']>;
   metadata?: Maybe<Scalars['JSON']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   newId?: Maybe<Scalars['JSON']['output']>;
@@ -149,13 +169,18 @@ export type AiSkillHistoryRecordCreateInput = {
   createdBy?: InputMaybe<Scalars['String']['input']>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
+  displayDescription?: InputMaybe<Scalars['String']['input']>;
+  displayName?: InputMaybe<Scalars['String']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   examples?: InputMaybe<Scalars['JSON']['input']>;
   history_action?: InputMaybe<AiSkillHistoryRecordHistoryActionType>;
   history_date?: InputMaybe<Scalars['String']['input']>;
   history_id?: InputMaybe<Scalars['String']['input']>;
   image?: InputMaybe<Scalars['JSON']['input']>;
+  isPublic?: InputMaybe<Scalars['Boolean']['input']>;
   license?: InputMaybe<Scalars['String']['input']>;
+  locale?: InputMaybe<Scalars['String']['input']>;
+  meta?: InputMaybe<Scalars['JSON']['input']>;
   metadata?: InputMaybe<Scalars['JSON']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['JSON']['input']>;
@@ -183,13 +208,18 @@ export type AiSkillHistoryRecordUpdateInput = {
   createdBy?: InputMaybe<Scalars['String']['input']>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
+  displayDescription?: InputMaybe<Scalars['String']['input']>;
+  displayName?: InputMaybe<Scalars['String']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   examples?: InputMaybe<Scalars['JSON']['input']>;
   history_action?: InputMaybe<AiSkillHistoryRecordHistoryActionType>;
   history_date?: InputMaybe<Scalars['String']['input']>;
   history_id?: InputMaybe<Scalars['String']['input']>;
   image?: InputMaybe<Scalars['JSON']['input']>;
+  isPublic?: InputMaybe<Scalars['Boolean']['input']>;
   license?: InputMaybe<Scalars['String']['input']>;
+  locale?: InputMaybe<Scalars['String']['input']>;
+  meta?: InputMaybe<Scalars['JSON']['input']>;
   metadata?: InputMaybe<Scalars['JSON']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['JSON']['input']>;
@@ -301,6 +331,42 @@ export type AiSkillHistoryRecordWhereInput = {
   description_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   description_starts_with?: InputMaybe<Scalars['String']['input']>;
   description_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  displayDescription?: InputMaybe<Scalars['String']['input']>;
+  displayDescription_contains?: InputMaybe<Scalars['String']['input']>;
+  displayDescription_contains_i?: InputMaybe<Scalars['String']['input']>;
+  displayDescription_ends_with?: InputMaybe<Scalars['String']['input']>;
+  displayDescription_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  displayDescription_i?: InputMaybe<Scalars['String']['input']>;
+  displayDescription_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  displayDescription_not?: InputMaybe<Scalars['String']['input']>;
+  displayDescription_not_contains?: InputMaybe<Scalars['String']['input']>;
+  displayDescription_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  displayDescription_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  displayDescription_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  displayDescription_not_i?: InputMaybe<Scalars['String']['input']>;
+  displayDescription_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  displayDescription_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  displayDescription_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  displayDescription_starts_with?: InputMaybe<Scalars['String']['input']>;
+  displayDescription_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  displayName?: InputMaybe<Scalars['String']['input']>;
+  displayName_contains?: InputMaybe<Scalars['String']['input']>;
+  displayName_contains_i?: InputMaybe<Scalars['String']['input']>;
+  displayName_ends_with?: InputMaybe<Scalars['String']['input']>;
+  displayName_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  displayName_i?: InputMaybe<Scalars['String']['input']>;
+  displayName_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  displayName_not?: InputMaybe<Scalars['String']['input']>;
+  displayName_not_contains?: InputMaybe<Scalars['String']['input']>;
+  displayName_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  displayName_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  displayName_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  displayName_not_i?: InputMaybe<Scalars['String']['input']>;
+  displayName_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  displayName_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  displayName_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  displayName_starts_with?: InputMaybe<Scalars['String']['input']>;
+  displayName_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   dv_gt?: InputMaybe<Scalars['Int']['input']>;
   dv_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -337,6 +403,8 @@ export type AiSkillHistoryRecordWhereInput = {
   image_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
   image_not?: InputMaybe<Scalars['JSON']['input']>;
   image_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  isPublic?: InputMaybe<Scalars['Boolean']['input']>;
+  isPublic_not?: InputMaybe<Scalars['Boolean']['input']>;
   license?: InputMaybe<Scalars['String']['input']>;
   license_contains?: InputMaybe<Scalars['String']['input']>;
   license_contains_i?: InputMaybe<Scalars['String']['input']>;
@@ -355,6 +423,28 @@ export type AiSkillHistoryRecordWhereInput = {
   license_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   license_starts_with?: InputMaybe<Scalars['String']['input']>;
   license_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  locale?: InputMaybe<Scalars['String']['input']>;
+  locale_contains?: InputMaybe<Scalars['String']['input']>;
+  locale_contains_i?: InputMaybe<Scalars['String']['input']>;
+  locale_ends_with?: InputMaybe<Scalars['String']['input']>;
+  locale_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  locale_i?: InputMaybe<Scalars['String']['input']>;
+  locale_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  locale_not?: InputMaybe<Scalars['String']['input']>;
+  locale_not_contains?: InputMaybe<Scalars['String']['input']>;
+  locale_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  locale_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  locale_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  locale_not_i?: InputMaybe<Scalars['String']['input']>;
+  locale_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  locale_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  locale_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  locale_starts_with?: InputMaybe<Scalars['String']['input']>;
+  locale_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  meta?: InputMaybe<Scalars['JSON']['input']>;
+  meta_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  meta_not?: InputMaybe<Scalars['JSON']['input']>;
+  meta_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
   metadata?: InputMaybe<Scalars['JSON']['input']>;
   metadata_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
   metadata_not?: InputMaybe<Scalars['JSON']['input']>;
@@ -446,7 +536,14 @@ export type AiSkillHistoryRecordsUpdateInput = {
   id: Scalars['ID']['input'];
 };
 
+export enum AiSkillLocaleType {
+  En = 'en',
+  Es = 'es',
+  Ru = 'ru'
+}
+
 export enum AiSkillScopeType {
+  B2bApp = 'b2bApp',
   Global = 'global',
   Organization = 'organization',
   Personal = 'personal'
@@ -461,10 +558,15 @@ export type AiSkillUpdateInput = {
   createdBy?: InputMaybe<UserRelateToOneInput>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
+  displayDescription?: InputMaybe<Scalars['String']['input']>;
+  displayName?: InputMaybe<Scalars['String']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   examples?: InputMaybe<Array<Scalars['String']['input']>>;
   image?: InputMaybe<Scalars['FileMeta']['input']>;
+  isPublic?: InputMaybe<Scalars['Boolean']['input']>;
   license?: InputMaybe<Scalars['String']['input']>;
+  locale?: InputMaybe<AiSkillLocaleType>;
+  meta?: InputMaybe<Scalars['JSON']['input']>;
   metadata?: InputMaybe<Scalars['JSON']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['String']['input']>;
@@ -572,6 +674,42 @@ export type AiSkillWhereInput = {
   description_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   description_starts_with?: InputMaybe<Scalars['String']['input']>;
   description_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  displayDescription?: InputMaybe<Scalars['String']['input']>;
+  displayDescription_contains?: InputMaybe<Scalars['String']['input']>;
+  displayDescription_contains_i?: InputMaybe<Scalars['String']['input']>;
+  displayDescription_ends_with?: InputMaybe<Scalars['String']['input']>;
+  displayDescription_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  displayDescription_i?: InputMaybe<Scalars['String']['input']>;
+  displayDescription_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  displayDescription_not?: InputMaybe<Scalars['String']['input']>;
+  displayDescription_not_contains?: InputMaybe<Scalars['String']['input']>;
+  displayDescription_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  displayDescription_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  displayDescription_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  displayDescription_not_i?: InputMaybe<Scalars['String']['input']>;
+  displayDescription_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  displayDescription_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  displayDescription_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  displayDescription_starts_with?: InputMaybe<Scalars['String']['input']>;
+  displayDescription_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  displayName?: InputMaybe<Scalars['String']['input']>;
+  displayName_contains?: InputMaybe<Scalars['String']['input']>;
+  displayName_contains_i?: InputMaybe<Scalars['String']['input']>;
+  displayName_ends_with?: InputMaybe<Scalars['String']['input']>;
+  displayName_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  displayName_i?: InputMaybe<Scalars['String']['input']>;
+  displayName_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  displayName_not?: InputMaybe<Scalars['String']['input']>;
+  displayName_not_contains?: InputMaybe<Scalars['String']['input']>;
+  displayName_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  displayName_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  displayName_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  displayName_not_i?: InputMaybe<Scalars['String']['input']>;
+  displayName_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  displayName_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  displayName_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  displayName_starts_with?: InputMaybe<Scalars['String']['input']>;
+  displayName_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   dv_gt?: InputMaybe<Scalars['Int']['input']>;
   dv_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -592,6 +730,8 @@ export type AiSkillWhereInput = {
   image_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   image_not?: InputMaybe<Scalars['String']['input']>;
   image_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  isPublic?: InputMaybe<Scalars['Boolean']['input']>;
+  isPublic_not?: InputMaybe<Scalars['Boolean']['input']>;
   license?: InputMaybe<Scalars['String']['input']>;
   license_contains?: InputMaybe<Scalars['String']['input']>;
   license_contains_i?: InputMaybe<Scalars['String']['input']>;
@@ -610,6 +750,14 @@ export type AiSkillWhereInput = {
   license_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   license_starts_with?: InputMaybe<Scalars['String']['input']>;
   license_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  locale?: InputMaybe<AiSkillLocaleType>;
+  locale_in?: InputMaybe<Array<InputMaybe<AiSkillLocaleType>>>;
+  locale_not?: InputMaybe<AiSkillLocaleType>;
+  locale_not_in?: InputMaybe<Array<InputMaybe<AiSkillLocaleType>>>;
+  meta?: InputMaybe<Scalars['JSON']['input']>;
+  meta_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  meta_not?: InputMaybe<Scalars['JSON']['input']>;
+  meta_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
   metadata?: InputMaybe<Scalars['JSON']['input']>;
   metadata_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
   metadata_not?: InputMaybe<Scalars['JSON']['input']>;
@@ -94224,6 +94372,10 @@ export enum SortAiSkillHistoryRecordsBy {
   DeletedAtDesc = 'deletedAt_DESC',
   DescriptionAsc = 'description_ASC',
   DescriptionDesc = 'description_DESC',
+  DisplayDescriptionAsc = 'displayDescription_ASC',
+  DisplayDescriptionDesc = 'displayDescription_DESC',
+  DisplayNameAsc = 'displayName_ASC',
+  DisplayNameDesc = 'displayName_DESC',
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
   HistoryActionAsc = 'history_action_ASC',
@@ -94232,8 +94384,12 @@ export enum SortAiSkillHistoryRecordsBy {
   HistoryDateDesc = 'history_date_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
+  IsPublicAsc = 'isPublic_ASC',
+  IsPublicDesc = 'isPublic_DESC',
   LicenseAsc = 'license_ASC',
   LicenseDesc = 'license_DESC',
+  LocaleAsc = 'locale_ASC',
+  LocaleDesc = 'locale_DESC',
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
   ScopeAsc = 'scope_ASC',
@@ -94261,12 +94417,20 @@ export enum SortAiSkillsBy {
   DeletedAtDesc = 'deletedAt_DESC',
   DescriptionAsc = 'description_ASC',
   DescriptionDesc = 'description_DESC',
+  DisplayDescriptionAsc = 'displayDescription_ASC',
+  DisplayDescriptionDesc = 'displayDescription_DESC',
+  DisplayNameAsc = 'displayName_ASC',
+  DisplayNameDesc = 'displayName_DESC',
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
+  IsPublicAsc = 'isPublic_ASC',
+  IsPublicDesc = 'isPublic_DESC',
   LicenseAsc = 'license_ASC',
   LicenseDesc = 'license_DESC',
+  LocaleAsc = 'locale_ASC',
+  LocaleDesc = 'locale_DESC',
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
   OrganizationAsc = 'organization_ASC',
