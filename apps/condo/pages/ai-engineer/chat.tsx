@@ -1,4 +1,4 @@
-import { AiSkillScopeType, B2BAppContextStatusType } from '@app/condo/schema'
+import { AiSkillLocaleType, AiSkillScopeType, B2BAppContextStatusType } from '@app/condo/schema'
 import { Popover } from 'antd'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -76,7 +76,10 @@ const CoworkPage: PageComponentType = () => {
                 { scope: AiSkillScopeType.Global },
                 { scope: AiSkillScopeType.Organization, organization: { id: organizationId } },
                 { scope: AiSkillScopeType.Personal, user: { id: userId } },
+                { scope: AiSkillScopeType.B2bApp },
             ],
+            isPublic: true,
+            locale: intl.locale as AiSkillLocaleType,
             deletedAt: null,
         },
     }, {
@@ -93,8 +96,8 @@ const CoworkPage: PageComponentType = () => {
         return (aiSkills || []).filter(skill => {
             if (skill.scope === 'personal') return skill.user?.id === userId
             if (skill.scope === 'organization') return skill.organization?.id === organizationId
-            if (skill.scope === 'global') return !skill.b2bApp || connectedAppIds.includes(skill.b2bApp.id)
-            return false
+            if (skill.scope === 'b2bApp') return Boolean(skill.b2bApp && connectedAppIds.includes(skill.b2bApp.id))
+            return skill.scope === 'global'
         })
     }, [aiSkills, userId, organizationId, connectedAppIds])
 
@@ -114,11 +117,8 @@ const CoworkPage: PageComponentType = () => {
     const availableSkillRefs = useMemo(() => {
         return (visibleSkills || []).map((skill) => ({
             id: skill.id,
-            name: skill.name || '',
-            description: skill.description || '',
-            content: skill.content || '',
-            allowedTools: skill.allowedTools || undefined,
-            examples: Array.isArray(skill.examples) ? skill.examples : undefined,
+            name: skill.name ?? undefined,
+            displayName: skill.displayName ?? undefined,
         }))
     }, [visibleSkills])
 
@@ -387,7 +387,7 @@ const CoworkPage: PageComponentType = () => {
                                             textColor={colors.gray['7']}
                                             bgColor={colors.gray['1']}
                                         >
-                                            {skill.name}
+                                            {skill.displayName || skill.name}
                                         </Tag>
                                     </Space>
                                 </div>
@@ -425,7 +425,7 @@ const CoworkPage: PageComponentType = () => {
                                                                 setSelectedSkillId(prev => prev === skill.id ? null : skill.id)
                                                             }}
                                                         >
-                                                            {skill.name}
+                                                            {skill.displayName || skill.name}
                                                         </Button>
                                                     )
                                                 })}
@@ -452,7 +452,7 @@ const CoworkPage: PageComponentType = () => {
                                         key={idx}
                                         type='secondary'
                                         size='medium'
-                                        className={coworkStyles.suggestionButton}
+                                        className={coworkStyles['suggestion-button']}
                                         onClick={() => setInputValue(suggestion)}
                                     >
                                         {suggestion}
@@ -471,11 +471,8 @@ const CoworkPage: PageComponentType = () => {
                 if (!s) return []
                 return [{
                     id: s.id,
-                    name: s.name || '',
-                    description: s.description || '',
-                    content: s.content || '',
-                    allowedTools: s.allowedTools || undefined,
-                    examples: Array.isArray(s.examples) ? s.examples : undefined,
+                    name: s.name ?? undefined,
+                    displayName: s.displayName ?? undefined,
                 }]
             })()
             : []

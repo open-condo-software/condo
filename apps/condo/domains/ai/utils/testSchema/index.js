@@ -57,6 +57,8 @@ async function createTestAISkill (client, extraAttrs = {}) {
         name: `test-skill-${faker.datatype.uuid()}`,
         description: faker.lorem.sentence(),
         content: faker.lorem.paragraph(),
+        locale: 'en',
+        isPublic: true,
         scope: 'global',
         ...extraAttrs,
     }
@@ -68,8 +70,6 @@ async function updateTestAISkill (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): check the updateTestAISkill logic for generate fields
 
     const attrs = {
         dv: 1,

@@ -14,11 +14,16 @@ export const AiSkillFieldsFragmentDoc = gql`
   id
   name
   description
+  displayName
+  displayDescription
   content
   license
   compatibility
   metadata
   allowedTools
+  locale
+  meta
+  isPublic
   image {
     id
     publicUrl

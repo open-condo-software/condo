@@ -2,11 +2,16 @@ fragment AISkillFields on AISkill {
     id
     name
     description
+    displayName
+    displayDescription
     content
     license
     compatibility
     metadata
     allowedTools
+    locale
+    meta
+    isPublic
     image {
         id
         publicUrl

@@ -536,6 +536,45 @@ describe('ExecutionAIFlowTask', () => {
         })
     })
 
+    describe('Skill validation', () => {
+        const makeContext = (selectedSkills) => ({
+            userInput: 'test',
+            userData: {
+                userId: userClient.user.id,
+                organizationId: faker.datatype.uuid(),
+                selectedSkills,
+            },
+        })
+
+        test('chat-with-condo accepts one selected skill ID', async () => {
+            const task = await ExecutionAIFlowTaskForUser.create(userClient, {
+                dv: 1,
+                sender: { fingerprint: faker.random.alphaNumeric(8), dv: 1 },
+                user: { connect: { id: userClient.user.id } },
+                flowType: CHAT_WITH_CONDO_FLOW_TYPE,
+                context: makeContext([{ id: faker.datatype.uuid() }]),
+            })
+
+            expect(task.context.userData.selectedSkills).toHaveLength(1)
+        })
+
+        test.each([
+            [['invalid']],
+            [[{ id: faker.datatype.uuid(), content: 'forged' }]],
+            [[{ id: faker.datatype.uuid() }, { id: faker.datatype.uuid() }]],
+        ])('chat-with-condo rejects invalid selected skills: %j', async (selectedSkills) => {
+            await expectToThrowGQLError(async () => {
+                await createTestExecutionAIFlowTask(userClient, userClient.user, {
+                    flowType: CHAT_WITH_CONDO_FLOW_TYPE,
+                    context: makeContext(selectedSkills),
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'INVALID_FLOW_CONTEXT',
+            })
+        })
+    })
+
     describe('Attachments validation', () => {
         test('chat-with-condo context accepts attachments metadata without url', async () => {
             const task = await ExecutionAIFlowTaskForUser.create(userClient, {

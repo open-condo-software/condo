@@ -1,4 +1,4 @@
-import { AiSkillScopeType } from '@app/condo/schema'
+import { AiSkillLocaleType, AiSkillScopeType, B2BAppContextStatusType } from '@app/condo/schema'
 import { Col, Image, Row, RowProps } from 'antd'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
@@ -15,6 +15,7 @@ import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/comp
 import { UI_AI_COWORK_SKILLS } from '@condo/domains/common/constants/featureflags'
 import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
 import { PageComponentType } from '@condo/domains/common/types'
+import { B2BAppContext } from '@condo/domains/miniapp/utils/clientSchema'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 
 
@@ -29,6 +30,7 @@ const SCOPE_LABELS: Record<AiSkillScopeType, string> = {
     [AiSkillScopeType.Global]: 'ai.cowork.skills.scope.global',
     [AiSkillScopeType.Organization]: 'ai.cowork.skills.scope.organization',
     [AiSkillScopeType.Personal]: 'ai.cowork.skills.scope.personal',
+    [AiSkillScopeType.B2bApp]: 'ai.cowork.skills.scope.b2bApp',
 }
 
 const getCardsAmount = (width: number) => Math.max(1, Math.floor(width / (MIN_CARD_WIDTH + CARD_GAP)))
@@ -51,18 +53,36 @@ const CoworkSkillsPage: PageComponentType = () => {
     const organizationId = useMemo(() => organization?.id, [organization])
     const userId = useMemo(() => user?.id, [user])
 
+    const { objs: appContexts, loading: appContextsLoading } = B2BAppContext.useObjects({
+        where: {
+            organization: { id: organizationId },
+            status: B2BAppContextStatusType.Finished,
+            deletedAt: null,
+        },
+    }, {
+        skip: !organizationId,
+    })
+
     const { objs: skills, loading } = useAISkillObjects({
         where: {
             OR: [
                 { scope: AiSkillScopeType.Global },
                 { scope: AiSkillScopeType.Organization, organization: { id: organizationId } },
                 { scope: AiSkillScopeType.Personal, user: { id: userId } },
+                { scope: AiSkillScopeType.B2bApp },
             ],
+            isPublic: true,
+            locale: intl.locale as AiSkillLocaleType,
             deletedAt: null,
         },
     }, {
         skip: !organizationId,
     })
+
+    const connectedAppIds = useMemo(() => new Set(appContexts.map(context => context.app?.id).filter(Boolean)), [appContexts])
+    const visibleSkills = useMemo(() => skills.filter(skill =>
+        skill.scope !== AiSkillScopeType.B2bApp || Boolean(skill.b2bApp && connectedAppIds.has(skill.b2bApp.id))
+    ), [connectedAppIds, skills])
 
     const [{ width: cardGridWidth }, cardGridRef] = useContainerSize<HTMLDivElement>()
     const cardsPerRow = getCardsAmount(cardGridWidth)
@@ -71,7 +91,7 @@ const CoworkSkillsPage: PageComponentType = () => {
 
     const handleRun = useCallback((skill: typeof skills[number]) => {
         const examples = Array.isArray(skill.examples) ? skill.examples : []
-        const prompt = examples.length > 0 ? examples[0] : skill.description
+        const prompt = examples.length > 0 ? examples[0] : skill.displayDescription || skill.description
         void router.push({
             pathname: '/ai-engineer/chat',
             query: { skillId: skill.id, prompt },
@@ -96,13 +116,13 @@ const CoworkSkillsPage: PageComponentType = () => {
                     message={subtitleMessage}
                     description={subtitleDescription}
                 />
-                {loading && <Typography.Text type='secondary'>...</Typography.Text>}
-                {!loading && skills.length === 0 && (
+                {(loading || appContextsLoading) && <Typography.Text type='secondary'>...</Typography.Text>}
+                {!loading && !appContextsLoading && visibleSkills.length === 0 && (
                     <Typography.Text type='secondary'>{emptyLabel}</Typography.Text>
                 )}
                 <div style={{ marginTop: 24 }}>
                     <Row gutter={CARD_GUTTER} ref={cardGridRef}>
-                        {skills.map((skill) => {
+                        {visibleSkills.map((skill) => {
                             const scopeLabel = intl.formatMessage({ id: SCOPE_LABELS[skill.scope] as FormatjsIntl.Message['ids'] })
                             return (
                                 <Col span={24 / cardsPerRow} key={`${cardsPerRow}:${skill.id}`}>
@@ -125,9 +145,9 @@ const CoworkSkillsPage: PageComponentType = () => {
                                     >
                                         <Space direction='vertical' size={16} width='100%'>
                                             <Space direction='vertical' size={8} width='100%' height={100}>
-                                                <Typography.Title level={4} ellipsis={{ rows: 2 }}>{skill.name}</Typography.Title>
+                                                <Typography.Title level={4} ellipsis={{ rows: 2 }}>{skill.displayName || skill.name}</Typography.Title>
                                                 <Typography.Paragraph size='medium' type='secondary' ellipsis={{ rows: 2 }}>
-                                                    {skill.description}
+                                                    {skill.displayDescription || skill.description}
                                                 </Typography.Paragraph>
                                             </Space>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: 6, width: '100%', borderTop: '1px solid var(--condo-global-color-gray-3)', paddingTop: 8 }}>
@@ -186,9 +206,9 @@ const CoworkSkillsPage: PageComponentType = () => {
                                 draggable={false}
                             />
                         </div>
-                        <Typography.Title level={3}>{detailSkill.name}</Typography.Title>
+                        <Typography.Title level={3}>{detailSkill.displayName || detailSkill.name}</Typography.Title>
                         <Typography.Paragraph size='large' type='secondary'>
-                            {detailSkill.description}
+                            {detailSkill.displayDescription || detailSkill.description}
                         </Typography.Paragraph>
                         {Array.isArray(detailSkill.examples) && detailSkill.examples.length > 0 && (
                             <Space direction='vertical' size={8} width='100%'>

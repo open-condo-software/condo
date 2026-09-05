@@ -94,7 +94,7 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
         <Space size={12} align='center' direction='horizontal' className={styles.menuItem}>
             {Icon && <Icon size='medium' />}
             {!isCollapsed && (<div>
-                <Typography.Title ellipsis level={5}>
+                <Typography.Title ellipsis={{ rows: 2 }} level={5}>
                     {Message}
                 </Typography.Title>
             </div>)}

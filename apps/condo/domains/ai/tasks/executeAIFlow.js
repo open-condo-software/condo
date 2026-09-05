@@ -9,6 +9,7 @@ const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { i18n } = require('@open-condo/locales/loader')
 const { buildUserTopic, publish } = require('@open-condo/messaging')
 
+const { getUserAISkillsFilter } = require('@condo/domains/ai/access/AISkill')
 const { FlowiseAdapter, N8NAdapter } = require('@condo/domains/ai/adapters')
 const {
     TASK_STATUSES,
@@ -20,7 +21,6 @@ const { CUSTOM_FLOW_TYPES_LIST, AI_FLOWS_CONFIG } = require('@condo/domains/ai/u
 const { ExecutionAIFlowTask, AISkill } = require('@condo/domains/ai/utils/serverSchema')
 const { restoreSensitiveData, removeSensitiveDataFromObj } = require('@condo/domains/ai/utils/serverSchema/removeSensitiveDataFromObj')
 const { TASK_WORKER_FINGERPRINT } = require('@condo/domains/common/constants/tasks')
-const { getEmployedOrganizationsByPermissions } = require('@condo/domains/organization/utils/accessSchema')
 
 const {
     FLOW_META_SCHEMAS,
@@ -155,41 +155,41 @@ const executeAIFlow = async (executionAIFlowTask, additionalContext = {}) => {
             fullContext.attachments = resolvedAttachments
         }
 
-        // Resolve selected skill IDs to full skill objects server-side, verifying the user has read access.
-        // The client sends only IDs to prevent forging of skill content or allowedTools.
-        if (
-            task.flowType === CHAT_WITH_CONDO_FLOW_TYPE
-            && fullContext.userData
-            && Array.isArray(fullContext.userData.selectedSkillIds)
-            && fullContext.userData.selectedSkillIds.length > 0
-        ) {
-            const skillIds = fullContext.userData.selectedSkillIds
-            const sudoContext = context.createContext({ skipAccessControl: true })
+        if (task.flowType === CHAT_WITH_CONDO_FLOW_TYPE && fullContext.userData) {
+            const selectedSkills = fullContext.userData.selectedSkills
+            delete fullContext.userData.selectedSkills
 
-            const skills = await AISkill.getAll(sudoContext, {
-                id_in: skillIds,
-                deletedAt: null,
-            }, '{ id name description content allowedTools examples scope organization { id } user { id } b2bApp { id } }')
+            if (Array.isArray(selectedSkills) && selectedSkills.length > 0) {
+                const skillIds = selectedSkills.map(skill => skill.id)
+                const skillAccessFilter = await getUserAISkillsFilter(context, task.user)
+                const sudoContext = context.createContext({ skipAccessControl: true })
+                const skills = await AISkill.getAll(sudoContext, {
+                    AND: [
+                        { id_in: skillIds, deletedAt: null },
+                        skillAccessFilter,
+                    ],
+                }, '{ id name description content license compatibility metadata allowedTools }')
 
-            // Verify the user has read access to each skill based on its scope
-            const userId = task.user.id
-            const employedOrganizationIds = await getEmployedOrganizationsByPermissions(context, { id: userId }, [])
+                if (skills.length !== skillIds.length) {
+                    throw new Error('Skill not found or access denied')
+                }
 
-            const authorizedSkills = skills.filter(skill => {
-                if (skill.scope === 'global') return true
-                if (skill.scope === 'organization') return employedOrganizationIds.includes(skill.organization?.id)
-                if (skill.scope === 'personal') return skill.user?.id === userId
-                return false
-            })
+                const skillsById = new Map(skills.map(skill => [skill.id, skill]))
+                fullContext.userData.selectedSkills = skillIds.map(id => {
+                    const skill = skillsById.get(id)
+                    if (!skill) throw new Error('Skill not found or access denied')
 
-            fullContext.userData.selectedSkills = authorizedSkills.map(s => ({
-                name: s.name,
-                description: s.description,
-                content: s.content,
-                ...(s.allowedTools ? { allowedTools: s.allowedTools } : {}),
-                ...(Array.isArray(s.examples) ? { examples: s.examples } : {}),
-            }))
-            delete fullContext.userData.selectedSkillIds
+                    return {
+                        name: skill.name,
+                        description: skill.description,
+                        content: skill.content,
+                        ...(skill.license ? { license: skill.license } : {}),
+                        ...(skill.compatibility ? { compatibility: skill.compatibility } : {}),
+                        ...(skill.metadata ? { metadata: skill.metadata } : {}),
+                        ...(skill.allowedTools ? { 'allowed-tools': skill.allowedTools } : {}),
+                    }
+                })
+            }
         }
 
         let prediction

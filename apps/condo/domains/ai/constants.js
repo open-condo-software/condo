@@ -224,9 +224,17 @@ const FLOW_META_SCHEMAS = {
                     properties: {
                         userId: { type: 'string' },
                         organizationId: { type: 'string' },
-                        selectedSkillIds: {
+                        selectedSkills: {
                             type: 'array',
-                            items: { type: 'string' },
+                            maxItems: 1,
+                            items: {
+                                type: 'object',
+                                additionalProperties: false,
+                                properties: {
+                                    id: { type: 'string' },
+                                },
+                                required: ['id'],
+                            },
                         },
                     },
                     required: ['userId', 'organizationId'],

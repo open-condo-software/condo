@@ -102,6 +102,27 @@
   width: 100%;
 }
 
+.chat-menu-item :global(.condo-space) {
+  width: 100%;
+}
+
+.chat-menu-item :global(.condo-space-item:last-child),
+.chat-menu-item :global(.condo-space-item:last-child > div) {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.chat-menu-item :global(.condo-space-item:last-child) {
+  flex: 1;
+}
+
+.chat-menu-item :global(.condo-typography) {
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
 /* Floating chat header — overlays the chat surface (Kimi-style).
    Matches .chat-container centering (max-width + margin auto) so the
    button groups align with the chat content edges, not the screen edges. */

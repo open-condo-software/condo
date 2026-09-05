@@ -447,6 +447,7 @@
   "ai.cowork.skills.scope.global": "Built-in skill",
   "ai.cowork.skills.scope.organization": "Organization skill",
   "ai.cowork.skills.scope.personal": "Personal skill",
+  "ai.cowork.skills.scope.b2bApp": "Integration skill",
   "ai.cowork.skills.meterReadings.name": "Meter Readings Health Check",
   "ai.cowork.skills.meterReadings.description": "Check if automatic meter readings are working. Investigate when they stopped and output a dashboard with recent readings.",
   "ai.cowork.skills.meterReadings.prompt": "Check my automatic meter readings. If there are any, check their date. If the date is adequate (within the last 24-48 hours), then automatic meter readings are working. If not, investigate when the automatic meter readings stopped working. Output an a2ui dashboard with recent meter readings data.",

@@ -84,14 +84,17 @@ const AIChatUserMessage: React.FC<{ message: Message }> = ({ message }) => {
                     )}
                     {(message.content.text?.trim() || message.content.attachments?.length) ? (
                         <div className={styles.userMessageBubble}>
-                            {message.content.skillName ? (
+                            {message.content.skillNames?.length ? (
                                 <div className={styles.userMessageSkillTag}>
-                                    <Tag
-                                        textColor={colors.purple['7']}
-                                        bgColor={colors.purple['1']}
-                                    >
-                                        {message.content.skillName}
-                                    </Tag>
+                                    {message.content.skillNames.map(skillName => (
+                                        <Tag
+                                            key={skillName}
+                                            textColor={colors.purple['7']}
+                                            bgColor={colors.purple['1']}
+                                        >
+                                            {skillName}
+                                        </Tag>
+                                    ))}
                                 </div>
                             ) : null}
                             {message.content.text?.trim() ? (

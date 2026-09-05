@@ -447,6 +447,7 @@
   "ai.cowork.skills.scope.global": "Habilidad integrada",
   "ai.cowork.skills.scope.organization": "Habilidad de organización",
   "ai.cowork.skills.scope.personal": "Habilidad personal",
+  "ai.cowork.skills.scope.b2bApp": "Habilidad de integración",
   "ai.cowork.skills.meterReadings.name": "Verificación de lecturas de medidores",
   "ai.cowork.skills.meterReadings.description": "Verificar si las lecturas automáticas de medidores funcionan. Investigar cuándo dejaron de funcionar y mostrar un panel con las lecturas recientes.",
   "ai.cowork.skills.meterReadings.prompt": "Verifica mis lecturas automáticas de medidores. Si hay alguna, verifica su fecha. Si la fecha es adecuada (dentro de las últimas 24-48 horas), entonces las lecturas automáticas funcionan. Si no, investiga cuándo dejaron de funcionar las lecturas automáticas. Muestra un panel a2ui con los datos de lecturas recientes.",

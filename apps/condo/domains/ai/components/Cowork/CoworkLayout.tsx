@@ -105,6 +105,7 @@ const CoworkSideMenu: React.FC = () => {
                                 tooltip={chat.name}
                                 isCollapsed={isCollapsed}
                                 icon={FakeIcon}
+                                menuItemWrapperProps={{ className: styles['chat-menu-item'] }}
                             />
                         ))}
                     </div>
@@ -133,6 +134,7 @@ const CoworkSideMenu: React.FC = () => {
                                 tooltip={chat.name}
                                 isCollapsed={isCollapsed}
                                 icon={FakeIcon}
+                                menuItemWrapperProps={{ className: styles['chat-menu-item'] }}
                             />
                         ))}
                     </div>

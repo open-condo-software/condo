@@ -36,7 +36,7 @@ type ExecuteAIMessageOptions = {
     attachments?: AIChatAttachmentMeta[]
 }
 
-type AISkillRef = { id: string, name?: string, description?: string, content?: string, allowedTools?: string, examples?: string[] }
+type AISkillRef = { id: string, name?: string, displayName?: string }
 
 type AIChatProps = {
     aiSessionId: string
@@ -91,10 +91,9 @@ export const AIChat: React.FC<AIChatProps> = ({
     const [activeTurnUserMessageId, setActiveTurnUserMessageId] = useState<string | null>(null)
     const [skillPickerOpen, setSkillPickerOpen] = useState(false)
 
-    const selectedSkillName = useMemo(() => {
-        if (selectedSkills?.length) return selectedSkills[0].name
-        return null
-    }, [selectedSkills])
+    const selectedSkillNames = useMemo(() => selectedSkills
+        ?.map(skill => skill.displayName || skill.name)
+        .filter(Boolean) as string[] | undefined, [selectedSkills])
 
     const messagesContainerRef = useRef<HTMLDivElement>(null)
     const chatContainerRef = useRef<HTMLDivElement>(null)
@@ -485,7 +484,7 @@ export const AIChat: React.FC<AIChatProps> = ({
                         organizationId: organization?.id,
                         ...options.additionalContext,
                         ...(selectedSkills?.length ? {
-                            selectedSkillIds: selectedSkills.map(s => s.id),
+                            selectedSkills: selectedSkills.map(({ id }) => ({ id })),
                         } : {}),
                     },
                     ...(options.attachments?.length ? { attachments: options.attachments } : {}),
@@ -527,7 +526,7 @@ export const AIChat: React.FC<AIChatProps> = ({
             id: uuidV4(),
             content: {
                 text: trimmedInput,
-                ...(selectedSkillName ? { skillName: selectedSkillName } : {}),
+                ...(selectedSkillNames?.length ? { skillNames: selectedSkillNames } : {}),
                 ...(attachmentsToSend.length ? {
                     attachments: attachmentsToSend.map(({ name, mimeType }) => ({ name, mimeType })),
                 } : {}),
@@ -542,7 +541,7 @@ export const AIChat: React.FC<AIChatProps> = ({
         attachments?.resetAttachments()
 
         await startUserTurn(userMessage, { attachments: attachmentsToSend })
-    }, [inputValue, canSendWithAttachments, loading, attachmentsUploading, user, attachments, messages, startUserTurn, onFirstUserMessage, selectedSkillName])
+    }, [inputValue, canSendWithAttachments, loading, attachmentsUploading, user, attachments, messages, startUserTurn, onFirstUserMessage, selectedSkillNames])
 
     // Auto-send the initial message once, after history load, if the session has no user messages yet
     useEffect(() => {
@@ -644,7 +643,7 @@ export const AIChat: React.FC<AIChatProps> = ({
                                             setSkillPickerOpen(false)
                                         }}
                                     >
-                                        {skill.name}
+                                        {skill.displayName || skill.name}
                                     </Button>
                                 )
                             })}
@@ -663,15 +662,15 @@ export const AIChat: React.FC<AIChatProps> = ({
         )
     }, [availableSkills, onSkillSelect, skillPickerOpen, selectedSkillId])
 
-    const selectedSkillTag = selectedSkillName ? (
+    const selectedSkillTags = selectedSkillNames?.map(skillName => (
         <Tag
-            key='ai-chat-selected-skill-tag'
+            key={skillName}
             textColor={colors.purple['7']}
             bgColor={colors.purple['1']}
         >
-            {selectedSkillName}
+            {skillName}
         </Tag>
-    ) : null
+    ))
 
     return (
         <div ref={chatContainerRef} className={styles.chatContainer}>
@@ -733,7 +732,7 @@ export const AIChat: React.FC<AIChatProps> = ({
                 placeholder={placeholder}
                 extraBottomPanelUtils={[
                     ...(skillPickerButton ? [skillPickerButton] : []),
-                    ...(selectedSkillTag ? [selectedSkillTag] : []),
+                    ...(selectedSkillTags || []),
                 ]}
             />
         </div>
