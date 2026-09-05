@@ -3,12 +3,13 @@
   display: flex;
   align-items: center;
   justify-content: flex-start;
+  box-sizing: border-box;
   width: 100%;
+
   /* Expanded: .logo-container has 19px left padding. Add 13px to match the
      collapsed icon position (32px from sidebar edge) so the icon stays put
      when toggling the sidebar. */
   padding-left: 13px;
-  box-sizing: border-box;
 }
 
 /* Collapsed: .logo-container already has 32px left padding, reset our offset */
@@ -30,8 +31,9 @@
 }
 
 .logo-cowork-title :global(.condo-typography) {
-  white-space: nowrap;
   font-weight: 700;
+  white-space: nowrap;
+
   /* Shift text down to align with the house body (green part), not the full
      icon height which includes the sun overhang at the top. */
   transform: translateY(3px);
@@ -214,22 +216,22 @@
   max-width: 1040px;
   height: 120vh;
   max-height: 1040px;
-  transform: translateY(-50%);
   color: var(--condo-global-color-gray-3);
+  transform: translateY(-50%);
   opacity: 0.5;
-  pointer-events: none;
   animation: welcome-watermark-in 0.6s ease 0.2s 1 both;
+  pointer-events: none;
 }
 
 @keyframes welcome-watermark-in {
   from {
-    opacity: 0;
     transform: translateY(-50%) scale(0.92);
+    opacity: 0;
   }
 
   to {
-    opacity: 0.5;
     transform: translateY(-50%) scale(1);
+    opacity: 0.5;
   }
 }
 
@@ -313,17 +315,17 @@
   width: 100%;
 }
 
-.suggestionButton {
-  border-radius: 999px !important;
+.suggestion-button {
+  color: var(--condo-global-color-gray-7) !important;
   background: var(--condo-global-color-gray-1) !important;
   border-color: transparent !important;
-  color: var(--condo-global-color-gray-7) !important;
+  border-radius: 999px !important;
 }
 
-.suggestionButton:hover:not(:disabled) {
+.suggestion-button:hover:not(:disabled) {
+  color: var(--condo-global-color-gray-7) !important;
   background: var(--condo-global-color-gray-3) !important;
   border-color: transparent !important;
-  color: var(--condo-global-color-gray-7) !important;
 }
 
 /* Chat content (full width, contains the chat container) */

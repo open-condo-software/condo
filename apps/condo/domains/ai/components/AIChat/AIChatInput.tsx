@@ -23,7 +23,7 @@ type AIChatInputProps = {
     onInputKeyDown: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void
     onSendMessage: () => void | Promise<void>
     placeholder: string
-    extraBottomPanelUtils?: React.ReactNode[]
+    extraBottomPanelUtils?: React.ReactElement[]
 }
 
 export const AIChatInput: React.FC<AIChatInputProps> = ({

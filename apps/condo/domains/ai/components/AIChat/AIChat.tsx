@@ -36,7 +36,7 @@ type ExecuteAIMessageOptions = {
     attachments?: AIChatAttachmentMeta[]
 }
 
-type AISkillRef = { id: string, name: string, description: string, content: string, allowedTools?: string, examples?: string[] }
+type AISkillRef = { id: string, name?: string, description?: string, content?: string, allowedTools?: string, examples?: string[] }
 
 type AIChatProps = {
     aiSessionId: string

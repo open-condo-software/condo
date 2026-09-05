@@ -1,4 +1,4 @@
-import { B2BAppContextStatusType } from '@app/condo/schema'
+import { AiSkillScopeType, B2BAppContextStatusType } from '@app/condo/schema'
 import { Popover } from 'antd'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -73,9 +73,9 @@ const CoworkPage: PageComponentType = () => {
     const { objs: aiSkills } = useAISkillObjects({
         where: {
             OR: [
-                { scope: 'global' },
-                { scope: 'organization', organization: { id: organizationId } },
-                { scope: 'personal', user: { id: userId } },
+                { scope: AiSkillScopeType.Global },
+                { scope: AiSkillScopeType.Organization, organization: { id: organizationId } },
+                { scope: AiSkillScopeType.Personal, user: { id: userId } },
             ],
             deletedAt: null,
         },
@@ -109,6 +109,17 @@ const CoworkPage: PageComponentType = () => {
         return (visibleSkills || []).flatMap((skill) =>
             Array.isArray(skill.examples) ? skill.examples : []
         ).slice(0, 12)
+    }, [visibleSkills])
+
+    const availableSkillRefs = useMemo(() => {
+        return (visibleSkills || []).map((skill) => ({
+            id: skill.id,
+            name: skill.name || '',
+            description: skill.description || '',
+            content: skill.content || '',
+            allowedTools: skill.allowedTools || undefined,
+            examples: Array.isArray(skill.examples) ? skill.examples : undefined,
+        }))
     }, [visibleSkills])
 
     const [activeChatId, setActiveChatId] = useState<string | null>(null)
@@ -407,7 +418,7 @@ const CoworkPage: PageComponentType = () => {
                                                         <Button
                                                             key={skill.id}
                                                             type='secondary'
-                                                            size='small'
+                                                            size='medium'
                                                             block
                                                             icon={isSelected ? <Check size='small' /> : undefined}
                                                             onClick={() => {
@@ -460,9 +471,9 @@ const CoworkPage: PageComponentType = () => {
                 if (!s) return []
                 return [{
                     id: s.id,
-                    name: s.name,
-                    description: s.description,
-                    content: s.content,
+                    name: s.name || '',
+                    description: s.description || '',
+                    content: s.content || '',
                     allowedTools: s.allowedTools || undefined,
                     examples: Array.isArray(s.examples) ? s.examples : undefined,
                 }]
@@ -479,7 +490,7 @@ const CoworkPage: PageComponentType = () => {
                             initialMessage={initialMessage || undefined}
                             showWelcomeMessage={false}
                             selectedSkills={selectedSkillObjects}
-                            availableSkills={visibleSkills}
+                            availableSkills={availableSkillRefs}
                             selectedSkillId={selectedSkillId}
                             onSkillSelect={setSelectedSkillId}
                         />
