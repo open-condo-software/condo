@@ -15,10 +15,14 @@ const ExecutionAIFlowTask = generateGqlQueries('ExecutionAIFlowTask', EXECUTION_
 const EXECUTION_AIFLOW_TASK_FIELDS_FOR_USER = `{ flowType context status result errorMessage locale user { id } organization { id } modelName itemId aiSessionId ${COMMON_FIELDS} }`
 const ExecutionAIFlowTaskForUser = generateGqlQueries('ExecutionAIFlowTask', EXECUTION_AIFLOW_TASK_FIELDS_FOR_USER)
 
+const AISKILL_FIELDS = `{ name description content license compatibility metadata allowedTools image { id publicUrl } examples b2bApp { id name logo { id publicUrl } } scope organization { id } user { id } ${COMMON_FIELDS} }`
+const AISkill = generateGqlQueries('AISkill', AISKILL_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     ExecutionAIFlowTask,
     ExecutionAIFlowTaskForUser,
+    AISkill,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

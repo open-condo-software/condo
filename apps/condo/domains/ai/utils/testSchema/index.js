@@ -10,10 +10,12 @@ const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codeg
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 
 const { ExecutionAIFlowTask: ExecutionAIFlowTaskGQL, ExecutionAIFlowTaskForUser: ExecutionAIFlowTaskForUserGQL } = require('@condo/domains/ai/gql')
+const { AISkill: AISkillGQL } = require('@condo/domains/ai/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const ExecutionAIFlowTask = generateGQLTestUtils(ExecutionAIFlowTaskGQL)
 const ExecutionAIFlowTaskForUser = generateGQLTestUtils(ExecutionAIFlowTaskForUserGQL)
+const AISkill = generateGQLTestUtils(AISkillGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestExecutionAIFlowTask (client, user, extraAttrs = {}) {
@@ -45,10 +47,40 @@ async function updateTestExecutionAIFlowTask (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestAISkill (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await AISkill.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestAISkill (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestAISkill logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await AISkill.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     ExecutionAIFlowTask, createTestExecutionAIFlowTask, updateTestExecutionAIFlowTask,
     ExecutionAIFlowTaskForUser,
+    AISkill, createTestAISkill, updateTestAISkill,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

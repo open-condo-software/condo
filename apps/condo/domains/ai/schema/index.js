@@ -3,10 +3,12 @@
  * In most cases you should not change it by hands. And please don't remove `AUTOGENERATE MARKER`s
  */
 
+const { AISkill } = require('./AISkill')
 const { ExecutionAIFlowTask } = require('./ExecutionAIFlowTask')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
     ExecutionAIFlowTask,
+    AISkill,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

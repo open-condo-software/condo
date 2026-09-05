@@ -17,6 +17,7 @@ export type MessageContent = {
     suggestions?: string[]
     attachments?: MessageAttachmentDisplay[]
     a2uiMessages?: A2uiMessage[]
+    skillName?: string
 }
 
 export type Message = {

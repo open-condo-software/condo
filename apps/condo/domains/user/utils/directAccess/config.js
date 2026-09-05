@@ -32,6 +32,9 @@ const access = require('@open-condo/keystone/access')
 const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
     // Note: This list should be alphabetical when possible
     lists: [
+        // AI domain
+        'AISkill',
+
         // Miniapps domain
         'B2BApp',
         'B2BAppAccessRight',

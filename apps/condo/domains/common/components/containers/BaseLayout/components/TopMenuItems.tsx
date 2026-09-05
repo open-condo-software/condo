@@ -72,7 +72,7 @@ export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
             items.push({
                 key: 'cowork',
                 label: <Typography.Text size='medium' type='inherit'>{CoworkLabel}</Typography.Text>,
-                onClick: () => { void router.push('/cowork') },
+                onClick: () => { void router.push('/ai-engineer') },
             })
         }
         return items

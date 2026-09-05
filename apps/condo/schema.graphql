@@ -2988,6 +2988,8 @@ type UserRightsSetHistoryRecord {
   """
   _label_: String
   name: String
+  canReadAISkills: Boolean
+  canManageAISkills: Boolean
   canReadB2BApps: Boolean
   canManageB2BApps: Boolean
   canReadB2BAppAccessRights: Boolean
@@ -3092,6 +3094,10 @@ input UserRightsSetHistoryRecordWhereInput {
   name_not_ends_with_i: String
   name_in: [String]
   name_not_in: [String]
+  canReadAISkills: Boolean
+  canReadAISkills_not: Boolean
+  canManageAISkills: Boolean
+  canManageAISkills_not: Boolean
   canReadB2BApps: Boolean
   canReadB2BApps_not: Boolean
   canManageB2BApps: Boolean
@@ -3313,6 +3319,10 @@ input UserRightsSetHistoryRecordWhereUniqueInput {
 enum SortUserRightsSetHistoryRecordsBy {
   name_ASC
   name_DESC
+  canReadAISkills_ASC
+  canReadAISkills_DESC
+  canManageAISkills_ASC
+  canManageAISkills_DESC
   canReadB2BApps_ASC
   canReadB2BApps_DESC
   canManageB2BApps_ASC
@@ -3469,6 +3479,8 @@ enum SortUserRightsSetHistoryRecordsBy {
 
 input UserRightsSetHistoryRecordUpdateInput {
   name: String
+  canReadAISkills: Boolean
+  canManageAISkills: Boolean
   canReadB2BApps: Boolean
   canManageB2BApps: Boolean
   canReadB2BAppAccessRights: Boolean
@@ -3558,6 +3570,8 @@ input UserRightsSetHistoryRecordsUpdateInput {
 
 input UserRightsSetHistoryRecordCreateInput {
   name: String
+  canReadAISkills: Boolean
+  canManageAISkills: Boolean
   canReadB2BApps: Boolean
   canManageB2BApps: Boolean
   canReadB2BAppAccessRights: Boolean
@@ -3659,6 +3673,14 @@ type UserRightsSet {
   """ A name that distinguishes this group of rights from others and describes the set of rights that users of this group receive. For example: "Full access to mini-applications", "Level 1 Support", "Read all organizations", etc 
   """
   name: String
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "AISkill" as support / admin users do 
+  """
+  canReadAISkills: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "AISkill" similar to support users 
+  """
+  canManageAISkills: Boolean
 
   """ Enables a user with the given UserRightsSet to view all entities of model "B2BApp" as support / admin users do 
   """
@@ -3975,6 +3997,10 @@ input UserRightsSetWhereInput {
   name_not_ends_with_i: String
   name_in: [String]
   name_not_in: [String]
+  canReadAISkills: Boolean
+  canReadAISkills_not: Boolean
+  canManageAISkills: Boolean
+  canManageAISkills_not: Boolean
   canReadB2BApps: Boolean
   canReadB2BApps_not: Boolean
   canManageB2BApps: Boolean
@@ -4176,6 +4202,10 @@ input UserRightsSetWhereUniqueInput {
 enum SortUserRightsSetsBy {
   name_ASC
   name_DESC
+  canReadAISkills_ASC
+  canReadAISkills_DESC
+  canManageAISkills_ASC
+  canManageAISkills_DESC
   canReadB2BApps_ASC
   canReadB2BApps_DESC
   canManageB2BApps_ASC
@@ -4332,6 +4362,8 @@ enum SortUserRightsSetsBy {
 
 input UserRightsSetUpdateInput {
   name: String
+  canReadAISkills: Boolean
+  canManageAISkills: Boolean
   canReadB2BApps: Boolean
   canManageB2BApps: Boolean
   canReadB2BAppAccessRights: Boolean
@@ -4418,6 +4450,8 @@ input UserRightsSetsUpdateInput {
 
 input UserRightsSetCreateInput {
   name: String
+  canReadAISkills: Boolean
+  canManageAISkills: Boolean
   canReadB2BApps: Boolean
   canManageB2BApps: Boolean
   canReadB2BAppAccessRights: Boolean
@@ -92019,6 +92053,763 @@ input ExecutionAIFlowTasksCreateInput {
   data: ExecutionAIFlowTaskCreateInput
 }
 
+enum AISkillHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type AISkillHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the AISkillHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the AISkillHistoryRecord List config, or
+   3. As an alias to a 'name' field on the AISkillHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the AISkillHistoryRecord List.
+  """
+  _label_: String
+  name: String
+  description: String
+  content: String
+  license: String
+  compatibility: String
+  metadata: JSON
+  allowedTools: String
+  image: JSON
+  examples: JSON
+  b2bApp: String
+  scope: String
+  organization: String
+  user: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: AISkillHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input AISkillHistoryRecordWhereInput {
+  AND: [AISkillHistoryRecordWhereInput]
+  OR: [AISkillHistoryRecordWhereInput]
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
+  description: String
+  description_not: String
+  description_contains: String
+  description_not_contains: String
+  description_starts_with: String
+  description_not_starts_with: String
+  description_ends_with: String
+  description_not_ends_with: String
+  description_i: String
+  description_not_i: String
+  description_contains_i: String
+  description_not_contains_i: String
+  description_starts_with_i: String
+  description_not_starts_with_i: String
+  description_ends_with_i: String
+  description_not_ends_with_i: String
+  description_in: [String]
+  description_not_in: [String]
+  content: String
+  content_not: String
+  content_contains: String
+  content_not_contains: String
+  content_starts_with: String
+  content_not_starts_with: String
+  content_ends_with: String
+  content_not_ends_with: String
+  content_i: String
+  content_not_i: String
+  content_contains_i: String
+  content_not_contains_i: String
+  content_starts_with_i: String
+  content_not_starts_with_i: String
+  content_ends_with_i: String
+  content_not_ends_with_i: String
+  content_in: [String]
+  content_not_in: [String]
+  license: String
+  license_not: String
+  license_contains: String
+  license_not_contains: String
+  license_starts_with: String
+  license_not_starts_with: String
+  license_ends_with: String
+  license_not_ends_with: String
+  license_i: String
+  license_not_i: String
+  license_contains_i: String
+  license_not_contains_i: String
+  license_starts_with_i: String
+  license_not_starts_with_i: String
+  license_ends_with_i: String
+  license_not_ends_with_i: String
+  license_in: [String]
+  license_not_in: [String]
+  compatibility: String
+  compatibility_not: String
+  compatibility_contains: String
+  compatibility_not_contains: String
+  compatibility_starts_with: String
+  compatibility_not_starts_with: String
+  compatibility_ends_with: String
+  compatibility_not_ends_with: String
+  compatibility_i: String
+  compatibility_not_i: String
+  compatibility_contains_i: String
+  compatibility_not_contains_i: String
+  compatibility_starts_with_i: String
+  compatibility_not_starts_with_i: String
+  compatibility_ends_with_i: String
+  compatibility_not_ends_with_i: String
+  compatibility_in: [String]
+  compatibility_not_in: [String]
+  metadata: JSON
+  metadata_not: JSON
+  metadata_in: [JSON]
+  metadata_not_in: [JSON]
+  allowedTools: String
+  allowedTools_not: String
+  allowedTools_contains: String
+  allowedTools_not_contains: String
+  allowedTools_starts_with: String
+  allowedTools_not_starts_with: String
+  allowedTools_ends_with: String
+  allowedTools_not_ends_with: String
+  allowedTools_i: String
+  allowedTools_not_i: String
+  allowedTools_contains_i: String
+  allowedTools_not_contains_i: String
+  allowedTools_starts_with_i: String
+  allowedTools_not_starts_with_i: String
+  allowedTools_ends_with_i: String
+  allowedTools_not_ends_with_i: String
+  allowedTools_in: [String]
+  allowedTools_not_in: [String]
+  image: JSON
+  image_not: JSON
+  image_in: [JSON]
+  image_not_in: [JSON]
+  examples: JSON
+  examples_not: JSON
+  examples_in: [JSON]
+  examples_not_in: [JSON]
+  b2bApp: String
+  b2bApp_not: String
+  b2bApp_in: [String]
+  b2bApp_not_in: [String]
+  scope: String
+  scope_not: String
+  scope_contains: String
+  scope_not_contains: String
+  scope_starts_with: String
+  scope_not_starts_with: String
+  scope_ends_with: String
+  scope_not_ends_with: String
+  scope_i: String
+  scope_not_i: String
+  scope_contains_i: String
+  scope_not_contains_i: String
+  scope_starts_with_i: String
+  scope_not_starts_with_i: String
+  scope_ends_with_i: String
+  scope_not_ends_with_i: String
+  scope_in: [String]
+  scope_not_in: [String]
+  organization: String
+  organization_not: String
+  organization_in: [String]
+  organization_not_in: [String]
+  user: String
+  user_not: String
+  user_in: [String]
+  user_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: AISkillHistoryRecordHistoryActionType
+  history_action_not: AISkillHistoryRecordHistoryActionType
+  history_action_in: [AISkillHistoryRecordHistoryActionType]
+  history_action_not_in: [AISkillHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input AISkillHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortAISkillHistoryRecordsBy {
+  name_ASC
+  name_DESC
+  description_ASC
+  description_DESC
+  content_ASC
+  content_DESC
+  license_ASC
+  license_DESC
+  compatibility_ASC
+  compatibility_DESC
+  allowedTools_ASC
+  allowedTools_DESC
+  scope_ASC
+  scope_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input AISkillHistoryRecordUpdateInput {
+  name: String
+  description: String
+  content: String
+  license: String
+  compatibility: String
+  metadata: JSON
+  allowedTools: String
+  image: JSON
+  examples: JSON
+  b2bApp: String
+  scope: String
+  organization: String
+  user: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: AISkillHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input AISkillHistoryRecordsUpdateInput {
+  id: ID!
+  data: AISkillHistoryRecordUpdateInput
+}
+
+input AISkillHistoryRecordCreateInput {
+  name: String
+  description: String
+  content: String
+  license: String
+  compatibility: String
+  metadata: JSON
+  allowedTools: String
+  image: JSON
+  examples: JSON
+  b2bApp: String
+  scope: String
+  organization: String
+  user: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: AISkillHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input AISkillHistoryRecordsCreateInput {
+  data: AISkillHistoryRecordCreateInput
+}
+
+enum AISkillScopeType {
+  global
+  organization
+  personal
+}
+
+""" AI assistant skill in Agent Skills format. Can be provided by a B2BApp (miniapp) or created by users. Used by the AI assistant in the ai-engineer section 
+"""
+type AISkill {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the AISkill List config, or
+   2. As an alias to the field set on 'labelField' in the AISkill List config, or
+   3. As an alias to a 'name' field on the AISkill List (if one exists), or
+   4. As an alias to the 'id' field on the AISkill List.
+  """
+  _label_: String
+
+  """ Skill name. Lowercase letters, numbers, and hyphens only. Max 64 characters. 
+  """
+  name: String
+
+  """ What the skill does and when to use it. Max 1024 characters. The AI uses this to decide when to trigger the skill. 
+  """
+  description: String
+
+  """ Markdown instructions body. The procedural content the AI follows when the skill runs. 
+  """
+  content: String
+
+  """ License name or reference to a bundled license file. Optional. """
+  license: String
+
+  """ Environment requirements. Max 500 characters. Optional. """
+  compatibility: String
+
+  """ Arbitrary key-value mapping for additional metadata. Optional. """
+  metadata: JSON
+
+  """ Space-separated string of pre-approved tools the skill may use. Optional. 
+  """
+  allowedTools: String
+
+  """ Skill illustration image. Shown on skill cards and detail view. """
+  image: File
+
+  """ Array of example prompt strings shown as suggestion tags under chat input. 
+  """
+  examples: [String!]
+
+  """ B2BApp that provides this skill. If set, this skill originated from a miniapp. 
+  """
+  b2bApp: B2BApp
+
+  """ Visibility scope. "global" = all users. "organization" = org employees. "personal" = creator only. 
+  """
+  scope: AISkillScopeType
+
+  """ Organization for org-scoped skills. Required when scope=organization. 
+  """
+  organization: Organization
+
+  """ User for personal skills. Required when scope=personal. """
+  user: User
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input AISkillWhereInput {
+  AND: [AISkillWhereInput]
+  OR: [AISkillWhereInput]
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
+  description: String
+  description_not: String
+  description_contains: String
+  description_not_contains: String
+  description_starts_with: String
+  description_not_starts_with: String
+  description_ends_with: String
+  description_not_ends_with: String
+  description_i: String
+  description_not_i: String
+  description_contains_i: String
+  description_not_contains_i: String
+  description_starts_with_i: String
+  description_not_starts_with_i: String
+  description_ends_with_i: String
+  description_not_ends_with_i: String
+  description_in: [String]
+  description_not_in: [String]
+  content: String
+  content_not: String
+  content_contains: String
+  content_not_contains: String
+  content_starts_with: String
+  content_not_starts_with: String
+  content_ends_with: String
+  content_not_ends_with: String
+  content_i: String
+  content_not_i: String
+  content_contains_i: String
+  content_not_contains_i: String
+  content_starts_with_i: String
+  content_not_starts_with_i: String
+  content_ends_with_i: String
+  content_not_ends_with_i: String
+  content_in: [String]
+  content_not_in: [String]
+  license: String
+  license_not: String
+  license_contains: String
+  license_not_contains: String
+  license_starts_with: String
+  license_not_starts_with: String
+  license_ends_with: String
+  license_not_ends_with: String
+  license_i: String
+  license_not_i: String
+  license_contains_i: String
+  license_not_contains_i: String
+  license_starts_with_i: String
+  license_not_starts_with_i: String
+  license_ends_with_i: String
+  license_not_ends_with_i: String
+  license_in: [String]
+  license_not_in: [String]
+  compatibility: String
+  compatibility_not: String
+  compatibility_contains: String
+  compatibility_not_contains: String
+  compatibility_starts_with: String
+  compatibility_not_starts_with: String
+  compatibility_ends_with: String
+  compatibility_not_ends_with: String
+  compatibility_i: String
+  compatibility_not_i: String
+  compatibility_contains_i: String
+  compatibility_not_contains_i: String
+  compatibility_starts_with_i: String
+  compatibility_not_starts_with_i: String
+  compatibility_ends_with_i: String
+  compatibility_not_ends_with_i: String
+  compatibility_in: [String]
+  compatibility_not_in: [String]
+  metadata: JSON
+  metadata_not: JSON
+  metadata_in: [JSON]
+  metadata_not_in: [JSON]
+  allowedTools: String
+  allowedTools_not: String
+  allowedTools_contains: String
+  allowedTools_not_contains: String
+  allowedTools_starts_with: String
+  allowedTools_not_starts_with: String
+  allowedTools_ends_with: String
+  allowedTools_not_ends_with: String
+  allowedTools_i: String
+  allowedTools_not_i: String
+  allowedTools_contains_i: String
+  allowedTools_not_contains_i: String
+  allowedTools_starts_with_i: String
+  allowedTools_not_starts_with_i: String
+  allowedTools_ends_with_i: String
+  allowedTools_not_ends_with_i: String
+  allowedTools_in: [String]
+  allowedTools_not_in: [String]
+  image: String
+  image_not: String
+  image_in: [String]
+  image_not_in: [String]
+  examples: [String!]
+  examples_not: [String!]
+  examples_in: [[String!]]
+  examples_not_in: [[String!]]
+  b2bApp: B2BAppWhereInput
+  b2bApp_is_null: Boolean
+  scope: AISkillScopeType
+  scope_not: AISkillScopeType
+  scope_in: [AISkillScopeType]
+  scope_not_in: [AISkillScopeType]
+  organization: OrganizationWhereInput
+  organization_is_null: Boolean
+  user: UserWhereInput
+  user_is_null: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input AISkillWhereUniqueInput {
+  id: ID!
+}
+
+enum SortAISkillsBy {
+  name_ASC
+  name_DESC
+  description_ASC
+  description_DESC
+  content_ASC
+  content_DESC
+  license_ASC
+  license_DESC
+  compatibility_ASC
+  compatibility_DESC
+  allowedTools_ASC
+  allowedTools_DESC
+  b2bApp_ASC
+  b2bApp_DESC
+  scope_ASC
+  scope_DESC
+  organization_ASC
+  organization_DESC
+  user_ASC
+  user_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input AISkillUpdateInput {
+  name: String
+  description: String
+  content: String
+  license: String
+  compatibility: String
+  metadata: JSON
+  allowedTools: String
+  image: FileMeta
+  examples: [String!]
+  b2bApp: B2BAppRelateToOneInput
+  scope: AISkillScopeType
+  organization: OrganizationRelateToOneInput
+  user: UserRelateToOneInput
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input AISkillsUpdateInput {
+  id: ID!
+  data: AISkillUpdateInput
+}
+
+input AISkillCreateInput {
+  name: String
+  description: String
+  content: String
+  license: String
+  compatibility: String
+  metadata: JSON
+  allowedTools: String
+  image: FileMeta
+  examples: [String!]
+  b2bApp: B2BAppRelateToOneInput
+  scope: AISkillScopeType
+  organization: OrganizationRelateToOneInput
+  user: UserRelateToOneInput
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input AISkillsCreateInput {
+  data: AISkillCreateInput
+}
+
 enum WebhookHistoryRecordHistoryActionType {
   c
   u
@@ -101073,6 +101864,33 @@ type Query {
   """ Retrieve the meta-data for the ExecutionAIFlowTask list. """
   _ExecutionAIFlowTasksMeta: _ListMeta
 
+  """ Search for all AISkillHistoryRecord items which match the where clause. 
+  """
+  allAISkillHistoryRecords(where: AISkillHistoryRecordWhereInput, search: String, sortBy: [SortAISkillHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [AISkillHistoryRecord]
+
+  """ Search for the AISkillHistoryRecord item with the matching ID. """
+  AISkillHistoryRecord(where: AISkillHistoryRecordWhereUniqueInput!): AISkillHistoryRecord
+
+  """ Perform a meta-query on all AISkillHistoryRecord items which match the where clause. 
+  """
+  _allAISkillHistoryRecordsMeta(where: AISkillHistoryRecordWhereInput, search: String, sortBy: [SortAISkillHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the AISkillHistoryRecord list. """
+  _AISkillHistoryRecordsMeta: _ListMeta
+
+  """ Search for all AISkill items which match the where clause. """
+  allAISkills(where: AISkillWhereInput, search: String, sortBy: [SortAISkillsBy!], orderBy: String, first: Int, skip: Int): [AISkill]
+
+  """ Search for the AISkill item with the matching ID. """
+  AISkill(where: AISkillWhereUniqueInput!): AISkill
+
+  """ Perform a meta-query on all AISkill items which match the where clause. 
+  """
+  _allAISkillsMeta(where: AISkillWhereInput, search: String, sortBy: [SortAISkillsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the AISkill list. """
+  _AISkillsMeta: _ListMeta
+
   """ Search for all WebhookHistoryRecord items which match the where clause. 
   """
   allWebhookHistoryRecords(where: WebhookHistoryRecordWhereInput, search: String, sortBy: [SortWebhookHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [WebhookHistoryRecord]
@@ -107082,6 +107900,42 @@ type Mutation {
 
   """ Delete multiple ExecutionAIFlowTask items by ID. """
   deleteExecutionAIFlowTasks(ids: [ID!]): [ExecutionAIFlowTask]
+
+  """ Create a single AISkillHistoryRecord item. """
+  createAISkillHistoryRecord(data: AISkillHistoryRecordCreateInput): AISkillHistoryRecord
+
+  """ Create multiple AISkillHistoryRecord items. """
+  createAISkillHistoryRecords(data: [AISkillHistoryRecordsCreateInput]): [AISkillHistoryRecord]
+
+  """ Update a single AISkillHistoryRecord item by ID. """
+  updateAISkillHistoryRecord(id: ID!, data: AISkillHistoryRecordUpdateInput): AISkillHistoryRecord
+
+  """ Update multiple AISkillHistoryRecord items by ID. """
+  updateAISkillHistoryRecords(data: [AISkillHistoryRecordsUpdateInput]): [AISkillHistoryRecord]
+
+  """ Delete a single AISkillHistoryRecord item by ID. """
+  deleteAISkillHistoryRecord(id: ID!): AISkillHistoryRecord
+
+  """ Delete multiple AISkillHistoryRecord items by ID. """
+  deleteAISkillHistoryRecords(ids: [ID!]): [AISkillHistoryRecord]
+
+  """ Create a single AISkill item. """
+  createAISkill(data: AISkillCreateInput): AISkill
+
+  """ Create multiple AISkill items. """
+  createAISkills(data: [AISkillsCreateInput]): [AISkill]
+
+  """ Update a single AISkill item by ID. """
+  updateAISkill(id: ID!, data: AISkillUpdateInput): AISkill
+
+  """ Update multiple AISkill items by ID. """
+  updateAISkills(data: [AISkillsUpdateInput]): [AISkill]
+
+  """ Delete a single AISkill item by ID. """
+  deleteAISkill(id: ID!): AISkill
+
+  """ Delete multiple AISkill items by ID. """
+  deleteAISkills(ids: [ID!]): [AISkill]
 
   """ Create a single WebhookHistoryRecord item. """
   createWebhookHistoryRecord(data: WebhookHistoryRecordCreateInput): WebhookHistoryRecord

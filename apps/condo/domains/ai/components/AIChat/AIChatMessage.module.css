@@ -52,6 +52,11 @@
   width: 100%;
 }
 
+.user-message-skill-tag {
+  display: flex;
+  align-items: center;
+}
+
 .message-wrapper:hover .user-message-actions {
   opacity: 1;
 }

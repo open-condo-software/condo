@@ -8,7 +8,7 @@ const CoworkIndexPage: PageComponentType = () => {
     const router = useRouter()
 
     useEffect(() => {
-        void router.replace('/cowork/chat')
+        void router.replace('/ai-engineer/chat')
     }, [router])
 
     return null

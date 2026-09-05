@@ -23,6 +23,664 @@ export type Scalars = {
   Upload: { input: any; output: any; }
 };
 
+/**  AI assistant skill in Agent Skills format. Can be provided by a B2BApp (miniapp) or created by users. Used by the AI assistant in the ai-engineer section  */
+export type AiSkill = {
+  __typename?: 'AISkill';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the AISkill List config, or
+   *  2. As an alias to the field set on 'labelField' in the AISkill List config, or
+   *  3. As an alias to a 'name' field on the AISkill List (if one exists), or
+   *  4. As an alias to the 'id' field on the AISkill List.
+   */
+  _label_?: Maybe<Scalars['String']['output']>;
+  /**  Space-separated string of pre-approved tools the skill may use. Optional.  */
+  allowedTools?: Maybe<Scalars['String']['output']>;
+  /**  B2BApp that provides this skill. If set, this skill originated from a miniapp.  */
+  b2bApp?: Maybe<B2BApp>;
+  /**  Environment requirements. Max 500 characters. Optional.  */
+  compatibility?: Maybe<Scalars['String']['output']>;
+  /**  Markdown instructions body. The procedural content the AI follows when the skill runs.  */
+  content?: Maybe<Scalars['String']['output']>;
+  createdAt?: Maybe<Scalars['String']['output']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']['output']>;
+  /**  What the skill does and when to use it. Max 1024 characters. The AI uses this to decide when to trigger the skill.  */
+  description?: Maybe<Scalars['String']['output']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']['output']>;
+  /**  Array of example prompt strings shown as suggestion tags under chat input.  */
+  examples?: Maybe<Array<Scalars['String']['output']>>;
+  id: Scalars['ID']['output'];
+  /**  Skill illustration image. Shown on skill cards and detail view.  */
+  image?: Maybe<File>;
+  /**  License name or reference to a bundled license file. Optional.  */
+  license?: Maybe<Scalars['String']['output']>;
+  /**  Arbitrary key-value mapping for additional metadata. Optional.  */
+  metadata?: Maybe<Scalars['JSON']['output']>;
+  /**  Skill name. Lowercase letters, numbers, and hyphens only. Max 64 characters.  */
+  name?: Maybe<Scalars['String']['output']>;
+  newId?: Maybe<Scalars['String']['output']>;
+  /**  Organization for org-scoped skills. Required when scope=organization.  */
+  organization?: Maybe<Organization>;
+  /**  Visibility scope. "global" = all users. "organization" = org employees. "personal" = creator only.  */
+  scope?: Maybe<AiSkillScopeType>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+  updatedAt?: Maybe<Scalars['String']['output']>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  /**  User for personal skills. Required when scope=personal.  */
+  user?: Maybe<User>;
+  v?: Maybe<Scalars['Int']['output']>;
+};
+
+export type AiSkillCreateInput = {
+  allowedTools?: InputMaybe<Scalars['String']['input']>;
+  b2bApp?: InputMaybe<B2BAppRelateToOneInput>;
+  compatibility?: InputMaybe<Scalars['String']['input']>;
+  content?: InputMaybe<Scalars['String']['input']>;
+  createdAt?: InputMaybe<Scalars['String']['input']>;
+  createdBy?: InputMaybe<UserRelateToOneInput>;
+  deletedAt?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  dv?: InputMaybe<Scalars['Int']['input']>;
+  examples?: InputMaybe<Array<Scalars['String']['input']>>;
+  image?: InputMaybe<Scalars['FileMeta']['input']>;
+  license?: InputMaybe<Scalars['String']['input']>;
+  metadata?: InputMaybe<Scalars['JSON']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  newId?: InputMaybe<Scalars['String']['input']>;
+  organization?: InputMaybe<OrganizationRelateToOneInput>;
+  scope?: InputMaybe<AiSkillScopeType>;
+  sender?: InputMaybe<SenderFieldInput>;
+  updatedAt?: InputMaybe<Scalars['String']['input']>;
+  updatedBy?: InputMaybe<UserRelateToOneInput>;
+  user?: InputMaybe<UserRelateToOneInput>;
+  v?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/**  A keystone list  */
+export type AiSkillHistoryRecord = {
+  __typename?: 'AISkillHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the AISkillHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the AISkillHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the AISkillHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the AISkillHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']['output']>;
+  allowedTools?: Maybe<Scalars['String']['output']>;
+  b2bApp?: Maybe<Scalars['String']['output']>;
+  compatibility?: Maybe<Scalars['String']['output']>;
+  content?: Maybe<Scalars['String']['output']>;
+  createdAt?: Maybe<Scalars['String']['output']>;
+  createdBy?: Maybe<Scalars['String']['output']>;
+  deletedAt?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  dv?: Maybe<Scalars['Int']['output']>;
+  examples?: Maybe<Scalars['JSON']['output']>;
+  history_action?: Maybe<AiSkillHistoryRecordHistoryActionType>;
+  history_date?: Maybe<Scalars['String']['output']>;
+  history_id?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  image?: Maybe<Scalars['JSON']['output']>;
+  license?: Maybe<Scalars['String']['output']>;
+  metadata?: Maybe<Scalars['JSON']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  newId?: Maybe<Scalars['JSON']['output']>;
+  organization?: Maybe<Scalars['String']['output']>;
+  scope?: Maybe<Scalars['String']['output']>;
+  sender?: Maybe<Scalars['JSON']['output']>;
+  updatedAt?: Maybe<Scalars['String']['output']>;
+  updatedBy?: Maybe<Scalars['String']['output']>;
+  user?: Maybe<Scalars['String']['output']>;
+  v?: Maybe<Scalars['Int']['output']>;
+};
+
+export type AiSkillHistoryRecordCreateInput = {
+  allowedTools?: InputMaybe<Scalars['String']['input']>;
+  b2bApp?: InputMaybe<Scalars['String']['input']>;
+  compatibility?: InputMaybe<Scalars['String']['input']>;
+  content?: InputMaybe<Scalars['String']['input']>;
+  createdAt?: InputMaybe<Scalars['String']['input']>;
+  createdBy?: InputMaybe<Scalars['String']['input']>;
+  deletedAt?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  dv?: InputMaybe<Scalars['Int']['input']>;
+  examples?: InputMaybe<Scalars['JSON']['input']>;
+  history_action?: InputMaybe<AiSkillHistoryRecordHistoryActionType>;
+  history_date?: InputMaybe<Scalars['String']['input']>;
+  history_id?: InputMaybe<Scalars['String']['input']>;
+  image?: InputMaybe<Scalars['JSON']['input']>;
+  license?: InputMaybe<Scalars['String']['input']>;
+  metadata?: InputMaybe<Scalars['JSON']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  newId?: InputMaybe<Scalars['JSON']['input']>;
+  organization?: InputMaybe<Scalars['String']['input']>;
+  scope?: InputMaybe<Scalars['String']['input']>;
+  sender?: InputMaybe<Scalars['JSON']['input']>;
+  updatedAt?: InputMaybe<Scalars['String']['input']>;
+  updatedBy?: InputMaybe<Scalars['String']['input']>;
+  user?: InputMaybe<Scalars['String']['input']>;
+  v?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export enum AiSkillHistoryRecordHistoryActionType {
+  C = 'c',
+  D = 'd',
+  U = 'u'
+}
+
+export type AiSkillHistoryRecordUpdateInput = {
+  allowedTools?: InputMaybe<Scalars['String']['input']>;
+  b2bApp?: InputMaybe<Scalars['String']['input']>;
+  compatibility?: InputMaybe<Scalars['String']['input']>;
+  content?: InputMaybe<Scalars['String']['input']>;
+  createdAt?: InputMaybe<Scalars['String']['input']>;
+  createdBy?: InputMaybe<Scalars['String']['input']>;
+  deletedAt?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  dv?: InputMaybe<Scalars['Int']['input']>;
+  examples?: InputMaybe<Scalars['JSON']['input']>;
+  history_action?: InputMaybe<AiSkillHistoryRecordHistoryActionType>;
+  history_date?: InputMaybe<Scalars['String']['input']>;
+  history_id?: InputMaybe<Scalars['String']['input']>;
+  image?: InputMaybe<Scalars['JSON']['input']>;
+  license?: InputMaybe<Scalars['String']['input']>;
+  metadata?: InputMaybe<Scalars['JSON']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  newId?: InputMaybe<Scalars['JSON']['input']>;
+  organization?: InputMaybe<Scalars['String']['input']>;
+  scope?: InputMaybe<Scalars['String']['input']>;
+  sender?: InputMaybe<Scalars['JSON']['input']>;
+  updatedAt?: InputMaybe<Scalars['String']['input']>;
+  updatedBy?: InputMaybe<Scalars['String']['input']>;
+  user?: InputMaybe<Scalars['String']['input']>;
+  v?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type AiSkillHistoryRecordWhereInput = {
+  AND?: InputMaybe<Array<InputMaybe<AiSkillHistoryRecordWhereInput>>>;
+  OR?: InputMaybe<Array<InputMaybe<AiSkillHistoryRecordWhereInput>>>;
+  allowedTools?: InputMaybe<Scalars['String']['input']>;
+  allowedTools_contains?: InputMaybe<Scalars['String']['input']>;
+  allowedTools_contains_i?: InputMaybe<Scalars['String']['input']>;
+  allowedTools_ends_with?: InputMaybe<Scalars['String']['input']>;
+  allowedTools_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  allowedTools_i?: InputMaybe<Scalars['String']['input']>;
+  allowedTools_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  allowedTools_not?: InputMaybe<Scalars['String']['input']>;
+  allowedTools_not_contains?: InputMaybe<Scalars['String']['input']>;
+  allowedTools_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  allowedTools_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  allowedTools_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  allowedTools_not_i?: InputMaybe<Scalars['String']['input']>;
+  allowedTools_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  allowedTools_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  allowedTools_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  allowedTools_starts_with?: InputMaybe<Scalars['String']['input']>;
+  allowedTools_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  b2bApp?: InputMaybe<Scalars['String']['input']>;
+  b2bApp_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  b2bApp_not?: InputMaybe<Scalars['String']['input']>;
+  b2bApp_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  compatibility?: InputMaybe<Scalars['String']['input']>;
+  compatibility_contains?: InputMaybe<Scalars['String']['input']>;
+  compatibility_contains_i?: InputMaybe<Scalars['String']['input']>;
+  compatibility_ends_with?: InputMaybe<Scalars['String']['input']>;
+  compatibility_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  compatibility_i?: InputMaybe<Scalars['String']['input']>;
+  compatibility_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  compatibility_not?: InputMaybe<Scalars['String']['input']>;
+  compatibility_not_contains?: InputMaybe<Scalars['String']['input']>;
+  compatibility_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  compatibility_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  compatibility_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  compatibility_not_i?: InputMaybe<Scalars['String']['input']>;
+  compatibility_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  compatibility_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  compatibility_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  compatibility_starts_with?: InputMaybe<Scalars['String']['input']>;
+  compatibility_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  content?: InputMaybe<Scalars['String']['input']>;
+  content_contains?: InputMaybe<Scalars['String']['input']>;
+  content_contains_i?: InputMaybe<Scalars['String']['input']>;
+  content_ends_with?: InputMaybe<Scalars['String']['input']>;
+  content_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  content_i?: InputMaybe<Scalars['String']['input']>;
+  content_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  content_not?: InputMaybe<Scalars['String']['input']>;
+  content_not_contains?: InputMaybe<Scalars['String']['input']>;
+  content_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  content_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  content_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  content_not_i?: InputMaybe<Scalars['String']['input']>;
+  content_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  content_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  content_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  content_starts_with?: InputMaybe<Scalars['String']['input']>;
+  content_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  createdAt?: InputMaybe<Scalars['String']['input']>;
+  createdAt_gt?: InputMaybe<Scalars['String']['input']>;
+  createdAt_gte?: InputMaybe<Scalars['String']['input']>;
+  createdAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  createdAt_lt?: InputMaybe<Scalars['String']['input']>;
+  createdAt_lte?: InputMaybe<Scalars['String']['input']>;
+  createdAt_not?: InputMaybe<Scalars['String']['input']>;
+  createdAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  createdBy?: InputMaybe<Scalars['String']['input']>;
+  createdBy_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  createdBy_not?: InputMaybe<Scalars['String']['input']>;
+  createdBy_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  deletedAt?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_gt?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_gte?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  deletedAt_lt?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_lte?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_not?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  description_contains?: InputMaybe<Scalars['String']['input']>;
+  description_contains_i?: InputMaybe<Scalars['String']['input']>;
+  description_ends_with?: InputMaybe<Scalars['String']['input']>;
+  description_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  description_i?: InputMaybe<Scalars['String']['input']>;
+  description_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  description_not?: InputMaybe<Scalars['String']['input']>;
+  description_not_contains?: InputMaybe<Scalars['String']['input']>;
+  description_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  description_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  description_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  description_not_i?: InputMaybe<Scalars['String']['input']>;
+  description_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  description_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  description_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  description_starts_with?: InputMaybe<Scalars['String']['input']>;
+  description_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  dv?: InputMaybe<Scalars['Int']['input']>;
+  dv_gt?: InputMaybe<Scalars['Int']['input']>;
+  dv_gte?: InputMaybe<Scalars['Int']['input']>;
+  dv_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  dv_lt?: InputMaybe<Scalars['Int']['input']>;
+  dv_lte?: InputMaybe<Scalars['Int']['input']>;
+  dv_not?: InputMaybe<Scalars['Int']['input']>;
+  dv_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  examples?: InputMaybe<Scalars['JSON']['input']>;
+  examples_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  examples_not?: InputMaybe<Scalars['JSON']['input']>;
+  examples_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  history_action?: InputMaybe<AiSkillHistoryRecordHistoryActionType>;
+  history_action_in?: InputMaybe<Array<InputMaybe<AiSkillHistoryRecordHistoryActionType>>>;
+  history_action_not?: InputMaybe<AiSkillHistoryRecordHistoryActionType>;
+  history_action_not_in?: InputMaybe<Array<InputMaybe<AiSkillHistoryRecordHistoryActionType>>>;
+  history_date?: InputMaybe<Scalars['String']['input']>;
+  history_date_gt?: InputMaybe<Scalars['String']['input']>;
+  history_date_gte?: InputMaybe<Scalars['String']['input']>;
+  history_date_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  history_date_lt?: InputMaybe<Scalars['String']['input']>;
+  history_date_lte?: InputMaybe<Scalars['String']['input']>;
+  history_date_not?: InputMaybe<Scalars['String']['input']>;
+  history_date_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  history_id?: InputMaybe<Scalars['String']['input']>;
+  history_id_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  history_id_not?: InputMaybe<Scalars['String']['input']>;
+  history_id_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  id?: InputMaybe<Scalars['ID']['input']>;
+  id_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  id_not?: InputMaybe<Scalars['ID']['input']>;
+  id_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  image?: InputMaybe<Scalars['JSON']['input']>;
+  image_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  image_not?: InputMaybe<Scalars['JSON']['input']>;
+  image_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  license?: InputMaybe<Scalars['String']['input']>;
+  license_contains?: InputMaybe<Scalars['String']['input']>;
+  license_contains_i?: InputMaybe<Scalars['String']['input']>;
+  license_ends_with?: InputMaybe<Scalars['String']['input']>;
+  license_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  license_i?: InputMaybe<Scalars['String']['input']>;
+  license_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  license_not?: InputMaybe<Scalars['String']['input']>;
+  license_not_contains?: InputMaybe<Scalars['String']['input']>;
+  license_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  license_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  license_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  license_not_i?: InputMaybe<Scalars['String']['input']>;
+  license_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  license_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  license_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  license_starts_with?: InputMaybe<Scalars['String']['input']>;
+  license_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  metadata?: InputMaybe<Scalars['JSON']['input']>;
+  metadata_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  metadata_not?: InputMaybe<Scalars['JSON']['input']>;
+  metadata_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  name_contains?: InputMaybe<Scalars['String']['input']>;
+  name_contains_i?: InputMaybe<Scalars['String']['input']>;
+  name_ends_with?: InputMaybe<Scalars['String']['input']>;
+  name_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  name_i?: InputMaybe<Scalars['String']['input']>;
+  name_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  name_not?: InputMaybe<Scalars['String']['input']>;
+  name_not_contains?: InputMaybe<Scalars['String']['input']>;
+  name_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  name_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  name_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  name_not_i?: InputMaybe<Scalars['String']['input']>;
+  name_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  name_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  name_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  name_starts_with?: InputMaybe<Scalars['String']['input']>;
+  name_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  newId?: InputMaybe<Scalars['JSON']['input']>;
+  newId_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  newId_not?: InputMaybe<Scalars['JSON']['input']>;
+  newId_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  organization?: InputMaybe<Scalars['String']['input']>;
+  organization_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  organization_not?: InputMaybe<Scalars['String']['input']>;
+  organization_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  scope?: InputMaybe<Scalars['String']['input']>;
+  scope_contains?: InputMaybe<Scalars['String']['input']>;
+  scope_contains_i?: InputMaybe<Scalars['String']['input']>;
+  scope_ends_with?: InputMaybe<Scalars['String']['input']>;
+  scope_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  scope_i?: InputMaybe<Scalars['String']['input']>;
+  scope_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  scope_not?: InputMaybe<Scalars['String']['input']>;
+  scope_not_contains?: InputMaybe<Scalars['String']['input']>;
+  scope_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  scope_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  scope_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  scope_not_i?: InputMaybe<Scalars['String']['input']>;
+  scope_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  scope_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  scope_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  scope_starts_with?: InputMaybe<Scalars['String']['input']>;
+  scope_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  sender?: InputMaybe<Scalars['JSON']['input']>;
+  sender_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  sender_not?: InputMaybe<Scalars['JSON']['input']>;
+  sender_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  updatedAt?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_gt?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_gte?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  updatedAt_lt?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_lte?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_not?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  updatedBy?: InputMaybe<Scalars['String']['input']>;
+  updatedBy_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  updatedBy_not?: InputMaybe<Scalars['String']['input']>;
+  updatedBy_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  user?: InputMaybe<Scalars['String']['input']>;
+  user_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  user_not?: InputMaybe<Scalars['String']['input']>;
+  user_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  v?: InputMaybe<Scalars['Int']['input']>;
+  v_gt?: InputMaybe<Scalars['Int']['input']>;
+  v_gte?: InputMaybe<Scalars['Int']['input']>;
+  v_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  v_lt?: InputMaybe<Scalars['Int']['input']>;
+  v_lte?: InputMaybe<Scalars['Int']['input']>;
+  v_not?: InputMaybe<Scalars['Int']['input']>;
+  v_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+};
+
+export type AiSkillHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID']['input'];
+};
+
+export type AiSkillHistoryRecordsCreateInput = {
+  data?: InputMaybe<AiSkillHistoryRecordCreateInput>;
+};
+
+export type AiSkillHistoryRecordsUpdateInput = {
+  data?: InputMaybe<AiSkillHistoryRecordUpdateInput>;
+  id: Scalars['ID']['input'];
+};
+
+export enum AiSkillScopeType {
+  Global = 'global',
+  Organization = 'organization',
+  Personal = 'personal'
+}
+
+export type AiSkillUpdateInput = {
+  allowedTools?: InputMaybe<Scalars['String']['input']>;
+  b2bApp?: InputMaybe<B2BAppRelateToOneInput>;
+  compatibility?: InputMaybe<Scalars['String']['input']>;
+  content?: InputMaybe<Scalars['String']['input']>;
+  createdAt?: InputMaybe<Scalars['String']['input']>;
+  createdBy?: InputMaybe<UserRelateToOneInput>;
+  deletedAt?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  dv?: InputMaybe<Scalars['Int']['input']>;
+  examples?: InputMaybe<Array<Scalars['String']['input']>>;
+  image?: InputMaybe<Scalars['FileMeta']['input']>;
+  license?: InputMaybe<Scalars['String']['input']>;
+  metadata?: InputMaybe<Scalars['JSON']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  newId?: InputMaybe<Scalars['String']['input']>;
+  organization?: InputMaybe<OrganizationRelateToOneInput>;
+  scope?: InputMaybe<AiSkillScopeType>;
+  sender?: InputMaybe<SenderFieldInput>;
+  updatedAt?: InputMaybe<Scalars['String']['input']>;
+  updatedBy?: InputMaybe<UserRelateToOneInput>;
+  user?: InputMaybe<UserRelateToOneInput>;
+  v?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type AiSkillWhereInput = {
+  AND?: InputMaybe<Array<InputMaybe<AiSkillWhereInput>>>;
+  OR?: InputMaybe<Array<InputMaybe<AiSkillWhereInput>>>;
+  allowedTools?: InputMaybe<Scalars['String']['input']>;
+  allowedTools_contains?: InputMaybe<Scalars['String']['input']>;
+  allowedTools_contains_i?: InputMaybe<Scalars['String']['input']>;
+  allowedTools_ends_with?: InputMaybe<Scalars['String']['input']>;
+  allowedTools_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  allowedTools_i?: InputMaybe<Scalars['String']['input']>;
+  allowedTools_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  allowedTools_not?: InputMaybe<Scalars['String']['input']>;
+  allowedTools_not_contains?: InputMaybe<Scalars['String']['input']>;
+  allowedTools_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  allowedTools_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  allowedTools_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  allowedTools_not_i?: InputMaybe<Scalars['String']['input']>;
+  allowedTools_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  allowedTools_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  allowedTools_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  allowedTools_starts_with?: InputMaybe<Scalars['String']['input']>;
+  allowedTools_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  b2bApp?: InputMaybe<B2BAppWhereInput>;
+  b2bApp_is_null?: InputMaybe<Scalars['Boolean']['input']>;
+  compatibility?: InputMaybe<Scalars['String']['input']>;
+  compatibility_contains?: InputMaybe<Scalars['String']['input']>;
+  compatibility_contains_i?: InputMaybe<Scalars['String']['input']>;
+  compatibility_ends_with?: InputMaybe<Scalars['String']['input']>;
+  compatibility_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  compatibility_i?: InputMaybe<Scalars['String']['input']>;
+  compatibility_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  compatibility_not?: InputMaybe<Scalars['String']['input']>;
+  compatibility_not_contains?: InputMaybe<Scalars['String']['input']>;
+  compatibility_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  compatibility_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  compatibility_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  compatibility_not_i?: InputMaybe<Scalars['String']['input']>;
+  compatibility_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  compatibility_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  compatibility_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  compatibility_starts_with?: InputMaybe<Scalars['String']['input']>;
+  compatibility_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  content?: InputMaybe<Scalars['String']['input']>;
+  content_contains?: InputMaybe<Scalars['String']['input']>;
+  content_contains_i?: InputMaybe<Scalars['String']['input']>;
+  content_ends_with?: InputMaybe<Scalars['String']['input']>;
+  content_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  content_i?: InputMaybe<Scalars['String']['input']>;
+  content_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  content_not?: InputMaybe<Scalars['String']['input']>;
+  content_not_contains?: InputMaybe<Scalars['String']['input']>;
+  content_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  content_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  content_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  content_not_i?: InputMaybe<Scalars['String']['input']>;
+  content_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  content_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  content_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  content_starts_with?: InputMaybe<Scalars['String']['input']>;
+  content_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  createdAt?: InputMaybe<Scalars['String']['input']>;
+  createdAt_gt?: InputMaybe<Scalars['String']['input']>;
+  createdAt_gte?: InputMaybe<Scalars['String']['input']>;
+  createdAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  createdAt_lt?: InputMaybe<Scalars['String']['input']>;
+  createdAt_lte?: InputMaybe<Scalars['String']['input']>;
+  createdAt_not?: InputMaybe<Scalars['String']['input']>;
+  createdAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  createdBy?: InputMaybe<UserWhereInput>;
+  createdBy_is_null?: InputMaybe<Scalars['Boolean']['input']>;
+  deletedAt?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_gt?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_gte?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  deletedAt_lt?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_lte?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_not?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  description_contains?: InputMaybe<Scalars['String']['input']>;
+  description_contains_i?: InputMaybe<Scalars['String']['input']>;
+  description_ends_with?: InputMaybe<Scalars['String']['input']>;
+  description_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  description_i?: InputMaybe<Scalars['String']['input']>;
+  description_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  description_not?: InputMaybe<Scalars['String']['input']>;
+  description_not_contains?: InputMaybe<Scalars['String']['input']>;
+  description_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  description_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  description_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  description_not_i?: InputMaybe<Scalars['String']['input']>;
+  description_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  description_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  description_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  description_starts_with?: InputMaybe<Scalars['String']['input']>;
+  description_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  dv?: InputMaybe<Scalars['Int']['input']>;
+  dv_gt?: InputMaybe<Scalars['Int']['input']>;
+  dv_gte?: InputMaybe<Scalars['Int']['input']>;
+  dv_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  dv_lt?: InputMaybe<Scalars['Int']['input']>;
+  dv_lte?: InputMaybe<Scalars['Int']['input']>;
+  dv_not?: InputMaybe<Scalars['Int']['input']>;
+  dv_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  examples?: InputMaybe<Array<Scalars['String']['input']>>;
+  examples_in?: InputMaybe<Array<InputMaybe<Array<Scalars['String']['input']>>>>;
+  examples_not?: InputMaybe<Array<Scalars['String']['input']>>;
+  examples_not_in?: InputMaybe<Array<InputMaybe<Array<Scalars['String']['input']>>>>;
+  id?: InputMaybe<Scalars['ID']['input']>;
+  id_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  id_not?: InputMaybe<Scalars['ID']['input']>;
+  id_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  image?: InputMaybe<Scalars['String']['input']>;
+  image_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  image_not?: InputMaybe<Scalars['String']['input']>;
+  image_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  license?: InputMaybe<Scalars['String']['input']>;
+  license_contains?: InputMaybe<Scalars['String']['input']>;
+  license_contains_i?: InputMaybe<Scalars['String']['input']>;
+  license_ends_with?: InputMaybe<Scalars['String']['input']>;
+  license_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  license_i?: InputMaybe<Scalars['String']['input']>;
+  license_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  license_not?: InputMaybe<Scalars['String']['input']>;
+  license_not_contains?: InputMaybe<Scalars['String']['input']>;
+  license_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  license_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  license_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  license_not_i?: InputMaybe<Scalars['String']['input']>;
+  license_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  license_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  license_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  license_starts_with?: InputMaybe<Scalars['String']['input']>;
+  license_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  metadata?: InputMaybe<Scalars['JSON']['input']>;
+  metadata_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  metadata_not?: InputMaybe<Scalars['JSON']['input']>;
+  metadata_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  name_contains?: InputMaybe<Scalars['String']['input']>;
+  name_contains_i?: InputMaybe<Scalars['String']['input']>;
+  name_ends_with?: InputMaybe<Scalars['String']['input']>;
+  name_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  name_i?: InputMaybe<Scalars['String']['input']>;
+  name_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  name_not?: InputMaybe<Scalars['String']['input']>;
+  name_not_contains?: InputMaybe<Scalars['String']['input']>;
+  name_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  name_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  name_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  name_not_i?: InputMaybe<Scalars['String']['input']>;
+  name_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  name_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  name_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  name_starts_with?: InputMaybe<Scalars['String']['input']>;
+  name_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  newId?: InputMaybe<Scalars['String']['input']>;
+  newId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  newId_not?: InputMaybe<Scalars['String']['input']>;
+  newId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  organization?: InputMaybe<OrganizationWhereInput>;
+  organization_is_null?: InputMaybe<Scalars['Boolean']['input']>;
+  scope?: InputMaybe<AiSkillScopeType>;
+  scope_in?: InputMaybe<Array<InputMaybe<AiSkillScopeType>>>;
+  scope_not?: InputMaybe<AiSkillScopeType>;
+  scope_not_in?: InputMaybe<Array<InputMaybe<AiSkillScopeType>>>;
+  sender?: InputMaybe<SenderFieldInput>;
+  sender_in?: InputMaybe<Array<InputMaybe<SenderFieldInput>>>;
+  sender_not?: InputMaybe<SenderFieldInput>;
+  sender_not_in?: InputMaybe<Array<InputMaybe<SenderFieldInput>>>;
+  updatedAt?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_gt?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_gte?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  updatedAt_lt?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_lte?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_not?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  updatedBy?: InputMaybe<UserWhereInput>;
+  updatedBy_is_null?: InputMaybe<Scalars['Boolean']['input']>;
+  user?: InputMaybe<UserWhereInput>;
+  user_is_null?: InputMaybe<Scalars['Boolean']['input']>;
+  v?: InputMaybe<Scalars['Int']['input']>;
+  v_gt?: InputMaybe<Scalars['Int']['input']>;
+  v_gte?: InputMaybe<Scalars['Int']['input']>;
+  v_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  v_lt?: InputMaybe<Scalars['Int']['input']>;
+  v_lte?: InputMaybe<Scalars['Int']['input']>;
+  v_not?: InputMaybe<Scalars['Int']['input']>;
+  v_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+};
+
+export type AiSkillWhereUniqueInput = {
+  id: Scalars['ID']['input'];
+};
+
+export type AiSkillsCreateInput = {
+  data?: InputMaybe<AiSkillCreateInput>;
+};
+
+export type AiSkillsUpdateInput = {
+  data?: InputMaybe<AiSkillUpdateInput>;
+  id: Scalars['ID']['input'];
+};
+
 export type AcceptOrRejectOrganizationEmployeeRequestEmployeeDataInput = {
   role: OrganizationEmployeeRoleWhereUniqueInput;
 };
@@ -47260,6 +47918,14 @@ export type Mutation = {
    * }`
    */
   completeConfirmPhoneAction?: Maybe<CompleteConfirmPhoneActionOutput>;
+  /**  Create a single AISkill item.  */
+  createAISkill?: Maybe<AiSkill>;
+  /**  Create a single AISkillHistoryRecord item.  */
+  createAISkillHistoryRecord?: Maybe<AiSkillHistoryRecord>;
+  /**  Create multiple AISkillHistoryRecord items.  */
+  createAISkillHistoryRecords?: Maybe<Array<Maybe<AiSkillHistoryRecord>>>;
+  /**  Create multiple AISkill items.  */
+  createAISkills?: Maybe<Array<Maybe<AiSkill>>>;
   /**  Create a single AcquiringIntegration item.  */
   createAcquiringIntegration?: Maybe<AcquiringIntegration>;
   /**  Create a single AcquiringIntegrationAccessRight item.  */
@@ -48506,6 +49172,14 @@ export type Mutation = {
   createWebhookSubscriptions?: Maybe<Array<Maybe<WebhookSubscription>>>;
   /**  Create multiple Webhook items.  */
   createWebhooks?: Maybe<Array<Maybe<Webhook>>>;
+  /**  Delete a single AISkill item by ID.  */
+  deleteAISkill?: Maybe<AiSkill>;
+  /**  Delete a single AISkillHistoryRecord item by ID.  */
+  deleteAISkillHistoryRecord?: Maybe<AiSkillHistoryRecord>;
+  /**  Delete multiple AISkillHistoryRecord items by ID.  */
+  deleteAISkillHistoryRecords?: Maybe<Array<Maybe<AiSkillHistoryRecord>>>;
+  /**  Delete multiple AISkill items by ID.  */
+  deleteAISkills?: Maybe<Array<Maybe<AiSkill>>>;
   /**  Delete a single AcquiringIntegration item by ID.  */
   deleteAcquiringIntegration?: Maybe<AcquiringIntegration>;
   /**  Delete a single AcquiringIntegrationAccessRight item by ID.  */
@@ -52999,6 +53673,14 @@ export type Mutation = {
   syncTourSteps?: Maybe<SyncTourStepsOutput>;
   ticketMultipleUpdate: Ticket;
   unauthenticateUser?: Maybe<UnauthenticateUserOutput>;
+  /**  Update a single AISkill item by ID.  */
+  updateAISkill?: Maybe<AiSkill>;
+  /**  Update a single AISkillHistoryRecord item by ID.  */
+  updateAISkillHistoryRecord?: Maybe<AiSkillHistoryRecord>;
+  /**  Update multiple AISkillHistoryRecord items by ID.  */
+  updateAISkillHistoryRecords?: Maybe<Array<Maybe<AiSkillHistoryRecord>>>;
+  /**  Update multiple AISkill items by ID.  */
+  updateAISkills?: Maybe<Array<Maybe<AiSkill>>>;
   /**  Update a single AcquiringIntegration item by ID.  */
   updateAcquiringIntegration?: Maybe<AcquiringIntegration>;
   /**  Update a single AcquiringIntegrationAccessRight item by ID.  */
@@ -54412,6 +55094,26 @@ export type MutationCompleteConfirmEmailActionArgs = {
 
 export type MutationCompleteConfirmPhoneActionArgs = {
   data: CompleteConfirmPhoneActionInput;
+};
+
+
+export type MutationCreateAiSkillArgs = {
+  data?: InputMaybe<AiSkillCreateInput>;
+};
+
+
+export type MutationCreateAiSkillHistoryRecordArgs = {
+  data?: InputMaybe<AiSkillHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateAiSkillHistoryRecordsArgs = {
+  data?: InputMaybe<Array<InputMaybe<AiSkillHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationCreateAiSkillsArgs = {
+  data?: InputMaybe<Array<InputMaybe<AiSkillsCreateInput>>>;
 };
 
 
@@ -57532,6 +58234,26 @@ export type MutationCreateWebhookSubscriptionsArgs = {
 
 export type MutationCreateWebhooksArgs = {
   data?: InputMaybe<Array<InputMaybe<WebhooksCreateInput>>>;
+};
+
+
+export type MutationDeleteAiSkillArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteAiSkillHistoryRecordArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteAiSkillHistoryRecordsArgs = {
+  ids?: InputMaybe<Array<Scalars['ID']['input']>>;
+};
+
+
+export type MutationDeleteAiSkillsArgs = {
+  ids?: InputMaybe<Array<Scalars['ID']['input']>>;
 };
 
 
@@ -60887,6 +61609,28 @@ export type MutationSyncTourStepsArgs = {
 
 export type MutationTicketMultipleUpdateArgs = {
   data: TicketMultipleUpdateInput;
+};
+
+
+export type MutationUpdateAiSkillArgs = {
+  data?: InputMaybe<AiSkillUpdateInput>;
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationUpdateAiSkillHistoryRecordArgs = {
+  data?: InputMaybe<AiSkillHistoryRecordUpdateInput>;
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationUpdateAiSkillHistoryRecordsArgs = {
+  data?: InputMaybe<Array<InputMaybe<AiSkillHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationUpdateAiSkillsArgs = {
+  data?: InputMaybe<Array<InputMaybe<AiSkillsUpdateInput>>>;
 };
 
 
@@ -78222,6 +78966,10 @@ export enum QualityControlAdditionalOptionsType {
 
 export type Query = {
   __typename?: 'Query';
+  /**  Search for the AISkill item with the matching ID.  */
+  AISkill?: Maybe<AiSkill>;
+  /**  Search for the AISkillHistoryRecord item with the matching ID.  */
+  AISkillHistoryRecord?: Maybe<AiSkillHistoryRecord>;
   /**  Search for the AcquiringIntegration item with the matching ID.  */
   AcquiringIntegration?: Maybe<AcquiringIntegration>;
   /**  Search for the AcquiringIntegrationAccessRight item with the matching ID.  */
@@ -78844,6 +79592,10 @@ export type Query = {
   WebhookSubscription?: Maybe<WebhookSubscription>;
   /**  Search for the WebhookSubscriptionHistoryRecord item with the matching ID.  */
   WebhookSubscriptionHistoryRecord?: Maybe<WebhookSubscriptionHistoryRecord>;
+  /**  Retrieve the meta-data for the AISkillHistoryRecord list.  */
+  _AISkillHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Retrieve the meta-data for the AISkill list.  */
+  _AISkillsMeta?: Maybe<_ListMeta>;
   /**  Retrieve the meta-data for the AcquiringIntegrationAccessRightHistoryRecord list.  */
   _AcquiringIntegrationAccessRightHistoryRecordsMeta?: Maybe<_ListMeta>;
   /**  Retrieve the meta-data for the AcquiringIntegrationAccessRight list.  */
@@ -79466,6 +80218,10 @@ export type Query = {
   _WebhookSubscriptionsMeta?: Maybe<_ListMeta>;
   /**  Retrieve the meta-data for the Webhook list.  */
   _WebhooksMeta?: Maybe<_ListMeta>;
+  /**  Perform a meta-query on all AISkillHistoryRecord items which match the where clause.  */
+  _allAISkillHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Perform a meta-query on all AISkill items which match the where clause.  */
+  _allAISkillsMeta?: Maybe<_QueryMeta>;
   /**  Perform a meta-query on all AcquiringIntegrationAccessRightHistoryRecord items which match the where clause.  */
   _allAcquiringIntegrationAccessRightHistoryRecordsMeta?: Maybe<_QueryMeta>;
   /**  Perform a meta-query on all AcquiringIntegrationAccessRight items which match the where clause.  */
@@ -80140,6 +80896,10 @@ export type Query = {
   _allWebhooksMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for all lists.  */
   _ksListsMeta?: Maybe<Array<Maybe<_ListMeta>>>;
+  /**  Search for all AISkillHistoryRecord items which match the where clause.  */
+  allAISkillHistoryRecords?: Maybe<Array<Maybe<AiSkillHistoryRecord>>>;
+  /**  Search for all AISkill items which match the where clause.  */
+  allAISkills?: Maybe<Array<Maybe<AiSkill>>>;
   /**  Search for all AcquiringIntegrationAccessRightHistoryRecord items which match the where clause.  */
   allAcquiringIntegrationAccessRightHistoryRecords?: Maybe<Array<Maybe<AcquiringIntegrationAccessRightHistoryRecord>>>;
   /**  Search for all AcquiringIntegrationAccessRight items which match the where clause.  */
@@ -81067,6 +81827,16 @@ export type Query = {
   suggestServiceProvider?: Maybe<Array<SuggestServiceProviderOutput>>;
   ticketAnalyticsReport?: Maybe<TicketAnalyticsReportOutput>;
   ticketReportWidgetData?: Maybe<TicketReportWidgetOutput>;
+};
+
+
+export type QueryAiSkillArgs = {
+  where: AiSkillWhereUniqueInput;
+};
+
+
+export type QueryAiSkillHistoryRecordArgs = {
+  where: AiSkillHistoryRecordWhereUniqueInput;
 };
 
 
@@ -82622,6 +83392,26 @@ export type QueryWebhookSubscriptionArgs = {
 
 export type QueryWebhookSubscriptionHistoryRecordArgs = {
   where: WebhookSubscriptionHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllAiSkillHistoryRecordsMetaArgs = {
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Scalars['String']['input']>;
+  search?: InputMaybe<Scalars['String']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Array<SortAiSkillHistoryRecordsBy>>;
+  where?: InputMaybe<AiSkillHistoryRecordWhereInput>;
+};
+
+
+export type Query_AllAiSkillsMetaArgs = {
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Scalars['String']['input']>;
+  search?: InputMaybe<Scalars['String']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Array<SortAiSkillsBy>>;
+  where?: InputMaybe<AiSkillWhereInput>;
 };
 
 
@@ -85747,6 +86537,26 @@ export type Query_AllWebhooksMetaArgs = {
 
 export type Query_KsListsMetaArgs = {
   where?: InputMaybe<_KsListsMetaInput>;
+};
+
+
+export type QueryAllAiSkillHistoryRecordsArgs = {
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Scalars['String']['input']>;
+  search?: InputMaybe<Scalars['String']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Array<SortAiSkillHistoryRecordsBy>>;
+  where?: InputMaybe<AiSkillHistoryRecordWhereInput>;
+};
+
+
+export type QueryAllAiSkillsArgs = {
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Scalars['String']['input']>;
+  search?: InputMaybe<Scalars['String']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Array<SortAiSkillsBy>>;
+  where?: InputMaybe<AiSkillWhereInput>;
 };
 
 
@@ -93400,6 +94210,78 @@ export type SigninResidentUserOutput = {
   token: Scalars['String']['output'];
   user?: Maybe<User>;
 };
+
+export enum SortAiSkillHistoryRecordsBy {
+  AllowedToolsAsc = 'allowedTools_ASC',
+  AllowedToolsDesc = 'allowedTools_DESC',
+  CompatibilityAsc = 'compatibility_ASC',
+  CompatibilityDesc = 'compatibility_DESC',
+  ContentAsc = 'content_ASC',
+  ContentDesc = 'content_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DescriptionAsc = 'description_ASC',
+  DescriptionDesc = 'description_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  LicenseAsc = 'license_ASC',
+  LicenseDesc = 'license_DESC',
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
+  ScopeAsc = 'scope_ASC',
+  ScopeDesc = 'scope_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC'
+}
+
+export enum SortAiSkillsBy {
+  AllowedToolsAsc = 'allowedTools_ASC',
+  AllowedToolsDesc = 'allowedTools_DESC',
+  B2bAppAsc = 'b2bApp_ASC',
+  B2bAppDesc = 'b2bApp_DESC',
+  CompatibilityAsc = 'compatibility_ASC',
+  CompatibilityDesc = 'compatibility_DESC',
+  ContentAsc = 'content_ASC',
+  ContentDesc = 'content_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DescriptionAsc = 'description_ASC',
+  DescriptionDesc = 'description_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  LicenseAsc = 'license_ASC',
+  LicenseDesc = 'license_DESC',
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
+  OrganizationAsc = 'organization_ASC',
+  OrganizationDesc = 'organization_DESC',
+  ScopeAsc = 'scope_ASC',
+  ScopeDesc = 'scope_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  UserAsc = 'user_ASC',
+  UserDesc = 'user_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC'
+}
 
 export enum SortAcquiringIntegrationAccessRightHistoryRecordsBy {
   CreatedAtAsc = 'createdAt_ASC',
@@ -103280,6 +104162,8 @@ export enum SortUserRightsSetHistoryRecordsBy {
   CanExecuteAllPaymentsSumDesc = 'canExecute_allPaymentsSum_DESC',
   CanExecuteInternalSendHashedResidentPhonesAsc = 'canExecute_internalSendHashedResidentPhones_ASC',
   CanExecuteInternalSendHashedResidentPhonesDesc = 'canExecute_internalSendHashedResidentPhones_DESC',
+  CanManageAiSkillsAsc = 'canManageAISkills_ASC',
+  CanManageAiSkillsDesc = 'canManageAISkills_DESC',
   CanManageB2BAppAccessRightSetsAsc = 'canManageB2BAppAccessRightSets_ASC',
   CanManageB2BAppAccessRightSetsDesc = 'canManageB2BAppAccessRightSets_DESC',
   CanManageB2BAppAccessRightsAsc = 'canManageB2BAppAccessRights_ASC',
@@ -103334,6 +104218,8 @@ export enum SortUserRightsSetHistoryRecordsBy {
   CanManageUserRightsSetFieldDesc = 'canManageUserRightsSetField_DESC',
   CanManageUserRightsSetsAsc = 'canManageUserRightsSets_ASC',
   CanManageUserRightsSetsDesc = 'canManageUserRightsSets_DESC',
+  CanReadAiSkillsAsc = 'canReadAISkills_ASC',
+  CanReadAiSkillsDesc = 'canReadAISkills_DESC',
   CanReadB2BAppAccessRightSetsAsc = 'canReadB2BAppAccessRightSets_ASC',
   CanReadB2BAppAccessRightSetsDesc = 'canReadB2BAppAccessRightSets_DESC',
   CanReadB2BAppAccessRightsAsc = 'canReadB2BAppAccessRights_ASC',
@@ -103437,6 +104323,8 @@ export enum SortUserRightsSetsBy {
   CanExecuteAllPaymentsSumDesc = 'canExecute_allPaymentsSum_DESC',
   CanExecuteInternalSendHashedResidentPhonesAsc = 'canExecute_internalSendHashedResidentPhones_ASC',
   CanExecuteInternalSendHashedResidentPhonesDesc = 'canExecute_internalSendHashedResidentPhones_DESC',
+  CanManageAiSkillsAsc = 'canManageAISkills_ASC',
+  CanManageAiSkillsDesc = 'canManageAISkills_DESC',
   CanManageB2BAppAccessRightSetsAsc = 'canManageB2BAppAccessRightSets_ASC',
   CanManageB2BAppAccessRightSetsDesc = 'canManageB2BAppAccessRightSets_DESC',
   CanManageB2BAppAccessRightsAsc = 'canManageB2BAppAccessRights_ASC',
@@ -103491,6 +104379,8 @@ export enum SortUserRightsSetsBy {
   CanManageUserRightsSetFieldDesc = 'canManageUserRightsSetField_DESC',
   CanManageUserRightsSetsAsc = 'canManageUserRightsSets_ASC',
   CanManageUserRightsSetsDesc = 'canManageUserRightsSets_DESC',
+  CanReadAiSkillsAsc = 'canReadAISkills_ASC',
+  CanReadAiSkillsDesc = 'canReadAISkills_DESC',
   CanReadB2BAppAccessRightSetsAsc = 'canReadB2BAppAccessRightSets_ASC',
   CanReadB2BAppAccessRightSetsDesc = 'canReadB2BAppAccessRightSets_DESC',
   CanReadB2BAppAccessRightsAsc = 'canReadB2BAppAccessRights_ASC',
@@ -119042,6 +119932,8 @@ export type UserRightsSet = {
   canExecute_allPaymentsSum?: Maybe<Scalars['Boolean']['output']>;
   /**  Enables a user with the given UserRightsSet to execute "_internalSendHashedResidentPhones" query/mutation  */
   canExecute_internalSendHashedResidentPhones?: Maybe<Scalars['Boolean']['output']>;
+  /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "AISkill" similar to support users  */
+  canManageAISkills?: Maybe<Scalars['Boolean']['output']>;
   /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2BAppAccessRightSet" similar to support users  */
   canManageB2BAppAccessRightSets?: Maybe<Scalars['Boolean']['output']>;
   /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2BAppAccessRight" similar to support users  */
@@ -119096,6 +119988,8 @@ export type UserRightsSet = {
   canManageUserRightsSetField?: Maybe<Scalars['Boolean']['output']>;
   /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "UserRightsSet" similar to support users  */
   canManageUserRightsSets?: Maybe<Scalars['Boolean']['output']>;
+  /**  Enables a user with the given UserRightsSet to view all entities of model "AISkill" as support / admin users do  */
+  canReadAISkills?: Maybe<Scalars['Boolean']['output']>;
   /**  Enables a user with the given UserRightsSet to view all entities of model "B2BAppAccessRightSet" as support / admin users do  */
   canReadB2BAppAccessRightSets?: Maybe<Scalars['Boolean']['output']>;
   /**  Enables a user with the given UserRightsSet to view all entities of model "B2BAppAccessRight" as support / admin users do  */
@@ -119188,6 +120082,7 @@ export type UserRightsSetCreateInput = {
   canExecute_allBillingReceiptsSum?: InputMaybe<Scalars['Boolean']['input']>;
   canExecute_allPaymentsSum?: InputMaybe<Scalars['Boolean']['input']>;
   canExecute_internalSendHashedResidentPhones?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageAISkills?: InputMaybe<Scalars['Boolean']['input']>;
   canManageB2BAppAccessRightSets?: InputMaybe<Scalars['Boolean']['input']>;
   canManageB2BAppAccessRights?: InputMaybe<Scalars['Boolean']['input']>;
   canManageB2BAppContexts?: InputMaybe<Scalars['Boolean']['input']>;
@@ -119215,6 +120110,7 @@ export type UserRightsSetCreateInput = {
   canManageUserHasMarketingConsentField?: InputMaybe<Scalars['Boolean']['input']>;
   canManageUserRightsSetField?: InputMaybe<Scalars['Boolean']['input']>;
   canManageUserRightsSets?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadAISkills?: InputMaybe<Scalars['Boolean']['input']>;
   canReadB2BAppAccessRightSets?: InputMaybe<Scalars['Boolean']['input']>;
   canReadB2BAppAccessRights?: InputMaybe<Scalars['Boolean']['input']>;
   canReadB2BAppContexts?: InputMaybe<Scalars['Boolean']['input']>;
@@ -119279,6 +120175,7 @@ export type UserRightsSetHistoryRecord = {
   canExecute_allBillingReceiptsSum?: Maybe<Scalars['Boolean']['output']>;
   canExecute_allPaymentsSum?: Maybe<Scalars['Boolean']['output']>;
   canExecute_internalSendHashedResidentPhones?: Maybe<Scalars['Boolean']['output']>;
+  canManageAISkills?: Maybe<Scalars['Boolean']['output']>;
   canManageB2BAppAccessRightSets?: Maybe<Scalars['Boolean']['output']>;
   canManageB2BAppAccessRights?: Maybe<Scalars['Boolean']['output']>;
   canManageB2BAppContexts?: Maybe<Scalars['Boolean']['output']>;
@@ -119306,6 +120203,7 @@ export type UserRightsSetHistoryRecord = {
   canManageUserHasMarketingConsentField?: Maybe<Scalars['Boolean']['output']>;
   canManageUserRightsSetField?: Maybe<Scalars['Boolean']['output']>;
   canManageUserRightsSets?: Maybe<Scalars['Boolean']['output']>;
+  canReadAISkills?: Maybe<Scalars['Boolean']['output']>;
   canReadB2BAppAccessRightSets?: Maybe<Scalars['Boolean']['output']>;
   canReadB2BAppAccessRights?: Maybe<Scalars['Boolean']['output']>;
   canReadB2BAppContexts?: Maybe<Scalars['Boolean']['output']>;
@@ -119364,6 +120262,7 @@ export type UserRightsSetHistoryRecordCreateInput = {
   canExecute_allBillingReceiptsSum?: InputMaybe<Scalars['Boolean']['input']>;
   canExecute_allPaymentsSum?: InputMaybe<Scalars['Boolean']['input']>;
   canExecute_internalSendHashedResidentPhones?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageAISkills?: InputMaybe<Scalars['Boolean']['input']>;
   canManageB2BAppAccessRightSets?: InputMaybe<Scalars['Boolean']['input']>;
   canManageB2BAppAccessRights?: InputMaybe<Scalars['Boolean']['input']>;
   canManageB2BAppContexts?: InputMaybe<Scalars['Boolean']['input']>;
@@ -119391,6 +120290,7 @@ export type UserRightsSetHistoryRecordCreateInput = {
   canManageUserHasMarketingConsentField?: InputMaybe<Scalars['Boolean']['input']>;
   canManageUserRightsSetField?: InputMaybe<Scalars['Boolean']['input']>;
   canManageUserRightsSets?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadAISkills?: InputMaybe<Scalars['Boolean']['input']>;
   canReadB2BAppAccessRightSets?: InputMaybe<Scalars['Boolean']['input']>;
   canReadB2BAppAccessRights?: InputMaybe<Scalars['Boolean']['input']>;
   canReadB2BAppContexts?: InputMaybe<Scalars['Boolean']['input']>;
@@ -119454,6 +120354,7 @@ export type UserRightsSetHistoryRecordUpdateInput = {
   canExecute_allBillingReceiptsSum?: InputMaybe<Scalars['Boolean']['input']>;
   canExecute_allPaymentsSum?: InputMaybe<Scalars['Boolean']['input']>;
   canExecute_internalSendHashedResidentPhones?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageAISkills?: InputMaybe<Scalars['Boolean']['input']>;
   canManageB2BAppAccessRightSets?: InputMaybe<Scalars['Boolean']['input']>;
   canManageB2BAppAccessRights?: InputMaybe<Scalars['Boolean']['input']>;
   canManageB2BAppContexts?: InputMaybe<Scalars['Boolean']['input']>;
@@ -119481,6 +120382,7 @@ export type UserRightsSetHistoryRecordUpdateInput = {
   canManageUserHasMarketingConsentField?: InputMaybe<Scalars['Boolean']['input']>;
   canManageUserRightsSetField?: InputMaybe<Scalars['Boolean']['input']>;
   canManageUserRightsSets?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadAISkills?: InputMaybe<Scalars['Boolean']['input']>;
   canReadB2BAppAccessRightSets?: InputMaybe<Scalars['Boolean']['input']>;
   canReadB2BAppAccessRights?: InputMaybe<Scalars['Boolean']['input']>;
   canReadB2BAppContexts?: InputMaybe<Scalars['Boolean']['input']>;
@@ -119549,6 +120451,8 @@ export type UserRightsSetHistoryRecordWhereInput = {
   canExecute_allPaymentsSum_not?: InputMaybe<Scalars['Boolean']['input']>;
   canExecute_internalSendHashedResidentPhones?: InputMaybe<Scalars['Boolean']['input']>;
   canExecute_internalSendHashedResidentPhones_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageAISkills?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageAISkills_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageB2BAppAccessRightSets?: InputMaybe<Scalars['Boolean']['input']>;
   canManageB2BAppAccessRightSets_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageB2BAppAccessRights?: InputMaybe<Scalars['Boolean']['input']>;
@@ -119603,6 +120507,8 @@ export type UserRightsSetHistoryRecordWhereInput = {
   canManageUserRightsSetField_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageUserRightsSets?: InputMaybe<Scalars['Boolean']['input']>;
   canManageUserRightsSets_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadAISkills?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadAISkills_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadB2BAppAccessRightSets?: InputMaybe<Scalars['Boolean']['input']>;
   canReadB2BAppAccessRightSets_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadB2BAppAccessRights?: InputMaybe<Scalars['Boolean']['input']>;
@@ -119793,6 +120699,7 @@ export type UserRightsSetUpdateInput = {
   canExecute_allBillingReceiptsSum?: InputMaybe<Scalars['Boolean']['input']>;
   canExecute_allPaymentsSum?: InputMaybe<Scalars['Boolean']['input']>;
   canExecute_internalSendHashedResidentPhones?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageAISkills?: InputMaybe<Scalars['Boolean']['input']>;
   canManageB2BAppAccessRightSets?: InputMaybe<Scalars['Boolean']['input']>;
   canManageB2BAppAccessRights?: InputMaybe<Scalars['Boolean']['input']>;
   canManageB2BAppContexts?: InputMaybe<Scalars['Boolean']['input']>;
@@ -119820,6 +120727,7 @@ export type UserRightsSetUpdateInput = {
   canManageUserHasMarketingConsentField?: InputMaybe<Scalars['Boolean']['input']>;
   canManageUserRightsSetField?: InputMaybe<Scalars['Boolean']['input']>;
   canManageUserRightsSets?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadAISkills?: InputMaybe<Scalars['Boolean']['input']>;
   canReadB2BAppAccessRightSets?: InputMaybe<Scalars['Boolean']['input']>;
   canReadB2BAppAccessRights?: InputMaybe<Scalars['Boolean']['input']>;
   canReadB2BAppContexts?: InputMaybe<Scalars['Boolean']['input']>;
@@ -119885,6 +120793,8 @@ export type UserRightsSetWhereInput = {
   canExecute_allPaymentsSum_not?: InputMaybe<Scalars['Boolean']['input']>;
   canExecute_internalSendHashedResidentPhones?: InputMaybe<Scalars['Boolean']['input']>;
   canExecute_internalSendHashedResidentPhones_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageAISkills?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageAISkills_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageB2BAppAccessRightSets?: InputMaybe<Scalars['Boolean']['input']>;
   canManageB2BAppAccessRightSets_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageB2BAppAccessRights?: InputMaybe<Scalars['Boolean']['input']>;
@@ -119939,6 +120849,8 @@ export type UserRightsSetWhereInput = {
   canManageUserRightsSetField_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageUserRightsSets?: InputMaybe<Scalars['Boolean']['input']>;
   canManageUserRightsSets_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadAISkills?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadAISkills_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadB2BAppAccessRightSets?: InputMaybe<Scalars['Boolean']['input']>;
   canReadB2BAppAccessRightSets_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadB2BAppAccessRights?: InputMaybe<Scalars['Boolean']['input']>;

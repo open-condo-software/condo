@@ -65,7 +65,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
         }
     }, [auth, sendSignOutToBroadcast, goToAfterLogout])
 
-    const isCoworkPage = router.pathname?.startsWith('/cowork')
+    const isCoworkPage = router.pathname?.startsWith('/ai-engineer')
     const BackToCondoLabel = intl.formatMessage({ id: 'ai.cowork.backToCondo' })
 
     const menu = useMemo<DropdownProps['menu']>(() => {

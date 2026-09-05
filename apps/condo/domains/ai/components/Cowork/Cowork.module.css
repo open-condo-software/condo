@@ -2,28 +2,39 @@
 .side-menu-logo {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   width: 100%;
+  /* Expanded: .logo-container has 19px left padding. Add 13px to match the
+     collapsed icon position (32px from sidebar edge) so the icon stays put
+     when toggling the sidebar. */
+  padding-left: 13px;
+  box-sizing: border-box;
+}
+
+/* Collapsed: .logo-container already has 32px left padding, reset our offset */
+:global(.ant-layout-sider-collapsed) .side-menu-logo {
+  padding-left: 0;
 }
 
 .logo-cowork {
   position: relative;
   display: inline-flex;
+  gap: var(--condo-global-spacing-8);
   align-items: center;
   height: 32px;
 }
 
-.logo-cowork-robot {
-  position: absolute;
-  top: -4px;
-  right: -8px;
-  font-size: 16px;
-  line-height: 1;
-  pointer-events: none;
+.logo-cowork-title {
+  gap: var(--condo-global-spacing-8);
+  animation: logo-cowork-title-in 0.3s ease 0.15s 1 both;
 }
 
-.logo-cowork-title {
-  animation: logo-cowork-title-in 0.3s ease 0.15s 1 both;
+.logo-cowork-title :global(.condo-typography) {
+  white-space: nowrap;
+  font-weight: 700;
+  /* Shift text down to align with the house body (green part), not the full
+     icon height which includes the sun overhang at the top. */
+  transform: translateY(3px);
 }
 
 @keyframes logo-cowork-title-in {
@@ -181,6 +192,7 @@
 
 /* Welcome screen */
 .welcome-screen {
+  position: relative;
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -188,6 +200,43 @@
   align-items: center;
   justify-content: center;
   padding: var(--condo-global-spacing-24);
+  overflow: hidden;
+}
+
+/* Subtle Doma.ai outline watermark — large, right-aligned, behind the welcome content.
+   Disappears with the welcome screen when the user sends the first message. */
+.welcome-watermark {
+  position: absolute;
+  top: 50%;
+  right: -10%;
+  z-index: 0;
+  width: 120vh;
+  max-width: 1040px;
+  height: 120vh;
+  max-height: 1040px;
+  transform: translateY(-50%);
+  color: var(--condo-global-color-gray-3);
+  opacity: 0.5;
+  pointer-events: none;
+  animation: welcome-watermark-in 0.6s ease 0.2s 1 both;
+}
+
+@keyframes welcome-watermark-in {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) scale(0.92);
+  }
+
+  to {
+    opacity: 0.5;
+    transform: translateY(-50%) scale(1);
+  }
+}
+
+/* Keep welcome content above the watermark */
+.welcome-screen > *:not(.welcome-watermark) {
+  position: relative;
+  z-index: 1;
 }
 
 .welcome-title {
@@ -209,6 +258,72 @@
 .welcome-input-wrapper {
   width: 100%;
   max-width: 640px;
+}
+
+/* Welcome screen — engineer persona enhancements */
+.welcome-hero-logo {
+  flex-shrink: 0;
+  margin-bottom: var(--condo-global-spacing-8);
+  opacity: 0;
+  animation: welcome-hero-fade-in 0.4s ease 0.1s 1 both;
+}
+
+@keyframes welcome-hero-fade-in {
+  from {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.welcome-capabilities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--condo-global-spacing-8);
+  align-items: center;
+  justify-content: center;
+  max-width: 640px;
+}
+
+.welcome-capabilities-label {
+  color: var(--condo-global-color-gray-7);
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.welcome-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--condo-global-spacing-8);
+  align-items: center;
+  justify-content: center;
+  max-width: 640px;
+  margin-top: var(--condo-global-spacing-4);
+}
+
+/* Make the antd Space fill the full width so its pill buttons center and wrap
+   uniformly within the .welcome-suggestions container. Space is inline-flex by
+   default and shrinks to content, which left-aligns the tags. */
+.welcome-suggestions :global(.condo-space) {
+  justify-content: center;
+  width: 100%;
+}
+
+.suggestionButton {
+  border-radius: 999px !important;
+  background: var(--condo-global-color-gray-1) !important;
+  border-color: transparent !important;
+  color: var(--condo-global-color-gray-7) !important;
+}
+
+.suggestionButton:hover:not(:disabled) {
+  background: var(--condo-global-color-gray-3) !important;
+  border-color: transparent !important;
+  color: var(--condo-global-color-gray-7) !important;
 }
 
 /* Chat content (full width, contains the chat container) */

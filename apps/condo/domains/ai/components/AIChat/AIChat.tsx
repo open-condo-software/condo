@@ -1,9 +1,13 @@
+import { Popover } from 'antd'
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState, useMemo } from 'react'
 import { v4 as uuidV4 } from 'uuid'
 
+import { Check, Plus } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { Button, Space, Tag } from '@open-condo/ui'
+import { colors } from '@open-condo/ui/colors'
 
 import { CHAT_WITH_CONDO_FLOW_TYPE, TASK_STATUSES } from '@condo/domains/ai/constants'
 import { useAIChatAttachments, type AIChatAttachmentMeta } from '@condo/domains/ai/hooks/useAIChatAttachments'
@@ -32,11 +36,17 @@ type ExecuteAIMessageOptions = {
     attachments?: AIChatAttachmentMeta[]
 }
 
+type AISkillRef = { id: string, name: string, description: string, content: string, allowedTools?: string, examples?: string[] }
+
 type AIChatProps = {
     aiSessionId: string
     initialMessage?: string
     onFirstUserMessage?: (text: string) => void
     showWelcomeMessage?: boolean
+    selectedSkills?: AISkillRef[]
+    availableSkills?: AISkillRef[]
+    selectedSkillId?: string | null
+    onSkillSelect?: (skillId: string | null) => void
 }
 
 export const AIChat: React.FC<AIChatProps> = ({
@@ -44,6 +54,10 @@ export const AIChat: React.FC<AIChatProps> = ({
     initialMessage,
     onFirstUserMessage,
     showWelcomeMessage = true,
+    selectedSkills,
+    availableSkills,
+    selectedSkillId,
+    onSkillSelect,
 }) => {
     const intl = useIntl()
     const loadingLabel = intl.formatMessage({ id: 'ai.chat.loading' })
@@ -75,6 +89,12 @@ export const AIChat: React.FC<AIChatProps> = ({
     const [messages, setMessages] = useState<Message[]>([])
     // User message id of the turn currently pinned/clamped in the scroller
     const [activeTurnUserMessageId, setActiveTurnUserMessageId] = useState<string | null>(null)
+    const [skillPickerOpen, setSkillPickerOpen] = useState(false)
+
+    const selectedSkillName = useMemo(() => {
+        if (selectedSkills?.length) return selectedSkills[0].name
+        return null
+    }, [selectedSkills])
 
     const messagesContainerRef = useRef<HTMLDivElement>(null)
     const chatContainerRef = useRef<HTMLDivElement>(null)
@@ -464,6 +484,15 @@ export const AIChat: React.FC<AIChatProps> = ({
                         userId: user.id,
                         organizationId: organization?.id,
                         ...options.additionalContext,
+                        ...(selectedSkills?.length ? {
+                            selectedSkills: selectedSkills.map(s => ({
+                                name: s.name,
+                                description: s.description,
+                                content: s.content,
+                                ...(s.allowedTools ? { allowedTools: s.allowedTools } : {}),
+                                ...(s.examples ? { examples: s.examples } : {}),
+                            })),
+                        } : {}),
                     },
                     ...(options.attachments?.length ? { attachments: options.attachments } : {}),
                     ...(options.scenarioButtonId ? { button_id: options.scenarioButtonId } : {}),
@@ -479,7 +508,7 @@ export const AIChat: React.FC<AIChatProps> = ({
                 })
             }
         })()
-    }, [user, organization, execute, finalizeAssistantMessage, changeMessage, errorMessage, loadingLabel])
+    }, [user, organization, execute, finalizeAssistantMessage, changeMessage, errorMessage, loadingLabel, selectedSkills])
 
     const handleSendMessage = useCallback(async () => {
         const overrideInput = initialMessageOverrideRef.current
@@ -504,6 +533,7 @@ export const AIChat: React.FC<AIChatProps> = ({
             id: uuidV4(),
             content: {
                 text: trimmedInput,
+                ...(selectedSkillName ? { skillName: selectedSkillName } : {}),
                 ...(attachmentsToSend.length ? {
                     attachments: attachmentsToSend.map(({ name, mimeType }) => ({ name, mimeType })),
                 } : {}),
@@ -518,7 +548,7 @@ export const AIChat: React.FC<AIChatProps> = ({
         attachments?.resetAttachments()
 
         await startUserTurn(userMessage, { attachments: attachmentsToSend })
-    }, [inputValue, canSendWithAttachments, loading, attachmentsUploading, user, attachments, messages, startUserTurn, onFirstUserMessage])
+    }, [inputValue, canSendWithAttachments, loading, attachmentsUploading, user, attachments, messages, startUserTurn, onFirstUserMessage, selectedSkillName])
 
     // Auto-send the initial message once, after history load, if the session has no user messages yet
     useEffect(() => {
@@ -593,6 +623,62 @@ export const AIChat: React.FC<AIChatProps> = ({
         }
     }, [canExecuteAIFlow, canSendMessage, handleSendMessage])
 
+    const skillPickerButton = useMemo(() => {
+        if (!availableSkills?.length || !onSkillSelect) return null
+
+        return (
+            <Popover
+                key='ai-chat-skill-picker'
+                trigger='click'
+                placement='topLeft'
+                open={skillPickerOpen}
+                onOpenChange={setSkillPickerOpen}
+                content={
+                    <div style={{ maxWidth: 280 }}>
+                        <Space direction='vertical' size={4} width='100%'>
+                            {availableSkills.slice(0, 10).map((skill) => {
+                                const isSelected = skill.id === selectedSkillId
+                                return (
+                                    <Button
+                                        key={skill.id}
+                                        type='secondary'
+                                        size='small'
+                                        block
+                                        icon={isSelected ? <Check size='small' /> : undefined}
+                                        onClick={() => {
+                                            onSkillSelect(isSelected ? null : skill.id)
+                                            setSkillPickerOpen(false)
+                                        }}
+                                    >
+                                        {skill.name}
+                                    </Button>
+                                )
+                            })}
+                        </Space>
+                    </div>
+                }
+            >
+                <Button
+                    type='secondary'
+                    size='medium'
+                    minimal
+                    compact
+                    icon={<Plus size='small' />}
+                />
+            </Popover>
+        )
+    }, [availableSkills, onSkillSelect, skillPickerOpen, selectedSkillId])
+
+    const selectedSkillTag = selectedSkillName ? (
+        <Tag
+            key='ai-chat-selected-skill-tag'
+            textColor={colors.purple['7']}
+            bgColor={colors.purple['1']}
+        >
+            {selectedSkillName}
+        </Tag>
+    ) : null
+
     return (
         <div ref={chatContainerRef} className={styles.chatContainer}>
             <div ref={messagesContainerRef}
@@ -651,6 +737,10 @@ export const AIChat: React.FC<AIChatProps> = ({
                 onInputKeyDown={handleComposerKeyDown}
                 onSendMessage={handleSendMessage}
                 placeholder={placeholder}
+                extraBottomPanelUtils={[
+                    ...(skillPickerButton ? [skillPickerButton] : []),
+                    ...(selectedSkillTag ? [selectedSkillTag] : []),
+                ]}
             />
         </div>
     )

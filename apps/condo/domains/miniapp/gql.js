@@ -63,7 +63,7 @@ const B2BAppPosIntegrationConfig = generateGqlQueries('B2BAppPosIntegrationConfi
 const B2B_APP_FIELDS = `{ name logo { publicUrl } icon shortDescription detailedDescription newsSharingConfig ${B2B_APP_NEWS_SHARING_CONFIG_FIELDS} meterIntegrationConfig ${B2B_APP_METER_INTEGRATION_CONFIG_FIELDS} posIntegrationConfig ${B2B_APP_POS_INTEGRATION_CONFIG_FIELDS} developer developerUrl appUrl category label gallery price features additionalDomains isDomainsMappingEnabled domains { mapping { from to } } subscriptionPlans { id name organizationType } ${COMMON_FIELDS} }`
 const B2BApp = generateGqlQueries('B2BApp', B2B_APP_FIELDS)
 
-const B2B_APP_CONTEXT_FIELDS = `{ app { id name appUrl domains { mapping { from to } } ${B2B_APP_DEVICE_PERMISSIONS.map(getDevicePermissionFieldName).join(' ')} icon menuCategory hasDynamicTitle newsSharingConfig ${B2B_APP_NEWS_SHARING_CONFIG_FIELDS} meterIntegrationConfig ${B2B_APP_METER_INTEGRATION_CONFIG_FIELDS} posIntegrationConfig ${B2B_APP_POS_INTEGRATION_CONFIG_FIELDS} } organization { id } status ${COMMON_FIELDS} }`
+const B2B_APP_CONTEXT_FIELDS = `{ app { id name appUrl category shortDescription logo { id publicUrl } domains { mapping { from to } } ${B2B_APP_DEVICE_PERMISSIONS.map(getDevicePermissionFieldName).join(' ')} icon menuCategory hasDynamicTitle newsSharingConfig ${B2B_APP_NEWS_SHARING_CONFIG_FIELDS} meterIntegrationConfig ${B2B_APP_METER_INTEGRATION_CONFIG_FIELDS} posIntegrationConfig ${B2B_APP_POS_INTEGRATION_CONFIG_FIELDS} } organization { id } status ${COMMON_FIELDS} }`
 const B2BAppContext = generateGqlQueries('B2BAppContext', B2B_APP_CONTEXT_FIELDS)
 
 const B2B_ACCESSES_LISTS_FIELDS = Object.keys(B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS.lists)
