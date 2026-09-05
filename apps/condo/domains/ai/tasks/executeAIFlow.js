@@ -17,9 +17,10 @@ const {
     EXECUTION_AI_FLOW_TASK_FILE_MODEL_NAME,
 } = require('@condo/domains/ai/constants')
 const { CUSTOM_FLOW_TYPES_LIST, AI_FLOWS_CONFIG } = require('@condo/domains/ai/utils/flowsConfig')
-const { ExecutionAIFlowTask } = require('@condo/domains/ai/utils/serverSchema')
+const { ExecutionAIFlowTask, AISkill } = require('@condo/domains/ai/utils/serverSchema')
 const { restoreSensitiveData, removeSensitiveDataFromObj } = require('@condo/domains/ai/utils/serverSchema/removeSensitiveDataFromObj')
 const { TASK_WORKER_FINGERPRINT } = require('@condo/domains/common/constants/tasks')
+const { getEmployedOrganizationsByPermissions } = require('@condo/domains/organization/utils/accessSchema')
 
 const {
     FLOW_META_SCHEMAS,
@@ -152,6 +153,43 @@ const executeAIFlow = async (executionAIFlowTask, additionalContext = {}) => {
             }
 
             fullContext.attachments = resolvedAttachments
+        }
+
+        // Resolve selected skill IDs to full skill objects server-side, verifying the user has read access.
+        // The client sends only IDs to prevent forging of skill content or allowedTools.
+        if (
+            task.flowType === CHAT_WITH_CONDO_FLOW_TYPE
+            && fullContext.userData
+            && Array.isArray(fullContext.userData.selectedSkillIds)
+            && fullContext.userData.selectedSkillIds.length > 0
+        ) {
+            const skillIds = fullContext.userData.selectedSkillIds
+            const sudoContext = context.createContext({ skipAccessControl: true })
+
+            const skills = await AISkill.getAll(sudoContext, {
+                id_in: skillIds,
+                deletedAt: null,
+            }, '{ id name description content allowedTools examples scope organization { id } user { id } b2bApp { id } }')
+
+            // Verify the user has read access to each skill based on its scope
+            const userId = task.user.id
+            const employedOrganizationIds = await getEmployedOrganizationsByPermissions(context, { id: userId }, [])
+
+            const authorizedSkills = skills.filter(skill => {
+                if (skill.scope === 'global') return true
+                if (skill.scope === 'organization') return employedOrganizationIds.includes(skill.organization?.id)
+                if (skill.scope === 'personal') return skill.user?.id === userId
+                return false
+            })
+
+            fullContext.userData.selectedSkills = authorizedSkills.map(s => ({
+                name: s.name,
+                description: s.description,
+                content: s.content,
+                ...(s.allowedTools ? { allowedTools: s.allowedTools } : {}),
+                ...(Array.isArray(s.examples) ? { examples: s.examples } : {}),
+            }))
+            delete fullContext.userData.selectedSkillIds
         }
 
         let prediction

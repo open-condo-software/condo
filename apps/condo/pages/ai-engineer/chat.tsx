@@ -98,6 +98,13 @@ const CoworkPage: PageComponentType = () => {
         })
     }, [aiSkills, userId, organizationId, connectedAppIds])
 
+    // Clear an invalid selected skill (e.g. an integration skill whose app is no longer connected)
+    useEffect(() => {
+        if (!selectedSkillId) return
+        const isVisible = (visibleSkills || []).some(s => s.id === selectedSkillId)
+        if (!isVisible) setSelectedSkillId(null)
+    }, [selectedSkillId, visibleSkills])
+
     const suggestions = useMemo(() => {
         const skillExamples = (visibleSkills || []).flatMap((skill) =>
             Array.isArray(skill.examples) ? skill.examples : []
@@ -365,7 +372,7 @@ const CoworkPage: PageComponentType = () => {
                     </div>
                     <div className={coworkStyles.welcomeInputWrapper}>
                         {selectedSkillId && (() => {
-                            const skill = (aiSkills || []).find(s => s.id === selectedSkillId)
+                            const skill = (visibleSkills || []).find(s => s.id === selectedSkillId)
                             if (!skill) return null
                             return (
                                 <div style={{ marginBottom: 8 }}>
@@ -455,7 +462,7 @@ const CoworkPage: PageComponentType = () => {
 
         const selectedSkillObjects = selectedSkillId
             ? (() => {
-                const s = (aiSkills || []).find(skill => skill.id === selectedSkillId)
+                const s = (visibleSkills || []).find(skill => skill.id === selectedSkillId)
                 if (!s) return []
                 return [{
                     id: s.id,

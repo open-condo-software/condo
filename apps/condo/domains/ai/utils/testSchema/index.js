@@ -54,6 +54,10 @@ async function createTestAISkill (client, extraAttrs = {}) {
     const attrs = {
         dv: 1,
         sender,
+        name: `test-skill-${faker.datatype.uuid()}`,
+        description: faker.lorem.sentence(),
+        content: faker.lorem.paragraph(),
+        scope: 'global',
         ...extraAttrs,
     }
     const obj = await AISkill.create(client, attrs)

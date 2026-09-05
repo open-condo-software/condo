@@ -485,13 +485,7 @@ export const AIChat: React.FC<AIChatProps> = ({
                         organizationId: organization?.id,
                         ...options.additionalContext,
                         ...(selectedSkills?.length ? {
-                            selectedSkills: selectedSkills.map(s => ({
-                                name: s.name,
-                                description: s.description,
-                                content: s.content,
-                                ...(s.allowedTools ? { allowedTools: s.allowedTools } : {}),
-                                ...(s.examples ? { examples: s.examples } : {}),
-                            })),
+                            selectedSkillIds: selectedSkills.map(s => s.id),
                         } : {}),
                     },
                     ...(options.attachments?.length ? { attachments: options.attachments } : {}),

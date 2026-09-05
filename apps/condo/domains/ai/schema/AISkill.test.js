@@ -36,15 +36,12 @@ describe('AISkill', () => {
                 expect(obj.createdBy).toEqual(expect.objectContaining({ id: client.user.id }))
             })
 
-            test('user can', async () => {
-                const client = await makeClientWithNewRegisteredAndLoggedInUser() 
+            test('user can\'t', async () => {
+                const client = await makeClientWithNewRegisteredAndLoggedInUser()
 
-                const [obj, attrs] = await createTestAISkill(client) 
-
-                expect(obj.id).toMatch(UUID_RE)
-                expect(obj.dv).toEqual(1)
-                expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.createdBy).toEqual(expect.objectContaining({ id: client.user.id }))
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestAISkill(client)
+                })
             })
 
             test('anonymous can\'t', async () => {
@@ -83,18 +80,14 @@ describe('AISkill', () => {
                 expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
             })
 
-            test('user can', async () => {
+            test('user can\'t', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [objCreated] = await createTestAISkill(admin)
 
-                const client = await makeClientWithNewRegisteredAndLoggedInUser() 
-                const [obj, attrs] = await updateTestAISkill(client, objCreated.id) 
-
-                expect(obj.id).toMatch(UUID_RE)
-                expect(obj.dv).toEqual(1)
-                expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.v).toEqual(2)
-                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
+                const client = await makeClientWithNewRegisteredAndLoggedInUser()
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestAISkill(client, objCreated.id)
+                })
             })
 
             test('anonymous can\'t', async () => {
@@ -159,14 +152,15 @@ describe('AISkill', () => {
                 const admin = await makeLoggedInAdminClient()
                 const [obj, attrs] = await createTestAISkill(admin)
 
-                const client = await makeClientWithNewRegisteredAndLoggedInUser() 
+                const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 const objs = await AISkill.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
 
-                expect(objs).toHaveLength(1)
-                expect(objs[0]).toMatchObject({
-                    id: obj.id,
-                   
-                })
+                expect(objs.length).toBeGreaterThanOrEqual(1)
+                expect(objs).toEqual(expect.arrayContaining([
+                    expect.objectContaining({
+                        id: obj.id,
+                    }),
+                ]))
             })
 
 

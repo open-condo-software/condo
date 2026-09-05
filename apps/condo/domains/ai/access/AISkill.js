@@ -4,18 +4,32 @@
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
-const { canDirectlyManageSchemaObjects } = require('@condo/domains/user/utils/directAccess')
+const { getEmployedOrganizationsByPermissions } = require('@condo/domains/organization/utils/accessSchema')
+const { canDirectlyManageSchemaObjects, canDirectlyReadSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
 /**
- * AISkills can be read by any authed non-deleted user:
+ * AISkills read access is enforced server-side by scope:
  * 1. Admin / support → all skills
- * 2. Any authed user → all skills (skills are globally readable; availability gating happens on frontend)
+ * 2. Direct access users → all skills
+ * 3. Any authed user → global skills + organization-scoped skills for orgs they belong to + their own personal skills
  */
-async function canReadAISkills ({ authentication: { item: user } }) {
+async function canReadAISkills ({ authentication: { item: user }, context, listKey }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
+    if (user.isAdmin || user.isSupport) return {}
 
-    return {}
+    const hasDirectAccess = await canDirectlyReadSchemaObjects(user, listKey)
+    if (hasDirectAccess) return {}
+
+    const employedOrganizationIds = await getEmployedOrganizationsByPermissions(context, user, [])
+
+    return {
+        OR: [
+            { scope: 'global' },
+            { scope: 'organization', organization: { id_in: employedOrganizationIds } },
+            { scope: 'personal', user: { id: user.id } },
+        ],
+    }
 }
 
 /**
