@@ -1,8 +1,8 @@
 import Router from 'next/router'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
-import { ChevronDown, ChevronUp, PlusCircle, Rocket, Settings, Smartphone, Star, Subtitles } from '@open-condo/icons'
+import { ChevronDown, ChevronUp, PlusCircle, Rocket, Services, Settings, Star, Subtitles } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 
 import BaseLayout from '@condo/domains/common/components/containers/BaseLayout'
@@ -36,24 +36,6 @@ const makeSectionLabel = (text: string, open: boolean, collapsed: boolean) => {
 }
 
 
-const MAIN_MENU_ITEMS = [
-    {
-        path: '/cowork/miniapps',
-        key: 'miniapps',
-        id: 'miniapps',
-        label: 'ai.cowork.myMiniapps',
-        icon: Smartphone,
-    },
-    {
-        path: '/cowork/skills',
-        key: 'skills',
-        id: 'skills',
-        label: 'ai.cowork.skills',
-        icon: Rocket,
-    },
-]
-
-
 const CoworkSideMenu: React.FC = () => {
     const { isCollapsed, toggleCollapsed } = useLayoutContext()
     const intl = useIntl()
@@ -62,10 +44,21 @@ const CoworkSideMenu: React.FC = () => {
     const settingsEnabled = useFlag(UI_AI_COWORK_SETTINGS)
     const { chats } = useAiAssistantsChatStorage()
 
+    const pinnedChatsLabel = intl.formatMessage({ id: 'ai.cowork.pinnedChats' })
     const chatsLabel = intl.formatMessage({ id: 'ai.cowork.chats' })
 
     const stored = sectionOpenManager.getItem(CHAT_SECTION_OPEN_KEY) || {}
+    const [pinnedOpen, setPinnedOpen] = useState(stored.pinned !== false)
     const [chatsOpen, setChatsOpen] = useState(stored.chats !== false)
+
+    const togglePinned = useCallback(() => {
+        setPinnedOpen((v) => {
+            const next = !v
+            const cur = sectionOpenManager.getItem(CHAT_SECTION_OPEN_KEY) || {}
+            sectionOpenManager.setItem(CHAT_SECTION_OPEN_KEY, { ...cur, pinned: next })
+            return next
+        })
+    }, [])
 
     const toggleChats = useCallback(() => {
         setChatsOpen((v) => {
@@ -76,6 +69,9 @@ const CoworkSideMenu: React.FC = () => {
         })
     }, [])
 
+    const pinnedChats = useMemo(() => chats.filter((c) => c.pinned), [chats])
+    const regularChats = useMemo(() => chats.filter((c) => !c.pinned), [chats])
+
     return (
         <div className={styles.sideMenuScroll}>
             <MenuItem
@@ -84,33 +80,38 @@ const CoworkSideMenu: React.FC = () => {
                 icon={PlusCircle}
                 label='ai.cowork.newChat'
                 isCollapsed={isCollapsed}
-                onClick={() => void Router.push('/cowork/chat')}
+                onClick={() => void Router.push('/ai-engineer/chat')}
             />
-            {MAIN_MENU_ITEMS
-                .filter((item) => item.key !== 'skills' || skillsEnabled)
-                .map((item) => (
-                    <MenuItem
-                        id={item.id}
-                        key={`menu-item-${item.key}`}
-                        path={item.path}
-                        icon={item.icon}
-                        label={item.label}
-                        isCollapsed={isCollapsed}
-                    />
-                ))}
-            {settingsEnabled && (
-                <MenuItem
-                    id='settings'
-                    key='menu-item-settings'
-                    path='/cowork/settings'
-                    icon={Settings}
-                    label='ai.cowork.settings'
-                    isCollapsed={isCollapsed}
-                />
-            )}
-            {chats.length > 0 && (
+            {pinnedChats.length > 0 && (
                 <>
-                    <div className={styles.sideMenuDivider} />
+                    <MenuItem
+                        id='pinned-chats'
+                        key='menu-item-pinned-chats'
+                        icon={Star}
+                        label={makeSectionLabel(pinnedChatsLabel, pinnedOpen, isCollapsed)}
+                        labelRaw
+                        isCollapsed={isCollapsed}
+                        menuItemWrapperProps={{ className: styles['section-menu-item'] }}
+                        onClick={isCollapsed ? toggleCollapsed : togglePinned}
+                    />
+                    <div className={styles.chatList} style={{ display: pinnedOpen && !isCollapsed ? 'block' : 'none' }}>
+                        {pinnedChats.map((chat) => (
+                            <MenuItem
+                                id={`chat-${chat.id}`}
+                                key={`chat-${chat.id}`}
+                                path={`/ai-engineer/chat?chatId=${chat.id}`}
+                                label={chat.name}
+                                labelRaw
+                                tooltip={chat.name}
+                                isCollapsed={isCollapsed}
+                                icon={FakeIcon}
+                            />
+                        ))}
+                    </div>
+                </>
+            )}
+            {regularChats.length > 0 && (
+                <>
                     <MenuItem
                         id='chats'
                         key='menu-item-chats'
@@ -122,20 +123,49 @@ const CoworkSideMenu: React.FC = () => {
                         onClick={isCollapsed ? toggleCollapsed : toggleChats}
                     />
                     <div className={styles.chatList} style={{ display: chatsOpen && !isCollapsed ? 'block' : 'none' }}>
-                        {chats.map((chat) => (
+                        {regularChats.map((chat) => (
                             <MenuItem
                                 id={`chat-${chat.id}`}
                                 key={`chat-${chat.id}`}
-                                path={`/cowork/chat?chatId=${chat.id}`}
+                                path={`/ai-engineer/chat?chatId=${chat.id}`}
                                 label={chat.name}
                                 labelRaw
+                                tooltip={chat.name}
                                 isCollapsed={isCollapsed}
-                                icon={chat.pinned ? Star : FakeIcon}
+                                icon={FakeIcon}
                             />
                         ))}
                     </div>
                 </>
             )}
+            {skillsEnabled && (
+                <MenuItem
+                    id='skills'
+                    key='menu-item-skills'
+                    path='/ai-engineer/skills'
+                    icon={Rocket}
+                    label='ai.cowork.skills'
+                    isCollapsed={isCollapsed}
+                />
+            )}
+            {settingsEnabled && (
+                <MenuItem
+                    id='settings'
+                    key='menu-item-settings'
+                    path='/ai-engineer/settings'
+                    icon={Settings}
+                    label='ai.cowork.settings'
+                    isCollapsed={isCollapsed}
+                />
+            )}
+            <MenuItem
+                id='miniapps'
+                key='menu-item-miniapps'
+                path='/ai-engineer/miniapps'
+                icon={Services}
+                label='ai.cowork.myMiniapps'
+                isCollapsed={isCollapsed}
+            />
         </div>
     )
 }
@@ -173,9 +203,9 @@ export const CoworkLayout: React.FC<React.PropsWithChildren> = ({ children }) =>
             <BaseLayout
                 TopMenuItems={CoworkTopMenuItems}
                 menuDataRender={() => []}
-                logoLocation='/cowork'
+                logoLocation='/ai-engineer'
                 logo={<Logo/>}
-                onLogoClick={() => void Router.push('/cowork')}
+                onLogoClick={() => void Router.push('/ai-engineer')}
                 headerAction={null}
                 menuData={<CoworkSideMenu/>}
                 residentActions={false}

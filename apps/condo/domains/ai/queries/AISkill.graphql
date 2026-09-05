@@ -1,0 +1,80 @@
+fragment AISkillFields on AISkill {
+    id
+    name
+    description
+    content
+    license
+    compatibility
+    metadata
+    allowedTools
+    image {
+        id
+        publicUrl
+    }
+    examples
+    b2bApp {
+        id
+        name
+        logo {
+            id
+            publicUrl
+        }
+    }
+    scope
+    organization {
+        id
+    }
+    user {
+        id
+    }
+    dv
+    sender {
+        dv
+        fingerprint
+    }
+    v
+    deletedAt
+    newId
+    createdBy {
+        id
+        name
+    }
+    updatedBy {
+        id
+        name
+    }
+    createdAt
+    updatedAt
+}
+
+query getAllAISkills ($where: AISkillWhereInput, $first: Int, $skip: Int, $sortBy: [SortAISkillsBy!]) {
+    aiSkills: allAISkills (
+        where: $where,
+        first: $first,
+        skip: $skip,
+        sortBy: $sortBy,
+    ) {
+        ...AISkillFields
+    }
+}
+
+query getAISkillById ($id: ID!) {
+    aiSkill: allAISkills (
+        where: { id: $id },
+        first: 1,
+    ) {
+        ...AISkillFields
+    }
+}
+
+mutation createAISkill ($data: AISkillCreateInput!) {
+    aiSkill: createAISkill (data: $data) {
+        ...AISkillFields
+    }
+}
+
+mutation updateAISkill ($id: ID!, $data: AISkillUpdateInput!) {
+    aiSkill: updateAISkill (id: $id, data: $data) {
+        ...AISkillFields
+    }
+}

@@ -13,17 +13,31 @@
   color: var(--condo-global-color-black) !important;
 }
 
-.menu-item-wrapper .condo-typography {
-  width: max-content;
-}
-
 .disabled {
   opacity: 0.4;
 }
 
-.menu-item > div h5 {
-  height: 20px;
+/* Make the Space flex container fill the sidebar width */
+.menu-item {
+  width: 100%;
+}
+
+/* Make the last flex child (title wrapper) shrink below content size */
+.menu-item > div:last-child {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* The inner div wrapping the title */
+.menu-item > div:last-child > div {
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* The h5 title — CSS ellipsis as fallback before antd JS runs */
+.menu-item h5 {
   overflow: hidden;
   white-space: nowrap;
-  text-overflow: clip;
+  text-overflow: ellipsis;
 }

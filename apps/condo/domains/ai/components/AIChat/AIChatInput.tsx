@@ -23,6 +23,7 @@ type AIChatInputProps = {
     onInputKeyDown: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void
     onSendMessage: () => void | Promise<void>
     placeholder: string
+    extraBottomPanelUtils?: React.ReactElement[]
 }
 
 export const AIChatInput: React.FC<AIChatInputProps> = ({
@@ -36,6 +37,7 @@ export const AIChatInput: React.FC<AIChatInputProps> = ({
     onInputKeyDown,
     onSendMessage,
     placeholder,
+    extraBottomPanelUtils,
 }) => {
     const intl = useIntl()
     const attachmentsUploading = attachments ? attachments.uploading : false
@@ -86,30 +88,33 @@ export const AIChatInput: React.FC<AIChatInputProps> = ({
                         disabled={!canExecuteAIFlow}
                         isSubmitDisabled={!canSendMessage || !canExecuteAIFlow}
                         autoSize={{ minRows: 1, maxRows: 4 }}
-                        bottomPanelUtils={attachments ? [
-                            <Upload
-                                key='ai-chat-attachment-upload-trigger'
-                                multiple
-                                showUploadList={false}
-                                accept={attachments.extensions}
-                                fileList={attachments.fileList}
-                                beforeUpload={attachments.handleBeforeUpload}
-                                customRequest={attachments.handleUploadRequest}
-                                onChange={attachments.handleUploadFileListChange}
-                                disabled={attachmentsUploadDisabled}
-                            >
-                                <Tooltip title={attachmentsTooltip} placement='top'>
-                                    <Button
-                                        type='secondary'
-                                        size='medium'
-                                        minimal
-                                        compact
-                                        disabled={attachmentsUploadDisabled}
-                                        icon={<Paperclip size='small' />}
-                                    />
-                                </Tooltip>
-                            </Upload>,
-                        ] : []}
+                        bottomPanelUtils={[
+                            ...(attachments ? [
+                                <Upload
+                                    key='ai-chat-attachment-upload-trigger'
+                                    multiple
+                                    showUploadList={false}
+                                    accept={attachments.extensions}
+                                    fileList={attachments.fileList}
+                                    beforeUpload={attachments.handleBeforeUpload}
+                                    customRequest={attachments.handleUploadRequest}
+                                    onChange={attachments.handleUploadFileListChange}
+                                    disabled={attachmentsUploadDisabled}
+                                >
+                                    <Tooltip title={attachmentsTooltip} placement='top'>
+                                        <Button
+                                            type='secondary'
+                                            size='medium'
+                                            minimal
+                                            compact
+                                            disabled={attachmentsUploadDisabled}
+                                            icon={<Paperclip size='small' />}
+                                        />
+                                    </Tooltip>
+                                </Upload>,
+                            ] : []),
+                            ...(extraBottomPanelUtils || []),
+                        ]}
                     />
                 </div>
             </Space>

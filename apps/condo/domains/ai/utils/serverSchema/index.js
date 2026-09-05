@@ -9,9 +9,11 @@ const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codeg
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const ExecutionAIFlowTask = generateServerUtils('ExecutionAIFlowTask')
+const AISkill = generateServerUtils('AISkill')
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     ExecutionAIFlowTask,
+    AISkill,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

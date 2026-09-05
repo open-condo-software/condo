@@ -9,6 +9,56 @@ import * as Apollo from '@apollo/client';
 export * from '@app/condo/gql/operation.types'
 
 const defaultOptions = {} as const;
+export const AiSkillFieldsFragmentDoc = gql`
+    fragment AISkillFields on AISkill {
+  id
+  name
+  description
+  content
+  license
+  compatibility
+  metadata
+  allowedTools
+  image {
+    id
+    publicUrl
+  }
+  examples
+  b2bApp {
+    id
+    name
+    logo {
+      id
+      publicUrl
+    }
+  }
+  scope
+  organization {
+    id
+  }
+  user {
+    id
+  }
+  dv
+  sender {
+    dv
+    fingerprint
+  }
+  v
+  deletedAt
+  newId
+  createdBy {
+    id
+    name
+  }
+  updatedBy {
+    id
+    name
+  }
+  createdAt
+  updatedAt
+}
+    `;
 export const B2BAppPermissionsFragmentDoc = gql`
     fragment B2BAppPermissions on B2BApp {
   isMicrophoneAllowed
@@ -285,6 +335,167 @@ export function useUpdatePaymentsFileMutation(baseOptions?: Apollo.MutationHookO
 export type UpdatePaymentsFileMutationHookResult = ReturnType<typeof useUpdatePaymentsFileMutation>;
 export type UpdatePaymentsFileMutationResult = Apollo.MutationResult<Types.UpdatePaymentsFileMutation>;
 export type UpdatePaymentsFileMutationOptions = Apollo.BaseMutationOptions<Types.UpdatePaymentsFileMutation, Types.UpdatePaymentsFileMutationVariables>;
+export const GetAllAiSkillsDocument = gql`
+    query getAllAISkills($where: AISkillWhereInput, $first: Int, $skip: Int, $sortBy: [SortAISkillsBy!]) {
+  aiSkills: allAISkills(
+    where: $where
+    first: $first
+    skip: $skip
+    sortBy: $sortBy
+  ) {
+    ...AISkillFields
+  }
+}
+    ${AiSkillFieldsFragmentDoc}`;
+
+/**
+ * __useGetAllAiSkillsQuery__
+ *
+ * To run a query within a React component, call `useGetAllAiSkillsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAllAiSkillsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAllAiSkillsQuery({
+ *   variables: {
+ *      where: // value for 'where'
+ *      first: // value for 'first'
+ *      skip: // value for 'skip'
+ *      sortBy: // value for 'sortBy'
+ *   },
+ * });
+ */
+export function useGetAllAiSkillsQuery(baseOptions?: Apollo.QueryHookOptions<Types.GetAllAiSkillsQuery, Types.GetAllAiSkillsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetAllAiSkillsQuery, Types.GetAllAiSkillsQueryVariables>(GetAllAiSkillsDocument, options);
+      }
+export function useGetAllAiSkillsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetAllAiSkillsQuery, Types.GetAllAiSkillsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetAllAiSkillsQuery, Types.GetAllAiSkillsQueryVariables>(GetAllAiSkillsDocument, options);
+        }
+// @ts-ignore
+export function useGetAllAiSkillsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<Types.GetAllAiSkillsQuery, Types.GetAllAiSkillsQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetAllAiSkillsQuery, Types.GetAllAiSkillsQueryVariables>;
+export function useGetAllAiSkillsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetAllAiSkillsQuery, Types.GetAllAiSkillsQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetAllAiSkillsQuery | undefined, Types.GetAllAiSkillsQueryVariables>;
+export function useGetAllAiSkillsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetAllAiSkillsQuery, Types.GetAllAiSkillsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetAllAiSkillsQuery, Types.GetAllAiSkillsQueryVariables>(GetAllAiSkillsDocument, options);
+        }
+export type GetAllAiSkillsQueryHookResult = ReturnType<typeof useGetAllAiSkillsQuery>;
+export type GetAllAiSkillsLazyQueryHookResult = ReturnType<typeof useGetAllAiSkillsLazyQuery>;
+export type GetAllAiSkillsSuspenseQueryHookResult = ReturnType<typeof useGetAllAiSkillsSuspenseQuery>;
+export type GetAllAiSkillsQueryResult = Apollo.QueryResult<Types.GetAllAiSkillsQuery, Types.GetAllAiSkillsQueryVariables>;
+export const GetAiSkillByIdDocument = gql`
+    query getAISkillById($id: ID!) {
+  aiSkill: allAISkills(where: {id: $id}, first: 1) {
+    ...AISkillFields
+  }
+}
+    ${AiSkillFieldsFragmentDoc}`;
+
+/**
+ * __useGetAiSkillByIdQuery__
+ *
+ * To run a query within a React component, call `useGetAiSkillByIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAiSkillByIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAiSkillByIdQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetAiSkillByIdQuery(baseOptions: Apollo.QueryHookOptions<Types.GetAiSkillByIdQuery, Types.GetAiSkillByIdQueryVariables> & ({ variables: Types.GetAiSkillByIdQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetAiSkillByIdQuery, Types.GetAiSkillByIdQueryVariables>(GetAiSkillByIdDocument, options);
+      }
+export function useGetAiSkillByIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetAiSkillByIdQuery, Types.GetAiSkillByIdQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetAiSkillByIdQuery, Types.GetAiSkillByIdQueryVariables>(GetAiSkillByIdDocument, options);
+        }
+// @ts-ignore
+export function useGetAiSkillByIdSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<Types.GetAiSkillByIdQuery, Types.GetAiSkillByIdQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetAiSkillByIdQuery, Types.GetAiSkillByIdQueryVariables>;
+export function useGetAiSkillByIdSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetAiSkillByIdQuery, Types.GetAiSkillByIdQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetAiSkillByIdQuery | undefined, Types.GetAiSkillByIdQueryVariables>;
+export function useGetAiSkillByIdSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetAiSkillByIdQuery, Types.GetAiSkillByIdQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetAiSkillByIdQuery, Types.GetAiSkillByIdQueryVariables>(GetAiSkillByIdDocument, options);
+        }
+export type GetAiSkillByIdQueryHookResult = ReturnType<typeof useGetAiSkillByIdQuery>;
+export type GetAiSkillByIdLazyQueryHookResult = ReturnType<typeof useGetAiSkillByIdLazyQuery>;
+export type GetAiSkillByIdSuspenseQueryHookResult = ReturnType<typeof useGetAiSkillByIdSuspenseQuery>;
+export type GetAiSkillByIdQueryResult = Apollo.QueryResult<Types.GetAiSkillByIdQuery, Types.GetAiSkillByIdQueryVariables>;
+export const CreateAiSkillDocument = gql`
+    mutation createAISkill($data: AISkillCreateInput!) {
+  aiSkill: createAISkill(data: $data) {
+    ...AISkillFields
+  }
+}
+    ${AiSkillFieldsFragmentDoc}`;
+export type CreateAiSkillMutationFn = Apollo.MutationFunction<Types.CreateAiSkillMutation, Types.CreateAiSkillMutationVariables>;
+
+/**
+ * __useCreateAiSkillMutation__
+ *
+ * To run a mutation, you first call `useCreateAiSkillMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateAiSkillMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createAiSkillMutation, { data, loading, error }] = useCreateAiSkillMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCreateAiSkillMutation(baseOptions?: Apollo.MutationHookOptions<Types.CreateAiSkillMutation, Types.CreateAiSkillMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.CreateAiSkillMutation, Types.CreateAiSkillMutationVariables>(CreateAiSkillDocument, options);
+      }
+export type CreateAiSkillMutationHookResult = ReturnType<typeof useCreateAiSkillMutation>;
+export type CreateAiSkillMutationResult = Apollo.MutationResult<Types.CreateAiSkillMutation>;
+export type CreateAiSkillMutationOptions = Apollo.BaseMutationOptions<Types.CreateAiSkillMutation, Types.CreateAiSkillMutationVariables>;
+export const UpdateAiSkillDocument = gql`
+    mutation updateAISkill($id: ID!, $data: AISkillUpdateInput!) {
+  aiSkill: updateAISkill(id: $id, data: $data) {
+    ...AISkillFields
+  }
+}
+    ${AiSkillFieldsFragmentDoc}`;
+export type UpdateAiSkillMutationFn = Apollo.MutationFunction<Types.UpdateAiSkillMutation, Types.UpdateAiSkillMutationVariables>;
+
+/**
+ * __useUpdateAiSkillMutation__
+ *
+ * To run a mutation, you first call `useUpdateAiSkillMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateAiSkillMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateAiSkillMutation, { data, loading, error }] = useUpdateAiSkillMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateAiSkillMutation(baseOptions?: Apollo.MutationHookOptions<Types.UpdateAiSkillMutation, Types.UpdateAiSkillMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.UpdateAiSkillMutation, Types.UpdateAiSkillMutationVariables>(UpdateAiSkillDocument, options);
+      }
+export type UpdateAiSkillMutationHookResult = ReturnType<typeof useUpdateAiSkillMutation>;
+export type UpdateAiSkillMutationResult = Apollo.MutationResult<Types.UpdateAiSkillMutation>;
+export type UpdateAiSkillMutationOptions = Apollo.BaseMutationOptions<Types.UpdateAiSkillMutation, Types.UpdateAiSkillMutationVariables>;
 export const GetExecutionAiFlowTaskByIdDocument = gql`
     query getExecutionAIFlowTaskById($id: ID!) {
   task: allExecutionAIFlowTasks(where: {id: $id}, first: 1) {

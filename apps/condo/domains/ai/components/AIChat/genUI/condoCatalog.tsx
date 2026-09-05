@@ -1,12 +1,17 @@
 import { Catalog, type ComponentApi, type ComponentModel, type DataModel, type SurfaceModel } from '@a2ui/web_core/v0_9'
-import React, { Component } from 'react'
+import dynamic from 'next/dynamic'
+import React from 'react'
 import { z } from 'zod'
 
-import { Button, Card, Checkbox, Input, Select, Space, Typography } from '@open-condo/ui'
+
+import { Typography } from '@open-condo/ui'
+import { colors } from '@open-condo/ui/colors'
+
+import type { EChartsOption } from 'echarts-for-react'
 
 export const CONDO_CATALOG_ID = 'https://condo.open-condo.software/a2ui/v1/catalog.json'
 
-// --- Helpers ---
+// --- Data resolution helpers ---
 
 function resolveValue (value: unknown, dataModel: DataModel): string {
     if (value == null) return ''
@@ -22,35 +27,23 @@ function resolveValue (value: unknown, dataModel: DataModel): string {
     return ''
 }
 
-function resolveBoolean (value: unknown, dataModel: DataModel): boolean {
-    if (typeof value === 'boolean') return value
-    if (typeof value === 'object' && value !== null && 'path' in value) {
-        const path = (value as { path: string }).path
-        const resolved = dataModel.get(path)
-        if (typeof resolved === 'boolean') return resolved
+function resolveObject (value: unknown, dataModel: DataModel): Record<string, unknown> | null {
+    if (value == null) return null
+    if (typeof value === 'object' && value !== null) {
+        if ('path' in value) {
+            const path = (value as { path: string }).path
+            const resolved = dataModel.get(path)
+            if (resolved != null && typeof resolved === 'object') {
+                return resolved as Record<string, unknown>
+            }
+            return null
+        }
+        return value as Record<string, unknown>
     }
-    return false
+    return null
 }
 
-function resolveStringList (value: unknown, dataModel: DataModel): string[] {
-    if (Array.isArray(value)) return value
-    if (typeof value === 'object' && value !== null && 'path' in value) {
-        const path = (value as { path: string }).path
-        const resolved = dataModel.get(path)
-        if (Array.isArray(resolved)) return resolved
-    }
-    return []
-}
-
-// Mutable ref to break circular reference for react-refresh HMR
-// (RowRenderer -> ComponentRenderer -> RENDERERS -> RowRenderer causes infinite recursion in computeFullKey)
-let _componentRendererRef: React.FC<RendererProps> | null = null
-
-const ChildRenderer: React.FC<RendererProps> = (props) => {
-    if (!_componentRendererRef) return null
-    const Renderer = _componentRendererRef
-    return <Renderer {...props} />
-}
+// --- Child resolution ---
 
 function resolveChildren (component: ComponentModel, surface: SurfaceModel): ComponentModel[] {
     const childrenProp = component.properties.children
@@ -83,179 +76,76 @@ const TextRenderer: React.FC<RendererProps> = ({ component, surface }) => {
     return <Typography.Text>{text}</Typography.Text>
 }
 
-const ButtonRenderer: React.FC<RendererProps> = ({ component, surface }) => {
-    const text = resolveValue(component.properties.text, surface.dataModel)
-    const variant = resolveValue(component.properties.variant, surface.dataModel)
-
-    return (
-        <Button type={variant === 'primary' ? 'primary' : 'secondary'}>
-            {text}
-        </Button>
-    )
-}
-
+// Row — horizontal flex, children fill space equally (grid-like)
 const RowRenderer: React.FC<RendererProps> = ({ component, surface }) => {
     const children = resolveChildren(component, surface)
-    const justify = resolveValue(component.properties.justify, surface.dataModel)
-    const align = (resolveValue(component.properties.align, surface.dataModel) || 'start') as 'start' | 'center' | 'end'
-    const isSpaceBetween = justify === 'spaceBetween'
-
-    const content = (
-        <Space
-            direction='horizontal'
-            size={12}
-            align={align}
-            width={isSpaceBetween ? '100%' : undefined}
-        >
+    return (
+        <div style={{ display: 'flex', flexDirection: 'row', gap: 12, width: '100%' }}>
             {children.map(child => (
-                <ChildRenderer key={child.id} component={child} surface={surface} />
-            ))}
-        </Space>
-    )
-
-    if (isSpaceBetween) {
-        return <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}>{content}</div>
-    }
-    return content
-}
-
-const ColumnRenderer: React.FC<RendererProps> = ({ component, surface }) => {
-    const children = resolveChildren(component, surface)
-    return (
-        <Space direction='vertical' size={8} width='100%'>
-            {children.map(child => (
-                <ChildRenderer key={child.id} component={child} surface={surface} />
-            ))}
-        </Space>
-    )
-}
-
-const CardRenderer: React.FC<RendererProps> = ({ component, surface }) => {
-    const children = resolveChildren(component, surface)
-    return (
-        <Card>
-            {children.map(child => (
-                <ChildRenderer key={child.id} component={child} surface={surface} />
-            ))}
-        </Card>
-    )
-}
-
-const TextFieldRenderer: React.FC<RendererProps> = ({ component, surface }) => {
-    const label = resolveValue(component.properties.label, surface.dataModel)
-    const value = resolveValue(component.properties.value, surface.dataModel)
-    const variant = resolveValue(component.properties.variant, surface.dataModel)
-    const placeholder = resolveValue(component.properties.placeholder, surface.dataModel)
-
-    if (variant === 'longText') {
-        return (
-            <div>
-                {label && <Typography.Text size='small' type='secondary'>{label}</Typography.Text>}
-                <Input.TextArea
-                    value={value}
-                    placeholder={placeholder || label}
-                />
-            </div>
-        )
-    }
-
-    return (
-        <div>
-            {label && <Typography.Text size='small' type='secondary'>{label}</Typography.Text>}
-            <Input
-                value={value}
-                placeholder={placeholder || label}
-            />
-        </div>
-    )
-}
-
-const CheckBoxRenderer: React.FC<RendererProps> = ({ component, surface }) => {
-    const label = resolveValue(component.properties.label, surface.dataModel)
-    const checked = resolveBoolean(component.properties.value, surface.dataModel)
-
-    return (
-        <Checkbox checked={checked}>
-            {label}
-        </Checkbox>
-    )
-}
-
-const ChoicePickerRenderer: React.FC<RendererProps> = ({ component, surface }) => {
-    const options = (component.properties.options ?? []) as { label: string, value: string }[]
-    const value = resolveStringList(component.properties.value, surface.dataModel)
-    const selectOptions = options.map(opt => ({ label: opt.label, value: opt.value }))
-
-    return (
-        <Select
-            options={selectOptions}
-            value={value[0]}
-        />
-    )
-}
-
-const DividerRenderer: React.FC<RendererProps> = () => {
-    return <hr style={{ border: 'none', borderTop: '1px solid #e8e8e8', margin: '8px 0' }} />
-}
-
-const IconRenderer: React.FC<RendererProps> = ({ component, surface }) => {
-    const name = resolveValue(component.properties.name, surface.dataModel)
-    return <Typography.Text>{name ? `[${name}]` : ''}</Typography.Text>
-}
-
-const ListRenderer: React.FC<RendererProps> = ({ component, surface }) => {
-    const children = resolveChildren(component, surface)
-    return (
-        <div>
-            {children.map(child => (
-                <div key={child.id} style={{ marginBottom: 8 }}>
-                    <ChildRenderer component={child} surface={surface} />
+                <div key={child.id} style={{ flex: 1, minWidth: 0 }}>
+                    <ComponentRenderer component={child} surface={surface} />
                 </div>
             ))}
         </div>
     )
 }
 
-const RENDERERS: Record<string, React.FC<RendererProps>> = {
-    Text: TextRenderer,
-    Button: ButtonRenderer,
-    Row: RowRenderer,
-    Column: ColumnRenderer,
-    Card: CardRenderer,
-    TextField: TextFieldRenderer,
-    CheckBox: CheckBoxRenderer,
-    ChoicePicker: ChoicePickerRenderer,
-    Divider: DividerRenderer,
-    Icon: IconRenderer,
-    List: ListRenderer,
+// Col — vertical flex, children stack and fill width
+const ColRenderer: React.FC<RendererProps> = ({ component, surface }) => {
+    const children = resolveChildren(component, surface)
+    return (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%' }}>
+            {children.map(child => (
+                <div key={child.id} style={{ width: '100%' }}>
+                    <ComponentRenderer component={child} surface={surface} />
+                </div>
+            ))}
+        </div>
+    )
 }
 
-class ComponentErrorBoundary extends Component<
-{ componentId: string, children: React.ReactNode },
-{ hasError: boolean }
-> {
-    state = { hasError: false }
+const ReactECharts = dynamic(
+    () => import('echarts-for-react').then((mod) => mod.default),
+    { ssr: false, loading: () => null },
+)
 
-    static getDerivedStateFromError () {
-        return { hasError: true }
+const CHART_COLOR_SET = [
+    colors.purple['7'],
+    colors.purple['5'],
+    colors.blue['7'],
+    colors.blue['5'],
+    colors.green['7'],
+    colors.green['5'],
+    colors.teal['5'],
+    colors.cyan['5'],
+    colors.cyan['3'],
+]
+
+const ChartRenderer: React.FC<RendererProps> = ({ component, surface }) => {
+    const option = resolveObject(component.properties.option, surface.dataModel) as unknown as EChartsOption | null
+    const height = resolveValue(component.properties.height, surface.dataModel)
+
+    if (!option) {
+        return (
+            <Typography.Text type='secondary' size='small'>
+                [Chart: no option]
+            </Typography.Text>
+        )
     }
 
-    componentDidCatch (err: unknown) {
-        // componentId is an internal prop from the A2UI catalog, not attacker-controlled input; err is passed as a separate argument, not interpolated into the format string
-        // nosemgrep: javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring
-        console.error(`[A2UI] Component "${this.props.componentId}" render error:`, err)
-    }
+    const optionWithColors: EChartsOption = { color: CHART_COLOR_SET, ...option }
+    const style: React.CSSProperties = { height: height ? `${height}px` : '300px' }
 
-    render () {
-        if (this.state.hasError) {
-            return (
-                <Typography.Text type='secondary' size='small'>
-                    [Failed to render: {this.props.componentId}]
-                </Typography.Text>
-            )
-        }
-        return this.props.children
-    }
+    return <ReactECharts option={optionWithColors} opts={{ renderer: 'svg' }} style={style} notMerge />
+}
+
+// --- Renderer registry ---
+// Simple flat map. No circular references, no mutable refs, no child rendering.
+const RENDERERS: Record<string, React.FC<RendererProps>> = {
+    Text: TextRenderer,
+    Row: RowRenderer,
+    Col: ColRenderer,
+    Chart: ChartRenderer,
 }
 
 export const ComponentRenderer: React.FC<RendererProps> = ({ component, surface }) => {
@@ -269,20 +159,11 @@ export const ComponentRenderer: React.FC<RendererProps> = ({ component, surface 
         )
     }
 
-    return (
-        <ComponentErrorBoundary componentId={component.id}>
-            <Renderer component={component} surface={surface} />
-        </ComponentErrorBoundary>
-    )
+    return <Renderer component={component} surface={surface} />
 }
-
-_componentRendererRef = ComponentRenderer
 
 // --- Catalog ---
 
-// We create a minimal catalog with permissive schemas.
-// The MessageProcessor needs it to know which components are valid.
-// Actual rendering is done by our React ComponentRenderer above.
 const permissiveSchema = z.record(z.string(), z.unknown())
 
 const componentApis = Object.keys(RENDERERS).map(name => ({

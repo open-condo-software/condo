@@ -1,5 +1,5 @@
 import { MessageProcessor, type A2uiMessage, type SurfaceModel } from '@a2ui/web_core/v0_9'
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
 import { Space, Typography } from '@open-condo/ui'
 
@@ -29,12 +29,21 @@ const SingleSurface: React.FC<{ surface: SurfaceModel }> = ({ surface }) => {
 }
 
 export const A2UISurfaces: React.FC<A2UISurfacesProps> = ({ messages }) => {
-    const [processor] = useState(() => new MessageProcessor([condoCatalog]))
-    const [surfaces, setSurfaces] = useState<SurfaceModel[]>([])
-    const [error, setError] = useState<string | null>(null)
-    const processedKey = useRef<string>('')
+    // Create processor AND process messages in a single useMemo.
+    // This runs exactly once per unique message content (keyed by JSON string).
+    // No separate effect = no double-invoke, no "surface already exists".
+    const { processor, error } = useMemo(() => {
+        const proc = new MessageProcessor([condoCatalog])
+        try {
+            proc.processMessages(messages)
+            return { processor: proc, error: null }
+        } catch (err) {
+            console.error('[A2UI] Failed to process messages:', err)
+            return { processor: proc, error: err }
+        }
+    }, [JSON.stringify(messages)])
 
-    const messagesKey = useMemo(() => JSON.stringify(messages), [messages])
+    const [surfaces, setSurfaces] = useState<SurfaceModel[]>([])
 
     useEffect(() => {
         const sync = () => setSurfaces(Array.from(processor.model.surfacesMap.values()))
@@ -42,29 +51,19 @@ export const A2UISurfaces: React.FC<A2UISurfacesProps> = ({ messages }) => {
         const createdSub = processor.onSurfaceCreated(sync)
         const deletedSub = processor.onSurfaceDeleted(sync)
 
+        // Sync immediately — surfaces were created during useMemo, before subscribers were attached
+        sync()
+
         return () => {
             createdSub.unsubscribe()
             deletedSub.unsubscribe()
         }
     }, [processor])
 
-    useEffect(() => {
-        if (!messagesKey || messagesKey === processedKey.current) return
-        processedKey.current = messagesKey
-
-        try {
-            setError(null)
-            processor.processMessages(messages)
-        } catch (err) {
-            console.error('[A2UI] Failed to process messages:', err)
-            setError('UI rendering error. Please try asking again.')
-        }
-    }, [processor, messages, messagesKey])
-
     if (error) {
         return (
             <Typography.Text type='secondary'>
-                {error}
+                UI rendering error. Please try again.
             </Typography.Text>
         )
     }

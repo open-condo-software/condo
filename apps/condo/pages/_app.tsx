@@ -132,8 +132,10 @@ const AIOverlayWrapper = () => {
 
 const UseDeskWidgetWrapper = () => {
     const { isAIOverlayOpen } = useAIContext()
-    
-    return <UseDeskWidget hide={isAIOverlayOpen} />
+    const router = useRouter()
+    const isAiEngineerPage = router.pathname.startsWith('/ai-engineer')
+
+    return <UseDeskWidget hide={isAIOverlayOpen || isAiEngineerPage} />
 }
 
 

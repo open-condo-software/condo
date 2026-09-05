@@ -35,6 +35,40 @@ export type UpdatePaymentsFileMutationVariables = Types.Exact<{
 
 export type UpdatePaymentsFileMutation = { __typename?: 'Mutation', paymentsFile?: { __typename?: 'PaymentsFile', id: string } | null };
 
+export type AiSkillFieldsFragment = { __typename?: 'AISkill', id: string, name?: string | null, description?: string | null, content?: string | null, license?: string | null, compatibility?: string | null, metadata?: any | null, allowedTools?: string | null, examples?: Array<string> | null, scope?: Types.AiSkillScopeType | null, dv?: number | null, v?: number | null, deletedAt?: string | null, newId?: string | null, createdAt?: string | null, updatedAt?: string | null, image?: { __typename?: 'File', id?: string | null, publicUrl?: string | null } | null, b2bApp?: { __typename?: 'B2BApp', id: string, name?: string | null, logo?: { __typename?: 'File', id?: string | null, publicUrl?: string | null } | null } | null, organization?: { __typename?: 'Organization', id: string } | null, user?: { __typename?: 'User', id: string } | null, sender?: { __typename?: 'SenderField', dv: number, fingerprint: string } | null, createdBy?: { __typename?: 'User', id: string, name?: string | null } | null, updatedBy?: { __typename?: 'User', id: string, name?: string | null } | null };
+
+export type GetAllAiSkillsQueryVariables = Types.Exact<{
+  where?: Types.InputMaybe<Types.AiSkillWhereInput>;
+  first?: Types.InputMaybe<Types.Scalars['Int']['input']>;
+  skip?: Types.InputMaybe<Types.Scalars['Int']['input']>;
+  sortBy?: Types.InputMaybe<Array<Types.SortAiSkillsBy> | Types.SortAiSkillsBy>;
+}>;
+
+
+export type GetAllAiSkillsQuery = { __typename?: 'Query', aiSkills?: Array<{ __typename?: 'AISkill', id: string, name?: string | null, description?: string | null, content?: string | null, license?: string | null, compatibility?: string | null, metadata?: any | null, allowedTools?: string | null, examples?: Array<string> | null, scope?: Types.AiSkillScopeType | null, dv?: number | null, v?: number | null, deletedAt?: string | null, newId?: string | null, createdAt?: string | null, updatedAt?: string | null, image?: { __typename?: 'File', id?: string | null, publicUrl?: string | null } | null, b2bApp?: { __typename?: 'B2BApp', id: string, name?: string | null, logo?: { __typename?: 'File', id?: string | null, publicUrl?: string | null } | null } | null, organization?: { __typename?: 'Organization', id: string } | null, user?: { __typename?: 'User', id: string } | null, sender?: { __typename?: 'SenderField', dv: number, fingerprint: string } | null, createdBy?: { __typename?: 'User', id: string, name?: string | null } | null, updatedBy?: { __typename?: 'User', id: string, name?: string | null } | null } | null> | null };
+
+export type GetAiSkillByIdQueryVariables = Types.Exact<{
+  id: Types.Scalars['ID']['input'];
+}>;
+
+
+export type GetAiSkillByIdQuery = { __typename?: 'Query', aiSkill?: Array<{ __typename?: 'AISkill', id: string, name?: string | null, description?: string | null, content?: string | null, license?: string | null, compatibility?: string | null, metadata?: any | null, allowedTools?: string | null, examples?: Array<string> | null, scope?: Types.AiSkillScopeType | null, dv?: number | null, v?: number | null, deletedAt?: string | null, newId?: string | null, createdAt?: string | null, updatedAt?: string | null, image?: { __typename?: 'File', id?: string | null, publicUrl?: string | null } | null, b2bApp?: { __typename?: 'B2BApp', id: string, name?: string | null, logo?: { __typename?: 'File', id?: string | null, publicUrl?: string | null } | null } | null, organization?: { __typename?: 'Organization', id: string } | null, user?: { __typename?: 'User', id: string } | null, sender?: { __typename?: 'SenderField', dv: number, fingerprint: string } | null, createdBy?: { __typename?: 'User', id: string, name?: string | null } | null, updatedBy?: { __typename?: 'User', id: string, name?: string | null } | null } | null> | null };
+
+export type CreateAiSkillMutationVariables = Types.Exact<{
+  data: Types.AiSkillCreateInput;
+}>;
+
+
+export type CreateAiSkillMutation = { __typename?: 'Mutation', aiSkill?: { __typename?: 'AISkill', id: string, name?: string | null, description?: string | null, content?: string | null, license?: string | null, compatibility?: string | null, metadata?: any | null, allowedTools?: string | null, examples?: Array<string> | null, scope?: Types.AiSkillScopeType | null, dv?: number | null, v?: number | null, deletedAt?: string | null, newId?: string | null, createdAt?: string | null, updatedAt?: string | null, image?: { __typename?: 'File', id?: string | null, publicUrl?: string | null } | null, b2bApp?: { __typename?: 'B2BApp', id: string, name?: string | null, logo?: { __typename?: 'File', id?: string | null, publicUrl?: string | null } | null } | null, organization?: { __typename?: 'Organization', id: string } | null, user?: { __typename?: 'User', id: string } | null, sender?: { __typename?: 'SenderField', dv: number, fingerprint: string } | null, createdBy?: { __typename?: 'User', id: string, name?: string | null } | null, updatedBy?: { __typename?: 'User', id: string, name?: string | null } | null } | null };
+
+export type UpdateAiSkillMutationVariables = Types.Exact<{
+  id: Types.Scalars['ID']['input'];
+  data: Types.AiSkillUpdateInput;
+}>;
+
+
+export type UpdateAiSkillMutation = { __typename?: 'Mutation', aiSkill?: { __typename?: 'AISkill', id: string, name?: string | null, description?: string | null, content?: string | null, license?: string | null, compatibility?: string | null, metadata?: any | null, allowedTools?: string | null, examples?: Array<string> | null, scope?: Types.AiSkillScopeType | null, dv?: number | null, v?: number | null, deletedAt?: string | null, newId?: string | null, createdAt?: string | null, updatedAt?: string | null, image?: { __typename?: 'File', id?: string | null, publicUrl?: string | null } | null, b2bApp?: { __typename?: 'B2BApp', id: string, name?: string | null, logo?: { __typename?: 'File', id?: string | null, publicUrl?: string | null } | null } | null, organization?: { __typename?: 'Organization', id: string } | null, user?: { __typename?: 'User', id: string } | null, sender?: { __typename?: 'SenderField', dv: number, fingerprint: string } | null, createdBy?: { __typename?: 'User', id: string, name?: string | null } | null, updatedBy?: { __typename?: 'User', id: string, name?: string | null } | null } | null };
+
 export type GetExecutionAiFlowTaskByIdQueryVariables = Types.Exact<{
   id: Types.Scalars['ID']['input'];
 }>;
