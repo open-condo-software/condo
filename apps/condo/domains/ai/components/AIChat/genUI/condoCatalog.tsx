@@ -3,10 +3,10 @@ import dynamic from 'next/dynamic'
 import React from 'react'
 import { z } from 'zod'
 
+import type { EChartsOption } from 'echarts-for-react'
+
 import { Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
-
-import type { EChartsOption } from 'echarts-for-react'
 
 export const CONDO_CATALOG_ID = 'https://condo.open-condo.software/a2ui/v1/catalog.json'
 

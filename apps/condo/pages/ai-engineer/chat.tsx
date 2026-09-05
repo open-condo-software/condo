@@ -106,16 +106,10 @@ const CoworkPage: PageComponentType = () => {
     }, [selectedSkillId, visibleSkills])
 
     const suggestions = useMemo(() => {
-        const skillExamples = (visibleSkills || []).flatMap((skill) =>
+        return (visibleSkills || []).flatMap((skill) =>
             Array.isArray(skill.examples) ? skill.examples : []
-        )
-        const staticSuggestions = [
-            intl.formatMessage({ id: 'ai.cowork.suggestion.tickets' }),
-            intl.formatMessage({ id: 'ai.cowork.suggestion.meters' }),
-            intl.formatMessage({ id: 'ai.cowork.suggestion.residents' }),
-        ]
-        return [...skillExamples, ...staticSuggestions].slice(0, 12)
-    }, [visibleSkills, intl])
+        ).slice(0, 12)
+    }, [visibleSkills])
 
     const [activeChatId, setActiveChatId] = useState<string | null>(null)
     const [initialMessage, setInitialMessage] = useState('')
