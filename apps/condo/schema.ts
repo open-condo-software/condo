@@ -23,7 +23,7 @@ export type Scalars = {
   Upload: { input: any; output: any; }
 };
 
-/**  AI assistant skill in Agent Skills format. Can be provided by a B2BApp (miniapp) or created by users. Used by the AI assistant in the ai-engineer section  */
+/**  Warning: This model is experimental – its API might change in the future. AI assistant skill in agentskills (https://agentskills.io/specification) format. Can be provided by a B2BApp (miniapp) or created by users. Used by the AI assistant  */
 export type AiSkill = {
   __typename?: 'AISkill';
   /**
@@ -36,7 +36,7 @@ export type AiSkill = {
   _label_?: Maybe<Scalars['String']['output']>;
   /**  Agent Skills spec allowed-tools; optional and experimental.  */
   allowedTools?: Maybe<Scalars['String']['output']>;
-  /**  B2BApp whose miniapp created this skill.  */
+  /**  B2BApp which created this skill.  */
   b2bApp?: Maybe<B2BApp>;
   /**  Agent Skills spec compatibility; optional, max 500 characters.  */
   compatibility?: Maybe<Scalars['String']['output']>;
@@ -54,12 +54,12 @@ export type AiSkill = {
   displayName?: Maybe<Scalars['String']['output']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']['output']>;
-  /**  Array of example prompt strings shown as suggestion tags under chat input.  */
+  /**  Array of example prompt strings  */
   examples?: Maybe<Array<Scalars['String']['output']>>;
   id: Scalars['ID']['output'];
   /**  Skill illustration image. Shown on skill cards and detail view.  */
   image?: Maybe<File>;
-  /**  Whether users can see and invoke the skill.  */
+  /**  If true – users can see and invoke the skill.  */
   isPublic?: Maybe<Scalars['Boolean']['output']>;
   /**  Optional Agent Skills specification license or bundled license file.  */
   license?: Maybe<Scalars['String']['output']>;
@@ -81,7 +81,7 @@ export type AiSkill = {
   updatedAt?: Maybe<Scalars['String']['output']>;
   /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
-  /**  User for personal skills. Required when scope=personal.  */
+  /**  User for personal skills. Required when scope=personal. Might differ from createdBy  */
   user?: Maybe<User>;
   v?: Maybe<Scalars['Int']['output']>;
 };

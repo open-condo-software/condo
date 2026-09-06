@@ -92071,22 +92071,22 @@ type AISkillHistoryRecord {
   _label_: String
   name: String
   description: String
-  displayName: String
-  displayDescription: String
   content: String
   license: String
   compatibility: String
   metadata: JSON
   allowedTools: String
   locale: String
-  meta: JSON
   isPublic: Boolean
+  scope: String
+  displayName: String
+  displayDescription: String
+  meta: JSON
   image: JSON
   examples: JSON
-  b2bApp: String
-  scope: String
   organization: String
   user: String
+  b2bApp: String
   id: ID!
   v: Int
   createdAt: String
@@ -92141,42 +92141,6 @@ input AISkillHistoryRecordWhereInput {
   description_not_ends_with_i: String
   description_in: [String]
   description_not_in: [String]
-  displayName: String
-  displayName_not: String
-  displayName_contains: String
-  displayName_not_contains: String
-  displayName_starts_with: String
-  displayName_not_starts_with: String
-  displayName_ends_with: String
-  displayName_not_ends_with: String
-  displayName_i: String
-  displayName_not_i: String
-  displayName_contains_i: String
-  displayName_not_contains_i: String
-  displayName_starts_with_i: String
-  displayName_not_starts_with_i: String
-  displayName_ends_with_i: String
-  displayName_not_ends_with_i: String
-  displayName_in: [String]
-  displayName_not_in: [String]
-  displayDescription: String
-  displayDescription_not: String
-  displayDescription_contains: String
-  displayDescription_not_contains: String
-  displayDescription_starts_with: String
-  displayDescription_not_starts_with: String
-  displayDescription_ends_with: String
-  displayDescription_not_ends_with: String
-  displayDescription_i: String
-  displayDescription_not_i: String
-  displayDescription_contains_i: String
-  displayDescription_not_contains_i: String
-  displayDescription_starts_with_i: String
-  displayDescription_not_starts_with_i: String
-  displayDescription_ends_with_i: String
-  displayDescription_not_ends_with_i: String
-  displayDescription_in: [String]
-  displayDescription_not_in: [String]
   content: String
   content_not: String
   content_contains: String
@@ -92271,24 +92235,8 @@ input AISkillHistoryRecordWhereInput {
   locale_not_ends_with_i: String
   locale_in: [String]
   locale_not_in: [String]
-  meta: JSON
-  meta_not: JSON
-  meta_in: [JSON]
-  meta_not_in: [JSON]
   isPublic: Boolean
   isPublic_not: Boolean
-  image: JSON
-  image_not: JSON
-  image_in: [JSON]
-  image_not_in: [JSON]
-  examples: JSON
-  examples_not: JSON
-  examples_in: [JSON]
-  examples_not_in: [JSON]
-  b2bApp: String
-  b2bApp_not: String
-  b2bApp_in: [String]
-  b2bApp_not_in: [String]
   scope: String
   scope_not: String
   scope_contains: String
@@ -92307,6 +92255,54 @@ input AISkillHistoryRecordWhereInput {
   scope_not_ends_with_i: String
   scope_in: [String]
   scope_not_in: [String]
+  displayName: String
+  displayName_not: String
+  displayName_contains: String
+  displayName_not_contains: String
+  displayName_starts_with: String
+  displayName_not_starts_with: String
+  displayName_ends_with: String
+  displayName_not_ends_with: String
+  displayName_i: String
+  displayName_not_i: String
+  displayName_contains_i: String
+  displayName_not_contains_i: String
+  displayName_starts_with_i: String
+  displayName_not_starts_with_i: String
+  displayName_ends_with_i: String
+  displayName_not_ends_with_i: String
+  displayName_in: [String]
+  displayName_not_in: [String]
+  displayDescription: String
+  displayDescription_not: String
+  displayDescription_contains: String
+  displayDescription_not_contains: String
+  displayDescription_starts_with: String
+  displayDescription_not_starts_with: String
+  displayDescription_ends_with: String
+  displayDescription_not_ends_with: String
+  displayDescription_i: String
+  displayDescription_not_i: String
+  displayDescription_contains_i: String
+  displayDescription_not_contains_i: String
+  displayDescription_starts_with_i: String
+  displayDescription_not_starts_with_i: String
+  displayDescription_ends_with_i: String
+  displayDescription_not_ends_with_i: String
+  displayDescription_in: [String]
+  displayDescription_not_in: [String]
+  meta: JSON
+  meta_not: JSON
+  meta_in: [JSON]
+  meta_not_in: [JSON]
+  image: JSON
+  image_not: JSON
+  image_in: [JSON]
+  image_not_in: [JSON]
+  examples: JSON
+  examples_not: JSON
+  examples_in: [JSON]
+  examples_not_in: [JSON]
   organization: String
   organization_not: String
   organization_in: [String]
@@ -92315,6 +92311,10 @@ input AISkillHistoryRecordWhereInput {
   user_not: String
   user_in: [String]
   user_not_in: [String]
+  b2bApp: String
+  b2bApp_not: String
+  b2bApp_in: [String]
+  b2bApp_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -92402,10 +92402,6 @@ enum SortAISkillHistoryRecordsBy {
   name_DESC
   description_ASC
   description_DESC
-  displayName_ASC
-  displayName_DESC
-  displayDescription_ASC
-  displayDescription_DESC
   content_ASC
   content_DESC
   license_ASC
@@ -92420,6 +92416,10 @@ enum SortAISkillHistoryRecordsBy {
   isPublic_DESC
   scope_ASC
   scope_DESC
+  displayName_ASC
+  displayName_DESC
+  displayDescription_ASC
+  displayDescription_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -92441,22 +92441,22 @@ enum SortAISkillHistoryRecordsBy {
 input AISkillHistoryRecordUpdateInput {
   name: String
   description: String
-  displayName: String
-  displayDescription: String
   content: String
   license: String
   compatibility: String
   metadata: JSON
   allowedTools: String
   locale: String
-  meta: JSON
   isPublic: Boolean
+  scope: String
+  displayName: String
+  displayDescription: String
+  meta: JSON
   image: JSON
   examples: JSON
-  b2bApp: String
-  scope: String
   organization: String
   user: String
+  b2bApp: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -92479,22 +92479,22 @@ input AISkillHistoryRecordsUpdateInput {
 input AISkillHistoryRecordCreateInput {
   name: String
   description: String
-  displayName: String
-  displayDescription: String
   content: String
   license: String
   compatibility: String
   metadata: JSON
   allowedTools: String
   locale: String
-  meta: JSON
   isPublic: Boolean
+  scope: String
+  displayName: String
+  displayDescription: String
+  meta: JSON
   image: JSON
   examples: JSON
-  b2bApp: String
-  scope: String
   organization: String
   user: String
+  b2bApp: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -92526,7 +92526,7 @@ enum AISkillScopeType {
   b2bApp
 }
 
-""" AI assistant skill in Agent Skills format. Can be provided by a B2BApp (miniapp) or created by users. Used by the AI assistant in the ai-engineer section 
+""" Warning: This model is experimental – its API might change in the future. AI assistant skill in agentskills (https://agentskills.io/specification) format. Can be provided by a B2BApp (miniapp) or created by users. Used by the AI assistant 
 """
 type AISkill {
   """
@@ -92543,12 +92543,6 @@ type AISkill {
 
   """ Agent Skills spec description; usage summary, max 1024 characters. """
   description: String
-
-  """ Optional user-facing skill name shown in the interface. """
-  displayName: String
-
-  """ Optional user-facing skill description shown in the interface. """
-  displayDescription: String
 
   """ Agent Skills specification Markdown body containing AI instructions. """
   content: String
@@ -92568,31 +92562,37 @@ type AISkill {
   """ Locale of the user-facing skill fields. """
   locale: AISkillLocaleType
 
+  """ If true – users can see and invoke the skill. """
+  isPublic: Boolean
+
+  """ Availability: global, organization, personal, or connected B2BApp. """
+  scope: AISkillScopeType
+
+  """ Optional user-facing skill name shown in the interface. """
+  displayName: String
+
+  """ Optional user-facing skill description shown in the interface. """
+  displayDescription: String
+
   """ Additional arbitrary data about the skill. """
   meta: JSON
-
-  """ Whether users can see and invoke the skill. """
-  isPublic: Boolean
 
   """ Skill illustration image. Shown on skill cards and detail view. """
   image: File
 
-  """ Array of example prompt strings shown as suggestion tags under chat input. 
-  """
+  """ Array of example prompt strings """
   examples: [String!]
-
-  """ B2BApp whose miniapp created this skill. """
-  b2bApp: B2BApp
-
-  """ Availability: global, organization, personal, or connected B2BApp. """
-  scope: AISkillScopeType
 
   """ Organization for org-scoped skills. Required when scope=organization. 
   """
   organization: Organization
 
-  """ User for personal skills. Required when scope=personal. """
+  """ User for personal skills. Required when scope=personal. Might differ from createdBy 
+  """
   user: User
+
+  """ B2BApp which created this skill. """
+  b2bApp: B2BApp
   id: ID!
   v: Int
   createdAt: String
@@ -92655,42 +92655,6 @@ input AISkillWhereInput {
   description_not_ends_with_i: String
   description_in: [String]
   description_not_in: [String]
-  displayName: String
-  displayName_not: String
-  displayName_contains: String
-  displayName_not_contains: String
-  displayName_starts_with: String
-  displayName_not_starts_with: String
-  displayName_ends_with: String
-  displayName_not_ends_with: String
-  displayName_i: String
-  displayName_not_i: String
-  displayName_contains_i: String
-  displayName_not_contains_i: String
-  displayName_starts_with_i: String
-  displayName_not_starts_with_i: String
-  displayName_ends_with_i: String
-  displayName_not_ends_with_i: String
-  displayName_in: [String]
-  displayName_not_in: [String]
-  displayDescription: String
-  displayDescription_not: String
-  displayDescription_contains: String
-  displayDescription_not_contains: String
-  displayDescription_starts_with: String
-  displayDescription_not_starts_with: String
-  displayDescription_ends_with: String
-  displayDescription_not_ends_with: String
-  displayDescription_i: String
-  displayDescription_not_i: String
-  displayDescription_contains_i: String
-  displayDescription_not_contains_i: String
-  displayDescription_starts_with_i: String
-  displayDescription_not_starts_with_i: String
-  displayDescription_ends_with_i: String
-  displayDescription_not_ends_with_i: String
-  displayDescription_in: [String]
-  displayDescription_not_in: [String]
   content: String
   content_not: String
   content_contains: String
@@ -92771,12 +92735,52 @@ input AISkillWhereInput {
   locale_not: AISkillLocaleType
   locale_in: [AISkillLocaleType]
   locale_not_in: [AISkillLocaleType]
+  isPublic: Boolean
+  isPublic_not: Boolean
+  scope: AISkillScopeType
+  scope_not: AISkillScopeType
+  scope_in: [AISkillScopeType]
+  scope_not_in: [AISkillScopeType]
+  displayName: String
+  displayName_not: String
+  displayName_contains: String
+  displayName_not_contains: String
+  displayName_starts_with: String
+  displayName_not_starts_with: String
+  displayName_ends_with: String
+  displayName_not_ends_with: String
+  displayName_i: String
+  displayName_not_i: String
+  displayName_contains_i: String
+  displayName_not_contains_i: String
+  displayName_starts_with_i: String
+  displayName_not_starts_with_i: String
+  displayName_ends_with_i: String
+  displayName_not_ends_with_i: String
+  displayName_in: [String]
+  displayName_not_in: [String]
+  displayDescription: String
+  displayDescription_not: String
+  displayDescription_contains: String
+  displayDescription_not_contains: String
+  displayDescription_starts_with: String
+  displayDescription_not_starts_with: String
+  displayDescription_ends_with: String
+  displayDescription_not_ends_with: String
+  displayDescription_i: String
+  displayDescription_not_i: String
+  displayDescription_contains_i: String
+  displayDescription_not_contains_i: String
+  displayDescription_starts_with_i: String
+  displayDescription_not_starts_with_i: String
+  displayDescription_ends_with_i: String
+  displayDescription_not_ends_with_i: String
+  displayDescription_in: [String]
+  displayDescription_not_in: [String]
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
   meta_not_in: [JSON]
-  isPublic: Boolean
-  isPublic_not: Boolean
   image: String
   image_not: String
   image_in: [String]
@@ -92785,16 +92789,12 @@ input AISkillWhereInput {
   examples_not: [String!]
   examples_in: [[String!]]
   examples_not_in: [[String!]]
-  b2bApp: B2BAppWhereInput
-  b2bApp_is_null: Boolean
-  scope: AISkillScopeType
-  scope_not: AISkillScopeType
-  scope_in: [AISkillScopeType]
-  scope_not_in: [AISkillScopeType]
   organization: OrganizationWhereInput
   organization_is_null: Boolean
   user: UserWhereInput
   user_is_null: Boolean
+  b2bApp: B2BAppWhereInput
+  b2bApp_is_null: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -92862,10 +92862,6 @@ enum SortAISkillsBy {
   name_DESC
   description_ASC
   description_DESC
-  displayName_ASC
-  displayName_DESC
-  displayDescription_ASC
-  displayDescription_DESC
   content_ASC
   content_DESC
   license_ASC
@@ -92878,14 +92874,18 @@ enum SortAISkillsBy {
   locale_DESC
   isPublic_ASC
   isPublic_DESC
-  b2bApp_ASC
-  b2bApp_DESC
   scope_ASC
   scope_DESC
+  displayName_ASC
+  displayName_DESC
+  displayDescription_ASC
+  displayDescription_DESC
   organization_ASC
   organization_DESC
   user_ASC
   user_DESC
+  b2bApp_ASC
+  b2bApp_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -92907,22 +92907,22 @@ enum SortAISkillsBy {
 input AISkillUpdateInput {
   name: String
   description: String
-  displayName: String
-  displayDescription: String
   content: String
   license: String
   compatibility: String
   metadata: JSON
   allowedTools: String
   locale: AISkillLocaleType
-  meta: JSON
   isPublic: Boolean
+  scope: AISkillScopeType
+  displayName: String
+  displayDescription: String
+  meta: JSON
   image: FileMeta
   examples: [String!]
-  b2bApp: B2BAppRelateToOneInput
-  scope: AISkillScopeType
   organization: OrganizationRelateToOneInput
   user: UserRelateToOneInput
+  b2bApp: B2BAppRelateToOneInput
   v: Int
   createdAt: String
   updatedAt: String
@@ -92942,22 +92942,22 @@ input AISkillsUpdateInput {
 input AISkillCreateInput {
   name: String
   description: String
-  displayName: String
-  displayDescription: String
   content: String
   license: String
   compatibility: String
   metadata: JSON
   allowedTools: String
   locale: AISkillLocaleType
-  meta: JSON
   isPublic: Boolean
+  scope: AISkillScopeType
+  displayName: String
+  displayDescription: String
+  meta: JSON
   image: FileMeta
   examples: [String!]
-  b2bApp: B2BAppRelateToOneInput
-  scope: AISkillScopeType
   organization: OrganizationRelateToOneInput
   user: UserRelateToOneInput
+  b2bApp: B2BAppRelateToOneInput
   v: Int
   createdAt: String
   updatedAt: String
