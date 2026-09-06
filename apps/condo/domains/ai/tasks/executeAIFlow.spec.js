@@ -3,13 +3,21 @@
  */
 const { faker } = require('@faker-js/faker')
 
+// Mock capture fn — declared before requires so jest.mock factories can reference it
+const mockExecute = jest.fn()
+const mockSudoContext = { skipAccessControl: true }
+const mockKeystoneContext = {
+    createContext: jest.fn().mockReturnValue(mockSudoContext),
+}
+
+const { getUserAISkillsFilter } = require('@condo/domains/ai/access/AISkill')
 const { TASK_STATUSES } = require('@condo/domains/ai/constants')
+const { executeAIFlow } = require('@condo/domains/ai/tasks/executeAIFlow')
+const { ExecutionAIFlowTask, AISkill } = require('@condo/domains/ai/utils/serverSchema')
 
 
 // --- Mocks (hoisted by Jest before requires) ---
 
-// Mock adapters: capture the context passed to adapter.execute
-const mockExecute = jest.fn()
 jest.mock('@condo/domains/ai/adapters', () => {
     const MockAdapter = jest.fn().mockImplementation(() => ({
         isConfigured: true,
@@ -24,11 +32,6 @@ jest.mock('@condo/domains/ai/utils/serverSchema')
 // Mock access filter
 jest.mock('@condo/domains/ai/access/AISkill')
 
-// Mock keystone schema — return a fake context with createContext
-const mockSudoContext = { skipAccessControl: true }
-const mockKeystoneContext = {
-    createContext: jest.fn().mockReturnValue(mockSudoContext),
-}
 jest.mock('@open-condo/keystone/schema', () => ({
     getSchemaCtx: jest.fn().mockReturnValue({ keystone: mockKeystoneContext }),
 }))
@@ -65,13 +68,6 @@ jest.mock('@open-condo/keystone/fileAdapter/fileAdapter', () => {
 jest.mock('@open-condo/keystone/logging', () => ({ getLogger: () => ({ error: jest.fn() }) }))
 jest.mock('@open-condo/keystone/apolloErrorFormatter', () => ({ safeFormatError: jest.fn((e) => ({ message: e.message })) }))
 jest.mock('@open-condo/locales/loader', () => ({ i18n: jest.fn(() => 'translated') }))
-
-
-// --- Import the raw function and mocked modules after mocks are set up ---
-
-const { executeAIFlow } = require('@condo/domains/ai/tasks/executeAIFlow')
-const { ExecutionAIFlowTask, AISkill } = require('@condo/domains/ai/utils/serverSchema')
-const { getUserAISkillsFilter } = require('@condo/domains/ai/access/AISkill')
 
 
 // --- Helpers ---
