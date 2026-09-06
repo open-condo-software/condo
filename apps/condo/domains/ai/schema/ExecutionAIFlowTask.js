@@ -20,6 +20,7 @@ const {
     FLOW_TYPES_LIST,
     FLOW_META_SCHEMAS,
     CUSTOM_FLOW_TYPE,
+    MAX_SELECTED_SKILLS,
 } = require('@condo/domains/ai/constants')
 const { executeAIFlow } = require('@condo/domains/ai/tasks')
 const { CUSTOM_FLOW_TYPES_LIST } = require('@condo/domains/ai/utils/flowsConfig')
@@ -73,6 +74,14 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: 'INVALID_USER_FOR_FLOW',
         message: 'Authenticated user should be the same as user who requested this operation for this flow',
+        messageForUser: 'api.ai.executionAIFlowTask.FAILED_TO_COMPLETE_REQUEST',
+    },
+    INVALID_SELECTED_SKILL_IDS: {
+        mutation: 'createExecutionAIFlowTask',
+        variable: ['data', 'context', 'selectedSkillIds'],
+        code: BAD_USER_INPUT,
+        type: 'INVALID_SELECTED_SKILL_IDS',
+        message: `selectedSkillIds must be an array of strings with at most ${MAX_SELECTED_SKILLS} item(s)`,
         messageForUser: 'api.ai.executionAIFlowTask.FAILED_TO_COMPLETE_REQUEST',
     },
     STATUS_IS_ALREADY_COMPLETED: {
@@ -329,6 +338,18 @@ const ExecutionAIFlowTask = new GQLListSchema('ExecutionAIFlowTask', {
                         path: error.instancePath,
                     }))
                     throw new GQLError({ ...ERRORS.INVALID_FLOW_CONTEXT, errors: flowContextErrors }, context)
+                }
+
+                // Generic reserved-field validation: selectedSkillIds
+                // Any flow may pass selectedSkillIds (array of skill ID strings) to opt into
+                // server-side skill access vetting and content injection in executeAIFlow.
+                const selectedSkillIds = flowContext?.selectedSkillIds
+                if (selectedSkillIds !== undefined) {
+                    if (!Array.isArray(selectedSkillIds)
+                        || selectedSkillIds.length > MAX_SELECTED_SKILLS
+                        || !selectedSkillIds.every(id => typeof id === 'string')) {
+                        throw new GQLError(ERRORS.INVALID_SELECTED_SKILL_IDS, context)
+                    }
                 }
 
                 if (!isCustomFlow) {

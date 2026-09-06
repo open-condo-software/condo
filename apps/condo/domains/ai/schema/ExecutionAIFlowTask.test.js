@@ -21,6 +21,7 @@ const {
 
 const {
     TASK_STATUSES,
+    FLOW_TYPES,
     CHAT_WITH_CONDO_ALLOWED_MIME_TYPES,
     CHAT_WITH_CONDO_MAX_ATTACHMENTS,
     CHAT_WITH_CONDO_MAX_ATTACHMENT_SIZE_BYTES,
@@ -536,42 +537,54 @@ describe('ExecutionAIFlowTask', () => {
         })
     })
 
-    describe('Skill validation', () => {
-        const makeContext = (selectedSkills) => ({
+    describe('selectedSkillIds validation', () => {
+        const makeContext = (selectedSkillIds) => ({
             userInput: 'test',
             userData: {
                 userId: userClient.user.id,
                 organizationId: faker.datatype.uuid(),
-                selectedSkills,
             },
+            selectedSkillIds,
         })
 
-        test('chat-with-condo accepts one selected skill ID', async () => {
+        test('accepts one selected skill ID', async () => {
             const task = await ExecutionAIFlowTaskForUser.create(userClient, {
                 dv: 1,
                 sender: { fingerprint: faker.random.alphaNumeric(8), dv: 1 },
                 user: { connect: { id: userClient.user.id } },
                 flowType: CHAT_WITH_CONDO_FLOW_TYPE,
-                context: makeContext([{ id: faker.datatype.uuid() }]),
+                context: makeContext([faker.datatype.uuid()]),
             })
 
-            expect(task.context.userData.selectedSkills).toHaveLength(1)
+            expect(task.context.selectedSkillIds).toHaveLength(1)
         })
 
         test.each([
-            [['invalid']],
-            [[{ id: faker.datatype.uuid(), content: 'forged' }]],
-            [[{ id: faker.datatype.uuid() }, { id: faker.datatype.uuid() }]],
-        ])('chat-with-condo rejects invalid selected skills: %j', async (selectedSkills) => {
+            [[123]],
+            [[{ id: faker.datatype.uuid() }]],
+            [[faker.datatype.uuid(), faker.datatype.uuid()]],
+        ])('rejects invalid selectedSkillIds: %j', async (selectedSkillIds) => {
             await expectToThrowGQLError(async () => {
                 await createTestExecutionAIFlowTask(userClient, userClient.user, {
                     flowType: CHAT_WITH_CONDO_FLOW_TYPE,
-                    context: makeContext(selectedSkills),
+                    context: makeContext(selectedSkillIds),
                 })
             }, {
                 code: 'BAD_USER_INPUT',
-                type: 'INVALID_FLOW_CONTEXT',
+                type: 'INVALID_SELECTED_SKILL_IDS',
             })
+        })
+
+        test('accepts selectedSkillIds on any flow (generic reserved field)', async () => {
+            const task = await ExecutionAIFlowTaskForUser.create(userClient, {
+                dv: 1,
+                sender: { fingerprint: faker.random.alphaNumeric(8), dv: 1 },
+                user: { connect: { id: userClient.user.id } },
+                flowType: FLOW_TYPES.REWRITE_TEXT,
+                context: { userInput: 'test', selectedSkillIds: [faker.datatype.uuid()] },
+            })
+
+            expect(task.context.selectedSkillIds).toHaveLength(1)
         })
     })
 

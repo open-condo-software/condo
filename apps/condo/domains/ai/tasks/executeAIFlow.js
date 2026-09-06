@@ -155,41 +155,38 @@ const executeAIFlow = async (executionAIFlowTask, additionalContext = {}) => {
             fullContext.attachments = resolvedAttachments
         }
 
-        if (task.flowType === CHAT_WITH_CONDO_FLOW_TYPE && fullContext.userData) {
-            const selectedSkills = fullContext.userData.selectedSkills
-            delete fullContext.userData.selectedSkills
+        if (Array.isArray(fullContext.selectedSkillIds) && fullContext.selectedSkillIds.length > 0) {
+            const skillIds = fullContext.selectedSkillIds
+            delete fullContext.selectedSkillIds
 
-            if (Array.isArray(selectedSkills) && selectedSkills.length > 0) {
-                const skillIds = selectedSkills.map(skill => skill.id)
-                const skillAccessFilter = await getUserAISkillsFilter(context, task.user)
-                const sudoContext = context.createContext({ skipAccessControl: true })
-                const skills = await AISkill.getAll(sudoContext, {
-                    AND: [
-                        { id_in: skillIds, deletedAt: null },
-                        skillAccessFilter,
-                    ],
-                }, '{ id name description content license compatibility metadata allowedTools }')
+            const skillAccessFilter = await getUserAISkillsFilter(context, task.user)
+            const sudoContext = context.createContext({ skipAccessControl: true })
+            const skills = await AISkill.getAll(sudoContext, {
+                AND: [
+                    { id_in: skillIds, deletedAt: null },
+                    skillAccessFilter,
+                ],
+            }, '{ id name description content license compatibility metadata allowedTools }')
 
-                if (skills.length !== skillIds.length) {
-                    throw new Error('Skill not found or access denied')
-                }
-
-                const skillsById = new Map(skills.map(skill => [skill.id, skill]))
-                fullContext.userData.selectedSkills = skillIds.map(id => {
-                    const skill = skillsById.get(id)
-                    if (!skill) throw new Error('Skill not found or access denied')
-
-                    return {
-                        name: skill.name,
-                        description: skill.description,
-                        content: skill.content,
-                        ...(skill.license ? { license: skill.license } : {}),
-                        ...(skill.compatibility ? { compatibility: skill.compatibility } : {}),
-                        ...(skill.metadata ? { metadata: skill.metadata } : {}),
-                        ...(skill.allowedTools ? { 'allowed-tools': skill.allowedTools } : {}),
-                    }
-                })
+            if (skills.length !== skillIds.length) {
+                throw new Error('Skill not found or access denied')
             }
+
+            const skillsById = new Map(skills.map(skill => [skill.id, skill]))
+            fullContext.skills = skillIds.map(id => {
+                const skill = skillsById.get(id)
+                if (!skill) throw new Error('Skill not found or access denied')
+
+                return {
+                    name: skill.name,
+                    description: skill.description,
+                    content: skill.content,
+                    ...(skill.license ? { license: skill.license } : {}),
+                    ...(skill.compatibility ? { compatibility: skill.compatibility } : {}),
+                    ...(skill.metadata ? { metadata: skill.metadata } : {}),
+                    ...(skill.allowedTools ? { 'allowed-tools': skill.allowedTools } : {}),
+                }
+            })
         }
 
         let prediction

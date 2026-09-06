@@ -51,6 +51,8 @@ const CHAT_WITH_CONDO_ALLOWED_MIME_TYPES = [
 ]
 const CHAT_WITH_CONDO_ALLOWED_FILE_EXTENSIONS = '.pdf,.docx,.xlsx,.csv,.txt,.doc,.xls'
 
+const MAX_SELECTED_SKILLS = 1
+
 /**
  * list of hardcoded flow types
  *
@@ -224,18 +226,6 @@ const FLOW_META_SCHEMAS = {
                     properties: {
                         userId: { type: 'string' },
                         organizationId: { type: 'string' },
-                        selectedSkills: {
-                            type: 'array',
-                            maxItems: 1,
-                            items: {
-                                type: 'object',
-                                additionalProperties: false,
-                                properties: {
-                                    id: { type: 'string' },
-                                },
-                                required: ['id'],
-                            },
-                        },
                     },
                     required: ['userId', 'organizationId'],
                 },
@@ -316,4 +306,5 @@ module.exports = {
     CHAT_WITH_CONDO_MAX_ATTACHMENT_SIZE_BYTES,
     CHAT_WITH_CONDO_ALLOWED_MIME_TYPES,
     CHAT_WITH_CONDO_ALLOWED_FILE_EXTENSIONS,
+    MAX_SELECTED_SKILLS,
 }
