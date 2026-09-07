@@ -52,6 +52,18 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
             isRequired: true,
         },
 
+        getUserCardsUrl: {
+            schemaDoc: 'Endpoint for retrieving a user\'s saved payment cards',
+            type: 'Url',
+            isRequired: false,
+        },
+
+        deleteUserCardUrl: {
+            schemaDoc: 'Endpoint for deleting a user\'s saved payment card',
+            type: 'Url',
+            isRequired: false,
+        },
+
         accessRights: {
             type: 'Relationship',
             ref: 'AcquiringIntegrationAccessRight.integration',
