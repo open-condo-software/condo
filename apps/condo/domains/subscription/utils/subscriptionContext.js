@@ -4,6 +4,8 @@
 
 const dayjs = require('dayjs')
 
+const { find } = require('@open-condo/keystone/schema')
+
 /**
  * Selects the best subscription context from an array of contexts.
  * Selection criteria:
@@ -81,7 +83,19 @@ function calculateSubscriptionStartDate (existingContexts) {
 }
 
 
+async function findBundleContexts (invoiceId, statusIn = null) {
+    if (!invoiceId) return []
+
+    const where = { invoice: { id: invoiceId }, deletedAt: null }
+    if (Array.isArray(statusIn) && statusIn.length > 0) {
+        where.status_in = statusIn
+    }
+
+    return await find('SubscriptionContext', where)
+}
+
 module.exports = {
     selectBestSubscriptionContext,
     calculateSubscriptionStartDate,
+    findBundleContexts,
 }

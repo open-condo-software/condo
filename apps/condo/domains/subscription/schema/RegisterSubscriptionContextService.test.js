@@ -18,6 +18,7 @@ const {
     createTestSubscriptionPlanPricingRule,
     createTestSubscriptionContext,
     updateTestSubscriptionContext,
+    SubscriptionContext,
 } = require('@condo/domains/subscription/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
@@ -693,6 +694,325 @@ describe('RegisterSubscriptionContextService', () => {
             expect(result.subscriptionContext).toBeDefined()
             expect(result.subscriptionContext.subscriptionPlan.id).toBe(featurePlan.id)
             expect(result.subscriptionContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
+        })
+    })
+
+    describe('Bundle', () => {
+        let serviceBundlePlan, serviceBundleRule
+        let featureAiPlan, featureAiRule
+        let featureSupportPlan, featureSupportRule
+
+        beforeAll(async () => {
+            setFeatureFlag(SUBSCRIPTIONS, true)
+
+            const [svc] = await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: MANAGING_COMPANY_TYPE,
+                isHidden: false,
+                planType: SUBSCRIPTION_PLAN_TYPE_SERVICE,
+                payments: true,
+                meters: true,
+            })
+            serviceBundlePlan = svc
+            const [svcRule] = await createTestSubscriptionPlanPricingRule(admin, serviceBundlePlan, {
+                period: SUBSCRIPTION_PERIOD.MONTH,
+                price: '2000.00',
+                currencyCode: 'RUB',
+            })
+            serviceBundleRule = svcRule
+
+            const [ai] = await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: MANAGING_COMPANY_TYPE,
+                isHidden: false,
+                planType: SUBSCRIPTION_PLAN_TYPE_FEATURE,
+                ai: true,
+            })
+            featureAiPlan = ai
+            const [aiRule] = await createTestSubscriptionPlanPricingRule(admin, featureAiPlan, {
+                period: SUBSCRIPTION_PERIOD.MONTH,
+                price: '500.00',
+                currencyCode: 'RUB',
+            })
+            featureAiRule = aiRule
+
+            const [sup] = await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: MANAGING_COMPANY_TYPE,
+                isHidden: false,
+                planType: SUBSCRIPTION_PLAN_TYPE_FEATURE,
+                support: true,
+            })
+            featureSupportPlan = sup
+            const [supRule] = await createTestSubscriptionPlanPricingRule(admin, featureSupportPlan, {
+                period: SUBSCRIPTION_PERIOD.MONTH,
+                price: '300.00',
+                currencyCode: 'RUB',
+            })
+            featureSupportRule = supRule
+        })
+
+        afterAll(() => {
+            setFeatureFlag(SUBSCRIPTIONS, false)
+        })
+
+        test('creates one invoice with a row per rule and one context per rule with aligned dates', async () => {
+            const [result] = await registerSubscriptionContextByTestClient(user, {
+                organization: { id: organization.id },
+                subscriptionPlanPricingRule: { id: serviceBundleRule.id },
+                additionalPricingRules: [{ id: featureAiRule.id }, { id: featureSupportRule.id }],
+                isTrial: false,
+            })
+
+            expect(result.subscriptionContexts).toHaveLength(3)
+
+            const invoiceIds = new Set(result.subscriptionContexts.map(ctx => ctx.invoice.id))
+            expect(invoiceIds.size).toBe(1)
+
+            const startDates = new Set(result.subscriptionContexts.map(ctx => ctx.startAt))
+            const endDates = new Set(result.subscriptionContexts.map(ctx => ctx.endAt))
+            expect(startDates.size).toBe(1)
+            expect(endDates.size).toBe(1)
+
+            for (const ctx of result.subscriptionContexts) {
+                expect(ctx.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
+            }
+
+            const planIds = result.subscriptionContexts.map(ctx => ctx.subscriptionPlan.id).sort()
+            expect(planIds).toEqual([serviceBundlePlan.id, featureAiPlan.id, featureSupportPlan.id].sort())
+
+            expect(result.subscriptionContext.invoice.rows).toHaveLength(3)
+            expect(Number(result.subscriptionContext.invoice.toPay)).toBe(2800)
+        })
+
+        test('paymentType=card creates a multiPayment and directPaymentUrl', async () => {
+            const [result] = await registerSubscriptionContextByTestClient(user, {
+                organization: { id: organization.id },
+                subscriptionPlanPricingRule: { id: serviceBundleRule.id },
+                additionalPricingRules: [{ id: featureAiRule.id }],
+                paymentType: 'card',
+                isTrial: false,
+            })
+
+            expect(result.multiPayment).toBeDefined()
+            expect(result.multiPayment).not.toBeNull()
+            expect(typeof result.directPaymentUrl).toBe('string')
+        })
+
+        test('paymentType=invoice does not create a multiPayment or directPaymentUrl', async () => {
+            const [result] = await registerSubscriptionContextByTestClient(user, {
+                organization: { id: organization.id },
+                subscriptionPlanPricingRule: { id: serviceBundleRule.id },
+                additionalPricingRules: [{ id: featureAiRule.id }],
+                paymentType: 'invoice',
+                isTrial: false,
+            })
+
+            expect(result.multiPayment).toBeNull()
+            expect(result.directPaymentUrl).toBeNull()
+            expect(result.subscriptionContexts).toHaveLength(2)
+            for (const ctx of result.subscriptionContexts) {
+                expect(ctx.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
+            }
+        })
+
+        test('throws MIXED_PRICING_RULE_PERIODS when rules have different periods', async () => {
+            const [yearlyAiRule] = await createTestSubscriptionPlanPricingRule(admin, featureAiPlan, {
+                period: SUBSCRIPTION_PERIOD.YEAR,
+                price: '5000.00',
+                currencyCode: 'RUB',
+            })
+
+            await expectToThrowGQLError(async () => {
+                await registerSubscriptionContextByTestClient(user, {
+                    organization: { id: organization.id },
+                    subscriptionPlanPricingRule: { id: serviceBundleRule.id },
+                    additionalPricingRules: [{ id: yearlyAiRule.id }],
+                    isTrial: false,
+                })
+            }, ERRORS.MIXED_PRICING_RULE_PERIODS, 'result')
+        })
+
+        test('throws DUPLICATE_PLAN_IN_BUNDLE when the same plan appears twice', async () => {
+            await expectToThrowGQLError(async () => {
+                await registerSubscriptionContextByTestClient(user, {
+                    organization: { id: organization.id },
+                    subscriptionPlanPricingRule: { id: serviceBundleRule.id },
+                    additionalPricingRules: [{ id: featureAiRule.id }, { id: featureAiRule.id }],
+                    isTrial: false,
+                })
+            }, ERRORS.DUPLICATE_PLAN_IN_BUNDLE, 'result')
+        })
+
+        test('throws MULTIPLE_SERVICE_PLANS_IN_BUNDLE when the bundle has two service plans', async () => {
+            const [otherServicePlan] = await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: MANAGING_COMPANY_TYPE,
+                isHidden: false,
+                planType: SUBSCRIPTION_PLAN_TYPE_SERVICE,
+                tickets: true,
+            })
+            const [otherServiceRule] = await createTestSubscriptionPlanPricingRule(admin, otherServicePlan, {
+                period: SUBSCRIPTION_PERIOD.MONTH,
+                price: '1200.00',
+                currencyCode: 'RUB',
+            })
+
+            await expectToThrowGQLError(async () => {
+                await registerSubscriptionContextByTestClient(user, {
+                    organization: { id: organization.id },
+                    subscriptionPlanPricingRule: { id: serviceBundleRule.id },
+                    additionalPricingRules: [{ id: otherServiceRule.id }],
+                    isTrial: false,
+                })
+            }, ERRORS.MULTIPLE_SERVICE_PLANS_IN_BUNDLE, 'result')
+        })
+
+        test('throws FEATURE_ALREADY_IN_PLAN when a bundled feature is covered by the service plan', async () => {
+            const [serviceWithAiPlan] = await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: MANAGING_COMPANY_TYPE,
+                isHidden: false,
+                planType: SUBSCRIPTION_PLAN_TYPE_SERVICE,
+                payments: true,
+                ai: true,
+            })
+            const [serviceWithAiRule] = await createTestSubscriptionPlanPricingRule(admin, serviceWithAiPlan, {
+                period: SUBSCRIPTION_PERIOD.MONTH,
+                price: '2500.00',
+                currencyCode: 'RUB',
+            })
+
+            await expectToThrowGQLError(async () => {
+                await registerSubscriptionContextByTestClient(user, {
+                    organization: { id: organization.id },
+                    subscriptionPlanPricingRule: { id: serviceWithAiRule.id },
+                    additionalPricingRules: [{ id: featureAiRule.id }],
+                    isTrial: false,
+                })
+            }, ERRORS.FEATURE_ALREADY_IN_PLAN, 'result')
+        })
+
+        test('throws TRIAL_BUNDLE_NOT_SUPPORTED when isTrial is used with additionalPricingRules', async () => {
+            await expectToThrowGQLError(async () => {
+                await registerSubscriptionContextByTestClient(user, {
+                    organization: { id: organization.id },
+                    subscriptionPlanPricingRule: { id: serviceBundleRule.id },
+                    additionalPricingRules: [{ id: featureAiRule.id }],
+                    isTrial: true,
+                })
+            }, ERRORS.TRIAL_BUNDLE_NOT_SUPPORTED, 'result')
+        })
+
+        test('throws NO_ACTIVE_SERVICE_SUBSCRIPTION for a feature-only bundle without an active service subscription', async () => {
+            await expectToThrowGQLError(async () => {
+                await registerSubscriptionContextByTestClient(user, {
+                    organization: { id: organization.id },
+                    subscriptionPlanPricingRule: { id: featureAiRule.id },
+                    additionalPricingRules: [{ id: featureSupportRule.id }],
+                    isTrial: false,
+                })
+            }, ERRORS.NO_ACTIVE_SERVICE_SUBSCRIPTION, 'result')
+        })
+
+        test('allows a feature-only bundle when a service subscription is active', async () => {
+            const [org] = await registerNewOrganization(user, { type: MANAGING_COMPANY_TYPE })
+            await createTestSubscriptionContext(admin, org, serviceBundlePlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(30, 'days').format('YYYY-MM-DD'),
+                isTrial: false,
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+            })
+
+            const [result] = await registerSubscriptionContextByTestClient(user, {
+                organization: { id: org.id },
+                subscriptionPlanPricingRule: { id: featureAiRule.id },
+                additionalPricingRules: [{ id: featureSupportRule.id }],
+                isTrial: false,
+            })
+
+            expect(result.subscriptionContexts).toHaveLength(2)
+        })
+
+        test('throws ACTIVE_SUPERSET_PLAN_EXISTS when an active plan covers the whole bundle', async () => {
+            const [supersetPlan] = await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: MANAGING_COMPANY_TYPE,
+                isHidden: false,
+                planType: SUBSCRIPTION_PLAN_TYPE_SERVICE,
+                payments: true,
+                meters: true,
+                ai: true,
+                support: true,
+            })
+
+            const [org] = await registerNewOrganization(user, { type: MANAGING_COMPANY_TYPE })
+            await createTestSubscriptionContext(admin, org, supersetPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
+                isTrial: false,
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+            })
+
+            await expectToThrowGQLError(async () => {
+                await registerSubscriptionContextByTestClient(user, {
+                    organization: { id: org.id },
+                    subscriptionPlanPricingRule: { id: serviceBundleRule.id },
+                    additionalPricingRules: [{ id: featureAiRule.id }, { id: featureSupportRule.id }],
+                    isTrial: false,
+                })
+            }, ERRORS.ACTIVE_SUPERSET_PLAN_EXISTS, 'result')
+        })
+
+        test('reuses the existing CREATED bundle when the same composition is registered again', async () => {
+            const [org] = await registerNewOrganization(user, { type: MANAGING_COMPANY_TYPE })
+
+            const [first] = await registerSubscriptionContextByTestClient(user, {
+                organization: { id: org.id },
+                subscriptionPlanPricingRule: { id: serviceBundleRule.id },
+                additionalPricingRules: [{ id: featureAiRule.id }],
+                isTrial: false,
+            })
+
+            const [second] = await registerSubscriptionContextByTestClient(user, {
+                organization: { id: org.id },
+                subscriptionPlanPricingRule: { id: serviceBundleRule.id },
+                additionalPricingRules: [{ id: featureAiRule.id }],
+                isTrial: false,
+            })
+
+            const firstIds = new Set(first.subscriptionContexts.map(ctx => ctx.id))
+            const secondIds = new Set(second.subscriptionContexts.map(ctx => ctx.id))
+            expect(secondIds).toEqual(firstIds)
+        })
+
+        test('supersedes the existing CREATED bundle when the composition changes', async () => {
+            const [org] = await registerNewOrganization(user, { type: MANAGING_COMPANY_TYPE })
+
+            const [first] = await registerSubscriptionContextByTestClient(user, {
+                organization: { id: org.id },
+                subscriptionPlanPricingRule: { id: serviceBundleRule.id },
+                additionalPricingRules: [{ id: featureAiRule.id }],
+                isTrial: false,
+            })
+            const firstInvoiceId = first.subscriptionContext.invoice.id
+            const firstContextIds = first.subscriptionContexts.map(ctx => ctx.id)
+
+            const [second] = await registerSubscriptionContextByTestClient(user, {
+                organization: { id: org.id },
+                subscriptionPlanPricingRule: { id: serviceBundleRule.id },
+                additionalPricingRules: [{ id: featureSupportRule.id }],
+                isTrial: false,
+            })
+
+            for (const oldContextId of firstContextIds) {
+                const stillAlive = await SubscriptionContext.getAll(admin, { id: oldContextId, deletedAt: null })
+                expect(stillAlive).toHaveLength(0)
+            }
+
+            const secondPlanIds = second.subscriptionContexts.map(ctx => ctx.subscriptionPlan.id).sort()
+            expect(secondPlanIds).toEqual([serviceBundlePlan.id, featureSupportPlan.id].sort())
+            expect(second.subscriptionContext.invoice.id).not.toBe(firstInvoiceId)
         })
     })
 })

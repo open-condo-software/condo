@@ -13,6 +13,7 @@ const access = require('@condo/domains/subscription/access/UpdateSubscriptionCon
 const { SubscriptionPaymentAdapter } = require('@condo/domains/subscription/tasks/utils/SubscriptionPaymentAdapter')
 const { SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
 const { getSubscriptionPaymentRecipient } = require('@condo/domains/subscription/utils/serverSchema/getSubscriptionPaymentRecipient')
+const { findBundleContexts } = require('@condo/domains/subscription/utils/subscriptionContext')
 
 const logger = getLogger('UpdateSubscriptionContextPaymentMethodService')
 
@@ -46,7 +47,7 @@ const UpdateSubscriptionContextPaymentMethodService = new GQLCustomSchema('Updat
     types: [
         {
             access: true,
-            type: 'input UpdateSubscriptionContextPaymentMethodInput { dv: Int!, sender: SenderFieldInput!, subscriptionContext: SubscriptionContextWhereUniqueInput!, bindingId: String }',
+            type: 'input UpdateSubscriptionContextPaymentMethodInput { dv: Int!, sender: SenderFieldInput!, subscriptionContext: SubscriptionContextWhereUniqueInput!, invoice: InvoiceWhereUniqueInput, bindingId: String }',
         },
         {
             access: true,
@@ -60,7 +61,7 @@ const UpdateSubscriptionContextPaymentMethodService = new GQLCustomSchema('Updat
             schema: 'updateSubscriptionContextPaymentMethod(data: UpdateSubscriptionContextPaymentMethodInput!): UpdateSubscriptionContextPaymentMethodOutput',
             resolver: async (parent, args, context) => {
                 const { data } = args
-                const { subscriptionContext: subscriptionContextWhere, bindingId, dv, sender } = data
+                const { subscriptionContext: subscriptionContextWhere, invoice: invoiceWhere, bindingId, dv, sender } = data
                 const subscriptionContextId = subscriptionContextWhere.id
 
                 const subscriptionContext = await getById('SubscriptionContext', subscriptionContextId)
@@ -69,49 +70,63 @@ const UpdateSubscriptionContextPaymentMethodService = new GQLCustomSchema('Updat
                 }
 
                 const organizationId = subscriptionContext.organization
-                const currentBindingId = subscriptionContext.bindingId
+                const invoiceId = (invoiceWhere && invoiceWhere.id) || subscriptionContext.invoice
 
-                await SubscriptionContext.update(context, subscriptionContextId, {
-                    dv,
-                    sender,
-                    bindingId,
-                })
+                let targetContexts = [subscriptionContext]
+                if (invoiceId) {
+                    const bundleContexts = await findBundleContexts(invoiceId)
+                    if (bundleContexts.length > 0) {
+                        targetContexts = bundleContexts
+                    }
+                }
 
-                if (bindingId === null && currentBindingId) {
-                    const otherActiveContexts = await find('SubscriptionContext', {
-                        organization: { id: organizationId },
-                        bindingId: currentBindingId,
-                        id_not: subscriptionContextId,
-                        endAt_gte: dayjs().format('YYYY-MM-DD'),
-                        deletedAt: null,
+                const targetContextIds = targetContexts.map(ctx => ctx.id)
+                const releasedBindingIds = new Set(
+                    targetContexts.map(ctx => ctx.bindingId).filter(Boolean)
+                )
+
+                for (const ctx of targetContexts) {
+                    await SubscriptionContext.update(context, ctx.id, {
+                        dv,
+                        sender,
+                        bindingId,
                     })
+                }
 
-                    if (otherActiveContexts.length === 0) {
-                        const { recipientOrgId: recipientOrganizationId, acquiringIntegration } = await getSubscriptionPaymentRecipient()
+                if (bindingId === null && releasedBindingIds.size > 0) {
+                    const { recipientOrgId: recipientOrganizationId, acquiringIntegration } = await getSubscriptionPaymentRecipient()
+                    if (!recipientOrganizationId) {
+                        throw new GQLError(ERRORS.SUBSCRIPTION_PAYMENT_RECIPIENT_NOT_CONFIGURED, context)
+                    }
+                    if (!acquiringIntegration) {
+                        throw new GQLError(ERRORS.ACQUIRING_INTEGRATION_NOT_FOUND, context)
+                    }
 
-                        if (!recipientOrganizationId) {
-                            throw new GQLError(ERRORS.SUBSCRIPTION_PAYMENT_RECIPIENT_NOT_CONFIGURED, context)
-                        }
+                    if (!acquiringIntegration.hostUrl) {
+                        logger.warn({ msg: 'AcquiringIntegration missing hostUrl, skipping card token deletion', cardTokenIds: [...releasedBindingIds] })
+                        return { id: subscriptionContextId }
+                    }
 
-                        if (!acquiringIntegration) {
-                            throw new GQLError(ERRORS.ACQUIRING_INTEGRATION_NOT_FOUND, context)
-                        }
-
-                        if (!acquiringIntegration.hostUrl) {
-                            logger.warn({ msg: 'AcquiringIntegration missing hostUrl, skipping card token deletion', cardTokenId: currentBindingId })
-                            return { id: subscriptionContextId }
-                        }
+                    for (const releasedBindingId of releasedBindingIds) {
+                        const stillUsedContexts = await find('SubscriptionContext', {
+                            organization: { id: organizationId },
+                            bindingId: releasedBindingId,
+                            id_not_in: targetContextIds,
+                            endAt_gte: dayjs().format('YYYY-MM-DD'),
+                            deletedAt: null,
+                        })
+                        if (stillUsedContexts.length > 0) continue
 
                         try {
                             await SubscriptionPaymentAdapter.deleteCardToken({
                                 hostUrl: acquiringIntegration.hostUrl,
                                 organizationId,
-                                cardTokenId: currentBindingId,
+                                cardTokenId: releasedBindingId,
                             })
-                            logger.info({ msg: 'Successfully deleted card token from payment gateway', cardTokenId: currentBindingId })
+                            logger.info({ msg: 'Successfully deleted card token from payment gateway', cardTokenId: releasedBindingId })
                         } catch (error) {
                             const errorMessage = get(error, 'message') || 'Unknown error'
-                            logger.error({ msg: 'Failed to delete card token from payment gateway', cardTokenId: currentBindingId, error: errorMessage })
+                            logger.error({ msg: 'Failed to delete card token from payment gateway', cardTokenId: releasedBindingId, error: errorMessage })
                         }
                     }
                 }
