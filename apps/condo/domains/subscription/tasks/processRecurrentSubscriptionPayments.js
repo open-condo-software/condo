@@ -1,13 +1,129 @@
 const dayjs = require('dayjs')
 
 const { getLogger } = require('@open-condo/keystone/logging')
-const { getSchemaCtx, itemsQuery } = require('@open-condo/keystone/schema')
+const { getSchemaCtx, getById, itemsQuery } = require('@open-condo/keystone/schema')
 
-const { SUBSCRIPTION_PAYMENT_BUFFER_DAYS, SUBSCRIPTION_CONTEXT_STATUS } = require('@condo/domains/subscription/constants')
+const { SUBSCRIPTION_PAYMENT_BUFFER_DAYS, SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PLAN_TYPE_SERVICE } = require('@condo/domains/subscription/constants')
 const { SubscriptionPaymentAdapter } = require('@condo/domains/subscription/tasks/utils/SubscriptionPaymentAdapter')
 const { registerSubscriptionContext, SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
 
 const logger = getLogger('processRecurrentSubscriptionPayments')
+
+const SENDER = { dv: 1, fingerprint: 'processRecurrentSubscriptionPayments' }
+
+function groupContextsByInvoice (contexts) {
+    const groups = new Map()
+    for (const subscriptionContext of contexts) {
+        const key = subscriptionContext.invoice || `no-invoice:${subscriptionContext.id}`
+        if (!groups.has(key)) groups.set(key, [])
+        groups.get(key).push(subscriptionContext)
+    }
+    return Array.from(groups.values())
+}
+
+async function isLatestDoneContext (subscriptionContext) {
+    const [latest] = await itemsQuery('SubscriptionContext', {
+        where: {
+            organization: { id: subscriptionContext.organization },
+            subscriptionPlan: { id: subscriptionContext.subscriptionPlan },
+            status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+            deletedAt: null,
+        },
+        sortBy: ['endAt_DESC'],
+        first: 1,
+    })
+    return latest && latest.id === subscriptionContext.id
+}
+
+async function resolveRenewalRules (group) {
+    let baseRuleId = null
+    const additionalRuleIds = []
+    for (const subscriptionContext of group) {
+        const plan = await getById('SubscriptionPlan', subscriptionContext.subscriptionPlan)
+        const isService = plan && plan.planType === SUBSCRIPTION_PLAN_TYPE_SERVICE
+        if (isService && !baseRuleId) {
+            baseRuleId = subscriptionContext.subscriptionPlanPricingRule
+        } else {
+            additionalRuleIds.push(subscriptionContext.subscriptionPlanPricingRule)
+        }
+    }
+    if (!baseRuleId) {
+        baseRuleId = additionalRuleIds.shift()
+    }
+    return { baseRuleId, additionalRuleIds }
+}
+
+async function processGroup (context, group, bufferDate) {
+    const organizationId = group[0].organization
+    const bindingId = group[0].bindingId
+    const groupContextIds = group.map(subscriptionContext => subscriptionContext.id)
+
+    for (const subscriptionContext of group) {
+        const isLatest = await isLatestDoneContext(subscriptionContext)
+        if (!isLatest) {
+            logger.info({ msg: 'group has a non-latest context, skipping group', data: { subscriptionContextId: subscriptionContext.id, groupContextIds } })
+            return
+        }
+    }
+
+    const { baseRuleId, additionalRuleIds } = await resolveRenewalRules(group)
+    if (!baseRuleId) {
+        logger.warn({ msg: 'group has no base pricing rule, skipping', data: { groupContextIds } })
+        return
+    }
+
+    const result = await registerSubscriptionContext(context, {
+        sender: SENDER,
+        organization: { id: organizationId },
+        subscriptionPlanPricingRule: { id: baseRuleId },
+        additionalPricingRules: additionalRuleIds.map(id => ({ id })),
+        isTrial: false,
+    })
+
+    const newContexts = result.subscriptionContexts && result.subscriptionContexts.length > 0
+        ? result.subscriptionContexts
+        : [result.subscriptionContext].filter(Boolean)
+    const directPaymentUrl = result.directPaymentUrl
+    const invoiceId = result.subscriptionContext && result.subscriptionContext.invoice
+        ? result.subscriptionContext.invoice.id
+        : null
+
+    logger.info({ msg: 'registered renewal bundle', data: { organizationId, invoiceId, newContextIds: newContexts.map(ctx => ctx.id) } })
+
+    const setStatusForAll = async (status) => {
+        for (const newContext of newContexts) {
+            await SubscriptionContext.update(context, newContext.id, { dv: 1, sender: SENDER, status })
+        }
+    }
+
+    if (!directPaymentUrl || !invoiceId) {
+        logger.warn({ msg: 'no directPaymentUrl or invoice for renewal payment', data: { organizationId, invoiceId } })
+        await setStatusForAll(SUBSCRIPTION_CONTEXT_STATUS.ERROR)
+        return
+    }
+
+    const groupEndAt = group.reduce((min, subscriptionContext) => (!min || subscriptionContext.endAt < min ? subscriptionContext.endAt : min), null)
+    const isLastBufferDay = !dayjs(groupEndAt).isAfter(dayjs(bufferDate))
+    const errorStatus = isLastBufferDay ? SUBSCRIPTION_CONTEXT_STATUS.ERROR : SUBSCRIPTION_CONTEXT_STATUS.PENDING
+
+    try {
+        const paymentResult = await SubscriptionPaymentAdapter.proceedPayment({
+            directPaymentUrl,
+            cardTokenId: bindingId,
+        })
+        const { status: paymentStatus, paid, errorMessage, cancellationDetails } = paymentResult
+
+        if (paid) {
+            logger.info({ msg: 'renewal payment succeeded', data: { organizationId, invoiceId } })
+        } else {
+            logger.error({ msg: 'renewal payment failed', data: { organizationId, invoiceId, paymentStatus, errorMessage, cancellationDetails, isLastBufferDay, willSetStatus: errorStatus } })
+            await setStatusForAll(errorStatus)
+        }
+    } catch (paymentError) {
+        logger.error({ msg: 'renewal payment processing error', err: paymentError, data: { organizationId, invoiceId, isLastBufferDay, willSetStatus: errorStatus } })
+        await setStatusForAll(errorStatus)
+    }
+}
 
 async function processRecurrentSubscriptionPayments () {
     const { keystone } = getSchemaCtx('SubscriptionContext')
@@ -29,119 +145,14 @@ async function processRecurrentSubscriptionPayments () {
         sortBy: ['endAt_DESC'],
     })
 
-    logger.info({ msg: 'found subscription contexts', count: contexts.length })
+    const groups = groupContextsByInvoice(contexts)
+    logger.info({ msg: 'found subscription contexts to renew', count: contexts.length, groupCount: groups.length })
 
-    for (const subscriptionContext of contexts) {
+    for (const group of groups) {
         try {
-            const {
-                id,
-                organization,
-                subscriptionPlan,
-                subscriptionPlanPricingRule,
-                bindingId,
-                endAt,
-            } = subscriptionContext
-
-            const latestContexts = await itemsQuery('SubscriptionContext', {
-                where: {
-                    organization: { id: organization },
-                    subscriptionPlan: { id: subscriptionPlan },
-                    status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
-                    deletedAt: null,
-                },
-                sortBy: ['endAt_DESC'],
-                first: 1,
-            })
-
-            if (!latestContexts || latestContexts.length === 0) {
-                logger.warn({ msg: 'no latest context found, skipping', data: { subscriptionContextId: id } })
-                continue
-            }
-
-            const latestContext = latestContexts[0]
-            if (latestContext.id !== id) {
-                logger.info({ msg: 'subscription context is not the latest, skipping', data: { subscriptionContextId: id, latestContextId: latestContext.id } })
-                continue
-            }
-
-            logger.info({ msg: 'processing subscription context renewal', data: { subscriptionContextId: id, organizationId: organization } })
-
-            const sender = { dv: 1, fingerprint: 'processRecurrentSubscriptionPayments' }
-
-            const result = await registerSubscriptionContext(context, {
-                sender,
-                organization: { id: organization },
-                subscriptionPlanPricingRule: { id: subscriptionPlanPricingRule },
-                isTrial: false,
-            })
-            const newContext = result.subscriptionContext
-            const directPaymentUrl = result.directPaymentUrl
-
-            logger.info({ msg: 'registered subscription context', data: { newContextId: newContext.id, invoiceId: newContext.invoice, status: newContext.status } })
-
-            if (!directPaymentUrl || !newContext.invoice) {
-                logger.warn({ msg: 'no directPaymentUrl or invoice for payment', data: { subscriptionContextId: newContext.id } })
-                await SubscriptionContext.update(context, newContext.id, {
-                    status: SUBSCRIPTION_CONTEXT_STATUS.ERROR,
-                    sender,
-                })
-                continue
-            }
-
-            const isLastBufferDay = !dayjs(endAt).isAfter(dayjs(bufferDate))
-            const errorStatus = isLastBufferDay
-                ? SUBSCRIPTION_CONTEXT_STATUS.ERROR
-                : SUBSCRIPTION_CONTEXT_STATUS.PENDING
-
-            try {
-                const paymentResult = await SubscriptionPaymentAdapter.proceedPayment({
-                    directPaymentUrl,
-                    cardTokenId: bindingId,
-                })
-
-                const { status: paymentStatus, paid, errorMessage, cancellationDetails } = paymentResult
-
-                if (paid) {
-                    logger.info({ msg: 'payment succeeded', data: { subscriptionContextId: newContext.id, invoiceId: newContext.invoice } })
-                } else {
-                    logger.error({
-                        msg: 'payment failed',
-                        data: {
-                            subscriptionContextId: newContext.id,
-                            invoiceId: newContext.invoice,
-                            paymentStatus,
-                            errorMessage,
-                            cancellationDetails,
-                            isLastBufferDay,
-                            willSetStatus: errorStatus,
-                        },
-                    })
-
-                    await SubscriptionContext.update(context, newContext.id, {
-                        dv: 1,
-                        sender,
-                        status: errorStatus,
-                    })
-                }
-            } catch (paymentError) {
-                logger.error({
-                    msg: 'payment processing error',
-                    err: paymentError,
-                    data: {
-                        subscriptionContextId: newContext.id,
-                        isLastBufferDay,
-                        willSetStatus: errorStatus,
-                    },
-                })
-
-                await SubscriptionContext.update(context, newContext.id, {
-                    dv: 1,
-                    sender,
-                    status: errorStatus,
-                })
-            }
+            await processGroup(context, group, bufferDate)
         } catch (error) {
-            logger.error({ msg: 'failed to process subscription context', err: error, data: { subscriptionContextId: subscriptionContext.id } })
+            logger.error({ msg: 'failed to process renewal group', err: error, data: { groupContextIds: group.map(subscriptionContext => subscriptionContext.id) } })
         }
     }
 

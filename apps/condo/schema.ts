@@ -47311,18 +47311,6 @@ export type Mutation = {
    *   "type": "INVOICE_NOT_PAID",
    *   "message": "Invoice is not paid"
    * }`
-   *
-   * `{
-   *   "code": "BAD_USER_INPUT",
-   *   "type": "MULTI_PAYMENT_NOT_FOUND",
-   *   "message": "MultiPayment not found for invoice"
-   * }`
-   *
-   * `{
-   *   "code": "BAD_USER_INPUT",
-   *   "type": "PAYMENT_NOT_FOUND",
-   *   "message": "Payment not found in MultiPayment"
-   * }`
    */
   activateSubscriptionContext?: Maybe<ActivateSubscriptionContextOutput>;
   /**
@@ -51079,7 +51067,7 @@ export type Mutation = {
    */
   registerServiceConsumer?: Maybe<ServiceConsumer>;
   /**
-   * Registers a subscription context for an organization. For trial subscriptions (isTrial=true), creates SubscriptionContext with status DONE. For paid subscriptions (isTrial=false), creates Invoice + SubscriptionContext with status CREATED + MultiPayment.
+   * Registers a subscription for an organization. A bundle may contain a base pricing rule plus additionalPricingRules. For trials (isTrial=true) creates a single SubscriptionContext with status DONE. For paid subscriptions creates one Invoice with a row per pricing rule and one SubscriptionContext per pricing rule with status CREATED; when paymentType=card a MultiPayment and directPaymentUrl are also created.
    *
    *
    *
@@ -51124,6 +51112,41 @@ export type Mutation = {
    *
    * `{
    *   "code": "BAD_USER_INPUT",
+   *   "type": "TRIAL_BUNDLE_NOT_SUPPORTED",
+   *   "message": "Trial subscription cannot be registered with additional pricing rules",
+   *   "messageForUser": "Trial subscription cannot be registered with additional pricing rules"
+   * }`
+   *
+   * `{
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "MIXED_PRICING_RULE_PERIODS",
+   *   "message": "All pricing rules in a bundle must have the same period",
+   *   "messageForUser": "All pricing rules in a bundle must have the same period"
+   * }`
+   *
+   * `{
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "DUPLICATE_PLAN_IN_BUNDLE",
+   *   "message": "A bundle cannot contain the same subscription plan more than once",
+   *   "messageForUser": "A bundle cannot contain the same subscription plan more than once"
+   * }`
+   *
+   * `{
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "MULTIPLE_SERVICE_PLANS_IN_BUNDLE",
+   *   "message": "A bundle can contain at most one service plan",
+   *   "messageForUser": "A bundle can contain at most one service plan"
+   * }`
+   *
+   * `{
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "FEATURE_ALREADY_IN_PLAN",
+   *   "message": "A feature plan in the bundle is already covered by another plan in the same bundle",
+   *   "messageForUser": "A feature plan in the bundle is already covered by another plan in the same bundle"
+   * }`
+   *
+   * `{
+   *   "code": "BAD_USER_INPUT",
    *   "type": "NO_ACTIVE_SERVICE_SUBSCRIPTION",
    *   "message": "Cannot subscribe to a feature plan without an active service subscription",
    *   "messageForUser": "Cannot subscribe to a feature plan without an active service subscription"
@@ -51134,6 +51157,12 @@ export type Mutation = {
    *   "type": "ACTIVE_SUPERSET_PLAN_EXISTS",
    *   "message": "Cannot register a subscription that is already fully covered by an active non-trial plan",
    *   "messageForUser": "Cannot register a subscription that is already fully covered by an active non-trial plan"
+   * }`
+   *
+   * `{
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOT_FOUND",
+   *   "message": "SUBSCRIPTION_PAYMENT_RECIPIENT is not configured"
    * }`
    */
   registerSubscriptionContext?: Maybe<RegisterSubscriptionContextOutput>;
@@ -91192,9 +91221,11 @@ export type RegisterServiceConsumerInputExtra = {
 };
 
 export type RegisterSubscriptionContextInput = {
+  additionalPricingRules?: InputMaybe<Array<SubscriptionPlanPricingRuleWhereUniqueInput>>;
   dv: Scalars['Int']['input'];
   isTrial?: InputMaybe<Scalars['Boolean']['input']>;
   organization: OrganizationWhereUniqueInput;
+  paymentType?: InputMaybe<SubscriptionPaymentType>;
   sender: SenderFieldInput;
   subscriptionPlanPricingRule: SubscriptionPlanPricingRuleWhereUniqueInput;
 };
@@ -91204,6 +91235,7 @@ export type RegisterSubscriptionContextOutput = {
   directPaymentUrl?: Maybe<Scalars['String']['output']>;
   multiPayment?: Maybe<MultiPayment>;
   subscriptionContext?: Maybe<SubscriptionContext>;
+  subscriptionContexts?: Maybe<Array<SubscriptionContext>>;
 };
 
 /**  Used to describe device in order to be able to send push notifications via corresponding transport, depending on pushTransport value. RemoteClient could be mobile or web based. RemoteClient could be registered (created by user, admin or anonymous) with or without token, and updated later on by admin (or a user within SyncRemoteClientService) by adding/changing token value and connecting device to user (whose authorization was passed within request). All such interactions should be done via SyncRemoteClientService.  */
@@ -105481,6 +105513,11 @@ export type SubscriptionContextsUpdateInput = {
   id: Scalars['ID']['input'];
 };
 
+export enum SubscriptionPaymentType {
+  Card = 'card',
+  Invoice = 'invoice'
+}
+
 /**  Subscription plan that defines a product with features. Prices are defined via SubscriptionPlanPricingRule  */
 export type SubscriptionPlan = {
   __typename?: 'SubscriptionPlan';
@@ -117983,6 +118020,7 @@ export type UnitType = {
 export type UpdateSubscriptionContextPaymentMethodInput = {
   bindingId?: InputMaybe<Scalars['String']['input']>;
   dv: Scalars['Int']['input'];
+  invoice?: InputMaybe<InvoiceWhereUniqueInput>;
   sender: SenderFieldInput;
   subscriptionContext: SubscriptionContextWhereUniqueInput;
 };
