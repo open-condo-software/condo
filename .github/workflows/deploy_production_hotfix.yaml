@@ -1,10 +1,9 @@
-name: "⚠️💥💀⚡💢❗ [production] Deploy"
+name: "⚠️💥💀⚡💢❗ [production] Hotfix Deploy"
 
 concurrency: deploy_backup_production.yaml
 
 permissions:
   contents: read
-  actions: read
 
 on:
   workflow_dispatch:
@@ -13,8 +12,9 @@ on:
 
 jobs:
   converge:
-    name: "[production] Deploy"
+    name: "[production] Hotfix Deploy"
     runs-on: self-hosted
+    environment: production-hotfix
     env:
       WERF_SECRET_KEY: ${{ secrets.WERF_SECRET_KEY }}
       PULL_USER: ${{ secrets.PULL_USER }}
@@ -31,26 +31,6 @@ jobs:
               echo "Wrong tag name was provided. Tag should be created with pattern 'release-vXX.XX.XX'"
               exit 1
           fi
-      - name: Require Condo CI success for tag SHA
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          SHA="${{ github.sha }}"
-          echo "Checking Condo CI success for commit ${SHA}"
-          RUN_ID="$(gh run list \
-            --repo "${{ github.repository }}" \
-            --workflow "Condo CI" \
-            --commit "${SHA}" \
-            --status completed \
-            --json databaseId,conclusion,event \
-            --jq '[.[] | select(.conclusion == "success")][0].databaseId // empty')"
-          if [[ -z "${RUN_ID}" ]]; then
-            echo "ERROR: No successful Condo CI run found for ${SHA}."
-            echo "Push/create a release-v* branch, wait for Condo CI to pass, then tag that SHA."
-            echo "For untested emergency deploys use the [production] Hotfix Deploy workflow."
-            exit 1
-          fi
-          echo "Found successful Condo CI run: ${RUN_ID}"
       - name: Login to Container Registry
         uses: docker/login-action@v3
         with:
@@ -73,7 +53,7 @@ jobs:
       - name: Resolve prebuilt apps image
         env:
           DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
-        run: bash bin/resolve_prebuilt_apps_image.sh "$DOCKER_REGISTRY" "${{ github.sha }}" required
+        run: bash bin/resolve_prebuilt_apps_image.sh "$DOCKER_REGISTRY" "${{ github.sha }}"
       - name: Prune package manifests for Docker deps layer
         if: ${{ env.PREBUILT_APPS_IMAGE == '' }}
         run: bash bin/prune.sh
