@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - 'release-v*'
 
   # NOTE: change pull_request_target to pull_request if you want to change the CI in your branch
   pull_request_target:
