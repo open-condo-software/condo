@@ -4,10 +4,12 @@ const dayjs = require('dayjs')
 
 const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
-const { INVOICE_STATUS_PUBLISHED } = require('@condo/domains/marketplace/constants')
-const { Invoice } = require('@condo/domains/marketplace/utils/testSchema')
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
+const { createTestAcquiringIntegration, createTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
+const { INVOICE_STATUS_PUBLISHED, INVOICE_STATUS_PAID, INVOICE_TYPE_B2B } = require('@condo/domains/marketplace/constants')
+const { Invoice, createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PERIOD, SUBSCRIPTION_PAYMENT_BUFFER_DAYS } = require('@condo/domains/subscription/constants')
+const { SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PERIOD, SUBSCRIPTION_PAYMENT_BUFFER_DAYS, SUBSCRIPTION_PLAN_TYPE_FEATURE } = require('@condo/domains/subscription/constants')
 const { processRecurrentSubscriptionPayments } = require('@condo/domains/subscription/tasks/processRecurrentSubscriptionPayments')
 const {
     createTestSubscriptionPlan,
@@ -495,6 +497,94 @@ describe('processRecurrentSubscriptionPayments', () => {
             })
 
             expect(contextsAfter).toHaveLength(countBefore)
+        })
+    })
+
+    describe('bundle renewal', () => {
+        let featurePlan
+        let featureRule
+        let acquiringIntegration
+
+        beforeAll(async () => {
+            const [fp] = await createTestSubscriptionPlan(adminClient, {
+                planType: SUBSCRIPTION_PLAN_TYPE_FEATURE,
+                ai: true,
+            })
+            featurePlan = fp
+
+            const [fr] = await createTestSubscriptionPlanPricingRule(adminClient, featurePlan, {
+                price: '400',
+                period: SUBSCRIPTION_PERIOD.MONTH,
+            })
+            featureRule = fr
+
+            const [integration] = await createTestAcquiringIntegration(adminClient, {
+                canGroupReceipts: true,
+            })
+            acquiringIntegration = integration
+        })
+
+        test('renews contexts sharing an invoice as a single new bundle', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+            const [payerOrganization] = await createTestOrganization(adminClient)
+
+            await createTestAcquiringIntegrationContext(adminClient, organization, acquiringIntegration, {
+                invoiceStatus: CONTEXT_FINISHED_STATUS,
+            })
+
+            const bindingId = faker.datatype.uuid()
+            const paymentMethod = {
+                bindingId,
+                paymentSystem: 'test-system',
+                cardNumber: '9999',
+                expiration: '12/25',
+                bankName: 'Test Bank',
+                bankCountryCode: 'RU',
+            }
+            const startAt = dayjs().subtract(1, 'month').format('YYYY-MM-DD')
+            const endAt = dayjs().subtract(1, 'day').format('YYYY-MM-DD')
+
+            const [sharedInvoice] = await createTestInvoice(adminClient, organization, {
+                type: INVOICE_TYPE_B2B,
+                status: INVOICE_STATUS_PAID,
+                payerOrganization: { connect: { id: payerOrganization.id } },
+            })
+
+            await createTestSubscriptionContext(adminClient, payerOrganization, subscriptionPlan, {
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
+                invoice: { connect: { id: sharedInvoice.id } },
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+                bindingId,
+                startAt,
+                endAt,
+                isTrial: false,
+                frozenPaymentInfo: { pricingRuleId: pricingRule.id, paymentMethod },
+            })
+            await createTestSubscriptionContext(adminClient, payerOrganization, featurePlan, {
+                subscriptionPlanPricingRule: { connect: { id: featureRule.id } },
+                invoice: { connect: { id: sharedInvoice.id } },
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+                bindingId,
+                startAt,
+                endAt,
+                isTrial: false,
+                frozenPaymentInfo: { pricingRuleId: featureRule.id, paymentMethod },
+            })
+
+            await processRecurrentSubscriptionPayments()
+
+            const newContexts = await SubscriptionContext.getAll(adminClient, {
+                organization: { id: payerOrganization.id },
+                status_in: [SUBSCRIPTION_CONTEXT_STATUS.PENDING, SUBSCRIPTION_CONTEXT_STATUS.ERROR],
+            })
+
+            expect(newContexts).toHaveLength(2)
+            const newInvoiceIds = new Set(newContexts.map(ctx => ctx.invoice.id))
+            expect(newInvoiceIds.size).toBe(1)
+            expect([...newInvoiceIds][0]).not.toBe(sharedInvoice.id)
+
+            const newRuleIds = newContexts.map(ctx => ctx.subscriptionPlanPricingRule.id).sort()
+            expect(newRuleIds).toEqual([pricingRule.id, featureRule.id].sort())
         })
     })
 })

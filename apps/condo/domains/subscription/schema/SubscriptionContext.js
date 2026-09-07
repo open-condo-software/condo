@@ -354,7 +354,7 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
                 const activatedPlan = await getById('SubscriptionPlan', updatedItem.subscriptionPlan)
                 if (activatedPlan) {
                     const bufferDate = dayjs().subtract(SUBSCRIPTION_PAYMENT_BUFFER_DAYS, 'days').format('YYYY-MM-DD')
-                    const activeContextsWithAutopayment = await find('SubscriptionContext', {
+                    const autopaymentCandidates = await find('SubscriptionContext', {
                         organization: { id: updatedItem.organization },
                         status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
                         bindingId_not: null,
@@ -362,6 +362,9 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
                         deletedAt: null,
                         id_not: updatedItem.id,
                     })
+                    const activeContextsWithAutopayment = autopaymentCandidates.filter(
+                        otherContext => !updatedItem.invoice || otherContext.invoice !== updatedItem.invoice
+                    )
 
                     for (const otherContext of activeContextsWithAutopayment) {
                         const otherPlan = await getById('SubscriptionPlan', otherContext.subscriptionPlan)

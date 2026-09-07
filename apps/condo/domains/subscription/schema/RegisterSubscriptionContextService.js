@@ -12,15 +12,23 @@ const { GQLCustomSchema, find, getById } = require('@open-condo/keystone/schema'
 
 const { registerMultiPayment } = require('@condo/domains/acquiring/utils/serverSchema')
 const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
-const { INVOICE_STATUS_PUBLISHED, INVOICE_TYPE_B2B } = require('@condo/domains/marketplace/constants')
+const { INVOICE_STATUS_PUBLISHED, INVOICE_STATUS_CANCELED, INVOICE_TYPE_B2B } = require('@condo/domains/marketplace/constants')
 const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 const access = require('@condo/domains/subscription/access/RegisterSubscriptionContextService')
-const { PERIOD_TO_MONTHS, SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PAYMENT_BUFFER_DAYS, SUBSCRIPTION_PLAN_TYPE_FEATURE } = require('@condo/domains/subscription/constants')
+const {
+    PERIOD_TO_MONTHS,
+    SUBSCRIPTION_CONTEXT_STATUS,
+    SUBSCRIPTION_PAYMENT_BUFFER_DAYS,
+    SUBSCRIPTION_PLAN_TYPE_SERVICE,
+    SUBSCRIPTION_PLAN_TYPE_FEATURE,
+    SUBSCRIPTION_PAYMENT_TYPE_CARD,
+    SUBSCRIPTION_PAYMENT_TYPES,
+} = require('@condo/domains/subscription/constants')
 const { isPlanSubsetOf } = require('@condo/domains/subscription/utils/isPlanSubsetOf')
 const { SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
 const { getSubscriptionPaymentRecipient } = require('@condo/domains/subscription/utils/serverSchema/getSubscriptionPaymentRecipient')
-const { calculateSubscriptionStartDate } = require('@condo/domains/subscription/utils/subscriptionContext')
+const { calculateSubscriptionStartDate, findBundleContexts } = require('@condo/domains/subscription/utils/subscriptionContext')
 
 const logger = getLogger('RegisterSubscriptionContextService')
 
@@ -74,6 +82,46 @@ const ERRORS = {
         message: 'Trial subscription for this plan was already activated',
         messageForUser: 'api.subscription.registerSubscriptionContext.TRIAL_ALREADY_USED',
     },
+    TRIAL_BUNDLE_NOT_SUPPORTED: {
+        mutation: 'registerSubscriptionContext',
+        variable: ['data', 'additionalPricingRules'],
+        code: BAD_USER_INPUT,
+        type: 'TRIAL_BUNDLE_NOT_SUPPORTED',
+        message: 'Trial subscription cannot be registered with additional pricing rules',
+        messageForUser: 'api.subscription.registerSubscriptionContext.TRIAL_BUNDLE_NOT_SUPPORTED',
+    },
+    MIXED_PRICING_RULE_PERIODS: {
+        mutation: 'registerSubscriptionContext',
+        variable: ['data', 'additionalPricingRules'],
+        code: BAD_USER_INPUT,
+        type: 'MIXED_PRICING_RULE_PERIODS',
+        message: 'All pricing rules in a bundle must have the same period',
+        messageForUser: 'api.subscription.registerSubscriptionContext.MIXED_PRICING_RULE_PERIODS',
+    },
+    DUPLICATE_PLAN_IN_BUNDLE: {
+        mutation: 'registerSubscriptionContext',
+        variable: ['data', 'additionalPricingRules'],
+        code: BAD_USER_INPUT,
+        type: 'DUPLICATE_PLAN_IN_BUNDLE',
+        message: 'A bundle cannot contain the same subscription plan more than once',
+        messageForUser: 'api.subscription.registerSubscriptionContext.DUPLICATE_PLAN_IN_BUNDLE',
+    },
+    MULTIPLE_SERVICE_PLANS_IN_BUNDLE: {
+        mutation: 'registerSubscriptionContext',
+        variable: ['data', 'additionalPricingRules'],
+        code: BAD_USER_INPUT,
+        type: 'MULTIPLE_SERVICE_PLANS_IN_BUNDLE',
+        message: 'A bundle can contain at most one service plan',
+        messageForUser: 'api.subscription.registerSubscriptionContext.MULTIPLE_SERVICE_PLANS_IN_BUNDLE',
+    },
+    FEATURE_ALREADY_IN_PLAN: {
+        mutation: 'registerSubscriptionContext',
+        variable: ['data', 'additionalPricingRules'],
+        code: BAD_USER_INPUT,
+        type: 'FEATURE_ALREADY_IN_PLAN',
+        message: 'A feature plan in the bundle is already covered by another plan in the same bundle',
+        messageForUser: 'api.subscription.registerSubscriptionContext.FEATURE_ALREADY_IN_PLAN',
+    },
     NO_ACTIVE_SERVICE_SUBSCRIPTION: {
         mutation: 'registerSubscriptionContext',
         variable: ['data', 'organization'],
@@ -90,84 +138,100 @@ const ERRORS = {
         message: 'Cannot register a subscription that is already fully covered by an active non-trial plan',
         messageForUser: 'api.subscription.registerSubscriptionContext.ACTIVE_SUPERSET_PLAN_EXISTS',
     },
+    PAYMENT_RECIPIENT_NOT_CONFIGURED: {
+        mutation: 'registerSubscriptionContext',
+        code: BAD_USER_INPUT,
+        type: NOT_FOUND,
+        message: 'SUBSCRIPTION_PAYMENT_RECIPIENT is not configured',
+    },
 }
 
 const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscriptionContextService', {
     types: [
         {
             access: true,
-            type: 'input RegisterSubscriptionContextInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, subscriptionPlanPricingRule: SubscriptionPlanPricingRuleWhereUniqueInput!, isTrial: Boolean }',
+            type: `enum SubscriptionPaymentType { ${SUBSCRIPTION_PAYMENT_TYPES.join(' ')} }`,
         },
         {
             access: true,
-            type: 'type RegisterSubscriptionContextOutput { subscriptionContext: SubscriptionContext, directPaymentUrl: String, multiPayment: MultiPayment }',
+            type: 'input RegisterSubscriptionContextInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, subscriptionPlanPricingRule: SubscriptionPlanPricingRuleWhereUniqueInput!, additionalPricingRules: [SubscriptionPlanPricingRuleWhereUniqueInput!], paymentType: SubscriptionPaymentType, isTrial: Boolean }',
+        },
+        {
+            access: true,
+            type: 'type RegisterSubscriptionContextOutput { subscriptionContext: SubscriptionContext, subscriptionContexts: [SubscriptionContext!], directPaymentUrl: String, multiPayment: MultiPayment }',
         },
     ],
-    
+
     mutations: [
         {
             access: access.canRegisterSubscriptionContext,
             schema: 'registerSubscriptionContext(data: RegisterSubscriptionContextInput!): RegisterSubscriptionContextOutput',
             doc: {
-                summary: 'Registers a subscription context for an organization. For trial subscriptions (isTrial=true), creates SubscriptionContext with status DONE. For paid subscriptions (isTrial=false), creates Invoice + SubscriptionContext with status CREATED + MultiPayment.',
+                summary: 'Registers a subscription for an organization. A bundle may contain a base pricing rule plus additionalPricingRules. For trials (isTrial=true) creates a single SubscriptionContext with status DONE. For paid subscriptions creates one Invoice with a row per pricing rule and one SubscriptionContext per pricing rule with status CREATED; when paymentType=card a MultiPayment and directPaymentUrl are also created.',
                 errors: ERRORS,
             },
-            resolver: async (parent, args, context, info, extra = {}) => {
+            resolver: async (parent, args, context) => {
                 const { data } = args
-                const { dv, sender, organization: organizationInput, subscriptionPlanPricingRule: pricingRuleInput, isTrial } = data
+                const {
+                    dv,
+                    sender,
+                    organization: organizationInput,
+                    subscriptionPlanPricingRule: pricingRuleInput,
+                    additionalPricingRules: additionalPricingRuleInputs = [],
+                    paymentType = SUBSCRIPTION_PAYMENT_TYPE_CARD,
+                    isTrial,
+                } = data
 
-                logger.info({ msg: 'Starting subscription context registration', data: { organizationId: organizationInput.id, pricingRuleId: pricingRuleInput.id, isTrial } })
+                const isCard = paymentType === SUBSCRIPTION_PAYMENT_TYPE_CARD
+
+                logger.info({ msg: 'Starting subscription registration', data: { organizationId: organizationInput.id, pricingRuleId: pricingRuleInput.id, additionalCount: additionalPricingRuleInputs.length, paymentType, isTrial } })
 
                 const [organization] = await find('Organization', {
                     id: organizationInput.id,
                     deletedAt: null,
                 })
                 if (!organization) {
-                    logger.warn({ msg: 'Organization not found', data: { organizationId: organizationInput.id } })
                     throw new GQLError(ERRORS.ORGANIZATION_NOT_FOUND, context)
                 }
-                logger.info({ msg: 'Found organization', data: { organizationId: organization.id, orgType: organization.type } })
 
-                const [pricingRule] = await find('SubscriptionPlanPricingRule', {
-                    id: pricingRuleInput.id,
-                    deletedAt: null,
-                })
-                if (!pricingRule) {
-                    logger.warn({ msg: 'Pricing rule not found', data: { pricingRuleId: pricingRuleInput.id } })
-                    throw new GQLError(ERRORS.PRICING_RULE_NOT_FOUND, context)
-                }
-                logger.info({ msg: 'Found pricing rule', data: { pricingRuleId: pricingRule.id, period: pricingRule.period, price: pricingRule.price } })
-
-                const plan = await getById('SubscriptionPlan', pricingRule.subscriptionPlan)
-                if (!plan || plan.deletedAt) {
-                    throw new GQLError(ERRORS.PRICING_RULE_NOT_FOUND, context)
-                }
-
-                if (plan.organizationType && plan.organizationType !== organization.type) {
-                    throw new GQLError(ERRORS.INVALID_ORGANIZATION_TYPE, context)
+                const ruleInputs = [pricingRuleInput, ...additionalPricingRuleInputs]
+                const items = []
+                for (const ruleInput of ruleInputs) {
+                    const [rule] = await find('SubscriptionPlanPricingRule', {
+                        id: ruleInput.id,
+                        deletedAt: null,
+                    })
+                    if (!rule) {
+                        throw new GQLError(ERRORS.PRICING_RULE_NOT_FOUND, context)
+                    }
+                    const plan = await getById('SubscriptionPlan', rule.subscriptionPlan)
+                    if (!plan || plan.deletedAt) {
+                        throw new GQLError(ERRORS.PRICING_RULE_NOT_FOUND, context)
+                    }
+                    items.push({ rule, plan })
                 }
 
-                if (plan.planType === SUBSCRIPTION_PLAN_TYPE_FEATURE) {
-                    const today = dayjs().format('YYYY-MM-DD')
-                    const organizationData = await Organization.getOne(context, { id: organization.id }, 'id subscription { activeSubscriptionEndAt }')
+                const baseItem = items[0]
+                const basePlan = baseItem.plan
+                const basePricingRule = baseItem.rule
 
-                    const activeSubscriptionEndAt = get(organizationData, ['subscription', 'activeSubscriptionEndAt'])
-                    const hasActiveServiceSubscription = activeSubscriptionEndAt && dayjs(activeSubscriptionEndAt).isAfter(dayjs(today))
-
-                    if (!hasActiveServiceSubscription) {
-                        throw new GQLError(ERRORS.NO_ACTIVE_SERVICE_SUBSCRIPTION, context)
+                for (const { plan } of items) {
+                    if (plan.organizationType && plan.organizationType !== organization.type) {
+                        throw new GQLError(ERRORS.INVALID_ORGANIZATION_TYPE, context)
                     }
                 }
 
-                // Trial subscription logic
                 if (isTrial) {
-                    if (plan.trialDays <= 0) {
+                    if (additionalPricingRuleInputs.length > 0) {
+                        throw new GQLError(ERRORS.TRIAL_BUNDLE_NOT_SUPPORTED, context)
+                    }
+                    if (basePlan.trialDays <= 0) {
                         throw new GQLError(ERRORS.TRIAL_NOT_AVAILABLE, context)
                     }
 
                     const [existingTrial] = await find('SubscriptionContext', {
                         organization: { id: organization.id },
-                        subscriptionPlan: { id: plan.id },
+                        subscriptionPlan: { id: basePlan.id },
                         isTrial: true,
                         deletedAt: null,
                     })
@@ -175,31 +239,68 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                         throw new GQLError(ERRORS.TRIAL_ALREADY_USED, context)
                     }
 
-                    const startAt = dayjs()
-                    const endAt = startAt.add(plan.trialDays, 'day')
+                    const trialStartAt = dayjs()
+                    const trialEndAt = trialStartAt.add(basePlan.trialDays, 'day')
                     const createdSubscriptionContext = await SubscriptionContext.create(context, {
                         dv,
                         sender,
                         organization: { connect: { id: organization.id } },
-                        subscriptionPlan: { connect: { id: plan.id } },
-                        startAt: startAt.format('YYYY-MM-DD'),
-                        endAt: endAt.format('YYYY-MM-DD'),
+                        subscriptionPlan: { connect: { id: basePlan.id } },
+                        startAt: trialStartAt.format('YYYY-MM-DD'),
+                        endAt: trialEndAt.format('YYYY-MM-DD'),
                         isTrial: true,
                         status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
                     })
                     const subscriptionContext = await getById('SubscriptionContext', createdSubscriptionContext.id)
 
-                    return { subscriptionContext, directPaymentUrl: null, multiPayment: null }
+                    return { subscriptionContext, subscriptionContexts: [subscriptionContext], directPaymentUrl: null, multiPayment: null }
                 }
 
-                // Paid subscription logic
-                const months = PERIOD_TO_MONTHS[pricingRule.period]
+                const period = basePricingRule.period
+                for (const { rule } of items) {
+                    if (rule.period !== period) {
+                        throw new GQLError(ERRORS.MIXED_PRICING_RULE_PERIODS, context)
+                    }
+                }
+                const months = PERIOD_TO_MONTHS[period]
                 if (!months) {
                     throw new GQLError(ERRORS.PRICING_RULE_NOT_FOUND, context)
                 }
 
+                const planIds = items.map(item => item.plan.id)
+                if (new Set(planIds).size !== planIds.length) {
+                    throw new GQLError(ERRORS.DUPLICATE_PLAN_IN_BUNDLE, context)
+                }
+
+                const serviceItems = items.filter(item => item.plan.planType === SUBSCRIPTION_PLAN_TYPE_SERVICE)
+                if (serviceItems.length > 1) {
+                    throw new GQLError(ERRORS.MULTIPLE_SERVICE_PLANS_IN_BUNDLE, context)
+                }
+                const featureItems = items.filter(item => item.plan.planType === SUBSCRIPTION_PLAN_TYPE_FEATURE)
+
+                for (const featureItem of featureItems) {
+                    for (const otherItem of items) {
+                        if (otherItem.plan.id === featureItem.plan.id) continue
+                        if (isPlanSubsetOf(featureItem.plan, otherItem.plan)) {
+                            throw new GQLError(ERRORS.FEATURE_ALREADY_IN_PLAN, context)
+                        }
+                    }
+                }
+
                 const today = dayjs().startOf('day')
+                const todayStr = today.format('YYYY-MM-DD')
                 const bufferDate = today.subtract(SUBSCRIPTION_PAYMENT_BUFFER_DAYS, 'days').format('YYYY-MM-DD')
+
+                if (featureItems.length > 0 && serviceItems.length === 0) {
+                    const organizationData = await Organization.getOne(context, { id: organization.id }, 'id subscription { activeSubscriptionEndAt }')
+                    const activeSubscriptionEndAt = get(organizationData, ['subscription', 'activeSubscriptionEndAt'])
+                    const hasActiveServiceSubscription = activeSubscriptionEndAt && dayjs(activeSubscriptionEndAt).isAfter(dayjs(todayStr))
+                    if (!hasActiveServiceSubscription) {
+                        throw new GQLError(ERRORS.NO_ACTIVE_SERVICE_SUBSCRIPTION, context)
+                    }
+                }
+
+                const requestedPlanIds = new Set(planIds)
                 const activeDoneContexts = await find('SubscriptionContext', {
                     organization: { id: organization.id },
                     status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
@@ -208,86 +309,96 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                     deletedAt: null,
                 })
                 for (const activeCtx of activeDoneContexts) {
-                    if (activeCtx.subscriptionPlan === plan.id) continue
+                    if (requestedPlanIds.has(activeCtx.subscriptionPlan)) continue
                     const activePlan = await getById('SubscriptionPlan', activeCtx.subscriptionPlan)
-                    
-                    if (activePlan && isPlanSubsetOf(plan, activePlan)) {
-                        logger.warn({ msg: 'Active non-trial superset plan exists', data: { organizationId: organization.id, planId: plan.id, supersetPlanId: activePlan.id } })
+                    if (!activePlan) continue
+                    if (items.every(item => isPlanSubsetOf(item.plan, activePlan))) {
+                        logger.warn({ msg: 'Active non-trial superset plan exists', data: { organizationId: organization.id, supersetPlanId: activePlan.id } })
                         throw new GQLError(ERRORS.ACTIVE_SUPERSET_PLAN_EXISTS, context)
                     }
                 }
 
                 const existingContexts = await find('SubscriptionContext', {
                     organization: { id: organization.id },
-                    subscriptionPlan: { id: plan.id },
+                    subscriptionPlan: { id: basePlan.id },
                     status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
                     deletedAt: null,
                 })
-
                 const startAt = calculateSubscriptionStartDate(existingContexts)
                 const endAt = startAt.add(months, 'month')
+                const startAtStr = startAt.format('YYYY-MM-DD')
+                const endAtStr = endAt.format('YYYY-MM-DD')
 
-                // Reuse existing CREATED context for today only (to avoid duplicates under concurrency)
+                const requestedRuleIds = items.map(item => item.rule.id).sort()
+
+                const finalizeExistingBundle = async (bundleContexts, invoiceId) => {
+                    let directPaymentUrl = null
+                    let multiPayment = null
+                    if (isCard) {
+                        const multiPaymentResult = await registerMultiPayment(context, {
+                            invoices: [{ id: invoiceId }],
+                            sender,
+                        })
+                        directPaymentUrl = buildDirectPaymentUrl(multiPaymentResult.directPaymentUrl, organization.id)
+                        multiPayment = await getById('MultiPayment', multiPaymentResult.multiPaymentId)
+                    }
+                    const subscriptionContexts = await find('SubscriptionContext', {
+                        id_in: bundleContexts.map(ctx => ctx.id),
+                        deletedAt: null,
+                    })
+                    const baseContext = subscriptionContexts.find(ctx => ctx.subscriptionPlanPricingRule === basePricingRule.id) || subscriptionContexts[0]
+                    return { subscriptionContext: baseContext, subscriptionContexts, directPaymentUrl, multiPayment }
+                }
+
+                const matchesRequestedComposition = (bundleContexts) => {
+                    const bundleRuleIds = bundleContexts.map(ctx => ctx.subscriptionPlanPricingRule).sort()
+                    return bundleRuleIds.length === requestedRuleIds.length
+                        && bundleRuleIds.every((ruleId, index) => ruleId === requestedRuleIds[index])
+                }
+
                 const [existingCreated] = await find('SubscriptionContext', {
                     organization: { id: organization.id },
-                    subscriptionPlanPricingRule: { id: pricingRule.id },
-                    startAt: startAt.format('YYYY-MM-DD'),
+                    subscriptionPlanPricingRule: { id: basePricingRule.id },
+                    startAt: startAtStr,
                     status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
                     deletedAt: null,
                 })
-                if (existingCreated) {
-                    logger.info({ msg: 'Reusing existing CREATED context', data: { subscriptionContextId: existingCreated.id, invoiceId: existingCreated.invoice } })
-                    const subscriptionContext = await getById('SubscriptionContext', existingCreated.id)
-
-                    const multiPaymentResult = await registerMultiPayment(context, {
-                        invoices: [{ id: subscriptionContext.invoice }],
-                        sender,
-                    })
-                    logger.info({ msg: 'Created new multiPayment for reused context', data: { multiPaymentId: multiPaymentResult.multiPaymentId, invoiceId: subscriptionContext.invoice } })
-
-                    const directPaymentUrl = buildDirectPaymentUrl(multiPaymentResult.directPaymentUrl, organization.id)
-
-                    const multiPayment = await getById('MultiPayment', multiPaymentResult.multiPaymentId)
-                    logger.info({ msg: 'Returning reused context with new multiPayment', data: { subscriptionContextId: subscriptionContext.id, multiPaymentId: multiPayment.id } })
-                    return { subscriptionContext, directPaymentUrl, multiPayment }
+                if (existingCreated && existingCreated.invoice) {
+                    const bundleContexts = await findBundleContexts(existingCreated.invoice, [SUBSCRIPTION_CONTEXT_STATUS.CREATED])
+                    if (matchesRequestedComposition(bundleContexts)) {
+                        logger.info({ msg: 'Reusing existing CREATED bundle', data: { invoiceId: existingCreated.invoice } })
+                        return await finalizeExistingBundle(bundleContexts, existingCreated.invoice)
+                    }
+                    logger.info({ msg: 'Superseding existing CREATED bundle with changed composition', data: { invoiceId: existingCreated.invoice } })
+                    for (const ctx of bundleContexts) {
+                        await SubscriptionContext.update(context, ctx.id, { dv, sender, deletedAt: new Date().toISOString() })
+                    }
+                    await Invoice.update(context, existingCreated.invoice, { dv, sender, status: INVOICE_STATUS_CANCELED })
                 }
 
-                // Reuse existing PENDING context from buffer period (retry failed payments)
-                const [existingErrorNeedRetry] = await find('SubscriptionContext', {
-                    organization: { id: organization.id },
-                    subscriptionPlanPricingRule: { id: pricingRule.id },
-                    startAt_gte: bufferDate,
-                    startAt_lte: today.format('YYYY-MM-DD'),
-                    status: SUBSCRIPTION_CONTEXT_STATUS.PENDING,
-                    deletedAt: null,
-                })
-                if (existingErrorNeedRetry) {
-                    logger.info({ msg: 'Reusing existing PENDING context for retry', data: { subscriptionContextId: existingErrorNeedRetry.id, invoiceId: existingErrorNeedRetry.invoice } })
-                    const subscriptionContext = await getById('SubscriptionContext', existingErrorNeedRetry.id)
-
-                    const multiPaymentResult = await registerMultiPayment(context, {
-                        invoices: [{ id: subscriptionContext.invoice }],
-                        sender,
+                if (isCard) {
+                    const [existingPending] = await find('SubscriptionContext', {
+                        organization: { id: organization.id },
+                        subscriptionPlanPricingRule: { id: basePricingRule.id },
+                        startAt_gte: bufferDate,
+                        startAt_lte: todayStr,
+                        status: SUBSCRIPTION_CONTEXT_STATUS.PENDING,
+                        deletedAt: null,
                     })
-                    logger.info({ msg: 'Created new multiPayment for retry context', data: { multiPaymentId: multiPaymentResult.multiPaymentId, invoiceId: subscriptionContext.invoice } })
-
-                    const directPaymentUrl = buildDirectPaymentUrl(multiPaymentResult.directPaymentUrl, organization.id)
-
-                    const multiPayment = await getById('MultiPayment', multiPaymentResult.multiPaymentId)
-                    logger.info({ msg: 'Returning retry context with new multiPayment', data: { subscriptionContextId: subscriptionContext.id, multiPaymentId: multiPayment.id } })
-                    return { subscriptionContext, directPaymentUrl, multiPayment }
+                    if (existingPending && existingPending.invoice) {
+                        const bundleContexts = await findBundleContexts(existingPending.invoice, [SUBSCRIPTION_CONTEXT_STATUS.PENDING])
+                        if (matchesRequestedComposition(bundleContexts)) {
+                            logger.info({ msg: 'Reusing existing PENDING bundle for retry', data: { invoiceId: existingPending.invoice } })
+                            return await finalizeExistingBundle(bundleContexts, existingPending.invoice)
+                        }
+                    }
                 }
 
                 const { recipientOrgId: recipientOrganizationId } = await getSubscriptionPaymentRecipient()
                 if (!recipientOrganizationId) {
-                    logger.error({ msg: 'SUBSCRIPTION_PAYMENT_RECIPIENT is not configured', data: {} })
-                    throw new GQLError({
-                        code: BAD_USER_INPUT,
-                        type: NOT_FOUND,
-                        message: 'SUBSCRIPTION_PAYMENT_RECIPIENT is not configured',
-                    }, context)
+                    logger.error({ msg: 'SUBSCRIPTION_PAYMENT_RECIPIENT is not configured' })
+                    throw new GQLError(ERRORS.PAYMENT_RECIPIENT_NOT_CONFIGURED, context)
                 }
-                logger.info({ msg: 'Creating new subscription context', data: { organizationId: organization.id, pricingRuleId: pricingRule.id, startAt: startAt.format('YYYY-MM-DD') } })
 
                 const createdInvoice = await Invoice.create(context, {
                     dv,
@@ -296,53 +407,63 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                     type: INVOICE_TYPE_B2B,
                     payerOrganization: { connect: { id: organization.id } },
                     status: INVOICE_STATUS_PUBLISHED,
-                    rows: [
-                        {
-                            name: plan.name,
-                            count: 1,
-                            toPay: pricingRule.price,
-                            isMin: false,
+                    rows: items.map(({ rule, plan }) => ({
+                        name: plan.name,
+                        count: 1,
+                        toPay: rule.price,
+                        isMin: false,
+                    })),
+                })
+
+                const createdContexts = []
+                for (const { rule, plan } of items) {
+                    const created = await SubscriptionContext.create(context, {
+                        dv,
+                        sender,
+                        organization: { connect: { id: organization.id } },
+                        subscriptionPlan: { connect: { id: plan.id } },
+                        subscriptionPlanPricingRule: { connect: { id: rule.id } },
+                        invoice: { connect: { id: createdInvoice.id } },
+                        startAt: startAtStr,
+                        endAt: endAtStr,
+                        isTrial: false,
+                        status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+                        frozenPaymentInfo: {
+                            pricingRuleId: rule.id,
                         },
-                    ],
+                    })
+                    createdContexts.push(created)
+                }
+
+                let directPaymentUrl = null
+                let multiPayment = null
+                if (isCard) {
+                    const multiPaymentResult = await registerMultiPayment(context, {
+                        invoices: [{ id: createdInvoice.id }],
+                        sender,
+                    })
+                    directPaymentUrl = buildDirectPaymentUrl(multiPaymentResult.directPaymentUrl, organization.id)
+                    multiPayment = await getById('MultiPayment', multiPaymentResult.multiPaymentId)
+                }
+
+                const subscriptionContexts = await find('SubscriptionContext', {
+                    id_in: createdContexts.map(ctx => ctx.id),
+                    deletedAt: null,
                 })
+                const baseContext = subscriptionContexts.find(ctx => ctx.subscriptionPlanPricingRule === basePricingRule.id) || subscriptionContexts[0]
 
-                const createdSubscriptionContext = await SubscriptionContext.create(context, {
-                    dv,
-                    sender,
-                    organization: { connect: { id: organization.id } },
-                    subscriptionPlan: { connect: { id: plan.id } },
-                    subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
-                    invoice: { connect: { id: createdInvoice.id } },
-                    startAt: startAt.format('YYYY-MM-DD'),
-                    endAt: endAt.format('YYYY-MM-DD'),
-                    isTrial: false,
-                    status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
-                    frozenPaymentInfo: {
-                        pricingRuleId: pricingRule.id,
-                    },
-                })
-
-                const multiPaymentResult = await registerMultiPayment(context, {
-                    invoices: [{ id: createdInvoice.id }],
-                    sender,
-                })
-
-                const directPaymentUrl = buildDirectPaymentUrl(multiPaymentResult.directPaymentUrl, organization.id)
-
-                const subscriptionContext = await getById('SubscriptionContext', createdSubscriptionContext.id)
-                const multiPayment = await getById('MultiPayment', multiPaymentResult.multiPaymentId)
-
-                logger.info({ msg: 'Created new subscription context and multiPayment', data: { subscriptionContextId: subscriptionContext.id, multiPaymentId: multiPayment.id, invoiceId: createdInvoice.id } })
+                logger.info({ msg: 'Created subscription bundle', data: { organizationId: organization.id, invoiceId: createdInvoice.id, contextCount: subscriptionContexts.length, multiPaymentId: multiPayment?.id || null } })
 
                 return {
-                    subscriptionContext,
+                    subscriptionContext: baseContext,
+                    subscriptionContexts,
                     directPaymentUrl,
                     multiPayment,
                 }
             },
         },
     ],
-    
+
 })
 
 module.exports = {

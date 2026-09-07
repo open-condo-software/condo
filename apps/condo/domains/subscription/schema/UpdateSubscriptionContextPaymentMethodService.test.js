@@ -10,7 +10,7 @@ const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationError
 const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
 const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PERIOD } = require('@condo/domains/subscription/constants')
+const { SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PERIOD, SUBSCRIPTION_PLAN_TYPE_FEATURE } = require('@condo/domains/subscription/constants')
 const { ERRORS } = require('@condo/domains/subscription/schema/UpdateSubscriptionContextPaymentMethodService')
 const {
     SubscriptionContext,
@@ -19,6 +19,7 @@ const {
     createTestSubscriptionPlanPricingRule,
     updateTestSubscriptionContext,
     updateSubscriptionContextPaymentMethodByTestClient,
+    registerSubscriptionContextByTestClient,
 } = require('@condo/domains/subscription/utils/testSchema')
 const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
@@ -399,5 +400,54 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
             expect(updatedContext.bindingId).toBeNull()
         })
 
+    })
+
+    describe('Bundle', () => {
+        test('nulls bindingId on every context sharing the invoice', async () => {
+            const [featurePlan] = await createTestSubscriptionPlan(admin, {
+                organizationType: MANAGING_COMPANY_TYPE,
+                planType: SUBSCRIPTION_PLAN_TYPE_FEATURE,
+                ai: true,
+            })
+            const [featureRule] = await createTestSubscriptionPlanPricingRule(admin, featurePlan, {
+                period: SUBSCRIPTION_PERIOD.MONTH,
+                price: '500.00',
+                currencyCode: 'RUB',
+            })
+
+            const [registered] = await registerSubscriptionContextByTestClient(admin, {
+                organization: { id: organization.id },
+                subscriptionPlanPricingRule: { id: pricingRule.id },
+                additionalPricingRules: [{ id: featureRule.id }],
+                paymentType: 'invoice',
+                isTrial: false,
+            })
+
+            const bundleContexts = registered.subscriptionContexts
+            expect(bundleContexts).toHaveLength(2)
+            const sharedInvoiceId = registered.subscriptionContext.invoice.id
+            const bindingId = faker.datatype.uuid()
+
+            for (const ctx of bundleContexts) {
+                await SubscriptionContext.update(admin, ctx.id, {
+                    sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                    status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+                    bindingId,
+                })
+            }
+
+            const [result] = await updateSubscriptionContextPaymentMethodByTestClient(admin, {
+                subscriptionContext: { id: bundleContexts[0].id },
+                invoice: { id: sharedInvoiceId },
+                bindingId: null,
+            })
+
+            expect(result.id).toBe(bundleContexts[0].id)
+
+            for (const ctx of bundleContexts) {
+                const [updated] = await SubscriptionContext.getAll(admin, { id: ctx.id })
+                expect(updated.bindingId).toBeNull()
+            }
+        })
     })
 })
