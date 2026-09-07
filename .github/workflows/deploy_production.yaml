@@ -32,25 +32,29 @@ jobs:
               exit 1
           fi
       - name: Require Condo CI success for tag SHA
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          SHA="${{ github.sha }}"
-          echo "Checking Condo CI success for commit ${SHA}"
-          RUN_ID="$(gh run list \
-            --repo "${{ github.repository }}" \
-            --workflow "Condo CI" \
-            --commit "${SHA}" \
-            --status completed \
-            --json databaseId,conclusion,event \
-            --jq '[.[] | select(.conclusion == "success")][0].databaseId // empty')"
-          if [[ -z "${RUN_ID}" ]]; then
-            echo "ERROR: No successful Condo CI run found for ${SHA}."
-            echo "Push/create a release-v* branch, wait for Condo CI to pass, then tag that SHA."
-            echo "For untested emergency deploys use the [production] Hotfix Deploy workflow."
-            exit 1
-          fi
-          echo "Found successful Condo CI run: ${RUN_ID}"
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const sha = context.sha
+            core.info(`Checking Condo CI success for commit ${sha}`)
+            const { data } = await github.rest.actions.listWorkflowRuns({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'nodejs.condo.ci.yml',
+              head_sha: sha,
+              status: 'completed',
+              per_page: 30,
+            })
+            const success = data.workflow_runs.find((run) => run.conclusion === 'success')
+            if (!success) {
+              core.setFailed(
+                `No successful Condo CI run found for ${sha}. ` +
+                'Push/create a release-v* branch, wait for Condo CI to pass, then tag that SHA. ' +
+                'For untested emergency deploys use the [production] Hotfix Deploy workflow.'
+              )
+              return
+            }
+            core.info(`Found successful Condo CI run: ${success.id}`)
       - name: Login to Container Registry
         uses: docker/login-action@v3
         with:
