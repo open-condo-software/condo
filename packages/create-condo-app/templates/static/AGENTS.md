@@ -77,10 +77,36 @@ but only use them if you have a specific and complex need. For a simple primitiv
 
 ## Code style and naming conventions
 
+### Naming 
+
 - Use `SNAKE_CASE` with caps for constants
 - Use `UpperCamelCase` for components and translations variables
 - Translation variables must be `UpperCamelCase` and ends with `Title` / `Subtitle` / `Text` / `Description` / `Placeholder` / `Label` suffix. (For example: `TicketPageTitle`, `NamePlaceholder`, `AlertDescription`)
+- React contexts counts as components, file should be named `<Something>Context.tsx` and contained hooks and provider export (`<Something>Provider` and `use<Something>`)
 - Use `lowerCamelCase` for the rest (variables, functions, hooks, etc.)
+- Component props type must be named `Props` and placed next to component:
+```ts
+type MyComponentProps = {}
+
+export const MyComponent: React.FC<MyComponentProps> = ({}) => {
+    return null
+}
+- React context components must contain `Provider` and `use` hook as well
+```
+
+### Code style
+- Use separate line for importing types:
+```ts
+import { Something } from './file'
+import type { SomeType } from './file'
+```
+- Use `const` for variables
+- Use named inline exports where possible
+```ts
+export const SOME_VALUE = 3
+```
+- Prefer using functions over anonymous functions / const functions
+- Always use functional components and hooks
 
 ## i18n
 
