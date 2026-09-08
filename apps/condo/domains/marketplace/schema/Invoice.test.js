@@ -3425,17 +3425,17 @@ describe('Invoice', () => {
 
                 const [result] = await registerSubscriptionContextByTestClient(adminClient, {
                     organization: { id: payerOrg.id },
-                    subscriptionPlanPricingRule: { id: pricingRule.id },
+                    subscriptionPlanPricingRules: [{ id: pricingRule.id }],
                     isTrial: false,
                 })
 
-                expect(result.subscriptionContext).toBeDefined()
-                expect(result.subscriptionContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
+                expect(result.subscriptionContexts[0]).toBeDefined()
+                expect(result.subscriptionContexts[0].status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
                 expect(result.multiPayment).toBeDefined()
-                expect(result.subscriptionContext.invoice).toBeDefined()
+                expect(result.subscriptionContexts[0].invoice).toBeDefined()
 
-                const invoice = result.subscriptionContext.invoice
-                const subscriptionContext = result.subscriptionContext
+                const invoice = result.subscriptionContexts[0].invoice
+                const subscriptionContext = result.subscriptionContexts[0]
 
                 // Update payment to DONE status
                 const [payment] = await Payment.getAll(adminClient, {
@@ -3466,16 +3466,16 @@ describe('Invoice', () => {
 
                 const [result] = await registerSubscriptionContextByTestClient(adminClient, {
                     organization: { id: payerOrg.id },
-                    subscriptionPlanPricingRule: { id: pricingRule.id },
+                    subscriptionPlanPricingRules: [{ id: pricingRule.id }],
                     isTrial: false,
                 })
 
-                expect(result.subscriptionContext).toBeDefined()
-                expect(result.subscriptionContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
+                expect(result.subscriptionContexts[0]).toBeDefined()
+                expect(result.subscriptionContexts[0].status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
                 expect(result.multiPayment).toBeDefined()
 
-                const invoice = result.subscriptionContext.invoice
-                const subscriptionContext = result.subscriptionContext
+                const invoice = result.subscriptionContexts[0].invoice
+                const subscriptionContext = result.subscriptionContexts[0]
                 const multiPayment = result.multiPayment
 
                 const paymentMethod = {

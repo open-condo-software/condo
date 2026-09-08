@@ -953,7 +953,7 @@ export type RegisterSubscriptionContextMutationVariables = Types.Exact<{
 }>;
 
 
-export type RegisterSubscriptionContextMutation = { __typename?: 'Mutation', result?: { __typename?: 'RegisterSubscriptionContextOutput', directPaymentUrl?: string | null, subscriptionContext?: { __typename?: 'SubscriptionContext', id: string, startAt?: string | null, endAt?: string | null, isTrial?: boolean | null, status?: Types.SubscriptionContextStatusType | null } | null, multiPayment?: { __typename?: 'MultiPayment', id: string } | null } | null };
+export type RegisterSubscriptionContextMutation = { __typename?: 'Mutation', result?: { __typename?: 'RegisterSubscriptionContextOutput', directPaymentUrl?: string | null, subscriptionContexts: Array<{ __typename?: 'SubscriptionContext', id: string, startAt?: string | null, endAt?: string | null, isTrial?: boolean | null, status?: Types.SubscriptionContextStatusType | null }>, multiPayment?: { __typename?: 'MultiPayment', id: string } | null } | null };
 
 export type GetOrganizationActivatedSubscriptionsQueryVariables = Types.Exact<{
   organizationId: Types.Scalars['ID']['input'];
