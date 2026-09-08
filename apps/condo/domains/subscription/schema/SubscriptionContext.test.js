@@ -858,20 +858,41 @@ describe('SubscriptionContext', () => {
         })
 
 
-        test('cannot update startAt', async () => {
+        test('support cannot update startAt or endAt', async () => {
             const [objCreated] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
                 startAt: dayjs().format('YYYY-MM-DD'),
                 endAt: dayjs().add(14, 'day').format('YYYY-MM-DD'),
                 isTrial: true,
             })
 
-            await catchErrorFrom(async () => {
-                await updateTestSubscriptionContext(admin, objCreated.id, {
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestSubscriptionContext(support, objCreated.id, {
                     startAt: dayjs().add(5, 'day').format('YYYY-MM-DD'),
                 })
-            }, ({ errors }) => {
-                expect(errors[0].message).toContain('Field "startAt" is not defined by type "SubscriptionContextUpdateInput"')
             })
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestSubscriptionContext(support, objCreated.id, {
+                    endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
+                })
+            })
+        })
+
+        test('admin can update startAt and endAt', async () => {
+            const [objCreated] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(14, 'day').format('YYYY-MM-DD'),
+                isTrial: true,
+            })
+
+            const newStartAt = dayjs().add(5, 'day').format('YYYY-MM-DD')
+            const newEndAt = dayjs().add(40, 'day').format('YYYY-MM-DD')
+            const [updated] = await updateTestSubscriptionContext(admin, objCreated.id, {
+                startAt: newStartAt,
+                endAt: newEndAt,
+            })
+
+            expect(updated.startAt).toBe(newStartAt)
+            expect(updated.endAt).toBe(newEndAt)
         })
 
         test('cannot update isTrial', async () => {
@@ -890,21 +911,6 @@ describe('SubscriptionContext', () => {
             })
         })
 
-        test('cannot update endAt', async () => {
-            const [objCreated] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                startAt: dayjs().format('YYYY-MM-DD'),
-                endAt: dayjs().add(14, 'day').format('YYYY-MM-DD'),
-                isTrial: true,
-            })
-
-            await catchErrorFrom(async () => {
-                await updateTestSubscriptionContext(admin, objCreated.id, {
-                    endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
-                })
-            }, ({ errors }) => {
-                expect(errors[0].message).toContain('Field "endAt" is not defined by type "SubscriptionContextUpdateInput"')
-            })
-        })
     })
 
     describe('UserHelpRequest cleanup', () => {

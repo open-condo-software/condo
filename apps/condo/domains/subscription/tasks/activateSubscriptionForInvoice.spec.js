@@ -23,6 +23,7 @@ const { activateSubscriptionForInvoiceFn } = require('@condo/domains/subscriptio
 const {
     createTestSubscriptionPlan,
     createTestSubscriptionPlanPricingRule,
+    createTestSubscriptionContext,
     registerSubscriptionContextByTestClient,
     SubscriptionContext,
 } = require('@condo/domains/subscription/utils/testSchema')
@@ -105,6 +106,48 @@ describe('activateSubscriptionForInvoice', () => {
             expect(finalContext.frozenPaymentInfo).toBeDefined()
             expect(finalContext.frozenPaymentInfo.paymentMethod).toEqual(paymentMethod)
             expect(finalContext.frozenPaymentInfo.multiPaymentId).toBe(result.multiPayment.id)
+        })
+    })
+
+    describe('paid-date recalculation', () => {
+        test('recomputes startAt and endAt from the payment date, not the registration date', async () => {
+            const [organization] = await registerNewOrganization(adminClient)
+
+            const [result] = await registerSubscriptionContextByTestClient(adminClient, {
+                organization: { id: organization.id },
+                subscriptionPlanPricingRules: [{ id: pricingRule.id }],
+            })
+            const contextId = result.subscriptionContexts[0].id
+            const invoice = result.subscriptionContexts[0].invoice
+
+            expect(result.subscriptionContexts[0].startAt).toBe(dayjs().format('YYYY-MM-DD'))
+
+            const priorEndAt = dayjs().add(45, 'days').format('YYYY-MM-DD')
+            await createTestSubscriptionContext(adminClient, organization, subscriptionPlan, {
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+                startAt: dayjs().subtract(1, 'month').format('YYYY-MM-DD'),
+                endAt: priorEndAt,
+                isTrial: false,
+            })
+
+            const [payment] = await Payment.getAll(adminClient, {
+                invoice: { id: invoice.id },
+                deletedAt: null,
+            })
+            await updateTestPayment(adminClient, payment.id, {
+                status: PAYMENT_DONE_STATUS,
+                advancedAt: dayjs().toISOString(),
+            })
+
+            await waitFor(async () => {
+                const [ctx] = await SubscriptionContext.getAll(adminClient, { id: contextId })
+                expect(ctx.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.DONE)
+            })
+
+            const [ctx] = await SubscriptionContext.getAll(adminClient, { id: contextId })
+            expect(ctx.startAt).toBe(priorEndAt)
+            expect(ctx.endAt).toBe(dayjs(priorEndAt).add(1, 'month').format('YYYY-MM-DD'))
         })
     })
 

@@ -99,7 +99,7 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
             access: {
                 read: true,
                 create: true,
-                update: false,
+                update: userIsAdmin,
             },
         },
 
@@ -110,7 +110,7 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
             access: {
                 read: true,
                 create: true,
-                update: false,
+                update: userIsAdmin,
             },
         },
 
