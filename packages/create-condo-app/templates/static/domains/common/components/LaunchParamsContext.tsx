@@ -37,3 +37,7 @@ export const LaunchParamsProvider: React.FC<React.PropsWithChildren> = ({ childr
         </LaunchParamsContext.Provider>
     )
 }
+
+export function useLaunchParams () {
+    return React.useContext(LaunchParamsContext)
+}
