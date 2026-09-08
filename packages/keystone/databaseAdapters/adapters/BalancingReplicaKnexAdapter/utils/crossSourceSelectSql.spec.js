@@ -414,12 +414,12 @@ describe('crossSourceSelectSql', () => {
 
             return {
                 invocations,
-                routeToPool: ({ tableName }) => {
-                    if (tableName === 'Message') return pools[basePoolName]
-                    if (tableName === 'User') return pools[joinPoolName]
-                    return pools[basePoolName]
+                routeToPoolName: ({ tableName }) => {
+                    if (tableName === 'Message') return basePoolName
+                    if (tableName === 'User') return joinPoolName
+                    return basePoolName
                 },
-                getPoolName: (pool) => pool?.name || null,
+                getPoolByName: (name) => pools[name],
             }
         }
 
@@ -433,8 +433,8 @@ describe('crossSourceSelectSql', () => {
                 sql,
                 baseTableName: 'Message',
                 sqlOperationName: 'select',
-                routeToPool: harness.routeToPool,
-                getPoolName: harness.getPoolName,
+                routeToPoolName: harness.routeToPoolName,
+                getPoolByName: harness.getPoolByName,
             })
 
             expect(rewritten).toBeTruthy()
@@ -459,8 +459,8 @@ describe('crossSourceSelectSql', () => {
                 sql,
                 baseTableName: 'Message',
                 sqlOperationName: 'select',
-                routeToPool: harness.routeToPool,
-                getPoolName: harness.getPoolName,
+                routeToPoolName: harness.routeToPoolName,
+                getPoolByName: harness.getPoolByName,
             })
 
             expect(rewritten).toBeTruthy()
@@ -481,8 +481,8 @@ describe('crossSourceSelectSql', () => {
                 sql,
                 baseTableName: 'Message',
                 sqlOperationName: 'select',
-                routeToPool: harness.routeToPool,
-                getPoolName: harness.getPoolName,
+                routeToPoolName: harness.routeToPoolName,
+                getPoolByName: harness.getPoolByName,
             })
 
             expect(rewritten).toBeTruthy()
@@ -503,8 +503,8 @@ describe('crossSourceSelectSql', () => {
                 sql,
                 baseTableName: 'Message',
                 sqlOperationName: 'select',
-                routeToPool: harness.routeToPool,
-                getPoolName: harness.getPoolName,
+                routeToPoolName: harness.routeToPoolName,
+                getPoolByName: harness.getPoolByName,
             })).rejects.toThrow(/Filters on the joined alias are required/)
         })
 
@@ -564,8 +564,8 @@ describe('crossSourceSelectSql', () => {
                 sql,
                 baseTableName: 'BillingReceipt',
                 sqlOperationName: 'select',
-                routeToPool: ({ tableName }) => (tableName === 'BillingReceipt' ? billingPool : mainPool),
-                getPoolName: (pool) => pool?.name || null,
+                routeToPoolName: ({ tableName }) => (tableName === 'BillingReceipt' ? 'billing' : 'main'),
+                getPoolByName: (name) => ({ billing: billingPool, main: mainPool }[name]),
             })
 
             expect(rewritten).toBeTruthy()
@@ -583,8 +583,8 @@ describe('crossSourceSelectSql', () => {
                 sql,
                 baseTableName: 'Message',
                 sqlOperationName: 'select',
-                routeToPool: ({ tableName }) => (tableName === 'Message' ? { name: 'external' } : { name: 'orphan' }),
-                getPoolName: (pool) => (pool?.name === 'external' ? 'external' : null),
+                routeToPoolName: ({ tableName }) => (tableName === 'Message' ? 'external' : null),
+                getPoolByName: () => undefined,
             })).rejects.toThrow(/Cannot resolve pool for joined table "User"/)
         })
 
@@ -597,8 +597,8 @@ describe('crossSourceSelectSql', () => {
                 sql,
                 baseTableName: 'Message',
                 sqlOperationName: 'select',
-                routeToPool: () => ({ name: 'external' }),
-                getPoolName: () => null,
+                routeToPoolName: () => null,
+                getPoolByName: () => undefined,
             })).rejects.toThrow(/Cannot resolve pool for base table "Message"/)
         })
     })

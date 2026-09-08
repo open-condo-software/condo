@@ -1,10 +1,11 @@
-const { BalancingReplicaKnexAdapter } = require('../adapters/BalancingReplicaKnexAdapter/adapter')
-const { KnexPool } = require('../adapters/BalancingReplicaKnexAdapter/pool')
 const { isCrossDbPlannerEnabled } = require('./planner')
 const {
     createTablePoolResolver,
     resolveTablePool,
 } = require('./tablePool')
+
+const { BalancingReplicaKnexAdapter } = require('../adapters/BalancingReplicaKnexAdapter/adapter')
+const { KnexPool } = require('../adapters/BalancingReplicaKnexAdapter/pool')
 
 const multiPoolRoutingRulesRaw = [
     { tableName: '^(Message|MessageHistoryRecord)$', target: 'message' },
@@ -132,26 +133,27 @@ describe('BalancingReplicaKnexAdapter routing with main/message/replicas pools',
         [
             'User SELECT uses async replica',
             'select "t0".* from "public"."User" as "t0" where true and ("t0"."deletedAt" is null) and ("t0"."id" = $1) limit $2',
-            'replicaPool',
+            'replicas',
         ],
         [
             'User INSERT uses writable main',
             'insert into "public"."User" ("createdAt", "createdBy", "dv", "id", "name", "sender", "updatedAt", "updatedBy", "v") values ($1, $2, $3, $4, $5, $6, $7, $8, $9) returning *',
-            'mainPool',
+            'main',
         ],
         [
             'Message SELECT uses dedicated message pool',
             'select "t0".* from "public"."Message" as "t0" where true and ("t0"."deletedAt" is null) and ("t0"."id" = $1) limit $2',
-            'messagePool',
+            'message',
         ],
         [
             'Message INSERT uses message pool owner',
             'insert into "public"."Message" ("id", "type", "status") values ($1, $2, $3) returning *',
-            'messagePool',
+            'message',
         ],
-    ])('%s', (_, sql, expectedPoolKey) => {
+    ])('%s', (_, sql, expectedPoolName) => {
         const pools = createMultiPoolAdapter()
-        expect(pools.adapter._selectTargetPool(sql)).toBe(pools[expectedPoolKey])
+        expect(pools.adapter._selectTargetPoolName(sql)).toBe(expectedPoolName)
+        expect(pools.adapter._replicaPools[expectedPoolName]).toBeTruthy()
     })
 
     test('executeFind on postgres table delegates to list adapter (replica routing stays in knex runner)', async () => {

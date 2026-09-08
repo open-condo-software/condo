@@ -3,7 +3,6 @@ const {
     listHasCrossSourceInbound,
     listNeedsCrossDbWhereRewrite,
 } = require('./crossSourceHints')
-
 const { createTablePoolResolver } = require('./tablePool')
 
 function createAdapterFixture () {

@@ -786,8 +786,8 @@ function _applyJoinPredicate (query, predicate) {
  * @param {string} [options.gqlOperationType]
  * @param {string} [options.gqlOperationName]
  * @param {string} options.sqlOperationName `select`, `insert`, etc.
- * @param {(context: object) => object} options.routeToPool returns the pool for a table context
- * @param {(pool: object) => string|null} options.getPoolName pool name used for same-pool comparison
+ * @param {(context: object) => string} options.routeToPoolName returns the pool name for a table context
+ * @param {(name: string) => object|undefined} options.getPoolByName resolve pool object for remote id queries
  * @returns {Promise<string|null>} rewritten SQL, or `null` when rewrite is not needed (no cross-pool JOINs)
  * @throws {Error} when a cross-pool JOIN cannot be routed/rewritten, or id limit is exceeded
  */
@@ -797,8 +797,8 @@ async function planCrossPoolSelect ({
     gqlOperationType,
     gqlOperationName,
     sqlOperationName,
-    routeToPool,
-    getPoolName,
+    routeToPoolName,
+    getPoolByName,
 }) {
     if (sqlOperationName !== 'select') return null
     // Cheap reject: no JOIN ⇒ nothing to rewrite (avoids SQL AST on plain main-table reads).
@@ -821,13 +821,12 @@ async function planCrossPoolSelect ({
     }
 
     const baseTable = baseTableName || metadata.baseTable
-    const basePool = routeToPool({
+    const basePoolName = routeToPoolName({
         gqlOperationType,
         gqlOperationName,
         sqlOperationName,
         tableName: baseTable,
     })
-    const basePoolName = getPoolName(basePool)
     if (!basePoolName) {
         throw new Error(
             `Cannot resolve pool for base table "${baseTable}" during cross-pool JOIN rewrite`,
@@ -846,13 +845,12 @@ async function planCrossPoolSelect ({
             )
         }
 
-        const joinPool = routeToPool({
+        const joinPoolName = routeToPoolName({
             gqlOperationType,
             gqlOperationName,
             sqlOperationName,
             tableName: joinTable,
         })
-        const joinPoolName = getPoolName(joinPool)
         if (!joinPoolName) {
             throw new Error(
                 `Cannot resolve pool for joined table "${joinTable}" (alias "${joinAlias}")`,
@@ -913,7 +911,8 @@ async function planCrossPoolSelect ({
             continue
         }
 
-        if (typeof joinPool.getKnexClient !== 'function') {
+        const joinPool = getPoolByName(joinPoolName)
+        if (typeof joinPool?.getKnexClient !== 'function') {
             throw new Error(
                 `Joined table "${join.joinTable}" pool "${joinPoolName}" has no Knex client for cross-pool rewrite`,
             )

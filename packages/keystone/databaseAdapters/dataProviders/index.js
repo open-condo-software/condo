@@ -1,4 +1,18 @@
+const {
+    executeProviderSqlMutation,
+    executeProviderSqlSelect,
+    extractMutationWhereIds,
+    extractSimpleSelectCondition,
+} = require('./executeProviderSql')
 const { KvDataProvider } = require('./kv')
+const {
+    applyItemsQueryToRows,
+    providerSupportsCreate,
+    providerSupportsDelete,
+    providerSupportsFind,
+    providerSupportsItemsQuery,
+    providerSupportsUpdate,
+} = require('./providerMethods')
 
 /**
  * Alternate storage backends referenced by `DATABASE_POOLS` provider pools.
@@ -65,21 +79,6 @@ function resolvePoolProvider (poolName, poolsConfig = {}) {
 function isDataProviderPool (poolName, poolsConfig) {
     return isRegisteredDataProvider(resolvePoolProvider(poolName, poolsConfig))
 }
-
-const {
-    executeProviderSqlMutation,
-    executeProviderSqlSelect,
-    extractMutationWhereIds,
-    extractSimpleSelectCondition,
-} = require('./executeProviderSql')
-const {
-    applyItemsQueryToRows,
-    providerSupportsCreate,
-    providerSupportsDelete,
-    providerSupportsFind,
-    providerSupportsItemsQuery,
-    providerSupportsUpdate,
-} = require('./providerMethods')
 
 module.exports = {
     getDataProvider,

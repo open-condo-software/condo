@@ -199,28 +199,26 @@ describe('BalancingReplicaKnexAdapter.__kmigratorKnexAdapters', () => {
     })
 })
 
-describe('BalancingReplicaKnexAdapter._selectTargetPool', () => {
-    test('delegates to first matching DATABASE_ROUTING_RULES via _routeToPool', () => {
+describe('BalancingReplicaKnexAdapter._selectTargetPoolName', () => {
+    test('delegates to first matching DATABASE_ROUTING_RULES via _routeToPoolName', () => {
         const adapter = Object.create(BalancingReplicaKnexAdapter.prototype)
-        const messagePool = { name: 'message' }
-        const replicasPool = { name: 'replicas' }
 
-        adapter._routeToPool = jest.fn(({ tableName, sqlOperationName }) => {
-            if (tableName === 'Message') return messagePool
-            if (sqlOperationName === 'select') return replicasPool
-            return { name: 'main' }
+        adapter._routeToPoolName = jest.fn(({ tableName, sqlOperationName }) => {
+            if (tableName === 'Message') return 'message'
+            if (sqlOperationName === 'select') return 'replicas'
+            return 'main'
         })
 
-        expect(adapter._selectTargetPool('select "t0".* from "public"."Message" as "t0"'))
-            .toBe(messagePool)
-        expect(adapter._selectTargetPool('select "t0".* from "public"."User" as "t0"'))
-            .toBe(replicasPool)
+        expect(adapter._selectTargetPoolName('select "t0".* from "public"."Message" as "t0"'))
+            .toBe('message')
+        expect(adapter._selectTargetPoolName('select "t0".* from "public"."User" as "t0"'))
+            .toBe('replicas')
 
-        expect(adapter._routeToPool).toHaveBeenCalledWith(expect.objectContaining({
+        expect(adapter._routeToPoolName).toHaveBeenCalledWith(expect.objectContaining({
             tableName: 'Message',
             sqlOperationName: 'select',
         }))
-        expect(adapter._routeToPool).toHaveBeenCalledWith(expect.objectContaining({
+        expect(adapter._routeToPoolName).toHaveBeenCalledWith(expect.objectContaining({
             tableName: 'User',
             sqlOperationName: 'select',
         }))

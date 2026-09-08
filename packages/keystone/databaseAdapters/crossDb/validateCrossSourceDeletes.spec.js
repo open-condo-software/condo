@@ -1,3 +1,4 @@
+const { createTablePoolResolver } = require('./tablePool')
 const {
     ON_DELETE,
     normalizeOnDelete,
@@ -7,8 +8,6 @@ const {
     isSoftDeleteUpdate,
     enforceCrossSourceDeleteConstraints,
 } = require('./validateCrossSourceDeletes')
-
-const { createTablePoolResolver } = require('./tablePool')
 
 function createListAdapters () {
     return {

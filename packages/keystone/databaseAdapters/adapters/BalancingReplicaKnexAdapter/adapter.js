@@ -97,15 +97,16 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
     }
 
     /**
-     * Pick a pool using `DATABASE_ROUTING_RULES` (first matching rule wins).
+     * Pick a pool **name** using `DATABASE_ROUTING_RULES` (first matching rule wins).
+     * Resolve the pool object at the execution site via `this._replicaPools[name]`.
      *
      * @param {{ gqlOperationType?: string, gqlOperationName?: string, sqlOperationName?: string, tableName?: string }} context
-     * @returns {KnexPool}
+     * @returns {string}
      */
-    _routeToPool (context) {
+    _routeToPoolName (context) {
         for (const rule of this._routingRules) {
             if (isRuleMatching(rule, context)) {
-                return this._replicaPools[rule.target]
+                return rule.target
             }
         }
 
@@ -114,7 +115,7 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
     }
 
     /**
-     * Choose which pool runs this SQL: first matching `DATABASE_ROUTING_RULES` wins.
+     * Choose which pool **name** runs this SQL: first matching `DATABASE_ROUTING_RULES` wins.
      * Config validation guarantees a default rule, so a match always exists.
      *
      * Dedicated-pool tables must appear in an early `tableName` rule.
@@ -124,29 +125,18 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
      *
      * @param {string} sql
      * @param {{ sqlOperationName?: string, tableName?: string|null }|null} [preParsed]
+     * @returns {string}
      */
-    _selectTargetPool (sql, preParsed = null) {
+    _selectTargetPoolName (sql, preParsed = null) {
         const gqlContext = graphqlCtx.getStore()
         const { sqlOperationName, tableName } = preParsed || extractCRUDQueryData(sql)
 
-        return this._routeToPool({
+        return this._routeToPoolName({
             gqlOperationType: get(gqlContext, 'gqlOperationType'),
             gqlOperationName: get(gqlContext, 'gqlOperationName'),
             sqlOperationName,
             tableName,
         })
-    }
-
-    /** @param {KnexPool} pool */
-    _getPoolName (pool) {
-        if (!pool) return undefined
-        if (!this._poolNameByPool) {
-            this._poolNameByPool = new WeakMap()
-            for (const [name, candidate] of Object.entries(this._replicaPools || {})) {
-                this._poolNameByPool.set(candidate, name)
-            }
-        }
-        return this._poolNameByPool.get(pool)
     }
 
     /** Validate cross-source FK columns / inbound delete rules when DB constraints are absent. */
@@ -225,6 +215,7 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
      */
     async _tryCrossPoolSelectRewrite ({
         builder,
+        selectedPoolName,
         selectedPool,
         finalTableName,
         finalSqlOperationName,
@@ -244,16 +235,15 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
             gqlOperationType,
             gqlOperationName,
             sqlOperationName: finalSqlOperationName,
-            routeToPool: (context) => this._routeToPool(context),
-            getPoolName: (pool) => this._getPoolName(pool),
+            routeToPoolName: (context) => this._routeToPoolName(context),
+            getPoolByName: (name) => this._replicaPools[name],
         })
         if (!plannedSql) return undefined
 
-        const targetPoolName = this._getPoolName(selectedPool)
-        if (!targetPoolName || typeof selectedPool.getKnexClient !== 'function') {
+        if (!selectedPoolName || typeof selectedPool?.getKnexClient !== 'function') {
             throw new Error(
                 `Cannot execute rewritten cross-pool SELECT for "${finalTableName}": ` +
-                `target pool "${targetPoolName || 'unknown'}" is unavailable`,
+                `target pool "${selectedPoolName || 'unknown'}" is unavailable`,
             )
         }
 
@@ -351,7 +341,11 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
                 const gqlOperationType = get(gqlContext, 'gqlOperationType')
                 const gqlOperationName = get(gqlContext, 'gqlOperationName')
 
-                const selectedPool = this._selectTargetPool(sqlQueryWithPositionalBindings, crudQueryData)
+                const selectedPoolName = this._selectTargetPoolName(sqlQueryWithPositionalBindings, crudQueryData)
+                const selectedPool = this._replicaPools[selectedPoolName]
+                if (!selectedPool) {
+                    throw new Error(`Routing target pool "${selectedPoolName}" is not configured`)
+                }
 
                 if (selectedPool instanceof ProviderPool) {
                     return this._createProviderSqlRunner({
@@ -378,6 +372,7 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
                     if (needsSelectRewrite) {
                         primaryResult = await this._tryCrossPoolSelectRewrite({
                             builder,
+                            selectedPoolName,
                             selectedPool,
                             finalTableName,
                             finalSqlOperationName,
@@ -424,7 +419,6 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
                 })]
             }),
         )
-        this._poolNameByPool = null
 
         // Home pool for cross-db logic: tableName routing rules + default.
         this._tablePoolResolver = createTablePoolResolver({

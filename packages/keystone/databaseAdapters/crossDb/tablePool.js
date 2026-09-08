@@ -8,7 +8,7 @@ const { isRuleMatching } = require('../adapters/BalancingReplicaKnexAdapter/util
  * (operation-scoped rules do not match when only `{ tableName }` is supplied),
  * otherwise `defaultPool` (catch-all / default writable pool).
  *
- * Independent of which pool executes a given SQL statement (`_selectTargetPool`).
+ * Independent of which pool executes a given SQL statement (`_selectTargetPoolName`).
  */
 
 /**

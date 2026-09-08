@@ -138,7 +138,8 @@ Dual entry points:
 resolver sets graphqlCtx
   → listAdapter builds knex query
   → runner hook: extractCRUDQueryData(sql)
-  → _selectTargetPool(context)
+  → _selectTargetPoolName(context) → pool name
+  → this._replicaPools[name]
   → ProviderPool? executeProviderSqlSelect
   → [SELECT] planCrossPoolSelect? → rewrite or pass through
   → KnexPool.getQueryRunner → Postgres
@@ -148,7 +149,7 @@ resolver sets graphqlCtx
 
 ```text
 mutation SQL
-  → _selectTargetPool (first matching DATABASE_ROUTING_RULES)
+  → _selectTargetPoolName (first matching DATABASE_ROUTING_RULES → pool name)
   → ProviderPool? executeProviderSqlMutation
   → [INSERT/UPDATE] validateCrossSourceReferences when FK targets another pool
   → target pool executes

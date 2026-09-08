@@ -2,15 +2,12 @@ const {
     normalizePositionalBindings,
     parseLiteralNode,
 } = require('./sqlAstUtils')
+const { createTablePoolResolver } = require('./tablePool')
 const {
     collectCrossSourceForeignKeys,
     extractMutationColumnValues,
     validateCrossSourceReferences,
 } = require('./validateCrossSourceReferences')
-
-
-const { createTablePoolResolver } = require('./tablePool')
-
 
 function createMessageListAdapter () {
     return {
