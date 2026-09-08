@@ -9,7 +9,7 @@ const { GQLCustomSchema, find, getById, itemsQuery } = require('@open-condo/keys
 const {
     PAYMENT_DONE_STATUS,
 } = require('@condo/domains/acquiring/constants/payment')
-const { freezePaymentInfo, getPaymentMethodFromMultiPayment } = require('@condo/domains/acquiring/utils/billingFridge')
+const { freezePaymentInfo } = require('@condo/domains/acquiring/utils/billingFridge')
 const { INVOICE_STATUS_PAID } = require('@condo/domains/marketplace/constants')
 const access = require('@condo/domains/subscription/access/ActivateSubscriptionContextService')
 const { SUBSCRIPTION_CONTEXT_STATUS } = require('@condo/domains/subscription/constants')
@@ -132,13 +132,22 @@ const ActivateSubscriptionContextService = new GQLCustomSchema('ActivateSubscrip
                 }
                 logger.info({ msg: 'Resolved payment method for invoice', data: { invoiceId: invoice.id, paymentCount: payments.length, multiPaymentId: multiPayment?.id || null } })
 
-                const frozenPaymentInfo = freezePaymentInfo(
-                    multiPayment,
-                    invoice,
-                    subscriptionContext.subscriptionPlanPricingRule
-                )
-                const paymentMethod = getPaymentMethodFromMultiPayment(multiPayment)
+                const paymentMethod = multiPayment?.meta?.paymentMethod || null
                 const bindingId = paymentMethod?.bindingId || null
+
+                const frozenPaymentInfo = multiPayment
+                    ? freezePaymentInfo(multiPayment, invoice, subscriptionContext.subscriptionPlanPricingRule)
+                    : {
+                        paymentMethod: null,
+                        invoice: {
+                            id: invoice.id,
+                            rows: invoice.rows,
+                            toPay: invoice.toPay,
+                            currencyCode: invoice.currencyCode,
+                        },
+                        pricingRuleId: subscriptionContext.subscriptionPlanPricingRule || null,
+                        multiPaymentId: null,
+                    }
 
                 logger.info({ msg: 'Updating subscription context', data: { subscriptionContextId: subscriptionContext.id, bindingId, hasPaymentMethod: !!paymentMethod } })
 

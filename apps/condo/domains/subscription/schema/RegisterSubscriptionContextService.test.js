@@ -59,34 +59,34 @@ describe('RegisterSubscriptionContextService', () => {
         test('admin can register trial subscription', async () => {
             const [result] = await registerSubscriptionContextByTestClient(admin, {
                 organization: { id: organization.id },
-                subscriptionPlanPricingRule: { id: pricingRule.id },
+                subscriptionPlanPricingRules: [{ id: pricingRule.id }],
                 isTrial: true,
             })
 
-            expect(result.subscriptionContext).toBeDefined()
-            expect(result.subscriptionContext.isTrial).toBe(true)
+            expect(result.subscriptionContexts[0]).toBeDefined()
+            expect(result.subscriptionContexts[0].isTrial).toBe(true)
         })
 
         test('support can register trial subscription', async () => {
             const [result] = await registerSubscriptionContextByTestClient(support, {
                 organization: { id: organization.id },
-                subscriptionPlanPricingRule: { id: pricingRule.id },
+                subscriptionPlanPricingRules: [{ id: pricingRule.id }],
                 isTrial: true,
             })
 
-            expect(result.subscriptionContext).toBeDefined()
-            expect(result.subscriptionContext.isTrial).toBe(true)
+            expect(result.subscriptionContexts[0]).toBeDefined()
+            expect(result.subscriptionContexts[0].isTrial).toBe(true)
         })
 
         test('organization admin can register trial for own organization', async () => {
             const [result] = await registerSubscriptionContextByTestClient(user, {
                 organization: { id: organization.id },
-                subscriptionPlanPricingRule: { id: pricingRule.id },
+                subscriptionPlanPricingRules: [{ id: pricingRule.id }],
                 isTrial: true,
             })
 
-            expect(result.subscriptionContext).toBeDefined()
-            expect(result.subscriptionContext.isTrial).toBe(true)
+            expect(result.subscriptionContexts[0]).toBeDefined()
+            expect(result.subscriptionContexts[0].isTrial).toBe(true)
         })
 
         test('user cannot register for other organization', async () => {
@@ -96,7 +96,7 @@ describe('RegisterSubscriptionContextService', () => {
             await expectToThrowAccessDeniedErrorToResult(async () => {
                 await registerSubscriptionContextByTestClient(user, {
                     organization: { id: otherOrg.id },
-                    subscriptionPlanPricingRule: { id: pricingRule.id },
+                    subscriptionPlanPricingRules: [{ id: pricingRule.id }],
                     isTrial: true,
                 })
             })
@@ -106,7 +106,7 @@ describe('RegisterSubscriptionContextService', () => {
             await expectToThrowAuthenticationErrorToResult(async () => {
                 await registerSubscriptionContextByTestClient(anonymous, {
                     organization: { id: organization.id },
-                    subscriptionPlanPricingRule: { id: pricingRule.id },
+                    subscriptionPlanPricingRules: [{ id: pricingRule.id }],
                     isTrial: true,
                 })
             })
@@ -117,11 +117,11 @@ describe('RegisterSubscriptionContextService', () => {
         test('creates trial subscription context with status DONE and correct dates', async () => {
             const [result] = await registerSubscriptionContextByTestClient(user, {
                 organization: { id: organization.id },
-                subscriptionPlanPricingRule: { id: pricingRule.id },
+                subscriptionPlanPricingRules: [{ id: pricingRule.id }],
                 isTrial: true,
             })
 
-            const context = result.subscriptionContext
+            const context = result.subscriptionContexts[0]
             expect(context.isTrial).toBe(true)
             expect(context.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.DONE)
             expect(context.organization.id).toBe(organization.id)
@@ -151,7 +151,7 @@ describe('RegisterSubscriptionContextService', () => {
             await expectToThrowGQLError(async () => {
                 await registerSubscriptionContextByTestClient(user, {
                     organization: { id: organization.id },
-                    subscriptionPlanPricingRule: { id: noTrialRule.id },
+                    subscriptionPlanPricingRules: [{ id: noTrialRule.id }],
                     isTrial: true,
                 })
             }, ERRORS.TRIAL_NOT_AVAILABLE, 'result')
@@ -160,14 +160,14 @@ describe('RegisterSubscriptionContextService', () => {
         test('throws error if trial already used', async () => {
             await registerSubscriptionContextByTestClient(user, {
                 organization: { id: organization.id },
-                subscriptionPlanPricingRule: { id: pricingRule.id },
+                subscriptionPlanPricingRules: [{ id: pricingRule.id }],
                 isTrial: true,
             })
 
             await expectToThrowGQLError(async () => {
                 await registerSubscriptionContextByTestClient(user, {
                     organization: { id: organization.id },
-                    subscriptionPlanPricingRule: { id: pricingRule.id },
+                    subscriptionPlanPricingRules: [{ id: pricingRule.id }],
                     isTrial: true,
                 })
             }, ERRORS.TRIAL_ALREADY_USED, 'result')
@@ -178,17 +178,17 @@ describe('RegisterSubscriptionContextService', () => {
         test('creates subscription context with status CREATED, multiPayment, and directPaymentUrl', async () => {
             const [result] = await registerSubscriptionContextByTestClient(user, {
                 organization: { id: organization.id },
-                subscriptionPlanPricingRule: { id: pricingRule.id },
+                subscriptionPlanPricingRules: [{ id: pricingRule.id }],
                 isTrial: false,
             })
 
-            expect(result.subscriptionContext).toBeDefined()
-            expect(result.subscriptionContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
-            expect(result.subscriptionContext.isTrial).toBe(false)
-            expect(result.subscriptionContext.invoice).toBeDefined()
-            expect(result.subscriptionContext.organization.id).toBe(organization.id)
-            expect(result.subscriptionContext.subscriptionPlan.id).toBe(subscriptionPlan.id)
-            expect(result.subscriptionContext.subscriptionPlanPricingRule.id).toBe(pricingRule.id)
+            expect(result.subscriptionContexts[0]).toBeDefined()
+            expect(result.subscriptionContexts[0].status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
+            expect(result.subscriptionContexts[0].isTrial).toBe(false)
+            expect(result.subscriptionContexts[0].invoice).toBeDefined()
+            expect(result.subscriptionContexts[0].organization.id).toBe(organization.id)
+            expect(result.subscriptionContexts[0].subscriptionPlan.id).toBe(subscriptionPlan.id)
+            expect(result.subscriptionContexts[0].subscriptionPlanPricingRule.id).toBe(pricingRule.id)
             expect(result.multiPayment).toBeDefined()
             expect(result.directPaymentUrl).toBeDefined()
             expect(typeof result.directPaymentUrl).toBe('string')
@@ -203,11 +203,11 @@ describe('RegisterSubscriptionContextService', () => {
 
             const [result] = await registerSubscriptionContextByTestClient(user, {
                 organization: { id: organization.id },
-                subscriptionPlanPricingRule: { id: yearlyRule.id },
+                subscriptionPlanPricingRules: [{ id: yearlyRule.id }],
                 isTrial: false,
             })
 
-            const context = result.subscriptionContext
+            const context = result.subscriptionContexts[0]
             const startAt = dayjs(context.startAt)
             const endAt = dayjs(context.endAt)
             expect(endAt.diff(startAt, 'month')).toBe(12)
@@ -224,11 +224,11 @@ describe('RegisterSubscriptionContextService', () => {
 
             const [result] = await registerSubscriptionContextByTestClient(user, {
                 organization: { id: organization.id },
-                subscriptionPlanPricingRule: { id: pricingRule.id },
+                subscriptionPlanPricingRules: [{ id: pricingRule.id }],
                 isTrial: false,
             })
 
-            const context = result.subscriptionContext
+            const context = result.subscriptionContexts[0]
             const startAt = dayjs(context.startAt)
             expect(startAt.format('YYYY-MM-DD')).toBe(existingEndAt.format('YYYY-MM-DD'))
         })
@@ -251,11 +251,11 @@ describe('RegisterSubscriptionContextService', () => {
 
             const [result] = await registerSubscriptionContextByTestClient(user, {
                 organization: { id: organization.id },
-                subscriptionPlanPricingRule: { id: pricingRule.id },
+                subscriptionPlanPricingRules: [{ id: pricingRule.id }],
                 isTrial: false,
             })
 
-            const context = result.subscriptionContext
+            const context = result.subscriptionContexts[0]
             const startAt = dayjs(context.startAt)
             expect(startAt.format('YYYY-MM-DD')).toBe(existingDoneEndDate.format('YYYY-MM-DD'))
         })
@@ -268,7 +268,7 @@ describe('RegisterSubscriptionContextService', () => {
             await expectToThrowAccessDeniedErrorToResult(async () => {
                 await registerSubscriptionContextByTestClient(user, {
                     organization: fakeOrg,
-                    subscriptionPlanPricingRule: { id: pricingRule.id },
+                    subscriptionPlanPricingRules: [{ id: pricingRule.id }],
                     isTrial: true,
                 })
             })
@@ -280,7 +280,7 @@ describe('RegisterSubscriptionContextService', () => {
             await expectToThrowGQLError(async () => {
                 await registerSubscriptionContextByTestClient(user, {
                     organization: { id: organization.id },
-                    subscriptionPlanPricingRule: fakeRule,
+                    subscriptionPlanPricingRules: [fakeRule],
                     isTrial: true,
                 })
             }, ERRORS.PRICING_RULE_NOT_FOUND, 'result')
@@ -301,11 +301,11 @@ describe('RegisterSubscriptionContextService', () => {
 
             const [result] = await registerSubscriptionContextByTestClient(user, {
                 organization: { id: organization.id },
-                subscriptionPlanPricingRule: { id: hiddenPlanRule.id },
+                subscriptionPlanPricingRules: [{ id: hiddenPlanRule.id }],
                 isTrial: true,
             })
-            expect(result.subscriptionContext).toBeDefined()
-            expect(result.subscriptionContext.id).toBeDefined()
+            expect(result.subscriptionContexts[0]).toBeDefined()
+            expect(result.subscriptionContexts[0].id).toBeDefined()
         })
 
         test('throws error if organization type does not match plan', async () => {
@@ -324,7 +324,7 @@ describe('RegisterSubscriptionContextService', () => {
             await expectToThrowGQLError(async () => {
                 await registerSubscriptionContextByTestClient(user, {
                     organization: { id: organization.id },
-                    subscriptionPlanPricingRule: { id: servicePlanRule.id },
+                    subscriptionPlanPricingRules: [{ id: servicePlanRule.id }],
                     isTrial: true,
                 })
             }, ERRORS.INVALID_ORGANIZATION_TYPE, 'result')
@@ -335,38 +335,38 @@ describe('RegisterSubscriptionContextService', () => {
         test('reuses existing CREATED context for same startAt (today)', async () => {
             const [firstRegisteredContext] = await registerSubscriptionContextByTestClient(user, {
                 organization: { id: organization.id },
-                subscriptionPlanPricingRule: { id: pricingRule.id },
+                subscriptionPlanPricingRules: [{ id: pricingRule.id }],
                 isTrial: false,
             })
 
             const [sameRegisteredContext] = await registerSubscriptionContextByTestClient(user, {
                 organization: { id: organization.id },
-                subscriptionPlanPricingRule: { id: pricingRule.id },
+                subscriptionPlanPricingRules: [{ id: pricingRule.id }],
                 isTrial: false,
             })
 
-            expect(sameRegisteredContext.subscriptionContext.id).toBe(firstRegisteredContext.subscriptionContext.id)
+            expect(sameRegisteredContext.subscriptionContexts[0].id).toBe(firstRegisteredContext.subscriptionContexts[0].id)
         })
 
         test('reuses existing PENDING context from buffer period', async () => {
             const [firstRegisteredContext] = await registerSubscriptionContextByTestClient(user, {
                 organization: { id: organization.id },
-                subscriptionPlanPricingRule: { id: pricingRule.id },
+                subscriptionPlanPricingRules: [{ id: pricingRule.id }],
                 isTrial: false,
             })
 
-            await updateTestSubscriptionContext(admin, firstRegisteredContext.subscriptionContext.id, {
+            await updateTestSubscriptionContext(admin, firstRegisteredContext.subscriptionContexts[0].id, {
                 status: SUBSCRIPTION_CONTEXT_STATUS.PENDING,
             })
 
             const [sameRegisteredContext] = await registerSubscriptionContextByTestClient(user, {
                 organization: { id: organization.id },
-                subscriptionPlanPricingRule: { id: pricingRule.id },
+                subscriptionPlanPricingRules: [{ id: pricingRule.id }],
                 isTrial: false,
             })
 
-            expect(sameRegisteredContext.subscriptionContext.id).toBe(firstRegisteredContext.subscriptionContext.id)
-            expect(sameRegisteredContext.subscriptionContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.PENDING)
+            expect(sameRegisteredContext.subscriptionContexts[0].id).toBe(firstRegisteredContext.subscriptionContexts[0].id)
+            expect(sameRegisteredContext.subscriptionContexts[0].status).toBe(SUBSCRIPTION_CONTEXT_STATUS.PENDING)
         })
 
         test('does not reuse PENDING context older than buffer period', async () => {
@@ -382,12 +382,12 @@ describe('RegisterSubscriptionContextService', () => {
 
             const [result] = await registerSubscriptionContextByTestClient(user, {
                 organization: { id: organization.id },
-                subscriptionPlanPricingRule: { id: pricingRule.id },
+                subscriptionPlanPricingRules: [{ id: pricingRule.id }],
                 isTrial: false,
             })
 
-            expect(result.subscriptionContext.id).not.toBe(existingContext.id)
-            expect(result.subscriptionContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
+            expect(result.subscriptionContexts[0].id).not.toBe(existingContext.id)
+            expect(result.subscriptionContexts[0].status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
         })
 
         test('does not reuse ERROR context (final error status)', async () => {
@@ -402,23 +402,23 @@ describe('RegisterSubscriptionContextService', () => {
 
             const [result] = await registerSubscriptionContextByTestClient(user, {
                 organization: { id: organization.id },
-                subscriptionPlanPricingRule: { id: pricingRule.id },
+                subscriptionPlanPricingRules: [{ id: pricingRule.id }],
                 isTrial: false,
             })
 
-            expect(result.subscriptionContext.id).not.toBe(existingContext.id)
-            expect(result.subscriptionContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
+            expect(result.subscriptionContexts[0].id).not.toBe(existingContext.id)
+            expect(result.subscriptionContexts[0].status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
         })
 
         test('creates new context when no reusable context exists', async () => {
             const [result] = await registerSubscriptionContextByTestClient(user, {
                 organization: { id: organization.id },
-                subscriptionPlanPricingRule: { id: pricingRule.id },
+                subscriptionPlanPricingRules: [{ id: pricingRule.id }],
                 isTrial: false,
             })
 
-            expect(result.subscriptionContext).toBeDefined()
-            expect(result.subscriptionContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
+            expect(result.subscriptionContexts[0]).toBeDefined()
+            expect(result.subscriptionContexts[0].status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
         })
     })
 
@@ -483,7 +483,7 @@ describe('RegisterSubscriptionContextService', () => {
             await expectToThrowGQLError(async () => {
                 await registerSubscriptionContextByTestClient(user, {
                     organization: { id: organization.id },
-                    subscriptionPlanPricingRule: { id: subsetPricingRule.id },
+                    subscriptionPlanPricingRules: [{ id: subsetPricingRule.id }],
                     isTrial: false,
                 })
             }, ERRORS.ACTIVE_SUPERSET_PLAN_EXISTS, 'result')
@@ -499,11 +499,11 @@ describe('RegisterSubscriptionContextService', () => {
 
             const [result] = await registerSubscriptionContextByTestClient(user, {
                 organization: { id: organization.id },
-                subscriptionPlanPricingRule: { id: subsetPricingRule.id },
+                subscriptionPlanPricingRules: [{ id: subsetPricingRule.id }],
                 isTrial: false,
             })
 
-            expect(result.subscriptionContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
+            expect(result.subscriptionContexts[0].status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
         })
 
         test('allows paid registration of non-subset plan when non-trial superset is active', async () => {
@@ -516,11 +516,11 @@ describe('RegisterSubscriptionContextService', () => {
 
             const [result] = await registerSubscriptionContextByTestClient(user, {
                 organization: { id: organization.id },
-                subscriptionPlanPricingRule: { id: nonSubsetPricingRule.id },
+                subscriptionPlanPricingRules: [{ id: nonSubsetPricingRule.id }],
                 isTrial: false,
             })
 
-            expect(result.subscriptionContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
+            expect(result.subscriptionContexts[0].status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
         })
 
         test('allows paid renewal of the same plan (same plan is excluded from superset check)', async () => {
@@ -533,12 +533,12 @@ describe('RegisterSubscriptionContextService', () => {
 
             const [result] = await registerSubscriptionContextByTestClient(user, {
                 organization: { id: organization.id },
-                subscriptionPlanPricingRule: { id: supersetPricingRule.id },
+                subscriptionPlanPricingRules: [{ id: supersetPricingRule.id }],
                 isTrial: false,
             })
 
-            expect(result.subscriptionContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
-            expect(result.subscriptionContext.subscriptionPlan.id).toBe(supersetPlan.id)
+            expect(result.subscriptionContexts[0].status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
+            expect(result.subscriptionContexts[0].subscriptionPlan.id).toBe(supersetPlan.id)
         })
 
         test('allows paid registration of subset plan when superset context has expired', async () => {
@@ -551,11 +551,11 @@ describe('RegisterSubscriptionContextService', () => {
 
             const [result] = await registerSubscriptionContextByTestClient(user, {
                 organization: { id: organization.id },
-                subscriptionPlanPricingRule: { id: subsetPricingRule.id },
+                subscriptionPlanPricingRules: [{ id: subsetPricingRule.id }],
                 isTrial: false,
             })
 
-            expect(result.subscriptionContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
+            expect(result.subscriptionContexts[0].status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
         })
 
         test('trial registration of subset plan is not blocked by active non-trial superset', async () => {
@@ -581,12 +581,12 @@ describe('RegisterSubscriptionContextService', () => {
 
             const [result] = await registerSubscriptionContextByTestClient(user, {
                 organization: { id: organization.id },
-                subscriptionPlanPricingRule: { id: trialSubsetRule.id },
+                subscriptionPlanPricingRules: [{ id: trialSubsetRule.id }],
                 isTrial: true,
             })
 
-            expect(result.subscriptionContext.isTrial).toBe(true)
-            expect(result.subscriptionContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.DONE)
+            expect(result.subscriptionContexts[0].isTrial).toBe(true)
+            expect(result.subscriptionContexts[0].status).toBe(SUBSCRIPTION_CONTEXT_STATUS.DONE)
         })
 
         test('throws ACTIVE_SUPERSET_PLAN_EXISTS when registering subset plan far in future (within buffer window)', async () => {
@@ -602,7 +602,7 @@ describe('RegisterSubscriptionContextService', () => {
             await expectToThrowGQLError(async () => {
                 await registerSubscriptionContextByTestClient(user, {
                     organization: { id: organization.id },
-                    subscriptionPlanPricingRule: { id: subsetPricingRule.id },
+                    subscriptionPlanPricingRules: [{ id: subsetPricingRule.id }],
                     isTrial: false,
                 })
             }, ERRORS.ACTIVE_SUPERSET_PLAN_EXISTS, 'result')
@@ -652,7 +652,7 @@ describe('RegisterSubscriptionContextService', () => {
             await expectToThrowGQLError(async () => {
                 await registerSubscriptionContextByTestClient(user, {
                     organization: { id: organization.id },
-                    subscriptionPlanPricingRule: { id: featurePricingRule.id },
+                    subscriptionPlanPricingRules: [{ id: featurePricingRule.id }],
                     isTrial: false,
                 })
             }, ERRORS.NO_ACTIVE_SERVICE_SUBSCRIPTION, 'result')
@@ -670,7 +670,7 @@ describe('RegisterSubscriptionContextService', () => {
             await expectToThrowGQLError(async () => {
                 await registerSubscriptionContextByTestClient(user, {
                     organization: { id: org.id },
-                    subscriptionPlanPricingRule: { id: featurePricingRule.id },
+                    subscriptionPlanPricingRules: [{ id: featurePricingRule.id }],
                     isTrial: false,
                 })
             }, ERRORS.NO_ACTIVE_SERVICE_SUBSCRIPTION, 'result')
@@ -687,13 +687,13 @@ describe('RegisterSubscriptionContextService', () => {
 
             const [result] = await registerSubscriptionContextByTestClient(user, {
                 organization: { id: org.id },
-                subscriptionPlanPricingRule: { id: featurePricingRule.id },
+                subscriptionPlanPricingRules: [{ id: featurePricingRule.id }],
                 isTrial: false,
             })
 
-            expect(result.subscriptionContext).toBeDefined()
-            expect(result.subscriptionContext.subscriptionPlan.id).toBe(featurePlan.id)
-            expect(result.subscriptionContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
+            expect(result.subscriptionContexts[0]).toBeDefined()
+            expect(result.subscriptionContexts[0].subscriptionPlan.id).toBe(featurePlan.id)
+            expect(result.subscriptionContexts[0].status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
         })
     })
 
@@ -759,8 +759,7 @@ describe('RegisterSubscriptionContextService', () => {
         test('creates one invoice with a row per rule and one context per rule with aligned dates', async () => {
             const [result] = await registerSubscriptionContextByTestClient(user, {
                 organization: { id: organization.id },
-                subscriptionPlanPricingRule: { id: serviceBundleRule.id },
-                additionalPricingRules: [{ id: featureAiRule.id }, { id: featureSupportRule.id }],
+                subscriptionPlanPricingRules: [{ id: serviceBundleRule.id }, { id: featureAiRule.id }, { id: featureSupportRule.id }],
                 isTrial: false,
             })
 
@@ -781,15 +780,14 @@ describe('RegisterSubscriptionContextService', () => {
             const planIds = result.subscriptionContexts.map(ctx => ctx.subscriptionPlan.id).sort()
             expect(planIds).toEqual([serviceBundlePlan.id, featureAiPlan.id, featureSupportPlan.id].sort())
 
-            expect(result.subscriptionContext.invoice.rows).toHaveLength(3)
-            expect(Number(result.subscriptionContext.invoice.toPay)).toBe(2800)
+            expect(result.subscriptionContexts[0].invoice.rows).toHaveLength(3)
+            expect(Number(result.subscriptionContexts[0].invoice.toPay)).toBe(2800)
         })
 
         test('paymentType=card creates a multiPayment and directPaymentUrl', async () => {
             const [result] = await registerSubscriptionContextByTestClient(user, {
                 organization: { id: organization.id },
-                subscriptionPlanPricingRule: { id: serviceBundleRule.id },
-                additionalPricingRules: [{ id: featureAiRule.id }],
+                subscriptionPlanPricingRules: [{ id: serviceBundleRule.id }, { id: featureAiRule.id }],
                 paymentType: 'card',
                 isTrial: false,
             })
@@ -802,8 +800,7 @@ describe('RegisterSubscriptionContextService', () => {
         test('paymentType=invoice does not create a multiPayment or directPaymentUrl', async () => {
             const [result] = await registerSubscriptionContextByTestClient(user, {
                 organization: { id: organization.id },
-                subscriptionPlanPricingRule: { id: serviceBundleRule.id },
-                additionalPricingRules: [{ id: featureAiRule.id }],
+                subscriptionPlanPricingRules: [{ id: serviceBundleRule.id }, { id: featureAiRule.id }],
                 paymentType: 'invoice',
                 isTrial: false,
             })
@@ -826,8 +823,7 @@ describe('RegisterSubscriptionContextService', () => {
             await expectToThrowGQLError(async () => {
                 await registerSubscriptionContextByTestClient(user, {
                     organization: { id: organization.id },
-                    subscriptionPlanPricingRule: { id: serviceBundleRule.id },
-                    additionalPricingRules: [{ id: yearlyAiRule.id }],
+                    subscriptionPlanPricingRules: [{ id: serviceBundleRule.id }, { id: yearlyAiRule.id }],
                     isTrial: false,
                 })
             }, ERRORS.MIXED_PRICING_RULE_PERIODS, 'result')
@@ -837,8 +833,7 @@ describe('RegisterSubscriptionContextService', () => {
             await expectToThrowGQLError(async () => {
                 await registerSubscriptionContextByTestClient(user, {
                     organization: { id: organization.id },
-                    subscriptionPlanPricingRule: { id: serviceBundleRule.id },
-                    additionalPricingRules: [{ id: featureAiRule.id }, { id: featureAiRule.id }],
+                    subscriptionPlanPricingRules: [{ id: serviceBundleRule.id }, { id: featureAiRule.id }, { id: featureAiRule.id }],
                     isTrial: false,
                 })
             }, ERRORS.DUPLICATE_PLAN_IN_BUNDLE, 'result')
@@ -861,8 +856,7 @@ describe('RegisterSubscriptionContextService', () => {
             await expectToThrowGQLError(async () => {
                 await registerSubscriptionContextByTestClient(user, {
                     organization: { id: organization.id },
-                    subscriptionPlanPricingRule: { id: serviceBundleRule.id },
-                    additionalPricingRules: [{ id: otherServiceRule.id }],
+                    subscriptionPlanPricingRules: [{ id: serviceBundleRule.id }, { id: otherServiceRule.id }],
                     isTrial: false,
                 })
             }, ERRORS.MULTIPLE_SERVICE_PLANS_IN_BUNDLE, 'result')
@@ -886,8 +880,7 @@ describe('RegisterSubscriptionContextService', () => {
             await expectToThrowGQLError(async () => {
                 await registerSubscriptionContextByTestClient(user, {
                     organization: { id: organization.id },
-                    subscriptionPlanPricingRule: { id: serviceWithAiRule.id },
-                    additionalPricingRules: [{ id: featureAiRule.id }],
+                    subscriptionPlanPricingRules: [{ id: serviceWithAiRule.id }, { id: featureAiRule.id }],
                     isTrial: false,
                 })
             }, ERRORS.FEATURE_ALREADY_IN_PLAN, 'result')
@@ -897,8 +890,7 @@ describe('RegisterSubscriptionContextService', () => {
             await expectToThrowGQLError(async () => {
                 await registerSubscriptionContextByTestClient(user, {
                     organization: { id: organization.id },
-                    subscriptionPlanPricingRule: { id: serviceBundleRule.id },
-                    additionalPricingRules: [{ id: featureAiRule.id }],
+                    subscriptionPlanPricingRules: [{ id: serviceBundleRule.id }, { id: featureAiRule.id }],
                     isTrial: true,
                 })
             }, ERRORS.TRIAL_BUNDLE_NOT_SUPPORTED, 'result')
@@ -908,8 +900,7 @@ describe('RegisterSubscriptionContextService', () => {
             await expectToThrowGQLError(async () => {
                 await registerSubscriptionContextByTestClient(user, {
                     organization: { id: organization.id },
-                    subscriptionPlanPricingRule: { id: featureAiRule.id },
-                    additionalPricingRules: [{ id: featureSupportRule.id }],
+                    subscriptionPlanPricingRules: [{ id: featureAiRule.id }, { id: featureSupportRule.id }],
                     isTrial: false,
                 })
             }, ERRORS.NO_ACTIVE_SERVICE_SUBSCRIPTION, 'result')
@@ -926,8 +917,7 @@ describe('RegisterSubscriptionContextService', () => {
 
             const [result] = await registerSubscriptionContextByTestClient(user, {
                 organization: { id: org.id },
-                subscriptionPlanPricingRule: { id: featureAiRule.id },
-                additionalPricingRules: [{ id: featureSupportRule.id }],
+                subscriptionPlanPricingRules: [{ id: featureAiRule.id }, { id: featureSupportRule.id }],
                 isTrial: false,
             })
 
@@ -957,8 +947,7 @@ describe('RegisterSubscriptionContextService', () => {
             await expectToThrowGQLError(async () => {
                 await registerSubscriptionContextByTestClient(user, {
                     organization: { id: org.id },
-                    subscriptionPlanPricingRule: { id: serviceBundleRule.id },
-                    additionalPricingRules: [{ id: featureAiRule.id }, { id: featureSupportRule.id }],
+                    subscriptionPlanPricingRules: [{ id: serviceBundleRule.id }, { id: featureAiRule.id }, { id: featureSupportRule.id }],
                     isTrial: false,
                 })
             }, ERRORS.ACTIVE_SUPERSET_PLAN_EXISTS, 'result')
@@ -969,15 +958,13 @@ describe('RegisterSubscriptionContextService', () => {
 
             const [first] = await registerSubscriptionContextByTestClient(user, {
                 organization: { id: org.id },
-                subscriptionPlanPricingRule: { id: serviceBundleRule.id },
-                additionalPricingRules: [{ id: featureAiRule.id }],
+                subscriptionPlanPricingRules: [{ id: serviceBundleRule.id }, { id: featureAiRule.id }],
                 isTrial: false,
             })
 
             const [second] = await registerSubscriptionContextByTestClient(user, {
                 organization: { id: org.id },
-                subscriptionPlanPricingRule: { id: serviceBundleRule.id },
-                additionalPricingRules: [{ id: featureAiRule.id }],
+                subscriptionPlanPricingRules: [{ id: serviceBundleRule.id }, { id: featureAiRule.id }],
                 isTrial: false,
             })
 
@@ -991,17 +978,15 @@ describe('RegisterSubscriptionContextService', () => {
 
             const [first] = await registerSubscriptionContextByTestClient(user, {
                 organization: { id: org.id },
-                subscriptionPlanPricingRule: { id: serviceBundleRule.id },
-                additionalPricingRules: [{ id: featureAiRule.id }],
+                subscriptionPlanPricingRules: [{ id: serviceBundleRule.id }, { id: featureAiRule.id }],
                 isTrial: false,
             })
-            const firstInvoiceId = first.subscriptionContext.invoice.id
+            const firstInvoiceId = first.subscriptionContexts[0].invoice.id
             const firstContextIds = first.subscriptionContexts.map(ctx => ctx.id)
 
             const [second] = await registerSubscriptionContextByTestClient(user, {
                 organization: { id: org.id },
-                subscriptionPlanPricingRule: { id: serviceBundleRule.id },
-                additionalPricingRules: [{ id: featureSupportRule.id }],
+                subscriptionPlanPricingRules: [{ id: serviceBundleRule.id }, { id: featureSupportRule.id }],
                 isTrial: false,
             })
 
@@ -1012,7 +997,7 @@ describe('RegisterSubscriptionContextService', () => {
 
             const secondPlanIds = second.subscriptionContexts.map(ctx => ctx.subscriptionPlan.id).sort()
             expect(secondPlanIds).toEqual([serviceBundlePlan.id, featureSupportPlan.id].sort())
-            expect(second.subscriptionContext.invoice.id).not.toBe(firstInvoiceId)
+            expect(second.subscriptionContexts[0].invoice.id).not.toBe(firstInvoiceId)
         })
     })
 })

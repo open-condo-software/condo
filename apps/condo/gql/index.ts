@@ -6352,7 +6352,7 @@ export type UpdateOrganizationPaymentMethodsMutationOptions = Apollo.BaseMutatio
 export const RegisterSubscriptionContextDocument = gql`
     mutation registerSubscriptionContext($data: RegisterSubscriptionContextInput!) {
   result: registerSubscriptionContext(data: $data) {
-    subscriptionContext {
+    subscriptionContexts {
       id
       startAt
       endAt

@@ -154,11 +154,11 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
         },
         {
             access: true,
-            type: 'input RegisterSubscriptionContextInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, subscriptionPlanPricingRule: SubscriptionPlanPricingRuleWhereUniqueInput!, additionalPricingRules: [SubscriptionPlanPricingRuleWhereUniqueInput!], paymentType: SubscriptionPaymentType, isTrial: Boolean }',
+            type: 'input RegisterSubscriptionContextInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, subscriptionPlanPricingRules: [SubscriptionPlanPricingRuleWhereUniqueInput!]!, paymentType: SubscriptionPaymentType, isTrial: Boolean }',
         },
         {
             access: true,
-            type: 'type RegisterSubscriptionContextOutput { subscriptionContext: SubscriptionContext, subscriptionContexts: [SubscriptionContext!], directPaymentUrl: String, multiPayment: MultiPayment }',
+            type: 'type RegisterSubscriptionContextOutput { subscriptionContexts: [SubscriptionContext!]!, directPaymentUrl: String, multiPayment: MultiPayment }',
         },
     ],
 
@@ -167,7 +167,7 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
             access: access.canRegisterSubscriptionContext,
             schema: 'registerSubscriptionContext(data: RegisterSubscriptionContextInput!): RegisterSubscriptionContextOutput',
             doc: {
-                summary: 'Registers a subscription for an organization. A bundle may contain a base pricing rule plus additionalPricingRules. For trials (isTrial=true) creates a single SubscriptionContext with status DONE. For paid subscriptions creates one Invoice with a row per pricing rule and one SubscriptionContext per pricing rule with status CREATED; when paymentType=card a MultiPayment and directPaymentUrl are also created.',
+                summary: 'Registers a subscription for an organization from one or more pricing rules (a bundle). For trials (isTrial=true) creates a single SubscriptionContext with status DONE. For paid subscriptions creates one Invoice with a row per pricing rule and one SubscriptionContext per pricing rule with status CREATED; when paymentType=card a MultiPayment and directPaymentUrl are also created.',
                 errors: ERRORS,
             },
             resolver: async (parent, args, context) => {
@@ -176,15 +176,18 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                     dv,
                     sender,
                     organization: organizationInput,
-                    subscriptionPlanPricingRule: pricingRuleInput,
-                    additionalPricingRules: additionalPricingRuleInputs = [],
+                    subscriptionPlanPricingRules: pricingRuleInputs,
                     paymentType = SUBSCRIPTION_PAYMENT_TYPE_CARD,
                     isTrial,
                 } = data
 
                 const isCard = paymentType === SUBSCRIPTION_PAYMENT_TYPE_CARD
 
-                logger.info({ msg: 'Starting subscription registration', data: { organizationId: organizationInput.id, pricingRuleId: pricingRuleInput.id, additionalCount: additionalPricingRuleInputs.length, paymentType, isTrial } })
+                logger.info({ msg: 'Starting subscription registration', data: { organizationId: organizationInput.id, pricingRuleCount: pricingRuleInputs.length, paymentType, isTrial } })
+
+                if (pricingRuleInputs.length === 0) {
+                    throw new GQLError(ERRORS.PRICING_RULE_NOT_FOUND, context)
+                }
 
                 const [organization] = await find('Organization', {
                     id: organizationInput.id,
@@ -194,9 +197,8 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                     throw new GQLError(ERRORS.ORGANIZATION_NOT_FOUND, context)
                 }
 
-                const ruleInputs = [pricingRuleInput, ...additionalPricingRuleInputs]
                 const items = []
-                for (const ruleInput of ruleInputs) {
+                for (const ruleInput of pricingRuleInputs) {
                     const [rule] = await find('SubscriptionPlanPricingRule', {
                         id: ruleInput.id,
                         deletedAt: null,
@@ -211,7 +213,10 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                     items.push({ rule, plan })
                 }
 
-                const baseItem = items[0]
+                const serviceItems = items.filter(item => item.plan.planType === SUBSCRIPTION_PLAN_TYPE_SERVICE)
+                const featureItems = items.filter(item => item.plan.planType === SUBSCRIPTION_PLAN_TYPE_FEATURE)
+                const baseItem = serviceItems[0]
+                    || [...items].sort((a, b) => (a.rule.id < b.rule.id ? -1 : 1))[0]
                 const basePlan = baseItem.plan
                 const basePricingRule = baseItem.rule
 
@@ -222,7 +227,7 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                 }
 
                 if (isTrial) {
-                    if (additionalPricingRuleInputs.length > 0) {
+                    if (items.length > 1) {
                         throw new GQLError(ERRORS.TRIAL_BUNDLE_NOT_SUPPORTED, context)
                     }
                     if (basePlan.trialDays <= 0) {
@@ -253,7 +258,7 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                     })
                     const subscriptionContext = await getById('SubscriptionContext', createdSubscriptionContext.id)
 
-                    return { subscriptionContext, subscriptionContexts: [subscriptionContext], directPaymentUrl: null, multiPayment: null }
+                    return { subscriptionContexts: [subscriptionContext], directPaymentUrl: null, multiPayment: null }
                 }
 
                 const period = basePricingRule.period
@@ -272,11 +277,9 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                     throw new GQLError(ERRORS.DUPLICATE_PLAN_IN_BUNDLE, context)
                 }
 
-                const serviceItems = items.filter(item => item.plan.planType === SUBSCRIPTION_PLAN_TYPE_SERVICE)
                 if (serviceItems.length > 1) {
                     throw new GQLError(ERRORS.MULTIPLE_SERVICE_PLANS_IN_BUNDLE, context)
                 }
-                const featureItems = items.filter(item => item.plan.planType === SUBSCRIPTION_PLAN_TYPE_FEATURE)
 
                 for (const featureItem of featureItems) {
                     for (const otherItem of items) {
@@ -346,8 +349,7 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                         id_in: bundleContexts.map(ctx => ctx.id),
                         deletedAt: null,
                     })
-                    const baseContext = subscriptionContexts.find(ctx => ctx.subscriptionPlanPricingRule === basePricingRule.id) || subscriptionContexts[0]
-                    return { subscriptionContext: baseContext, subscriptionContexts, directPaymentUrl, multiPayment }
+                    return { subscriptionContexts, directPaymentUrl, multiPayment }
                 }
 
                 const matchesRequestedComposition = (bundleContexts) => {
@@ -450,12 +452,10 @@ const RegisterSubscriptionContextService = new GQLCustomSchema('RegisterSubscrip
                     id_in: createdContexts.map(ctx => ctx.id),
                     deletedAt: null,
                 })
-                const baseContext = subscriptionContexts.find(ctx => ctx.subscriptionPlanPricingRule === basePricingRule.id) || subscriptionContexts[0]
 
                 logger.info({ msg: 'Created subscription bundle', data: { organizationId: organization.id, invoiceId: createdInvoice.id, contextCount: subscriptionContexts.length, multiPaymentId: multiPayment?.id || null } })
 
                 return {
-                    subscriptionContext: baseContext,
                     subscriptionContexts,
                     directPaymentUrl,
                     multiPayment,

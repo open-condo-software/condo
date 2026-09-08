@@ -35,22 +35,18 @@ async function isLatestDoneContext (subscriptionContext) {
     return latest && latest.id === subscriptionContext.id
 }
 
-async function resolveRenewalRules (group) {
-    let baseRuleId = null
-    const additionalRuleIds = []
+async function resolveRenewalRuleIds (group) {
+    const serviceRuleIds = []
+    const otherRuleIds = []
     for (const subscriptionContext of group) {
         const plan = await getById('SubscriptionPlan', subscriptionContext.subscriptionPlan)
-        const isService = plan && plan.planType === SUBSCRIPTION_PLAN_TYPE_SERVICE
-        if (isService && !baseRuleId) {
-            baseRuleId = subscriptionContext.subscriptionPlanPricingRule
+        if (plan && plan.planType === SUBSCRIPTION_PLAN_TYPE_SERVICE) {
+            serviceRuleIds.push(subscriptionContext.subscriptionPlanPricingRule)
         } else {
-            additionalRuleIds.push(subscriptionContext.subscriptionPlanPricingRule)
+            otherRuleIds.push(subscriptionContext.subscriptionPlanPricingRule)
         }
     }
-    if (!baseRuleId) {
-        baseRuleId = additionalRuleIds.shift()
-    }
-    return { baseRuleId, additionalRuleIds }
+    return [...serviceRuleIds, ...otherRuleIds]
 }
 
 async function processGroup (context, group, bufferDate) {
@@ -66,27 +62,22 @@ async function processGroup (context, group, bufferDate) {
         }
     }
 
-    const { baseRuleId, additionalRuleIds } = await resolveRenewalRules(group)
-    if (!baseRuleId) {
-        logger.warn({ msg: 'group has no base pricing rule, skipping', data: { groupContextIds } })
+    const renewalRuleIds = await resolveRenewalRuleIds(group)
+    if (renewalRuleIds.length === 0) {
+        logger.warn({ msg: 'group has no pricing rules, skipping', data: { groupContextIds } })
         return
     }
 
     const result = await registerSubscriptionContext(context, {
         sender: SENDER,
         organization: { id: organizationId },
-        subscriptionPlanPricingRule: { id: baseRuleId },
-        additionalPricingRules: additionalRuleIds.map(id => ({ id })),
+        subscriptionPlanPricingRules: renewalRuleIds.map(id => ({ id })),
         isTrial: false,
     })
 
-    const newContexts = result.subscriptionContexts && result.subscriptionContexts.length > 0
-        ? result.subscriptionContexts
-        : [result.subscriptionContext].filter(Boolean)
+    const newContexts = result.subscriptionContexts || []
     const directPaymentUrl = result.directPaymentUrl
-    const invoiceId = result.subscriptionContext && result.subscriptionContext.invoice
-        ? result.subscriptionContext.invoice.id
-        : null
+    const invoiceId = newContexts[0] && newContexts[0].invoice ? newContexts[0].invoice.id : null
 
     logger.info({ msg: 'registered renewal bundle', data: { organizationId, invoiceId, newContextIds: newContexts.map(ctx => ctx.id) } })
 
