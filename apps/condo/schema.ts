@@ -47280,7 +47280,7 @@ export type Mutation = {
   acceptOrRejectOrganizationInviteByCode?: Maybe<OrganizationEmployee>;
   acceptOrRejectOrganizationInviteById?: Maybe<OrganizationEmployee>;
   /**
-   * Activates a subscription context with status CREATED. Checks that invoice is paid, retrieves payment method from multiPayment, and updates context status to DONE.
+   * Activates a subscription context whose invoice is paid: resolves the payment method (if any), sets status to DONE and recomputes startAt/endAt so the paid period starts at payment time rather than registration time.
    *
    *
    *
