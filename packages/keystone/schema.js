@@ -171,7 +171,11 @@ async function find (schemaName, condition) {
     if (!SCHEMAS.has(schemaName)) throw new Error(`Schema ${schemaName} is not registered yet`)
     if (SCHEMAS.get(schemaName)._type !== GQL_LIST_SCHEMA_TYPE) throw new Error(`Schema ${schemaName} type != ${GQL_LIST_SCHEMA_TYPE}`)
     const schemaList = SCHEMAS.get(schemaName)
-    const result = await schemaList._keystone.lists[schemaName].adapter.find(condition)
+    const listAdapter = schemaList._keystone.lists[schemaName].adapter
+    const dbAdapter = schemaList._keystone.adapter
+    const result = dbAdapter && typeof dbAdapter.executeFind === 'function'
+        ? await dbAdapter.executeFind({ schemaName, condition, listAdapter })
+        : await listAdapter.find(condition)
     logTooManyReturnedIfRequired([TOO_MANY_RETURNED_FIND_LIMIT], result, {
         functionName: 'find',
         schemaName,
@@ -202,7 +206,11 @@ async function itemsQuery (schemaName, args, { meta = false, from = {} } = {}) {
     if (!SCHEMAS.has(schemaName)) throw new Error(`Schema ${schemaName} is not registered yet`)
     if (SCHEMAS.get(schemaName)._type !== GQL_LIST_SCHEMA_TYPE) throw new Error(`Schema ${schemaName} type != ${GQL_LIST_SCHEMA_TYPE}`)
     const schemaList = SCHEMAS.get(schemaName)
-    const result = await schemaList._keystone.lists[schemaName].adapter.itemsQuery(args, { meta, from })
+    const listAdapter = schemaList._keystone.lists[schemaName].adapter
+    const dbAdapter = schemaList._keystone.adapter
+    const result = dbAdapter && typeof dbAdapter.executeItemsQuery === 'function'
+        ? await dbAdapter.executeItemsQuery({ schemaName, args, meta, from, listAdapter })
+        : await listAdapter.itemsQuery(args, { meta, from })
     logTooManyReturnedIfRequired([TOO_MANY_RETURNED_ITEMS_LIMIT], result, {
         functionName: 'itemsQuery',
         schemaName,

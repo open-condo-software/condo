@@ -1,0 +1,109 @@
+const {
+    listHasCrossSourceOutbound,
+    listHasCrossSourceInbound,
+    listNeedsCrossDbWhereRewrite,
+} = require('./crossSourceHints')
+const { createTablePoolResolver } = require('./tablePool')
+
+function createAdapterFixture () {
+    const poolsConfig = {
+        main: { databases: ['main'], writable: true },
+        billing: { databases: ['billing'], writable: true },
+    }
+    const tablePoolResolver = createTablePoolResolver({
+        routingRules: [
+            { tableName: 'BillingReceipt', target: 'billing' },
+            { target: 'main' },
+        ],
+        replicaPoolsConfig: poolsConfig,
+    })
+
+    return {
+        _tablePoolResolver: tablePoolResolver,
+        getTablePoolResolver () { return tablePoolResolver },
+        listAdapters: {
+            Organization: {
+                fieldAdapters: [
+                    { isRelationship: true, refListKey: 'User', path: 'createdBy' },
+                ],
+            },
+            Ticket: {
+                fieldAdapters: [
+                    { isRelationship: true, refListKey: 'Organization', path: 'organization' },
+                    { isRelationship: true, refListKey: 'User', path: 'executor' },
+                ],
+            },
+            Payment: {
+                fieldAdapters: [
+                    {
+                        isRelationship: true,
+                        refListKey: 'BillingReceipt',
+                        path: 'receipt',
+                        rel: { tableName: 'Payment', columnName: 'receipt' },
+                    },
+                ],
+            },
+            BillingReceipt: {
+                fieldAdapters: [
+                    { isRelationship: true, refListKey: 'Organization', path: 'context' },
+                ],
+            },
+            User: {
+                fieldAdapters: [],
+            },
+        },
+    }
+}
+
+describe('crossSourceHints (main-path fast skips)', () => {
+    test('main-only Ticket/User need no where rewrite and have no outbound', () => {
+        const adapter = createAdapterFixture()
+
+        expect(listHasCrossSourceOutbound(adapter, 'Ticket')).toBe(false)
+        expect(listHasCrossSourceOutbound(adapter, 'User')).toBe(false)
+        expect(listHasCrossSourceInbound(adapter, 'Ticket')).toBe(false)
+        expect(listHasCrossSourceInbound(adapter, 'User')).toBe(false)
+        expect(listNeedsCrossDbWhereRewrite(adapter, 'Ticket')).toBe(false)
+        expect(listNeedsCrossDbWhereRewrite(adapter, 'User')).toBe(false)
+        expect(listNeedsCrossDbWhereRewrite(adapter, 'Organization')).toBe(false)
+    })
+
+    test('Organization is main-only for SELECT/where but has inbound from BillingReceipt', () => {
+        const adapter = createAdapterFixture()
+
+        expect(listHasCrossSourceOutbound(adapter, 'Organization')).toBe(false)
+        expect(listHasCrossSourceInbound(adapter, 'Organization')).toBe(true)
+    })
+
+    test('Payment has outbound to billing; BillingReceipt has inbound from Payment', () => {
+        const adapter = createAdapterFixture()
+
+        expect(listHasCrossSourceOutbound(adapter, 'Payment')).toBe(true)
+        expect(listHasCrossSourceInbound(adapter, 'BillingReceipt')).toBe(true)
+        expect(listNeedsCrossDbWhereRewrite(adapter, 'Payment')).toBe(true)
+        expect(listNeedsCrossDbWhereRewrite(adapter, 'BillingReceipt')).toBe(true)
+    })
+
+    test('caches hint results on the adapter instance', () => {
+        const adapter = createAdapterFixture()
+        listHasCrossSourceOutbound(adapter, 'Organization')
+        listHasCrossSourceOutbound(adapter, 'Payment')
+
+        expect(adapter.__crossSourceOutboundCache.get('Organization')).toBe(false)
+        expect(adapter.__crossSourceOutboundCache.get('Payment')).toBe(true)
+    })
+
+    test('does not cache cycle-affected where rewrite results', () => {
+        const adapter = createAdapterFixture()
+        adapter.listAdapters.Organization.fieldAdapters = [
+            { isRelationship: true, refListKey: 'Ticket', path: 'ticket' },
+        ]
+        adapter.listAdapters.Ticket.fieldAdapters = [
+            { isRelationship: true, refListKey: 'Organization', path: 'organization' },
+        ]
+
+        expect(listNeedsCrossDbWhereRewrite(adapter, 'Organization')).toBe(false)
+        expect(adapter.__crossDbWhereRewriteCache?.has('Organization')).toBe(false)
+        expect(adapter.__crossDbWhereRewriteCache?.has('Ticket')).toBe(false)
+    })
+})
