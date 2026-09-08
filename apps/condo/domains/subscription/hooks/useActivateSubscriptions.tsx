@@ -122,7 +122,7 @@ export const useActivateSubscriptions = () => {
                             dv: 1,
                             sender: getClientSideSenderInfo(),
                             organization: { id: organization.id },
-                            subscriptionPlanPricingRule: { id: priceId },
+                            subscriptionPlanPricingRules: [{ id: priceId }],
                             isTrial,
                         },
                     },

@@ -60,10 +60,10 @@ describe('activateSubscriptionForInvoice', () => {
 
             const [result] = await registerSubscriptionContextByTestClient(adminClient, {
                 organization: { id: organization.id },
-                subscriptionPlanPricingRule: { id: pricingRule.id },
+                subscriptionPlanPricingRules: [{ id: pricingRule.id }],
             })
 
-            const subscriptionContext = result.subscriptionContext
+            const subscriptionContext = result.subscriptionContexts[0]
             const invoice = subscriptionContext.invoice
 
             const bindingId = faker.datatype.uuid()
@@ -133,10 +133,10 @@ describe('activateSubscriptionForInvoice', () => {
 
             const [result] = await registerSubscriptionContextByTestClient(adminClient, {
                 organization: { id: organization.id },
-                subscriptionPlanPricingRule: { id: pricingRule.id },
+                subscriptionPlanPricingRules: [{ id: pricingRule.id }],
             })
 
-            const subscriptionContext = result.subscriptionContext
+            const subscriptionContext = result.subscriptionContexts[0]
             const invoice = subscriptionContext.invoice
 
             expect(subscriptionContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
@@ -194,13 +194,12 @@ describe('activateSubscriptionForInvoice', () => {
 
             const [result] = await registerSubscriptionContextByTestClient(adminClient, {
                 organization: { id: organization.id },
-                subscriptionPlanPricingRule: { id: pricingRule.id },
-                additionalPricingRules: [{ id: featureRule.id }],
+                subscriptionPlanPricingRules: [{ id: pricingRule.id }, { id: featureRule.id }],
             })
 
             expect(result.subscriptionContexts).toHaveLength(2)
             const contextIds = result.subscriptionContexts.map(ctx => ctx.id)
-            const invoiceId = result.subscriptionContext.invoice.id
+            const invoiceId = result.subscriptionContexts[0].invoice.id
 
             const bindingId = faker.datatype.uuid()
             await updateTestMultiPayment(adminClient, result.multiPayment.id, {
@@ -240,15 +239,14 @@ describe('activateSubscriptionForInvoice', () => {
 
             const [result] = await registerSubscriptionContextByTestClient(adminClient, {
                 organization: { id: organization.id },
-                subscriptionPlanPricingRule: { id: pricingRule.id },
-                additionalPricingRules: [{ id: featureRule.id }],
+                subscriptionPlanPricingRules: [{ id: pricingRule.id }, { id: featureRule.id }],
                 paymentType: 'invoice',
             })
 
             expect(result.multiPayment).toBeNull()
             expect(result.directPaymentUrl).toBeNull()
             const contextIds = result.subscriptionContexts.map(ctx => ctx.id)
-            const invoiceId = result.subscriptionContext.invoice.id
+            const invoiceId = result.subscriptionContexts[0].invoice.id
 
             await updateTestInvoice(adminClient, invoiceId, { status: INVOICE_STATUS_PAID })
 
@@ -272,10 +270,10 @@ describe('activateSubscriptionForInvoice', () => {
 
             const [result] = await registerSubscriptionContextByTestClient(adminClient, {
                 organization: { id: organization.id },
-                subscriptionPlanPricingRule: { id: pricingRule.id },
+                subscriptionPlanPricingRules: [{ id: pricingRule.id }],
             })
 
-            const subscriptionContext = result.subscriptionContext
+            const subscriptionContext = result.subscriptionContexts[0]
             const invoice = subscriptionContext.invoice
 
             await SubscriptionContext.update(adminClient, subscriptionContext.id, {
