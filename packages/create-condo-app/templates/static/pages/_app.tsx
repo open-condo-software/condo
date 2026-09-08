@@ -1,6 +1,12 @@
+import { DynamicAppResizer } from '@/domains/common/components/DynamicAppResizer'
 import '@/styles/globals.css'
+
 import type { AppProps } from 'next/app'
 
 export default function App ({ Component, pageProps }: AppProps) {
-    return <Component {...pageProps} />
+    return (
+        <DynamicAppResizer>
+            <Component {...pageProps} />
+        </DynamicAppResizer>
+    )
 }

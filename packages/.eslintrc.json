@@ -18,5 +18,14 @@
         "**/domains/**/*"
       ]
     }]
-  }
+  },
+  "overrides": [
+    {
+      "files": ["create-condo-app/templates/**/*"],
+      "rules": {
+        "no-restricted-imports": "off",
+        "no-restricted-modules": "off"
+      }
+    }
+  ]
 }
