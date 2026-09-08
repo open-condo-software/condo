@@ -1724,6 +1724,8 @@ __metadata:
     "@registry-importer/domains": "link:./domains"
     "@types/node": "catalog:"
     "@types/react": "catalog:"
+    "@types/unbzip2-stream": "npm:1.4.3"
+    "@types/yauzl": "npm:3.4.0"
     "@zxing/library": "npm:^0.21.3"
     ajv: "catalog:"
     antd: "catalog:"
@@ -1755,15 +1757,18 @@ __metadata:
     muhammara: "npm:^6.0.2"
     next: "catalog:"
     next-with-less: "catalog:"
+    node-unrar-js: "npm:2.0.2"
     openid-client: "catalog:"
     pdf-lib: "npm:^1.17.1"
     pluralize: "catalog:"
     react: "catalog:"
     react-dom: "catalog:"
     typescript: "catalog:"
+    unbzip2-stream: "npm:1.4.3"
     uuid: "catalog:"
     xlsx: "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz"
     xml2js: "npm:^0.6.2"
+    yauzl: "npm:3.2.1"
     zod: "catalog:"
   languageName: unknown
   linkType: soft
@@ -14057,6 +14062,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/through@npm:*":
+  version: 0.0.33
+  resolution: "@types/through@npm:0.0.33"
+  dependencies:
+    "@types/node": "npm:*"
+  checksum: 10/fd0b73f873a64ed5366d1d757c42e5dbbb2201002667c8958eda7ca02fff09d73de91360572db465ee00240c32d50c6039ea736d8eca374300f9664f93e8da39
+  languageName: node
+  linkType: hard
+
 "@types/title@npm:3.4.1":
   version: 3.4.1
   resolution: "@types/title@npm:3.4.1"
@@ -14082,6 +14096,15 @@ __metadata:
   version: 2.0.7
   resolution: "@types/trusted-types@npm:2.0.7"
   checksum: 10/8e4202766a65877efcf5d5a41b7dd458480b36195e580a3b1085ad21e948bc417d55d6f8af1fd2a7ad008015d4117d5fdfe432731157da3c68678487174e4ba3
+  languageName: node
+  linkType: hard
+
+"@types/unbzip2-stream@npm:1.4.3":
+  version: 1.4.3
+  resolution: "@types/unbzip2-stream@npm:1.4.3"
+  dependencies:
+    "@types/through": "npm:*"
+  checksum: 10/2c0a96df6c841a6171f10902bbf223f2c44251c8a1ff4d3d9f3abd69a342abc63020f2dfcab9912c26f823bba5a265ea92e95fc469e1267de7f08ec9bbe72081
   languageName: node
   linkType: hard
 
@@ -14174,6 +14197,15 @@ __metadata:
   dependencies:
     "@types/yargs-parser": "npm:*"
   checksum: 10/47bcd4476a4194ea11617ea71cba8a1eddf5505fc39c44336c1a08d452a0de4486aedbc13f47a017c8efbcb5a8aa358d976880663732ebcbc6dbcbbecadb0581
+  languageName: node
+  linkType: hard
+
+"@types/yauzl@npm:3.4.0":
+  version: 3.4.0
+  resolution: "@types/yauzl@npm:3.4.0"
+  dependencies:
+    "@types/node": "npm:*"
+  checksum: 10/8d7f767f79b385a6e18f77969aafdb3bde6579ccd4561707e98cf91f2ece51309fbf44078b5f6f0a8c7490f82c6582374ac21683e075aa8ff3dc4faa1d0aa0b0
   languageName: node
   linkType: hard
 
@@ -17222,7 +17254,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"buffer@npm:^5.5.0":
+"buffer@npm:^5.2.1, buffer@npm:^5.5.0":
   version: 5.7.1
   resolution: "buffer@npm:5.7.1"
   dependencies:
@@ -31121,6 +31153,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"node-unrar-js@npm:2.0.2":
+  version: 2.0.2
+  resolution: "node-unrar-js@npm:2.0.2"
+  checksum: 10/aba9d4b22f1b4878039a1942430c53d8835da50a4ac05c46f765b4398d7a47b21c7e61be362b1230b0ac55a723c13d66bd6bc31bbda7d1bd0ace8875b6fd53d6
+  languageName: node
+  linkType: hard
+
 "nodemailer@npm:9.0.3":
   version: 9.0.3
   resolution: "nodemailer@npm:9.0.3"
@@ -41396,6 +41435,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"unbzip2-stream@npm:1.4.3":
+  version: 1.4.3
+  resolution: "unbzip2-stream@npm:1.4.3"
+  dependencies:
+    buffer: "npm:^5.2.1"
+    through: "npm:^2.3.8"
+  checksum: 10/4ffc0e14f4af97400ed0f37be83b112b25309af21dd08fa55c4513e7cb4367333f63712aec010925dbe491ef6e92db1248e1e306e589f9f6a8da8b3a9c4db90b
+  languageName: node
+  linkType: hard
+
 "unc-path-regex@npm:^0.1.2":
   version: 0.1.2
   resolution: "unc-path-regex@npm:0.1.2"
@@ -43456,6 +43505,16 @@ __metadata:
     y18n: "npm:^5.0.5"
     yargs-parser: "npm:^21.1.1"
   checksum: 10/a3826798c03b159e139d0580a3b2733953889a9a1bac8e4e1ca7a1a249b55315b213c323a6a1dbdb305f6e59496a9eaa810742c87e34abcf1a0584d8f59212a1
+  languageName: node
+  linkType: hard
+
+"yauzl@npm:3.2.1":
+  version: 3.2.1
+  resolution: "yauzl@npm:3.2.1"
+  dependencies:
+    buffer-crc32: "npm:~0.2.3"
+    pend: "npm:~1.2.0"
+  checksum: 10/15dfae75fbfe59c6a1b7a2cb27a995cda0ee70549d32d6b19937e84897436170f169f6bbefc34b9e9beb9c9114a1b8a8a40e7687a907909a19681ebcbf35a1f3
   languageName: node
   linkType: hard
 
