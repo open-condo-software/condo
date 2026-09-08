@@ -28,9 +28,7 @@
   "files": [
     "dist"
   ],
-  "bin": {
-    "create-condo-app": "dist/index.js"
-  },
+  "bin": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   }
