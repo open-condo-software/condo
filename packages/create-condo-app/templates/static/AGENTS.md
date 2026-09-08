@@ -18,6 +18,9 @@ so it best suited for apps with no server-side logic.
 This app is based on Next.js, React, and TypeScript. Next.js is configured for [static export mode](./next.config.ts), 
 so no server-side features like API routes or middleware are available.
 
+For passing config variables to app, you can use runtime config inside `next.config.ts`. 
+For a static apps it is baked during build time, so it's not really "runtime", but it's used for codebase consistency across other app templates.
+
 ## File structure
 
 This app inherits structure from default Next.js Pages Router App and extends it with Domain Driven Design (DDD) patterns.
