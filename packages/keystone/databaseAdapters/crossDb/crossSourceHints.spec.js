@@ -4,18 +4,14 @@ const {
     listNeedsCrossDbWhereRewrite,
 } = require('./crossSourceHints')
 
-const { createPoolBasedSourceRegistry } = require('../sourceRegistry')
+const { createTablePoolResolver } = require('./tablePool')
 
 function createAdapterFixture () {
     const poolsConfig = {
         main: { databases: ['main'], writable: true },
         billing: { databases: ['billing'], writable: true },
     }
-    const sourceRegistry = createPoolBasedSourceRegistry({
-        poolTables: {
-            main: new Set(['Organization', 'User', 'Payment', 'Ticket']),
-            billing: new Set(['BillingReceipt']),
-        },
+    const tablePoolResolver = createTablePoolResolver({
         routingRules: [
             { tableName: 'BillingReceipt', target: 'billing' },
             { target: 'main' },
@@ -24,8 +20,8 @@ function createAdapterFixture () {
     })
 
     return {
-        _sourceRegistry: sourceRegistry,
-        getSourceRegistry () { return sourceRegistry },
+        _tablePoolResolver: tablePoolResolver,
+        getTablePoolResolver () { return tablePoolResolver },
         listAdapters: {
             Organization: {
                 fieldAdapters: [

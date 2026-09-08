@@ -4,10 +4,9 @@
  */
 const Ajv = require('ajv')
 
+const { REGISTERED_DATA_PROVIDER_NAMES } = require('@open-condo/keystone/databaseAdapters/dataProviders')
+
 const { SUPPORTED_PG_OPERATIONS } = require('./sql')
-
-const { REGISTERED_DATA_PROVIDER_NAMES } = require('../../../dataProviders')
-
 
 const ajv = new Ajv({ useDefaults: true })
 

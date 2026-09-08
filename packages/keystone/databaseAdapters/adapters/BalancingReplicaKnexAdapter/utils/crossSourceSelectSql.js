@@ -12,10 +12,9 @@
 const { Parser } = require('node-sql-parser/build/postgresql')
 
 const conf = require('@open-condo/config')
+const { parseLiteralNode } = require('@open-condo/keystone/databaseAdapters/crossDb')
 
 const { normalizeTableName } = require('./sql')
-
-const { parseLiteralNode } = require('../../../crossDb/sqlAstUtils')
 
 const parser = new Parser()
 

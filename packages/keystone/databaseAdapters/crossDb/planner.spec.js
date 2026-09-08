@@ -4,20 +4,13 @@ jest.mock('@open-keystone/server-side-graphql-client', () => ({
 
 jest.mock('@open-condo/config', () => ({
     CROSS_DB_RELATION_FILTER_IDS_LIMIT: 50000,
+    CROSS_DB_RELATION_PLANNER_ENABLED: 'true',
 }))
 
-jest.mock('../sourceRegistry', () => ({
-    getSourceRegistry: jest.fn(() => ({
-        resolveSource: (tableName) => (tableName === 'Message' ? 'message' : 'main'),
+jest.mock('./tablePool', () => ({
+    getTablePoolResolver: jest.fn(() => ({
+        resolveTablePool: (tableName) => (tableName === 'Message' ? 'message' : 'main'),
     })),
-    isCrossDbPlannerEnabled: () => true,
-}))
-
-jest.mock('@open-condo/keystone/databaseAdapters', () => ({
-    getSourceRegistry: jest.fn(() => ({
-        resolveSource: (tableName) => (tableName === 'Message' ? 'message' : 'main'),
-    })),
-    isCrossDbPlannerEnabled: () => true,
 }))
 
 jest.mock('@open-condo/keystone/databaseAdapters/utils', () => ({
@@ -146,8 +139,8 @@ describe('CrossDbPlanner.prepareWhere', () => {
             multipleRelations: [],
             resolveDbColumn: (name) => name,
             applyPrismaMultipleRelations: async (rows) => rows,
-            sourceRegistry: {
-                resolveSource: (tableName) => (tableName === 'Message' ? 'message' : 'main'),
+            tablePoolResolver: {
+                resolveTablePool: (tableName) => (tableName === 'Message' ? 'message' : 'main'),
             },
         })
     })
@@ -227,8 +220,8 @@ describe('CrossDbPlanner.prepareWhere', () => {
             multipleRelations: [],
             resolveDbColumn: (name) => name,
             applyPrismaMultipleRelations: async (rows) => rows,
-            sourceRegistry: {
-                resolveSource: (tableName) => {
+            tablePoolResolver: {
+                resolveTablePool: (tableName) => {
                     if (tableName === 'Message' || tableName === 'MessageFile') return 'message'
                     return 'main'
                 },

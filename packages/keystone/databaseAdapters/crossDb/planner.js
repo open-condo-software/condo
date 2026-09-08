@@ -8,9 +8,9 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { listNeedsCrossDbWhereRewrite } = require('./crossSourceHints')
+const { getTablePoolResolver } = require('./tablePool')
 
 const { isDataProviderPool } = require('../dataProviders')
-const { getSourceRegistry, isCrossDbPlannerEnabled } = require('../sourceRegistry')
 const { castUuidParams, convertPrismaBigInts, getDatabaseAdapter, isPrismaAdapter } = require('../utils')
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -23,6 +23,10 @@ const CROSS_DB_RELATION_MAX_PAGES = Number(conf.CROSS_DB_RELATION_FILTER_MAX_PAG
 const prepareWhereSkipStorage = new AsyncLocalStorage()
 
 const logger = getLogger()
+
+function isCrossDbPlannerEnabled (value = conf.CROSS_DB_RELATION_PLANNER_ENABLED) {
+    return String(value) === 'true'
+}
 
 /**
  * GraphQL-path cross-database planner for `GqlWithKnexLoadList`.
@@ -45,7 +49,7 @@ class CrossDbPlanner {
         listAdapter,
         resolveDbColumn,
         applyPrismaMultipleRelations,
-        sourceRegistry,
+        tablePoolResolver,
         relationIdsCache,
     }) {
         this.listKey = listKey
@@ -58,8 +62,8 @@ class CrossDbPlanner {
         this.listAdapter = listAdapter
         this.resolveDbColumn = resolveDbColumn
         this.applyPrismaMultipleRelations = applyPrismaMultipleRelations
-        this.sourceRegistry = sourceRegistry || getSourceRegistry(adapter)
-        this.baseSource = this.sourceRegistry.resolveSource(listKey)
+        this.tablePoolResolver = tablePoolResolver || getTablePoolResolver(adapter)
+        this.basePool = this.tablePoolResolver.resolveTablePool(listKey)
         this._relationIdsCache = relationIdsCache || new Map()
         // When flattening access `OR` branches to base `id_in`, nested prepareWhere
         // must not re-enter OR flattening (would recurse through getItems → prepareWhere).
@@ -126,11 +130,11 @@ class CrossDbPlanner {
     }
 
     _isCrossSourceRelation (model) {
-        return this.sourceRegistry.resolveSource(model) !== this.baseSource
+        return this.tablePoolResolver.resolveTablePool(model) !== this.basePool
     }
 
     _ensureSqlBackedSource (tableName) {
-        const poolName = this.sourceRegistry.resolveSource(tableName)
+        const poolName = this.tablePoolResolver.resolveTablePool(tableName)
         if (isDataProviderPool(poolName, this.adapter._replicaPoolsConfig)) {
             throw new Error(
                 `Cross-db relation hydration does not support non-SQL pool "${poolName}" (table: ${tableName})`,
@@ -275,7 +279,7 @@ class CrossDbPlanner {
         const relatedListKey = fieldAdapter.refListKey
         // Nested rewrite only when the related list (transitively) touches another pool.
         if (this.adapter && !listNeedsCrossDbWhereRewrite(this.adapter, relatedListKey, {
-            sourceRegistry: this.sourceRegistry,
+            tablePoolResolver: this.tablePoolResolver,
         })) {
             return false
         }
@@ -289,7 +293,7 @@ class CrossDbPlanner {
             listAdapter: this.adapter?.listAdapters?.[relatedListKey],
             resolveDbColumn: this.resolveDbColumn,
             applyPrismaMultipleRelations: this.applyPrismaMultipleRelations,
-            sourceRegistry: this.sourceRegistry,
+            tablePoolResolver: this.tablePoolResolver,
             relationIdsCache: this._relationIdsCache,
         })
         rewritten[key] = await nestedPlanner.prepareWhere(value)
@@ -659,7 +663,7 @@ async function prepareCrossDbWhere ({ listKey, where, adapter: knownAdapter = nu
         listAdapter: adapter.listAdapters?.[listKey],
         resolveDbColumn: (fieldName) => fieldName,
         applyPrismaMultipleRelations: async (rows) => rows,
-        sourceRegistry: getSourceRegistry(adapter),
+        tablePoolResolver: getTablePoolResolver(adapter),
         relationIdsCache: adapter.__crossDbRelationIdsCache,
     })
 
@@ -669,6 +673,7 @@ async function prepareCrossDbWhere ({ listKey, where, adapter: knownAdapter = nu
 module.exports = {
     CrossDbPlanner,
     GLOBAL_QUERY_LIMIT,
+    isCrossDbPlannerEnabled,
     isUnsatisfiableWhere,
     prepareCrossDbWhere,
 }

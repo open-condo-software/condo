@@ -66,6 +66,21 @@ function isDataProviderPool (poolName, poolsConfig) {
     return isRegisteredDataProvider(resolvePoolProvider(poolName, poolsConfig))
 }
 
+const {
+    executeProviderSqlMutation,
+    executeProviderSqlSelect,
+    extractMutationWhereIds,
+    extractSimpleSelectCondition,
+} = require('./executeProviderSql')
+const {
+    applyItemsQueryToRows,
+    providerSupportsCreate,
+    providerSupportsDelete,
+    providerSupportsFind,
+    providerSupportsItemsQuery,
+    providerSupportsUpdate,
+} = require('./providerMethods')
+
 module.exports = {
     getDataProvider,
     isRegisteredDataProvider,
@@ -73,4 +88,14 @@ module.exports = {
     resolvePoolProvider,
     SOURCE_PROVIDERS,
     REGISTERED_DATA_PROVIDER_NAMES,
+    executeProviderSqlMutation,
+    executeProviderSqlSelect,
+    extractMutationWhereIds,
+    extractSimpleSelectCondition,
+    applyItemsQueryToRows,
+    providerSupportsCreate,
+    providerSupportsDelete,
+    providerSupportsFind,
+    providerSupportsItemsQuery,
+    providerSupportsUpdate,
 }

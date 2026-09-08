@@ -13,7 +13,7 @@ const { KvDataProvider } = require('./kv')
 const { applyItemsQueryToRows } = require('./providerMethods')
 
 const { BalancingReplicaKnexAdapter } = require('../adapters/BalancingReplicaKnexAdapter/adapter')
-const { createPoolBasedSourceRegistry } = require('../sourceRegistry')
+const { createTablePoolResolver } = require('../crossDb/tablePool')
 
 const USER_FIXTURE = {
     u1: { id: 'u1', name: 'Alice', deletedAt: null },
@@ -74,12 +74,7 @@ function createKvBackedAdapter () {
         main: { databases: ['main'], writable: true },
         kv: { provider: 'kv', writable: true },
     }
-    adapter._poolTables = {
-        main: new Set(['User']),
-        kv: new Set(),
-    }
-    adapter._sourceRegistry = createPoolBasedSourceRegistry({
-        poolTables: adapter._poolTables,
+    adapter._tablePoolResolver = createTablePoolResolver({
         routingRules: adapter._routingRules,
         replicaPoolsConfig: adapter._replicaPoolsConfig,
     })

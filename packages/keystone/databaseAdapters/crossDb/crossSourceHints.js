@@ -1,50 +1,60 @@
 /**
- * Cached hints: which lists need cross-db work.
- * Used to keep main-pool-only queries on the cheap path (no SQL AST / remote checks).
+ * Cached boolean hints: does this list touch another DB pool?
+ *
+ * Callers (adapter mutation guards, CrossDbPlanner) use these to skip expensive
+ * cross-db work when a list is main-pool-only.
+ *
+ * Terminology:
+ * - **Outbound** — this list has an FK to a table on another pool
+ *   (e.g. Message.user → User when Message is on `message` and User on `main`).
+ * - **Inbound** — some other-pool list has an FK pointing at this list
+ *   (e.g. BillingReceipt.organization → Organization).
+ *
+ * Pool ownership comes from `resolveTablePool` / routing `tableName` rules.
  */
 
-/**
- * @param {object|null} listAdapter
- * @returns {Array}
- */
+const { getTablePoolResolver } = require('./tablePool')
+
+/** Relationship field adapters from a Keystone list adapter (array or by-path map). */
 function _iterFieldAdapters (listAdapter) {
     if (listAdapter?.fieldAdapters?.length) return listAdapter.fieldAdapters
     if (listAdapter?.fieldAdaptersByPath) return Object.values(listAdapter.fieldAdaptersByPath)
     return []
 }
 
-/**
- * @param {object} adapter BalancingReplicaKnexAdapter (or compatible)
- * @returns {Map<string, boolean>}
- */
+/** Lazy Map on the adapter instance so hints survive across requests without a global cache. */
 function _getCache (adapter, cacheKey) {
     if (!adapter[cacheKey]) adapter[cacheKey] = new Map()
     return adapter[cacheKey]
 }
 
 /**
- * @param {object} adapter
- * @param {string} listKey
- * @param {object} [sourceRegistry]
+ * True if `listKey` has at least one relationship whose target list lives on a different pool.
+ *
+ * Used before insert/update FK validation: if false, skip `validateCrossSourceReferences`.
+ *
+ * Example: BillingReceipt → Organization across pools → true for BillingReceipt.
+ *
+ * @param {object} adapter BalancingReplicaKnexAdapter (or compatible)
+ * @param {string} listKey Keystone list / table name
+ * @param {object} [tablePoolResolver] optional override; defaults to adapter resolver
  * @returns {boolean}
  */
-function listHasCrossSourceOutbound (adapter, listKey, sourceRegistry = null) {
+function listHasCrossSourceOutbound (adapter, listKey, tablePoolResolver = null) {
     const cache = _getCache(adapter, '__crossSourceOutboundCache')
     if (cache.has(listKey)) return cache.get(listKey)
 
-    const registry = sourceRegistry
-        || adapter.getSourceRegistry?.()
-        || adapter._sourceRegistry
+    const resolver = tablePoolResolver || getTablePoolResolver(adapter)
     const listAdapter = adapter.listAdapters?.[listKey]
-    if (!registry || !listAdapter) {
+    if (!resolver || !listAdapter) {
         return false
     }
 
-    const baseSource = registry.resolveSource(listKey)
+    const basePool = resolver.resolveTablePool(listKey)
     let result = false
     for (const fieldAdapter of _iterFieldAdapters(listAdapter)) {
         if (!fieldAdapter.isRelationship || !fieldAdapter.refListKey) continue
-        if (registry.resolveSource(fieldAdapter.refListKey) !== baseSource) {
+        if (resolver.resolveTablePool(fieldAdapter.refListKey) !== basePool) {
             result = true
             break
         }
@@ -54,29 +64,34 @@ function listHasCrossSourceOutbound (adapter, listKey, sourceRegistry = null) {
 }
 
 /**
- * @param {object} adapter
- * @param {string} listKey
- * @param {object} [sourceRegistry]
+ * True if some list on another pool has an FK pointing at `listKey`.
+ *
+ * Used before delete / soft-delete: if false, skip `enforceCrossSourceDeleteConstraints`.
+ * Only counts FKs stored on the dependent list’s own table (skips join/through tables).
+ *
+ * Example: BillingReceipt.organization → Organization → true for Organization.
+ *
+ * @param {object} adapter BalancingReplicaKnexAdapter (or compatible)
+ * @param {string} listKey parent list that others may reference
+ * @param {object} [tablePoolResolver] optional override; defaults to adapter resolver
  * @returns {boolean}
  */
-function listHasCrossSourceInbound (adapter, listKey, sourceRegistry = null) {
+function listHasCrossSourceInbound (adapter, listKey, tablePoolResolver = null) {
     const cache = _getCache(adapter, '__crossSourceInboundCache')
     if (cache.has(listKey)) return cache.get(listKey)
 
-    const registry = sourceRegistry
-        || adapter.getSourceRegistry?.()
-        || adapter._sourceRegistry
+    const resolver = tablePoolResolver || getTablePoolResolver(adapter)
     const listAdapters = adapter.listAdapters || {}
-    if (!registry) {
+    if (!resolver) {
         return false
     }
 
-    const parentSource = registry.resolveSource(listKey)
+    const parentPool = resolver.resolveTablePool(listKey)
     let result = false
 
     for (const [dependentListKey, listAdapter] of Object.entries(listAdapters)) {
         if (dependentListKey === listKey) continue
-        if (registry.resolveSource(dependentListKey) === parentSource) continue
+        if (resolver.resolveTablePool(dependentListKey) === parentPool) continue
 
         for (const fieldAdapter of _iterFieldAdapters(listAdapter)) {
             if (!fieldAdapter.isRelationship || fieldAdapter.refListKey !== listKey) continue
@@ -93,14 +108,19 @@ function listHasCrossSourceInbound (adapter, listKey, sourceRegistry = null) {
 }
 
 /**
- * True when GraphQL `where` for `listKey` may need CrossDbPlanner rewrite
- * (own cross-source filters, or nested same-pool filters that embed them).
+ * True if GraphQL `where` on `listKey` may need CrossDbPlanner rewrite.
+ *
+ * That is: this list has outbound cross-pool relations, **or** a same-pool nested
+ * relation whose related list eventually needs rewrite (so filters like
+ * `{ context: { organization: { … } } }` still get rewritten).
+ *
+ * Main-pool-only lists return false → leave `where` untouched (cheap path).
  *
  * @param {object} adapter
  * @param {string} listKey
  * @param {object} [options]
- * @param {object} [options.sourceRegistry] override when adapter has no registry yet
- * @param {Set<string>} [options.visited]
+ * @param {object} [options.tablePoolResolver] override when adapter has no resolver yet
+ * @param {Set<string>} [options.visited] recursion guard for relation cycles
  * @returns {boolean}
  */
 function listNeedsCrossDbWhereRewrite (adapter, listKey, options = {}) {
@@ -114,24 +134,22 @@ function listNeedsCrossDbWhereRewrite (adapter, listKey, options = {}) {
     }
     visited.add(listKey)
 
-    const sourceRegistry = options.sourceRegistry
-        || adapter.getSourceRegistry?.()
-        || adapter._sourceRegistry
+    const tablePoolResolver = options.tablePoolResolver || getTablePoolResolver(adapter)
     const listAdapter = adapter.listAdapters?.[listKey]
-    if (!sourceRegistry || !listAdapter) {
+    if (!tablePoolResolver || !listAdapter) {
         return false
     }
 
     const state = options.state || { cycleAffected: false }
     let result = false
-    if (listHasCrossSourceOutbound(adapter, listKey, sourceRegistry)) {
+    if (listHasCrossSourceOutbound(adapter, listKey, tablePoolResolver)) {
         result = true
     } else {
-        const baseSource = sourceRegistry.resolveSource(listKey)
+        const basePool = tablePoolResolver.resolveTablePool(listKey)
         for (const fieldAdapter of _iterFieldAdapters(listAdapter)) {
             if (!fieldAdapter.isRelationship || !fieldAdapter.refListKey) continue
-            if (sourceRegistry.resolveSource(fieldAdapter.refListKey) !== baseSource) continue
-            if (listNeedsCrossDbWhereRewrite(adapter, fieldAdapter.refListKey, { sourceRegistry, visited, state })) {
+            if (tablePoolResolver.resolveTablePool(fieldAdapter.refListKey) !== basePool) continue
+            if (listNeedsCrossDbWhereRewrite(adapter, fieldAdapter.refListKey, { tablePoolResolver, visited, state })) {
                 result = true
                 break
             }

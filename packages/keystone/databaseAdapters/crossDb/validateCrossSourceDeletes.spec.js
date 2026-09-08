@@ -8,7 +8,7 @@ const {
     enforceCrossSourceDeleteConstraints,
 } = require('./validateCrossSourceDeletes')
 
-const { createPoolBasedSourceRegistry } = require('../sourceRegistry')
+const { createTablePoolResolver } = require('./tablePool')
 
 function createListAdapters () {
     return {
@@ -113,11 +113,7 @@ describe('validateCrossSourceDeletes', () => {
         billing: { databases: ['billing'], writable: true },
     }
 
-    const sourceRegistry = createPoolBasedSourceRegistry({
-        poolTables: {
-            main: new Set(['Payment', 'ProtectedNote', 'CascadeChild']),
-            billing: new Set(['BillingReceipt']),
-        },
+    const tablePoolResolver = createTablePoolResolver({
         routingRules: [
             { tableName: 'BillingReceipt', target: 'billing' },
             { target: 'main' },
@@ -140,7 +136,7 @@ describe('validateCrossSourceDeletes', () => {
             const inbound = collectCrossSourceInboundForeignKeys({
                 listKey: 'BillingReceipt',
                 listAdapters: createListAdapters(),
-                sourceRegistry,
+                tablePoolResolver,
             })
 
             expect(inbound).toEqual(expect.arrayContaining([
@@ -161,10 +157,7 @@ describe('validateCrossSourceDeletes', () => {
         })
 
         test('skips same-pool dependents', () => {
-            const samePoolRegistry = createPoolBasedSourceRegistry({
-                poolTables: {
-                    main: new Set(['BillingReceipt', 'Payment']),
-                },
+            const samePoolResolver = createTablePoolResolver({
                 routingRules: [{ target: 'main' }],
                 replicaPoolsConfig: { main: { databases: ['main'], writable: true } },
             })
@@ -172,7 +165,7 @@ describe('validateCrossSourceDeletes', () => {
             expect(collectCrossSourceInboundForeignKeys({
                 listKey: 'BillingReceipt',
                 listAdapters: createListAdapters(),
-                sourceRegistry: samePoolRegistry,
+                tablePoolResolver: samePoolResolver,
             })).toEqual([])
         })
     })
@@ -209,7 +202,7 @@ describe('validateCrossSourceDeletes', () => {
                 sql: 'delete from "public"."BillingReceipt" where "period" = $1',
                 bindings: ['2026-01'],
                 sqlOperationName: 'delete',
-                sourceRegistry,
+                tablePoolResolver,
                 getPoolByName: createGetPoolByName({ tables: {} }),
             })).rejects.toThrow('could not resolve target BillingReceipt id(s) for DELETE statement')
         })
@@ -221,7 +214,7 @@ describe('validateCrossSourceDeletes', () => {
                 sql: 'update "public"."BillingReceipt" set "deletedAt" = $1 where "period" = $2',
                 bindings: ['2026-01-01T00:00:00.000Z', '2026-01'],
                 sqlOperationName: 'update',
-                sourceRegistry,
+                tablePoolResolver,
                 getPoolByName: createGetPoolByName({ tables: {} }),
             })).rejects.toThrow('could not resolve target BillingReceipt id(s) for UPDATE statement')
         })
@@ -233,7 +226,7 @@ describe('validateCrossSourceDeletes', () => {
                 sql: 'delete from "public"."BillingReceipt" where "id" = $1',
                 bindings: ['r-1'],
                 sqlOperationName: 'delete',
-                sourceRegistry,
+                tablePoolResolver,
                 getPoolByName: createGetPoolByName({
                     tables: {
                         ProtectedNote: [{ id: 'n-1', receipt: 'r-1' }],
@@ -257,7 +250,7 @@ describe('validateCrossSourceDeletes', () => {
                 sql: 'delete from "public"."BillingReceipt" where "id" = $1',
                 bindings: ['r-1'],
                 sqlOperationName: 'delete',
-                sourceRegistry,
+                tablePoolResolver,
                 getPoolByName: createGetPoolByName({ tables }),
             })
 
@@ -277,7 +270,7 @@ describe('validateCrossSourceDeletes', () => {
                 sql: 'delete from "public"."BillingReceipt" where "id" = $1',
                 bindings: ['r-1'],
                 sqlOperationName: 'delete',
-                sourceRegistry,
+                tablePoolResolver,
                 getPoolByName: createGetPoolByName({ tables }),
             })
 
@@ -297,7 +290,7 @@ describe('validateCrossSourceDeletes', () => {
                 sql: 'update "public"."BillingReceipt" set "deletedAt" = $1 where "id" = $2',
                 bindings: ['2026-01-01T00:00:00.000Z', 'r-1'],
                 sqlOperationName: 'update',
-                sourceRegistry,
+                tablePoolResolver,
                 getPoolByName: createGetPoolByName({ tables }),
             })
 
@@ -312,7 +305,7 @@ describe('validateCrossSourceDeletes', () => {
                 sql: 'update "public"."BillingReceipt" set "deletedAt" = $1 where "id" = $2',
                 bindings: ['2026-01-01T00:00:00.000Z', 'r-1'],
                 sqlOperationName: 'update',
-                sourceRegistry,
+                tablePoolResolver,
                 getPoolByName: createGetPoolByName({
                     tables: {
                         ProtectedNote: [{ id: 'n-1', receipt: 'r-1' }],

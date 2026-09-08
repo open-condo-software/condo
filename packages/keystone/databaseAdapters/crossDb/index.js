@@ -1,10 +1,20 @@
-const { CrossDbPlanner, GLOBAL_QUERY_LIMIT, isUnsatisfiableWhere, prepareCrossDbWhere } = require('./planner')
+const {
+    listHasCrossSourceInbound,
+    listHasCrossSourceOutbound,
+    listNeedsCrossDbWhereRewrite,
+} = require('./crossSourceHints')
+const { CrossDbPlanner, GLOBAL_QUERY_LIMIT, isCrossDbPlannerEnabled, isUnsatisfiableWhere, prepareCrossDbWhere } = require('./planner')
 const {
     normalizeColumnName,
     normalizePositionalBindings,
     parseLiteralNode,
     resolveSqlValue,
 } = require('./sqlAstUtils')
+const {
+    createTablePoolResolver,
+    getTablePoolResolver,
+    resolveTablePool,
+} = require('./tablePool')
 const {
     ON_DELETE,
     normalizeOnDelete,
@@ -23,8 +33,15 @@ const {
 module.exports = {
     CrossDbPlanner,
     GLOBAL_QUERY_LIMIT,
+    isCrossDbPlannerEnabled,
     prepareCrossDbWhere,
     isUnsatisfiableWhere,
+    listHasCrossSourceInbound,
+    listHasCrossSourceOutbound,
+    listNeedsCrossDbWhereRewrite,
+    createTablePoolResolver,
+    getTablePoolResolver,
+    resolveTablePool,
     collectCrossSourceForeignKeys,
     extractMutationColumnValues,
     validateCrossSourceReferences,

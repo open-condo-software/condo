@@ -4,7 +4,7 @@ const { isFunction, isNil } = require('lodash')
 const get = require('lodash/get')
 
 const conf = require('@open-condo/config')
-const { getSourceRegistry } = require('@open-condo/keystone/databaseAdapters')
+const { getTablePoolResolver } = require('@open-condo/keystone/databaseAdapters')
 const { CrossDbPlanner, GLOBAL_QUERY_LIMIT, isUnsatisfiableWhere, prepareCrossDbWhere } = require('@open-condo/keystone/databaseAdapters/crossDb')
 const { getDatabaseAdapter, isPrismaAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -334,7 +334,7 @@ class GqlWithKnexLoadList {
             listAdapter: this._listAdapter,
             resolveDbColumn: (fieldName) => this._resolveDbColumn(fieldName),
             applyPrismaMultipleRelations: (rows) => this._applyPrismaMultipleRelations(rows),
-            sourceRegistry: getSourceRegistry(this.adapter),
+            tablePoolResolver: getTablePoolResolver(this.adapter),
         })
     }
 

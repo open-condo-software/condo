@@ -1,7 +1,7 @@
+const { createKmigratorKnexAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
+
 const { BalancingReplicaKnexAdapter } = require('./adapter')
 const { isDefaultRule } = require('./utils/env')
-
-const { createKmigratorKnexAdapter } = require('../../utils/kmigratorKnexAdapter')
 
 jest.mock('./utils/knex', () => ({
     initKnexClient: jest.fn(async () => ({
@@ -200,44 +200,29 @@ describe('BalancingReplicaKnexAdapter.__kmigratorKnexAdapters', () => {
 })
 
 describe('BalancingReplicaKnexAdapter._selectTargetPool', () => {
-    test('throws when owner pool for a write is read-only', () => {
+    test('delegates to first matching DATABASE_ROUTING_RULES via _routeToPool', () => {
         const adapter = Object.create(BalancingReplicaKnexAdapter.prototype)
-        const mainPool = { name: 'main' }
-        const billingPool = { name: 'billing' }
+        const messagePool = { name: 'message' }
+        const replicasPool = { name: 'replicas' }
 
-        adapter._routeToPool = jest.fn(() => mainPool)
-        adapter._sourceRegistry = { resolveSource: () => 'billing' }
-        adapter._replicaPools = {
-            main: mainPool,
-            billing: billingPool,
-        }
-        adapter._replicaPoolsConfig = {
-            main: { databases: ['main'], writable: true },
-            billing: { databases: ['billing'], writable: false },
-        }
-        adapter._getPoolName = jest.fn((pool) => {
-            if (pool === mainPool) return 'main'
-            if (pool === billingPool) return 'billing'
-            return null
+        adapter._routeToPool = jest.fn(({ tableName, sqlOperationName }) => {
+            if (tableName === 'Message') return messagePool
+            if (sqlOperationName === 'select') return replicasPool
+            return { name: 'main' }
         })
 
-        expect(() => adapter._selectTargetPool('update "public"."Message" set "status" = $1 where "id" = $2'))
-            .toThrow('Pool "billing" is read-only or unavailable for table "Message"')
-    })
+        expect(adapter._selectTargetPool('select "t0".* from "public"."Message" as "t0"'))
+            .toBe(messagePool)
+        expect(adapter._selectTargetPool('select "t0".* from "public"."User" as "t0"'))
+            .toBe(replicasPool)
 
-    test('throws on read when resolved owner pool is missing (no fallback)', () => {
-        const adapter = Object.create(BalancingReplicaKnexAdapter.prototype)
-        const mainPool = { name: 'main' }
-
-        adapter._routeToPool = jest.fn(() => mainPool)
-        adapter._sourceRegistry = { resolveSource: () => 'external' }
-        adapter._replicaPools = { main: mainPool }
-        adapter._replicaPoolsConfig = {
-            main: { databases: ['main'], writable: true },
-        }
-        adapter._getPoolName = jest.fn((pool) => (pool === mainPool ? 'main' : null))
-
-        expect(() => adapter._selectTargetPool('select "t0".* from "public"."Message" as "t0"'))
-            .toThrow(/No pool found for table "Message"/)
+        expect(adapter._routeToPool).toHaveBeenCalledWith(expect.objectContaining({
+            tableName: 'Message',
+            sqlOperationName: 'select',
+        }))
+        expect(adapter._routeToPool).toHaveBeenCalledWith(expect.objectContaining({
+            tableName: 'User',
+            sqlOperationName: 'select',
+        }))
     })
 })

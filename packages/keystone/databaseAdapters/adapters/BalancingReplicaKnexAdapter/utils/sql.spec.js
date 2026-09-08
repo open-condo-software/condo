@@ -1,11 +1,11 @@
 const {
-    extractCRUDQueryData,
-} = require('./sql')
-
-const {
     extractMutationWhereIds,
     extractSimpleSelectCondition,
-} = require('../../../dataProviders/executeProviderSql')
+} = require('@open-condo/keystone/databaseAdapters/dataProviders')
+
+const {
+    extractCRUDQueryData,
+} = require('./sql')
 
 describe('SQL parsing utils', () => {
     describe('extractCRUDQueryData', () => {

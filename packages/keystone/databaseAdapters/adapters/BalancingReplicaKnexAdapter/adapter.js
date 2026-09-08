@@ -4,6 +4,30 @@ const get = require('lodash/get')
 const omit = require('lodash/omit')
 
 const conf = require('@open-condo/config')
+const {
+    createTablePoolResolver,
+    enforceCrossSourceDeleteConstraints,
+    isUnsatisfiableWhere,
+    listHasCrossSourceInbound,
+    listHasCrossSourceOutbound,
+    listNeedsCrossDbWhereRewrite,
+    prepareCrossDbWhere,
+    validateCrossSourceReferences,
+} = require('@open-condo/keystone/databaseAdapters/crossDb')
+const {
+    applyItemsQueryToRows,
+    executeProviderSqlMutation,
+    executeProviderSqlSelect,
+    getDataProvider,
+    isDataProviderPool,
+    providerSupportsCreate,
+    providerSupportsDelete,
+    providerSupportsFind,
+    providerSupportsItemsQuery,
+    providerSupportsUpdate,
+    resolvePoolProvider,
+} = require('@open-condo/keystone/databaseAdapters/dataProviders')
+const { createKmigratorKnexAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
 const { graphqlCtx } = require('@open-condo/keystone/KSv5v6/utils/graphqlCtx')
 
 const { KnexPool, ProviderPool } = require('./pool')
@@ -13,16 +37,6 @@ const { initKnexClient } = require('./utils/knex')
 const { logger } = require('./utils/logger')
 const { isRuleMatching } = require('./utils/rules')
 const { extractCRUDQueryData } = require('./utils/sql')
-
-const { listHasCrossSourceInbound, listHasCrossSourceOutbound, listNeedsCrossDbWhereRewrite } = require('../../crossDb/crossSourceHints')
-const { isUnsatisfiableWhere, prepareCrossDbWhere } = require('../../crossDb/planner')
-const { enforceCrossSourceDeleteConstraints } = require('../../crossDb/validateCrossSourceDeletes')
-const { validateCrossSourceReferences } = require('../../crossDb/validateCrossSourceReferences')
-const { getDataProvider, isDataProviderPool, resolvePoolProvider } = require('../../dataProviders')
-const { executeProviderSqlMutation, executeProviderSqlSelect } = require('../../dataProviders/executeProviderSql')
-const { providerSupportsCreate, providerSupportsDelete, providerSupportsFind, providerSupportsItemsQuery, providerSupportsUpdate, applyItemsQueryToRows } = require('../../dataProviders/providerMethods')
-const { createPoolBasedSourceRegistry } = require('../../sourceRegistry')
-const { createKmigratorKnexAdapter } = require('../../utils/kmigratorKnexAdapter')
 
 /**
  * Multi-database Knex adapter.
@@ -42,7 +56,12 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
         const availableDatabases = Object.keys(this._dbConnections)
         this._replicaPoolsConfig = getReplicaPoolsConfig(replicaPools || conf['DATABASE_POOLS'], availableDatabases)
         this._routingRules = getQueryRoutingRules(routingRules || conf['DATABASE_ROUTING_RULES'], this._replicaPoolsConfig)
-        this._sourceRegistry = null
+        this._tablePoolResolver = null
+    }
+
+    /** @returns {{ defaultPool: string, resolveTablePool: (tableName: string) => string }} */
+    getTablePoolResolver () {
+        return this._tablePoolResolver
     }
 
     /** @returns {Promise<Record<string, import('knex').Knex>>} */
@@ -94,56 +113,28 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
         throw new Error('None of routing rule matched SQL-query')
     }
 
-    /** Route a raw SQL string using GraphQL context from async local storage.
+    /**
+     * Choose which pool runs this SQL: first matching `DATABASE_ROUTING_RULES` wins.
+     * Config validation guarantees a default rule, so a match always exists.
+     *
+     * Dedicated-pool tables must appear in an early `tableName` rule.
+     *
+     * Cross-db ownership (planner / FK checks) still uses `resolveTablePool` —
+     * that is independent of which pool executes this particular query.
+     *
      * @param {string} sql
-     * @param {{ sqlOperationName?: string, tableName?: string|null }|null} [preParsed] skip re-parsing when already known
+     * @param {{ sqlOperationName?: string, tableName?: string|null }|null} [preParsed]
      */
     _selectTargetPool (sql, preParsed = null) {
         const gqlContext = graphqlCtx.getStore()
         const { sqlOperationName, tableName } = preParsed || extractCRUDQueryData(sql)
-        const routedPool = this._routeToPool({
+
+        return this._routeToPool({
             gqlOperationType: get(gqlContext, 'gqlOperationType'),
             gqlOperationName: get(gqlContext, 'gqlOperationName'),
             sqlOperationName,
             tableName,
         })
-
-        if (!tableName || !this._sourceRegistry) {
-            return routedPool
-        }
-
-        const ownerPoolName = this._sourceRegistry.resolveSource(tableName)
-        const routedPoolName = this._getPoolName(routedPool)
-        const ownerPool = this._replicaPools[ownerPoolName]
-        const ownerPoolConfig = this._replicaPoolsConfig?.[ownerPoolName]
-
-        // Writes must go to the writable pool that actually owns the target table.
-        if (['insert', 'update', 'delete'].includes(sqlOperationName)) {
-            if (!ownerPool || !ownerPoolConfig?.writable) {
-                throw new Error(
-                    `Pool "${ownerPoolName}" is read-only or unavailable for table "${tableName}"`,
-                )
-            }
-            return ownerPool
-        }
-
-        if (!ownerPool) {
-            throw new Error(
-                `No pool found for table "${tableName}" (resolved source "${ownerPoolName}"). ` +
-                'Fix DATABASE_POOLS / DATABASE_ROUTING_RULES / source registry — refusing to fall back to another pool.',
-            )
-        }
-        if (ownerPoolName === routedPoolName) {
-            return routedPool
-        }
-
-        // Reads may still follow replica rules, but only when that pool really has the table.
-        const routedPoolTables = routedPoolName ? this._poolTables?.[routedPoolName] : null
-        if (routedPoolTables?.has(tableName)) {
-            return routedPool
-        }
-
-        return ownerPool
     }
 
     /** @param {KnexPool} pool */
@@ -156,35 +147,6 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
             }
         }
         return this._poolNameByPool.get(pool)
-    }
-
-    /** @returns {Promise<Record<string, Set<string>>>} table names per pool (source registry) */
-    async _initPoolTables () {
-        const poolEntries = Object.entries(this._replicaPools)
-        const poolTables = {}
-        await Promise.all(poolEntries.map(async ([poolName, pool]) => {
-            if (this._replicaPoolsConfig[poolName]?.provider) {
-                poolTables[poolName] = new Set()
-                return
-            }
-
-            try {
-                const knexClient = pool.getKnexClient()
-                const rows = await knexClient
-                    .select('table_name')
-                    .from('information_schema.tables')
-                    .where({ table_schema: 'public' })
-                poolTables[poolName] = new Set(rows.map(row => row.table_name))
-            } catch (err) {
-                logger.warn({
-                    msg: 'failed to load table registry for pool',
-                    err,
-                    data: { poolName },
-                })
-                poolTables[poolName] = new Set()
-            }
-        }))
-        return poolTables
     }
 
     /** Validate cross-source FK columns / inbound delete rules when DB constraints are absent. */
@@ -211,7 +173,7 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
                 sql,
                 bindings,
                 sqlOperationName: finalSqlOperationName,
-                sourceRegistry: this._sourceRegistry,
+                tablePoolResolver: this._tablePoolResolver,
                 getPoolByName,
             })
         }
@@ -223,7 +185,7 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
                 sql,
                 bindings,
                 sqlOperationName: finalSqlOperationName,
-                sourceRegistry: this._sourceRegistry,
+                tablePoolResolver: this._tablePoolResolver,
                 getPoolByName,
             })
         }
@@ -301,9 +263,9 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
 
     /** @returns {import('../../dataProviders/kv').KvDataProvider|null} */
     _getProviderForSchema (schemaName) {
-        if (!this._sourceRegistry) return null
+        if (!this._tablePoolResolver) return null
 
-        const poolName = this._sourceRegistry.resolveSource(schemaName)
+        const poolName = this._tablePoolResolver.resolveTablePool(schemaName)
         if (!isDataProviderPool(poolName, this._replicaPoolsConfig)) return null
 
         return getDataProvider(resolvePoolProvider(poolName, this._replicaPoolsConfig))
@@ -462,11 +424,10 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
                 })]
             }),
         )
-        this._poolTables = await this._initPoolTables()
         this._poolNameByPool = null
 
-        this._sourceRegistry = createPoolBasedSourceRegistry({
-            poolTables: this._poolTables,
+        // Home pool for cross-db logic: tableName routing rules + default.
+        this._tablePoolResolver = createTablePoolResolver({
             routingRules: this._routingRules,
             replicaPoolsConfig: this._replicaPoolsConfig,
         })
@@ -530,14 +491,6 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
                 return originalFind(where)
             }
         }
-    }
-
-    /** Table → pool registry built from DATABASE_POOLS introspection and routing rules. */
-    getSourceRegistry () {
-        if (!this._sourceRegistry) {
-            throw new Error('BalancingReplicaKnexAdapter source registry is not initialized')
-        }
-        return this._sourceRegistry
     }
 
     /** Tear down compatibility knex stub and all named database clients. */

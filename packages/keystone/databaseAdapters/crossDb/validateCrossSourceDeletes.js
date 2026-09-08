@@ -61,16 +61,16 @@ function _listHasSoftDelete (listAdapter) {
  * Relationship fields on other lists that store an FK column pointing at `listKey`,
  * where the dependent list lives on a different pool than `listKey`.
  *
- * @param {{ listKey: string, listAdapters: Record<string, object>, sourceRegistry: object }} options
+ * @param {{ listKey: string, listAdapters: Record<string, object>, tablePoolResolver: object }} options
  * @returns {Array<{ dependentListKey: string, columnName: string, onDelete: string, fieldPath: string }>}
  */
-function collectCrossSourceInboundForeignKeys ({ listKey, listAdapters, sourceRegistry }) {
-    const parentSource = sourceRegistry.resolveSource(listKey)
+function collectCrossSourceInboundForeignKeys ({ listKey, listAdapters, tablePoolResolver }) {
+    const parentSource = tablePoolResolver.resolveTablePool(listKey)
     const result = []
 
     for (const [dependentListKey, listAdapter] of Object.entries(listAdapters || {})) {
         if (dependentListKey === listKey) continue
-        if (sourceRegistry.resolveSource(dependentListKey) === parentSource) continue
+        if (tablePoolResolver.resolveTablePool(dependentListKey) === parentSource) continue
 
         for (const fieldAdapter of _iterFieldAdapters(listAdapter)) {
             if (!fieldAdapter.isRelationship || fieldAdapter.refListKey !== listKey) continue
@@ -213,7 +213,7 @@ async function _findDependents (knexTable, columnName, parentIds, hasSoftDelete)
  * @param {string} options.sql
  * @param {Array} [options.bindings]
  * @param {string} options.sqlOperationName
- * @param {object} options.sourceRegistry
+ * @param {object} options.tablePoolResolver
  * @param {(poolName: string) => object} options.getPoolByName
  * @returns {Promise<void>}
  */
@@ -223,7 +223,7 @@ async function enforceCrossSourceDeleteConstraints ({
     sql,
     bindings = [],
     sqlOperationName,
-    sourceRegistry,
+    tablePoolResolver,
     getPoolByName,
 }) {
     let mode = null
@@ -252,13 +252,13 @@ async function enforceCrossSourceDeleteConstraints ({
     const inbound = collectCrossSourceInboundForeignKeys({
         listKey: tableName,
         listAdapters,
-        sourceRegistry,
+        tablePoolResolver,
     })
     if (!inbound.length) return
 
     const protectRels = inbound.filter(rel => rel.onDelete === ON_DELETE.PROTECT)
     for (const rel of protectRels) {
-        const poolName = sourceRegistry.resolveSource(rel.dependentListKey)
+        const poolName = tablePoolResolver.resolveTablePool(rel.dependentListKey)
         const pool = getPoolByName(poolName)
         const client = pool.getKnexClient()
         const hasSoftDelete = _listHasSoftDelete(listAdapters[rel.dependentListKey])
@@ -284,7 +284,7 @@ async function enforceCrossSourceDeleteConstraints ({
     // are therefore not transactional with the parent delete across different pools.
     const cascadeRels = inbound.filter(rel => rel.onDelete === ON_DELETE.CASCADE)
     for (const rel of cascadeRels) {
-        const poolName = sourceRegistry.resolveSource(rel.dependentListKey)
+        const poolName = tablePoolResolver.resolveTablePool(rel.dependentListKey)
         const pool = getPoolByName(poolName)
         const client = pool.getKnexClient()
         const hasSoftDelete = _listHasSoftDelete(listAdapters[rel.dependentListKey])
@@ -295,7 +295,7 @@ async function enforceCrossSourceDeleteConstraints ({
 
     const setNullRels = inbound.filter(rel => rel.onDelete === ON_DELETE.SET_NULL)
     for (const rel of setNullRels) {
-        const poolName = sourceRegistry.resolveSource(rel.dependentListKey)
+        const poolName = tablePoolResolver.resolveTablePool(rel.dependentListKey)
         const pool = getPoolByName(poolName)
         const client = pool.getKnexClient()
         const hasSoftDelete = _listHasSoftDelete(listAdapters[rel.dependentListKey])

@@ -95,18 +95,18 @@ function _iterRelationshipFieldAdapters (listAdapter) {
 }
 
 /**
- * @param {{ listKey: string, listAdapter: object, sourceRegistry: object }} options
+ * @param {{ listKey: string, listAdapter: object, tablePoolResolver: object }} options
  * @returns {Array<{ columnName: string, refListKey: string }>}
  */
-function collectCrossSourceForeignKeys ({ listKey, listAdapter, sourceRegistry }) {
-    const baseSource = sourceRegistry.resolveSource(listKey)
+function collectCrossSourceForeignKeys ({ listKey, listAdapter, tablePoolResolver }) {
+    const baseSource = tablePoolResolver.resolveTablePool(listKey)
     const fields = []
 
     for (const fieldAdapter of _iterRelationshipFieldAdapters(listAdapter)) {
         if (!fieldAdapter.isRelationship || !fieldAdapter.refListKey) continue
 
         const refListKey = fieldAdapter.refListKey
-        if (sourceRegistry.resolveSource(refListKey) === baseSource) continue
+        if (tablePoolResolver.resolveTablePool(refListKey) === baseSource) continue
 
         const columnName = fieldAdapter.rel?.columnName || fieldAdapter.path
         fields.push({ columnName, refListKey })
@@ -130,7 +130,7 @@ function _isPresentFkValue (value) {
  * @param {string} options.sql
  * @param {Array} [options.bindings]
  * @param {string} options.sqlOperationName
- * @param {object} options.sourceRegistry
+ * @param {object} options.tablePoolResolver
  * @param {(poolName: string) => object} options.getPoolByName
  * @returns {Promise<void>}
  */
@@ -140,7 +140,7 @@ async function validateCrossSourceReferences ({
     sql,
     bindings = [],
     sqlOperationName,
-    sourceRegistry,
+    tablePoolResolver,
     getPoolByName,
 }) {
     if (!['insert', 'update'].includes(sqlOperationName)) return
@@ -148,7 +148,7 @@ async function validateCrossSourceReferences ({
     const crossSourceFields = collectCrossSourceForeignKeys({
         listKey: tableName,
         listAdapter,
-        sourceRegistry,
+        tablePoolResolver,
     })
     if (!crossSourceFields.length) return
 
@@ -170,7 +170,7 @@ async function validateCrossSourceReferences ({
 
     const foundIdsByRefListKey = new Map()
     for (const [refListKey, ids] of idsByRefListKey) {
-        const relatedPoolName = sourceRegistry.resolveSource(refListKey)
+        const relatedPoolName = tablePoolResolver.resolveTablePool(refListKey)
         const relatedPool = getPoolByName(relatedPoolName)
         const relatedClient = relatedPool.getKnexClient()
         const relatedRows = await relatedClient(refListKey)

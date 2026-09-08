@@ -55,6 +55,11 @@ DATABASE_ROUTING_RULES=[{"target":"main","gqlOperationType":"mutation"},{"target
 | `sqlOperationName` | `select`, `insert`, `update`, `delete`, `show` |
 | `tableName` | Table name or RegExp string |
 
+**Dedicated pools:** put an early `{ tableName: "…", target: "…" }` rule (no gql/sql filters) for
+each table that lives off the default pool. That rule both routes queries and sets the
+**home pool** used by cross-db logic (`resolveTablePool`). Tables without a `tableName` rule
+are treated as living on the default pool (not on `select → replicas`).
+
 **Note:** Sub-resolvers each set their own `gqlOperationName`. Direct `find()` calls have no GraphQL context.
 
 ### Example rules (TypeScript)
@@ -87,7 +92,9 @@ const routingRules = [
 
 1. GraphQL resolver stores operation type/name in `graphqlCtx`.
 2. Knex builds SQL; `adapter._patchKnexRunner` intercepts execution.
-3. `_routeToPool` picks a pool from rules.
+3. `_selectTargetPool` → first matching `DATABASE_ROUTING_RULES` (default rule always matches).
+   Put dedicated-pool tables in an early `tableName` rule so they are not caught by a later
+   broad `{ sqlOperationName: "select", target: "replicas" }`.
 4. Cross-pool JOINs: planner queries remote pool, rewrites SQL, runs on base pool.
    Fail-closed: unrecognized / unroutable cross-pool JOINs throw — the original JOIN SQL
    is never executed on main/replica (avoids stale dual-copy reads after restore).
@@ -99,7 +106,8 @@ aside from pool routing). See `crossDb/crossSourceHints.js`.
 
 ### Writes
 
-1. `_selectTargetPool` picks the owning pool (routing rules + source registry).
+1. `_selectTargetPool` uses the same first-matching routing rule (mutation rules must target
+   a writable pool — enforced by config validation).
 2. Cross-source FK validation runs only when the list has outbound FKs (insert/update) or
    inbound dependents (hard delete / soft-delete). Ordinary updates on inbound-only parents
    (e.g. Organization) are not wrapped.

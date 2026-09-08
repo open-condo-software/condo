@@ -35,7 +35,7 @@ BalancingReplicaKnexAdapter
 **Three independent knobs** (often confused — keep them separate):
 
 1. **Pool routing** (`DATABASE_URL`, `DATABASE_POOLS`, `DATABASE_ROUTING_RULES`) — which backend runs a query (Postgres pool or provider pool).
-2. **Table → pool map** (derived at connect from pool introspection + routing rules) — which pool owns a table for cross-db logic.
+2. **Table home pool** (`resolveTablePool` / `tablePool.js`, from `tableName` routing rules + default) — which pool owns a table for cross-db logic (not select→replicas).
 3. **GraphQL relation planner** (`CROSS_DB_RELATION_PLANNER_ENABLED`) — `CrossDbPlanner` in `databaseAdapters/crossDb/`, wired from `GqlWithKnexLoadList` in the condo app.
 
 ## BalancingReplicaKnexAdapter in 60 seconds
@@ -43,7 +43,7 @@ BalancingReplicaKnexAdapter
 1. **Connect** — open one knex client per named DB in `DATABASE_URL`, group them into pools (`DATABASE_POOLS`). Provider pools (`provider: "kv"`) skip Postgres clients.
 2. **Route** — patch `this.knex.client.runner`. Every query: parse SQL → build context `{ gqlOperationType, gqlOperationName, sqlOperationName, tableName }` → first matching rule → pool.
 3. **Cross-pool SELECT** — if a SELECT JOINs a table on another pool, `planCrossPoolSelect` (in `crossSourceSelectSql.js`) runs filters on the remote pool, collects ids, rewrites to `base.fk IN (...)`.
-4. **Writes** — mutations go to the pool that owns the table (`DATABASE_ROUTING_RULES` + source registry).
+4. **Writes** — mutations go to the pool from `DATABASE_ROUTING_RULES` (first match; mutation targets must be writable).
 5. **Transactions / migrations** — always use writable Postgres pools (provider pools are skipped by kmigrator).
 
 Detailed env var reference: [`adapters/BalancingReplicaKnexAdapter/README.md`](./adapters/BalancingReplicaKnexAdapter/README.md).
@@ -53,14 +53,14 @@ Detailed env var reference: [`adapters/BalancingReplicaKnexAdapter/README.md`](.
 ```text
 databaseAdapters/
 ├── README.md                          ← you are here
-├── index.js                           ← re-exports adapters + sourceRegistry + dataProviders
-├── sourceRegistry.js                  ← table → pool map (from DATABASE_POOLS + routing rules)
+├── index.js                           ← re-exports adapters + crossDb + dataProviders
 ├── dataProviders/
 │   ├── index.js                       ← SOURCE_PROVIDERS registry (add new backends here)
 │   ├── providerMethods.js             ← capability checks + in-memory itemsQuery helpers
 │   ├── executeProviderSql.js          ← Keystone SQL → provider.create/find/update/delete
 │   └── kv.js                          ← Redis/Valkey document CRUD
 ├── crossDb/
+│   ├── tablePool.js                   ← table home pool from tableName routing rules + default
 │   ├── planner.js                     ← GraphQL where-rewrite + relation hydration
 │   ├── validateCrossSourceReferences.js
 │   └── index.js
@@ -148,7 +148,7 @@ resolver sets graphqlCtx
 
 ```text
 mutation SQL
-  → _selectTargetPool (routing rules + table owner)
+  → _selectTargetPool (first matching DATABASE_ROUTING_RULES)
   → ProviderPool? executeProviderSqlMutation
   → [INSERT/UPDATE] validateCrossSourceReferences when FK targets another pool
   → target pool executes

@@ -1,16 +1,10 @@
-const { BalancingReplicaKnexAdapter } = require('./adapters/BalancingReplicaKnexAdapter/adapter')
-const { KnexPool } = require('./adapters/BalancingReplicaKnexAdapter/pool')
+const { BalancingReplicaKnexAdapter } = require('../adapters/BalancingReplicaKnexAdapter/adapter')
+const { KnexPool } = require('../adapters/BalancingReplicaKnexAdapter/pool')
+const { isCrossDbPlannerEnabled } = require('./planner')
 const {
-    createPoolBasedSourceRegistry,
-    isCrossDbPlannerEnabled,
+    createTablePoolResolver,
     resolveTablePool,
-} = require('./sourceRegistry')
-
-const multiPoolTables = {
-    main: new Set(['User', 'Ticket', 'Organization', 'RemoteClient']),
-    message: new Set(['Message', 'MessageHistoryRecord']),
-    replicas: new Set(['User', 'Ticket', 'Organization', 'RemoteClient']),
-}
+} = require('./tablePool')
 
 const multiPoolRoutingRulesRaw = [
     { tableName: '^(Message|MessageHistoryRecord)$', target: 'message' },
@@ -32,32 +26,29 @@ const multiPoolsConfig = {
     replicas: { databases: ['replica'], writable: false },
 }
 
-describe('source registry', () => {
-    test('derives Message pool from DATABASE_POOLS introspection', () => {
-        const registry = createPoolBasedSourceRegistry({
-            poolTables: multiPoolTables,
+describe('tablePool (rules-only home pool)', () => {
+    test('derives Message home pool from tableName routing rule', () => {
+        const resolver = createTablePoolResolver({
             routingRules: multiPoolRoutingRules,
             replicaPoolsConfig: multiPoolsConfig,
         })
 
-        expect(registry.resolveSource('Message')).toEqual('message')
-        expect(registry.resolveSource('MessageHistoryRecord')).toEqual('message')
+        expect(resolver.resolveTablePool('Message')).toEqual('message')
+        expect(resolver.resolveTablePool('MessageHistoryRecord')).toEqual('message')
     })
 
-    test('resolves User to writable main pool when table exists in main and replicas', () => {
-        const registry = createPoolBasedSourceRegistry({
-            poolTables: multiPoolTables,
+    test('resolves User to default pool (not select→replicas)', () => {
+        const resolver = createTablePoolResolver({
             routingRules: multiPoolRoutingRules,
             replicaPoolsConfig: multiPoolsConfig,
         })
 
-        expect(registry.resolveSource('User')).toEqual('main')
-        expect(registry.resolveSource('Ticket')).toEqual('main')
+        expect(resolver.resolveTablePool('User')).toEqual('main')
+        expect(resolver.resolveTablePool('Ticket')).toEqual('main')
     })
 
-    test('uses routing rule when table is not present in pool introspection yet', () => {
-        const registry = createPoolBasedSourceRegistry({
-            poolTables: { main: new Set(['User']) },
+    test('uses tableName rule when present, else default', () => {
+        const resolver = createTablePoolResolver({
             routingRules: [
                 { tableName: 'Message', target: 'message' },
                 { target: 'main' },
@@ -65,16 +56,12 @@ describe('source registry', () => {
             replicaPoolsConfig: multiPoolsConfig,
         })
 
-        expect(registry.resolveSource('Message')).toEqual('message')
-        expect(registry.resolveSource('User')).toEqual('main')
+        expect(resolver.resolveTablePool('Message')).toEqual('message')
+        expect(resolver.resolveTablePool('User')).toEqual('main')
     })
 
     test('resolves kv-backed table via DATABASE_ROUTING_RULES and provider pool', () => {
-        const registry = createPoolBasedSourceRegistry({
-            poolTables: {
-                main: new Set(['User', 'Ticket']),
-                kv: new Set(),
-            },
+        const resolver = createTablePoolResolver({
             routingRules: [
                 { tableName: 'CachedUser', target: 'kv' },
                 { target: 'main' },
@@ -85,16 +72,14 @@ describe('source registry', () => {
             },
         })
 
-        expect(registry.resolveSource('CachedUser')).toEqual('kv')
-        expect(registry.resolveSource('User')).toEqual('main')
+        expect(resolver.resolveTablePool('CachedUser')).toEqual('kv')
+        expect(resolver.resolveTablePool('User')).toEqual('main')
     })
 
-    test('resolveTablePool picks writable pool for mirrored tables', () => {
+    test('resolveTablePool ignores operation-scoped rules for ownership', () => {
         expect(resolveTablePool({
             tableName: 'User',
-            poolTables: multiPoolTables,
             routingRules: multiPoolRoutingRules,
-            replicaPoolsConfig: multiPoolsConfig,
             defaultPool: 'main',
         })).toEqual('main')
     })
@@ -135,9 +120,7 @@ describe('BalancingReplicaKnexAdapter routing with main/message/replicas pools',
 
         adapter._replicaPools = { main: mainPool, message: messagePool, replicas: replicaPool }
         adapter._replicaPoolsConfig = multiPoolsConfig
-        adapter._poolTables = multiPoolTables
-        adapter._sourceRegistry = createPoolBasedSourceRegistry({
-            poolTables: multiPoolTables,
+        adapter._tablePoolResolver = createTablePoolResolver({
             routingRules: multiPoolRoutingRules,
             replicaPoolsConfig: multiPoolsConfig,
         })

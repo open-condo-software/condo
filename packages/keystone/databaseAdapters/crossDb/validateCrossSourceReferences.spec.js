@@ -9,7 +9,7 @@ const {
 } = require('./validateCrossSourceReferences')
 
 
-const { createPoolBasedSourceRegistry } = require('../sourceRegistry')
+const { createTablePoolResolver } = require('./tablePool')
 
 
 function createMessageListAdapter () {
@@ -49,11 +49,7 @@ describe('validateCrossSourceReferences', () => {
         message: { databases: ['message'], writable: true },
     }
 
-    const sourceRegistry = createPoolBasedSourceRegistry({
-        poolTables: {
-            main: new Set(['User', 'RemoteClient', 'Organization']),
-            message: new Set(['Message']),
-        },
+    const tablePoolResolver = createTablePoolResolver({
         routingRules: [
             { tableName: 'Message', target: 'message' },
             { target: 'main' },
@@ -66,7 +62,7 @@ describe('validateCrossSourceReferences', () => {
             const fields = collectCrossSourceForeignKeys({
                 listKey: 'Message',
                 listAdapter: createMessageListAdapter(),
-                sourceRegistry,
+                tablePoolResolver,
             })
 
             expect(fields).toEqual([
@@ -77,8 +73,7 @@ describe('validateCrossSourceReferences', () => {
         })
 
         test('returns empty list when all relationships are on the same source', () => {
-            const sameSourceRegistry = createPoolBasedSourceRegistry({
-                poolTables: { main: new Set(['Message', 'User']) },
+            const samePoolResolver = createTablePoolResolver({
                 routingRules: [{ target: 'main' }],
                 replicaPoolsConfig: { main: { databases: ['main'], writable: true } },
             })
@@ -86,16 +81,12 @@ describe('validateCrossSourceReferences', () => {
             expect(collectCrossSourceForeignKeys({
                 listKey: 'Message',
                 listAdapter: createMessageListAdapter(),
-                sourceRegistry: sameSourceRegistry,
+                tablePoolResolver: samePoolResolver,
             })).toEqual([])
         })
 
         test('adapts when User is moved to another source while Message stays on main', () => {
-            const userMovedRegistry = createPoolBasedSourceRegistry({
-                poolTables: {
-                    main: new Set(['Message', 'Ticket']),
-                    users_db: new Set(['User']),
-                },
+            const userMovedResolver = createTablePoolResolver({
                 routingRules: [
                     { tableName: 'User', target: 'users_db' },
                     { target: 'main' },
@@ -116,7 +107,7 @@ describe('validateCrossSourceReferences', () => {
             expect(collectCrossSourceForeignKeys({
                 listKey: 'Message',
                 listAdapter,
-                sourceRegistry: userMovedRegistry,
+                tablePoolResolver: userMovedResolver,
             })).toEqual([
                 { columnName: 'user', refListKey: 'User' },
             ])
@@ -130,7 +121,7 @@ describe('validateCrossSourceReferences', () => {
                         user: { isRelationship: true, refListKey: 'User', path: 'user', rel: { columnName: 'user' } },
                     },
                 },
-                sourceRegistry,
+                tablePoolResolver,
             })
 
             expect(fields).toEqual([
@@ -242,7 +233,7 @@ describe('validateCrossSourceReferences', () => {
                 sql: 'insert into "public"."Message" ("user", "type") values ($1, $2) returning *',
                 bindings: ['existing-user', 'CUSTOM_CONTENT_MESSAGE_PUSH_TYPE'],
                 sqlOperationName: 'insert',
-                sourceRegistry,
+                tablePoolResolver,
                 getPoolByName: createGetPoolByName({
                     existingIdsByTable: { User: [{ id: 'existing-user' }] },
                 }),
@@ -256,7 +247,7 @@ describe('validateCrossSourceReferences', () => {
                 sql: 'insert into "public"."Message" ("user", "email", "type") values ($1, $2, $3) returning *',
                 bindings: [null, 'a@b.com', 'CUSTOM_CONTENT_MESSAGE_EMAIL_TYPE'],
                 sqlOperationName: 'insert',
-                sourceRegistry,
+                tablePoolResolver,
                 getPoolByName: createGetPoolByName(),
             })).resolves.toBeUndefined()
         })
@@ -268,7 +259,7 @@ describe('validateCrossSourceReferences', () => {
                 sql: 'insert into "public"."Message" ("user", "type") values ($1, $2) returning *',
                 bindings: ['missing-user', 'CUSTOM_CONTENT_MESSAGE_PUSH_TYPE'],
                 sqlOperationName: 'insert',
-                sourceRegistry,
+                tablePoolResolver,
                 getPoolByName: createGetPoolByName({ existingIdsByTable: { User: [] } }),
             })).rejects.toThrow(
                 'Cross-database foreign key violation: Message.user references missing User id "missing-user"',
@@ -282,7 +273,7 @@ describe('validateCrossSourceReferences', () => {
                 sql: 'insert into "public"."Message" ("user", "type") values ($1, $2), ($3, $4) returning *',
                 bindings: ['existing-user', 'TYPE_A', 'missing-user', 'TYPE_B'],
                 sqlOperationName: 'insert',
-                sourceRegistry,
+                tablePoolResolver,
                 getPoolByName: createGetPoolByName({
                     existingIdsByTable: { User: [{ id: 'existing-user' }] },
                 }),
@@ -298,7 +289,7 @@ describe('validateCrossSourceReferences', () => {
                 sql: 'update "public"."Message" set "remoteClient" = $1 where "id" = $2 returning *',
                 bindings: ['missing-rc', 'message-1'],
                 sqlOperationName: 'update',
-                sourceRegistry,
+                tablePoolResolver,
                 getPoolByName: createGetPoolByName({ existingIdsByTable: { RemoteClient: [] } }),
             })).rejects.toThrow(
                 'Cross-database foreign key violation: Message.remoteClient references missing RemoteClient id "missing-rc"',
@@ -306,12 +297,7 @@ describe('validateCrossSourceReferences', () => {
         })
 
         test('checks related row in owning pool, not generic select target', async () => {
-            const replicaAwareRegistry = createPoolBasedSourceRegistry({
-                poolTables: {
-                    main: new Set(['User', 'Organization', 'Message']),
-                    replicas: new Set(['User', 'Organization']),
-                    message: new Set(['Message']),
-                },
+            const replicaAwareResolver = createTablePoolResolver({
                 routingRules: [
                     { tableName: 'Message', target: 'message' },
                     { target: 'main', gqlOperationType: 'mutation' },
@@ -352,14 +338,13 @@ describe('validateCrossSourceReferences', () => {
                 sql: 'insert into "public"."Message" ("organization", "type") values ($1, $2) returning *',
                 bindings: ['org-1', 'CUSTOM_CONTENT_MESSAGE_EMAIL_TYPE'],
                 sqlOperationName: 'insert',
-                sourceRegistry: replicaAwareRegistry,
+                tablePoolResolver: replicaAwareResolver,
                 getPoolByName,
             })).resolves.toBeUndefined()
         })
 
         test('no-op for tables without cross-source relationships', async () => {
-            const sameSourceRegistry = createPoolBasedSourceRegistry({
-                poolTables: { main: new Set(['User']) },
+            const samePoolResolver = createTablePoolResolver({
                 routingRules: [{ target: 'main' }],
                 replicaPoolsConfig: { main: { databases: ['main'], writable: true } },
             })
@@ -370,7 +355,7 @@ describe('validateCrossSourceReferences', () => {
                 sql: 'insert into "public"."User" ("id") values ($1) returning *',
                 bindings: ['user-1'],
                 sqlOperationName: 'insert',
-                sourceRegistry: sameSourceRegistry,
+                tablePoolResolver: samePoolResolver,
                 getPoolByName: createGetPoolByName(),
             })).resolves.toBeUndefined()
         })
@@ -382,7 +367,7 @@ describe('validateCrossSourceReferences', () => {
                 sql: 'select * from "public"."Message"',
                 bindings: [],
                 sqlOperationName: 'select',
-                sourceRegistry,
+                tablePoolResolver,
                 getPoolByName: createGetPoolByName(),
             })).resolves.toBeUndefined()
         })
