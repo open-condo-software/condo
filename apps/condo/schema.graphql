@@ -96847,15 +96847,13 @@ input RegisterSubscriptionContextInput {
   dv: Int!
   sender: SenderFieldInput!
   organization: OrganizationWhereUniqueInput!
-  subscriptionPlanPricingRule: SubscriptionPlanPricingRuleWhereUniqueInput!
-  additionalPricingRules: [SubscriptionPlanPricingRuleWhereUniqueInput!]
+  subscriptionPlanPricingRules: [SubscriptionPlanPricingRuleWhereUniqueInput!]!
   paymentType: SubscriptionPaymentType
   isTrial: Boolean
 }
 
 type RegisterSubscriptionContextOutput {
-  subscriptionContext: SubscriptionContext
-  subscriptionContexts: [SubscriptionContext!]
+  subscriptionContexts: [SubscriptionContext!]!
   directPaymentUrl: String
   multiPayment: MultiPayment
 }
@@ -112183,7 +112181,7 @@ type Mutation {
   activateSubscriptionContext(data: ActivateSubscriptionContextInput!): ActivateSubscriptionContextOutput
 
   """
-  Registers a subscription for an organization. A bundle may contain a base pricing rule plus additionalPricingRules. For trials (isTrial=true) creates a single SubscriptionContext with status DONE. For paid subscriptions creates one Invoice with a row per pricing rule and one SubscriptionContext per pricing rule with status CREATED; when paymentType=card a MultiPayment and directPaymentUrl are also created.
+  Registers a subscription for an organization from one or more pricing rules (a bundle). For trials (isTrial=true) creates a single SubscriptionContext with status DONE. For paid subscriptions creates one Invoice with a row per pricing rule and one SubscriptionContext per pricing rule with status CREATED; when paymentType=card a MultiPayment and directPaymentUrl are also created.
   
   
   

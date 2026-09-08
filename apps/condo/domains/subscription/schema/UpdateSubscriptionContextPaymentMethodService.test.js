@@ -417,15 +417,14 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
 
             const [registered] = await registerSubscriptionContextByTestClient(admin, {
                 organization: { id: organization.id },
-                subscriptionPlanPricingRule: { id: pricingRule.id },
-                additionalPricingRules: [{ id: featureRule.id }],
+                subscriptionPlanPricingRules: [{ id: pricingRule.id }, { id: featureRule.id }],
                 paymentType: 'invoice',
                 isTrial: false,
             })
 
             const bundleContexts = registered.subscriptionContexts
             expect(bundleContexts).toHaveLength(2)
-            const sharedInvoiceId = registered.subscriptionContext.invoice.id
+            const sharedInvoiceId = registered.subscriptionContexts[0].invoice.id
             const bindingId = faker.datatype.uuid()
 
             for (const ctx of bundleContexts) {

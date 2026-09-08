@@ -51067,7 +51067,7 @@ export type Mutation = {
    */
   registerServiceConsumer?: Maybe<ServiceConsumer>;
   /**
-   * Registers a subscription for an organization. A bundle may contain a base pricing rule plus additionalPricingRules. For trials (isTrial=true) creates a single SubscriptionContext with status DONE. For paid subscriptions creates one Invoice with a row per pricing rule and one SubscriptionContext per pricing rule with status CREATED; when paymentType=card a MultiPayment and directPaymentUrl are also created.
+   * Registers a subscription for an organization from one or more pricing rules (a bundle). For trials (isTrial=true) creates a single SubscriptionContext with status DONE. For paid subscriptions creates one Invoice with a row per pricing rule and one SubscriptionContext per pricing rule with status CREATED; when paymentType=card a MultiPayment and directPaymentUrl are also created.
    *
    *
    *
@@ -91221,21 +91221,19 @@ export type RegisterServiceConsumerInputExtra = {
 };
 
 export type RegisterSubscriptionContextInput = {
-  additionalPricingRules?: InputMaybe<Array<SubscriptionPlanPricingRuleWhereUniqueInput>>;
   dv: Scalars['Int']['input'];
   isTrial?: InputMaybe<Scalars['Boolean']['input']>;
   organization: OrganizationWhereUniqueInput;
   paymentType?: InputMaybe<SubscriptionPaymentType>;
   sender: SenderFieldInput;
-  subscriptionPlanPricingRule: SubscriptionPlanPricingRuleWhereUniqueInput;
+  subscriptionPlanPricingRules: Array<SubscriptionPlanPricingRuleWhereUniqueInput>;
 };
 
 export type RegisterSubscriptionContextOutput = {
   __typename?: 'RegisterSubscriptionContextOutput';
   directPaymentUrl?: Maybe<Scalars['String']['output']>;
   multiPayment?: Maybe<MultiPayment>;
-  subscriptionContext?: Maybe<SubscriptionContext>;
-  subscriptionContexts?: Maybe<Array<SubscriptionContext>>;
+  subscriptionContexts: Array<SubscriptionContext>;
 };
 
 /**  Used to describe device in order to be able to send push notifications via corresponding transport, depending on pushTransport value. RemoteClient could be mobile or web based. RemoteClient could be registered (created by user, admin or anonymous) with or without token, and updated later on by admin (or a user within SyncRemoteClientService) by adding/changing token value and connecting device to user (whose authorization was passed within request). All such interactions should be done via SyncRemoteClientService.  */
