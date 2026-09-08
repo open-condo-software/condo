@@ -100,9 +100,11 @@ const generateExcelFile = async (validLinesSize, invalidLinesSize, fatalLinesSiz
 
     for (let i = 0; i < validLinesSize; i++) {
         const unitName = `${i + 1}`
+        const accountNumber = `${100000 + i}`
+        const meterNumber = `${200000 + i}`
         const line = [
-            property.address, unitName, 'Квартира', `${faker.datatype.number({ min: 1000, max: 9999 })}`,
-            'ГВС', `${faker.datatype.number({ min: 1000, max: 9999 })}`, '1',
+            property.address, unitName, 'Квартира', accountNumber,
+            'ГВС', meterNumber, '1',
             `${faker.datatype.number({ min: 1000, max: 9999 })}`, '', '', '',
             '2021-01-21', '2021-01-21', '2021-01-21',
             '2021-01-22', '2021-01-23', '2021-01-24', '2021-01-25', 'Кухня', '',
@@ -112,10 +114,12 @@ const generateExcelFile = async (validLinesSize, invalidLinesSize, fatalLinesSiz
     }
 
     for (let i = 0; i < invalidLinesSize; i++) {
-        const unitName = `${i + 1}`
+        const unitName = `${validLinesSize + i + 1}`
+        const accountNumber = `${300000 + i}`
+        const meterNumber = `${400000 + i}`
         const line = [
-            property.address, unitName, 'Квартира', `${faker.datatype.number({ min: 1000, max: 9999 })}`,
-            'WRONG_METER_TYPE', `${faker.datatype.number({ min: 1000, max: 9999 })}`, '1',
+            property.address, unitName, 'Квартира', accountNumber,
+            'WRONG_METER_TYPE', meterNumber, '1',
             `${faker.datatype.number({ min: 1000, max: 9999 })}`, '', '', '',
             '2021-01-21', '2021-01-21', '2021-01-21',
             '2021-01-22', '2021-01-23', '2021-01-24', '2021-01-25', 'Кухня',
