@@ -499,6 +499,7 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
 
     /**
      * Delegates find to a registered data provider when the table is on a provider pool.
+     * Used by `schema.find` / `schema.itemsQuery` (raw reads by design).
      */
     async executeFind ({ schemaName, condition, listAdapter }) {
         const where = await prepareCrossDbWhere({ listKey: schemaName, where: condition, adapter: this })
@@ -527,6 +528,12 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
         return meta ? { count: rows.length } : applyItemsQueryToRows(rows, nextArgs)
     }
 
+    /**
+     * Provider-pool write helpers for the knex runner / internal adapter use.
+     * Not exposed via `@open-condo/keystone/schema` — app mutations must go through
+     * GraphQL / Keystone list APIs so access, validateInput, and change hooks run.
+     * Production KV writes: GraphQL → SQL → `_patchKnexRunner` → `executeProviderSqlMutation`.
+     */
     async executeCreate ({ schemaName, data, listAdapter }) {
         const provider = this._getProviderForSchema(schemaName)
         if (providerSupportsCreate(provider)) {

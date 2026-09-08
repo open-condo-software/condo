@@ -219,42 +219,6 @@ async function itemsQuery (schemaName, args, { meta = false, from = {} } = {}) {
     return result
 }
 
-async function create (schemaName, data) {
-    if (!SCHEMAS.has(schemaName)) throw new Error(`Schema ${schemaName} is not registered yet`)
-    if (SCHEMAS.get(schemaName)._type !== GQL_LIST_SCHEMA_TYPE) throw new Error(`Schema ${schemaName} type != ${GQL_LIST_SCHEMA_TYPE}`)
-    const schemaList = SCHEMAS.get(schemaName)
-    const listAdapter = schemaList._keystone.lists[schemaName].adapter
-    const dbAdapter = schemaList._keystone.adapter
-    const result = dbAdapter && typeof dbAdapter.executeCreate === 'function'
-        ? await dbAdapter.executeCreate({ schemaName, data, listAdapter })
-        : await listAdapter._create(data)
-    return result
-}
-
-async function update (schemaName, id, data) {
-    if (!SCHEMAS.has(schemaName)) throw new Error(`Schema ${schemaName} is not registered yet`)
-    if (SCHEMAS.get(schemaName)._type !== GQL_LIST_SCHEMA_TYPE) throw new Error(`Schema ${schemaName} type != ${GQL_LIST_SCHEMA_TYPE}`)
-    const schemaList = SCHEMAS.get(schemaName)
-    const listAdapter = schemaList._keystone.lists[schemaName].adapter
-    const dbAdapter = schemaList._keystone.adapter
-    const result = dbAdapter && typeof dbAdapter.executeUpdate === 'function'
-        ? await dbAdapter.executeUpdate({ schemaName, id, data, listAdapter })
-        : await listAdapter._update(id, data)
-    return result
-}
-
-async function delete_ (schemaName, id) {
-    if (!SCHEMAS.has(schemaName)) throw new Error(`Schema ${schemaName} is not registered yet`)
-    if (SCHEMAS.get(schemaName)._type !== GQL_LIST_SCHEMA_TYPE) throw new Error(`Schema ${schemaName} type != ${GQL_LIST_SCHEMA_TYPE}`)
-    const schemaList = SCHEMAS.get(schemaName)
-    const listAdapter = schemaList._keystone.lists[schemaName].adapter
-    const dbAdapter = schemaList._keystone.adapter
-    const result = dbAdapter && typeof dbAdapter.executeDelete === 'function'
-        ? await dbAdapter.executeDelete({ schemaName, id, listAdapter })
-        : await listAdapter._delete(id)
-    return result
-}
-
 async function allItemsQueryByChunks ({
     schemaName,
     where = {},
@@ -410,9 +374,6 @@ module.exports = {
     unregisterAllSchemas,
     getSchemaCtx,
     find,
-    create,
-    update,
-    delete: delete_,
     getById,
     getByCondition,
     itemsQuery,

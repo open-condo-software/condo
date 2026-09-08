@@ -20,9 +20,6 @@ function createListAndAttachAdapter (SchemaModule, schemaName, adapterFindMock, 
             [schemaName]: {
                 adapter: {
                     find: adapterFindMock,
-                    _create: jest.fn(),
-                    _update: jest.fn(),
-                    _delete: jest.fn(),
                     itemsQuery: jest.fn(),
                 },
             },
@@ -96,94 +93,6 @@ describe('schema.find adapter delegation', () => {
             listAdapter: expect.any(Object),
         }))
         expect(itemsQueryMock).not.toHaveBeenCalled()
-        await SchemaModule.unregisterAllSchemas()
-    })
-
-    test('delegates create/update/delete to db adapter hooks', async () => {
-        const SchemaModule = require('./schema')
-        const listCreateMock = jest.fn()
-        const listUpdateMock = jest.fn()
-        const listDeleteMock = jest.fn()
-        const executeCreateMock = jest.fn().mockResolvedValue({ id: 'c1' })
-        const executeUpdateMock = jest.fn().mockResolvedValue({ id: 'u1' })
-        const executeDeleteMock = jest.fn().mockResolvedValue(1)
-        const { GQLListSchema } = SchemaModule
-        const schema = new GQLListSchema('User', {
-            fields: { name: { type: 'Text' } },
-            access: { read: true },
-        })
-        schema._register([], ADD_SCHEMA)
-        schema._keystone = {
-            adapter: {
-                executeCreate: executeCreateMock,
-                executeUpdate: executeUpdateMock,
-                executeDelete: executeDeleteMock,
-            },
-            lists: {
-                User: {
-                    adapter: {
-                        find: jest.fn(),
-                        itemsQuery: jest.fn(),
-                        _create: listCreateMock,
-                        _update: listUpdateMock,
-                        _delete: listDeleteMock,
-                    },
-                },
-            },
-        }
-
-        const created = await SchemaModule.create('User', { name: 'n1' })
-        const updated = await SchemaModule.update('User', 'u1', { name: 'n2' })
-        const removed = await SchemaModule.delete('User', 'u1')
-
-        expect(created).toEqual({ id: 'c1' })
-        expect(updated).toEqual({ id: 'u1' })
-        expect(removed).toEqual(1)
-        expect(executeCreateMock).toHaveBeenCalledWith(expect.objectContaining({ schemaName: 'User', data: { name: 'n1' } }))
-        expect(executeUpdateMock).toHaveBeenCalledWith(expect.objectContaining({ schemaName: 'User', id: 'u1', data: { name: 'n2' } }))
-        expect(executeDeleteMock).toHaveBeenCalledWith(expect.objectContaining({ schemaName: 'User', id: 'u1' }))
-        expect(listCreateMock).not.toHaveBeenCalled()
-        expect(listUpdateMock).not.toHaveBeenCalled()
-        expect(listDeleteMock).not.toHaveBeenCalled()
-        await SchemaModule.unregisterAllSchemas()
-    })
-
-    test('falls back to list adapter mutations without db adapter hooks', async () => {
-        const SchemaModule = require('./schema')
-        const listCreateMock = jest.fn().mockResolvedValue({ id: 'c2' })
-        const listUpdateMock = jest.fn().mockResolvedValue({ id: 'u2' })
-        const listDeleteMock = jest.fn().mockResolvedValue(1)
-        const { GQLListSchema } = SchemaModule
-        const schema = new GQLListSchema('User', {
-            fields: { name: { type: 'Text' } },
-            access: { read: true },
-        })
-        schema._register([], ADD_SCHEMA)
-        schema._keystone = {
-            adapter: {},
-            lists: {
-                User: {
-                    adapter: {
-                        find: jest.fn(),
-                        itemsQuery: jest.fn(),
-                        _create: listCreateMock,
-                        _update: listUpdateMock,
-                        _delete: listDeleteMock,
-                    },
-                },
-            },
-        }
-
-        const created = await SchemaModule.create('User', { name: 'n1' })
-        const updated = await SchemaModule.update('User', 'u2', { name: 'n2' })
-        const removed = await SchemaModule.delete('User', 'u2')
-
-        expect(created).toEqual({ id: 'c2' })
-        expect(updated).toEqual({ id: 'u2' })
-        expect(removed).toEqual(1)
-        expect(listCreateMock).toHaveBeenCalledWith({ name: 'n1' })
-        expect(listUpdateMock).toHaveBeenCalledWith('u2', { name: 'n2' })
-        expect(listDeleteMock).toHaveBeenCalledWith('u2')
         await SchemaModule.unregisterAllSchemas()
     })
 })

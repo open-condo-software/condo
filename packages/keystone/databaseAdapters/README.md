@@ -17,18 +17,18 @@ Selection happens in `packages/keystone/setup.utils.js` → `getAdapter()`.
 ## Mental model
 
 ```text
-GraphQL resolver / schema.find|create|…
+GraphQL resolver / schema.find|itemsQuery …
     ↓
-Keystone list adapter (find / itemsQuery / _create / …)
+Keystone list adapter (find / itemsQuery / hooks → SQL)
     ↓
 BalancingReplicaKnexAdapter
-    ├─ executeFind / executeItemsQuery / executeCreate / …
+    ├─ executeFind / executeItemsQuery (schema raw reads → providers)
     │     → dataProviders registry for non-SQL sources (e.g. kv)
     └─ knex.client.runner hook
            ├─ match DATABASE_ROUTING_RULES → pick pool
            ├─ ProviderPool → executeProviderSql* → provider CRUD
            ├─ SELECT + cross-pool JOIN → planCrossPoolSelect rewrites SQL
-           ├─ mutation → routed pool executes write
+           ├─ mutation → routed pool executes write (after Keystone hooks)
            └─ KnexPool → RoundRobin → physical knex client → Postgres
 ```
 
@@ -119,8 +119,10 @@ Postgres pools use `databases: [...]`. Provider pools use `provider: "<name>"` a
 
 Dual entry points:
 
-- `schema.js` → `executeFind` / `executeCreate` / `executeUpdate` / `executeDelete` / `executeItemsQuery`
+- `schema.js` → `executeFind` / `executeItemsQuery` (raw reads only; no public raw mutations)
 - GraphQL/knex SQL → `_patchKnexRunner` → `executeProviderSqlSelect` / `executeProviderSqlMutation`
+  (mutations keep Keystone access / validateInput / change hooks; adapter `executeCreate` /
+  `executeUpdate` / `executeDelete` stay internal for provider tests and runner helpers)
 
 ## How to add a new balancing adapter variant
 
