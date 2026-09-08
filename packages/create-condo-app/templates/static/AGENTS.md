@@ -1,7 +1,18 @@
-# Static Condo Miniapp Boilerplate
+# Static (Backendless) Condo Miniapp Boilerplate
 
 This is a Next.js-based boilerplate for Condo miniapps configured for static export mode. 
 It can be used for both B2B and B2C miniapps.
+
+## Table of contents
+
+- [Purpose](#purpose)
+- [Tech-stack description](#tech-stack-description)
+- [Resources](#resources-and-terms)
+- [File structure](#file-structure)
+- [UI & Components](#ui--components)
+- [Code style and naming conventions](#code-style-and-naming-conventions)
+- [i18n](#i18n)
+- [Bridge](#bridge)
 
 ## Purpose
 
@@ -21,6 +32,23 @@ so no server-side features like API routes or middleware are available.
 For passing config variables to app, you can use runtime config inside `next.config.ts`. 
 For a static apps it is baked during build time, so it's not really "runtime", but it's used for codebase consistency across other app templates.
 
+CSS-modules is used for styling. There's transformer inside next.config.ts, allowing you to write css in `kebab-case` and use them in js with `camelCase` to satisfy both stylelint and ts autocomplete.
+
+## Resources and terms
+
+### Resources
+
+You can find these resources helpful for learning how to build Condo miniapps:
+- [Condo Developers Portal](https://developers.doma.ai) for documentations on Miniapps, Condo API, Condo Bridge and Condo UI
+- [Condo UI Playground](https://condo.d.doma.ai/ui/index.html) for Condo UI components and icons
+- [Condo GraphQL Playground](https://condo.d.doma.ai/admin/api). Here you can introspect the GQL schema to get schemaDocs / queries / mutations and other GQL context
+- README.md and JSDoc of open-condo packages listed below for extra context
+
+### Terms
+
+Condo is an open-source open-core platform for managing companies / residents and service providers. 
+It's development stand located at https://condo.d.doma.ai. Users might call it "Condo" or "Doma" or "Дома" in his requests. You should treat it as "Condo".
+
 ## File structure
 
 This app inherits structure from default Next.js Pages Router App and extends it with Domain Driven Design (DDD) patterns.
@@ -38,7 +66,30 @@ Inside each domain file placed in separate folder based on usage:
 There's also specific files for translations similar to `@/gql`, in app root there's a `lang` folder containing `<locale>.json` files for each locale. 
 By default, miniapp supports `ru` and `en` locales. You can change this by tweaking `domains/common/constants/locales.ts` file. More context on `i18n` can be found in [i18n](#i18n) section.
 
+## UI & Components
+
+- For designing UI you can use [`@open-condo/ui`](https://www.npmjs.com/package/@open-condo/ui) and [`@open-condo/icons`](https://www.npmjs.com/package/@open-condo/icons) package as primary source of components.
+- You can find Storybook playground for icons and components here: https://condo.d.doma.ai/ui/index.html
+- If components from `@open-condo/ui` are not enough, you can use components from [`antd@^5`](https://5x.ant.design) and icons from [`lucide-react`](https://lucide.dev/icons/), 
+but only use them if you have a specific and complex need. For a simple primitives / layouts consider using local components instead.
+- For styling, you should use css-modules. Each module should be placed next to imported component / page. For example `domains/user/components/UserCard.module.css`.
+- You should always use functional components and hooks, and avoid classes.
+
+## Code style and naming conventions
+
+- Use `SNAKE_CASE` with caps for constants
+- Use `UpperCamelCase` for components and translations variables
+- Translation variables must be `UpperCamelCase` and ends with `Title` / `Subtitle` / `Text` / `Description` / `Placeholder` / `Label` suffix. (For example: `TicketPageTitle`, `NamePlaceholder`, `AlertDescription`)
+- Use `lowerCamelCase` for the rest (variables, functions, hooks, etc.)
+
 ## i18n
 
 [//]: # (TODO: add i18n description)
+
+## Bridge
+
+App uses [`@open-condo/bridge`](https://www.npmjs.com/package/@open-condo/bridge) package for communication with parent condo app (frontend to frontend).
+Parent app might be B2B App for managing companies or B2C App for residents, native or web, bridge API is the same for all of them, you can check [documentation](https://developers.doma.ai/docs/bridge/about) to check which methods are supported on platforms
+Bridge is primarily used to get launch params (locale / user id / organization or resident id), resize app, perform background authorization and so on...
+
 
