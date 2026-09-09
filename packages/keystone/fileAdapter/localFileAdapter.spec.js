@@ -11,7 +11,7 @@ const CONTENT = Buffer.from('0123456789abcdef')
 describe('LocalFileAdapter ranged reads', () => {
     let directory
     let adapter
-    const file = { filename: 'registry.txt' }
+    const file = { filename: 'file.txt' }
 
     beforeEach(() => {
         directory = fs.mkdtempSync(path.join(os.tmpdir(), 'local-file-adapter-'))

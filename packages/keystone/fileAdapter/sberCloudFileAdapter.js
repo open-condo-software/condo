@@ -116,20 +116,22 @@ class SberCloudFileAdapter {
         })
         const status = Number(result?.CommonMsg?.Status || 0)
         if (status >= 300) {
-            throw new Error(`Unable to stat registry file: OBS status ${status}`)
+            throw new Error(`Unable to stat file: OBS status ${status}`)
         }
-        const contentLength = result?.InterfaceResult?.ContentLength
-            || result?.InterfaceResult?.Headers?.['content-length']
-            || result?.InterfaceResult?.Headers?.['Content-Length']
+        const contentLengthPossibleValues = [
+            result?.InterfaceResult?.ContentLength,
+            result?.InterfaceResult?.Headers?.['content-length'],
+            result?.InterfaceResult?.Headers?.['Content-Length'],
+        ]
+        const contentLength = contentLengthPossibleValues.find(value => !isNil(value))
         const size = Number(contentLength)
         if (!Number.isFinite(size)) {
-            throw new Error('Unable to determine registry file size')
+            throw new Error('Unable to determine file size')
         }
         return size
     }
 
     async readRange (file, offset, length) {
-        console.log(this.constructor.name, 'readRange', file, offset, length)
         if (length === 0) return Buffer.alloc(0)
         const response = await new Promise((resolve, reject) => {
             this.s3.getObject({
@@ -141,7 +143,7 @@ class SberCloudFileAdapter {
         })
         const status = Number(response?.CommonMsg?.Status || 0)
         if (status >= 300) {
-            const error = new Error(`Unable to read registry file range: OBS status ${status}`)
+            const error = new Error(`Unable to read file range: OBS status ${status}`)
             error.statusCode = status
             throw error
         }
@@ -154,6 +156,7 @@ class SberCloudFileAdapter {
 
         if (returnBuffer.length > length) {
             logger.info({ msg: 'Ranged GET returned invalid buffer length', data: { expectedLength: length, returnedLength: returnBuffer.length } })
+            return returnBuffer.subarray(0, length)
         }
 
         return returnBuffer
@@ -169,7 +172,7 @@ class SberCloudFileAdapter {
                 if (error) return reject(error)
                 const status = Number(result?.CommonMsg?.Status || 0)
                 if (status >= 300 || !result?.InterfaceResult?.Content) {
-                    return reject(new Error(`Unable to create registry file stream: OBS status ${status}`))
+                    return reject(new Error(`Unable to create file stream: OBS status ${status}`))
                 }
                 return resolve(result.InterfaceResult.Content)
             })

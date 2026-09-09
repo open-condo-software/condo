@@ -81,20 +81,20 @@ class AwsFileAdapter {
         this._appClients = conf['FILE_UPLOAD_CONFIG'] ? get(JSON.parse(conf['FILE_UPLOAD_CONFIG']), 'clients', {}) : {}
     }
 
-    unsupportedRegistryRead () {
-        throw new Error('Unsupported adapter: AWS registry ranged reads are not implemented')
+    unsupportedRead () {
+        throw new Error('Unsupported adapter: AWS ranged reads are not implemented')
     }
 
     getFileSize () {
-        return this.unsupportedRegistryRead()
+        return this.unsupportedRead()
     }
 
     readRange () {
-        return this.unsupportedRegistryRead()
+        return this.unsupportedRead()
     }
 
     createReadStream () {
-        return this.unsupportedRegistryRead()
+        return this.unsupportedRead()
     }
 
     _uploadStream ({ stream, fileData, key, mimetype, meta }) {
