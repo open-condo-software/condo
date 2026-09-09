@@ -118046,7 +118046,6 @@ export type UnitType = {
 export type UpdateSubscriptionContextPaymentMethodInput = {
   bindingId?: InputMaybe<Scalars['String']['input']>;
   dv: Scalars['Int']['input'];
-  invoice?: InputMaybe<InvoiceWhereUniqueInput>;
   sender: SenderFieldInput;
   subscriptionContext: SubscriptionContextWhereUniqueInput;
 };

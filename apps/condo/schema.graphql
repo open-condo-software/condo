@@ -96890,7 +96890,6 @@ input UpdateSubscriptionContextPaymentMethodInput {
   dv: Int!
   sender: SenderFieldInput!
   subscriptionContext: SubscriptionContextWhereUniqueInput!
-  invoice: InvoiceWhereUniqueInput
   bindingId: String
 }
 

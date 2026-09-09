@@ -47,7 +47,7 @@ const UpdateSubscriptionContextPaymentMethodService = new GQLCustomSchema('Updat
     types: [
         {
             access: true,
-            type: 'input UpdateSubscriptionContextPaymentMethodInput { dv: Int!, sender: SenderFieldInput!, subscriptionContext: SubscriptionContextWhereUniqueInput!, invoice: InvoiceWhereUniqueInput, bindingId: String }',
+            type: 'input UpdateSubscriptionContextPaymentMethodInput { dv: Int!, sender: SenderFieldInput!, subscriptionContext: SubscriptionContextWhereUniqueInput!, bindingId: String }',
         },
         {
             access: true,
@@ -61,7 +61,7 @@ const UpdateSubscriptionContextPaymentMethodService = new GQLCustomSchema('Updat
             schema: 'updateSubscriptionContextPaymentMethod(data: UpdateSubscriptionContextPaymentMethodInput!): UpdateSubscriptionContextPaymentMethodOutput',
             resolver: async (parent, args, context) => {
                 const { data } = args
-                const { subscriptionContext: subscriptionContextWhere, invoice: invoiceWhere, bindingId, dv, sender } = data
+                const { subscriptionContext: subscriptionContextWhere, bindingId, dv, sender } = data
                 const subscriptionContextId = subscriptionContextWhere.id
 
                 const subscriptionContext = await getById('SubscriptionContext', subscriptionContextId)
@@ -70,7 +70,7 @@ const UpdateSubscriptionContextPaymentMethodService = new GQLCustomSchema('Updat
                 }
 
                 const organizationId = subscriptionContext.organization
-                const invoiceId = (invoiceWhere && invoiceWhere.id) || subscriptionContext.invoice
+                const invoiceId = subscriptionContext.invoice
 
                 let targetContexts = [subscriptionContext]
                 if (invoiceId) {
