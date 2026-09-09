@@ -25,7 +25,7 @@ const {
     SubscriptionContext: SubscriptionContextGQL,
     ACTIVATE_SUBSCRIPTION_CONTEXT_MUTATION,
     GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY,
-    REGISTER_SUBSCRIPTION_CONTEXT_MUTATION,
+    REGISTER_SUBSCRIPTION_CONTEXTS_MUTATION,
 } = require('@condo/domains/subscription/gql')
 const { UPDATE_SUBSCRIPTION_CONTEXT_PAYMENT_METHOD_MUTATION } = require('@condo/domains/subscription/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
@@ -155,7 +155,7 @@ async function getAvailableSubscriptionPlansByTestClient (client, organization) 
     return [data.result, {}]
 }
 
-async function registerSubscriptionContextByTestClient(client, extraAttrs = {}) {
+async function registerSubscriptionContextsByTestClient(client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -164,7 +164,7 @@ async function registerSubscriptionContextByTestClient(client, extraAttrs = {}) 
         sender,
         ...extraAttrs,
     }
-    const { data, errors } = await client.mutate(REGISTER_SUBSCRIPTION_CONTEXT_MUTATION, { data: attrs })
+    const { data, errors } = await client.mutate(REGISTER_SUBSCRIPTION_CONTEXTS_MUTATION, { data: attrs })
     throwIfError(data, errors)
     return [data.result, attrs]
 }
@@ -189,7 +189,7 @@ module.exports = {
     SubscriptionPlan, createTestSubscriptionPlan, updateTestSubscriptionPlan,
     SubscriptionPlanPricingRule, createTestSubscriptionPlanPricingRule, updateTestSubscriptionPlanPricingRule,
     SubscriptionContext, createTestSubscriptionContext, updateTestSubscriptionContext,
-    registerSubscriptionContextByTestClient,
+    registerSubscriptionContextsByTestClient,
     activateSubscriptionContextByTestClient,
     getAvailableSubscriptionPlansByTestClient,
     updateSubscriptionContextPaymentMethodByTestClient,

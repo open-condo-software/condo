@@ -9,7 +9,7 @@ import {
     SendOrganizationEmployeeRequestMutationResult,
     GetActualOrganizationEmployeesDocument,
     useGetAvailableServiceSubscriptionPlansLazyQuery,
-    useRegisterSubscriptionContextMutation,
+    useRegisterSubscriptionContextsMutation,
 } from '@app/condo/gql'
 import { Col, Form, FormInstance, Row } from 'antd'
 import getConfig from 'next/config'
@@ -214,7 +214,7 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
         onError,
         fetchPolicy: 'network-only',
     })
-    const [registerSubscriptionContext] = useRegisterSubscriptionContextMutation({
+    const [registerSubscriptionContext] = useRegisterSubscriptionContextsMutation({
         onError,
     })
     const [getAvailableSubscriptionPlans] = useGetAvailableServiceSubscriptionPlansLazyQuery({

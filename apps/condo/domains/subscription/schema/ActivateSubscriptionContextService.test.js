@@ -22,7 +22,7 @@ const { SUBSCRIPTION_PERIOD, SUBSCRIPTION_CONTEXT_STATUS } = require('@condo/dom
 const {
     SubscriptionContext,
     activateSubscriptionContextByTestClient,
-    registerSubscriptionContextByTestClient,
+    registerSubscriptionContextsByTestClient,
     createTestSubscriptionPlan,
     createTestSubscriptionPlanPricingRule,
     createTestSubscriptionContext,
@@ -64,7 +64,7 @@ describe('ActivateSubscriptionContextService', () => {
 
     describe('Access', () => {
         test('admin can call activateSubscriptionContext without access denied error', async () => {
-            const [result] = await registerSubscriptionContextByTestClient(admin, {
+            const [result] = await registerSubscriptionContextsByTestClient(admin, {
                 organization: { id: organization.id },
                 subscriptionPlanPricingRules: [{ id: pricingRule.id }],
                 isTrial: false,
@@ -76,7 +76,7 @@ describe('ActivateSubscriptionContextService', () => {
         })
 
         test('support can call activateSubscriptionContext without access denied error', async () => {
-            const [result] = await registerSubscriptionContextByTestClient(admin, {
+            const [result] = await registerSubscriptionContextsByTestClient(admin, {
                 organization: { id: organization.id },
                 subscriptionPlanPricingRules: [{ id: pricingRule.id }],
                 isTrial: false,
@@ -88,7 +88,7 @@ describe('ActivateSubscriptionContextService', () => {
         })
 
         test('regular user cannot activate subscription context', async () => {
-            const [result] = await registerSubscriptionContextByTestClient(admin, {
+            const [result] = await registerSubscriptionContextsByTestClient(admin, {
                 organization: { id: organization.id },
                 subscriptionPlanPricingRules: [{ id: pricingRule.id }],
                 isTrial: false,
@@ -100,7 +100,7 @@ describe('ActivateSubscriptionContextService', () => {
         })
 
         test('anonymous cannot activate', async () => {
-            const [result] = await registerSubscriptionContextByTestClient(admin, {
+            const [result] = await registerSubscriptionContextsByTestClient(admin, {
                 organization: { id: organization.id },
                 subscriptionPlanPricingRules: [{ id: pricingRule.id }],
                 isTrial: false,
@@ -150,7 +150,7 @@ describe('ActivateSubscriptionContextService', () => {
 
     describe('Payment Method Extraction and Freezing', () => {
         test('extracts payment method from multiPayment and freezes payment info when transitioning to DONE', async () => {
-            const [result] = await registerSubscriptionContextByTestClient(admin, {
+            const [result] = await registerSubscriptionContextsByTestClient(admin, {
                 organization: { id: organization.id },
                 subscriptionPlanPricingRules: [{ id: pricingRule.id }],
                 isTrial: false,

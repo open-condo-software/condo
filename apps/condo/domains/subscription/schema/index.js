@@ -6,7 +6,7 @@
 
 const { ActivateSubscriptionContextService } = require('./ActivateSubscriptionContextService')
 const { GetAvailableSubscriptionPlansService } = require('./GetAvailableSubscriptionPlansService')
-const { RegisterSubscriptionContextService } = require('./RegisterSubscriptionContextService')
+const { RegisterSubscriptionContextsService } = require('./RegisterSubscriptionContextsService')
 const { SubscriptionContext } = require('./SubscriptionContext')
 const { SubscriptionPlan } = require('./SubscriptionPlan')
 const { SubscriptionPlanPricingRule } = require('./SubscriptionPlanPricingRule')
@@ -19,7 +19,7 @@ module.exports = {
     SubscriptionContext,
     GetAvailableSubscriptionPlansService,
     ActivateSubscriptionContextService,
-    RegisterSubscriptionContextService,
+    RegisterSubscriptionContextsService,
     UpdateSubscriptionContextPaymentMethodService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -5,7 +5,7 @@ const { getSchemaCtx, getById, itemsQuery } = require('@open-condo/keystone/sche
 
 const { SUBSCRIPTION_PAYMENT_BUFFER_DAYS, SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PLAN_TYPE_SERVICE } = require('@condo/domains/subscription/constants')
 const { SubscriptionPaymentAdapter } = require('@condo/domains/subscription/tasks/utils/SubscriptionPaymentAdapter')
-const { registerSubscriptionContext, SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
+const { registerSubscriptionContexts, SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
 
 const logger = getLogger('processRecurrentSubscriptionPayments')
 
@@ -68,7 +68,7 @@ async function processGroup (context, group, bufferDate) {
         return
     }
 
-    const result = await registerSubscriptionContext(context, {
+    const result = await registerSubscriptionContexts(context, {
         sender: SENDER,
         organization: { id: organizationId },
         subscriptionPlanPricingRules: renewalRuleIds.map(id => ({ id })),

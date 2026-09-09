@@ -99,7 +99,7 @@ const {
     createTestSubscriptionPlan,
     createTestSubscriptionPlanPricingRule,
     createTestSubscriptionContext,
-    registerSubscriptionContextByTestClient,
+    registerSubscriptionContextsByTestClient,
     SubscriptionContext,
 } = require('@condo/domains/subscription/utils/testSchema')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
@@ -3423,7 +3423,7 @@ describe('Invoice', () => {
                     period: SUBSCRIPTION_PERIOD.MONTH,
                 })
 
-                const [result] = await registerSubscriptionContextByTestClient(adminClient, {
+                const [result] = await registerSubscriptionContextsByTestClient(adminClient, {
                     organization: { id: payerOrg.id },
                     subscriptionPlanPricingRules: [{ id: pricingRule.id }],
                     isTrial: false,
@@ -3464,7 +3464,7 @@ describe('Invoice', () => {
                     period: SUBSCRIPTION_PERIOD.MONTH,
                 })
 
-                const [result] = await registerSubscriptionContextByTestClient(adminClient, {
+                const [result] = await registerSubscriptionContextsByTestClient(adminClient, {
                     organization: { id: payerOrg.id },
                     subscriptionPlanPricingRules: [{ id: pricingRule.id }],
                     isTrial: false,
