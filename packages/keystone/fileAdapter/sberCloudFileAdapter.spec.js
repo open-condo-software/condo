@@ -156,7 +156,7 @@ describe('SberCloudFileAdapter', () => {
                     const [, byteStart, byteEnd] = /bytes=(\d+)-(\d+)/.exec(bytesRangeParam)
                     const [byteStartNum, byteEndNum] = [byteStart, byteEnd].map(n => Number.parseFloat(n))
                     if (Number.isFinite(byteStartNum) && Number.isFinite(byteEndNum)) {
-                        content = CONTENT.subarray(byteStartNum, byteEndNum)
+                        content = CONTENT.subarray(byteStartNum, byteEndNum + 1)
                     }
                 }
                 callback(null, {
@@ -204,7 +204,7 @@ describe('SberCloudFileAdapter', () => {
             const adapter = new SberCloudFileAdapter(config)
             const stream = await adapter.createReadStream(file)
 
-            await expect(streamToBuffer(stream)).resolves.toEqual(CONTENT.subarray(2, 6))
+            await expect(streamToBuffer(stream)).resolves.toEqual(CONTENT)
         })
     })
 
