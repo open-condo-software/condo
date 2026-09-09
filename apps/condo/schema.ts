@@ -91224,7 +91224,7 @@ export type RegisterSubscriptionContextsInput = {
   dv: Scalars['Int']['input'];
   isTrial?: InputMaybe<Scalars['Boolean']['input']>;
   organization: OrganizationWhereUniqueInput;
-  paymentType?: InputMaybe<SubscriptionPaymentType>;
+  paymentType: SubscriptionPaymentType;
   sender: SenderFieldInput;
   subscriptionPlanPricingRules: Array<SubscriptionPlanPricingRuleWhereUniqueInput>;
 };

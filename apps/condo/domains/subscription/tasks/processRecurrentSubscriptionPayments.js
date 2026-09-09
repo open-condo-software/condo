@@ -3,7 +3,7 @@ const dayjs = require('dayjs')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx, getById, itemsQuery } = require('@open-condo/keystone/schema')
 
-const { SUBSCRIPTION_PAYMENT_BUFFER_DAYS, SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PLAN_TYPE_SERVICE } = require('@condo/domains/subscription/constants')
+const { SUBSCRIPTION_PAYMENT_BUFFER_DAYS, SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PLAN_TYPE_SERVICE, SUBSCRIPTION_PAYMENT_TYPE_CARD } = require('@condo/domains/subscription/constants')
 const { SubscriptionPaymentAdapter } = require('@condo/domains/subscription/tasks/utils/SubscriptionPaymentAdapter')
 const { registerSubscriptionContexts, SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
 
@@ -72,6 +72,7 @@ async function processGroup (context, group, bufferDate) {
         sender: SENDER,
         organization: { id: organizationId },
         subscriptionPlanPricingRules: renewalRuleIds.map(id => ({ id })),
+        paymentType: SUBSCRIPTION_PAYMENT_TYPE_CARD,
         isTrial: false,
     })
 

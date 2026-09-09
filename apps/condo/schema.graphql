@@ -96848,7 +96848,7 @@ input RegisterSubscriptionContextsInput {
   sender: SenderFieldInput!
   organization: OrganizationWhereUniqueInput!
   subscriptionPlanPricingRules: [SubscriptionPlanPricingRuleWhereUniqueInput!]!
-  paymentType: SubscriptionPaymentType
+  paymentType: SubscriptionPaymentType!
   isTrial: Boolean
 }
 
