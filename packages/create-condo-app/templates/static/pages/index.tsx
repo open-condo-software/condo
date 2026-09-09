@@ -3,9 +3,11 @@ import { useIntl } from 'react-intl'
 
 import { LOCALES } from '@/domains/common/constants/locales'
 import { useTranslations } from '@/domains/common/utils/i18n'
+import { useAuth } from '@/domains/user/hooks/useAuth'
 
 export default function Home () {
     const intl = useIntl()
+    const { loading, user } = useAuth()
     const HelloMessage = intl.formatMessage({ id: 'hello' })
 
     const { switchLocale } = useTranslations()
@@ -21,6 +23,9 @@ export default function Home () {
             <div
             >
                 {HelloMessage}
+                <pre>
+                    {JSON.stringify({ loading, user }, null, 2)}
+                </pre>
                 {LOCALES.map((locale) => (
                     <button key={locale} onClick={() => switchLocale(locale)}>
                         {locale}

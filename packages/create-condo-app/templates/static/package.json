@@ -3,9 +3,11 @@
   "version": "0.0.0-development",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev --turbopack & npm run types:watch",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "maketypes": "graphql-codegen --config codegen.ts",
+    "types:watch": "npm run maketypes -- --watch"
   },
   "dependencies": {
     "@apollo/client": "^3.14.1",
@@ -18,6 +20,10 @@
     "react-intl": "^7.1.14"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^6.2.0",
+    "@graphql-codegen/typescript": "^5.0.9",
+    "@graphql-codegen/typescript-operations": "^5.0.9",
+    "@graphql-codegen/typescript-react-apollo": "^4.4.1",
     "@open-condo/tsconfig": "^1.0.4",
     "@types/node": "^24",
     "@types/react": "^18.3.1",

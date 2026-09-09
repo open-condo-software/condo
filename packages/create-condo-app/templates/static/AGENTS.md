@@ -143,6 +143,7 @@ export const MyComponent: React.FC<MyComponentProps> = ({}) => {
 }
 
 ```
+- Avoid using relative imports from parent folders (like `../`), only sibling imports are allowed (`./`), for rest use absolute imports `@/`
 
 ## i18n
 
