@@ -8,6 +8,8 @@
     "start": "next start"
   },
   "dependencies": {
+    "@apollo/client": "^3.14.1",
+    "@open-condo/apollo": "^2.1.38",
     "@open-condo/bridge": "^3.1.0",
     "@open-condo/miniapp-utils": "^4.1.2",
     "next": "^15.5.21",
