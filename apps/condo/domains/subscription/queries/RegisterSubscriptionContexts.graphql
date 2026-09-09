@@ -1,5 +1,5 @@
-mutation registerSubscriptionContext($data: RegisterSubscriptionContextInput!) {
-    result: registerSubscriptionContext(data: $data) {
+mutation registerSubscriptionContexts($data: RegisterSubscriptionContextsInput!) {
+    result: registerSubscriptionContexts(data: $data) {
         subscriptionContexts {
             id
             startAt
