@@ -8,6 +8,7 @@ const path = require('path')
 const urlLib = require('url')
 
 const { ApolloClient, ApolloLink, InMemoryCache } = require('@apollo/client')
+const { RetryLink } = require('@apollo/client/link/retry')
 const { faker } = require('@faker-js/faker')
 const { createUploadLink } = require('apollo-upload-client')
 const axiosLib = require('axios')
@@ -550,7 +551,7 @@ const makeApolloClient = (serverUrl, opts = {}) => {
 
     // test apollo client with disabled tls
     // nosemgrep: problem-based-packs.insecure-transport.js-node.bypass-tls-verification.bypass-tls-verification
-    const httpsAgentWithUnauthorizedTls = new https.Agent({ rejectUnauthorized: false, keepAlive: false })
+    const httpsAgentWithUnauthorizedTls = new https.Agent({ rejectUnauthorized: false })
 
     const apolloLinks = []
     // Terminating link must be in the end of links chains
@@ -583,6 +584,32 @@ const makeApolloClient = (serverUrl, opts = {}) => {
             if (TESTS_TLS_IGNORE_UNAUTHORIZED) options.agent = httpsAgentWithUnauthorizedTls
 
             return fetchWithCookies(uri, options)
+        },
+    }))
+
+    const MAX_RETRIES = 3
+    apolloLinks.push(new RetryLink({
+        attempts: (count, operation, error) => {
+            const isConnectionReset = error && 'code' in error && error.code === 'ECONNRESET'
+            const hasMoreAttempts = count < MAX_RETRIES
+
+            if (isConnectionReset && hasMoreAttempts) {
+                    console.warn(
+                        `[Apollo Retry]: ECONNRESET detected. ` +
+                        `Operation: ${operation.operationName}. ` +
+                        `Attempt #${count} of ${MAX_RETRIES - 1} failed. Retrying...`
+                    );
+                    return true
+            }
+            if (isConnectionReset && !hasMoreAttempts) {
+                console.error(`[Apollo Retry]: All ${MAX_RETRIES - 1} retries failed for ${operation.operationName}.`);
+            }
+            return false
+        },
+        delay: {
+            initial: 300,
+            max: 1000,
+            jitter: true,
         },
     }))
 
