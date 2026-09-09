@@ -194,7 +194,7 @@ describe('push transport', () => {
         })
 
         test('sends push only to one token when RemoteClient has multiple isPush tokens (restricted by transportPriorityByAppId)', async () => {
-            const client = await makeClientWithResidentUser({}, {}, { adminClient: admin })
+            const client = await makeClientWithResidentUser()
 
             const tokenApple = getRandomFakeSuccessToken()
             const tokenFirebase = getRandomFakeSuccessToken()
@@ -230,7 +230,7 @@ describe('push transport', () => {
         })
 
         test('does not send push when transportPriorityByAppId does not allow any available token transports', async () => {
-            const client = await makeClientWithResidentUser({}, {}, { adminClient: admin })
+            const client = await makeClientWithResidentUser()
 
             const tokenFirebase = getRandomFakeSuccessToken()
 
@@ -268,7 +268,7 @@ describe('push transport', () => {
     describe('Huawei', () => {
         describe('to resident', () => {
             it('successfully sends fake ordinary notification of CUSTOM_CONTENT_MESSAGE_TYPE', async () => {
-                const residentUser = await makeClientWithResidentUser({}, {}, { adminClient: admin })
+                const residentUser = await makeClientWithResidentUser()
                 const payload = getRandomTokenData({
                     devicePlatform: DEVICE_PLATFORM_ANDROID,
                     pushTransport: PUSH_TRANSPORT_HUAWEI,
@@ -330,7 +330,7 @@ describe('push transport', () => {
             })
 
             it('successfully sends messages with quotes', async () => {
-                const residentUser = await makeClientWithResidentUser({}, {}, { adminClient: admin })
+                const residentUser = await makeClientWithResidentUser()
                 const payload = getRandomTokenData({
                     devicePlatform: DEVICE_PLATFORM_ANDROID,
                     pushTransport: PUSH_TRANSPORT_HUAWEI,
@@ -391,7 +391,7 @@ describe('push transport', () => {
             })
 
             it('fails to send fake ordinary notification of CUSTOM_CONTENT_MESSAGE_TYPE', async () => {
-                const residentUser = await makeClientWithResidentUser({}, {}, { adminClient: admin })
+                const residentUser = await makeClientWithResidentUser()
                 const payload = getRandomTokenData({
                     devicePlatform: DEVICE_PLATFORM_ANDROID,
                     pushTransport: PUSH_TRANSPORT_HUAWEI,
@@ -453,7 +453,7 @@ describe('push transport', () => {
             })
 
             it('successfully sends fake silent data notification of CUSTOM_CONTENT_MESSAGE_TYPE', async () => {
-                const residentUser = await makeClientWithResidentUser({}, {}, { adminClient: admin })
+                const residentUser = await makeClientWithResidentUser()
                 const payload = getRandomTokenData({
                     devicePlatform: DEVICE_PLATFORM_ANDROID,
                     pushTransport: PUSH_TRANSPORT_HUAWEI,
@@ -872,7 +872,7 @@ describe('push transport', () => {
     describe('FireBase', () => {
         describe('to resident', () => {
             it('successfully sends fake ordinary notification of CUSTOM_CONTENT_MESSAGE_TYPE', async () => {
-                const residentUser = await makeClientWithResidentUser({}, {}, { adminClient: admin })
+                const residentUser = await makeClientWithResidentUser()
                 const payload = getRandomTokenData({
                     devicePlatform: DEVICE_PLATFORM_ANDROID,
                     pushTransport: PUSH_TRANSPORT_FIREBASE,
@@ -931,7 +931,7 @@ describe('push transport', () => {
             })
 
             it('fails to send fake ordinary notification of CUSTOM_CONTENT_MESSAGE_TYPE', async () => {
-                const residentUser = await makeClientWithResidentUser({}, {}, { adminClient: admin })
+                const residentUser = await makeClientWithResidentUser()
                 const payload = getRandomTokenData({
                     devicePlatform: DEVICE_PLATFORM_ANDROID,
                     pushTransport: PUSH_TRANSPORT_FIREBASE,
@@ -990,7 +990,7 @@ describe('push transport', () => {
             })
 
             it('successfully sends fake silent data notification of CUSTOM_CONTENT_MESSAGE_TYPE', async () => {
-                const residentUser = await makeClientWithResidentUser({}, {}, { adminClient: admin })
+                const residentUser = await makeClientWithResidentUser()
                 const payload = getRandomTokenData({
                     devicePlatform: DEVICE_PLATFORM_ANDROID,
                     pushTransport: PUSH_TRANSPORT_FIREBASE,
@@ -1056,7 +1056,7 @@ describe('push transport', () => {
     describe('FireBase + Huawei', () => {
         describe('to resident', () => {
             it('successfully sends mixed fake ordinary and silent data notifications of CUSTOM_CONTENT_MESSAGE_TYPE', async () => {
-                const residentUser = await makeClientWithResidentUser({}, {}, { adminClient: admin })
+                const residentUser = await makeClientWithResidentUser()
                 const payload = getRandomTokenData({
                     devicePlatform: DEVICE_PLATFORM_ANDROID,
                     pushTransport: PUSH_TRANSPORT_FIREBASE,
@@ -1362,7 +1362,7 @@ describe('push transport', () => {
 
     describe('push notification app groups', () => {
         it('should send notifications only to tokens for first appId in group when there are tokens in multiple appIds in group', async () => {
-            const residentUser = await makeClientWithResidentUser({}, {}, { adminClient: admin })
+            const residentUser = await makeClientWithResidentUser()
 
             // Create tokens for different appIds in the same group
             const payload1 = getRandomTokenData({
@@ -1439,7 +1439,7 @@ describe('push transport', () => {
         })
 
         it('multiple transports and platforms can be in same group', async () => {
-            const residentUser = await makeClientWithResidentUser({}, {}, { adminClient: admin })
+            const residentUser = await makeClientWithResidentUser()
 
             // Create tokens for different appIds in the same group
             const payloadsForAppId1 = []
@@ -1527,7 +1527,7 @@ describe('push transport', () => {
         })
 
         it('should send notifications to next app in group when first app in group fails', async () => {
-            const residentUser = await makeClientWithResidentUser({}, {}, { adminClient: admin })
+            const residentUser = await makeClientWithResidentUser()
 
             // Create tokens for different appIds in the same group, but first will return error
             const payload1 = getRandomTokenData({
@@ -1607,7 +1607,7 @@ describe('push transport', () => {
         })
 
         it('should handle tokens both in group and without group', async () => {
-            const residentUser = await makeClientWithResidentUser({}, {}, { adminClient: admin })
+            const residentUser = await makeClientWithResidentUser()
 
             // Create tokens - some in group, some outside group
             const payload1 = getRandomTokenData({
@@ -1695,7 +1695,7 @@ describe('push transport', () => {
         })
 
         it('should continue to next app in group when previous apps in group fail', async () => {
-            const residentUser = await makeClientWithResidentUser({}, {}, { adminClient: admin })
+            const residentUser = await makeClientWithResidentUser()
 
             // Create tokens for appIds in group, where first ones return error
             const payload1 = getRandomTokenData({
@@ -1782,7 +1782,7 @@ describe('push transport', () => {
         })
 
         it('should handle multiple tokens in same app group and stop at first successful token', async () => {
-            const residentUser = await makeClientWithResidentUser({}, {}, { adminClient: admin })
+            const residentUser = await makeClientWithResidentUser()
 
             // Create multiple tokens with the same app group, but some return error
             const payload1 = getRandomTokenData({
@@ -1876,7 +1876,7 @@ describe('push transport', () => {
         let payload
 
         beforeAll(async () => {
-            residentUser = await makeClientWithResidentUser({}, {}, { adminClient: admin })
+            residentUser = await makeClientWithResidentUser()
             payload = getRandomTokenData({
                 devicePlatform: DEVICE_PLATFORM_ANDROID,
                 appId: 'test-tokens-invalidation-app',

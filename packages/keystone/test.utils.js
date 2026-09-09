@@ -550,7 +550,7 @@ const makeApolloClient = (serverUrl, opts = {}) => {
 
     // test apollo client with disabled tls
     // nosemgrep: problem-based-packs.insecure-transport.js-node.bypass-tls-verification.bypass-tls-verification
-    const httpsAgentWithUnauthorizedTls = new https.Agent({ rejectUnauthorized: false })
+    const httpsAgentWithUnauthorizedTls = new https.Agent({ rejectUnauthorized: false, keepAlive: false })
 
     const apolloLinks = []
     // Terminating link must be in the end of links chains
