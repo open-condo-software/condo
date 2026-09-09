@@ -118,6 +118,19 @@ jobs:
             ./docker-logs
           retention-days: 2
 
+  # Start development deploy as soon as the image is pushed
+  deploy-development:
+    name: Development Deploy
+    needs:
+      - build-image
+    if: >-
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/deploy_development.yaml
+    with:
+      ref: ${{ github.sha }}
+    secrets: inherit
+
   # SRC: https://how.wtf/run-workflow-step-or-job-based-on-file-changes-github-actions.html
   detect-changes:
     name: Define job list based on changed files
