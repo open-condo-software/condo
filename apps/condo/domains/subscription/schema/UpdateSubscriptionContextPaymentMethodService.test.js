@@ -424,7 +424,6 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
 
             const bundleContexts = registered.subscriptionContexts
             expect(bundleContexts).toHaveLength(2)
-            const sharedInvoiceId = registered.subscriptionContexts[0].invoice.id
             const bindingId = faker.datatype.uuid()
 
             for (const ctx of bundleContexts) {
@@ -437,7 +436,6 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
 
             const [result] = await updateSubscriptionContextPaymentMethodByTestClient(admin, {
                 subscriptionContext: { id: bundleContexts[0].id },
-                invoice: { id: sharedInvoiceId },
                 bindingId: null,
             })
 
