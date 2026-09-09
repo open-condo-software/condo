@@ -11,6 +11,7 @@ import {
     useGetAvailableServiceSubscriptionPlansLazyQuery,
     useRegisterSubscriptionContextsMutation,
 } from '@app/condo/gql'
+import { SubscriptionPaymentType } from '@app/condo/schema'
 import { Col, Form, FormInstance, Row } from 'antd'
 import getConfig from 'next/config'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
@@ -324,7 +325,8 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
                                 dv: 1,
                                 sender: getClientSideSenderInfo(),
                                 organization: { id: organizationId },
-                                subscriptionPlanPricingRule: { id: pricingRuleId },
+                                subscriptionPlanPricingRules: [{ id: pricingRuleId }],
+                                paymentType: SubscriptionPaymentType.Card,
                                 isTrial: true,
                             },
                         },
