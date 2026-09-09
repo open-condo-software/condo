@@ -1,6 +1,15 @@
 import Head from 'next/head'
+import { useIntl } from 'react-intl'
+
+import { LOCALES } from '@/domains/common/constants/locales'
+import { useTranslations } from '@/domains/common/utils/i18n'
 
 export default function Home () {
+    const intl = useIntl()
+    const HelloMessage = intl.formatMessage({ id: 'hello' })
+
+    const { switchLocale } = useTranslations()
+
     return (
         <>
             <Head>
@@ -11,7 +20,12 @@ export default function Home () {
             </Head>
             <div
             >
-                Hello, world
+                {HelloMessage}
+                {LOCALES.map((locale) => (
+                    <button key={locale} onClick={() => switchLocale(locale)}>
+                        {locale}
+                    </button>
+                ))}
             </div>
         </>
     )
