@@ -18,7 +18,7 @@ const { createTestRecipient, createTestBillingIntegration, BillingIntegration } 
 const { DEFAULT_BILLING_INTEGRATION_GROUP } = require('@condo/domains/billing/constants/constants')
 const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
 const { Organization, registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { SUBSCRIPTION_CONTEXT_STATUS } = require('@condo/domains/subscription/constants')
+const { SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PAYMENT_TYPE_CARD } = require('@condo/domains/subscription/constants')
 const {
     SubscriptionPlan: SubscriptionPlanGQL,
     SubscriptionPlanPricingRule: SubscriptionPlanPricingRuleGQL,
@@ -162,6 +162,7 @@ async function registerSubscriptionContextsByTestClient(client, extraAttrs = {})
     const attrs = {
         dv: 1,
         sender,
+        paymentType: SUBSCRIPTION_PAYMENT_TYPE_CARD,
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(REGISTER_SUBSCRIPTION_CONTEXTS_MUTATION, { data: attrs })

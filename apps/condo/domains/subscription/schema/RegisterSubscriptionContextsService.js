@@ -154,7 +154,7 @@ const RegisterSubscriptionContextsService = new GQLCustomSchema('RegisterSubscri
         },
         {
             access: true,
-            type: 'input RegisterSubscriptionContextsInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, subscriptionPlanPricingRules: [SubscriptionPlanPricingRuleWhereUniqueInput!]!, paymentType: SubscriptionPaymentType, isTrial: Boolean }',
+            type: 'input RegisterSubscriptionContextsInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, subscriptionPlanPricingRules: [SubscriptionPlanPricingRuleWhereUniqueInput!]!, paymentType: SubscriptionPaymentType!, isTrial: Boolean }',
         },
         {
             access: true,
@@ -177,7 +177,7 @@ const RegisterSubscriptionContextsService = new GQLCustomSchema('RegisterSubscri
                     sender,
                     organization: organizationInput,
                     subscriptionPlanPricingRules: pricingRuleInputs,
-                    paymentType = SUBSCRIPTION_PAYMENT_TYPE_CARD,
+                    paymentType,
                     isTrial,
                 } = data
 

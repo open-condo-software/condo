@@ -1,5 +1,5 @@
 import { useGetPendingSubscriptionRequestsQuery, useGetOrganizationActivatedSubscriptionsQuery, useRegisterSubscriptionContextsMutation, useCreateUserHelpRequestMutation } from '@app/condo/gql'
-import { UserHelpRequestTypeType } from '@app/condo/schema'
+import { UserHelpRequestTypeType, SubscriptionPaymentType } from '@app/condo/schema'
 import { notification } from 'antd'
 import getConfig from 'next/config'
 import { useCallback, useState } from 'react'
@@ -123,6 +123,7 @@ export const useActivateSubscriptions = () => {
                             sender: getClientSideSenderInfo(),
                             organization: { id: organization.id },
                             subscriptionPlanPricingRules: [{ id: priceId }],
+                            paymentType: SubscriptionPaymentType.Card,
                             isTrial,
                         },
                     },
