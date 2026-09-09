@@ -66,6 +66,10 @@ Inside each domain file placed in separate folder based on usage:
 There's also specific files for translations similar to `@/gql`, in app root there's a `lang` folder containing `<locale>.json` files for each locale. 
 By default, miniapp supports `ru` and `en` locales. You can change this by tweaking `domains/common/constants/locales.ts` file. More context on `i18n` can be found in [i18n](#i18n) section.
 
+All folders must be named in `camelCase`. `lowerCamelCase` is preferred for everything, except component files or folders which use `UpperCamelCase`. Examples:
+- `domains/user/components/MyComponent.tsx` - single-file component
+- `domains/user/utils/passwords.ts`
+
 ## UI & Components
 
 - For designing UI you can use [`@open-condo/ui`](https://www.npmjs.com/package/@open-condo/ui) and [`@open-condo/icons`](https://www.npmjs.com/package/@open-condo/icons) package as primary source of components.
@@ -74,6 +78,25 @@ By default, miniapp supports `ru` and `en` locales. You can change this by tweak
 but only use them if you have a specific and complex need. For a simple primitives / layouts consider using local components instead.
 - For styling, you should use css-modules. Each module should be placed next to imported component / page. For example `domains/user/components/UserCard.module.css`.
 - You should always use functional components and hooks, and avoid classes.
+
+### Grouped components
+
+When a component becomes too large or complex, it can be split into multiple files within a folder for better readability. Grouped components use `UpperCamelCase` for the folder name and must contain an `index.ts` file to enable importing the same way as single-file components.
+
+Example structure:
+```
+domains/user/components/UserCard/
+  card.tsx
+  title.tsx
+  index.ts
+```
+
+This allows importing as:
+```ts
+import { UserCard } from '@/domains/user/components/UserCard'
+```
+
+> NOTE: That's the only way where UpperCamelCase folder name is allowed.
 
 ## Code style and naming conventions
 
@@ -107,10 +130,84 @@ export const SOME_VALUE = 3
 ```
 - Prefer using functions over anonymous functions / const functions
 - Always use functional components and hooks
+- `useIntl` must be the first line of component, translations is right after it 
+(translations is always on top when possible (except the cases with dynamic translations using values or dynamic keys))
+```ts
+export const MyComponent: React.FC<MyComponentProps> = ({}) => {
+    const intl = useIntl()
+    const SomeTitle = intl.formatMessage({ id: 'common.components.myComponent.title' })
+    
+    // The rest of code
+    
+    return null
+}
+
+```
 
 ## i18n
 
-[//]: # (TODO: add i18n description)
+i18n is handled by `react-intl` and `@open-condo/miniapp-utils` packages.
+
+`TranslationHelper` defined in `@/domains/common/utils/i18n` is responsible for locale selection (it select best locale from available by miniapp based on condo launchParams and browser languages).
+
+`react-intl` is used for translations / formatting everything based on selected locale
+
+### Translation keys conventions
+
+Translations are stored in `lang` folder, each locale has its own json file. This json file contains translation keys and texts as values. 
+Translation keys are group of `lowerCamelCase` words, separated by dots.
+
+There are 3 groups of keys, separated by prefix:
+- Page-specific translations. Used in pages directly, or in components used only in these specific pages.
+Their keys should start with page path (like Next.js route, omitting special chars like `[]`) and `page` prefix. Example for `/tickets/[id]/index.ts` page: `page.tickets.id.index.title`
+- Component-specific translations. For components used in multiple pages.
+Their keys start with domain and component name. Example: `components.common.myComponent.title`
+- Global translations. Used in multiple domains, all across app. They should start with `global` prefix. Examples: `global.app.title` or `global.unitName.flat.abbr`
+
+Keys must be sorted in specific way:
+1. Global translations
+2. Component-specific translations
+3. Page-specific translations
+
+Between each group of keys there should be empty line to improve readability. There should also be empty line between each page / component / global group.
+Keys inside each group (global / components / pages) should be sorted alphabetically.
+All locales must contain the same keys, so total number of rows as well as order is the same across all locales.
+
+Dynamic translations with values should use values as second arg as react-intl requires:
+```ts
+const SomeTitle = intl.formatMessage({ id: 'user.components.userCard.title'}, { name: 'John' })
+```
+React-intl also supports pluralization in templates (zero, one, two, few, many, other):
+```ts
+const SomeTitle = intl.formatMessage({ id: 'marketplace.components.marketplaceCard.total.text'}, { total: 100500 })
+```
+
+You should use intl from hook and its methods on top of components, like `formatMessage` or `formatDate`, when possible. If not, prefer using components like `FormattedMessage` or `FormattedNumber`, 
+if that's also not possible, then move it in other hooks like `useMemo`
+
+Each translation should end with one of the following suffixes: `placeholder`, `label`, `title`, `text`, `message`, `description`.
+
+Form translations must be prefixed with `<formName>Form` prefix. Example: `pages.ticket.create.form.createTicketForm.title`. `<formName>` can be omitted if page contains single form (just `form` left), but highly recommended to use it for better readability.
+Form items must be prefixed with `form.<formName>.items.<itemName>` prefix. Example: `components.user.authForm.items.phone.label`
+Form buttons must be prefixed with `form.<formName>.actions.<actionName>` prefix. Example: `components.user.authForm.actions.signIn.label`
+
+Example of form translation structure in JSON:
+```json
+{
+  "components.user.authForm.title": "Sign In",
+  "components.user.authForm.items.phone.label": "Phone number",
+  "components.user.authForm.items.phone.placeholder": "Enter your phone",
+  "components.user.authForm.actions.signIn.label": "Sign In"
+}
+```
+
+Page action (as well as all actions) must be prefixed with `actions`. Examples: `global.actions.cancel.label` or `pages.meters.id.index.verificationModal.actions.close.label`
+As you can see modals inherit similar patterns to forms.
+
+> Note: Long translation keys are acceptable and encouraged, as they help determine usage context and prevent naming conflicts.
+
+> Important note: all parts of translation keys must be in `lowerCamelCase` and separated by dots. But const inside components must be `UpperCamelCase` according to [naming conventions](#code-style-and-naming-conventions).
+
 
 ## Bridge
 
