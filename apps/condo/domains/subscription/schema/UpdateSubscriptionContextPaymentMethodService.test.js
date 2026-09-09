@@ -19,7 +19,7 @@ const {
     createTestSubscriptionPlanPricingRule,
     updateTestSubscriptionContext,
     updateSubscriptionContextPaymentMethodByTestClient,
-    registerSubscriptionContextByTestClient,
+    registerSubscriptionContextsByTestClient,
 } = require('@condo/domains/subscription/utils/testSchema')
 const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
@@ -415,7 +415,7 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
                 currencyCode: 'RUB',
             })
 
-            const [registered] = await registerSubscriptionContextByTestClient(admin, {
+            const [registered] = await registerSubscriptionContextsByTestClient(admin, {
                 organization: { id: organization.id },
                 subscriptionPlanPricingRules: [{ id: pricingRule.id }, { id: featureRule.id }],
                 paymentType: 'invoice',

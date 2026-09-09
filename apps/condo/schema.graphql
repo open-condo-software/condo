@@ -3048,7 +3048,7 @@ type UserRightsSetHistoryRecord {
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
   canExecuteGetAvailableSubscriptionPlans: Boolean
-  canExecuteRegisterSubscriptionContext: Boolean
+  canExecuteRegisterSubscriptionContexts: Boolean
   canExecuteInviteNewOrganizationEmployee: Boolean
   canExecuteSigninAsUser: Boolean
   canManageOrganizationIsApprovedField: Boolean
@@ -3214,8 +3214,8 @@ input UserRightsSetHistoryRecordWhereInput {
   canExecute_allBillingReceiptsSum_not: Boolean
   canExecuteGetAvailableSubscriptionPlans: Boolean
   canExecuteGetAvailableSubscriptionPlans_not: Boolean
-  canExecuteRegisterSubscriptionContext: Boolean
-  canExecuteRegisterSubscriptionContext_not: Boolean
+  canExecuteRegisterSubscriptionContexts: Boolean
+  canExecuteRegisterSubscriptionContexts_not: Boolean
   canExecuteInviteNewOrganizationEmployee: Boolean
   canExecuteInviteNewOrganizationEmployee_not: Boolean
   canExecuteSigninAsUser: Boolean
@@ -3439,8 +3439,8 @@ enum SortUserRightsSetHistoryRecordsBy {
   canExecute_allBillingReceiptsSum_DESC
   canExecuteGetAvailableSubscriptionPlans_ASC
   canExecuteGetAvailableSubscriptionPlans_DESC
-  canExecuteRegisterSubscriptionContext_ASC
-  canExecuteRegisterSubscriptionContext_DESC
+  canExecuteRegisterSubscriptionContexts_ASC
+  canExecuteRegisterSubscriptionContexts_DESC
   canExecuteInviteNewOrganizationEmployee_ASC
   canExecuteInviteNewOrganizationEmployee_DESC
   canExecuteSigninAsUser_ASC
@@ -3539,7 +3539,7 @@ input UserRightsSetHistoryRecordUpdateInput {
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
   canExecuteGetAvailableSubscriptionPlans: Boolean
-  canExecuteRegisterSubscriptionContext: Boolean
+  canExecuteRegisterSubscriptionContexts: Boolean
   canExecuteInviteNewOrganizationEmployee: Boolean
   canExecuteSigninAsUser: Boolean
   canManageOrganizationIsApprovedField: Boolean
@@ -3630,7 +3630,7 @@ input UserRightsSetHistoryRecordCreateInput {
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
   canExecuteGetAvailableSubscriptionPlans: Boolean
-  canExecuteRegisterSubscriptionContext: Boolean
+  canExecuteRegisterSubscriptionContexts: Boolean
   canExecuteInviteNewOrganizationEmployee: Boolean
   canExecuteSigninAsUser: Boolean
   canManageOrganizationIsApprovedField: Boolean
@@ -3914,9 +3914,9 @@ type UserRightsSet {
   """
   canExecuteGetAvailableSubscriptionPlans: Boolean
 
-  """ Enables a user with the given UserRightsSet to execute "registerSubscriptionContext" query/mutation 
+  """ Enables a user with the given UserRightsSet to execute "registerSubscriptionContexts" query/mutation 
   """
-  canExecuteRegisterSubscriptionContext: Boolean
+  canExecuteRegisterSubscriptionContexts: Boolean
 
   """ Enables a user with the given UserRightsSet to execute "inviteNewOrganizationEmployee" query/mutation 
   """
@@ -4117,8 +4117,8 @@ input UserRightsSetWhereInput {
   canExecute_allBillingReceiptsSum_not: Boolean
   canExecuteGetAvailableSubscriptionPlans: Boolean
   canExecuteGetAvailableSubscriptionPlans_not: Boolean
-  canExecuteRegisterSubscriptionContext: Boolean
-  canExecuteRegisterSubscriptionContext_not: Boolean
+  canExecuteRegisterSubscriptionContexts: Boolean
+  canExecuteRegisterSubscriptionContexts_not: Boolean
   canExecuteInviteNewOrganizationEmployee: Boolean
   canExecuteInviteNewOrganizationEmployee_not: Boolean
   canExecuteSigninAsUser: Boolean
@@ -4322,8 +4322,8 @@ enum SortUserRightsSetsBy {
   canExecute_allBillingReceiptsSum_DESC
   canExecuteGetAvailableSubscriptionPlans_ASC
   canExecuteGetAvailableSubscriptionPlans_DESC
-  canExecuteRegisterSubscriptionContext_ASC
-  canExecuteRegisterSubscriptionContext_DESC
+  canExecuteRegisterSubscriptionContexts_ASC
+  canExecuteRegisterSubscriptionContexts_DESC
   canExecuteInviteNewOrganizationEmployee_ASC
   canExecuteInviteNewOrganizationEmployee_DESC
   canExecuteSigninAsUser_ASC
@@ -4422,7 +4422,7 @@ input UserRightsSetUpdateInput {
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
   canExecuteGetAvailableSubscriptionPlans: Boolean
-  canExecuteRegisterSubscriptionContext: Boolean
+  canExecuteRegisterSubscriptionContexts: Boolean
   canExecuteInviteNewOrganizationEmployee: Boolean
   canExecuteSigninAsUser: Boolean
   canManageOrganizationIsApprovedField: Boolean
@@ -4510,7 +4510,7 @@ input UserRightsSetCreateInput {
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
   canExecuteGetAvailableSubscriptionPlans: Boolean
-  canExecuteRegisterSubscriptionContext: Boolean
+  canExecuteRegisterSubscriptionContexts: Boolean
   canExecuteInviteNewOrganizationEmployee: Boolean
   canExecuteSigninAsUser: Boolean
   canManageOrganizationIsApprovedField: Boolean
@@ -96843,7 +96843,7 @@ enum SubscriptionPaymentType {
   invoice
 }
 
-input RegisterSubscriptionContextInput {
+input RegisterSubscriptionContextsInput {
   dv: Int!
   sender: SenderFieldInput!
   organization: OrganizationWhereUniqueInput!
@@ -96852,7 +96852,7 @@ input RegisterSubscriptionContextInput {
   isTrial: Boolean
 }
 
-type RegisterSubscriptionContextOutput {
+type RegisterSubscriptionContextsOutput {
   subscriptionContexts: [SubscriptionContext!]!
   directPaymentUrl: String
   multiPayment: MultiPayment
@@ -112279,7 +112279,7 @@ type Mutation {
     "message": "SUBSCRIPTION_PAYMENT_RECIPIENT is not configured"
   }`
   """
-  registerSubscriptionContext(data: RegisterSubscriptionContextInput!): RegisterSubscriptionContextOutput
+  registerSubscriptionContexts(data: RegisterSubscriptionContextsInput!): RegisterSubscriptionContextsOutput
   updateSubscriptionContextPaymentMethod(data: UpdateSubscriptionContextPaymentMethodInput!): UpdateSubscriptionContextPaymentMethodOutput
   registerMultiPayment(data: RegisterMultiPaymentInput!): RegisterMultiPaymentOutput
   registerMultiPaymentForOneReceipt(data: RegisterMultiPaymentForOneReceiptInput!): RegisterMultiPaymentForOneReceiptOutput

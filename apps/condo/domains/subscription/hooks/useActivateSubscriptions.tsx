@@ -1,4 +1,4 @@
-import { useGetPendingSubscriptionRequestsQuery, useGetOrganizationActivatedSubscriptionsQuery, useRegisterSubscriptionContextMutation, useCreateUserHelpRequestMutation } from '@app/condo/gql'
+import { useGetPendingSubscriptionRequestsQuery, useGetOrganizationActivatedSubscriptionsQuery, useRegisterSubscriptionContextsMutation, useCreateUserHelpRequestMutation } from '@app/condo/gql'
 import { UserHelpRequestTypeType } from '@app/condo/schema'
 import { notification } from 'antd'
 import getConfig from 'next/config'
@@ -46,7 +46,7 @@ export const useActivateSubscriptions = () => {
         skip: !organization?.id,
     })
 
-    const [registerSubscriptionContextMutation] = useRegisterSubscriptionContextMutation()
+    const [registerSubscriptionContextMutation] = useRegisterSubscriptionContextsMutation()
     const [createUserHelpRequest] = useCreateUserHelpRequestMutation()
     const { user } = useAuth()
 

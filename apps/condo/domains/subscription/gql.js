@@ -31,9 +31,9 @@ const GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY = gql`
     }
 `
 
-const REGISTER_SUBSCRIPTION_CONTEXT_MUTATION = gql`
-    mutation registerSubscriptionContext ($data: RegisterSubscriptionContextInput!) {
-        result: registerSubscriptionContext(data: $data) { subscriptionContexts { id organization { id } subscriptionPlan { id } subscriptionPlanPricingRule { id } invoice { id toPay currencyCode rows { name count toPay } } startAt endAt isTrial status } directPaymentUrl multiPayment { id } }
+const REGISTER_SUBSCRIPTION_CONTEXTS_MUTATION = gql`
+    mutation registerSubscriptionContexts ($data: RegisterSubscriptionContextsInput!) {
+        result: registerSubscriptionContexts(data: $data) { subscriptionContexts { id organization { id } subscriptionPlan { id } subscriptionPlanPricingRule { id } invoice { id toPay currencyCode rows { name count toPay } } startAt endAt isTrial status } directPaymentUrl multiPayment { id } }
     }
 `
 
@@ -51,7 +51,7 @@ module.exports = {
     SubscriptionContext,
     ACTIVATE_SUBSCRIPTION_CONTEXT_MUTATION,
     GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY,
-    REGISTER_SUBSCRIPTION_CONTEXT_MUTATION,
+    REGISTER_SUBSCRIPTION_CONTEXTS_MUTATION,
     UPDATE_SUBSCRIPTION_CONTEXT_PAYMENT_METHOD_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -24,7 +24,7 @@ const {
     createTestSubscriptionPlan,
     createTestSubscriptionPlanPricingRule,
     createTestSubscriptionContext,
-    registerSubscriptionContextByTestClient,
+    registerSubscriptionContextsByTestClient,
     SubscriptionContext,
 } = require('@condo/domains/subscription/utils/testSchema')
 
@@ -59,7 +59,7 @@ describe('activateSubscriptionForInvoice', () => {
         test('finds subscription context by invoice and activates it', async () => {
             const [organization] = await registerNewOrganization(adminClient)
 
-            const [result] = await registerSubscriptionContextByTestClient(adminClient, {
+            const [result] = await registerSubscriptionContextsByTestClient(adminClient, {
                 organization: { id: organization.id },
                 subscriptionPlanPricingRules: [{ id: pricingRule.id }],
             })
@@ -113,7 +113,7 @@ describe('activateSubscriptionForInvoice', () => {
         test('recomputes startAt and endAt from the payment date, not the registration date', async () => {
             const [organization] = await registerNewOrganization(adminClient)
 
-            const [result] = await registerSubscriptionContextByTestClient(adminClient, {
+            const [result] = await registerSubscriptionContextsByTestClient(adminClient, {
                 organization: { id: organization.id },
                 subscriptionPlanPricingRules: [{ id: pricingRule.id }],
             })
@@ -174,7 +174,7 @@ describe('activateSubscriptionForInvoice', () => {
         test('does not change already DONE subscription context', async () => {
             const [organization] = await registerNewOrganization(adminClient)
 
-            const [result] = await registerSubscriptionContextByTestClient(adminClient, {
+            const [result] = await registerSubscriptionContextsByTestClient(adminClient, {
                 organization: { id: organization.id },
                 subscriptionPlanPricingRules: [{ id: pricingRule.id }],
             })
@@ -235,7 +235,7 @@ describe('activateSubscriptionForInvoice', () => {
         test('activates every CREATED context sharing the invoice', async () => {
             const [organization] = await registerNewOrganization(adminClient)
 
-            const [result] = await registerSubscriptionContextByTestClient(adminClient, {
+            const [result] = await registerSubscriptionContextsByTestClient(adminClient, {
                 organization: { id: organization.id },
                 subscriptionPlanPricingRules: [{ id: pricingRule.id }, { id: featureRule.id }],
             })
@@ -280,7 +280,7 @@ describe('activateSubscriptionForInvoice', () => {
         test('activates without a payment method when the invoice was paid without acquiring', async () => {
             const [organization] = await registerNewOrganization(adminClient)
 
-            const [result] = await registerSubscriptionContextByTestClient(adminClient, {
+            const [result] = await registerSubscriptionContextsByTestClient(adminClient, {
                 organization: { id: organization.id },
                 subscriptionPlanPricingRules: [{ id: pricingRule.id }, { id: featureRule.id }],
                 paymentType: 'invoice',
@@ -311,7 +311,7 @@ describe('activateSubscriptionForInvoice', () => {
         test('activates subscription context with PENDING status', async () => {
             const [organization] = await registerNewOrganization(adminClient)
 
-            const [result] = await registerSubscriptionContextByTestClient(adminClient, {
+            const [result] = await registerSubscriptionContextsByTestClient(adminClient, {
                 organization: { id: organization.id },
                 subscriptionPlanPricingRules: [{ id: pricingRule.id }],
             })
