@@ -554,6 +554,33 @@ const makeApolloClient = (serverUrl, opts = {}) => {
     const httpsAgentWithUnauthorizedTls = new https.Agent({ rejectUnauthorized: false })
 
     const apolloLinks = []
+
+    const MAX_RETRIES = 3
+    apolloLinks.push(new RetryLink({
+        attempts: (count, operation, error) => {
+            const isConnectionReset = error && 'code' in error && error.code === 'ECONNRESET'
+            const hasMoreAttempts = count < MAX_RETRIES
+
+            if (isConnectionReset && hasMoreAttempts) {
+                    console.warn(
+                        `[Apollo Retry]: ECONNRESET detected. ` +
+                        `Operation: ${operation.operationName}. ` +
+                        `Attempt #${count} of ${MAX_RETRIES - 1} failed. Retrying...`
+                    );
+                    return true
+            }
+            if (isConnectionReset && !hasMoreAttempts) {
+                console.error(`[Apollo Retry]: All ${MAX_RETRIES - 1} retries failed for ${operation.operationName}.`);
+            }
+            return false
+        },
+        delay: {
+            initial: 300,
+            max: 1000,
+            jitter: true,
+        },
+    }))
+
     // Terminating link must be in the end of links chains
     apolloLinks.push(createUploadLink({
         uri: `${serverUrl}${API_PATH}`,
@@ -584,32 +611,6 @@ const makeApolloClient = (serverUrl, opts = {}) => {
             if (TESTS_TLS_IGNORE_UNAUTHORIZED) options.agent = httpsAgentWithUnauthorizedTls
 
             return fetchWithCookies(uri, options)
-        },
-    }))
-
-    const MAX_RETRIES = 3
-    apolloLinks.push(new RetryLink({
-        attempts: (count, operation, error) => {
-            const isConnectionReset = error && 'code' in error && error.code === 'ECONNRESET'
-            const hasMoreAttempts = count < MAX_RETRIES
-
-            if (isConnectionReset && hasMoreAttempts) {
-                    console.warn(
-                        `[Apollo Retry]: ECONNRESET detected. ` +
-                        `Operation: ${operation.operationName}. ` +
-                        `Attempt #${count} of ${MAX_RETRIES - 1} failed. Retrying...`
-                    );
-                    return true
-            }
-            if (isConnectionReset && !hasMoreAttempts) {
-                console.error(`[Apollo Retry]: All ${MAX_RETRIES - 1} retries failed for ${operation.operationName}.`);
-            }
-            return false
-        },
-        delay: {
-            initial: 300,
-            max: 1000,
-            jitter: true,
         },
     }))
 
