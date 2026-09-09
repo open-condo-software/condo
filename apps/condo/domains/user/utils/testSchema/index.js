@@ -151,9 +151,9 @@ async function updateTestUser (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function registerNewUser (client, extraAttrs = {}, { raw = false } = {}) {
+async function registerNewUser (client, extraAttrs = {}, { raw = false, adminClient } = {}) {
     if (!client) throw new Error('no client')
-    const admin = await makeLoggedInAdminClient()
+    const admin = adminClient || await makeLoggedInAdminClient()
     const sender = { dv: 1, fingerprint: 'test-' + faker.random.alphaNumeric(8) }
     const name = faker.name.firstName()
     const email = createTestEmail()
@@ -201,10 +201,10 @@ async function makeClientWithSupportUser (userExtraAttrs = {}) {
     return client
 }
 
-async function makeClientWithResidentUser (updateUserExtraAttrs = {}, createUserExtraAttrs = {}) {
-    const [user, userAttrs] = await registerNewUser(await makeClient(), createUserExtraAttrs)
+async function makeClientWithResidentUser (updateUserExtraAttrs = {}, createUserExtraAttrs = {}, { adminClient } = {}) {
+    const [user, userAttrs] = await registerNewUser(await makeClient(), createUserExtraAttrs, { adminClient })
     const client = await makeLoggedInClient(userAttrs)
-    client.user = await addResidentAccess(user, updateUserExtraAttrs)
+    client.user = await addResidentAccess(user, updateUserExtraAttrs, { adminClient })
     client.userAttrs = userAttrs
     return client
 }
@@ -239,8 +239,8 @@ async function addSupportAccess (user, extraAttrs = {}) {
     return await User.update(admin, user.id, { dv, sender, isSupport: true, ...extraAttrs })
 }
 
-async function addResidentAccess (user, extraAttrs = {}) {
-    const admin = await makeLoggedInAdminClient()
+async function addResidentAccess (user, extraAttrs = {}, { adminClient }) {
+    const admin = adminClient || await makeLoggedInAdminClient()
     const dv = 1
     const sender = { dv:1, fingerprint: "user-test-schema-utils" }
     return await User.update(admin, user.id, { dv, sender, type: RESIDENT, ...extraAttrs })
