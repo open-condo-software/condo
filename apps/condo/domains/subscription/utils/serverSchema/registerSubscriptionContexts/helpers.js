@@ -29,21 +29,7 @@ function pickBaseSubscription (subscriptions) {
     return [...subscriptions].sort((a, b) => (a.rule.id < b.rule.id ? -1 : 1))[0]
 }
 
-/**
- * Checks whether an existing bundle (its contexts) is made of exactly the same
- * set of pricing rules as the requested one, regardless of order.
- *
- * @param {Array<{ subscriptionPlanPricingRule: string }>} bundleContexts
- * @param {Array<string>} requestedRuleIds - sorted list of requested pricing rule ids
- * @returns {boolean}
- */
-function isSameComposition (bundleContexts, requestedRuleIds) {
-    const ruleIds = bundleContexts.map(ctx => ctx.subscriptionPlanPricingRule).sort()
-    return ruleIds.length === requestedRuleIds.length && ruleIds.every((id, i) => id === requestedRuleIds[i])
-}
-
 module.exports = {
     buildDirectPaymentUrl,
     pickBaseSubscription,
-    isSameComposition,
 }
