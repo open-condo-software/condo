@@ -462,6 +462,7 @@
   "ai.cowork.unpinChat": "Desfijar chat",
   "ai.cowork.noPinnedChats": "Pasa el cursor sobre un chat y haz clic en el icono de fijación para fijarlo",
   "ai.cowork.editChatName": "Editar nombre del chat",
+  "ai.cowork.editChatNameTitle": "Editar nombre del chat",
   "ai.cowork.share": "Compartir",
   "ai.cowork.shareCopied": "Conversación copiada al portapapeles",
   "ai.cowork.shareEmpty": "No hay mensajes para compartir todavía",

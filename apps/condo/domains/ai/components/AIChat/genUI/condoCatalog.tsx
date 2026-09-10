@@ -110,7 +110,6 @@ const ReactECharts = dynamic(
 )
 
 const CHART_COLOR_SET = [
-    colors.purple['7'],
     colors.purple['5'],
     colors.blue['7'],
     colors.blue['5'],

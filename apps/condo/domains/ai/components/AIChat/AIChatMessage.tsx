@@ -131,6 +131,7 @@ const AIChatAssistantMessage: React.FC<AIChatAssistantMessageProps> = ({
 }) => {
     const intl = useIntl()
     const assistantMarkdownRef = useRef<HTMLDivElement>(null)
+    const assistantContentRef = useRef<HTMLDivElement>(null)
     const copyButton = useCopyButton(message)
     const [exportLoadingByFormat, setExportLoadingByFormat] = useState<Record<ExportAIMessageFormat, boolean>>({
         txt: false,
@@ -152,9 +153,9 @@ const AIChatAssistantMessage: React.FC<AIChatAssistantMessageProps> = ({
         try {
             let payload: ExportAIMessageOptions
             if (format === 'pdf') {
-                const el = assistantMarkdownRef.current
+                const el = assistantContentRef.current || assistantMarkdownRef.current
                 if (!el) {
-                    console.error('Unable to export PDF: markdown root is not mounted')
+                    console.error('Unable to export PDF: content root is not mounted')
                     return
                 }
                 payload = { format: 'pdf', pdfSourceElement: el }
@@ -201,27 +202,29 @@ const AIChatAssistantMessage: React.FC<AIChatAssistantMessageProps> = ({
             className={`${styles.messageWrapper} ${styles.assistantMessage}`}
         >
             <div className={styles.assistantMessageContainer}>
-                {message.status === 'sending' && !message.content.text?.trim() ? (
-                    <AIChatThinkingStatus />
-                ) : (
-                    <div
-                        ref={assistantMarkdownRef}
-                        className={styles.assistantMarkdown}
-                    >
-                        <Markdown type='inline'>{message.content.text}</Markdown>
-                    </div>
-                )}
+                <div ref={assistantContentRef}>
+                    {message.status === 'sending' && !message.content.text?.trim() ? (
+                        <AIChatThinkingStatus />
+                    ) : (
+                        <div
+                            ref={assistantMarkdownRef}
+                            className={styles.assistantMarkdown}
+                        >
+                            <Markdown type='inline'>{message.content.text}</Markdown>
+                        </div>
+                    )}
+                    {message.content.a2uiMessages?.length > 0 && (
+                        <div className={styles.assistantA2UI}>
+                            <A2UISurfaces
+                                messages={message.content.a2uiMessages}
+                            />
+                        </div>
+                    )}
+                </div>
                 {message.copyable === true && message.status !== 'sending' && (
                     <div className={styles.assistantMessageActions}>
                         {copyButton}
                         {downloadButton}
-                    </div>
-                )}
-                {message.content.a2uiMessages?.length > 0 && (
-                    <div className={styles.assistantA2UI}>
-                        <A2UISurfaces
-                            messages={message.content.a2uiMessages}
-                        />
                     </div>
                 )}
                 {message.content.suggestions?.length > 0 && (

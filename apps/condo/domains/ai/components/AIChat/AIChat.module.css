@@ -21,7 +21,7 @@
   width: 100%;
   min-width: 0;
   padding:
-    calc(var(--ai-chat-header-height) + var(--ai-chat-chrome-gap, var(--condo-global-spacing-12)))
+    calc(var(--ai-chat-header-height, 0) + var(--ai-chat-chrome-gap, var(--condo-global-spacing-12)))
     var(--ai-chat-padding-x, var(--condo-global-spacing-24))
     calc(var(--ai-chat-input-height, 5rem) + var(--ai-chat-input-bottom-gap, var(--condo-global-spacing-12)));
   overflow-y: auto;
@@ -32,13 +32,13 @@
 }
 
 /* Override comment-body global styles */
-.messages-container.comment-body {
+.messages-container:global(.comment-body) {
   min-width: 0;
   max-width: none;
   padding:
     var(--condo-global-spacing-16)
     var(--ai-chat-padding-x, var(--condo-global-spacing-24))
-    var(--condo-global-spacing-24);
+    calc(var(--ai-chat-input-height, 5rem) + var(--ai-chat-input-bottom-gap, var(--condo-global-spacing-12)));
 }
 
 /* Without this, long flex children shrink and clip inside the scroller. */
@@ -154,6 +154,12 @@
   gap: var(--condo-global-spacing-8);
   max-width: 768px;
   margin: var(--condo-global-spacing-12) auto 0;
+}
+
+.turn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--condo-global-spacing-24);
 }
 
 .turn[data-active="true"] {

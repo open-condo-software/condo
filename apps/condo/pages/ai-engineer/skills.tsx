@@ -1,7 +1,7 @@
-import { AiSkillLocaleType, AiSkillScopeType, B2BAppContextStatusType } from '@app/condo/schema'
+import { AiSkillScopeType, B2BAppContextStatusType } from '@app/condo/schema'
 import { Col, Image, Row, RowProps } from 'antd'
 import { useRouter } from 'next/router'
-import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
+import { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useAuth } from '@open-condo/next/auth'
@@ -12,6 +12,7 @@ import { Alert, Button, Card, Modal, Space, Tag, Typography } from '@open-condo/
 import { CoworkLayout } from '@condo/domains/ai/components/Cowork'
 import { useObjects as useAISkillObjects } from '@condo/domains/ai/utils/clientSchema/AISkill'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
 import { UI_AI_COWORK_SKILLS } from '@condo/domains/common/constants/featureflags'
 import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
 import { PageComponentType } from '@condo/domains/common/types'
@@ -72,7 +73,6 @@ const CoworkSkillsPage: PageComponentType = () => {
                 { scope: AiSkillScopeType.B2bApp },
             ],
             isPublic: true,
-            locale: intl.locale as AiSkillLocaleType,
             deletedAt: null,
         },
     }, {
@@ -110,15 +110,21 @@ const CoworkSkillsPage: PageComponentType = () => {
                 <PageHeader
                     title={<Typography.Title>{titleLabel}</Typography.Title>}
                 />
-                <Alert
-                    type='info'
-                    showIcon
-                    message={subtitleMessage}
-                    description={subtitleDescription}
-                />
                 {(loading || appContextsLoading) && <Typography.Text type='secondary'>...</Typography.Text>}
                 {!loading && !appContextsLoading && visibleSkills.length === 0 && (
-                    <Typography.Text type='secondary'>{emptyLabel}</Typography.Text>
+                    <EmptyListContent
+                        label={emptyLabel}
+                        message={subtitleDescription}
+                        accessCheck={false}
+                    />
+                )}
+                {!loading && !appContextsLoading && visibleSkills.length > 0 && (
+                    <Alert
+                        type='info'
+                        showIcon
+                        message={subtitleMessage}
+                        description={subtitleDescription}
+                    />
                 )}
                 <div style={{ marginTop: 24 }}>
                     <Row gutter={CARD_GUTTER} ref={cardGridRef}>
