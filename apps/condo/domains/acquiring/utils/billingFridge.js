@@ -62,25 +62,23 @@ async function freezeInvoice (flatInvoice) {
 /**
  * Create frozen payment info object for subscription context
  * This preserves payment method, invoice details, pricing rule, and multiPayment reference
- * 
- * @param {Object} multiPayment - MultiPayment object containing payment method in meta
+ *
+ * @param {Object|null} multiPayment - MultiPayment object containing payment method in meta, or null when the invoice was paid without acquiring
  * @param {Object} invoice - Invoice object with payment details
- * @param {string} pricingRuleId - ID of the subscription plan pricing rule
+ * @param {string} [pricingRuleId] - ID of the subscription plan pricing rule
  * @returns {Object} Frozen payment info object
  */
 function freezePaymentInfo (multiPayment, invoice, pricingRuleId) {
-    const paymentMethod = multiPayment?.meta?.paymentMethod || null
-
     return {
-        paymentMethod,
+        paymentMethod: multiPayment?.meta?.paymentMethod || null,
         invoice: {
             id: invoice.id,
             rows: invoice.rows,
             toPay: invoice.toPay,
             currencyCode: invoice.currencyCode,
         },
-        pricingRuleId,
-        multiPaymentId: multiPayment.id,
+        pricingRuleId: pricingRuleId || null,
+        multiPaymentId: multiPayment?.id || null,
     }
 }
 
