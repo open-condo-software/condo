@@ -12,7 +12,7 @@ jobs:
 
     steps:
       - name: Checkout code with submodules
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.4.0
         with:
           fetch-depth: 0
           submodules: recursive
@@ -25,7 +25,7 @@ jobs:
           git reset --hard figma/promotion
 
       - name: Create pull request
-        uses: peter-evans/create-pull-request@v4
+        uses: peter-evans/create-pull-request@38e0b6e68b4c852a5500a94740f0e535e0d7ba54  # v4.2.4
         id: cpr
         with:
           token: ${{ secrets.DESIGN_BOT_PAT }}

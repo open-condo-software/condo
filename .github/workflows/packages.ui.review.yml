@@ -12,7 +12,7 @@ jobs:
 
     steps:
       - name: Checkout code with submodules
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.4.0
         with:
           fetch-depth: 0
           submodules: recursive
@@ -24,7 +24,7 @@ jobs:
           yarn install --immutable
 
       - name: Publish chromatic build
-        uses: chromaui/action@v1
+        uses: chromaui/action@c93e0bc3a63aa176e14a75b61a31847cbfdd341c  # v1
         with:
           workingDir: packages/ui
           projectToken: ${{ secrets.UI_CHROMATIC_PROJECT_TOKEN }}

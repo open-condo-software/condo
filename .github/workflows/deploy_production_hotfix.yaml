@@ -1,10 +1,9 @@
-name: "⚠️💥💀⚡💢❗ [production] Deploy"
+name: "⚠️💥💀⚡💢❗ [production] Hotfix Deploy"
 
 concurrency: deploy_backup_production.yaml
 
 permissions:
   contents: read
-  actions: read
 
 on:
   workflow_dispatch:
@@ -13,8 +12,9 @@ on:
 
 jobs:
   converge:
-    name: "[production] Deploy"
+    name: "[production] Hotfix Deploy"
     runs-on: self-hosted
+    environment: production-hotfix
     env:
       WERF_SECRET_KEY: ${{ secrets.WERF_SECRET_KEY }}
       PULL_USER: ${{ secrets.PULL_USER }}
@@ -31,30 +31,6 @@ jobs:
               echo "Wrong tag name was provided. Tag should be created with pattern 'release-vXX.XX.XX'"
               exit 1
           fi
-      - name: Require Condo CI success for tag SHA
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3  # v9.0.0
-        with:
-          script: |
-            const sha = context.sha
-            core.info(`Checking Condo CI success for commit ${sha}`)
-            const { data } = await github.rest.actions.listWorkflowRuns({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'nodejs.condo.ci.yml',
-              head_sha: sha,
-              status: 'completed',
-              per_page: 30,
-            })
-            const success = data.workflow_runs.find((run) => run.conclusion === 'success')
-            if (!success) {
-              core.setFailed(
-                `No successful Condo CI run found for ${sha}. ` +
-                'Push/create a release-v* branch, wait for Condo CI to pass, then tag that SHA. ' +
-                'For untested emergency deploys use the [production] Hotfix Deploy workflow.'
-              )
-              return
-            }
-            core.info(`Found successful Condo CI run: ${success.id}`)
       - name: Login to Container Registry
         uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9  # v3.7.0
         with:
@@ -77,7 +53,7 @@ jobs:
       - name: Resolve prebuilt apps image
         env:
           DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
-        run: bash bin/resolve_prebuilt_apps_image.sh "$DOCKER_REGISTRY" "${{ github.sha }}" required
+        run: bash bin/resolve_prebuilt_apps_image.sh "$DOCKER_REGISTRY" "${{ github.sha }}"
       - name: Prune package manifests for Docker deps layer
         if: ${{ env.PREBUILT_APPS_IMAGE == '' }}
         run: bash bin/prune.sh

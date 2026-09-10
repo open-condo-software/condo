@@ -21,7 +21,7 @@ jobs:
 
     steps:
       - name: install docker-compose plugin
-        uses: open-condo-software/actions-setup-docker-compose@v1
+        uses: open-condo-software/actions-setup-docker-compose@eb4a664a024c5ad31de45b8b94da4a488c6e7d7f  # v1
         with:
           version: v2.28.1
       - name: install deps
@@ -29,14 +29,14 @@ jobs:
           sudo apt update && sudo apt install -y git
 
       - name: Login to registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9  # v3.7.0
         with:
           registry: ${{ secrets.DOCKER_REGISTRY }}
           username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
           password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
 
       - name: checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.4.0
         with:
           fetch-depth: 0
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
@@ -73,12 +73,12 @@ jobs:
 
       - name: Collect docker logs on failure
         if: failure()
-        uses: jwalton/gh-docker-logs@v1
+        uses: jwalton/gh-docker-logs@54a2a89cd6a2c929525f26ca67a7a4857a5dc1d9  # v1
         with:
           dest: './docker-logs'
 
       - name: Upload log artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         if: failure()
         with:
           name: logs-shard-${{ inputs.shard_index }}-of-${{ inputs.shard_total }}-${{ env.GITHUB_RUN_ID }}-${{ env.GITHUB_RUN_NUMBER }}
