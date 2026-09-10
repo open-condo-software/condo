@@ -44,8 +44,6 @@ async function canManageCallRecordFragments (args) {
     if (user.deletedAt) return false
     if (user.isAdmin) return true
 
-    // NOTE: B2B app service user access to CallRecordFragment is gated by the CallRecord permissions:
-    // the service user may manage a fragment if it may manage the linked CallRecord
     if (user.type === SERVICE) {
         let callRecordId
         if (operation === 'create') {

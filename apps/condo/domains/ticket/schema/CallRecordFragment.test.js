@@ -4,14 +4,20 @@
 const {
     makeLoggedInAdminClient, makeClient, UUID_RE,
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
-    expectToThrowAccessDeniedErrorToObj, expectToThrowGQLError,
+    expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects, expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 
+const {
+    createTestB2BApp,
+    createTestB2BAppContext,
+    createTestB2BAppAccessRightSet,
+    createTestB2BAppAccessRight,
+} = require('@condo/domains/miniapp/utils/testSchema')
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { CALL_RECORD_FRAGMENT_ERRORS } = require('@condo/domains/ticket/constants/errors')
 const { CallRecordFragment, createTestCallRecordFragment, updateTestCallRecordFragment, createTestTicket, createTestCallRecord } = require('@condo/domains/ticket/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 
 
 describe('CallRecordFragment', () => {
@@ -171,6 +177,132 @@ describe('CallRecordFragment', () => {
             test('can\'t delete', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await CallRecordFragment.delete(anonymous, callRecordFragmentByAdmin.id)
+                })
+            })
+        })
+
+        describe('Service user (B2B app)', () => {
+            let serviceOrganization, serviceProperty, serviceCallRecord, serviceTicket,
+                otherOrganization, otherProperty, otherFragment
+
+            beforeAll(async () => {
+                const [org] = await createTestOrganization(admin)
+                const [orgProperty] = await createTestProperty(admin, org)
+                const [anotherOrg] = await createTestOrganization(admin)
+                const [anotherOrgProperty] = await createTestProperty(admin, anotherOrg)
+                serviceOrganization = org
+                serviceProperty = orgProperty
+                otherOrganization = anotherOrg
+                otherProperty = anotherOrgProperty
+            })
+            beforeEach(async () => {
+                const [callRecord] = await createTestCallRecord(admin, serviceOrganization)
+                const [ticket] = await createTestTicket(admin, serviceOrganization, serviceProperty)
+                serviceCallRecord = callRecord
+                serviceTicket = ticket
+
+                const [otherCallRecord] = await createTestCallRecord(admin, otherOrganization)
+                const [otherTicket] = await createTestTicket(admin, otherOrganization, otherProperty)
+                const [fragment] = await createTestCallRecordFragment(admin, otherTicket, otherCallRecord)
+                otherFragment = fragment
+            })
+
+            async function makeServiceClient ({ canReadCallRecords = true, canManageCallRecords = false } = {}) {
+                const serviceClient = await makeClientWithServiceUser()
+                const [app] = await createTestB2BApp(admin)
+                await createTestB2BAppContext(admin, app, serviceOrganization, { status: 'Finished' })
+                const [accessRightSet] = await createTestB2BAppAccessRightSet(admin, app, {
+                    canReadOrganizations: true,
+                    canReadProperties: true,
+                    canReadTickets: true,
+                    canReadCallRecords,
+                    canManageCallRecords,
+                })
+                await createTestB2BAppAccessRight(admin, serviceClient.user, app, accessRightSet)
+                return serviceClient
+            }
+
+            describe('with canManageCallRecords', () => {
+                test('can create a fragment for the linked organization', async () => {
+                    const serviceClient = await makeServiceClient({ canManageCallRecords: true })
+
+                    const [fragment] = await createTestCallRecordFragment(serviceClient, serviceTicket, serviceCallRecord)
+
+                    expect(fragment).toHaveProperty('organization.id', serviceOrganization.id)
+                    expect(fragment).toHaveProperty('callRecord.id', serviceCallRecord.id)
+                })
+                test('can\'t create a fragment linked to another organization\'s call record', async () => {
+                    const serviceClient = await makeServiceClient({ canManageCallRecords: true })
+                    const [foreignCallRecord] = await createTestCallRecord(admin, otherOrganization)
+
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await createTestCallRecordFragment(serviceClient, serviceTicket, foreignCallRecord)
+                    })
+                })
+                test('can update a fragment of the linked organization', async () => {
+                    const serviceClient = await makeServiceClient({ canManageCallRecords: true })
+                    const [fragment] = await createTestCallRecordFragment(admin, serviceTicket, serviceCallRecord)
+
+                    const [updated] = await updateTestCallRecordFragment(serviceClient, fragment.id, { deletedAt: 'true' })
+
+                    expect(updated.deletedAt).toBeTruthy()
+                })
+                test('can\'t update a fragment of another organization', async () => {
+                    const serviceClient = await makeServiceClient({ canManageCallRecords: true })
+
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await updateTestCallRecordFragment(serviceClient, otherFragment.id, { deletedAt: 'true' })
+                    })
+                })
+                test('can\'t delete', async () => {
+                    const serviceClient = await makeServiceClient({ canManageCallRecords: true })
+                    const [fragment] = await createTestCallRecordFragment(admin, serviceTicket, serviceCallRecord)
+
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await CallRecordFragment.delete(serviceClient, fragment.id)
+                    })
+                })
+            })
+
+            describe('without canManageCallRecords', () => {
+                test('can\'t create', async () => {
+                    const serviceClient = await makeServiceClient()
+
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await createTestCallRecordFragment(serviceClient, serviceTicket, serviceCallRecord)
+                    })
+                })
+                test('can\'t update', async () => {
+                    const serviceClient = await makeServiceClient()
+                    const [fragment] = await createTestCallRecordFragment(admin, serviceTicket, serviceCallRecord)
+
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await updateTestCallRecordFragment(serviceClient, fragment.id, { deletedAt: 'true' })
+                    })
+                })
+            })
+
+            describe('with canReadCallRecords', () => {
+                test('can read fragments of the linked organization only', async () => {
+                    const serviceClient = await makeServiceClient({ canReadCallRecords: true })
+                    const [fragment] = await createTestCallRecordFragment(admin, serviceTicket, serviceCallRecord)
+
+                    const read = await CallRecordFragment.getOne(serviceClient, { id: fragment.id })
+                    expect(read).toHaveProperty('id', fragment.id)
+
+                    const foreign = await CallRecordFragment.getOne(serviceClient, { id: otherFragment.id })
+                    expect(foreign).toBeUndefined()
+                })
+            })
+
+            describe('without canReadCallRecords', () => {
+                test('can\'t read', async () => {
+                    const serviceClient = await makeServiceClient({ canManageCallRecords: true, canReadCallRecords: false })
+                    const [fragment] = await createTestCallRecordFragment(admin, serviceTicket, serviceCallRecord)
+
+                    await expectToThrowAccessDeniedErrorToObjects(async () => {
+                        await CallRecordFragment.getOne(serviceClient, { id: fragment.id })
+                    })
                 })
             })
         })
