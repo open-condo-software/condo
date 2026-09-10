@@ -17,7 +17,6 @@ const {
     createTestSubscriptionPlan,
     createTestSubscriptionPlanPricingRule,
     createTestSubscriptionContext,
-    updateTestSubscriptionContext,
     SubscriptionContext,
 } = require('@condo/domains/subscription/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
@@ -331,86 +330,8 @@ describe('RegisterSubscriptionContextsService', () => {
         })
     })
 
-    describe('Context Reuse Logic', () => {
-        test('reuses existing CREATED context for same startAt (today)', async () => {
-            const [firstRegisteredContext] = await registerSubscriptionContextsByTestClient(user, {
-                organization: { id: organization.id },
-                subscriptionPlanPricingRules: [{ id: pricingRule.id }],
-                isTrial: false,
-            })
-
-            const [sameRegisteredContext] = await registerSubscriptionContextsByTestClient(user, {
-                organization: { id: organization.id },
-                subscriptionPlanPricingRules: [{ id: pricingRule.id }],
-                isTrial: false,
-            })
-
-            expect(sameRegisteredContext.subscriptionContexts[0].id).toBe(firstRegisteredContext.subscriptionContexts[0].id)
-        })
-
-        test('reuses existing PENDING context from buffer period', async () => {
-            const [firstRegisteredContext] = await registerSubscriptionContextsByTestClient(user, {
-                organization: { id: organization.id },
-                subscriptionPlanPricingRules: [{ id: pricingRule.id }],
-                isTrial: false,
-            })
-
-            await updateTestSubscriptionContext(admin, firstRegisteredContext.subscriptionContexts[0].id, {
-                status: SUBSCRIPTION_CONTEXT_STATUS.PENDING,
-            })
-
-            const [sameRegisteredContext] = await registerSubscriptionContextsByTestClient(user, {
-                organization: { id: organization.id },
-                subscriptionPlanPricingRules: [{ id: pricingRule.id }],
-                isTrial: false,
-            })
-
-            expect(sameRegisteredContext.subscriptionContexts[0].id).toBe(firstRegisteredContext.subscriptionContexts[0].id)
-            expect(sameRegisteredContext.subscriptionContexts[0].status).toBe(SUBSCRIPTION_CONTEXT_STATUS.PENDING)
-        })
-
-        test('does not reuse PENDING context older than buffer period', async () => {
-            const bufferDays = 5
-            const oldDate = dayjs().subtract(bufferDays + 1, 'days').startOf('day').format('YYYY-MM-DD')
-            const [existingContext] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
-                startAt: oldDate,
-                endAt: dayjs(oldDate).add(1, 'month').format('YYYY-MM-DD'),
-                status: SUBSCRIPTION_CONTEXT_STATUS.PENDING,
-                isTrial: false,
-            })
-
-            const [result] = await registerSubscriptionContextsByTestClient(user, {
-                organization: { id: organization.id },
-                subscriptionPlanPricingRules: [{ id: pricingRule.id }],
-                isTrial: false,
-            })
-
-            expect(result.subscriptionContexts[0].id).not.toBe(existingContext.id)
-            expect(result.subscriptionContexts[0].status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
-        })
-
-        test('does not reuse ERROR context (final error status)', async () => {
-            const yesterday = dayjs().subtract(1, 'day').startOf('day').format('YYYY-MM-DD')
-            const [existingContext] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
-                startAt: yesterday,
-                endAt: dayjs(yesterday).add(1, 'month').format('YYYY-MM-DD'),
-                status: SUBSCRIPTION_CONTEXT_STATUS.ERROR,
-                isTrial: false,
-            })
-
-            const [result] = await registerSubscriptionContextsByTestClient(user, {
-                organization: { id: organization.id },
-                subscriptionPlanPricingRules: [{ id: pricingRule.id }],
-                isTrial: false,
-            })
-
-            expect(result.subscriptionContexts[0].id).not.toBe(existingContext.id)
-            expect(result.subscriptionContexts[0].status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
-        })
-
-        test('creates new context when no reusable context exists', async () => {
+    describe('Repeated registration', () => {
+        test('each call registers a fresh CREATED context', async () => {
             const [result] = await registerSubscriptionContextsByTestClient(user, {
                 organization: { id: organization.id },
                 subscriptionPlanPricingRules: [{ id: pricingRule.id }],
@@ -419,6 +340,27 @@ describe('RegisterSubscriptionContextsService', () => {
 
             expect(result.subscriptionContexts[0]).toBeDefined()
             expect(result.subscriptionContexts[0].status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
+        })
+
+        test('registering the same plan again creates an independent context and leaves the earlier one untouched', async () => {
+            const [first] = await registerSubscriptionContextsByTestClient(user, {
+                organization: { id: organization.id },
+                subscriptionPlanPricingRules: [{ id: pricingRule.id }],
+                isTrial: false,
+            })
+
+            const [second] = await registerSubscriptionContextsByTestClient(user, {
+                organization: { id: organization.id },
+                subscriptionPlanPricingRules: [{ id: pricingRule.id }],
+                isTrial: false,
+            })
+
+            expect(second.subscriptionContexts[0].id).not.toBe(first.subscriptionContexts[0].id)
+            expect(second.subscriptionContexts[0].invoice.id).not.toBe(first.subscriptionContexts[0].invoice.id)
+
+            const firstContext = await SubscriptionContext.getOne(admin, { id: first.subscriptionContexts[0].id })
+            expect(firstContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
+            expect(firstContext.deletedAt).toBeNull()
         })
     })
 
@@ -860,27 +802,7 @@ describe('RegisterSubscriptionContextsService', () => {
             expect(result.subscriptionContexts).toHaveLength(2)
         })
 
-        test('reuses the existing CREATED bundle when the same composition is registered again', async () => {
-            const [org] = await registerNewOrganization(user, { type: MANAGING_COMPANY_TYPE })
-
-            const [first] = await registerSubscriptionContextsByTestClient(user, {
-                organization: { id: org.id },
-                subscriptionPlanPricingRules: [{ id: serviceBundleRule.id }, { id: featureAiRule.id }],
-                isTrial: false,
-            })
-
-            const [second] = await registerSubscriptionContextsByTestClient(user, {
-                organization: { id: org.id },
-                subscriptionPlanPricingRules: [{ id: serviceBundleRule.id }, { id: featureAiRule.id }],
-                isTrial: false,
-            })
-
-            const firstIds = new Set(first.subscriptionContexts.map(ctx => ctx.id))
-            const secondIds = new Set(second.subscriptionContexts.map(ctx => ctx.id))
-            expect(secondIds).toEqual(firstIds)
-        })
-
-        test('supersedes the existing CREATED bundle when the composition changes', async () => {
+        test('registering the same bundle again creates an independent bundle and leaves the earlier one untouched', async () => {
             const [org] = await registerNewOrganization(user, { type: MANAGING_COMPANY_TYPE })
 
             const [first] = await registerSubscriptionContextsByTestClient(user, {
@@ -893,17 +815,17 @@ describe('RegisterSubscriptionContextsService', () => {
 
             const [second] = await registerSubscriptionContextsByTestClient(user, {
                 organization: { id: org.id },
-                subscriptionPlanPricingRules: [{ id: serviceBundleRule.id }, { id: featureSupportRule.id }],
+                subscriptionPlanPricingRules: [{ id: serviceBundleRule.id }, { id: featureAiRule.id }],
                 isTrial: false,
             })
 
+            const secondContextIds = new Set(second.subscriptionContexts.map(ctx => ctx.id))
             for (const oldContextId of firstContextIds) {
-                const stillAlive = await SubscriptionContext.getAll(admin, { id: oldContextId, deletedAt: null })
-                expect(stillAlive).toHaveLength(0)
+                expect(secondContextIds.has(oldContextId)).toBe(false)
+                const oldContext = await SubscriptionContext.getOne(admin, { id: oldContextId })
+                expect(oldContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
+                expect(oldContext.deletedAt).toBeNull()
             }
-
-            const secondPlanIds = second.subscriptionContexts.map(ctx => ctx.subscriptionPlan.id).sort()
-            expect(secondPlanIds).toEqual([serviceBundlePlan.id, featureSupportPlan.id].sort())
             expect(second.subscriptionContexts[0].invoice.id).not.toBe(firstInvoiceId)
         })
     })
