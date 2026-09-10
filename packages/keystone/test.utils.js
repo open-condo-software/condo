@@ -8,7 +8,6 @@ const path = require('path')
 const urlLib = require('url')
 
 const { ApolloClient, ApolloLink, InMemoryCache } = require('@apollo/client')
-const { RetryLink } = require('@apollo/client/link/retry')
 const { faker } = require('@faker-js/faker')
 const { createUploadLink } = require('apollo-upload-client')
 const axiosLib = require('axios')
