@@ -3300,6 +3300,8 @@ type B2BAppAccessRightSetHistoryRecord {
   canManageCustomValues: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
+  canReadCallRecords: Boolean
+  canManageCallRecords: Boolean
   canReadTicketComments: Boolean
   canManageTicketComments: Boolean
   canReadTicketFiles: Boolean
@@ -3440,6 +3442,10 @@ input B2BAppAccessRightSetHistoryRecordWhereInput {
   canReadTickets_not: Boolean
   canManageTickets: Boolean
   canManageTickets_not: Boolean
+  canReadCallRecords: Boolean
+  canReadCallRecords_not: Boolean
+  canManageCallRecords: Boolean
+  canManageCallRecords_not: Boolean
   canReadTicketComments: Boolean
   canReadTicketComments_not: Boolean
   canManageTicketComments: Boolean
@@ -3671,6 +3677,10 @@ enum SortB2BAppAccessRightSetHistoryRecordsBy {
   canReadTickets_DESC
   canManageTickets_ASC
   canManageTickets_DESC
+  canReadCallRecords_ASC
+  canReadCallRecords_DESC
+  canManageCallRecords_ASC
+  canManageCallRecords_DESC
   canReadTicketComments_ASC
   canReadTicketComments_DESC
   canManageTicketComments_ASC
@@ -3770,6 +3780,8 @@ input B2BAppAccessRightSetHistoryRecordUpdateInput {
   canManageCustomValues: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
+  canReadCallRecords: Boolean
+  canManageCallRecords: Boolean
   canReadTicketComments: Boolean
   canManageTicketComments: Boolean
   canReadTicketFiles: Boolean
@@ -3846,6 +3858,8 @@ input B2BAppAccessRightSetHistoryRecordCreateInput {
   canManageCustomValues: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
+  canReadCallRecords: Boolean
+  canManageCallRecords: Boolean
   canReadTicketComments: Boolean
   canManageTicketComments: Boolean
   canReadTicketFiles: Boolean
@@ -3951,6 +3965,8 @@ type B2BAppAccessRightSet {
   canManageCustomValues: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
+  canReadCallRecords: Boolean
+  canManageCallRecords: Boolean
   canReadTicketComments: Boolean
   canManageTicketComments: Boolean
   canReadTicketFiles: Boolean
@@ -4078,6 +4094,10 @@ input B2BAppAccessRightSetWhereInput {
   canReadTickets_not: Boolean
   canManageTickets: Boolean
   canManageTickets_not: Boolean
+  canReadCallRecords: Boolean
+  canReadCallRecords_not: Boolean
+  canManageCallRecords: Boolean
+  canManageCallRecords_not: Boolean
   canReadTicketComments: Boolean
   canReadTicketComments_not: Boolean
   canManageTicketComments: Boolean
@@ -4291,6 +4311,10 @@ enum SortB2BAppAccessRightSetsBy {
   canReadTickets_DESC
   canManageTickets_ASC
   canManageTickets_DESC
+  canReadCallRecords_ASC
+  canReadCallRecords_DESC
+  canManageCallRecords_ASC
+  canManageCallRecords_DESC
   canReadTicketComments_ASC
   canReadTicketComments_DESC
   canManageTicketComments_ASC
@@ -4390,6 +4414,8 @@ input B2BAppAccessRightSetUpdateInput {
   canManageCustomValues: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
+  canReadCallRecords: Boolean
+  canManageCallRecords: Boolean
   canReadTicketComments: Boolean
   canManageTicketComments: Boolean
   canReadTicketFiles: Boolean
@@ -4463,6 +4489,8 @@ input B2BAppAccessRightSetCreateInput {
   canManageCustomValues: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
+  canReadCallRecords: Boolean
+  canManageCallRecords: Boolean
   canReadTicketComments: Boolean
   canManageTicketComments: Boolean
   canReadTicketFiles: Boolean
