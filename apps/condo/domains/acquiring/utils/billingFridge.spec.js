@@ -195,5 +195,28 @@ describe('billingFridge', () => {
             expect(result).toHaveProperty('pricingRuleId', pricingRuleId)
             expect(result).toHaveProperty('multiPaymentId', multiPayment.id)
         })
+
+        test('should fall back to null payment method and multiPaymentId when there is no multiPayment', () => {
+            const invoice = {
+                id: 'invoice-id',
+                rows: [{ name: 'Service 1', toPay: '100.00', count: 1 }],
+                toPay: '100.00',
+                currencyCode: 'RUB',
+            }
+
+            const result = freezePaymentInfo(null, invoice, undefined)
+
+            expect(result).toEqual({
+                paymentMethod: null,
+                invoice: {
+                    id: invoice.id,
+                    rows: invoice.rows,
+                    toPay: invoice.toPay,
+                    currencyCode: invoice.currencyCode,
+                },
+                pricingRuleId: null,
+                multiPaymentId: null,
+            })
+        })
     })
 })
