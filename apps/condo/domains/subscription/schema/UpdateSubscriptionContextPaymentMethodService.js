@@ -13,7 +13,6 @@ const access = require('@condo/domains/subscription/access/UpdateSubscriptionCon
 const { SubscriptionPaymentAdapter } = require('@condo/domains/subscription/tasks/utils/SubscriptionPaymentAdapter')
 const { SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
 const { getSubscriptionPaymentRecipient } = require('@condo/domains/subscription/utils/serverSchema/getSubscriptionPaymentRecipient')
-const { findBundleContexts } = require('@condo/domains/subscription/utils/subscriptionContext')
 
 const logger = getLogger('UpdateSubscriptionContextPaymentMethodService')
 
@@ -74,7 +73,10 @@ const UpdateSubscriptionContextPaymentMethodService = new GQLCustomSchema('Updat
 
                 let targetContexts = [subscriptionContext]
                 if (invoiceId) {
-                    const bundleContexts = await findBundleContexts(invoiceId)
+                    const bundleContexts = await find('SubscriptionContext', {
+                        invoice: { id: invoiceId },
+                        deletedAt: null,
+                    })
                     if (bundleContexts.length > 0) {
                         targetContexts = bundleContexts
                     }
