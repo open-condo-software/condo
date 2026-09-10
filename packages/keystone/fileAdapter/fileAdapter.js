@@ -1,9 +1,11 @@
-const { existsSync, mkdirSync } = require('fs')
+const { createReadStream, existsSync, mkdirSync, promises: fsPromises } = require('fs')
+const path = require('node:path')
 
 const { LocalFileAdapter: BaseLocalFileAdapter } = require('@open-keystone/file-adapters')
 const express = require('express')
 const jwt = require('jsonwebtoken')
-const { isEmpty, get } = require('lodash')
+const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
 
 const conf = require('@open-condo/config')
 const { AwsFileAdapter, AWSFilesMiddleware } = require('@open-condo/keystone/fileAdapter/awsFileAdapter')
@@ -38,6 +40,39 @@ class LocalFileAdapter extends BaseLocalFileAdapter {
         super({ src, path, getFilename })
         this.mediaPath = mediaPath
         this._appClients = conf['FILE_UPLOAD_CONFIG'] ? get(JSON.parse(conf['FILE_UPLOAD_CONFIG']), 'clients', {}) : {}
+    }
+
+    isFilePathValid (filePath) {
+        // https://semgrep.dev/r?q=javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+        return filePath.indexOf(this.src) === 0
+    }
+
+    getFilePath (file) {
+        const pathToFile = path.join(this.src, file.filename)
+        if (!this.isFilePathValid(pathToFile)) {
+            throw new Error('Invalid path, may be path traversal attempt')
+        }
+        return pathToFile
+    }
+
+    async getFileSize (file) {
+        const stat = await fsPromises.stat(this.getFilePath(file))
+        return stat.size
+    }
+
+    async readRange (file, offset, length) {
+        const handle = await fsPromises.open(this.getFilePath(file), 'r')
+        try {
+            const buffer = Buffer.alloc(length)
+            const { bytesRead } = await handle.read(buffer, 0, length, offset)
+            return buffer.subarray(0, bytesRead)
+        } finally {
+            await handle.close()
+        }
+    }
+
+    createReadStream (file) {
+        return createReadStream(this.getFilePath(file))
     }
 
     publicUrl ({ filename, ...props }, user) {
@@ -260,3 +295,4 @@ module.exports = FileAdapter
 exports = module.exports
 exports.getFileMetaAfterChange = getFileMetaAfterChange
 exports.getFileServicePublicOrigin = getFileServicePublicOrigin
+exports.LocalFileAdapter = LocalFileAdapter
