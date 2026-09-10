@@ -80136,16 +80136,16 @@ type B2BAppAccessRightSetHistoryRecord {
   canManageProperties: Boolean
   canReadCustomValues: Boolean
   canManageCustomValues: Boolean
-  canReadTickets: Boolean
-  canManageTickets: Boolean
   canReadCallRecords: Boolean
   canManageCallRecords: Boolean
+  canReadTickets: Boolean
+  canManageTickets: Boolean
   canReadTicketComments: Boolean
   canManageTicketComments: Boolean
-  canReadTicketFiles: Boolean
-  canManageTicketFiles: Boolean
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
+  canReadTicketFiles: Boolean
+  canManageTicketFiles: Boolean
   canReadNewsItems: Boolean
   canManageNewsItems: Boolean
   canReadNewsItemScopes: Boolean
@@ -80294,26 +80294,26 @@ input B2BAppAccessRightSetHistoryRecordWhereInput {
   canReadCustomValues_not: Boolean
   canManageCustomValues: Boolean
   canManageCustomValues_not: Boolean
-  canReadTickets: Boolean
-  canReadTickets_not: Boolean
-  canManageTickets: Boolean
-  canManageTickets_not: Boolean
   canReadCallRecords: Boolean
   canReadCallRecords_not: Boolean
   canManageCallRecords: Boolean
   canManageCallRecords_not: Boolean
+  canReadTickets: Boolean
+  canReadTickets_not: Boolean
+  canManageTickets: Boolean
+  canManageTickets_not: Boolean
   canReadTicketComments: Boolean
   canReadTicketComments_not: Boolean
   canManageTicketComments: Boolean
   canManageTicketComments_not: Boolean
-  canReadTicketFiles: Boolean
-  canReadTicketFiles_not: Boolean
-  canManageTicketFiles: Boolean
-  canManageTicketFiles_not: Boolean
   canReadTicketCommentFiles: Boolean
   canReadTicketCommentFiles_not: Boolean
   canManageTicketCommentFiles: Boolean
   canManageTicketCommentFiles_not: Boolean
+  canReadTicketFiles: Boolean
+  canReadTicketFiles_not: Boolean
+  canManageTicketFiles: Boolean
+  canManageTicketFiles_not: Boolean
   canReadNewsItems: Boolean
   canReadNewsItems_not: Boolean
   canManageNewsItems: Boolean
@@ -80541,26 +80541,26 @@ enum SortB2BAppAccessRightSetHistoryRecordsBy {
   canReadCustomValues_DESC
   canManageCustomValues_ASC
   canManageCustomValues_DESC
-  canReadTickets_ASC
-  canReadTickets_DESC
-  canManageTickets_ASC
-  canManageTickets_DESC
   canReadCallRecords_ASC
   canReadCallRecords_DESC
   canManageCallRecords_ASC
   canManageCallRecords_DESC
+  canReadTickets_ASC
+  canReadTickets_DESC
+  canManageTickets_ASC
+  canManageTickets_DESC
   canReadTicketComments_ASC
   canReadTicketComments_DESC
   canManageTicketComments_ASC
   canManageTicketComments_DESC
-  canReadTicketFiles_ASC
-  canReadTicketFiles_DESC
-  canManageTicketFiles_ASC
-  canManageTicketFiles_DESC
   canReadTicketCommentFiles_ASC
   canReadTicketCommentFiles_DESC
   canManageTicketCommentFiles_ASC
   canManageTicketCommentFiles_DESC
+  canReadTicketFiles_ASC
+  canReadTicketFiles_DESC
+  canManageTicketFiles_ASC
+  canManageTicketFiles_DESC
   canReadNewsItems_ASC
   canReadNewsItems_DESC
   canManageNewsItems_ASC
@@ -80655,16 +80655,16 @@ input B2BAppAccessRightSetHistoryRecordUpdateInput {
   canManageProperties: Boolean
   canReadCustomValues: Boolean
   canManageCustomValues: Boolean
-  canReadTickets: Boolean
-  canManageTickets: Boolean
   canReadCallRecords: Boolean
   canManageCallRecords: Boolean
+  canReadTickets: Boolean
+  canManageTickets: Boolean
   canReadTicketComments: Boolean
   canManageTicketComments: Boolean
-  canReadTicketFiles: Boolean
-  canManageTicketFiles: Boolean
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
+  canReadTicketFiles: Boolean
+  canManageTicketFiles: Boolean
   canReadNewsItems: Boolean
   canManageNewsItems: Boolean
   canReadNewsItemScopes: Boolean
@@ -80742,16 +80742,16 @@ input B2BAppAccessRightSetHistoryRecordCreateInput {
   canManageProperties: Boolean
   canReadCustomValues: Boolean
   canManageCustomValues: Boolean
-  canReadTickets: Boolean
-  canManageTickets: Boolean
   canReadCallRecords: Boolean
   canManageCallRecords: Boolean
+  canReadTickets: Boolean
+  canManageTickets: Boolean
   canReadTicketComments: Boolean
   canManageTicketComments: Boolean
-  canReadTicketFiles: Boolean
-  canManageTicketFiles: Boolean
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
+  canReadTicketFiles: Boolean
+  canManageTicketFiles: Boolean
   canReadNewsItems: Boolean
   canManageNewsItems: Boolean
   canReadNewsItemScopes: Boolean
@@ -80882,16 +80882,16 @@ type B2BAppAccessRightSet {
   canManageProperties: Boolean
   canReadCustomValues: Boolean
   canManageCustomValues: Boolean
-  canReadTickets: Boolean
-  canManageTickets: Boolean
   canReadCallRecords: Boolean
   canManageCallRecords: Boolean
+  canReadTickets: Boolean
+  canManageTickets: Boolean
   canReadTicketComments: Boolean
   canManageTicketComments: Boolean
-  canReadTicketFiles: Boolean
-  canManageTicketFiles: Boolean
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
+  canReadTicketFiles: Boolean
+  canManageTicketFiles: Boolean
   canReadNewsItems: Boolean
   canManageNewsItems: Boolean
   canReadNewsItemScopes: Boolean
@@ -81039,26 +81039,26 @@ input B2BAppAccessRightSetWhereInput {
   canReadCustomValues_not: Boolean
   canManageCustomValues: Boolean
   canManageCustomValues_not: Boolean
-  canReadTickets: Boolean
-  canReadTickets_not: Boolean
-  canManageTickets: Boolean
-  canManageTickets_not: Boolean
   canReadCallRecords: Boolean
   canReadCallRecords_not: Boolean
   canManageCallRecords: Boolean
   canManageCallRecords_not: Boolean
+  canReadTickets: Boolean
+  canReadTickets_not: Boolean
+  canManageTickets: Boolean
+  canManageTickets_not: Boolean
   canReadTicketComments: Boolean
   canReadTicketComments_not: Boolean
   canManageTicketComments: Boolean
   canManageTicketComments_not: Boolean
-  canReadTicketFiles: Boolean
-  canReadTicketFiles_not: Boolean
-  canManageTicketFiles: Boolean
-  canManageTicketFiles_not: Boolean
   canReadTicketCommentFiles: Boolean
   canReadTicketCommentFiles_not: Boolean
   canManageTicketCommentFiles: Boolean
   canManageTicketCommentFiles_not: Boolean
+  canReadTicketFiles: Boolean
+  canReadTicketFiles_not: Boolean
+  canManageTicketFiles: Boolean
+  canManageTicketFiles_not: Boolean
   canReadNewsItems: Boolean
   canReadNewsItems_not: Boolean
   canManageNewsItems: Boolean
@@ -81268,26 +81268,26 @@ enum SortB2BAppAccessRightSetsBy {
   canReadCustomValues_DESC
   canManageCustomValues_ASC
   canManageCustomValues_DESC
-  canReadTickets_ASC
-  canReadTickets_DESC
-  canManageTickets_ASC
-  canManageTickets_DESC
   canReadCallRecords_ASC
   canReadCallRecords_DESC
   canManageCallRecords_ASC
   canManageCallRecords_DESC
+  canReadTickets_ASC
+  canReadTickets_DESC
+  canManageTickets_ASC
+  canManageTickets_DESC
   canReadTicketComments_ASC
   canReadTicketComments_DESC
   canManageTicketComments_ASC
   canManageTicketComments_DESC
-  canReadTicketFiles_ASC
-  canReadTicketFiles_DESC
-  canManageTicketFiles_ASC
-  canManageTicketFiles_DESC
   canReadTicketCommentFiles_ASC
   canReadTicketCommentFiles_DESC
   canManageTicketCommentFiles_ASC
   canManageTicketCommentFiles_DESC
+  canReadTicketFiles_ASC
+  canReadTicketFiles_DESC
+  canManageTicketFiles_ASC
+  canManageTicketFiles_DESC
   canReadNewsItems_ASC
   canReadNewsItems_DESC
   canManageNewsItems_ASC
@@ -81382,16 +81382,16 @@ input B2BAppAccessRightSetUpdateInput {
   canManageProperties: Boolean
   canReadCustomValues: Boolean
   canManageCustomValues: Boolean
-  canReadTickets: Boolean
-  canManageTickets: Boolean
   canReadCallRecords: Boolean
   canManageCallRecords: Boolean
+  canReadTickets: Boolean
+  canManageTickets: Boolean
   canReadTicketComments: Boolean
   canManageTicketComments: Boolean
-  canReadTicketFiles: Boolean
-  canManageTicketFiles: Boolean
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
+  canReadTicketFiles: Boolean
+  canManageTicketFiles: Boolean
   canReadNewsItems: Boolean
   canManageNewsItems: Boolean
   canReadNewsItemScopes: Boolean
@@ -81466,16 +81466,16 @@ input B2BAppAccessRightSetCreateInput {
   canManageProperties: Boolean
   canReadCustomValues: Boolean
   canManageCustomValues: Boolean
-  canReadTickets: Boolean
-  canManageTickets: Boolean
   canReadCallRecords: Boolean
   canManageCallRecords: Boolean
+  canReadTickets: Boolean
+  canManageTickets: Boolean
   canReadTicketComments: Boolean
   canManageTicketComments: Boolean
-  canReadTicketFiles: Boolean
-  canManageTicketFiles: Boolean
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
+  canReadTicketFiles: Boolean
+  canManageTicketFiles: Boolean
   canReadNewsItems: Boolean
   canManageNewsItems: Boolean
   canReadNewsItemScopes: Boolean
