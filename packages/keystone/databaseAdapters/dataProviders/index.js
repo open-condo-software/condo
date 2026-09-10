@@ -7,11 +7,8 @@ const {
 const { KvDataProvider } = require('./kv')
 const {
     applyItemsQueryToRows,
-    providerSupportsCreate,
-    providerSupportsDelete,
     providerSupportsFind,
     providerSupportsItemsQuery,
-    providerSupportsUpdate,
 } = require('./providerMethods')
 
 /**
@@ -38,6 +35,8 @@ const REGISTERED_DATA_PROVIDER_NAMES = Object.freeze(Object.keys(SOURCE_PROVIDER
 const _instances = Object.create(null)
 
 /**
+ * Provider instance by registered name (`kv`, …).
+ *
  * @param {string} providerName registered provider key (`kv`, …)
  * @returns {object|null}
  */
@@ -82,19 +81,14 @@ function isDataProviderPool (poolName, poolsConfig) {
 
 module.exports = {
     getDataProvider,
-    isRegisteredDataProvider,
     isDataProviderPool,
     resolvePoolProvider,
-    SOURCE_PROVIDERS,
     REGISTERED_DATA_PROVIDER_NAMES,
     executeProviderSqlMutation,
     executeProviderSqlSelect,
     extractMutationWhereIds,
     extractSimpleSelectCondition,
     applyItemsQueryToRows,
-    providerSupportsCreate,
-    providerSupportsDelete,
     providerSupportsFind,
     providerSupportsItemsQuery,
-    providerSupportsUpdate,
 }

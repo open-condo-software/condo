@@ -53,9 +53,8 @@ function _normalizeInsertValueGroups (insertValues) {
 }
 
 /**
- * @param {string} sql
- * @param {Array} bindings
- * @returns {Array<Record<string, *>>}
+ * Column values from INSERT/UPDATE SQL (one object per row).
+ * Used to read FK columns before a mutation hits a remote pool.
  */
 function extractMutationColumnValues (sql, bindings = []) {
     let ast = parser.astify(normalizePositionalBindings(sql))
@@ -95,8 +94,8 @@ function _iterRelationshipFieldAdapters (listAdapter) {
 }
 
 /**
- * @param {{ listKey: string, listAdapter: object, tablePoolResolver: object }} options
- * @returns {Array<{ columnName: string, refListKey: string }>}
+ * FK columns on `listKey` that point at a list on another pool.
+ * Example: Message.user → User when Message is on `message` and User on `main`.
  */
 function collectCrossSourceForeignKeys ({ listKey, listAdapter, tablePoolResolver }) {
     const baseSource = tablePoolResolver.resolveTablePool(listKey)
@@ -124,15 +123,8 @@ function _isPresentFkValue (value) {
 }
 
 /**
- * @param {object} options
- * @param {string} options.tableName
- * @param {object} options.listAdapter
- * @param {string} options.sql
- * @param {Array} [options.bindings]
- * @param {string} options.sqlOperationName
- * @param {object} options.tablePoolResolver
- * @param {(poolName: string) => object} options.getPoolByName
- * @returns {Promise<void>}
+ * Before INSERT/UPDATE, fail if a cross-pool FK value is missing on the related pool.
+ * Example: inserting Message.user = 'missing-id' when User lives on `main`.
  */
 async function validateCrossSourceReferences ({
     tableName,

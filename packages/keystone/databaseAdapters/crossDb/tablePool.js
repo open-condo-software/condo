@@ -27,6 +27,10 @@ function _findTablePoolTarget (tableName, routingRules) {
 }
 
 /**
+ * Pool that stores `tableName` for cross-db ownership (planner / FK checks).
+ * First `tableName` routing rule wins; otherwise `defaultPool`.
+ * Not the pool that executes a given SQL (`_selectTargetPoolName`).
+ *
  * @param {object} options
  * @param {string} options.tableName
  * @param {Array} [options.routingRules]
@@ -38,6 +42,8 @@ function resolveTablePool ({ tableName, routingRules, defaultPool }) {
 }
 
 /**
+ * Build a resolver from routing rules + pool config (used after adapter connect).
+ *
  * @param {{ routingRules: Array, replicaPoolsConfig: object }} options
  * @returns {{ defaultPool: string, resolveTablePool: (tableName: string) => string }}
  */
@@ -60,6 +66,8 @@ function createTablePoolResolver ({ routingRules, replicaPoolsConfig }) {
 }
 
 /**
+ * Adapter's table-home resolver, or `{ resolveTablePool: () => 'main' }` when missing.
+ *
  * @param {object} [adapter]
  * @returns {{ defaultPool: string, resolveTablePool: (tableName: string) => string }}
  */

@@ -119,10 +119,9 @@ Postgres pools use `databases: [...]`. Provider pools use `provider: "<name>"` a
 
 Dual entry points:
 
-- `schema.js` → `executeFind` / `executeItemsQuery` (raw reads only; no public raw mutations)
-- GraphQL/knex SQL → `_patchKnexRunner` → `executeProviderSqlSelect` / `executeProviderSqlMutation`
-  (mutations keep Keystone access / validateInput / change hooks; adapter `executeCreate` /
-  `executeUpdate` / `executeDelete` stay internal for provider tests and runner helpers)
+- `schema.find` / `schema.itemsQuery` → `executeFind` / `executeItemsQuery` (raw reads)
+- GraphQL mutations → Keystone hooks → knex SQL → `_patchKnexRunner` →
+  `executeProviderSqlSelect` / `executeProviderSqlMutation`
 
 ## How to add a new balancing adapter variant
 
@@ -165,7 +164,7 @@ mutation SQL
 yarn workspace @open-condo/keystone test databaseAdapters/
 
 # GraphQL cross-db planner
-yarn workspace @app/condo test domains/common/utils/serverSchema/index.spec.js
+yarn workspace @open-condo/keystone test databaseAdapters/crossDb/planner.spec.js
 ```
 
 ## Local dev preset

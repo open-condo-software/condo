@@ -167,6 +167,10 @@ function transformByPreprocessors (preprocessors, schemaType, name, schema) {
     }, schema)
 }
 
+/**
+ * Raw list read (no access / hooks). Prefer GraphQL when authorization matters.
+ * With BalancingReplicaKnexAdapter, KV-backed lists go through `executeFind`.
+ */
 async function find (schemaName, condition) {
     if (!SCHEMAS.has(schemaName)) throw new Error(`Schema ${schemaName} is not registered yet`)
     if (SCHEMAS.get(schemaName)._type !== GQL_LIST_SCHEMA_TYPE) throw new Error(`Schema ${schemaName} type != ${GQL_LIST_SCHEMA_TYPE}`)
@@ -185,7 +189,8 @@ async function find (schemaName, condition) {
 }
 
 /**
- * This function allows you to more flexibly specify a selection of records or get their number.
+ * Flexible list read (no access / hooks). `meta: true` returns `{ count }`.
+ * With BalancingReplicaKnexAdapter, KV-backed lists go through `executeItemsQuery`.
  *
  * @param {string} schemaName
  * @param args

@@ -49,6 +49,7 @@ class KvDataProvider {
         return Boolean(this._resolveFindByIdQuery(condition))
     }
 
+    /** Load documents by `{ id }`, `{ id_in }`, optional `deletedAt: null`. */
     async find ({ schemaName, condition = {} } = {}) {
         const findQuery = this._resolveFindByIdQuery(condition)
         if (!findQuery) {
@@ -75,6 +76,7 @@ class KvDataProvider {
         return objects.filter(item => get(item, 'deletedAt', null) === null)
     }
 
+    /** SET NX `{SchemaName}:id` → JSON. Fails if the key already exists. */
     async create ({ schemaName, data }) {
         if (!data?.id) {
             throw new Error(`KV create for ${schemaName} requires data.id`)
@@ -90,6 +92,7 @@ class KvDataProvider {
         return data
     }
 
+    /** Merge `data` into the stored document (atomic Lua GET/SET). */
     async update ({ schemaName, id, data }) {
         if (!id) {
             throw new Error(`KV update for ${schemaName} requires id`)

@@ -343,14 +343,12 @@ describe('BalancingReplicaKnexAdapter KV delegation', () => {
         getKVClient.mockReturnValue(createKvStore({}, 'CachedUser'))
     })
 
-    test('executeCreate and executeFind persist CachedUser in KV without touching postgres adapter', async () => {
-        const row = await adapter.executeCreate({
+    test('executeFind reads CachedUser from KV without touching postgres adapter', async () => {
+        const provider = new KvDataProvider()
+        await provider.create({
             schemaName: 'CachedUser',
             data: { id: 'cached-2', name: 'From adapter', deletedAt: null },
-            listAdapter,
         })
-
-        expect(row).toEqual({ id: 'cached-2', name: 'From adapter', deletedAt: null })
 
         const rows = await adapter.executeFind({
             schemaName: 'CachedUser',
@@ -359,7 +357,6 @@ describe('BalancingReplicaKnexAdapter KV delegation', () => {
         })
 
         expect(rows).toEqual([{ id: 'cached-2', name: 'From adapter', deletedAt: null }])
-        expect(listAdapter._create).not.toHaveBeenCalled()
         expect(listAdapter.find).not.toHaveBeenCalled()
     })
 

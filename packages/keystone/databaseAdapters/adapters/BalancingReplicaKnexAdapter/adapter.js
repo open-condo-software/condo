@@ -20,11 +20,8 @@ const {
     executeProviderSqlSelect,
     getDataProvider,
     isDataProviderPool,
-    providerSupportsCreate,
-    providerSupportsDelete,
     providerSupportsFind,
     providerSupportsItemsQuery,
-    providerSupportsUpdate,
     resolvePoolProvider,
 } = require('@open-condo/keystone/databaseAdapters/dataProviders')
 const { createKmigratorKnexAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
@@ -50,6 +47,12 @@ const { extractCRUDQueryData } = require('./utils/sql')
  * @extends KnexAdapter
  */
 class BalancingReplicaKnexAdapter extends KnexAdapter {
+    /**
+     * @param {object} [options]
+     * @param {string} [options.databaseUrl] `custom:{...}` named Postgres URLs
+     * @param {object} [options.replicaPools] `DATABASE_POOLS` map
+     * @param {Array} [options.routingRules] `DATABASE_ROUTING_RULES`
+     */
     constructor ({ databaseUrl, replicaPools, routingRules }) {
         super()
         this._dbConnections = getNamedDBs(databaseUrl || conf['DATABASE_URL'])
@@ -59,12 +62,17 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
         this._tablePoolResolver = null
     }
 
-    /** @returns {{ defaultPool: string, resolveTablePool: (tableName: string) => string }} */
+    /**
+     * Home-pool map used by planner / FK checks (`tableName` rule, else default).
+     * Independent of which pool runs a given SQL statement.
+     *
+     * @returns {{ defaultPool: string, resolveTablePool: (tableName: string) => string }|null}
+     */
     getTablePoolResolver () {
         return this._tablePoolResolver
     }
 
-    /** @returns {Promise<Record<string, import('knex').Knex>>} */
+    /** Open one knex client per named URL in `DATABASE_URL`. */
     async _initKnexClients () {
         const dbNames = Object.keys(this._dbConnections)
         const maxConnections = conf['DATABASE_POOL_MAX'] ? parseInt(conf['DATABASE_POOL_MAX']) : 3
@@ -251,7 +259,10 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
         return directResult.rows || directResult
     }
 
-    /** @returns {import('../../dataProviders/kv').KvDataProvider|null} */
+    /**
+     * Non-SQL provider for this list, or `null` when the table lives on Postgres.
+     * Example: CachedUser routed to `kv` → `KvDataProvider`.
+     */
     _getProviderForSchema (schemaName) {
         if (!this._tablePoolResolver) return null
 
@@ -261,6 +272,10 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
         return getDataProvider(resolvePoolProvider(poolName, this._replicaPoolsConfig))
     }
 
+    /**
+     * Knex-shaped runner for provider pools: parse Keystone SQL, call provider CRUD.
+     * SELECT → `executeProviderSqlSelect`; INSERT/UPDATE/DELETE → `executeProviderSqlMutation`.
+     */
     _createProviderSqlRunner ({
         providerPool,
         finalTableName,
@@ -268,8 +283,6 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
         sqlObject,
         sqlQueryWithPositionalBindings,
         needsCrossSourceValidation,
-        gqlOperationType,
-        gqlOperationName,
     }) {
         const provider = getDataProvider(providerPool.providerName)
         if (!provider) {
@@ -355,8 +368,6 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
                         sqlObject,
                         sqlQueryWithPositionalBindings,
                         needsCrossSourceValidation,
-                        gqlOperationType,
-                        gqlOperationName,
                     })
                 }
 
@@ -406,6 +417,10 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
         }
     }
 
+    /**
+     * Build pools, table-home resolver, and the Keystone compatibility knex stub.
+     * Real query routing is installed by `_patchKnexRunner`.
+     */
     async _connect () {
         this._knexClients = await this._initKnexClients()
         this._replicaPools = Object.fromEntries(
@@ -458,6 +473,11 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
         return result
     }
 
+    /**
+     * Wrap list `find` / `itemsQuery` so GraphQL `where` with cross-pool relation
+     * filters is rewritten (`user: { name_contains }` → `user: { id_in }`) before SQL.
+     * Main-pool-only lists are left unchanged.
+     */
     _wrapListAdaptersWithCrossDbWhere () {
         if (this._crossDbWhereWrapped) return
         this._crossDbWhereWrapped = true
@@ -498,8 +518,8 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
     }
 
     /**
-     * Delegates find to a registered data provider when the table is on a provider pool.
-     * Used by `schema.find` / `schema.itemsQuery` (raw reads by design).
+     * Raw read used by `schema.find`. Provider-backed tables (KV) skip Postgres.
+     * Does not run Keystone access / hooks — same contract as listAdapter.find.
      */
     async executeFind ({ schemaName, condition, listAdapter }) {
         const where = await prepareCrossDbWhere({ listKey: schemaName, where: condition, adapter: this })
@@ -512,6 +532,10 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
         return listAdapter.find(where)
     }
 
+    /**
+     * Raw read used by `schema.itemsQuery` (`first`/`skip`/`sortBy`, optional `{ count }`).
+     * Unsupported KV filters fall back to the Postgres list adapter.
+     */
     async executeItemsQuery ({ schemaName, args, meta, from, listAdapter }) {
         const where = await prepareCrossDbWhere({ listKey: schemaName, where: args?.where, adapter: this })
         if (isUnsatisfiableWhere(where)) {
@@ -526,36 +550,6 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
 
         const rows = await provider.find({ schemaName, condition: nextArgs.where || {} })
         return meta ? { count: rows.length } : applyItemsQueryToRows(rows, nextArgs)
-    }
-
-    /**
-     * Provider-pool write helpers for the knex runner / internal adapter use.
-     * Not exposed via `@open-condo/keystone/schema` — app mutations must go through
-     * GraphQL / Keystone list APIs so access, validateInput, and change hooks run.
-     * Production KV writes: GraphQL → SQL → `_patchKnexRunner` → `executeProviderSqlMutation`.
-     */
-    async executeCreate ({ schemaName, data, listAdapter }) {
-        const provider = this._getProviderForSchema(schemaName)
-        if (providerSupportsCreate(provider)) {
-            return provider.create({ schemaName, data })
-        }
-        return listAdapter._create(data)
-    }
-
-    async executeUpdate ({ schemaName, id, data, listAdapter }) {
-        const provider = this._getProviderForSchema(schemaName)
-        if (providerSupportsUpdate(provider)) {
-            return provider.update({ schemaName, id, data })
-        }
-        return listAdapter._update(id, data)
-    }
-
-    async executeDelete ({ schemaName, id, listAdapter }) {
-        const provider = this._getProviderForSchema(schemaName)
-        if (providerSupportsDelete(provider)) {
-            return provider.delete({ schemaName, id })
-        }
-        return listAdapter._delete(id)
     }
 
     /**
@@ -595,6 +589,7 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
         }))
     }
 
+    /** Require Postgres `minVer` on every named knex client (not only the stub). */
     async checkDatabaseVersion () {
         async function checkKnexDBVersion (knex, minVersion) {
             let version

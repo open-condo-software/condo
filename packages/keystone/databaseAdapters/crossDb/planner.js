@@ -74,10 +74,15 @@ class CrossDbPlanner {
         return isCrossDbPlannerEnabled()
     }
 
+    /** True if this list has at least one FK whose related table lives on another pool. */
     hasCrossSourceRelations () {
         return this.singleRelations.some(([model]) => this._isCrossSourceRelation(model))
     }
 
+    /**
+     * Rewrite GraphQL `where` so cross-pool relation filters become local id lists.
+     * Example: `{ user: { name_contains: 'x' } }` → `{ user: { id_in: [...] } }`.
+     */
     async prepareWhere (initialWhere) {
         if (!this.isEnabled() || !initialWhere || typeof initialWhere !== 'object') {
             return initialWhere
@@ -88,6 +93,10 @@ class CrossDbPlanner {
         return this._rewriteWhereNode(initialWhere, this._getRelationMap())
     }
 
+    /**
+     * Attach related rows from other pools onto already-loaded base objects.
+     * Used by `GqlWithKnexLoadList` after the main-table page is fetched.
+     */
     async loadChunk (mainTableObjects) {
         logger.info({
             msg: 'cross-db relation planner path selected',
@@ -107,6 +116,10 @@ class CrossDbPlanner {
         return this._applyMultipleRelations(hydrated)
     }
 
+    /**
+     * Ids of `model` rows matching `relationWhere`, paged via `getItems`.
+     * Cached per planner instance; used to rewrite nested relation filters.
+     */
     async loadRelatedIds (model, relationWhere) {
         const cacheKey = `${model}:${JSON.stringify(relationWhere)}`
         if (this._relationIdsCache.has(cacheKey)) {

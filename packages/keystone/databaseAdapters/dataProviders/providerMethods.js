@@ -12,18 +12,7 @@ function providerSupportsFind (provider, condition = {}) {
     return true
 }
 
-function providerSupportsCreate (provider) {
-    return typeof provider?.create === 'function'
-}
-
-function providerSupportsUpdate (provider) {
-    return typeof provider?.update === 'function'
-}
-
-function providerSupportsDelete (provider) {
-    return typeof provider?.delete === 'function'
-}
-
+/** True when the provider can serve this itemsQuery (no `search`; find filters must match). */
 function providerSupportsItemsQuery (provider, args = {}) {
     if (!providerSupportsFind(provider, args.where || {})) {
         return false
@@ -42,6 +31,7 @@ function _splitSortKey (sortKey) {
     return [sortKey.slice(0, boundary), sortKey.slice(boundary + 1) || 'ASC']
 }
 
+/** In-memory `sortBy` / `skip` / `first` over provider `find` rows (Postgres-like NULLS LAST). */
 function applyItemsQueryToRows (rows, args = {}) {
     let result = [...rows]
     const sortBy = args.sortBy || (args.orderBy ? [args.orderBy] : null)
@@ -77,9 +67,6 @@ function applyItemsQueryToRows (rows, args = {}) {
 
 module.exports = {
     providerSupportsFind,
-    providerSupportsCreate,
-    providerSupportsUpdate,
-    providerSupportsDelete,
     providerSupportsItemsQuery,
     applyItemsQueryToRows,
 }

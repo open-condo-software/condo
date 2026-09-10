@@ -54,9 +54,8 @@ function _parseMutationAst (sql) {
 }
 
 /**
- * @param {string} sql
- * @param {Array} bindings
- * @returns {string[]}
+ * Ids from UPDATE/DELETE `WHERE id = …` / `WHERE id IN (…)`.
+ * Used to apply Keystone mutation SQL onto a provider row.
  */
 function extractMutationWhereIds (sql, bindings = []) {
     const ast = _parseMutationAst(sql)
