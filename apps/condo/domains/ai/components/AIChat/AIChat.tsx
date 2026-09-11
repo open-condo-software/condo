@@ -721,6 +721,7 @@ export const AIChat: React.FC<AIChatProps> = ({
                                     message={assistantMessage}
                                     onSuggestionClick={handleSuggestionButtonClick}
                                     canExecuteAIFlow={canExecuteAIFlow}
+                                    aiSessionId={aiSessionId}
                                 />
                             )}
                         </div>
@@ -735,7 +736,10 @@ export const AIChat: React.FC<AIChatProps> = ({
                 canSendMessage={canSendMessage}
                 inputRef={inputRef}
                 inputValue={inputValue}
-                onInputChange={(val) => { setInputValue(val); onInputChange?.(val) }}
+                onInputChange={(val) => {
+                    setInputValue(val)
+                    onInputChange?.(val)
+                }}
                 onInputKeyDown={handleComposerKeyDown}
                 onSendMessage={handleSendMessage}
                 placeholder={placeholder}

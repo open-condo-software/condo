@@ -7,7 +7,7 @@
     );
 
   /* Keep equal to .messages-container gap so previous-turn chips pin under the header. */
-  --ai-chat-chrome-gap: var(--condo-global-spacing-12);
+  --ai-chat-chrome-gap: var(--condo-global-spacing-32);
 
   position: fixed;
   top: 0;

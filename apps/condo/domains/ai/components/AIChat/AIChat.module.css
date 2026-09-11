@@ -17,7 +17,7 @@
   position: absolute;
   display: flex;
   flex-direction: column;
-  gap: var(--condo-global-spacing-12);
+  gap: var(--condo-global-spacing-32);
   width: 100%;
   min-width: 0;
   padding:
@@ -159,7 +159,7 @@
 .turn {
   display: flex;
   flex-direction: column;
-  gap: var(--condo-global-spacing-24);
+  gap: var(--condo-global-spacing-32);
 }
 
 .turn[data-active="true"] {
@@ -174,7 +174,7 @@
 .assistant-a2ui {
   width: 100%;
   max-width: 1200px;
-  margin: var(--condo-global-spacing-4) auto 0;
+  margin: 0 auto;
 }
 
 .assistant-markdown {

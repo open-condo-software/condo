@@ -27,10 +27,12 @@ export function extractA2UIMessages (answer: string): ParsedA2UIAnswer {
             try {
                 const parsed = JSON.parse(line) as A2uiMessage
                 if (parsed && typeof parsed === 'object') {
-                    const hasKnownKey = Object.keys(parsed).some(k => A2UI_MESSAGE_KEYS.has(k))
-                    if (hasKnownKey) {
+                    const knownKey = Object.keys(parsed).find(k => A2UI_MESSAGE_KEYS.has(k))
+                    if (knownKey && parsed[knownKey] != null) {
                         messages.push(parsed)
-                    } else if (process.env.NODE_ENV !== 'production') {
+                    } else if (knownKey) {
+                        console.warn('[A2UI] Dropped message with null payload for key:', knownKey, line)
+                    } else {
                         console.warn('[A2UI] Dropped message without known A2UI keys:', line)
                     }
                 }

@@ -2,7 +2,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--condo-global-spacing-8);
-  margin-top: var(--condo-global-spacing-12);
+  margin-top: var(--condo-global-spacing-16);
 }
 
 .suggestion-item {

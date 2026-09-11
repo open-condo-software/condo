@@ -25,6 +25,7 @@ export type AIChatMessageProps = {
     message: Message
     onSuggestionClick?: (suggestion: string) => void
     canExecuteAIFlow?: boolean
+    aiSessionId?: string
 }
 
 const useCopyButton = (message: Message) => {
@@ -122,12 +123,14 @@ type AIChatAssistantMessageProps = {
     message: Message
     onSuggestionClick?: (suggestion: string) => void
     canExecuteAIFlow: boolean
+    aiSessionId?: string
 }
 
 const AIChatAssistantMessage: React.FC<AIChatAssistantMessageProps> = ({
     message,
     onSuggestionClick,
     canExecuteAIFlow,
+    aiSessionId,
 }) => {
     const intl = useIntl()
     const assistantMarkdownRef = useRef<HTMLDivElement>(null)
@@ -217,6 +220,7 @@ const AIChatAssistantMessage: React.FC<AIChatAssistantMessageProps> = ({
                         <div className={styles.assistantA2UI}>
                             <A2UISurfaces
                                 messages={message.content.a2uiMessages}
+                                aiSessionId={aiSessionId}
                             />
                         </div>
                     )}
@@ -247,6 +251,7 @@ export const AIChatMessage: React.FC<AIChatMessageProps> = ({
     message,
     onSuggestionClick,
     canExecuteAIFlow = true,
+    aiSessionId,
 }) => {
     if (message.role === 'user') {
         return <AIChatUserMessage message={message} />
@@ -257,6 +262,7 @@ export const AIChatMessage: React.FC<AIChatMessageProps> = ({
             message={message}
             onSuggestionClick={onSuggestionClick}
             canExecuteAIFlow={canExecuteAIFlow}
+            aiSessionId={aiSessionId}
         />
     )
 }

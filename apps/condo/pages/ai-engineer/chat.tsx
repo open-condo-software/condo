@@ -1,4 +1,4 @@
-import { AiSkillScopeType, B2BAppContextStatusType } from '@app/condo/schema'
+import { AiSkillLocaleType, AiSkillScopeType, B2BAppContextStatusType } from '@app/condo/schema'
 import { Popover } from 'antd'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
