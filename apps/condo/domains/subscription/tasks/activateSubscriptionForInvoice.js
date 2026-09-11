@@ -105,7 +105,13 @@ async function activateSubscriptionForInvoice (invoiceId) {
         }
     }
 
-    await queueSubscriptionActivatedWebhook(invoiceId, activatedContextIds)
+    const doneContexts = await find('SubscriptionContext', {
+        invoice: { id: invoiceId },
+        status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+        deletedAt: null,
+    })
+
+    await queueSubscriptionActivatedWebhook(invoiceId, doneContexts.map(({ id }) => id))
 }
 
 module.exports = {

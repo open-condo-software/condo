@@ -11,7 +11,7 @@ const { GQLCustomSchema, find, getById } = require('@open-condo/keystone/schema'
 
 const { registerMultiPayment } = require('@condo/domains/acquiring/utils/serverSchema')
 const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
-const { INVOICE_STATUS_PUBLISHED, INVOICE_TYPE_B2B } = require('@condo/domains/marketplace/constants')
+const { INVOICE_STATUS_CANCELED, INVOICE_STATUS_PUBLISHED, INVOICE_TYPE_B2B } = require('@condo/domains/marketplace/constants')
 const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 const access = require('@condo/domains/subscription/access/RegisterSubscriptionContextsService')
@@ -310,21 +310,41 @@ const RegisterSubscriptionContextsService = new GQLCustomSchema('RegisterSubscri
                 })
 
                 const createdIds = []
-                for (const { rule, plan } of subscriptions) {
-                    const created = await SubscriptionContext.create(context, {
-                        dv,
-                        sender,
-                        organization: { connect: { id: organization.id } },
-                        subscriptionPlan: { connect: { id: plan.id } },
-                        subscriptionPlanPricingRule: { connect: { id: rule.id } },
-                        invoice: { connect: { id: invoice.id } },
-                        startAt: startAtStr,
-                        endAt: endAtStr,
-                        isTrial: false,
-                        status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
-                        frozenPaymentInfo: { pricingRuleId: rule.id },
-                    })
-                    createdIds.push(created.id)
+                try {
+                    for (const { rule, plan } of subscriptions) {
+                        const created = await SubscriptionContext.create(context, {
+                            dv,
+                            sender,
+                            organization: { connect: { id: organization.id } },
+                            subscriptionPlan: { connect: { id: plan.id } },
+                            subscriptionPlanPricingRule: { connect: { id: rule.id } },
+                            invoice: { connect: { id: invoice.id } },
+                            startAt: startAtStr,
+                            endAt: endAtStr,
+                            isTrial: false,
+                            status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+                            frozenPaymentInfo: { pricingRuleId: rule.id },
+                        })
+                        createdIds.push(created.id)
+                    }
+                } catch (error) {
+                    logger.error({ msg: 'Failed to create bundle contexts, cancelling invoice', err: error, data: { organizationId: organization.id, invoiceId: invoice.id, createdIds } })
+
+                    try {
+                        await Invoice.update(context, invoice.id, { dv, sender, status: INVOICE_STATUS_CANCELED })
+                    } catch (invoiceRollbackError) {
+                        logger.error({ msg: 'Failed to cancel invoice of a partially created bundle', err: invoiceRollbackError, data: { organizationId: organization.id, invoiceId: invoice.id } })
+                    }
+
+                    for (const createdId of createdIds) {
+                        try {
+                            await SubscriptionContext.update(context, createdId, { dv, sender, deletedAt: new Date().toISOString() })
+                        } catch (contextRollbackError) {
+                            logger.error({ msg: 'Failed to soft delete context of a partially created bundle', err: contextRollbackError, data: { organizationId: organization.id, invoiceId: invoice.id, subscriptionContextId: createdId } })
+                        }
+                    }
+
+                    throw error
                 }
 
                 let directPaymentUrl = null
