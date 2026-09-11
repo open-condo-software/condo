@@ -171,7 +171,11 @@ async function find (schemaName, condition) {
     if (!SCHEMAS.has(schemaName)) throw new Error(`Schema ${schemaName} is not registered yet`)
     if (SCHEMAS.get(schemaName)._type !== GQL_LIST_SCHEMA_TYPE) throw new Error(`Schema ${schemaName} type != ${GQL_LIST_SCHEMA_TYPE}`)
     const schemaList = SCHEMAS.get(schemaName)
-    const result = await schemaList._keystone.lists[schemaName].adapter.find(condition)
+    const listAdapter = schemaList._keystone.lists[schemaName].adapter
+    const dbAdapter = schemaList._keystone.adapter
+    const result = dbAdapter && typeof dbAdapter.executeFind === 'function'
+        ? await dbAdapter.executeFind({ schemaName, condition, listAdapter })
+        : await listAdapter.find(condition)
     logTooManyReturnedIfRequired([TOO_MANY_RETURNED_FIND_LIMIT], result, {
         functionName: 'find',
         schemaName,
@@ -202,12 +206,52 @@ async function itemsQuery (schemaName, args, { meta = false, from = {} } = {}) {
     if (!SCHEMAS.has(schemaName)) throw new Error(`Schema ${schemaName} is not registered yet`)
     if (SCHEMAS.get(schemaName)._type !== GQL_LIST_SCHEMA_TYPE) throw new Error(`Schema ${schemaName} type != ${GQL_LIST_SCHEMA_TYPE}`)
     const schemaList = SCHEMAS.get(schemaName)
-    const result = await schemaList._keystone.lists[schemaName].adapter.itemsQuery(args, { meta, from })
+    const listAdapter = schemaList._keystone.lists[schemaName].adapter
+    const dbAdapter = schemaList._keystone.adapter
+    const result = dbAdapter && typeof dbAdapter.executeItemsQuery === 'function'
+        ? await dbAdapter.executeItemsQuery({ schemaName, args, meta, from, listAdapter })
+        : await listAdapter.itemsQuery(args, { meta, from })
     logTooManyReturnedIfRequired([TOO_MANY_RETURNED_ITEMS_LIMIT], result, {
         functionName: 'itemsQuery',
         schemaName,
         data: { from, meta, where: args },
     })
+    return result
+}
+
+async function create (schemaName, data) {
+    if (!SCHEMAS.has(schemaName)) throw new Error(`Schema ${schemaName} is not registered yet`)
+    if (SCHEMAS.get(schemaName)._type !== GQL_LIST_SCHEMA_TYPE) throw new Error(`Schema ${schemaName} type != ${GQL_LIST_SCHEMA_TYPE}`)
+    const schemaList = SCHEMAS.get(schemaName)
+    const listAdapter = schemaList._keystone.lists[schemaName].adapter
+    const dbAdapter = schemaList._keystone.adapter
+    const result = dbAdapter && typeof dbAdapter.executeCreate === 'function'
+        ? await dbAdapter.executeCreate({ schemaName, data, listAdapter })
+        : await listAdapter._create(data)
+    return result
+}
+
+async function update (schemaName, id, data) {
+    if (!SCHEMAS.has(schemaName)) throw new Error(`Schema ${schemaName} is not registered yet`)
+    if (SCHEMAS.get(schemaName)._type !== GQL_LIST_SCHEMA_TYPE) throw new Error(`Schema ${schemaName} type != ${GQL_LIST_SCHEMA_TYPE}`)
+    const schemaList = SCHEMAS.get(schemaName)
+    const listAdapter = schemaList._keystone.lists[schemaName].adapter
+    const dbAdapter = schemaList._keystone.adapter
+    const result = dbAdapter && typeof dbAdapter.executeUpdate === 'function'
+        ? await dbAdapter.executeUpdate({ schemaName, id, data, listAdapter })
+        : await listAdapter._update(id, data)
+    return result
+}
+
+async function delete_ (schemaName, id) {
+    if (!SCHEMAS.has(schemaName)) throw new Error(`Schema ${schemaName} is not registered yet`)
+    if (SCHEMAS.get(schemaName)._type !== GQL_LIST_SCHEMA_TYPE) throw new Error(`Schema ${schemaName} type != ${GQL_LIST_SCHEMA_TYPE}`)
+    const schemaList = SCHEMAS.get(schemaName)
+    const listAdapter = schemaList._keystone.lists[schemaName].adapter
+    const dbAdapter = schemaList._keystone.adapter
+    const result = dbAdapter && typeof dbAdapter.executeDelete === 'function'
+        ? await dbAdapter.executeDelete({ schemaName, id, listAdapter })
+        : await listAdapter._delete(id)
     return result
 }
 
@@ -366,6 +410,9 @@ module.exports = {
     unregisterAllSchemas,
     getSchemaCtx,
     find,
+    create,
+    update,
+    delete: delete_,
     getById,
     getByCondition,
     itemsQuery,
