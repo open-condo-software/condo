@@ -8,7 +8,7 @@ const { INVOICE_STATUS_PAID } = require('@condo/domains/marketplace/constants')
 const { SUBSCRIPTION_PAYMENT_BUFFER_DAYS, SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PLAN_TYPE_SERVICE, SUBSCRIPTION_PAYMENT_TYPE_CARD } = require('@condo/domains/subscription/constants')
 const { SubscriptionPaymentAdapter } = require('@condo/domains/subscription/tasks/utils/SubscriptionPaymentAdapter')
 const { registerSubscriptionContexts, SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
-const { buildDirectPaymentUrl } = require('@condo/domains/subscription/utils/serverSchema/registerSubscriptionContexts')
+const { buildDirectPaymentUrl } = require('@condo/domains/subscription/utils/serverSchema/buildDirectPaymentUrl')
 
 const logger = getLogger('processRecurrentSubscriptionPayments')
 
