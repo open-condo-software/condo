@@ -69,7 +69,7 @@
 .assistant-message-container {
   display: flex;
   flex-direction: column;
-  gap: var(--condo-global-spacing-12);
+  gap: var(--condo-global-spacing-8);
   align-items: flex-start;
   justify-content: flex-start;
   width: 100%;

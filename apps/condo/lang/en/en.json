@@ -462,6 +462,7 @@
   "ai.cowork.unpinChat": "Unpin chat",
   "ai.cowork.noPinnedChats": "Pin a chat by hovering over it and clicking the pin icon",
   "ai.cowork.editChatName": "Edit chat name",
+  "ai.cowork.editChatNameTitle": "Edit chat name",
   "ai.cowork.share": "Share",
   "ai.cowork.shareCopied": "Conversation copied to clipboard",
   "ai.cowork.shareEmpty": "No messages to share yet",
