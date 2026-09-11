@@ -15,14 +15,24 @@ import { type PaymentType } from '@condo/domains/subscription/hooks/useSubscript
 
 const { publicRuntimeConfig: { serverUrl } } = getConfig()
 
-interface ActivatePlanParams {
-    priceId: string
+interface ActivateBundleParams {
+    /** Pricing rule ids to buy together; every rule must share the same period */
+    priceIds: ReadonlyArray<string>
     isTrial?: boolean
     planName?: string
     trialDays?: number
     isCustomPrice?: boolean
     paymentType?: PaymentType
     returnUrl?: string
+    /**
+     * Whether the bundle contains a service plan. Buying a plan is announced as a plan purchase
+     * even when extra features ride along; buying features alone gets its own wording.
+     */
+    includesServicePlan?: boolean
+}
+
+interface ActivatePlanParams extends Omit<ActivateBundleParams, 'priceIds'> {
+    priceId: string
 }
 
 export const useActivateSubscriptions = () => {
@@ -53,7 +63,13 @@ export const useActivateSubscriptions = () => {
     const pendingRequests = pendingRequestsData?.pendingRequests || []
     const activatedSubscriptions = activatedSubscriptionsData?.activatedSubscriptions || []
 
-    const showSuccessNotification = useCallback((isTrial: boolean, planName: string, trialDays: number, isCustomPrice: boolean) => {
+    const showSuccessNotification = useCallback((
+        isTrial: boolean,
+        planName: string,
+        trialDays: number,
+        isCustomPrice: boolean,
+        includesServicePlan: boolean
+    ) => {
         if (isTrial) {
             notification.success({
                 message: (
@@ -72,6 +88,16 @@ export const useActivateSubscriptions = () => {
                     </Typography.Text>
                 ),
                 description: intl.formatMessage({ id: 'subscription.activation.paid.custom.description' }),
+                duration: 5,
+            })
+        } else if (!includesServicePlan) {
+            notification.success({
+                message: (
+                    <Typography.Text strong size='large'>
+                        {intl.formatMessage({ id: 'subscription.activation.features.title' })}
+                    </Typography.Text>
+                ),
+                description: intl.formatMessage({ id: 'subscription.activation.features.description' }),
                 duration: 5,
             })
         } else {
@@ -97,8 +123,17 @@ export const useActivateSubscriptions = () => {
         }
     }, [refetchPendingRequests, refetchActivatedSubscriptions, employee?.id, selectEmployee])
 
-    const registerSubscriptionContext = useCallback(async ({ priceId, isTrial = true, planName = '', trialDays = 0, isCustomPrice = false, paymentType = 'card', returnUrl }: ActivatePlanParams) => {
-        if (!organization) return
+    const registerSubscriptionBundle = useCallback(async ({
+        priceIds,
+        isTrial = true,
+        planName = '',
+        trialDays = 0,
+        isCustomPrice = false,
+        paymentType = 'card',
+        returnUrl,
+        includesServicePlan = true,
+    }: ActivateBundleParams) => {
+        if (!organization || priceIds.length === 0) return
 
         setActivateLoading(true)
         try {
@@ -110,7 +145,7 @@ export const useActivateSubscriptions = () => {
                             sender: getClientSideSenderInfo(),
                             type: UserHelpRequestTypeType.ActivateSubscription,
                             organization: { connect: { id: organization.id } },
-                            subscriptionPlanPricingRule: { connect: { id: priceId } },
+                            subscriptionPlanPricingRule: { connect: { id: priceIds[0] } },
                             phone: user?.phone || '',
                         },
                     },
@@ -122,7 +157,7 @@ export const useActivateSubscriptions = () => {
                             dv: 1,
                             sender: getClientSideSenderInfo(),
                             organization: { id: organization.id },
-                            subscriptionPlanPricingRules: [{ id: priceId }],
+                            subscriptionPlanPricingRules: priceIds.map(id => ({ id })),
                             paymentType: SubscriptionPaymentType.Card,
                             isTrial,
                         },
@@ -143,7 +178,7 @@ export const useActivateSubscriptions = () => {
             }
 
             await refetchData(isTrial)
-            showSuccessNotification(isTrial, planName, trialDays, isCustomPrice)
+            showSuccessNotification(isTrial, planName, trialDays, isCustomPrice, includesServicePlan)
         } catch (error) {
             console.error('Failed to activate subscription:', error)
             notification.error({
@@ -156,8 +191,14 @@ export const useActivateSubscriptions = () => {
         }
     }, [organization, user, registerSubscriptionContextMutation, createUserHelpRequest, refetchData, showSuccessNotification, ActivationErrorTitle, ActivationErrorMessage])
 
+    const registerSubscriptionContext = useCallback(
+        ({ priceId, ...rest }: ActivatePlanParams) => registerSubscriptionBundle({ priceIds: [priceId], ...rest }),
+        [registerSubscriptionBundle]
+    )
+
     return {
         registerSubscriptionContext,
+        registerSubscriptionBundle,
         activateLoading,
         pendingRequests,
         activatedSubscriptions,

@@ -4,8 +4,12 @@ query getAvailableFeatureSubscriptionPlans($organization: OrganizationWhereUniqu
             plan {
                 id
                 name
+                description
+                priority
+                trialDays
                 planType
                 enabledB2BApps
+                enabledB2CApps
                 tickets
                 meters
                 payments
