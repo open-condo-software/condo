@@ -326,6 +326,8 @@
   "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.permissions.canManageTicketComments.label": "Управление комментариями к заявкам",
   "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.permissions.canReadTicketCommentFiles.label": "Просмотр вложений в комментариях к заявкам",
   "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.permissions.canManageTicketCommentFiles.label": "Управление вложениями в комментариях к заявкам",
+  "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.permissions.canReadCallRecords.label": "Просмотр записей звонков",
+  "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.permissions.canManageCallRecords.label": "Управление записями звонков",
   "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.permissions.canReadMeters.label": "Просмотр приборов учета",
   "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.permissions.canManageMeters.label": "Управление приборами учета",
   "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.permissions.canReadMeterReadings.label": "Просмотр показаний приборов учёта",

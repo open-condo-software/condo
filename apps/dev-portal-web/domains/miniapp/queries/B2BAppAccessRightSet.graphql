@@ -17,6 +17,8 @@ fragment B2BAppAccessRightSetPermissions on B2BAppAccessRightSet {
     canManageTicketComments
     canReadTicketCommentFiles
     canManageTicketCommentFiles
+    canReadCallRecords
+    canManageCallRecords
 
     canReadMeters
     canManageMeters

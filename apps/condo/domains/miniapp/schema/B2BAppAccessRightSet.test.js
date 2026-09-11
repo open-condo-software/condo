@@ -559,6 +559,8 @@ describe('B2BApp permissions for service user', () => {
         expect(foundRight).toHaveProperty('accessRightSet.canManageTicketCommentFiles', false)
         expect(foundRight).toHaveProperty('accessRightSet.canReadTicketCommentFiles', false)
         expect(foundRight).toHaveProperty('accessRightSet.canReadTicketCommentFiles', false)
+        expect(foundRight).toHaveProperty('accessRightSet.canManageCallRecords', false)
+        expect(foundRight).toHaveProperty('accessRightSet.canReadCallRecords', false)
         expect(foundRight).toHaveProperty('accessRightSet.canExecuteRegisterExternalPayments', false)
         expect(foundRight).toHaveProperty('accessRightSet.canExecuteSendB2BAppPushMessage', false)
         expect(foundRight).toHaveProperty('accessRightSet.canReadOrganizationEmployeeRoles', false)

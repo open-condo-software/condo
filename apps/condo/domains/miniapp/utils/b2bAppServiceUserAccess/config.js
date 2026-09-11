@@ -111,14 +111,15 @@ const B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS = {
         CustomValue: {},
 
         // Ticket domain
+        CallRecord: {},
         Ticket: {},
         TicketComment: {
             pathToOrganizationId: ['ticket', 'organization', 'id'],
         },
-        TicketFile: {
+        TicketCommentFile: {
             pathToOrganizationId: ['ticket', 'organization', 'id'],
         },
-        TicketCommentFile: {
+        TicketFile: {
             pathToOrganizationId: ['ticket', 'organization', 'id'],
         },
 
