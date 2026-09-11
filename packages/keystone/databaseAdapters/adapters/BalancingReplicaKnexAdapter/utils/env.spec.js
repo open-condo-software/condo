@@ -1,6 +1,12 @@
 const { faker } = require('@faker-js/faker')
 
-const { getNamedDBs, getReplicaPoolsConfig, getQueryRoutingRules } = require('./env')
+const {
+    getConnectionProtocol,
+    getNamedDBs,
+    getQueryRoutingRules,
+    getReplicaPoolsConfig,
+    isPostgresConnectionUrl,
+} = require('./env')
 
 function generateValidConnectionString () {
     return `postgresql://${faker.internet.userName()}:${faker.internet.password()}@${faker.internet.domainName()}:${faker.internet.port()}/${faker.random.word()}`
@@ -18,6 +24,30 @@ function generateMapping (length) {
 }
 
 describe('Config validation utils', () => {
+    describe('connection URL protocols', () => {
+        test.each([
+            ['postgresql://u:p@127.0.0.1:5432/db', 'postgresql'],
+            ['postgres://u:p@127.0.0.1:5432/db', 'postgres'],
+            ['redis://127.0.0.1:6379/6', 'redis'],
+            ['rediss://user:pass@kv.example:6380/0', 'rediss'],
+            ['valkey://127.0.0.1:6379/6', 'valkey'],
+            ['valkeys://user:pass@kv.example:6380/0', 'valkeys'],
+            ['not-a-url', null],
+            [undefined, null],
+        ])('getConnectionProtocol(%p)', (url, expected) => {
+            expect(getConnectionProtocol(url)).toEqual(expected)
+        })
+
+        test.each([
+            ['postgresql://u:p@host/db', true],
+            ['postgres://u:p@host/db', true],
+            ['PostgreSQL://u:p@host/db', true],
+            ['redis://127.0.0.1:6379/6', false],
+            [undefined, false],
+        ])('isPostgresConnectionUrl(%p)', (url, expected) => {
+            expect(isPostgresConnectionUrl(url)).toEqual(expected)
+        })
+    })
     describe('getNamedDBs', () => {
         describe('Must throw error on incorrect input type', () => {
             const cases = [
@@ -53,6 +83,16 @@ describe('Config validation utils', () => {
             const cases = [
                 ['Single DB case', { main: generateValidConnectionString() }],
                 ['Multiple DB case', { main: generateValidConnectionString(), replica: generateValidConnectionString() }],
+                ['Redis / Valkey URI', { cache: 'redis://127.0.0.1:6379/6' }],
+                ['valkey:// URI', { cache: 'valkey://127.0.0.1:6379/6' }],
+                ['Mixed postgres and redis', {
+                    main: generateValidConnectionString(),
+                    cache: 'redis://127.0.0.1:6379/6',
+                    cacheTls: 'rediss://user:pass@kv.example:6380/0',
+                    cacheValkey: 'valkey://127.0.0.1:6379/7',
+                    cacheValkeyTls: 'valkeys://user:pass@kv.example:6380/0',
+                }],
+                ['postgres:// alias', { main: 'postgres://u:p@127.0.0.1:5432/db' }],
                 ['Small gen case', generateMapping(5)],
                 ['Big gen case', generateMapping(50)],
             ]
@@ -165,10 +205,10 @@ describe('Config validation utils', () => {
                     ['master', 'asyncReplica1', 'asyncReplica2', 'syncReplica1', 'syncReplica2', 'billing'],
                 ],
                 [
-                    'with kmigrator-disabled writable pool',
+                    'with a dedicated writable pool for routed tables',
                     {
                         write: { databases: ['master'], writable: true },
-                        billing: { databases: ['billing'], writable: true, kmigrator: false },
+                        billing: { databases: ['billing'], writable: true },
                     },
                     ['master', 'billing'],
                 ],
@@ -238,6 +278,60 @@ describe('Config validation utils', () => {
                 kv: { provider: 'kv', writable: true },
             })
         })
+        test('accepts provider pool with redis DATABASE_URL names', () => {
+            const config = {
+                main: { databases: ['main'], writable: true },
+                kv: { provider: 'kv', databases: ['cache'], writable: true },
+            }
+            const namedConnections = {
+                main: 'postgresql://u:p@127.0.0.1:5432/main',
+                cache: 'redis://127.0.0.1:6379/6',
+            }
+
+            expect(getReplicaPoolsConfig(config, ['main', 'cache'], namedConnections)).toEqual({
+                main: { databases: ['main'], writable: true, balancer: 'RoundRobin' },
+                kv: { provider: 'kv', writable: true, databases: ['cache'], balancer: 'RoundRobin' },
+            })
+        })
+        test('accepts provider pool with valkey DATABASE_URL names', () => {
+            const config = {
+                main: { databases: ['main'], writable: true },
+                kv: { provider: 'kv', databases: ['cache'], writable: true },
+            }
+            const namedConnections = {
+                main: 'postgresql://u:p@127.0.0.1:5432/main',
+                cache: 'valkey://127.0.0.1:6379/6',
+            }
+
+            expect(getReplicaPoolsConfig(config, ['main', 'cache'], namedConnections)).toEqual({
+                main: { databases: ['main'], writable: true, balancer: 'RoundRobin' },
+                kv: { provider: 'kv', writable: true, databases: ['cache'], balancer: 'RoundRobin' },
+            })
+        })
+        test('rejects postgres pool pointing at a redis URL', () => {
+            expect(() => getReplicaPoolsConfig({
+                main: { databases: ['cache'], writable: true },
+            }, ['cache'], {
+                cache: 'redis://127.0.0.1:6379/6',
+            })).toThrow(/must use a postgresql:\/\/ URL/)
+        })
+        test('rejects provider pool pointing at a postgresql URL', () => {
+            expect(() => getReplicaPoolsConfig({
+                main: { databases: ['main'], writable: true },
+                kv: { provider: 'kv', databases: ['main'], writable: true },
+            }, ['main'], {
+                main: 'postgresql://u:p@127.0.0.1:5432/main',
+            })).toThrow(/must use a redis:\/\/ or valkey:\/\/ URL/)
+        })
+        test('rejects provider pool pointing at a non-redis URL', () => {
+            expect(() => getReplicaPoolsConfig({
+                main: { databases: ['main'], writable: true },
+                kv: { provider: 'kv', databases: ['cache'], writable: true },
+            }, ['main', 'cache'], {
+                main: 'postgresql://u:p@127.0.0.1:5432/main',
+                cache: 'http://example.test/cache',
+            })).toThrow(/must use a redis:\/\/ or valkey:\/\/ URL/)
+        })
         test('accepts read-only provider pool for kv backend', () => {
             const config = {
                 main: { databases: ['main'], writable: true },
@@ -249,16 +343,11 @@ describe('Config validation utils', () => {
                 kv: { provider: 'kv', writable: false },
             })
         })
-        test('preserves kmigrator flag for postgres pools', () => {
-            const config = {
+        test('rejects the removed per-pool kmigrator opt-out', () => {
+            expect(() => getReplicaPoolsConfig({
                 main: { databases: ['main'], writable: true },
                 billing: { databases: ['billing'], writable: true, kmigrator: false },
-            }
-
-            expect(getReplicaPoolsConfig(config, ['main', 'billing'])).toEqual({
-                main: { databases: ['main'], writable: true, balancer: 'RoundRobin' },
-                billing: { databases: ['billing'], writable: true, kmigrator: false, balancer: 'RoundRobin' },
-            })
+            }, ['main', 'billing'])).toThrow(/must NOT have additional properties/)
         })
         test('rejects unknown provider name', () => {
             expect(() => getReplicaPoolsConfig({

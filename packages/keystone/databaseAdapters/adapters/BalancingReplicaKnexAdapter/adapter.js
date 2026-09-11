@@ -16,6 +16,7 @@ const {
 } = require('@open-condo/keystone/databaseAdapters/crossDb')
 const {
     applyItemsQueryToRows,
+    createConnectedDataProvider,
     executeProviderSqlMutation,
     executeProviderSqlSelect,
     getDataProvider,
@@ -24,12 +25,20 @@ const {
     providerSupportsItemsQuery,
     resolvePoolProvider,
 } = require('@open-condo/keystone/databaseAdapters/dataProviders')
-const { createKmigratorKnexAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
+const {
+    createKmigratorKnexAdapter,
+    reconcileCrossPoolConstraints,
+} = require('@open-condo/keystone/databaseAdapters/utils')
 const { graphqlCtx } = require('@open-condo/keystone/KSv5v6/utils/graphqlCtx')
 
 const { KnexPool, ProviderPool } = require('./pool')
 const { planCrossPoolSelect } = require('./utils/crossSourceSelectSql')
-const { getNamedDBs, getReplicaPoolsConfig, getQueryRoutingRules, isDefaultRule } = require('./utils/env')
+const {
+    getNamedDBs,
+    getQueryRoutingRules,
+    getReplicaPoolsConfig,
+    isDefaultRule,
+} = require('./utils/env')
 const { initKnexClient } = require('./utils/knex')
 const { logger } = require('./utils/logger')
 const { isRuleMatching } = require('./utils/rules')
@@ -49,7 +58,7 @@ const { extractCRUDQueryData } = require('./utils/sql')
 class BalancingReplicaKnexAdapter extends KnexAdapter {
     /**
      * @param {object} [options]
-     * @param {string} [options.databaseUrl] `custom:{...}` named Postgres URLs
+     * @param {string} [options.databaseUrl] `custom:{...}` named URIs (`postgresql://`, `redis://`, …)
      * @param {object} [options.replicaPools] `DATABASE_POOLS` map
      * @param {Array} [options.routingRules] `DATABASE_ROUTING_RULES`
      */
@@ -57,7 +66,11 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
         super()
         this._dbConnections = getNamedDBs(databaseUrl || conf['DATABASE_URL'])
         const availableDatabases = Object.keys(this._dbConnections)
-        this._replicaPoolsConfig = getReplicaPoolsConfig(replicaPools || conf['DATABASE_POOLS'], availableDatabases)
+        this._replicaPoolsConfig = getReplicaPoolsConfig(
+            replicaPools || conf['DATABASE_POOLS'],
+            availableDatabases,
+            this._dbConnections,
+        )
         this._routingRules = getQueryRoutingRules(routingRules || conf['DATABASE_ROUTING_RULES'], this._replicaPoolsConfig)
         this._tablePoolResolver = null
     }
@@ -72,9 +85,13 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
         return this._tablePoolResolver
     }
 
-    /** Open one knex client per named URL in `DATABASE_URL`. */
+    /** Open one knex client per postgres name listed on Knex pools. */
     async _initKnexClients () {
-        const dbNames = Object.keys(this._dbConnections)
+        const dbNames = [...new Set(
+            Object.values(this._replicaPoolsConfig)
+                .filter(config => !config.provider)
+                .flatMap(config => config.databases || []),
+        )]
         const maxConnections = conf['DATABASE_POOL_MAX'] ? parseInt(conf['DATABASE_POOL_MAX']) : 3
         const connectionResults = await Promise.allSettled(
             dbNames.map(dbName => initKnexClient({
@@ -176,7 +193,7 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
             })
         }
 
-        if (hasInbound) {
+        if (hasInbound && finalSqlOperationName === 'delete') {
             await enforceCrossSourceDeleteConstraints({
                 tableName: finalTableName,
                 listAdapters: this.listAdapters,
@@ -191,11 +208,11 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
 
     /**
      * Whether this mutation may need virtual cross-source FK checks.
-     * Main-only tables (no outbound/inbound to another pool) return false → knex runs as before.
-     * Inbound-only parents (e.g. Organization referenced from BillingReceipt) only wrap
-     * hard DELETE and soft-delete UPDATEs — not ordinary updates.
+     * Single-pool tables (no outbound/inbound to another pool) return false → knex runs as before.
+     * Inbound-only parents (e.g. Organization referenced from BillingReceipt) wrap DELETE only —
+     * not UPDATE. Logical/soft-delete is a list plugin, not adapter core.
      */
-    _needsCrossSourceValidation (finalTableName, finalSqlOperationName, sql) {
+    _needsCrossSourceValidation (finalTableName, finalSqlOperationName) {
         if (!['insert', 'update', 'delete'].includes(finalSqlOperationName)) return false
         if (!this.listAdapters?.[finalTableName]) return false
 
@@ -205,10 +222,6 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
 
         if (hasOutbound && ['insert', 'update'].includes(finalSqlOperationName)) return true
         if (hasInbound && finalSqlOperationName === 'delete') return true
-        // Soft-delete sniff only — avoid wrapping every UPDATE on inbound parents.
-        if (hasInbound && finalSqlOperationName === 'update' && /\b"?deletedAt"?\s*=/i.test(sql)) {
-            return true
-        }
         return false
     }
 
@@ -231,7 +244,7 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
         gqlOperationName,
     }) {
         if (finalSqlOperationName !== 'select') return undefined
-        // Main-only lists never JOIN another pool from the base table.
+        // Single-pool lists never JOIN another pool from the base table.
         if (!listHasCrossSourceOutbound(this, finalTableName)) return undefined
 
         // Must use interpolated SQL (`builder.toString()`), not positional `$N` SQL:
@@ -269,6 +282,9 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
         const poolName = this._tablePoolResolver.resolveTablePool(schemaName)
         if (!isDataProviderPool(poolName, this._replicaPoolsConfig)) return null
 
+        const pool = this._replicaPools?.[poolName]
+        if (pool?.dataProvider) return pool.dataProvider
+
         return getDataProvider(resolvePoolProvider(poolName, this._replicaPoolsConfig))
     }
 
@@ -284,7 +300,7 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
         sqlQueryWithPositionalBindings,
         needsCrossSourceValidation,
     }) {
-        const provider = getDataProvider(providerPool.providerName)
+        const provider = providerPool.dataProvider || getDataProvider(providerPool.providerName)
         if (!provider) {
             throw new Error(`Unknown data provider "${providerPool.providerName}"`)
         }
@@ -345,7 +361,6 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
                 const needsCrossSourceValidation = this._needsCrossSourceValidation(
                     finalTableName,
                     finalSqlOperationName,
-                    sqlQueryWithPositionalBindings,
                 )
                 const needsSelectRewrite = finalSqlOperationName === 'select'
                     && listHasCrossSourceOutbound(this, finalTableName)
@@ -423,17 +438,19 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
      */
     async _connect () {
         this._knexClients = await this._initKnexClients()
-        this._replicaPools = Object.fromEntries(
-            Object.entries(this._replicaPoolsConfig).map(([name, config]) => {
-                if (config.provider) {
-                    return [name, new ProviderPool({ provider: config.provider, writable: config.writable })]
-                }
-                return [name, new KnexPool({
-                    ...omit(config, ['databases']),
-                    knexClients: config.databases.map((dbName) => this._knexClients[dbName]),
-                })]
-            }),
-        )
+        this._replicaPools = {}
+        try {
+            for (const [name, config] of Object.entries(this._replicaPoolsConfig)) {
+                this._replicaPools[name] = config.provider
+                    ? await this._createProviderPool(name, config)
+                    : this._createKnexPool(name, config)
+            }
+        } catch (err) {
+            await this._disconnectProviderPools()
+            await this._destroyKnexClients()
+            this._replicaPools = {}
+            throw err
+        }
 
         // Home pool for cross-db logic: tableName routing rules + default.
         this._tablePoolResolver = createTablePoolResolver({
@@ -462,6 +479,55 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
         this._patchKnexRunner()
     }
 
+    _createKnexPool (poolName, config) {
+        return new KnexPool({
+            ...omit(config, ['databases']),
+            knexClients: config.databases.map((dbName) => {
+                const client = this._knexClients[dbName]
+                if (!client) {
+                    throw new Error(`Postgres pool "${poolName}" database "${dbName}" has no knex client`)
+                }
+                return client
+            }),
+        })
+    }
+
+    /**
+     * Ask the registered provider to open its own connections from this pool's `DATABASE_URL` names
+     */
+    async _createProviderPool (poolName, config) {
+        const connections = Object.fromEntries(
+            (config.databases || []).map((dbName) => [dbName, this._dbConnections[dbName]]),
+        )
+        const dataProvider = await createConnectedDataProvider(config.provider, {
+            connections,
+            balancer: config.balancer,
+            balancerOptions: config.balancerOptions,
+        })
+        if (!dataProvider) {
+            throw new Error(`Unknown data provider "${config.provider}" in pool "${poolName}"`)
+        }
+        return new ProviderPool({
+            provider: config.provider,
+            writable: config.writable,
+            dataProvider,
+        })
+    }
+
+    async _disconnectProviderPools () {
+        await Promise.all(
+            Object.values(this._replicaPools || {}).map(pool => (
+                typeof pool.disconnect === 'function' ? pool.disconnect() : Promise.resolve()
+            )),
+        )
+    }
+
+    async _destroyKnexClients () {
+        if (!this._knexClients) return
+        await Promise.all(Object.values(this._knexClients).map(client => client.destroy().catch(() => {})))
+        this._knexClients = null
+    }
+
     /**
      * After list adapters exist, wrap find/itemsQuery so GraphQL access `where`
      * with cross-source relation filters is rewritten via CrossDbPlanner
@@ -476,7 +542,7 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
     /**
      * Wrap list `find` / `itemsQuery` so GraphQL `where` with cross-pool relation
      * filters is rewritten (`user: { name_contains }` → `user: { id_in }`) before SQL.
-     * Main-pool-only lists are left unchanged.
+     * Single-pool lists are left unchanged.
      */
     _wrapListAdaptersWithCrossDbWhere () {
         if (this._crossDbWhereWrapped) return
@@ -486,7 +552,7 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
             if (!listAdapter || listAdapter.__crossDbWhereWrapped) continue
             listAdapter.__crossDbWhereWrapped = true
 
-            // Main-only lists: never pay prepareCrossDbWhere / getSchemaCtx.
+            // Single-pool lists: never call prepareCrossDbWhere / getSchemaCtx.
             if (!listNeedsCrossDbWhereRewrite(this, listKey)) continue
 
             const originalItemsQuery = listAdapter.itemsQuery.bind(listAdapter)
@@ -507,14 +573,13 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
         }
     }
 
-    /** Tear down compatibility knex stub and all named database clients. */
+    /** Tear down compatibility knex stub, postgres clients, and provider connections. */
     async disconnect () {
         if (this.knex) {
-            await this.knex.destroy()
+            await this.knex.destroy().catch(() => {})
         }
-        if (this._knexClients) {
-            await Promise.all(Object.values(this._knexClients).map(client => client.destroy()))
-        }
+        await this._destroyKnexClients()
+        await this._disconnectProviderPools()
     }
 
     /**
@@ -552,34 +617,48 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
         return meta ? { count: rows.length } : applyItemsQueryToRows(rows, nextArgs)
     }
 
-    /**
-     * One kmigrator stub per writable named database (read-only replica DBs are skipped).
-     * Pools may opt out with `kmigrator: false` when they hold only routed subsets of tables.
-     * Default pool database is last so kmigrator writes the primary connection file last.
-     */
-    __kmigratorKnexAdapters () {
-        if (!this._knexClients) {
-            throw new Error('BalancingReplicaKnexAdapter is not connected')
-        }
+    /** Postgres schema kmigrator writes into. */
+    _getKmigratorSchemaName () {
+        return typeof this.getDbSchemaName === 'function' ? this.getDbSchemaName() : 'public'
+    }
 
+    /**
+     * Databases that kmigrator migrates, default pool's database last so kmigrator writes the
+     * primary connection file last.
+     *
+     * Every writable Postgres pool gets the **full** migration set, so each database holds the
+     * complete schema and a table can be routed to any of them without extra DDL. Read-only
+     * replicas (streamed from their primary) and provider pools are skipped.
+     *
+     * @returns {string[]}
+     */
+    _getKmigratorDatabaseNames () {
         const defaultRule = this._routingRules.find(rule => isDefaultRule(rule))
         const defaultDbName = this._replicaPoolsConfig[defaultRule.target].databases[0]
-        const schemaName = typeof this.getDbSchemaName === 'function' ? this.getDbSchemaName() : 'public'
 
         const writableDbNames = new Set()
         for (const poolConfig of Object.values(this._replicaPoolsConfig)) {
-            if (!poolConfig.writable || poolConfig.kmigrator === false || poolConfig.provider || !poolConfig.databases) continue
+            if (!poolConfig.writable || poolConfig.provider || !poolConfig.databases) continue
             for (const dbName of poolConfig.databases) {
                 writableDbNames.add(dbName)
             }
         }
 
-        const orderedDbNames = [
+        return [
             ...[...writableDbNames].filter(name => name !== defaultDbName).sort((a, b) => a.localeCompare(b)),
             defaultDbName,
         ].filter(name => this._knexClients[name])
+    }
 
-        return orderedDbNames.map(dbName => createKmigratorKnexAdapter({
+    /** One kmigrator stub per database from {@link _getKmigratorDatabaseNames}. */
+    __kmigratorKnexAdapters () {
+        if (!this._knexClients) {
+            throw new Error('BalancingReplicaKnexAdapter is not connected')
+        }
+
+        const schemaName = this._getKmigratorSchemaName()
+
+        return this._getKmigratorDatabaseNames().map(dbName => createKmigratorKnexAdapter({
             knex: this._knexClients[dbName],
             listAdapters: this.listAdapters,
             getListAdapterByKey: this.getListAdapterByKey.bind(this),
@@ -587,6 +666,54 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
             schemaName,
             dbName,
         }))
+    }
+
+    /**
+     * Physical database that stores a table, derived from its pool.
+     * Pool names are not comparable for this: several pools may share one database.
+     *
+     * @param {string} tableName
+     * @returns {string} `DATABASE_URL` database name
+     */
+    resolveTableDatabase (tableName) {
+        const poolName = this._tablePoolResolver
+            ? this._tablePoolResolver.resolveTablePool(tableName)
+            : null
+        const databases = this._replicaPoolsConfig[poolName]?.databases
+        return databases?.[0] || poolName
+    }
+
+    /**
+     * Align every migrated database with the current table topology (kmigrator post-migrate).
+     *
+     * Migrations are topology-agnostic, so each database ends up with FK constraints for the
+     * whole schema. Constraints pointing at a table homed in another database can never hold
+     * and are dropped here; the adapter enforces those references instead
+     * (`validateCrossSourceReferences` / `enforceCrossSourceDeleteConstraints`).
+     *
+     * No-op on a single-database config.
+     *
+     * @returns {Promise<Array<{ dbName: string, dropped: Array, restored: Array }>>}
+     */
+    async __kmigratorReconcileTopology () {
+        if (!this._knexClients) {
+            throw new Error('BalancingReplicaKnexAdapter is not connected')
+        }
+
+        const schemaName = this._getKmigratorSchemaName()
+        const resolveTableDatabase = (tableName) => this.resolveTableDatabase(tableName)
+
+        const results = []
+        for (const dbName of this._getKmigratorDatabaseNames()) {
+            results.push(await reconcileCrossPoolConstraints({
+                knex: this._knexClients[dbName],
+                resolveTableDatabase,
+                schemaName,
+                dbName,
+            }))
+        }
+
+        return results
     }
 
     /** Require Postgres `minVer` on every named knex client (not only the stub). */

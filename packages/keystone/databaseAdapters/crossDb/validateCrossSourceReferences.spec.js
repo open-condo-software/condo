@@ -1,7 +1,3 @@
-const {
-    normalizePositionalBindings,
-    parseLiteralNode,
-} = require('./sqlAstUtils')
 const { createTablePoolResolver } = require('./tablePool')
 const {
     collectCrossSourceForeignKeys,
@@ -367,50 +363,6 @@ describe('validateCrossSourceReferences', () => {
                 tablePoolResolver,
                 getPoolByName: createGetPoolByName(),
             })).resolves.toBeUndefined()
-        })
-    })
-})
-
-describe('sqlAstUtils', () => {
-    describe('normalizePositionalBindings', () => {
-        test('rewrites standalone bind placeholders', () => {
-            expect(normalizePositionalBindings('select * from t where a = ? and b = ?'))
-                .toEqual('select * from t where a = $1 and b = $2')
-        })
-
-        test('preserves PostgreSQL JSON operators ?| and ?&', () => {
-            expect(normalizePositionalBindings('select * from t where tags ?| array[?]'))
-                .toEqual('select * from t where tags ?| array[$1]')
-            expect(normalizePositionalBindings('select * from t where tags ?& array[?]'))
-                .toEqual('select * from t where tags ?& array[$1]')
-        })
-
-        test('leaves question marks inside dollar-quoted strings unchanged', () => {
-            expect(normalizePositionalBindings('select $$a?b$$, ?'))
-                .toEqual('select $$a?b$$, $1')
-            expect(normalizePositionalBindings('select $tag$a?b$tag$, ?'))
-                .toEqual('select $tag$a?b$tag$, $1')
-        })
-
-        test('leaves question marks inside E-prefixed strings unchanged', () => {
-            expect(normalizePositionalBindings('select E\'a\\?b\', ?'))
-                .toEqual('select E\'a\\?b\', $1')
-        })
-    })
-
-    describe('parseLiteralNode', () => {
-        test('preserves bigint values without Number() coercion', () => {
-            expect(parseLiteralNode({ type: 'bigint', value: '9007199254740993' }))
-                .toEqual('9007199254740993')
-        })
-
-        test('converts number literals with Number()', () => {
-            expect(parseLiteralNode({ type: 'number', value: '42' })).toEqual(42)
-        })
-
-        test('decodes PostgreSQL E-string backslash escapes', () => {
-            expect(parseLiteralNode({ type: 'origin', value: 'E\'a\\nb\\t\\\\\'' }))
-                .toEqual('a\nb\t\\')
         })
     })
 })

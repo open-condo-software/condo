@@ -31,11 +31,13 @@ class KnexPool {
 
 /**
  * Non-SQL pool backed by a registered data provider (`DATABASE_POOLS.provider`).
+ * The provider owns connect / disconnect; this pool is only a routing target.
  */
 class ProviderPool {
-    constructor ({ provider, writable = false }) {
+    constructor ({ provider, writable = false, dataProvider = null }) {
         this._provider = provider
         this._writable = writable
+        this.dataProvider = dataProvider
     }
 
     get providerName () {
@@ -44,6 +46,12 @@ class ProviderPool {
 
     get writable () {
         return this._writable
+    }
+
+    async disconnect () {
+        if (typeof this.dataProvider?.disconnect === 'function') {
+            await this.dataProvider.disconnect()
+        }
     }
 
     getKnexClient () {

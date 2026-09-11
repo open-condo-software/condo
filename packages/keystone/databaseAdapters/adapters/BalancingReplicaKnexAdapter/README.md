@@ -21,21 +21,24 @@ Three required env vars plus optional cross-db settings (documented in the [glob
 Named connection strings:
 
 ```dotenv
-DATABASE_URL=custom:{"main":"postgresql://user:pass@127.0.0.1:5432/main","replica":"postgresql://user:pass@127.0.0.1:5433/replica"}
+DATABASE_URL=custom:{"main":"postgresql://user:pass@127.0.0.1:5432/main","replica":"postgresql://user:pass@127.0.0.1:5433/replica","cache":"redis://127.0.0.1:6379/6"}
 ```
 
 ### `DATABASE_POOLS`
 
 ```dotenv
-DATABASE_POOLS={"main":{"databases":["main"],"writable":true},"replicas":{"databases":["replica"],"writable":false},"kv":{"provider":"kv","writable":true}}
+DATABASE_POOLS={"main":{"databases":["main"],"writable":true},"replicas":{"databases":["replica"],"writable":false},"kv":{"provider":"kv","databases":["cache"],"writable":true}}
 ```
 
 | Field | Description |
 |-------|-------------|
-| `databases` | Names from `DATABASE_URL` (Postgres pools) |
-| `provider` | Registered data provider name, e.g. `kv` (non-SQL pools; no `databases`) |
+| `databases` | Names from `DATABASE_URL` (Postgres URIs, or whatever the provider accepts) |
+| `provider` | Registered data provider name, e.g. `kv` (optional `databases`; that provider opens the clients) |
 | `writable` | `true` if pool accepts insert/update/delete |
 | `balancer` | Optional for Postgres pools, default `RoundRobin` |
+
+Every writable Postgres pool is fully migrated by kmigrator, so each of its databases holds the
+complete schema; see [migrations](../../README.md#migrations-kmigrator).
 
 Provider pools are **Knex-only** (`BalancingReplicaKnexAdapter`). Do not use `provider` with `prisma-custom:`.
 
@@ -79,7 +82,7 @@ const routingRules = [
 
 | File | Role |
 |------|------|
-| `adapter.js` | Connect pools, patch knex runner, `execute*` hooks, ProviderPool SQL bridge |
+| `adapter.js` | Connect pools, patch knex runner, `execute*` hooks, ProviderPool SQL bridge, kmigrator hooks |
 | `pool.js` | `KnexPool` + `ProviderPool` |
 | `utils/crossSourceSelectSql.js` | SQL AST helpers + `planCrossPoolSelect` (cross-pool JOIN rewrite) |
 | `utils/env.js` | Parse and validate config |
@@ -101,7 +104,7 @@ const routingRules = [
    is never executed on main/replica (avoids stale dual-copy reads after restore).
 5. Otherwise: pool's knex client runs the query.
 
-**Main-pool fast path:** lists with no cross-source outbound FKs skip SELECT rewrite wrapping
+**Single-pool fast path:** lists with no cross-source outbound FKs skip SELECT rewrite wrapping
 and `prepareCrossDbWhere` returns the original `where` (same cost profile as pre-multi-db,
 aside from pool routing). See `crossDb/crossSourceHints.js`.
 
@@ -110,8 +113,8 @@ aside from pool routing). See `crossDb/crossSourceHints.js`.
 1. `_selectTargetPoolName` uses the same first-matching routing rule (mutation rules must target
    a writable pool — enforced by config validation).
 2. Cross-source FK validation runs only when the list has outbound FKs (insert/update) or
-   inbound dependents (hard delete / soft-delete). Ordinary updates on inbound-only parents
-   (e.g. Organization) are not wrapped.
+   inbound dependents (SQL DELETE). Updates on inbound-only parents (e.g. Organization)
+   are not wrapped — logical/soft-delete is a list plugin, not adapter core.
 3. Target pool executes the mutation.
 
 ### KV-backed tables

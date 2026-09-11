@@ -40,7 +40,7 @@ BalancingReplicaKnexAdapter
 
 ## BalancingReplicaKnexAdapter in 60 seconds
 
-1. **Connect** — open one knex client per named DB in `DATABASE_URL`, group them into pools (`DATABASE_POOLS`). Provider pools (`provider: "kv"`) skip Postgres clients.
+1. **Connect** — open knex clients for the databases of Postgres pools; for `provider` pools call that provider's `connect()` with named `DATABASE_URL` entries.
 2. **Route** — patch `this.knex.client.runner`. Every query: parse SQL → build context `{ gqlOperationType, gqlOperationName, sqlOperationName, tableName }` → first matching rule → pool.
 3. **Cross-pool SELECT** — if a SELECT JOINs a table on another pool, `planCrossPoolSelect` (in `crossSourceSelectSql.js`) runs filters on the remote pool, collects ids, rewrites to `base.fk IN (...)`.
 4. **Writes** — mutations go to the pool from `DATABASE_ROUTING_RULES` (first match; mutation targets must be writable).
@@ -59,6 +59,9 @@ databaseAdapters/
 │   ├── providerMethods.js             ← capability checks + in-memory itemsQuery helpers
 │   ├── executeProviderSql.js          ← Keystone SQL → provider.create/find/update/delete
 │   └── kv.js                          ← Redis/Valkey document CRUD
+├── utils/
+│   ├── kmigratorKnexAdapter.js        ← per-database kmigrator stub
+│   └── crossPoolConstraints.js        ← post-migrate cross-database FK reconcile
 ├── crossDb/
 │   ├── tablePool.js                   ← table home pool from tableName routing rules + default
 │   ├── planner.js                     ← GraphQL where-rewrite + relation hydration
@@ -84,8 +87,8 @@ GraphQL-side cross-db hydration: `packages/keystone/databaseAdapters/crossDb/` (
 
 | Variable | Purpose |
 |----------|---------|
-| `DATABASE_URL` | `custom:{"main":"postgresql://...","replica":"postgresql://..."}` |
-| `DATABASE_POOLS` | JSON: Postgres pool → `{ databases, writable, balancer? }` or provider pool → `{ provider, writable }` |
+| `DATABASE_URL` | `custom:{"main":"postgresql://...","replica":"postgresql://...","cache":"redis://..."}` |
+| `DATABASE_POOLS` | JSON: Postgres pool → `{ databases, writable, balancer? }` or provider pool → `{ provider, writable, databases? }` |
 | `DATABASE_ROUTING_RULES` | JSON array; must end with `{ "target": "<writable-pool>" }` |
 | `DATABASE_POOL_MAX` | Knex pool size per DB (default `3`) |
 
@@ -98,24 +101,27 @@ GraphQL-side cross-db hydration: `packages/keystone/databaseAdapters/crossDb/` (
 | `CROSS_DB_RELATION_FILTER_IDS_LIMIT` | `50000` | Max ids for GraphQL relation filters |
 | `CROSS_DB_RELATION_FILTER_MAX_PAGES` | `ceil(IDS_LIMIT / 1000) + 1` | Pagination cap for relation id collection |
 
-**Main-pool fast path:** lists with no relationship to another pool skip CrossDbPlanner rewrite, SELECT JOIN rewrite wrapping, and mutation FK validation (cached hints in `crossDb/crossSourceHints.js`). Remaining cost is only `DATABASE_ROUTING_RULES` matching in the knex runner — same as BalancingReplica before external tables.
+**Single-pool fast path:** lists whose related tables all live on the same pool skip CrossDbPlanner rewrite, SELECT JOIN rewrite wrapping, and mutation FK validation (cached hints in `crossDb/crossSourceHints.js`). Remaining cost is only `DATABASE_ROUTING_RULES` matching in the knex runner — same as BalancingReplica before external tables.
 
-**Write path:** `validateCrossSourceReferences` runs on INSERT/UPDATE when relationship fields point to a table on another pool. `enforceCrossSourceDeleteConstraints` restores inbound `on_delete` (PROTECT / CASCADE / SET_NULL) when deleting a parent on another pool (soft-delete only enforces PROTECT).
+**Write path:** `validateCrossSourceReferences` runs on INSERT/UPDATE when relationship fields point to a table on another pool. `enforceCrossSourceDeleteConstraints` restores inbound `on_delete` (PROTECT / CASCADE / SET_NULL) on SQL DELETE of a parent on another pool. UPDATE (including plugin soft-delete) does not run ON DELETE — same as Postgres.
 
 ## How to add a new data provider (KV, Mongo, …)
 
 **One place:** `dataProviders/index.js`. Provider pools are supported by **`BalancingReplicaKnexAdapter` only** (not Prisma).
 
 1. Create `dataProviders/<name>.js` with `find` / `create` / `update` / `delete` as needed. Optional `matchFind` narrows which find filters the provider handles.
-2. Add one line to `SOURCE_PROVIDERS` in `dataProviders/index.js`.
-3. Add a provider pool in `DATABASE_POOLS` and route the table in `DATABASE_ROUTING_RULES`:
+2. Optional lifecycle (so the adapter never learns Redis/Mongo/…):
+   - `static isConnectionUrl(url)` and `static connectionUrlHint` — validate `DATABASE_URL` names listed on this pool
+   - `connect()` / `disconnect()` — open and close this pool's clients from `{ connections: { name: url } }`
+3. Add one line to `SOURCE_PROVIDERS` in `dataProviders/index.js`.
+4. Add a provider pool in `DATABASE_POOLS` and route the table in `DATABASE_ROUTING_RULES`:
 
 ```dotenv
-DATABASE_POOLS={"main":{"databases":["main"],"writable":true},"kv":{"provider":"kv","writable":true}}
+DATABASE_POOLS={"main":{"databases":["main"],"writable":true},"kv":{"provider":"kv","databases":["cache"],"writable":true}}
 DATABASE_ROUTING_RULES=[{"tableName":"CachedUser","target":"kv"},{"target":"main"}]
 ```
 
-Postgres pools use `databases: [...]`. Provider pools use `provider: "<name>"` and `writable: true` for mutations.
+Postgres pools use `databases: [...]` of `postgresql://` names. Provider pools use `provider: "<name>"` and may list `databases` from `DATABASE_URL`. Each provider decides which URI schemes it accepts (`kv` accepts `redis://` / `valkey://`). Without `databases`, `kv` falls back to `getKVClient('cross-db')`.
 
 Dual entry points:
 
@@ -167,10 +173,50 @@ yarn workspace @open-condo/keystone test databaseAdapters/
 yarn workspace @open-condo/keystone test databaseAdapters/crossDb/planner.spec.js
 ```
 
-## Local dev preset
+## Local dev / CI presets
 
-`bin/prepare.js -r, --replicate <app...>` (or `preset === 'production'`) writes replica pools and routing rules into the app `.env`.
+`bin/prepare.js` writes the `DATABASE_*` config into the app `.env`, creates every database it
+references, and then migrates:
+
+| Flag | Result |
+|------|--------|
+| *(none)* | `DATABASE_URL=postgresql://...` — single database, plain `KnexAdapter` |
+| `-r, --replicate <app...>` (or `-p production`) | `custom:{main,replica}` — read replica pool |
+| `-s, --split <app>:<pool>=<Table>[,<Table>...]` | adds a writable pool with its own database and a `tableName` routing rule |
+
+```bash
+# Message + MessageHistoryRecord on their own database (what CI runs)
+node bin/prepare.js -f condo --split condo:message=Message,MessageHistoryRecord
+```
+
+Which tables live where is deployment configuration: it lives in this flag and in
+`DATABASE_ROUTING_RULES`, never in adapter code.
 
 ## Migrations (kmigrator)
 
-`BalancingReplicaKnexAdapter.__kmigratorKnexAdapters()` returns one knex stub per **writable Postgres** named database. Read-only replicas and **provider pools** are skipped. Helper: `databaseAdapters/utils/kmigratorKnexAdapter.js`.
+**One migration set, any topology.** Migrations never mention pools, so the same files apply
+to a single database and to a split one.
+
+1. `__kmigratorKnexAdapters()` returns one knex stub per **writable Postgres** database
+   (read-only replicas and provider pools are skipped; helper:
+   `databaseAdapters/utils/kmigratorKnexAdapter.js`). kmigrator runs the **full** migration set
+   on each, so every database ends up with the complete schema and any table can be routed to
+   any database without extra DDL.
+2. `__kmigratorReconcileTopology()` then aligns each database with the routing config
+   (`databaseAdapters/utils/crossPoolConstraints.js`). A FK constraint whose two tables are
+   homed in different databases can never hold — Postgres would check it against an empty local
+   copy of the referenced table — so it is dropped and recorded in
+   `_cross_pool_dropped_constraints`. Recorded constraints are re-added once their two tables
+   share a database again, which makes moving a table back a plain `migrate`.
+
+Consequences worth knowing:
+
+- Dropping an FK constraint does **not** drop indexes; kmigrator declares FK column indexes
+  separately, so they survive.
+- Dropped constraints are replaced by adapter-side enforcement:
+  `validateCrossSourceReferences` on INSERT/UPDATE and `enforceCrossSourceDeleteConstraints`
+  on DELETE.
+- On a single-database config the whole step is a no-op and the bookkeeping table is never
+  created.
+- The schema is extracted once (it is identical across databases), so `makemigrations --check`
+  reports the same result regardless of how many databases are configured.

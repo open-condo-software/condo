@@ -13,7 +13,6 @@ const { getTablePoolResolver } = require('./tablePool')
 const { isDataProviderPool } = require('../dataProviders')
 const { castUuidParams, convertPrismaBigInts, getDatabaseAdapter, isPrismaAdapter } = require('../utils')
 
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 const GLOBAL_QUERY_LIMIT = 1000
 const CROSS_DB_RELATION_IDS_HARD_LIMIT = Number(conf.CROSS_DB_RELATION_FILTER_IDS_LIMIT) || 50000
 const CROSS_DB_RELATION_MAX_PAGES = Number(conf.CROSS_DB_RELATION_FILTER_MAX_PAGES) ||
@@ -95,7 +94,7 @@ class CrossDbPlanner {
 
     /**
      * Attach related rows from other pools onto already-loaded base objects.
-     * Used by `GqlWithKnexLoadList` after the main-table page is fetched.
+     * Used by `GqlWithKnexLoadList` after the base-table page is fetched.
      */
     async loadChunk (mainTableObjects) {
         logger.info({
@@ -162,7 +161,7 @@ class CrossDbPlanner {
         const sourceName = this._ensureSqlBackedSource(tableName)
         if (this.isPrisma) {
             const prismaClient = this._getPrismaClient(sourceName)
-            const placeholders = values.map((v, i) => UUID_RE.test(v) ? `$${i + 1}::uuid` : `$${i + 1}`).join(', ')
+            const placeholders = values.map((_, i) => `$${i + 1}`).join(', ')
             const selectClause = columns.map(column => `"${column}"`).join(', ')
             const sql = `SELECT ${selectClause} FROM "${tableName}" WHERE "${valueColumn}" IN (${placeholders})`
             const rows = await prismaClient.$queryRawUnsafe(castUuidParams(sql, values), ...values)
@@ -658,7 +657,7 @@ async function prepareCrossDbWhere ({ listKey, where, adapter: knownAdapter = nu
     const { keystone } = getSchemaCtx(listKey)
     const adapter = knownAdapter || getDatabaseAdapter(keystone)
 
-    // Main-pool lists with no path to another pool: leave where untouched.
+    // Single-pool lists with no path to another pool: leave where untouched.
     if (!listNeedsCrossDbWhereRewrite(adapter, listKey)) {
         return where
     }

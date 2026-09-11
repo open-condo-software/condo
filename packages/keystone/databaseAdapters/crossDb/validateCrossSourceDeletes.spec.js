@@ -4,8 +4,6 @@ const {
     normalizeOnDelete,
     collectCrossSourceInboundForeignKeys,
     extractDeleteTargetIds,
-    extractUpdateTargetIds,
-    isSoftDeleteUpdate,
     enforceCrossSourceDeleteConstraints,
 } = require('./validateCrossSourceDeletes')
 
@@ -13,13 +11,11 @@ function createListAdapters () {
     return {
         BillingReceipt: {
             fieldAdapters: [
-                { path: 'deletedAt' },
                 { isRelationship: true, refListKey: 'BillingReceiptFile', path: 'file' },
             ],
         },
         Payment: {
             fieldAdapters: [
-                { path: 'deletedAt' },
                 {
                     isRelationship: true,
                     refListKey: 'BillingReceipt',
@@ -42,7 +38,6 @@ function createListAdapters () {
         },
         CascadeChild: {
             fieldAdapters: [
-                { path: 'deletedAt' },
                 {
                     isRelationship: true,
                     refListKey: 'BillingReceipt',
@@ -181,16 +176,6 @@ describe('validateCrossSourceDeletes', () => {
                 ['r-1', 'r-2'],
             )).toEqual(['r-1', 'r-2'])
         })
-
-        test('detects soft-delete UPDATE and target ids', () => {
-            const sql = 'update "public"."BillingReceipt" set "deletedAt" = $1 where "id" = $2'
-            expect(isSoftDeleteUpdate(sql, ['2026-01-01T00:00:00.000Z', 'r-9'])).toBe(true)
-            expect(extractUpdateTargetIds(sql, ['2026-01-01T00:00:00.000Z', 'r-9'])).toEqual(['r-9'])
-            expect(isSoftDeleteUpdate(
-                'update "public"."BillingReceipt" set "period" = $1 where "id" = $2',
-                ['2026-01-01', 'r-9'],
-            )).toBe(false)
-        })
     })
 
     describe('enforceCrossSourceDeleteConstraints', () => {
@@ -206,16 +191,26 @@ describe('validateCrossSourceDeletes', () => {
             })).rejects.toThrow('could not resolve target BillingReceipt id(s) for DELETE statement')
         })
 
-        test('throws when soft-delete target ids cannot be resolved', async () => {
-            await expect(enforceCrossSourceDeleteConstraints({
+        test('ignores UPDATE (logical/soft-delete is not adapter core)', async () => {
+            const tables = {
+                ProtectedNote: [{ id: 'n-1', receipt: 'r-1' }],
+                Payment: [{ id: 'p-1', receipt: 'r-1' }],
+                CascadeChild: [{ id: 'c-1', receipt: 'r-1' }],
+            }
+
+            await enforceCrossSourceDeleteConstraints({
                 tableName: 'BillingReceipt',
                 listAdapters: createListAdapters(),
-                sql: 'update "public"."BillingReceipt" set "deletedAt" = $1 where "period" = $2',
-                bindings: ['2026-01-01T00:00:00.000Z', '2026-01'],
+                sql: 'update "public"."BillingReceipt" set "deletedAt" = $1 where "id" = $2',
+                bindings: ['2026-01-01T00:00:00.000Z', 'r-1'],
                 sqlOperationName: 'update',
                 tablePoolResolver,
-                getPoolByName: createGetPoolByName({ tables: {} }),
-            })).rejects.toThrow('could not resolve target BillingReceipt id(s) for UPDATE statement')
+                getPoolByName: createGetPoolByName({ tables }),
+            })
+
+            expect(tables.Payment[0].receipt).toBe('r-1')
+            expect(tables.CascadeChild).toHaveLength(1)
+            expect(tables.ProtectedNote).toHaveLength(1)
         })
 
         test('PROTECT blocks hard delete when dependents exist', async () => {
@@ -274,45 +269,6 @@ describe('validateCrossSourceDeletes', () => {
             })
 
             expect(tables.CascadeChild).toEqual([])
-        })
-
-        test('soft-delete only enforces PROTECT, does not SET_NULL', async () => {
-            const tables = {
-                Payment: [{ id: 'p-1', receipt: 'r-1', deletedAt: null }],
-                ProtectedNote: [],
-                CascadeChild: [{ id: 'c-1', receipt: 'r-1', deletedAt: null }],
-            }
-
-            await enforceCrossSourceDeleteConstraints({
-                tableName: 'BillingReceipt',
-                listAdapters: createListAdapters(),
-                sql: 'update "public"."BillingReceipt" set "deletedAt" = $1 where "id" = $2',
-                bindings: ['2026-01-01T00:00:00.000Z', 'r-1'],
-                sqlOperationName: 'update',
-                tablePoolResolver,
-                getPoolByName: createGetPoolByName({ tables }),
-            })
-
-            expect(tables.Payment[0].receipt).toBe('r-1')
-            expect(tables.CascadeChild).toHaveLength(1)
-        })
-
-        test('soft-delete PROTECT blocks when protected dependents exist', async () => {
-            await expect(enforceCrossSourceDeleteConstraints({
-                tableName: 'BillingReceipt',
-                listAdapters: createListAdapters(),
-                sql: 'update "public"."BillingReceipt" set "deletedAt" = $1 where "id" = $2',
-                bindings: ['2026-01-01T00:00:00.000Z', 'r-1'],
-                sqlOperationName: 'update',
-                tablePoolResolver,
-                getPoolByName: createGetPoolByName({
-                    tables: {
-                        ProtectedNote: [{ id: 'n-1', receipt: 'r-1' }],
-                        Payment: [],
-                        CascadeChild: [],
-                    },
-                }),
-            })).rejects.toThrow('protected by ProtectedNote.receipt')
         })
     })
 })

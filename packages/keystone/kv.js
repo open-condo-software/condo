@@ -93,6 +93,35 @@ function getKVClient (name = 'default', purpose = 'regular', opts = { kvOptions:
     return KV_CLIENTS[clientKey]
 }
 
+/**
+ * ioredis client for a named `DATABASE_URL` Redis/Valkey URI (not `KV_URL` / `REDIS_URL`).
+ * Adapter-owned: caller must `quit()` on disconnect.
+ *
+ * @param {string} url `redis://`, `rediss://`, `valkey://`, or `valkeys://`
+ * @param {{ name?: string, kvOptions?: object, ignorePrefix?: boolean }} [opts]
+ * @returns {import('ioredis').Redis}
+ */
+function createKVClientFromUrl (url, opts = {}) {
+    if (!url || typeof url !== 'string' || !/^(rediss?|valkeys?):\/\//i.test(url)) {
+        throw new Error('createKVClientFromUrl() requires a redis://, rediss://, valkey://, or valkeys:// URL')
+    }
+
+    const name = opts.name || 'database-url'
+    const clientOptions = { connectionName: name, ...(opts.kvOptions || {}) }
+    if (!opts.ignorePrefix) clientOptions.keyPrefix = PREFIX
+
+    // ioredis understands redis:// and rediss://; Valkey uses the same wire protocol.
+    const ioredisUrl = url.replace(/^valkeys:\/\//i, 'rediss://').replace(/^valkey:\/\//i, 'redis://')
+    const client = new IORedis(ioredisUrl, clientOptions)
+    client.on('connect', () => logger.info({ msg: 'connect', entity: 'IORedis', entityId: name }))
+    client.on('close', () => logger.info({ msg: 'close', entity: 'IORedis', entityId: name }))
+    client.on('reconnecting', (waitTime) => logger.info({ msg: 'reconnecting', entity: 'IORedis', entityId: name, data: { waitTime } }))
+    client.on('error', (err) => logger.error({ msg: 'error', entity: 'IORedis', entityId: name, err }))
+    client.on('end', () => logger.error({ msg: 'end', entity: 'IORedis', entityId: name }))
+
+    return client
+}
+
 async function checkMinimalKVDataVersion (version) {
     const kv = getKVClient()
     const dbSize = await kv.dbsize()
@@ -114,6 +143,7 @@ async function checkMinimalKVDataVersion (version) {
 
 module.exports = {
     getKVClient,
+    createKVClientFromUrl,
     getKVPrefix,
     checkMinimalKVDataVersion,
 }

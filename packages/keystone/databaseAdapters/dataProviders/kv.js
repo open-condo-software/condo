@@ -1,6 +1,14 @@
 const get = require('lodash/get')
 
-const { getKVClient } = require('@open-condo/keystone/kv')
+const { createKVClientFromUrl, getKVClient } = require('@open-condo/keystone/kv')
+
+const KV_CONNECTION_URL_HINT = 'redis:// or valkey:// URL'
+const KV_PROTOCOLS = new Set(['redis', 'rediss', 'valkey', 'valkeys'])
+
+function getConnectionProtocol (url) {
+    const match = String(url || '').match(/^([a-z][a-z0-9+.-]*):\/\//i)
+    return match ? match[1].toLowerCase() : null
+}
 
 /**
  * Atomically GET → merge patch + id → SET.
@@ -33,6 +41,63 @@ return merged
  */
 class KvDataProvider {
     /**
+     * @param {string|undefined|null} url
+     * @returns {boolean}
+     */
+    static isConnectionUrl (url) {
+        return KV_PROTOCOLS.has(getConnectionProtocol(url))
+    }
+
+    /**
+     * @param {{
+     *   getClient?: () => import('ioredis').Redis|import('ioredis').Cluster,
+     *   connections?: Record<string, string>,
+     * }} [options]
+     *   `connections` are named `DATABASE_URL` entries listed on this pool.
+     *   `getClient` is for tests. With neither, uses `getKVClient('cross-db')`.
+     */
+    constructor (options = {}) {
+        this._getClient = options.getClient
+        this._connections = options.connections || {}
+        this._clients = []
+        this._nextClient = 0
+    }
+
+    /**
+     * Open ioredis clients for `connections`. No-op when the pool listed no databases.
+     */
+    async connect () {
+        const entries = Object.entries(this._connections)
+        if (!entries.length) return
+
+        const clients = []
+        for (const [dbName, url] of entries) {
+            if (!KvDataProvider.isConnectionUrl(url)) {
+                await Promise.all(clients.map(client => client.quit().catch(() => {})))
+                throw new Error(`KV database "${dbName}" must use a ${KV_CONNECTION_URL_HINT}`)
+            }
+            const client = createKVClientFromUrl(url, { name: `database-url:${dbName}` })
+            try {
+                await client.ping()
+                clients.push(client)
+            } catch (err) {
+                await client.quit().catch(() => {})
+                await Promise.all(clients.map(existing => existing.quit().catch(() => {})))
+                throw new Error(`Failed to connect to KV database "${dbName}": ${String(err)}`)
+            }
+        }
+        this._clients = clients
+        this._nextClient = 0
+    }
+
+    /** Close clients opened by {@link connect}. */
+    async disconnect () {
+        const clients = this._clients
+        this._clients = []
+        this._nextClient = 0
+        await Promise.all(clients.map(client => client.quit().catch(() => {})))
+    }
+    /**
      * Build a cluster-safe key for object storage.
      * `{<schemaName>}` is a Redis hash tag, so all keys of one schema land in one slot
      * and native `mget` works on cluster without patching the client API.
@@ -42,6 +107,13 @@ class KvDataProvider {
     }
 
     _getKv () {
+        const injected = typeof this._getClient === 'function' ? this._getClient() : null
+        if (injected) return injected
+        if (this._clients.length) {
+            const client = this._clients[this._nextClient % this._clients.length]
+            this._nextClient += 1
+            return client
+        }
         return getKVClient('cross-db')
     }
 
@@ -146,6 +218,8 @@ class KvDataProvider {
         return null
     }
 }
+
+KvDataProvider.connectionUrlHint = KV_CONNECTION_URL_HINT
 
 module.exports = {
     KvDataProvider,

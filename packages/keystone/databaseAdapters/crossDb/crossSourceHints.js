@@ -2,11 +2,11 @@
  * Cached boolean hints: does this list touch another DB pool?
  *
  * Callers (adapter mutation guards, CrossDbPlanner) use these to skip expensive
- * cross-db work when a list is main-pool-only.
+ * cross-db work when a request stays on a **single pool**.
  *
  * Terminology:
  * - **Outbound** — this list has an FK to a table on another pool
- *   (e.g. Message.user → User when Message is on `message` and User on `main`).
+ *   (e.g. Message.user → User when Message is on `message` and User on another pool).
  * - **Inbound** — some other-pool list has an FK pointing at this list
  *   (e.g. BillingReceipt.organization → Organization).
  *
@@ -66,7 +66,7 @@ function listHasCrossSourceOutbound (adapter, listKey, tablePoolResolver = null)
 /**
  * True if some list on another pool has an FK pointing at `listKey`.
  *
- * Used before delete / soft-delete: if false, skip `enforceCrossSourceDeleteConstraints`.
+ * Used before SQL DELETE: if false, skip `enforceCrossSourceDeleteConstraints`.
  * Only counts FKs stored on the dependent list’s own table (skips join/through tables).
  *
  * Example: BillingReceipt.organization → Organization → true for Organization.
@@ -114,7 +114,7 @@ function listHasCrossSourceInbound (adapter, listKey, tablePoolResolver = null) 
  * relation whose related list eventually needs rewrite (so filters like
  * `{ context: { organization: { … } } }` still get rewritten).
  *
- * Main-pool-only lists return false → leave `where` untouched (cheap path).
+ * Single-pool lists return false → leave `where` untouched (cheap path).
  *
  * @param {object} adapter
  * @param {string} listKey

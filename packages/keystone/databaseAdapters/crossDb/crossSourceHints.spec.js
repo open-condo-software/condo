@@ -55,8 +55,8 @@ function createAdapterFixture () {
     }
 }
 
-describe('crossSourceHints (main-path fast skips)', () => {
-    test('main-only Ticket/User need no where rewrite and have no outbound', () => {
+describe('crossSourceHints (single-pool fast skips)', () => {
+    test('single-pool Ticket/User need no where rewrite and have no outbound', () => {
         const adapter = createAdapterFixture()
 
         expect(listHasCrossSourceOutbound(adapter, 'Ticket')).toBe(false)
@@ -68,7 +68,7 @@ describe('crossSourceHints (main-path fast skips)', () => {
         expect(listNeedsCrossDbWhereRewrite(adapter, 'Organization')).toBe(false)
     })
 
-    test('Organization is main-only for SELECT/where but has inbound from BillingReceipt', () => {
+    test('Organization is single-pool for SELECT/where but has inbound from BillingReceipt', () => {
         const adapter = createAdapterFixture()
 
         expect(listHasCrossSourceOutbound(adapter, 'Organization')).toBe(false)

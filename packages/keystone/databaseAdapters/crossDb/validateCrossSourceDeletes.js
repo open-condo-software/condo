@@ -1,12 +1,12 @@
 /**
- * Cross-database inbound FK enforcement on DELETE / soft-delete.
+ * Cross-database inbound FK enforcement on SQL DELETE.
  *
  * Physical FKs cannot span Postgres databases. After moved tables drop inbound
- * constraints on main, this module restores PROTECT / CASCADE / SET_NULL using
+ * constraints on the parent pool, this module restores PROTECT / CASCADE / SET_NULL using
  * Keystone `kmigratorOptions.on_delete` metadata.
  *
- * Soft-delete (`UPDATE deletedAt`) only enforces PROTECT — matching single-DB
- * Postgres, which does not run ON DELETE actions on UPDATE.
+ * Matches Postgres: ON DELETE runs only for DELETE, never for UPDATE.
+ * Logical/soft-delete is a list plugin, not adapter core.
  */
 const { Parser } = require('node-sql-parser/build/postgresql')
 
@@ -47,14 +47,6 @@ function _iterFieldAdapters (listAdapter) {
     if (listAdapter?.fieldAdapters?.length) return listAdapter.fieldAdapters
     if (listAdapter?.fieldAdaptersByPath) return Object.values(listAdapter.fieldAdaptersByPath)
     return []
-}
-
-/**
- * @param {object|null} listAdapter
- * @returns {boolean}
- */
-function _listHasSoftDelete (listAdapter) {
-    return _iterFieldAdapters(listAdapter).some(field => field.path === 'deletedAt')
 }
 
 /**
@@ -157,55 +149,17 @@ function extractDeleteTargetIds (sql, bindings = []) {
 }
 
 /**
- * Whether an UPDATE sets `deletedAt` to a non-null value (condo soft-delete).
- *
- * @param {string} sql
- * @param {Array} [bindings]
- * @returns {boolean}
- */
-function isSoftDeleteUpdate (sql, bindings = []) {
-    const ast = _parseSingleStatement(sql)
-    if (!ast || ast.type !== 'update') return false
-
-    for (const item of ast.set || []) {
-        const columnName = normalizeColumnName(item.column)
-        if (columnName !== 'deletedAt') continue
-        const value = resolveSqlValue(item.value, bindings)
-        if (value !== null && value !== undefined) return true
-    }
-    return false
-}
-
-/**
- * Ids from UPDATE ... WHERE id = / IN (...).
- *
- * @param {string} sql
- * @param {Array} [bindings]
- * @returns {string[]}
- */
-function extractUpdateTargetIds (sql, bindings = []) {
-    const ast = _parseSingleStatement(sql)
-    if (!ast || ast.type !== 'update') return []
-    return [...new Set(_extractIdsFromWhere(ast.where, bindings))]
-}
-
-/**
  * @param {object} knexTable query builder for one table
  * @param {string} columnName
  * @param {string[]} parentIds
- * @param {boolean} hasSoftDelete
  * @returns {Promise<object[]>}
  */
-async function _findDependents (knexTable, columnName, parentIds, hasSoftDelete) {
-    let query = knexTable.select('id').whereIn(columnName, parentIds)
-    if (hasSoftDelete) {
-        query = query.whereNull('deletedAt')
-    }
-    return query
+async function _findDependents (knexTable, columnName, parentIds) {
+    return knexTable.select('id').whereIn(columnName, parentIds)
 }
 
 /**
- * Enforce inbound cross-source FK rules for a parent row delete / soft-delete.
+ * Enforce inbound cross-source FK rules for a parent SQL DELETE.
  *
  * @param {object} options
  * @param {string} options.tableName parent table being deleted
@@ -226,26 +180,13 @@ async function enforceCrossSourceDeleteConstraints ({
     tablePoolResolver,
     getPoolByName,
 }) {
-    let mode = null
-    let parentIds = []
+    if (sqlOperationName !== 'delete') return
 
-    if (sqlOperationName === 'delete') {
-        mode = 'hard'
-        parentIds = extractDeleteTargetIds(sql, bindings)
-    } else if (sqlOperationName === 'update') {
-        // Avoid SQL AST on ordinary updates (main-path hot).
-        if (!/\b"?deletedAt"?\s*=/i.test(sql)) return
-        if (!isSoftDeleteUpdate(sql, bindings)) return
-        mode = 'soft'
-        parentIds = extractUpdateTargetIds(sql, bindings)
-    } else {
-        return
-    }
-
+    const parentIds = extractDeleteTargetIds(sql, bindings)
     if (!parentIds.length) {
         throw new Error(
             `Cross-database foreign key validation could not resolve target ${tableName} ` +
-            `id(s) for ${sqlOperationName.toUpperCase()} statement`,
+            'id(s) for DELETE statement',
         )
     }
 
@@ -261,12 +202,10 @@ async function enforceCrossSourceDeleteConstraints ({
         const poolName = tablePoolResolver.resolveTablePool(rel.dependentListKey)
         const pool = getPoolByName(poolName)
         const client = pool.getKnexClient()
-        const hasSoftDelete = _listHasSoftDelete(listAdapters[rel.dependentListKey])
         const dependents = await _findDependents(
             client(rel.dependentListKey),
             rel.columnName,
             parentIds,
-            hasSoftDelete,
         )
         if (dependents.length > 0) {
             throw new Error(
@@ -276,9 +215,6 @@ async function enforceCrossSourceDeleteConstraints ({
         }
     }
 
-    // Soft-delete does not run ON DELETE CASCADE / SET_NULL in Postgres either.
-    if (mode === 'soft') return
-
     // NOTE: Cross-pool dependent writes run before the parent delete because the parent
     // statement executes in a separate query runner outside this validator. These changes
     // are therefore not transactional with the parent delete across different pools.
@@ -287,10 +223,7 @@ async function enforceCrossSourceDeleteConstraints ({
         const poolName = tablePoolResolver.resolveTablePool(rel.dependentListKey)
         const pool = getPoolByName(poolName)
         const client = pool.getKnexClient()
-        const hasSoftDelete = _listHasSoftDelete(listAdapters[rel.dependentListKey])
-        let query = client(rel.dependentListKey).whereIn(rel.columnName, parentIds)
-        if (hasSoftDelete) query = query.whereNull('deletedAt')
-        await query.del()
+        await client(rel.dependentListKey).whereIn(rel.columnName, parentIds).del()
     }
 
     const setNullRels = inbound.filter(rel => rel.onDelete === ON_DELETE.SET_NULL)
@@ -298,10 +231,7 @@ async function enforceCrossSourceDeleteConstraints ({
         const poolName = tablePoolResolver.resolveTablePool(rel.dependentListKey)
         const pool = getPoolByName(poolName)
         const client = pool.getKnexClient()
-        const hasSoftDelete = _listHasSoftDelete(listAdapters[rel.dependentListKey])
-        let query = client(rel.dependentListKey).whereIn(rel.columnName, parentIds)
-        if (hasSoftDelete) query = query.whereNull('deletedAt')
-        await query.update({ [rel.columnName]: null })
+        await client(rel.dependentListKey).whereIn(rel.columnName, parentIds).update({ [rel.columnName]: null })
     }
 }
 
@@ -310,7 +240,5 @@ module.exports = {
     normalizeOnDelete,
     collectCrossSourceInboundForeignKeys,
     extractDeleteTargetIds,
-    extractUpdateTargetIds,
-    isSoftDeleteUpdate,
     enforceCrossSourceDeleteConstraints,
 }

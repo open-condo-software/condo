@@ -801,7 +801,7 @@ async function planCrossPoolSelect ({
     getPoolByName,
 }) {
     if (sqlOperationName !== 'select') return null
-    // Cheap reject: no JOIN ⇒ nothing to rewrite (avoids SQL AST on plain main-table reads).
+    // Cheap reject: no JOIN ⇒ nothing to rewrite (avoids SQL AST on plain single-table reads).
     if (!/\bjoin\b/i.test(sql)) return null
 
     let parsedQuery

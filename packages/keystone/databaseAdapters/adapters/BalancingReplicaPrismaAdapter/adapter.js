@@ -8,7 +8,7 @@ const { getLogger } = require('@open-condo/keystone/logging')
 
 const { PrismaPool } = require('./pool')
 
-const { getNamedDBs, getReplicaPoolsConfig, getQueryRoutingRules, isDefaultRule } = require('../BalancingReplicaKnexAdapter/utils/env')
+const { getNamedDBs, getQueryRoutingRules, getReplicaPoolsConfig, isDefaultRule, isPostgresConnectionUrl } = require('../BalancingReplicaKnexAdapter/utils/env')
 const { isRuleMatching } = require('../BalancingReplicaKnexAdapter/utils/rules')
 const { PrismaAdapter } = require('../PrismaAdapter')
 
@@ -50,12 +50,19 @@ class BalancingReplicaPrismaAdapter extends PrismaAdapter {
         // NOTE: Pass a dummy URL to parent - we'll override _connect entirely.
         // The parent PrismaAdapter needs a URL for schema generation, so we extract the first DB URL.
         const dbConnections = getNamedDBs(databaseUrl || conf['DATABASE_URL'])
-        const firstUrl = Object.values(dbConnections)[0]
+        const firstUrl = Object.values(dbConnections).find(isPostgresConnectionUrl)
+        if (!firstUrl) {
+            throw new TypeError('BalancingReplicaPrismaAdapter requires at least one postgresql:// URL in DATABASE_URL')
+        }
         super({ url: firstUrl, migrationMode: 'none', relationLoadStrategy: 'query' })
 
         this._dbConnections = dbConnections
         const availableDatabases = Object.keys(this._dbConnections)
-        this._replicaPoolsConfig = getReplicaPoolsConfig(replicaPools || conf['DATABASE_POOLS'], availableDatabases)
+        this._replicaPoolsConfig = getReplicaPoolsConfig(
+            replicaPools || conf['DATABASE_POOLS'],
+            availableDatabases,
+            this._dbConnections,
+        )
         this._routingRules = getQueryRoutingRules(routingRules || conf['DATABASE_ROUTING_RULES'], this._replicaPoolsConfig)
     }
 
@@ -70,7 +77,9 @@ class BalancingReplicaPrismaAdapter extends PrismaAdapter {
         await this._generateClient(rels)
         const { PrismaClient, Prisma } = require(this.clientPath)
 
-        const dbNames = Object.keys(this._dbConnections)
+        const dbNames = Object.keys(this._dbConnections).filter(name => (
+            isPostgresConnectionUrl(this._dbConnections[name])
+        ))
         const clients = {}
 
         for (const dbName of dbNames) {
@@ -210,13 +219,23 @@ class BalancingReplicaPrismaAdapter extends PrismaAdapter {
         this._prismaClients = await this._initPrismaClients(rels)
 
         this._replicaPools = Object.fromEntries(
-            Object.entries(this._replicaPoolsConfig).map(([name, config]) => [
-                name,
-                new PrismaPool({
+            Object.entries(this._replicaPoolsConfig).map(([name, config]) => {
+                if (config.provider) {
+                    throw new Error(
+                        `Provider pool "${name}" is not supported by BalancingReplicaPrismaAdapter. Use BalancingReplicaKnexAdapter.`,
+                    )
+                }
+                return [name, new PrismaPool({
                     ...omit(config, ['databases']),
-                    prismaClients: config.databases.map((dbName) => this._prismaClients[dbName]),
-                }),
-            ])
+                    prismaClients: config.databases.map((dbName) => {
+                        const client = this._prismaClients[dbName]
+                        if (!client) {
+                            throw new Error(`Postgres pool "${name}" database "${dbName}" has no Prisma client`)
+                        }
+                        return client
+                    }),
+                })]
+            }),
         )
 
         const defaultRule = this._routingRules.find(rule => isDefaultRule(rule))
@@ -282,7 +301,7 @@ class BalancingReplicaPrismaAdapter extends PrismaAdapter {
     __kmigratorKnexAdapters () {
         // NOTE: For migrations, use the main database connection (first in the list)
         // Create a temporary adapter with the main database URL for schema extraction
-        const mainDbUrl = Object.values(this._dbConnections)[0]
+        const mainDbUrl = Object.values(this._dbConnections).find(isPostgresConnectionUrl)
         const tempAdapter = new PrismaAdapter({ url: mainDbUrl, migrationMode: 'none', relationLoadStrategy: 'query' })
 
         // Copy all necessary properties from this adapter to the temp adapter

@@ -1,6 +1,7 @@
 const { KnexAdapter: OriginalKnexAdapter } = require('@open-keystone/adapter-knex')
 const { knex } = require('knex')
 
+const { reconcileCrossPoolConstraints } = require('@open-condo/keystone/databaseAdapters/utils')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 class KnexAdapter extends OriginalKnexAdapter {
@@ -43,6 +44,30 @@ class KnexAdapter extends OriginalKnexAdapter {
             logger.error({ msg: 'Could not connect to database', data: { dbName } })
             throw connectionError
         }
+    }
+
+    /**
+     * Restore FK constraints that a previous multi-database topology had to drop
+     * (kmigrator post-migrate).
+     *
+     * Everything lives in one database here, so no constraint can be cross-database: this
+     * only re-adds what `BalancingReplicaKnexAdapter` recorded before, which makes moving a
+     * table back onto a single database a plain `migrate`.
+     *
+     * @returns {Promise<Array<{ dbName: string, dropped: Array, restored: Array }>>}
+     */
+    async __kmigratorReconcileTopology () {
+        const schemaName = typeof this.getDbSchemaName === 'function' ? this.getDbSchemaName() : 'public'
+        const dbName = typeof this.knex?.client?.database === 'function'
+            ? this.knex.client.database()
+            : undefined
+
+        return [await reconcileCrossPoolConstraints({
+            knex: this.knex,
+            resolveTableDatabase: () => 'default',
+            schemaName,
+            dbName,
+        })]
     }
 }
 

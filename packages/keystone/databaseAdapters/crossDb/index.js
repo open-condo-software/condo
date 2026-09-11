@@ -20,8 +20,6 @@ const {
     normalizeOnDelete,
     collectCrossSourceInboundForeignKeys,
     extractDeleteTargetIds,
-    extractUpdateTargetIds,
-    isSoftDeleteUpdate,
     enforceCrossSourceDeleteConstraints,
 } = require('./validateCrossSourceDeletes')
 const {
@@ -49,8 +47,6 @@ module.exports = {
     normalizeOnDelete,
     collectCrossSourceInboundForeignKeys,
     extractDeleteTargetIds,
-    extractUpdateTargetIds,
-    isSoftDeleteUpdate,
     enforceCrossSourceDeleteConstraints,
     normalizeColumnName,
     normalizePositionalBindings,

@@ -4,7 +4,7 @@
  */
 const Ajv = require('ajv')
 
-const { REGISTERED_DATA_PROVIDER_NAMES } = require('@open-condo/keystone/databaseAdapters/dataProviders')
+const { REGISTERED_DATA_PROVIDER_NAMES, getProviderClass } = require('@open-condo/keystone/databaseAdapters/dataProviders')
 
 const { SUPPORTED_PG_OPERATIONS } = require('./sql')
 
@@ -17,6 +17,9 @@ const IMMUTABLE_OPERATIONS = new Set(['select', 'show'])
 // NOTE: detects names of pg tables / queries / mutations
 const SIMPLE_NAME_PATTERN = /^[a-z\d_+]+$/i
 
+/** Named `DATABASE_URL` values: any URI (`postgresql://`, `redis://`, …). */
+const CONNECTION_URL_PATTERN = '^[a-z][a-z0-9+.-]*://.+'
+
 const DB_URL_SCHEMA = {
     type: 'object',
     minProperties: 1,
@@ -24,7 +27,7 @@ const DB_URL_SCHEMA = {
     patternProperties: {
         [ANY_CHAR_PATTERN]: {
             type: 'string',
-            pattern: '^postgresql://.+',
+            pattern: CONNECTION_URL_PATTERN,
         },
     },
 }
@@ -36,13 +39,33 @@ const BALANCER_OPTIONS_SCHEMAS = {
 const validateDBConfig = ajv.compile(DB_URL_SCHEMA)
 
 /**
+ * @param {string|undefined|null} url
+ * @returns {string|null} lowercase URI scheme, or null
+ */
+function getConnectionProtocol (url) {
+    const match = String(url || '').match(/^([a-z][a-z0-9+.-]*):\/\//i)
+    return match ? match[1].toLowerCase() : null
+}
+
+/**
+ * True for Knex/Prisma Postgres URLs (`postgresql://` or `postgres://`).
+ *
+ * @param {string|undefined|null} url
+ * @returns {boolean}
+ */
+function isPostgresConnectionUrl (url) {
+    const protocol = getConnectionProtocol(url)
+    return protocol === 'postgres' || protocol === 'postgresql'
+}
+
+/**
  * Converts custom database url string to dictionary of form Record<db_name, connection_string>
  *
  * NOTE: DB_NAME is important here, since it all dbs will be grouped together by names later.
  * Flat connection string is good, but it can contain query parameters for configuration,
  * and required to be the same across all others env values, so assigning a name to it is easier to maintain
  *
- * @param {string | undefined} databaseUrl - custom db url. Example: 'custom:{"main": "postgresql://****:****@127.0.0.1:5433/local-condo", "async_replica": "postgresql://****:****@127.0.0.1:5432/local-condo"}'
+ * @param {string | undefined} databaseUrl - custom db url. Example: 'custom:{"main": "postgresql://****:****@127.0.0.1:5433/local-condo", "cache": "redis://127.0.0.1:6379/6"}'
  * @returns {Record<string, string>} - parsed dictionary of form Record<db_name, connection_string>.
  */
 function getNamedDBs (databaseUrl) {
@@ -88,7 +111,6 @@ function _createReplicaPoolsSchema (availableDatabases) {
                         enum: REGISTERED_DATA_PROVIDER_NAMES,
                     },
                     writable: { type: 'boolean' },
-                    kmigrator: { type: 'boolean' },
                     balancer: {
                         type: 'string',
                         enum: Object.keys(BALANCER_OPTIONS_SCHEMAS),
@@ -110,17 +132,21 @@ function _createReplicaPoolsSchema (availableDatabases) {
  */
 function _normalizePoolConfig (poolName, poolConfig) {
     if (poolConfig.provider) {
-        if (poolConfig.databases) {
-            throw new TypeError(`Invalid DB pools config. Pool "${poolName}" cannot set both "provider" and "databases"`)
-        }
         if (!REGISTERED_DATA_PROVIDER_NAMES.includes(poolConfig.provider)) {
             throw new TypeError(`Invalid DB pools config. Unknown provider "${poolConfig.provider}" in pool "${poolName}"`)
         }
-        return {
+        const normalized = {
             provider: poolConfig.provider,
-            kmigrator: poolConfig.kmigrator,
             writable: Boolean(poolConfig.writable),
         }
+        if (poolConfig.databases) {
+            normalized.databases = poolConfig.databases
+            normalized.balancer = poolConfig.balancer || 'RoundRobin'
+            if (poolConfig.balancerOptions) {
+                normalized.balancerOptions = poolConfig.balancerOptions
+            }
+        }
+        return normalized
     }
 
     if (!Array.isArray(poolConfig.databases) || poolConfig.databases.length === 0) {
@@ -131,13 +157,45 @@ function _normalizePoolConfig (poolName, poolConfig) {
 }
 
 /**
+ * Postgres pools may only list postgresql:// names.
+ * Provider pools ask the registered provider class (`isConnectionUrl`) whether a URI is valid.
+ *
+ * @param {string} poolName
+ * @param {object} poolConfig
+ * @param {Record<string, string>|null} [namedConnections]
+ */
+function _assertPoolConnectionProtocols (poolName, poolConfig, namedConnections) {
+    if (!namedConnections) return
+
+    for (const dbName of poolConfig.databases || []) {
+        const url = namedConnections[dbName]
+        if (!url) continue
+        if (!poolConfig.provider && !isPostgresConnectionUrl(url)) {
+            throw new TypeError(
+                `Invalid DB pools config. Postgres pool "${poolName}" database "${dbName}" must use a postgresql:// URL`,
+            )
+        }
+        if (poolConfig.provider) {
+            const ProviderClass = getProviderClass(poolConfig.provider)
+            if (typeof ProviderClass?.isConnectionUrl === 'function' && !ProviderClass.isConnectionUrl(url)) {
+                const hint = ProviderClass.connectionUrlHint || `${poolConfig.provider} connection URL`
+                throw new TypeError(
+                    `Invalid DB pools config. Provider pool "${poolName}" database "${dbName}" must use a ${hint}`,
+                )
+            }
+        }
+    }
+}
+
+/**
  * Parses replica pool config from env string or from object itself.
  * Validates it correctness and fills default values when necessary
  * @param {Object | string} config - pools configuration, for examples refer to env.spec.js
  * @param {Array<string>} availableDatabases - name of databases, which are available for use in adapter
+ * @param {Record<string, string>} [namedConnections] `DATABASE_URL` name → URI (protocol checks)
  * @returns {Object}
  */
-function getReplicaPoolsConfig (config, availableDatabases) {
+function getReplicaPoolsConfig (config, availableDatabases, namedConnections) {
     if (!config || (typeof config !== 'string' && typeof config !== 'object')) {
         throw new TypeError(`Invalid DB pools config passed. Object or its stringified representation was expected, but got ${typeof config}`)
     }
@@ -157,7 +215,11 @@ function getReplicaPoolsConfig (config, availableDatabases) {
     }
 
     return Object.fromEntries(
-        Object.entries(parsedConfig).map(([name, pool]) => [name, _normalizePoolConfig(name, pool)]),
+        Object.entries(parsedConfig).map(([name, pool]) => {
+            const normalized = _normalizePoolConfig(name, pool)
+            _assertPoolConnectionProtocols(name, normalized, namedConnections)
+            return [name, normalized]
+        }),
     )
 }
 
@@ -327,6 +389,8 @@ function getQueryRoutingRules (routingConfig, poolsConfig) {
 
 module.exports = {
     isDefaultRule,
+    isPostgresConnectionUrl,
+    getConnectionProtocol,
     getNamedDBs,
     getReplicaPoolsConfig,
     getQueryRoutingRules,

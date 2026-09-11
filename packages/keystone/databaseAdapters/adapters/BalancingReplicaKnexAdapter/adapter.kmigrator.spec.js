@@ -3,6 +3,8 @@ const { createKmigratorKnexAdapter } = require('@open-condo/keystone/databaseAda
 const { BalancingReplicaKnexAdapter } = require('./adapter')
 const { isDefaultRule } = require('./utils/env')
 
+const { createTablePoolResolver } = require('../../crossDb/tablePool')
+
 jest.mock('./utils/knex', () => ({
     initKnexClient: jest.fn(async () => ({
         raw: jest.fn(),
@@ -172,23 +174,20 @@ describe('BalancingReplicaKnexAdapter.__kmigratorKnexAdapters', () => {
         expect(stubs[0].dbName).toBe('main')
     })
 
-    test('skips writable pools opted out from kmigrator', () => {
+    test('skips writable provider pools that list redis DATABASE_URL names', () => {
         const adapter = new BalancingReplicaKnexAdapter({
-            databaseUrl: 'custom:{"main":"postgresql://u:p@127.0.0.1:5432/main","external":"postgresql://u:p@127.0.0.1:5433/external"}',
-            replicaPools: '{"main":{"databases":["main"],"writable":true},"external":{"databases":["external"],"writable":true,"kmigrator":false}}',
+            databaseUrl: 'custom:{"main":"postgresql://u:p@127.0.0.1:5432/main","cache":"redis://127.0.0.1:6379/6"}',
+            replicaPools: '{"main":{"databases":["main"],"writable":true},"kv":{"provider":"kv","databases":["cache"],"writable":true}}',
             routingRules: '[{"target":"main"}]',
         })
 
         adapter.listAdapters = {}
         adapter.getListAdapterByKey = jest.fn()
-        adapter._knexClients = {
-            main: mainKnex,
-            external: externalKnex,
-        }
+        adapter._knexClients = { main: mainKnex }
         adapter._routingRules = [{ target: 'main' }]
         adapter._replicaPoolsConfig = {
             main: { databases: ['main'], writable: true },
-            external: { databases: ['external'], writable: true, kmigrator: false },
+            kv: { provider: 'kv', writable: true, databases: ['cache'] },
         }
 
         const stubs = adapter.__kmigratorKnexAdapters()
@@ -196,6 +195,51 @@ describe('BalancingReplicaKnexAdapter.__kmigratorKnexAdapters', () => {
         expect(stubs).toHaveLength(1)
         expect(stubs[0].dbName).toBe('main')
         expect(stubs[0].knex).toBe(mainKnex)
+    })
+
+    test('migrates every writable postgres database so each holds the full schema', () => {
+        const adapter = createConnectedAdapter()
+
+        expect(adapter._getKmigratorDatabaseNames()).toEqual(['external', 'main'])
+    })
+})
+
+describe('BalancingReplicaKnexAdapter.resolveTableDatabase', () => {
+    function createRoutedAdapter () {
+        const adapter = new BalancingReplicaKnexAdapter({
+            databaseUrl: 'custom:{"main":"postgresql://u:p@127.0.0.1:5432/main","message":"postgresql://u:p@127.0.0.1:5432/message"}',
+            replicaPools: '{"main":{"databases":["main"],"writable":true},"message":{"databases":["message"],"writable":true}}',
+            routingRules: '[{"tableName":"^(Message|MessageHistoryRecord)$","target":"message"},{"target":"main"}]',
+        })
+        adapter._tablePoolResolver = createTablePoolResolver({
+            routingRules: adapter._routingRules,
+            replicaPoolsConfig: adapter._replicaPoolsConfig,
+        })
+        return adapter
+    }
+
+    test('maps a table to the database of its home pool', () => {
+        const adapter = createRoutedAdapter()
+
+        expect(adapter.resolveTableDatabase('Message')).toBe('message')
+        expect(adapter.resolveTableDatabase('MessageHistoryRecord')).toBe('message')
+        expect(adapter.resolveTableDatabase('User')).toBe('main')
+    })
+
+    test('pools sharing one database resolve to the same database', () => {
+        const adapter = new BalancingReplicaKnexAdapter({
+            databaseUrl: 'custom:{"main":"postgresql://u:p@127.0.0.1:5432/main"}',
+            replicaPools: '{"main":{"databases":["main"],"writable":true},"historical":{"databases":["main"],"writable":true}}',
+            routingRules: '[{"tableName":"^.+HistoryRecord$","target":"historical"},{"target":"main"}]',
+        })
+        adapter._tablePoolResolver = createTablePoolResolver({
+            routingRules: adapter._routingRules,
+            replicaPoolsConfig: adapter._replicaPoolsConfig,
+        })
+
+        // Different pools, one database: FKs between them stay satisfiable
+        expect(adapter.resolveTableDatabase('TicketHistoryRecord')).toBe('main')
+        expect(adapter.resolveTableDatabase('Ticket')).toBe('main')
     })
 })
 

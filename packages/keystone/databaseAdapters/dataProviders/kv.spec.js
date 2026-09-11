@@ -1,8 +1,9 @@
 jest.mock('@open-condo/keystone/kv', () => ({
     getKVClient: jest.fn(),
+    createKVClientFromUrl: jest.fn(),
 }))
 
-const { getKVClient } = require('@open-condo/keystone/kv')
+const { createKVClientFromUrl, getKVClient } = require('@open-condo/keystone/kv')
 
 const {
     executeProviderSqlMutation,
@@ -103,6 +104,23 @@ describe('KvDataProvider', () => {
     beforeEach(() => {
         provider = new KvDataProvider()
         getKVClient.mockReset()
+        createKVClientFromUrl.mockReset()
+    })
+
+    describe('connection URLs', () => {
+        test.each([
+            ['redis://127.0.0.1:6379/6', true],
+            ['rediss://user:pass@host:6380/0', true],
+            ['REDIS://127.0.0.1:6379/6', true],
+            ['valkey://127.0.0.1:6379/6', true],
+            ['valkeys://user:pass@host:6380/0', true],
+            ['VALKEY://127.0.0.1:6379/6', true],
+            ['postgresql://u:p@host/db', false],
+            ['http://example.test/cache', false],
+            [undefined, false],
+        ])('isConnectionUrl(%p)', (url, expected) => {
+            expect(KvDataProvider.isConnectionUrl(url)).toEqual(expected)
+        })
     })
 
     describe('find', () => {
@@ -182,6 +200,56 @@ describe('KvDataProvider', () => {
                 condition: { id: 'new-1', deletedAt: null },
             })
             expect(visibleRows).toEqual([])
+        })
+
+        test('uses an injected getClient instead of getKVClient', async () => {
+            const kv = createKvStore({})
+            const providerWithClient = new KvDataProvider({ getClient: () => kv })
+
+            await providerWithClient.create({
+                schemaName: 'User',
+                data: { id: 'injected-1', name: 'From pool databases', deletedAt: null },
+            })
+
+            expect(getKVClient).not.toHaveBeenCalled()
+            expect(JSON.parse(kv._store.get('{User}:injected-1')).name).toEqual('From pool databases')
+        })
+
+        test('connect opens named DATABASE_URL clients and disconnect closes them', async () => {
+            const kv = createKvStore({})
+            kv.ping = jest.fn().mockResolvedValue('PONG')
+            kv.quit = jest.fn().mockResolvedValue('OK')
+            createKVClientFromUrl.mockReturnValue(kv)
+
+            const connected = new KvDataProvider({
+                connections: { cache: 'redis://127.0.0.1:6379/6' },
+            })
+            await connected.connect()
+
+            expect(createKVClientFromUrl).toHaveBeenCalledWith(
+                'redis://127.0.0.1:6379/6',
+                expect.objectContaining({ name: 'database-url:cache' }),
+            )
+            expect(kv.ping).toHaveBeenCalled()
+            expect(getKVClient).not.toHaveBeenCalled()
+
+            await connected.create({
+                schemaName: 'User',
+                data: { id: 'c1', name: 'From connect', deletedAt: null },
+            })
+            expect(JSON.parse(kv._store.get('{User}:c1')).name).toEqual('From connect')
+
+            await connected.disconnect()
+            expect(kv.quit).toHaveBeenCalled()
+        })
+
+        test('connect rejects non-kv URLs without opening a client', async () => {
+            const connected = new KvDataProvider({
+                connections: { cache: 'postgresql://u:p@127.0.0.1:5432/main' },
+            })
+
+            await expect(connected.connect()).rejects.toThrow(/must use a redis:\/\/ or valkey:\/\/ URL/)
+            expect(createKVClientFromUrl).not.toHaveBeenCalled()
         })
 
         test('rejects create when id already exists', async () => {

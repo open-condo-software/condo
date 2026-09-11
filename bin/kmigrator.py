@@ -376,6 +376,11 @@ function createFakeTable (tableName) {
         process.exit(4)
     }
 
+    // Every writable database receives the full migration set, so the extracted schema is the
+    // same for all of them. Extract it once: `createFakeTable` caches per table name, so a
+    // second `_createTables()` pass would append duplicate column definitions.
+    let isSchemaExtracted = false
+
     for (let adapter of knexAdapters) {
         const schemaName = adapter.schemaName
         const s = adapter.schema()
@@ -423,10 +428,13 @@ function createFakeTable (tableName) {
             console.log('CALL', 'dropTable', tableName)
         }
         adapter.schema = () => s
-        const createResult = (await adapter._createTables())
-        createResult.forEach((r) => {
-            if (r.isRejected) throw r.reason
-        })
+        if (!isSchemaExtracted) {
+            const createResult = (await adapter._createTables())
+            createResult.forEach((r) => {
+                if (r.isRejected) throw r.reason
+            })
+            isSchemaExtracted = true
+        }
 
         const migrationsConfig = {directory: knexMigrationsDir}
         try {
@@ -529,6 +537,7 @@ RUN_KEYSTONE_KNEX_SCRIPT = """
 const entryFile = '__KEYSTONE_ENTRY_PATH__'
 const knexMigrationsDir = '__KNEX_MIGRATION_DIR__'
 const knexMigrationsCode = '__KNEX_MIGRATION_CODE__'
+const reconcileTopology = '__KNEX_RECONCILE_TOPOLOGY__'.toLowerCase() === 'true'
 
 const path = require('path')
 const util = require('util')
@@ -562,6 +571,30 @@ async function runInContext(knex, config) {
         const migrationsConfig = {directory: knexMigrationsDir}
         try {
             await runInContext(adapter.knex, migrationsConfig)
+        } catch (e) {
+            console.error(e)
+            process.exit(1)
+        }
+    }
+
+    // Migrations are topology-agnostic: every writable database receives the full schema,
+    // so each one also gets FK constraints for tables that are routed elsewhere. Those can
+    // never hold, and the adapter reconciles them against the configured topology here.
+    // No-op for a single-database DATABASE_URL.
+    if (reconcileTopology && typeof rootAdapter.__kmigratorReconcileTopology === 'function') {
+        try {
+            const results = await rootAdapter.__kmigratorReconcileTopology()
+            for (const { dbName, dropped, restored } of results) {
+                if (!dropped.length && !restored.length) continue
+                console.log('')
+                console.log('RECONCILE TOPOLOGY', dbName)
+                for (const c of dropped) {
+                    console.log(' - dropped cross-database FK', c.tableName + '.' + c.constraintName, '->', c.referencedTableName)
+                }
+                for (const c of restored) {
+                    console.log(' + restored same-database FK', c.tableName + '.' + c.constraintName, '->', c.referencedTableName)
+                }
+            }
         } catch (e) {
             console.error(e)
             process.exit(1)
@@ -919,6 +952,8 @@ def _4_1_makemigrations(ctx, merge=False, check=False, empty=False):
 
 def _5_1_run_knex_command(ctx, cmd='latest'):
     ctx['__KNEX_MIGRATION_CODE__'] = 'return await knex.migrate.{}(config)'.format(cmd)
+    # Only forward migrations can change which constraints the topology allows
+    ctx['__KNEX_RECONCILE_TOPOLOGY__'] = 'true' if cmd in ('latest', 'up') else 'false'
     KNEX_MIGRATE_SCRIPT.write_text(_inject_ctx(RUN_KEYSTONE_KNEX_SCRIPT, ctx), encoding='utf-8')
     log_file = DJANGO_DIR / '..' / 'knex.run.{}.{}.log'.format(time(), cmd)
     try:
