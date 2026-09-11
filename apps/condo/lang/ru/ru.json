@@ -627,7 +627,7 @@
   "api.scope.exportPropertyScopeToExcel.NOTHING_TO_EXPORT": "Не найдено контактов для экспорта",
   "api.scope.propertyScope.MAX_NAME_LENGTH_ERROR": "Превышено максимальное количество символов в названии ({max} символов)",
   "api.subscription.registerSubscriptionContexts.DUPLICATE_PLAN_IN_BUNDLE": "Один тарифный план не может входить в набор более одного раза",
-  "api.subscription.registerSubscriptionContexts.FEATURE_ALREADY_IN_PLAN": "Фича из набора уже входит в другой план этого же набора",
+  "api.subscription.registerSubscriptionContexts.FEATURE_ALREADY_IN_PLAN": "Функциональность из набора уже входит в другой план этого же набора",
   "api.subscription.registerSubscriptionContexts.INVALID_ORGANIZATION_TYPE": "Тип организации не соответствует типу организации тарифного плана",
   "api.subscription.registerSubscriptionContexts.MIXED_PRICING_RULE_PERIODS": "Все цены в наборе должны быть за один и тот же период",
   "api.subscription.registerSubscriptionContexts.MULTIPLE_SERVICE_PLANS_IN_BUNDLE": "В наборе может быть не более одного сервисного тарифного плана",

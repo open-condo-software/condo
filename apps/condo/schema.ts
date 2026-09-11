@@ -51067,7 +51067,7 @@ export type Mutation = {
    */
   registerServiceConsumer?: Maybe<ServiceConsumer>;
   /**
-   * Registers a subscription for an organization from one or more pricing rules (a bundle). For trials (isTrial=true) creates a single SubscriptionContext with status DONE. For paid subscriptions creates one Invoice with a row per pricing rule and one SubscriptionContext per pricing rule with status CREATED; when paymentType=card a MultiPayment and directPaymentUrl are also created.
+   * Registers a subscription for an organization from one or more pricing rules (a bundle). For trials (isTrial=true) creates a status DONE SubscriptionContext for every plan whose trial is available (its own trialDays), skipping plans with no trial or an already used one. For paid subscriptions creates one Invoice with a row per pricing rule and one SubscriptionContext per pricing rule with status CREATED; when paymentType=card a MultiPayment and directPaymentUrl are also created. Every call registers a fresh Invoice + contexts; it does not look at or touch earlier unpaid registrations.
    *
    *
    *
@@ -51112,13 +51112,6 @@ export type Mutation = {
    *
    * `{
    *   "code": "BAD_USER_INPUT",
-   *   "type": "TRIAL_BUNDLE_NOT_SUPPORTED",
-   *   "message": "Trial subscription cannot be registered with additional pricing rules",
-   *   "messageForUser": "Trial subscription cannot be registered with additional pricing rules"
-   * }`
-   *
-   * `{
-   *   "code": "BAD_USER_INPUT",
    *   "type": "MIXED_PRICING_RULE_PERIODS",
    *   "message": "All pricing rules in a bundle must have the same period",
    *   "messageForUser": "All pricing rules in a bundle must have the same period"
@@ -51150,13 +51143,6 @@ export type Mutation = {
    *   "type": "NO_ACTIVE_SERVICE_SUBSCRIPTION",
    *   "message": "Cannot subscribe to a feature plan without an active service subscription",
    *   "messageForUser": "Cannot subscribe to a feature plan without an active service subscription"
-   * }`
-   *
-   * `{
-   *   "code": "BAD_USER_INPUT",
-   *   "type": "ACTIVE_SUPERSET_PLAN_EXISTS",
-   *   "message": "Cannot register a subscription that is already fully covered by an active non-trial plan",
-   *   "messageForUser": "Cannot register a subscription that is already fully covered by an active non-trial plan"
    * }`
    *
    * `{
