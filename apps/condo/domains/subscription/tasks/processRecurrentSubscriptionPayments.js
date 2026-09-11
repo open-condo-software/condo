@@ -89,15 +89,18 @@ async function processRecurrentSubscriptionPayments () {
                 },
             })
             const renewedPlanIds = new Set(renewedContexts.map(subscriptionContext => subscriptionContext.subscriptionPlan))
-            const isFullyRenewed = group.every(subscriptionContext => renewedPlanIds.has(subscriptionContext.subscriptionPlan))
-            if (isFullyRenewed) {
+            const notRenewed = group.filter(subscriptionContext => !renewedPlanIds.has(subscriptionContext.subscriptionPlan))
+            if (notRenewed.length === 0) {
                 logger.info({ msg: 'bundle already renewed, skipping group', data: { groupContextIds } })
                 continue
+            }
+            if (notRenewed.length < group.length) {
+                logger.warn({ msg: 'bundle is partially renewed, renewing the remaining plans only', data: { groupContextIds, notRenewedContextIds: notRenewed.map(({ id }) => id) } })
             }
 
             const serviceRuleIds = []
             const featureRuleIds = []
-            for (const subscriptionContext of group) {
+            for (const subscriptionContext of notRenewed) {
                 const [plan] = await find('SubscriptionPlan', { id: subscriptionContext.subscriptionPlan, deletedAt: null })
                 if (plan && plan.planType === SUBSCRIPTION_PLAN_TYPE_SERVICE) {
                     serviceRuleIds.push(subscriptionContext.subscriptionPlanPricingRule)
