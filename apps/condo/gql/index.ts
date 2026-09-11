@@ -5970,8 +5970,12 @@ export const GetAvailableFeatureSubscriptionPlansDocument = gql`
       plan {
         id
         name
+        description
+        priority
+        trialDays
         planType
         enabledB2BApps
+        enabledB2CApps
         tickets
         meters
         payments
@@ -6231,6 +6235,54 @@ export function useRegisterSubscriptionContextsMutation(baseOptions?: Apollo.Mut
 export type RegisterSubscriptionContextsMutationHookResult = ReturnType<typeof useRegisterSubscriptionContextsMutation>;
 export type RegisterSubscriptionContextsMutationResult = Apollo.MutationResult<Types.RegisterSubscriptionContextsMutation>;
 export type RegisterSubscriptionContextsMutationOptions = Apollo.BaseMutationOptions<Types.RegisterSubscriptionContextsMutation, Types.RegisterSubscriptionContextsMutationVariables>;
+export const GetSubscriptionB2BAppsDocument = gql`
+    query getSubscriptionB2BApps($ids: [ID!]!) {
+  b2bApps: allB2BApps(
+    where: {id_in: $ids, isPublic: true, isHidden: false, deletedAt: null}
+    first: 100
+  ) {
+    id
+    name
+    shortDescription
+  }
+}
+    `;
+
+/**
+ * __useGetSubscriptionB2BAppsQuery__
+ *
+ * To run a query within a React component, call `useGetSubscriptionB2BAppsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetSubscriptionB2BAppsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetSubscriptionB2BAppsQuery({
+ *   variables: {
+ *      ids: // value for 'ids'
+ *   },
+ * });
+ */
+export function useGetSubscriptionB2BAppsQuery(baseOptions: Apollo.QueryHookOptions<Types.GetSubscriptionB2BAppsQuery, Types.GetSubscriptionB2BAppsQueryVariables> & ({ variables: Types.GetSubscriptionB2BAppsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetSubscriptionB2BAppsQuery, Types.GetSubscriptionB2BAppsQueryVariables>(GetSubscriptionB2BAppsDocument, options);
+      }
+export function useGetSubscriptionB2BAppsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetSubscriptionB2BAppsQuery, Types.GetSubscriptionB2BAppsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetSubscriptionB2BAppsQuery, Types.GetSubscriptionB2BAppsQueryVariables>(GetSubscriptionB2BAppsDocument, options);
+        }
+// @ts-ignore
+export function useGetSubscriptionB2BAppsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<Types.GetSubscriptionB2BAppsQuery, Types.GetSubscriptionB2BAppsQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetSubscriptionB2BAppsQuery, Types.GetSubscriptionB2BAppsQueryVariables>;
+export function useGetSubscriptionB2BAppsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetSubscriptionB2BAppsQuery, Types.GetSubscriptionB2BAppsQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetSubscriptionB2BAppsQuery | undefined, Types.GetSubscriptionB2BAppsQueryVariables>;
+export function useGetSubscriptionB2BAppsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetSubscriptionB2BAppsQuery, Types.GetSubscriptionB2BAppsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetSubscriptionB2BAppsQuery, Types.GetSubscriptionB2BAppsQueryVariables>(GetSubscriptionB2BAppsDocument, options);
+        }
+export type GetSubscriptionB2BAppsQueryHookResult = ReturnType<typeof useGetSubscriptionB2BAppsQuery>;
+export type GetSubscriptionB2BAppsLazyQueryHookResult = ReturnType<typeof useGetSubscriptionB2BAppsLazyQuery>;
+export type GetSubscriptionB2BAppsSuspenseQueryHookResult = ReturnType<typeof useGetSubscriptionB2BAppsSuspenseQuery>;
+export type GetSubscriptionB2BAppsQueryResult = Apollo.QueryResult<Types.GetSubscriptionB2BAppsQuery, Types.GetSubscriptionB2BAppsQueryVariables>;
 export const GetOrganizationActivatedSubscriptionsDocument = gql`
     query getOrganizationActivatedSubscriptions($organizationId: ID!) {
   activatedSubscriptions: allSubscriptionContexts(
@@ -6243,6 +6295,15 @@ export const GetOrganizationActivatedSubscriptionsDocument = gql`
       id
       name
       priority
+      planType
+      trialDays
+    }
+    subscriptionPlanPricingRule {
+      id
+      name
+      period
+      price
+      currencyCode
     }
     isTrial
     startAt

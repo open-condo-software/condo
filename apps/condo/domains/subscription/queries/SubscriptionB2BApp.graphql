@@ -1,0 +1,7 @@
+query getSubscriptionB2BApps($ids: [ID!]!) {
+    b2bApps: allB2BApps(where: { id_in: $ids, isPublic: true, isHidden: false, deletedAt: null }, first: 100) {
+        id
+        name
+        shortDescription
+    }
+}

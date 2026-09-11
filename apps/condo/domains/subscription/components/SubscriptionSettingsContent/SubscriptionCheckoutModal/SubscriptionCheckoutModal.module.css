@@ -1,0 +1,38 @@
+.lines {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.line {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.line-top {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+
+/* Dotted leader carrying the eye from the item name to its price */
+.leader {
+  flex: 1 1 auto;
+  min-width: 16px;
+  border-bottom: 1px dotted var(--condo-global-color-gray-5);
+}
+
+.line-note {
+  text-align: right;
+}
+
+.total-line {
+  padding-top: 8px;
+  border-top: 1px solid var(--condo-global-color-gray-3);
+}
+
+.hint {
+  display: inline-flex;
+  align-items: center;
+}

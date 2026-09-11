@@ -1,26 +1,75 @@
+.card-wrapper {
+  position: relative;
+  display: flex;
+  height: 100%;
+  cursor: pointer;
+}
+
+.card-wrapper:focus-visible {
+  border-radius: var(--condo-global-border-radius-medium);
+  outline: 2px solid var(--condo-global-color-green-5);
+  outline-offset: 2px;
+}
+
 .subscription-plan-card {
   display: flex;
   flex-direction: column;
-  width: 30%;
-  min-width: 260px;
-  max-width: 380px;
-  transition: border-color transform var(--condo-global-transition-duration-default) ease;
+  width: 100%;
+  transition: border-color var(--condo-global-transition-duration-default) ease;
+}
+
+/* The card body has to stretch too, otherwise the foot cannot pin prices to the bottom edge */
+.subscription-plan-card :global(.condo-card-body) {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
 }
 
 .subscription-plan-card:hover {
   border-color: var(--condo-global-color-gray-5);
 }
 
-.main-content {
+/* The badge sits above the card content, so a long plan name runs underneath it */
+.badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.card-body {
+  display: flex;
+  flex-direction: column;
   width: 100%;
+  height: 100%;
 }
 
-.description {
-  overflow: hidden;
+/*
+ * Designs require at least 40px between the plan description and the price, and cards of
+ * equal height. The head grows with its text, the gap never shrinks below 40px, and the
+ * foot stays pinned to the bottom so prices line up across all cards in the row.
+ */
+.card-head {
+  margin-bottom: 40px;
 }
 
-.header {
-  justify-content: space-between;
+.card-foot {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.price-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.subscription-plan-card-selected:global(.condo-card) {
+  border-color: var(--condo-global-color-green-5);
 }
 
 .subscription-plan-card-promoted:global(.condo-card) {
@@ -47,36 +96,4 @@
 
 .subscription-plan-card-promoted:global(.condo-card):hover::before {
   background: var(--condo-global-color-brand-gradient-7);
-}
-
-.collapse :global(.ant-collapse-content > .ant-collapse-content-box) {
-  padding: 0;
-}
-
-.collapse > :global(.ant-collapse-item > .ant-collapse-header) {
-  align-items: center;
-  padding: 0 !important;
-}
-
-.collapse-icon {
-  display: flex !important;
-  align-items: center;
-  height: 24px;
-  margin-right: 4px !important;
-  transition: transform var(--condo-global-transition-duration-default) ease;
-}
-
-.collapse-icon-active {
-  transform: rotate(180deg);
-}
-
-.hint-wrapper {
-  display: inline-flex;
-  align-items: center;
-}
-
-@media (max-width: 768px) {
-  .subscription-plan-card {
-    width: 100%;
-  }
 }

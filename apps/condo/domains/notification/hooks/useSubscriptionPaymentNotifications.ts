@@ -13,7 +13,7 @@ import {
     SUBSCRIPTION_PAYMENT_SUCCESS_CUSTOM_CLIENT_MESSAGE_TYPE,
     SUBSCRIPTION_PAYMENT_ERROR_CUSTOM_CLIENT_MESSAGE_TYPE,
 } from '@condo/domains/notification/utils/client/constants'
-import { SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PAYMENT_BUFFER_DAYS } from '@condo/domains/subscription/constants'
+import { SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PAYMENT_BUFFER_DAYS, SUBSCRIPTION_PLAN_TYPE_FEATURE } from '@condo/domains/subscription/constants'
 
 
 const { publicRuntimeConfig: { serverUrl } } = getConfig()
@@ -115,7 +115,20 @@ export const useSubscriptionPaymentNotifications = (): SubscriptionPaymentNotifi
         const now = dayjs()
         const msgs: UserMessageType[] = []
 
-        for (const context of subscriptionContexts) {
+        /**
+         * Feature plans are bought alongside a plan, so one notification per feature would bury
+         * the user under near-identical cards. They are collected here and announced as a single
+         * "additional functionality (a, b)" message per date instead.
+         */
+        const serviceContexts = subscriptionContexts.filter(context => context?.subscriptionPlan?.planType !== SUBSCRIPTION_PLAN_TYPE_FEATURE)
+        const featureContexts = subscriptionContexts.filter(context => context?.subscriptionPlan?.planType === SUBSCRIPTION_PLAN_TYPE_FEATURE)
+
+        // Which plan notifications already went out, and for which "paid until" date. Features
+        // falling on the same date are covered by the plan's own wording and stay silent.
+        const announcedByPlan = new Set<string>()
+        const announcementKey = (kind: string, endAt: string) => `${kind}:${dayjs(endAt).format('YYYY-MM-DD')}`
+
+        for (const context of serviceContexts) {
             const { id: contextId, endAt, status, subscriptionPlan, subscriptionPlanPricingRule, createdAt, bindingId } = context
             const planName = subscriptionPlan?.name || ''
             const price = subscriptionPlanPricingRule?.price || ''
@@ -133,6 +146,7 @@ export const useSubscriptionPaymentNotifications = (): SubscriptionPaymentNotifi
                 
                 if (bindingId && daysSinceStarted <= SUBSCRIPTION_PAYMENT_BUFFER_DAYS && isNotForever) {
                     setCurrentSuccessContextId(contextId)
+                    announcedByPlan.add(announcementKey('success', endAt))
                     const formattedEndDate = endDate.format('DD.MM.YY')
                     msgs.push({
                         id: `subscription-payment-success-${contextId}`,
@@ -151,6 +165,7 @@ export const useSubscriptionPaymentNotifications = (): SubscriptionPaymentNotifi
                 
                 if (dayUntilEnd === 1 && price && currencyCode) {
                     setCurrentReminderContextId(contextId)
+                    announcedByPlan.add(announcementKey('reminder', endAt))
                     const formattedPrice = intl.formatNumber(parseFloat(price), { 
                         style: 'currency', 
                         currency: currencyCode,
@@ -178,6 +193,7 @@ export const useSubscriptionPaymentNotifications = (): SubscriptionPaymentNotifi
                 
                 if (daysSinceStarted >= 0 && daysSinceStarted <= SUBSCRIPTION_PAYMENT_BUFFER_DAYS) {
                     setCurrentErrorContextId(contextId)
+                    announcedByPlan.add(announcementKey('error', endAt))
                     msgs.push({
                         id: `subscription-payment-error-${contextId}`,
                         type: SUBSCRIPTION_PAYMENT_ERROR_CUSTOM_CLIENT_MESSAGE_TYPE,
@@ -193,6 +209,112 @@ export const useSubscriptionPaymentNotifications = (): SubscriptionPaymentNotifi
                     } as UserMessageType)
                 }
             }
+        }
+
+        const currentPlanName = serviceContexts.find(context => context?.subscriptionPlan?.name)?.subscriptionPlan?.name || ''
+
+        /** Collects the features that qualify for one kind of notification, keyed by their end date */
+        const groupFeatures = (kind: string, isEligible: (context: typeof featureContexts[number]) => boolean) => {
+            const groups = new Map<string, typeof featureContexts>()
+
+            for (const context of featureContexts) {
+                if (!context?.endAt || !context?.id || !context?.subscriptionPlan?.name) continue
+                if (!isEligible(context)) continue
+
+                const key = announcementKey(kind, context.endAt)
+                if (announcedByPlan.has(key)) continue
+
+                if (!groups.has(key)) groups.set(key, [])
+                groups.get(key).push(context)
+            }
+
+            return groups
+        }
+
+        const featureNamesOf = (contexts: typeof featureContexts) => contexts
+            .map(context => context.subscriptionPlan.name.toLowerCase())
+            .join(', ')
+
+        // a group is identified by the features in it, so the read marker survives a re-render
+        const groupIdOf = (contexts: typeof featureContexts) => contexts.map(context => context.id).sort().join('_')
+
+        for (const [, contexts] of groupFeatures('success', context => {
+            if (context.status !== SUBSCRIPTION_CONTEXT_STATUS.DONE) return false
+            if (!context.bindingId || isForeverSubscription(context.endAt)) return false
+
+            return now.diff(dayjs(context.startAt), 'day') <= SUBSCRIPTION_PAYMENT_BUFFER_DAYS
+        })) {
+            const groupId = groupIdOf(contexts)
+            setCurrentSuccessContextId(groupId)
+            msgs.push({
+                id: `subscription-feature-payment-success-${groupId}`,
+                type: SUBSCRIPTION_PAYMENT_SUCCESS_CUSTOM_CLIENT_MESSAGE_TYPE,
+                createdAt: dayjs(contexts[0].createdAt).toISOString(),
+                meta: { data: { url: `${serverUrl}/settings?tab=subscription` } },
+                defaultContent: {
+                    content: intl.formatMessage(
+                        { id: 'notification.UserMessagesList.message.SUBSCRIPTION_PAYMENT_SUCCESS.features.content' },
+                        { features: featureNamesOf(contexts), date: dayjs(contexts[0].endAt).format('DD.MM.YY') }
+                    ),
+                },
+                customTitle: intl.formatMessage({ id: 'notification.UserMessagesList.message.SUBSCRIPTION_PAYMENT_SUCCESS.title' }),
+            } as UserMessageType)
+        }
+
+        for (const [, contexts] of groupFeatures('reminder', context => {
+            if (context.status !== SUBSCRIPTION_CONTEXT_STATUS.DONE) return false
+            if (!context.subscriptionPlanPricingRule?.price || !context.subscriptionPlanPricingRule?.currencyCode) return false
+
+            return dayjs(context.endAt).startOf('day').diff(now.startOf('day'), 'day') === 1
+        })) {
+            const groupId = groupIdOf(contexts)
+            setCurrentReminderContextId(groupId)
+            const totalPrice = contexts.reduce((sum, context) => sum + parseFloat(context.subscriptionPlanPricingRule.price), 0)
+            msgs.push({
+                id: `subscription-feature-payment-reminder-${groupId}`,
+                type: SUBSCRIPTION_PAYMENT_REMINDER_CUSTOM_CLIENT_MESSAGE_TYPE,
+                createdAt: reminderCreatedAt,
+                meta: { data: { url: `${serverUrl}/settings?tab=subscription` } },
+                defaultContent: {
+                    content: intl.formatMessage(
+                        { id: 'notification.UserMessagesList.message.SUBSCRIPTION_PAYMENT_REMINDER.features.content' },
+                        {
+                            features: featureNamesOf(contexts),
+                            planName: currentPlanName,
+                            price: intl.formatNumber(totalPrice, {
+                                style: 'currency',
+                                currency: contexts[0].subscriptionPlanPricingRule.currencyCode,
+                                minimumFractionDigits: 0,
+                                maximumFractionDigits: 0,
+                            }),
+                        }
+                    ),
+                },
+                customTitle: intl.formatMessage({ id: 'notification.UserMessagesList.message.SUBSCRIPTION_PAYMENT_REMINDER.title' }),
+            } as UserMessageType)
+        }
+
+        for (const [, contexts] of groupFeatures('error', context => {
+            if (context.status !== SUBSCRIPTION_CONTEXT_STATUS.ERROR && context.status !== SUBSCRIPTION_CONTEXT_STATUS.PENDING) return false
+            const daysSinceStarted = now.diff(dayjs(context.startAt), 'day')
+
+            return daysSinceStarted >= 0 && daysSinceStarted <= SUBSCRIPTION_PAYMENT_BUFFER_DAYS
+        })) {
+            const groupId = groupIdOf(contexts)
+            setCurrentErrorContextId(groupId)
+            msgs.push({
+                id: `subscription-feature-payment-error-${groupId}`,
+                type: SUBSCRIPTION_PAYMENT_ERROR_CUSTOM_CLIENT_MESSAGE_TYPE,
+                createdAt: errorCreatedAt,
+                meta: { data: { url: `${serverUrl}/settings?tab=subscription` } },
+                defaultContent: {
+                    content: intl.formatMessage(
+                        { id: 'notification.UserMessagesList.message.SUBSCRIPTION_PAYMENT_ERROR.features.content' },
+                        { features: featureNamesOf(contexts), planName: currentPlanName }
+                    ),
+                },
+                customTitle: intl.formatMessage({ id: 'notification.UserMessagesList.message.SUBSCRIPTION_PAYMENT_ERROR.title' }),
+            } as UserMessageType)
         }
 
         return msgs
