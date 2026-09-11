@@ -205,7 +205,7 @@ export const CoworkLayout: React.FC<React.PropsWithChildren> = ({ children }) =>
     return (
         <AiAssistantsChatStorageProvider>
             <BaseLayout
-                className={isChatPage ? styles.coworkLayout : undefined}
+                className={isChatPage ? styles['cowork-layout'] : undefined}
                 TopMenuItems={CoworkTopMenuItems}
                 menuDataRender={() => []}
                 logoLocation='/ai-engineer'

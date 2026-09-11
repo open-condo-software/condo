@@ -1,9 +1,9 @@
 /* Layout */
-.coworkLayout :global(.ant-layout-footer) {
+.cowork-layout :global(.ant-layout-footer) {
   display: none;
 }
 
-.coworkLayout :global(.page-wrapper) {
+.cowork-layout :global(.page-wrapper) {
   padding-bottom: var(--condo-global-spacing-24);
 }
 
