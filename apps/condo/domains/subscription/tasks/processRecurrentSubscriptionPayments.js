@@ -1,27 +1,28 @@
 const dayjs = require('dayjs')
 
 const { getLogger } = require('@open-condo/keystone/logging')
-const { getSchemaCtx, getById, itemsQuery } = require('@open-condo/keystone/schema')
+const { getSchemaCtx, find, itemsQuery } = require('@open-condo/keystone/schema')
 
 const { registerMultiPayment } = require('@condo/domains/acquiring/utils/serverSchema')
 const { INVOICE_STATUS_PAID } = require('@condo/domains/marketplace/constants')
 const { SUBSCRIPTION_PAYMENT_BUFFER_DAYS, SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PLAN_TYPE_SERVICE, SUBSCRIPTION_PAYMENT_TYPE_CARD } = require('@condo/domains/subscription/constants')
 const { SubscriptionPaymentAdapter } = require('@condo/domains/subscription/tasks/utils/SubscriptionPaymentAdapter')
 const { registerSubscriptionContexts, SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
-const { buildDirectPaymentUrl } = require('@condo/domains/subscription/utils/serverSchema/buildDirectPaymentUrl')
+const { buildDirectPaymentUrl } = require('@condo/domains/subscription/utils/subscriptionContext')
 
 const logger = getLogger('processRecurrentSubscriptionPayments')
 
 const SENDER = { dv: 1, fingerprint: 'processRecurrentSubscriptionPayments' }
 
-async function findExistingRenewalBundle (organizationId, renewalRuleIds) {
+async function findExistingRenewalBundle (organizationId, renewalRuleIds, bufferDate) {
     const wantedComposition = [...renewalRuleIds].sort().join(',')
 
     const contexts = await itemsQuery('SubscriptionContext', {
         where: {
             organization: { id: organizationId },
-            status_in: [SUBSCRIPTION_CONTEXT_STATUS.CREATED, SUBSCRIPTION_CONTEXT_STATUS.PENDING],
+            status: SUBSCRIPTION_CONTEXT_STATUS.PENDING,
             isTrial: false,
+            createdAt_gte: dayjs(bufferDate).toISOString(),
             deletedAt: null,
         },
     })
@@ -74,12 +75,11 @@ async function processRecurrentSubscriptionPayments () {
     for (const group of groups.values()) {
         const organizationId = group[0].organization
         const bindingId = group[0].bindingId
+        const groupEndAt = group[0].endAt
         const groupContextIds = group.map(subscriptionContext => subscriptionContext.id)
 
         try {
-            const groupEndAt = group.reduce((min, subscriptionContext) => (!min || subscriptionContext.endAt < min ? subscriptionContext.endAt : min), null)
-
-            const { count: renewedCount } = await itemsQuery('SubscriptionContext', {
+            const renewedContexts = await itemsQuery('SubscriptionContext', {
                 where: {
                     organization: { id: organizationId },
                     subscriptionPlan: { id_in: group.map(subscriptionContext => subscriptionContext.subscriptionPlan) },
@@ -87,23 +87,25 @@ async function processRecurrentSubscriptionPayments () {
                     endAt_gt: groupEndAt,
                     deletedAt: null,
                 },
-            }, { meta: true })
-            if (renewedCount > 0) {
+            })
+            const renewedPlanIds = new Set(renewedContexts.map(subscriptionContext => subscriptionContext.subscriptionPlan))
+            const isFullyRenewed = group.every(subscriptionContext => renewedPlanIds.has(subscriptionContext.subscriptionPlan))
+            if (isFullyRenewed) {
                 logger.info({ msg: 'bundle already renewed, skipping group', data: { groupContextIds } })
                 continue
             }
 
             const serviceRuleIds = []
-            const otherRuleIds = []
+            const featureRuleIds = []
             for (const subscriptionContext of group) {
-                const plan = await getById('SubscriptionPlan', subscriptionContext.subscriptionPlan)
+                const [plan] = await find('SubscriptionPlan', { id: subscriptionContext.subscriptionPlan, deletedAt: null })
                 if (plan && plan.planType === SUBSCRIPTION_PLAN_TYPE_SERVICE) {
                     serviceRuleIds.push(subscriptionContext.subscriptionPlanPricingRule)
                 } else {
-                    otherRuleIds.push(subscriptionContext.subscriptionPlanPricingRule)
+                    featureRuleIds.push(subscriptionContext.subscriptionPlanPricingRule)
                 }
             }
-            const renewalRuleIds = [...serviceRuleIds, ...otherRuleIds]
+            const renewalRuleIds = [...serviceRuleIds, ...featureRuleIds]
             if (renewalRuleIds.length === 0) {
                 logger.warn({ msg: 'group has no pricing rules, skipping', data: { groupContextIds } })
                 continue
@@ -113,9 +115,9 @@ async function processRecurrentSubscriptionPayments () {
             let renewalContextIds
             let directPaymentUrl
 
-            const existing = await findExistingRenewalBundle(organizationId, renewalRuleIds)
+            const existing = await findExistingRenewalBundle(organizationId, renewalRuleIds, bufferDate)
             if (existing) {
-                const invoice = await getById('Invoice', existing.invoiceId)
+                const [invoice] = await find('Invoice', { id: existing.invoiceId, deletedAt: null })
                 if (invoice && invoice.status === INVOICE_STATUS_PAID) {
                     logger.info({ msg: 'renewal already paid, skipping group', data: { organizationId, invoiceId: existing.invoiceId } })
                     continue
