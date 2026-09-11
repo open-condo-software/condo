@@ -25,9 +25,8 @@ const {
 } = require('@condo/domains/subscription/constants')
 const { isPlanSubsetOf } = require('@condo/domains/subscription/utils/isPlanSubsetOf')
 const { SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
-const { buildDirectPaymentUrl } = require('@condo/domains/subscription/utils/serverSchema/buildDirectPaymentUrl')
 const { getSubscriptionPaymentRecipient } = require('@condo/domains/subscription/utils/serverSchema/getSubscriptionPaymentRecipient')
-const { calculateSubscriptionStartDate } = require('@condo/domains/subscription/utils/subscriptionContext')
+const { buildDirectPaymentUrl, calculateSubscriptionStartDate } = require('@condo/domains/subscription/utils/subscriptionContext')
 
 const logger = getLogger('RegisterSubscriptionContextsService')
 
