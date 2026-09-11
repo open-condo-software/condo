@@ -82,7 +82,8 @@ const RowRenderer: React.FC<RendererProps> = ({ component, surface }) => {
     return (
         <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 12, width: '100%' }}>
             {children.map(child => {
-                const weight = typeof child.properties.weight === 'number' ? child.properties.weight : 1
+                const rawWeight = child.properties.weight
+                const weight = typeof rawWeight === 'number' && rawWeight > 0 && Number.isFinite(rawWeight) ? rawWeight : 1
                 return (
                     <div key={child.id} style={{ flex: weight, minWidth: 0 }}>
                         <ComponentRenderer component={child} surface={surface} />

@@ -15,7 +15,7 @@ const SingleSurface: React.FC<{ surface: SurfaceModel, aiSessionId?: string }> =
     const rootComponent = surface.componentsModel.get('root')
 
     if (!rootComponent) {
-        const allComponents = Array.from(surface.componentsModel.entries()).map(([, comp]) => comp)
+        const allComponents = Array.from(surface.componentsModel.entries).map(([, comp]) => comp)
 
         if (allComponents.length === 0) {
             console.warn('[A2UI] Surface has no (root) components. Session:', aiSessionId, 'Surface:', surface.id)
@@ -24,9 +24,23 @@ const SingleSurface: React.FC<{ surface: SurfaceModel, aiSessionId?: string }> =
 
         console.warn('[A2UI] Surface has no (root) components. Session:', aiSessionId, 'Surface:', surface.id)
 
+        // Collect IDs referenced as children by any component, so we only render
+        // top-level components and avoid duplicating children that are already
+        // rendered inside their parents.
+        const childIds = new Set<string>()
+        for (const comp of allComponents) {
+            const childrenProp = comp.properties.children
+            if (Array.isArray(childrenProp)) {
+                childrenProp.forEach(id => childIds.add(id))
+            } else if (childrenProp && typeof childrenProp === 'object' && 'array' in childrenProp) {
+                (childrenProp as { array: string[] }).array.forEach(id => childIds.add(id))
+            }
+        }
+        const topLevel = allComponents.filter(comp => !childIds.has(comp.id))
+
         return (
             <div style={{ width: '100%' }}>
-                {allComponents.map(comp => (
+                {(topLevel.length > 0 ? topLevel : allComponents).map(comp => (
                     <ComponentRenderer key={comp.id} component={comp} surface={surface} />
                 ))}
             </div>
@@ -53,7 +67,7 @@ export const A2UISurfaces: React.FC<A2UISurfacesProps> = ({ messages, aiSessionI
             const surfaces = Array.from(proc.model.surfacesMap.values())
             console.debug('[A2UI] Processed surfaces:', surfaces.map(s => ({
                 id: s.id,
-                componentIds: Array.from(s.componentsModel.entries()).map(([id]) => id),
+                componentIds: Array.from(s.componentsModel.entries).map(([id]) => id),
             })))
             return { processor: proc, error: null }
         } catch (err) {

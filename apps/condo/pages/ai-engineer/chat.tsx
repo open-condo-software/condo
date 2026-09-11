@@ -83,6 +83,7 @@ const CoworkPage: PageComponentType = () => {
             ],
             isPublic: true,
             deletedAt: null,
+            locale: intl.locale as AiSkillLocaleType,
         },
     }, {
         skip: !organizationId,
@@ -183,12 +184,8 @@ const CoworkPage: PageComponentType = () => {
             setSelectedSkillId(null)
             setInputValue('')
         } else if (prevId === null) {
-            // Coming from welcome screen
-            if (chatSkillRef.current[activeChatId] !== undefined) {
-                // Switching to an existing chat: restore its skill
-                setSelectedSkillId(chatSkillRef.current[activeChatId])
-            }
-            // else: new chat just created from welcome screen — keep current skill (carries over)
+            // Coming from welcome screen: restore target chat's saved skill with null fallback
+            setSelectedSkillId(chatSkillRef.current[activeChatId] ?? null)
         } else {
             // Switching between existing chats: restore target chat's skill
             const savedSkill = chatSkillRef.current[activeChatId]
@@ -246,11 +243,12 @@ const CoworkPage: PageComponentType = () => {
 
         const newChat = createChat(trimmedInput.slice(0, 50))
         saveSessionId(newChat.id)
+        chatSkillRef.current[newChat.id] = selectedSkillId
         setInitialMessage(trimmedInput)
         setActiveChatId(newChat.id)
         setInputValue('')
         void router.push(`/ai-engineer/chat?chatId=${newChat.id}`, undefined, { shallow: true })
-    }, [organizationId, inputValue, createChat, saveSessionId, router])
+    }, [organizationId, inputValue, createChat, saveSessionId, router, selectedSkillId])
 
     const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if (e.key !== 'Enter' || e.shiftKey) return
