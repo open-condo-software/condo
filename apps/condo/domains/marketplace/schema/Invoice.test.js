@@ -99,7 +99,7 @@ const {
     createTestSubscriptionPlan,
     createTestSubscriptionPlanPricingRule,
     createTestSubscriptionContext,
-    registerSubscriptionContextByTestClient,
+    registerSubscriptionContextsByTestClient,
     SubscriptionContext,
 } = require('@condo/domains/subscription/utils/testSchema')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
@@ -3423,19 +3423,19 @@ describe('Invoice', () => {
                     period: SUBSCRIPTION_PERIOD.MONTH,
                 })
 
-                const [result] = await registerSubscriptionContextByTestClient(adminClient, {
+                const [result] = await registerSubscriptionContextsByTestClient(adminClient, {
                     organization: { id: payerOrg.id },
-                    subscriptionPlanPricingRule: { id: pricingRule.id },
+                    subscriptionPlanPricingRules: [{ id: pricingRule.id }],
                     isTrial: false,
                 })
 
-                expect(result.subscriptionContext).toBeDefined()
-                expect(result.subscriptionContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
+                expect(result.subscriptionContexts[0]).toBeDefined()
+                expect(result.subscriptionContexts[0].status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
                 expect(result.multiPayment).toBeDefined()
-                expect(result.subscriptionContext.invoice).toBeDefined()
+                expect(result.subscriptionContexts[0].invoice).toBeDefined()
 
-                const invoice = result.subscriptionContext.invoice
-                const subscriptionContext = result.subscriptionContext
+                const invoice = result.subscriptionContexts[0].invoice
+                const subscriptionContext = result.subscriptionContexts[0]
 
                 // Update payment to DONE status
                 const [payment] = await Payment.getAll(adminClient, {
@@ -3464,18 +3464,18 @@ describe('Invoice', () => {
                     period: SUBSCRIPTION_PERIOD.MONTH,
                 })
 
-                const [result] = await registerSubscriptionContextByTestClient(adminClient, {
+                const [result] = await registerSubscriptionContextsByTestClient(adminClient, {
                     organization: { id: payerOrg.id },
-                    subscriptionPlanPricingRule: { id: pricingRule.id },
+                    subscriptionPlanPricingRules: [{ id: pricingRule.id }],
                     isTrial: false,
                 })
 
-                expect(result.subscriptionContext).toBeDefined()
-                expect(result.subscriptionContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
+                expect(result.subscriptionContexts[0]).toBeDefined()
+                expect(result.subscriptionContexts[0].status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
                 expect(result.multiPayment).toBeDefined()
 
-                const invoice = result.subscriptionContext.invoice
-                const subscriptionContext = result.subscriptionContext
+                const invoice = result.subscriptionContexts[0].invoice
+                const subscriptionContext = result.subscriptionContexts[0]
                 const multiPayment = result.multiPayment
 
                 const paymentMethod = {

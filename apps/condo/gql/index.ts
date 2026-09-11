@@ -6180,10 +6180,10 @@ export function useUpdateOrganizationPaymentMethodsMutation(baseOptions?: Apollo
 export type UpdateOrganizationPaymentMethodsMutationHookResult = ReturnType<typeof useUpdateOrganizationPaymentMethodsMutation>;
 export type UpdateOrganizationPaymentMethodsMutationResult = Apollo.MutationResult<Types.UpdateOrganizationPaymentMethodsMutation>;
 export type UpdateOrganizationPaymentMethodsMutationOptions = Apollo.BaseMutationOptions<Types.UpdateOrganizationPaymentMethodsMutation, Types.UpdateOrganizationPaymentMethodsMutationVariables>;
-export const RegisterSubscriptionContextDocument = gql`
-    mutation registerSubscriptionContext($data: RegisterSubscriptionContextInput!) {
-  result: registerSubscriptionContext(data: $data) {
-    subscriptionContext {
+export const RegisterSubscriptionContextsDocument = gql`
+    mutation registerSubscriptionContexts($data: RegisterSubscriptionContextsInput!) {
+  result: registerSubscriptionContexts(data: $data) {
+    subscriptionContexts {
       id
       startAt
       endAt
@@ -6197,32 +6197,32 @@ export const RegisterSubscriptionContextDocument = gql`
   }
 }
     `;
-export type RegisterSubscriptionContextMutationFn = Apollo.MutationFunction<Types.RegisterSubscriptionContextMutation, Types.RegisterSubscriptionContextMutationVariables>;
+export type RegisterSubscriptionContextsMutationFn = Apollo.MutationFunction<Types.RegisterSubscriptionContextsMutation, Types.RegisterSubscriptionContextsMutationVariables>;
 
 /**
- * __useRegisterSubscriptionContextMutation__
+ * __useRegisterSubscriptionContextsMutation__
  *
- * To run a mutation, you first call `useRegisterSubscriptionContextMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useRegisterSubscriptionContextMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useRegisterSubscriptionContextsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRegisterSubscriptionContextsMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [registerSubscriptionContextMutation, { data, loading, error }] = useRegisterSubscriptionContextMutation({
+ * const [registerSubscriptionContextsMutation, { data, loading, error }] = useRegisterSubscriptionContextsMutation({
  *   variables: {
  *      data: // value for 'data'
  *   },
  * });
  */
-export function useRegisterSubscriptionContextMutation(baseOptions?: Apollo.MutationHookOptions<Types.RegisterSubscriptionContextMutation, Types.RegisterSubscriptionContextMutationVariables>) {
+export function useRegisterSubscriptionContextsMutation(baseOptions?: Apollo.MutationHookOptions<Types.RegisterSubscriptionContextsMutation, Types.RegisterSubscriptionContextsMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<Types.RegisterSubscriptionContextMutation, Types.RegisterSubscriptionContextMutationVariables>(RegisterSubscriptionContextDocument, options);
+        return Apollo.useMutation<Types.RegisterSubscriptionContextsMutation, Types.RegisterSubscriptionContextsMutationVariables>(RegisterSubscriptionContextsDocument, options);
       }
-export type RegisterSubscriptionContextMutationHookResult = ReturnType<typeof useRegisterSubscriptionContextMutation>;
-export type RegisterSubscriptionContextMutationResult = Apollo.MutationResult<Types.RegisterSubscriptionContextMutation>;
-export type RegisterSubscriptionContextMutationOptions = Apollo.BaseMutationOptions<Types.RegisterSubscriptionContextMutation, Types.RegisterSubscriptionContextMutationVariables>;
+export type RegisterSubscriptionContextsMutationHookResult = ReturnType<typeof useRegisterSubscriptionContextsMutation>;
+export type RegisterSubscriptionContextsMutationResult = Apollo.MutationResult<Types.RegisterSubscriptionContextsMutation>;
+export type RegisterSubscriptionContextsMutationOptions = Apollo.BaseMutationOptions<Types.RegisterSubscriptionContextsMutation, Types.RegisterSubscriptionContextsMutationVariables>;
 export const GetOrganizationActivatedSubscriptionsDocument = gql`
     query getOrganizationActivatedSubscriptions($organizationId: ID!) {
   activatedSubscriptions: allSubscriptionContexts(

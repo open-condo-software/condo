@@ -69,49 +69,66 @@ const UpdateSubscriptionContextPaymentMethodService = new GQLCustomSchema('Updat
                 }
 
                 const organizationId = subscriptionContext.organization
-                const currentBindingId = subscriptionContext.bindingId
+                const invoiceId = subscriptionContext.invoice
 
-                await SubscriptionContext.update(context, subscriptionContextId, {
-                    dv,
-                    sender,
-                    bindingId,
-                })
-
-                if (bindingId === null && currentBindingId) {
-                    const otherActiveContexts = await find('SubscriptionContext', {
-                        organization: { id: organizationId },
-                        bindingId: currentBindingId,
-                        id_not: subscriptionContextId,
-                        endAt_gte: dayjs().format('YYYY-MM-DD'),
+                let targetContexts = [subscriptionContext]
+                if (invoiceId) {
+                    const bundleContexts = await find('SubscriptionContext', {
+                        invoice: { id: invoiceId },
                         deletedAt: null,
                     })
+                    if (bundleContexts.length > 0) {
+                        targetContexts = bundleContexts
+                    }
+                }
 
-                    if (otherActiveContexts.length === 0) {
-                        const { recipientOrgId: recipientOrganizationId, acquiringIntegration } = await getSubscriptionPaymentRecipient()
+                const targetContextIds = targetContexts.map(ctx => ctx.id)
+                const releasedBindingIds = new Set(
+                    targetContexts.map(ctx => ctx.bindingId).filter(Boolean)
+                )
 
-                        if (!recipientOrganizationId) {
-                            throw new GQLError(ERRORS.SUBSCRIPTION_PAYMENT_RECIPIENT_NOT_CONFIGURED, context)
-                        }
+                for (const ctx of targetContexts) {
+                    await SubscriptionContext.update(context, ctx.id, {
+                        dv,
+                        sender,
+                        bindingId,
+                    })
+                }
 
-                        if (!acquiringIntegration) {
-                            throw new GQLError(ERRORS.ACQUIRING_INTEGRATION_NOT_FOUND, context)
-                        }
+                if (bindingId === null && releasedBindingIds.size > 0) {
+                    const { recipientOrgId: recipientOrganizationId, acquiringIntegration } = await getSubscriptionPaymentRecipient()
+                    if (!recipientOrganizationId) {
+                        throw new GQLError(ERRORS.SUBSCRIPTION_PAYMENT_RECIPIENT_NOT_CONFIGURED, context)
+                    }
+                    if (!acquiringIntegration) {
+                        throw new GQLError(ERRORS.ACQUIRING_INTEGRATION_NOT_FOUND, context)
+                    }
 
-                        if (!acquiringIntegration.hostUrl) {
-                            logger.warn({ msg: 'AcquiringIntegration missing hostUrl, skipping card token deletion', cardTokenId: currentBindingId })
-                            return { id: subscriptionContextId }
-                        }
+                    if (!acquiringIntegration.hostUrl) {
+                        logger.warn({ msg: 'AcquiringIntegration missing hostUrl, skipping card token deletion', cardTokenIds: [...releasedBindingIds] })
+                        return { id: subscriptionContextId }
+                    }
+
+                    for (const releasedBindingId of releasedBindingIds) {
+                        const stillUsedContexts = await find('SubscriptionContext', {
+                            organization: { id: organizationId },
+                            bindingId: releasedBindingId,
+                            id_not_in: targetContextIds,
+                            endAt_gte: dayjs().format('YYYY-MM-DD'),
+                            deletedAt: null,
+                        })
+                        if (stillUsedContexts.length > 0) continue
 
                         try {
                             await SubscriptionPaymentAdapter.deleteCardToken({
                                 hostUrl: acquiringIntegration.hostUrl,
                                 organizationId,
-                                cardTokenId: currentBindingId,
+                                cardTokenId: releasedBindingId,
                             })
-                            logger.info({ msg: 'Successfully deleted card token from payment gateway', cardTokenId: currentBindingId })
+                            logger.info({ msg: 'Successfully deleted card token from payment gateway', cardTokenId: releasedBindingId })
                         } catch (error) {
                             const errorMessage = get(error, 'message') || 'Unknown error'
-                            logger.error({ msg: 'Failed to delete card token from payment gateway', cardTokenId: currentBindingId, error: errorMessage })
+                            logger.error({ msg: 'Failed to delete card token from payment gateway', cardTokenId: releasedBindingId, error: errorMessage })
                         }
                     }
                 }

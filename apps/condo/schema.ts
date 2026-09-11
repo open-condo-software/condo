@@ -47300,7 +47300,7 @@ export type Mutation = {
   acceptOrRejectOrganizationInviteByCode?: Maybe<OrganizationEmployee>;
   acceptOrRejectOrganizationInviteById?: Maybe<OrganizationEmployee>;
   /**
-   * Activates a subscription context with status CREATED. Checks that invoice is paid, retrieves payment method from multiPayment, and updates context status to DONE.
+   * Activates a subscription context whose invoice is paid: resolves the payment method (if any), sets status to DONE and recomputes startAt/endAt so the paid period starts at payment time rather than registration time.
    *
    *
    *
@@ -47330,18 +47330,6 @@ export type Mutation = {
    *   "code": "BAD_USER_INPUT",
    *   "type": "INVOICE_NOT_PAID",
    *   "message": "Invoice is not paid"
-   * }`
-   *
-   * `{
-   *   "code": "BAD_USER_INPUT",
-   *   "type": "MULTI_PAYMENT_NOT_FOUND",
-   *   "message": "MultiPayment not found for invoice"
-   * }`
-   *
-   * `{
-   *   "code": "BAD_USER_INPUT",
-   *   "type": "PAYMENT_NOT_FOUND",
-   *   "message": "Payment not found in MultiPayment"
    * }`
    */
   activateSubscriptionContext?: Maybe<ActivateSubscriptionContextOutput>;
@@ -51099,7 +51087,7 @@ export type Mutation = {
    */
   registerServiceConsumer?: Maybe<ServiceConsumer>;
   /**
-   * Registers a subscription context for an organization. For trial subscriptions (isTrial=true), creates SubscriptionContext with status DONE. For paid subscriptions (isTrial=false), creates Invoice + SubscriptionContext with status CREATED + MultiPayment.
+   * Registers a subscription for an organization from one or more pricing rules (a bundle). For trials (isTrial=true) creates a status DONE SubscriptionContext for every plan whose trial is available (its own trialDays), skipping plans with no trial or an already used one. For paid subscriptions creates one Invoice with a row per pricing rule and one SubscriptionContext per pricing rule with status CREATED; when paymentType=card a MultiPayment and directPaymentUrl are also created. Every call registers a fresh Invoice + contexts; it does not look at or touch earlier unpaid registrations.
    *
    *
    *
@@ -51144,6 +51132,34 @@ export type Mutation = {
    *
    * `{
    *   "code": "BAD_USER_INPUT",
+   *   "type": "MIXED_PRICING_RULE_PERIODS",
+   *   "message": "All pricing rules in a bundle must have the same period",
+   *   "messageForUser": "All pricing rules in a bundle must have the same period"
+   * }`
+   *
+   * `{
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "DUPLICATE_PLAN_IN_BUNDLE",
+   *   "message": "A bundle cannot contain the same subscription plan more than once",
+   *   "messageForUser": "A bundle cannot contain the same subscription plan more than once"
+   * }`
+   *
+   * `{
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "MULTIPLE_SERVICE_PLANS_IN_BUNDLE",
+   *   "message": "A bundle can contain at most one service plan",
+   *   "messageForUser": "A bundle can contain at most one service plan"
+   * }`
+   *
+   * `{
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "FEATURE_ALREADY_IN_PLAN",
+   *   "message": "A feature plan in the bundle is already covered by another plan in the same bundle",
+   *   "messageForUser": "A feature plan in the bundle is already covered by another plan in the same bundle"
+   * }`
+   *
+   * `{
+   *   "code": "BAD_USER_INPUT",
    *   "type": "NO_ACTIVE_SERVICE_SUBSCRIPTION",
    *   "message": "Cannot subscribe to a feature plan without an active service subscription",
    *   "messageForUser": "Cannot subscribe to a feature plan without an active service subscription"
@@ -51151,12 +51167,11 @@ export type Mutation = {
    *
    * `{
    *   "code": "BAD_USER_INPUT",
-   *   "type": "ACTIVE_SUPERSET_PLAN_EXISTS",
-   *   "message": "Cannot register a subscription that is already fully covered by an active non-trial plan",
-   *   "messageForUser": "Cannot register a subscription that is already fully covered by an active non-trial plan"
+   *   "type": "NOT_FOUND",
+   *   "message": "SUBSCRIPTION_PAYMENT_RECIPIENT is not configured"
    * }`
    */
-  registerSubscriptionContext?: Maybe<RegisterSubscriptionContextOutput>;
+  registerSubscriptionContexts?: Maybe<RegisterSubscriptionContextsOutput>;
   /**
    * Replaces old role "A" with new role "B" for all employees with role "A"
    *
@@ -61640,8 +61655,8 @@ export type MutationRegisterServiceConsumerArgs = {
 };
 
 
-export type MutationRegisterSubscriptionContextArgs = {
-  data: RegisterSubscriptionContextInput;
+export type MutationRegisterSubscriptionContextsArgs = {
+  data: RegisterSubscriptionContextsInput;
 };
 
 
@@ -91211,19 +91226,20 @@ export type RegisterServiceConsumerInputExtra = {
   paymentCategory?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type RegisterSubscriptionContextInput = {
+export type RegisterSubscriptionContextsInput = {
   dv: Scalars['Int']['input'];
   isTrial?: InputMaybe<Scalars['Boolean']['input']>;
   organization: OrganizationWhereUniqueInput;
+  paymentType: SubscriptionPaymentType;
   sender: SenderFieldInput;
-  subscriptionPlanPricingRule: SubscriptionPlanPricingRuleWhereUniqueInput;
+  subscriptionPlanPricingRules: Array<SubscriptionPlanPricingRuleWhereUniqueInput>;
 };
 
-export type RegisterSubscriptionContextOutput = {
-  __typename?: 'RegisterSubscriptionContextOutput';
+export type RegisterSubscriptionContextsOutput = {
+  __typename?: 'RegisterSubscriptionContextsOutput';
   directPaymentUrl?: Maybe<Scalars['String']['output']>;
   multiPayment?: Maybe<MultiPayment>;
-  subscriptionContext?: Maybe<SubscriptionContext>;
+  subscriptionContexts: Array<SubscriptionContext>;
 };
 
 /**  Used to describe device in order to be able to send push notifications via corresponding transport, depending on pushTransport value. RemoteClient could be mobile or web based. RemoteClient could be registered (created by user, admin or anonymous) with or without token, and updated later on by admin (or a user within SyncRemoteClientService) by adding/changing token value and connecting device to user (whose authorization was passed within request). All such interactions should be done via SyncRemoteClientService.  */
@@ -104342,8 +104358,8 @@ export enum SortUserRightsSetHistoryRecordsBy {
   CanExecuteInviteNewOrganizationEmployeeDesc = 'canExecuteInviteNewOrganizationEmployee_DESC',
   CanExecuteRegisterNewServiceUserAsc = 'canExecuteRegisterNewServiceUser_ASC',
   CanExecuteRegisterNewServiceUserDesc = 'canExecuteRegisterNewServiceUser_DESC',
-  CanExecuteRegisterSubscriptionContextAsc = 'canExecuteRegisterSubscriptionContext_ASC',
-  CanExecuteRegisterSubscriptionContextDesc = 'canExecuteRegisterSubscriptionContext_DESC',
+  CanExecuteRegisterSubscriptionContextsAsc = 'canExecuteRegisterSubscriptionContexts_ASC',
+  CanExecuteRegisterSubscriptionContextsDesc = 'canExecuteRegisterSubscriptionContexts_DESC',
   CanExecuteSendMessageAsc = 'canExecuteSendMessage_ASC',
   CanExecuteSendMessageDesc = 'canExecuteSendMessage_DESC',
   CanExecuteSigninAsUserAsc = 'canExecuteSigninAsUser_ASC',
@@ -104503,8 +104519,8 @@ export enum SortUserRightsSetsBy {
   CanExecuteInviteNewOrganizationEmployeeDesc = 'canExecuteInviteNewOrganizationEmployee_DESC',
   CanExecuteRegisterNewServiceUserAsc = 'canExecuteRegisterNewServiceUser_ASC',
   CanExecuteRegisterNewServiceUserDesc = 'canExecuteRegisterNewServiceUser_DESC',
-  CanExecuteRegisterSubscriptionContextAsc = 'canExecuteRegisterSubscriptionContext_ASC',
-  CanExecuteRegisterSubscriptionContextDesc = 'canExecuteRegisterSubscriptionContext_DESC',
+  CanExecuteRegisterSubscriptionContextsAsc = 'canExecuteRegisterSubscriptionContexts_ASC',
+  CanExecuteRegisterSubscriptionContextsDesc = 'canExecuteRegisterSubscriptionContexts_DESC',
   CanExecuteSendMessageAsc = 'canExecuteSendMessage_ASC',
   CanExecuteSendMessageDesc = 'canExecuteSendMessage_DESC',
   CanExecuteSigninAsUserAsc = 'canExecuteSigninAsUser_ASC',
@@ -105508,6 +105524,11 @@ export type SubscriptionContextsUpdateInput = {
   data?: InputMaybe<SubscriptionContextUpdateInput>;
   id: Scalars['ID']['input'];
 };
+
+export enum SubscriptionPaymentType {
+  Card = 'card',
+  Invoice = 'invoice'
+}
 
 /**  Subscription plan that defines a product with features. Prices are defined via SubscriptionPlanPricingRule  */
 export type SubscriptionPlan = {
@@ -120112,8 +120133,8 @@ export type UserRightsSet = {
   canExecuteInviteNewOrganizationEmployee?: Maybe<Scalars['Boolean']['output']>;
   /**  Enables a user with the given UserRightsSet to execute "registerNewServiceUser" query/mutation  */
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']['output']>;
-  /**  Enables a user with the given UserRightsSet to execute "registerSubscriptionContext" query/mutation  */
-  canExecuteRegisterSubscriptionContext?: Maybe<Scalars['Boolean']['output']>;
+  /**  Enables a user with the given UserRightsSet to execute "registerSubscriptionContexts" query/mutation  */
+  canExecuteRegisterSubscriptionContexts?: Maybe<Scalars['Boolean']['output']>;
   /**  Enables a user with the given UserRightsSet to execute "sendMessage" query/mutation  */
   canExecuteSendMessage?: Maybe<Scalars['Boolean']['output']>;
   /**  Enables a user with the given UserRightsSet to execute "signinAsUser" query/mutation  */
@@ -120268,7 +120289,7 @@ export type UserRightsSetCreateInput = {
   canExecuteGetAvailableSubscriptionPlans?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteInviteNewOrganizationEmployee?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterNewServiceUser?: InputMaybe<Scalars['Boolean']['input']>;
-  canExecuteRegisterSubscriptionContext?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteRegisterSubscriptionContexts?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteSendMessage?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteSigninAsUser?: InputMaybe<Scalars['Boolean']['input']>;
   canExecute_allBillingReceiptsSum?: InputMaybe<Scalars['Boolean']['input']>;
@@ -120361,7 +120382,7 @@ export type UserRightsSetHistoryRecord = {
   canExecuteGetAvailableSubscriptionPlans?: Maybe<Scalars['Boolean']['output']>;
   canExecuteInviteNewOrganizationEmployee?: Maybe<Scalars['Boolean']['output']>;
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']['output']>;
-  canExecuteRegisterSubscriptionContext?: Maybe<Scalars['Boolean']['output']>;
+  canExecuteRegisterSubscriptionContexts?: Maybe<Scalars['Boolean']['output']>;
   canExecuteSendMessage?: Maybe<Scalars['Boolean']['output']>;
   canExecuteSigninAsUser?: Maybe<Scalars['Boolean']['output']>;
   canExecute_allBillingReceiptsSum?: Maybe<Scalars['Boolean']['output']>;
@@ -120448,7 +120469,7 @@ export type UserRightsSetHistoryRecordCreateInput = {
   canExecuteGetAvailableSubscriptionPlans?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteInviteNewOrganizationEmployee?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterNewServiceUser?: InputMaybe<Scalars['Boolean']['input']>;
-  canExecuteRegisterSubscriptionContext?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteRegisterSubscriptionContexts?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteSendMessage?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteSigninAsUser?: InputMaybe<Scalars['Boolean']['input']>;
   canExecute_allBillingReceiptsSum?: InputMaybe<Scalars['Boolean']['input']>;
@@ -120540,7 +120561,7 @@ export type UserRightsSetHistoryRecordUpdateInput = {
   canExecuteGetAvailableSubscriptionPlans?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteInviteNewOrganizationEmployee?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterNewServiceUser?: InputMaybe<Scalars['Boolean']['input']>;
-  canExecuteRegisterSubscriptionContext?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteRegisterSubscriptionContexts?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteSendMessage?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteSigninAsUser?: InputMaybe<Scalars['Boolean']['input']>;
   canExecute_allBillingReceiptsSum?: InputMaybe<Scalars['Boolean']['input']>;
@@ -120631,8 +120652,8 @@ export type UserRightsSetHistoryRecordWhereInput = {
   canExecuteInviteNewOrganizationEmployee_not?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterNewServiceUser?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterNewServiceUser_not?: InputMaybe<Scalars['Boolean']['input']>;
-  canExecuteRegisterSubscriptionContext?: InputMaybe<Scalars['Boolean']['input']>;
-  canExecuteRegisterSubscriptionContext_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteRegisterSubscriptionContexts?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteRegisterSubscriptionContexts_not?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteSendMessage?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteSendMessage_not?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteSigninAsUser?: InputMaybe<Scalars['Boolean']['input']>;
@@ -120885,7 +120906,7 @@ export type UserRightsSetUpdateInput = {
   canExecuteGetAvailableSubscriptionPlans?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteInviteNewOrganizationEmployee?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterNewServiceUser?: InputMaybe<Scalars['Boolean']['input']>;
-  canExecuteRegisterSubscriptionContext?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteRegisterSubscriptionContexts?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteSendMessage?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteSigninAsUser?: InputMaybe<Scalars['Boolean']['input']>;
   canExecute_allBillingReceiptsSum?: InputMaybe<Scalars['Boolean']['input']>;
@@ -120973,8 +120994,8 @@ export type UserRightsSetWhereInput = {
   canExecuteInviteNewOrganizationEmployee_not?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterNewServiceUser?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteRegisterNewServiceUser_not?: InputMaybe<Scalars['Boolean']['input']>;
-  canExecuteRegisterSubscriptionContext?: InputMaybe<Scalars['Boolean']['input']>;
-  canExecuteRegisterSubscriptionContext_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteRegisterSubscriptionContexts?: InputMaybe<Scalars['Boolean']['input']>;
+  canExecuteRegisterSubscriptionContexts_not?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteSendMessage?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteSendMessage_not?: InputMaybe<Scalars['Boolean']['input']>;
   canExecuteSigninAsUser?: InputMaybe<Scalars['Boolean']['input']>;

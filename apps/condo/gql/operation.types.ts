@@ -948,12 +948,12 @@ export type UpdateOrganizationPaymentMethodsMutationVariables = Types.Exact<{
 
 export type UpdateOrganizationPaymentMethodsMutation = { __typename?: 'Mutation', organization?: { __typename?: 'Organization', id: string, meta?: any | null } | null };
 
-export type RegisterSubscriptionContextMutationVariables = Types.Exact<{
-  data: Types.RegisterSubscriptionContextInput;
+export type RegisterSubscriptionContextsMutationVariables = Types.Exact<{
+  data: Types.RegisterSubscriptionContextsInput;
 }>;
 
 
-export type RegisterSubscriptionContextMutation = { __typename?: 'Mutation', result?: { __typename?: 'RegisterSubscriptionContextOutput', directPaymentUrl?: string | null, subscriptionContext?: { __typename?: 'SubscriptionContext', id: string, startAt?: string | null, endAt?: string | null, isTrial?: boolean | null, status?: Types.SubscriptionContextStatusType | null } | null, multiPayment?: { __typename?: 'MultiPayment', id: string } | null } | null };
+export type RegisterSubscriptionContextsMutation = { __typename?: 'Mutation', result?: { __typename?: 'RegisterSubscriptionContextsOutput', directPaymentUrl?: string | null, subscriptionContexts: Array<{ __typename?: 'SubscriptionContext', id: string, startAt?: string | null, endAt?: string | null, isTrial?: boolean | null, status?: Types.SubscriptionContextStatusType | null }>, multiPayment?: { __typename?: 'MultiPayment', id: string } | null } | null };
 
 export type GetOrganizationActivatedSubscriptionsQueryVariables = Types.Exact<{
   organizationId: Types.Scalars['ID']['input'];
