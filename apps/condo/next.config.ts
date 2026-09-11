@@ -76,6 +76,7 @@ const subscriptionPayUrl = conf['SUBSCRIPTION_PAY_URL'] || ''
 const cardIssuerImages = JSON.parse(conf['CARD_ISSUER_IMAGES'] || '{}')
 const hCaptchaSiteKey = conf['HCAPTCHA_CONFIG'] ? { SITE_KEY: hCaptcha['SITE_KEY'] } : {}
 const subscriptionProgressModalConfig = JSON.parse(conf['SUBSCRIPTION_PROGRESS_MODAL_CONFIG'] || '{}')
+const subscriptionComparisonTableUrl = conf['SUBSCRIPTION_COMPARISON_TABLE_URL'] || ''
 const regionMessengerEmployeeBotLink = conf['REGION_MESSENGER_EMPLOYEE_BOT_LINK']
 
 const nextConfig: NextConfig = {
@@ -163,6 +164,7 @@ const nextConfig: NextConfig = {
         cardIssuerImages,
         messagingWsUrl,
         subscriptionProgressModalConfig,
+        subscriptionComparisonTableUrl,
         regionMessengerEmployeeBotLink,
     },
     serverRuntimeConfig: {

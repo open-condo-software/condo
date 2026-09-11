@@ -12,6 +12,15 @@ query getOrganizationActivatedSubscriptions($organizationId: ID!) {
             id
             name
             priority
+            planType
+            trialDays
+        }
+        subscriptionPlanPricingRule {
+            id
+            name
+            period
+            price
+            currencyCode
         }
         isTrial
         startAt

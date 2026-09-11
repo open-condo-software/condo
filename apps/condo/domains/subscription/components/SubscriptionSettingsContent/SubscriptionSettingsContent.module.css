@@ -1,6 +1,56 @@
-.plan-list {
+/*
+ * The page owns its own vertical rhythm instead of leaning on Space: an antd Space item does not
+ * stretch to the container, which leaves a grid inside it shrink-wrapped to one column.
+ */
+.page {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 40px;
+  width: 100%;
+}
+
+.table-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+/* Plan cards behave as tabs, so the switch above them is the anchor a card click scrolls to */
+.period-switch {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  scroll-margin-top: 20px;
+}
+
+.period-switch-inner {
+  position: relative;
+}
+
+/* The badge belongs to the yearly option, sitting above the switch itself */
+.period-discount-badge {
+  position: absolute;
+  top: -10px;
+  left: 16px;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/*
+ * Equal-width columns with stretched items are what keeps every plan card the same height,
+ * whatever the length of its description.
+ */
+.plan-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 24px;
-  align-items: flex-start;
+  align-items: stretch;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .plan-list {
+    grid-template-columns: 1fr;
+  }
 }

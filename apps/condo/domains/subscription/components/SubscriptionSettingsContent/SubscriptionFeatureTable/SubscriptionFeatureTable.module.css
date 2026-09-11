@@ -1,0 +1,63 @@
+/* Wide feature descriptions scroll inside the table instead of stretching the settings page */
+.table-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--condo-global-color-gray-3);
+  border-radius: var(--condo-global-border-radius-medium);
+}
+
+.table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+}
+
+.table th {
+  padding: 16px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--condo-global-color-gray-3);
+}
+
+.row td {
+  padding: 16px 12px;
+  vertical-align: top;
+  border-bottom: 1px solid var(--condo-global-color-gray-1);
+}
+
+.row:last-child td {
+  border-bottom: none;
+}
+
+.toggle-cell {
+  width: 72px;
+  padding-left: 24px !important;
+}
+
+.toggle-wrapper {
+  display: inline-flex;
+}
+
+.label-cell {
+  width: 24%;
+}
+
+.description-cell {
+  width: 46%;
+}
+
+.price-cell {
+  width: 22%;
+  padding-right: 24px !important;
+}
+
+.price-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+@media (max-width: 768px) {
+  .table {
+    min-width: 640px;
+  }
+}
