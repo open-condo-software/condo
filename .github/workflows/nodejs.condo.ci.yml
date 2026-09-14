@@ -18,7 +18,9 @@ on:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  # Keep an in-progress main/release run (including development deploy).
+  # New PR commits still cancel the previous PR CI.
+  cancel-in-progress: ${{ github.event_name == 'pull_request_target' }}
 
 env:
   DOCKER_IMAGE: condo/condo-image:${{ github.event.pull_request.head.sha || github.sha }}
