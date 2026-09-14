@@ -14,11 +14,26 @@ const {
 const { freezePaymentInfo } = require('@condo/domains/acquiring/utils/billingFridge')
 const { INVOICE_STATUS_PAID } = require('@condo/domains/marketplace/constants')
 const access = require('@condo/domains/subscription/access/ActivateSubscriptionContextService')
-const { SUBSCRIPTION_CONTEXT_STATUS } = require('@condo/domains/subscription/constants')
+const { PERIOD_TO_MONTHS, SUBSCRIPTION_CONTEXT_STATUS } = require('@condo/domains/subscription/constants')
 const { SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
 const { calculateSubscriptionStartDate } = require('@condo/domains/subscription/utils/subscriptionContext')
 
 const logger = getLogger('ActivateSubscriptionContextService')
+
+// The pricing rule is the source of truth; the date diff is a fallback for legacy contexts without a rule
+async function getSubscriptionPeriodMonths (subscriptionContext) {
+    if (subscriptionContext.subscriptionPlanPricingRule) {
+        const [pricingRule] = await find('SubscriptionPlanPricingRule', {
+            id: subscriptionContext.subscriptionPlanPricingRule,
+            deletedAt: null,
+        })
+        const months = PERIOD_TO_MONTHS[pricingRule?.period]
+        if (months) return months
+    }
+
+    const monthsFromDates = Math.round(dayjs(subscriptionContext.endAt).diff(dayjs(subscriptionContext.startAt), 'month', true))
+    return Math.max(1, monthsFromDates)
+}
 
 const ERRORS = {
     SUBSCRIPTION_CONTEXT_NOT_FOUND: {
@@ -68,7 +83,7 @@ const ActivateSubscriptionContextService = new GQLCustomSchema('ActivateSubscrip
             access: access.canActivateSubscriptionContext,
             schema: 'activateSubscriptionContext(data: ActivateSubscriptionContextInput!): ActivateSubscriptionContextOutput',
             doc: {
-                summary: 'Activates a subscription context whose invoice is paid: resolves the payment method (if any), sets status to DONE and recomputes startAt/endAt so the paid period starts at payment time rather than registration time.',
+                summary: 'Activates a subscription context whose invoice is paid: resolves the payment method (if any), sets status to DONE and recomputes startAt/endAt so the paid period starts at payment time rather than registration time. The period is computed once for the whole bundle sharing the invoice, so every context of a bundle keeps the same startAt/endAt.',
                 errors: ERRORS,
             },
             resolver: async (parent, args, context) => {
@@ -135,14 +150,24 @@ const ActivateSubscriptionContextService = new GQLCustomSchema('ActivateSubscrip
                 const bindingId = paymentMethod?.bindingId || null
                 const frozenPaymentInfo = freezePaymentInfo(multiPayment, invoice, subscriptionContext.subscriptionPlanPricingRule)
 
+                // The bundle's own contexts are excluded: they are activated one by one, and a sibling that
+                // is already DONE would push the remaining ones into the next period, splitting the bundle
+                const bundleContexts = await find('SubscriptionContext', {
+                    invoice: { id: invoice.id },
+                    deletedAt: null,
+                })
+                const bundleContextIds = bundleContexts.map(({ id }) => id)
+                const bundlePlanIds = [...new Set(bundleContexts.map(({ subscriptionPlan }) => subscriptionPlan))]
+
                 const existingDoneContexts = await find('SubscriptionContext', {
                     organization: { id: subscriptionContext.organization },
-                    subscriptionPlan: { id: subscriptionContext.subscriptionPlan },
+                    subscriptionPlan: { id_in: bundlePlanIds },
                     status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+                    id_not_in: bundleContextIds,
                     deletedAt: null,
                 })
                 const paidStartAt = calculateSubscriptionStartDate(existingDoneContexts)
-                const periodMonths = Math.round(dayjs(subscriptionContext.endAt).diff(dayjs(subscriptionContext.startAt), 'month', true))
+                const periodMonths = await getSubscriptionPeriodMonths(subscriptionContext)
                 const paidEndAt = paidStartAt.add(periodMonths, 'month')
 
                 logger.info({ msg: 'Updating subscription context', data: { subscriptionContextId: subscriptionContext.id, bindingId, hasPaymentMethod: !!paymentMethod, startAt: paidStartAt.format('YYYY-MM-DD'), endAt: paidEndAt.format('YYYY-MM-DD') } })
