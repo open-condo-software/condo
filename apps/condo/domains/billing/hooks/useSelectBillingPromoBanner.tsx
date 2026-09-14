@@ -28,6 +28,7 @@ interface PromoAppConfigI18n {
     tag: string
     detailedDescription: string
     price: string
+    cardButtonLabel?: string
     // You can add an override common fields here if you really need it
 }
 
@@ -95,7 +96,7 @@ const useSelectBillingPromoBanner = () => {
     const { organization } = useOrganization()
     const { user } = useAuth()
     const persistor = useCachePersistor()
-    const CardButtonLabel = intl.formatMessage({ id: 'miniapps.appCard.notConnected.label' })
+    const CardButtonLabelDefault = intl.formatMessage({ id: 'miniapps.appCard.notConnected.label' })
     const ModalButtonLabel = intl.formatMessage({ id: 'accrualsAndPayments.billingModal.leaveApplicationLabel' })
     const [spawnModal, SetupPromoAppModal] = Modal.useModal()
     const promoB2BAppConfig: PromoAppConfig = useMemo(() => {
@@ -129,6 +130,8 @@ const useSelectBillingPromoBanner = () => {
     })
     const shouldShowBanner = !appAlreadyConnected && Boolean(localizedTexts?.appDisconnectedTitle) && Boolean(localizedTexts?.detailedDescription)
     const shouldShowModal = !appIsBeingConnected
+
+    const CardButtonLabel = localizedTexts?.cardButtonLabel || CardButtonLabelDefault
 
     const handleBannerClick = useCallback(() => {
         if (!promoB2BApp || !shouldShowModal) return

@@ -16,6 +16,8 @@ import { SecondaryLink } from '@condo/domains/user/components/auth/SecondaryLink
 
 import styles from './Footer.module.css'
 
+import { parseQuery } from '../../../utils/tables.utils'
+
 
 interface FooterConfig {
     [locale: string]: {
@@ -41,17 +43,26 @@ const parseUrl = (url?: string): URL | null => {
 const getValidatedSppFintechUrl = (
     rawSppFintechUrl?: string,
     sbbolAuthConfig?: SbbolAuthConfig,
+    tab?: string
 ): string => {
     if (!rawSppFintechUrl) return ''
-
     const baseSppFintechUrl = `${sbbolAuthConfig?.host || ''}:${sbbolAuthConfig?.port || ''}`
     if (!parseUrl(baseSppFintechUrl)) return ''
-
     try {
-        const resolvedSppFintechUrl = new URL(rawSppFintechUrl, baseSppFintechUrl).toString()
-        return parseUrl(resolvedSppFintechUrl)?.toString() || ''
-    } catch {
+        const resolvedSppFintechUrl = JSON.parse(rawSppFintechUrl)
+        if (resolvedSppFintechUrl?.[tab]) {
+            const redirectUrl = new URL(resolvedSppFintechUrl?.[tab], baseSppFintechUrl).toString()
+            return parseUrl(redirectUrl)?.toString() || ''
+        }
         return ''
+    } catch {
+        // Old url without tabs in string format
+        try {
+            const redirectUrl = new URL(rawSppFintechUrl, baseSppFintechUrl).toString()
+            return parseUrl(redirectUrl)?.toString() || ''
+        } catch {
+            return ''
+        }
     }
 }
 
@@ -80,7 +91,9 @@ export const Footer: React.FC = () => {
     const sppBillingId = sppConfig?.BillingIntegrationId || null
     const currentPath = router.asPath.split('?')[0]
     const isBillingPage = currentPath === '/billing' || currentPath.startsWith('/billing/')
-    const resolvedSppFintechUrl = getValidatedSppFintechUrl(sppFintechUrl, sbbolAuthConfig)
+    const { tab } = parseQuery(router.query)
+
+    const resolvedSppFintechUrl = getValidatedSppFintechUrl(sppFintechUrl, sbbolAuthConfig, tab)
 
     const localizedFooterConfig = footerConfig?.[intl?.locale] || null
     const { data } = useGetActiveSppBillingContextQuery({
