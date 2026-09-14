@@ -1,4 +1,4 @@
-import { AiSkillLocaleType, AiSkillScopeType, B2BAppContextStatusType } from '@app/condo/schema'
+import { AiSkillScopeType, B2BAppContextStatusType } from '@app/condo/schema'
 import { Popover } from 'antd'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -70,39 +70,29 @@ const CoworkPage: PageComponentType = () => {
             .map((ctx) => ({ id: ctx.app.id, name: ctx.app.name }))
     }, [appContexts])
 
+    const connectedAppIds = useMemo(() =>
+        (appContexts || []).map(ctx => ctx.app?.id).filter(Boolean),
+    [appContexts])
+
     const { user } = useAuth()
     const userId = useMemo(() => user?.id, [user])
 
-    const { objs: aiSkills } = useAISkillObjects({
+    const { objs: visibleSkills } = useAISkillObjects({
         where: {
             OR: [
                 { scope: AiSkillScopeType.Global },
-                { scope: AiSkillScopeType.Organization, organization: { id: organizationId } },
                 { scope: AiSkillScopeType.Personal, user: { id: userId } },
-                { scope: AiSkillScopeType.B2bApp },
+                { scope: AiSkillScopeType.Organization, organization: { id: organizationId } },
+                { scope: AiSkillScopeType.B2bApp, b2bApp: { id_in: connectedAppIds } },
             ],
             isPublic: true,
             deletedAt: null,
-            locale: intl.locale as AiSkillLocaleType,
         },
     }, {
         skip: !organizationId,
     })
 
     const [selectedSkillId, setSelectedSkillId] = useState<string | null>(null)
-
-    const connectedAppIds = useMemo(() =>
-        (appContexts || []).map(ctx => ctx.app?.id).filter(Boolean),
-    [appContexts])
-
-    const visibleSkills = useMemo(() => {
-        return (aiSkills || []).filter(skill => {
-            if (skill.scope === 'personal') return skill.user?.id === userId
-            if (skill.scope === 'organization') return skill.organization?.id === organizationId
-            if (skill.scope === 'b2bApp') return Boolean(skill.b2bApp && connectedAppIds.includes(skill.b2bApp.id))
-            return skill.scope === 'global'
-        })
-    }, [aiSkills, userId, organizationId, connectedAppIds])
 
     // Clear an invalid selected skill (e.g. an integration skill whose app is no longer connected)
     useEffect(() => {
