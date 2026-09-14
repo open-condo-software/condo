@@ -628,7 +628,6 @@
   "api.scope.propertyScope.MAX_NAME_LENGTH_ERROR": "Se ha superado el número máximo de caracteres en el título ({max} caracteres)",
   "api.subscription.registerSubscriptionContexts.DUPLICATE_PLAN_IN_BUNDLE": "Un paquete no puede contener el mismo plan de suscripción más de una vez",
   "api.subscription.registerSubscriptionContexts.FEATURE_ALREADY_IN_PLAN": "Un plan de funciones del paquete ya está cubierto por otro plan del mismo paquete",
-  "api.subscription.registerSubscriptionContexts.MIXED_SUBSCRIPTION_START_DATES": "Los planes del paquete comenzarían en fechas distintas, porque algunos ya están cubiertos por una suscripción activa",
   "api.subscription.registerSubscriptionContexts.INVALID_ORGANIZATION_TYPE": "El tipo de organización no coincide con el tipo de organización del plan de suscripción",
   "api.subscription.registerSubscriptionContexts.MIXED_PRICING_RULE_PERIODS": "Todas las reglas de precios de un paquete deben tener el mismo período",
   "api.subscription.registerSubscriptionContexts.MULTIPLE_SERVICE_PLANS_IN_BUNDLE": "Un paquete puede contener como máximo un plan de servicio",

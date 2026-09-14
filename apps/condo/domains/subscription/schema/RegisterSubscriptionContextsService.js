@@ -103,14 +103,6 @@ const ERRORS = {
         message: 'A feature plan in the bundle is already covered by another plan in the same bundle',
         messageForUser: 'api.subscription.registerSubscriptionContexts.FEATURE_ALREADY_IN_PLAN',
     },
-    MIXED_SUBSCRIPTION_START_DATES: {
-        mutation: 'registerSubscriptionContexts',
-        variable: ['data', 'subscriptionPlanPricingRules'],
-        code: BAD_USER_INPUT,
-        type: 'MIXED_SUBSCRIPTION_START_DATES',
-        message: 'Plans in a bundle would start on different dates because some of them are already covered by an active subscription',
-        messageForUser: 'api.subscription.registerSubscriptionContexts.MIXED_SUBSCRIPTION_START_DATES',
-    },
     NO_ACTIVE_SERVICE_SUBSCRIPTION: {
         mutation: 'registerSubscriptionContexts',
         variable: ['data', 'organization'],
@@ -286,22 +278,23 @@ const RegisterSubscriptionContextsService = new GQLCustomSchema('RegisterSubscri
                     throw new GQLError(ERRORS.PRICING_RULE_NOT_FOUND, context)
                 }
 
+                // Each plan continues its own chain: a renewed plan starts where it ends, a newly bought
+                // one starts today, so one invoice can legitimately cover different periods
                 const activePaidContexts = await find('SubscriptionContext', {
                     organization: { id: organization.id },
                     subscriptionPlan: { id_in: planIds },
                     status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
                     deletedAt: null,
                 })
-                const startDatesByPlan = subscriptions.map(({ plan }) => calculateSubscriptionStartDate(
-                    activePaidContexts.filter(paidContext => paidContext.subscriptionPlan === plan.id)
-                ).format('YYYY-MM-DD'))
-                if (new Set(startDatesByPlan).size > 1) {
-                    logger.warn({ msg: 'Bundle plans would start on different dates', data: { organizationId: organization.id, planIds, startDatesByPlan } })
-                    throw new GQLError(ERRORS.MIXED_SUBSCRIPTION_START_DATES, context)
-                }
-
-                const startAtStr = startDatesByPlan[0]
-                const endAtStr = dayjs(startAtStr).add(months, 'month').format('YYYY-MM-DD')
+                const datesByPlanId = new Map(subscriptions.map(({ plan }) => {
+                    const startAt = calculateSubscriptionStartDate(
+                        activePaidContexts.filter(paidContext => paidContext.subscriptionPlan === plan.id)
+                    )
+                    return [plan.id, {
+                        startAt: startAt.format('YYYY-MM-DD'),
+                        endAt: startAt.add(months, 'month').format('YYYY-MM-DD'),
+                    }]
+                }))
 
                 const { recipientOrgId: recipientOrganizationId } = await getSubscriptionPaymentRecipient()
                 if (!recipientOrganizationId) {
@@ -334,8 +327,8 @@ const RegisterSubscriptionContextsService = new GQLCustomSchema('RegisterSubscri
                             subscriptionPlan: { connect: { id: plan.id } },
                             subscriptionPlanPricingRule: { connect: { id: rule.id } },
                             invoice: { connect: { id: invoice.id } },
-                            startAt: startAtStr,
-                            endAt: endAtStr,
+                            startAt: datesByPlanId.get(plan.id).startAt,
+                            endAt: datesByPlanId.get(plan.id).endAt,
                             isTrial: false,
                             status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
                             frozenPaymentInfo: { pricingRuleId: rule.id },

@@ -60437,6 +60437,7 @@ type SubscriptionContextHistoryRecord {
   isTrial: Boolean
   status: String
   bindingId: String
+  renewalCancelledAt: String
   frozenPaymentInfo: JSON
   id: ID!
   v: Int
@@ -60526,6 +60527,14 @@ input SubscriptionContextHistoryRecordWhereInput {
   bindingId_not_ends_with_i: String
   bindingId_in: [String]
   bindingId_not_in: [String]
+  renewalCancelledAt: String
+  renewalCancelledAt_not: String
+  renewalCancelledAt_lt: String
+  renewalCancelledAt_lte: String
+  renewalCancelledAt_gt: String
+  renewalCancelledAt_gte: String
+  renewalCancelledAt_in: [String]
+  renewalCancelledAt_not_in: [String]
   frozenPaymentInfo: JSON
   frozenPaymentInfo_not: JSON
   frozenPaymentInfo_in: [JSON]
@@ -60623,6 +60632,8 @@ enum SortSubscriptionContextHistoryRecordsBy {
   status_DESC
   bindingId_ASC
   bindingId_DESC
+  renewalCancelledAt_ASC
+  renewalCancelledAt_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -60651,6 +60662,7 @@ input SubscriptionContextHistoryRecordUpdateInput {
   isTrial: Boolean
   status: String
   bindingId: String
+  renewalCancelledAt: String
   frozenPaymentInfo: JSON
   v: Int
   createdAt: String
@@ -60681,6 +60693,7 @@ input SubscriptionContextHistoryRecordCreateInput {
   isTrial: Boolean
   status: String
   bindingId: String
+  renewalCancelledAt: String
   frozenPaymentInfo: JSON
   v: Int
   createdAt: String
@@ -60787,6 +60800,10 @@ type SubscriptionContext {
   """
   bindingId: String
 
+  """ When the organization declined to renew this subscription. Independent of the payment method: a card subscription also clears bindingId, an invoice one has nothing else to clear. A filled value keeps the context out of the set offered for renewal, it does not affect the period already paid for 
+  """
+  renewalCancelledAt: String
+
   """ Frozen payment information at the time of subscription context creation. Includes payment method details, invoice information, and pricing rule ID 
   """
   frozenPaymentInfo: FrozenPaymentInfo
@@ -60864,6 +60881,14 @@ input SubscriptionContextWhereInput {
   bindingId_not_ends_with_i: String
   bindingId_in: [String]
   bindingId_not_in: [String]
+  renewalCancelledAt: String
+  renewalCancelledAt_not: String
+  renewalCancelledAt_lt: String
+  renewalCancelledAt_lte: String
+  renewalCancelledAt_gt: String
+  renewalCancelledAt_gte: String
+  renewalCancelledAt_in: [String]
+  renewalCancelledAt_not_in: [String]
   frozenPaymentInfo: JSON
   frozenPaymentInfo_not: JSON
   frozenPaymentInfo_in: [JSON]
@@ -60949,6 +60974,8 @@ enum SortSubscriptionContextsBy {
   status_DESC
   bindingId_ASC
   bindingId_DESC
+  renewalCancelledAt_ASC
+  renewalCancelledAt_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -60977,6 +61004,7 @@ input SubscriptionContextUpdateInput {
   isTrial: Boolean
   status: SubscriptionContextStatusType
   bindingId: String
+  renewalCancelledAt: String
   frozenPaymentInfo: JSON
   v: Int
   createdAt: String
@@ -61004,6 +61032,7 @@ input SubscriptionContextCreateInput {
   isTrial: Boolean
   status: SubscriptionContextStatusType
   bindingId: String
+  renewalCancelledAt: String
   frozenPaymentInfo: JSON
   v: Int
   createdAt: String
@@ -96890,6 +96919,7 @@ input UpdateSubscriptionContextPaymentMethodInput {
   dv: Int!
   sender: SenderFieldInput!
   subscriptionContext: SubscriptionContextWhereUniqueInput!
+  subscriptionContexts: [SubscriptionContextWhereUniqueInput!]
   bindingId: String
 }
 
