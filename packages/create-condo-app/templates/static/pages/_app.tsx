@@ -7,6 +7,7 @@ import { IntlProvider } from '@/domains/common/components/IntlProvider'
 import { LaunchParamsProvider } from '@/domains/common/components/LaunchParamsContext'
 import { useApollo } from '@/domains/common/utils/apollo'
 import { withTranslations } from '@/domains/common/utils/i18n'
+import { AuthProvider } from '@/domains/user/components/AuthContext'
 
 import type { AppType } from 'next/app'
 
@@ -22,9 +23,11 @@ const App: AppType<PageProps> =  ({ Component, pageProps }) => {
             <CachePersistorContext.Provider value={{ persistor: cachePersistor }}>
                 <LaunchParamsProvider>
                     <IntlProvider>
-                        <DynamicAppResizer>
-                            <Component {...pageProps} />
-                        </DynamicAppResizer>
+                        <AuthProvider>
+                            <DynamicAppResizer>
+                                <Component {...pageProps} />
+                            </DynamicAppResizer>
+                        </AuthProvider>
                     </IntlProvider>
                 </LaunchParamsProvider>
             </CachePersistorContext.Provider>

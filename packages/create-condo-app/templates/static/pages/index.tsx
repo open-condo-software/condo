@@ -1,16 +1,19 @@
 import Head from 'next/head'
 import { useIntl } from 'react-intl'
 
+import { useLaunchParams } from '@/domains/common/components/LaunchParamsContext'
 import { LOCALES } from '@/domains/common/constants/locales'
 import { useTranslations } from '@/domains/common/utils/i18n'
-import { useAuth } from '@/domains/user/hooks/useAuth'
+import { useAuth } from '@/domains/user/components/AuthContext'
 
 export default function Home () {
     const intl = useIntl()
     const { loading, user } = useAuth()
+    const { launchParams } = useLaunchParams()
     const HelloMessage = intl.formatMessage({ id: 'hello' })
 
     const { switchLocale } = useTranslations()
+    const { signIn } = useAuth()
 
     return (
         <>
@@ -24,13 +27,16 @@ export default function Home () {
             >
                 {HelloMessage}
                 <pre>
-                    {JSON.stringify({ loading, user }, null, 2)}
+                    {JSON.stringify({ loading, user, launchParams }, null, 2)}
                 </pre>
                 {LOCALES.map((locale) => (
                     <button key={locale} onClick={() => switchLocale(locale)}>
                         {locale}
                     </button>
                 ))}
+                <div>
+                    <button onClick={() => signIn()}>Sign In</button>
+                </div>
             </div>
         </>
     )
