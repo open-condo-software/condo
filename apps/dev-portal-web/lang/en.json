@@ -326,6 +326,8 @@
   "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.permissions.canManageTicketComments.label": "Manage ticket comments",
   "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.permissions.canReadTicketCommentFiles.label": "View ticket comment attachments",
   "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.permissions.canManageTicketCommentFiles.label": "Manage ticket comment attachments",
+  "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.permissions.canReadCallRecords.label": "View call records",
+  "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.permissions.canManageCallRecords.label": "Manage call records",
   "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.permissions.canReadMeters.label": "View meters",
   "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.permissions.canManageMeters.label": "Manage meters",
   "pages.apps.b2b.id.sections.serviceUser.accessRightSetForm.permissions.canReadMeterReadings.label": "View meter readings",

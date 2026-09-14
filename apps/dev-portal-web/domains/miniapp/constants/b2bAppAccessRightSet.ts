@@ -47,6 +47,8 @@ export const GROUPED_PERMISSIONS: GroupedPermissions = {
         'canManageTicketComments',
         'canReadTicketCommentFiles',
         'canManageTicketCommentFiles',
+        'canReadCallRecords',
+        'canManageCallRecords',
     ],
     meter: [
         'canReadMeters',

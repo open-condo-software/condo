@@ -81,6 +81,22 @@ class AwsFileAdapter {
         this._appClients = conf['FILE_UPLOAD_CONFIG'] ? get(JSON.parse(conf['FILE_UPLOAD_CONFIG']), 'clients', {}) : {}
     }
 
+    unsupportedRead () {
+        throw new Error('Unsupported adapter: AWS ranged reads are not implemented')
+    }
+
+    getFileSize () {
+        return this.unsupportedRead()
+    }
+
+    readRange () {
+        return this.unsupportedRead()
+    }
+
+    createReadStream () {
+        return this.unsupportedRead()
+    }
+
     _uploadStream ({ stream, fileData, key, mimetype, meta }) {
         return new Promise((resolve, reject) => {
             let finished = false

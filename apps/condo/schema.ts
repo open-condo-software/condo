@@ -870,6 +870,8 @@ export type AcquiringIntegration = {
   /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']['output']>;
+  /**  The number used to determine the position of the integration among the others.   */
+  displayPriority?: Maybe<Scalars['Int']['output']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']['output']>;
   /**  Contains information about the default distribution of explicit fee. Each part is paid by the user on top of original amount if there is no part with the same name in the integration context. Otherwise, the part is ignored as it is paid by recipient  */
@@ -879,6 +881,8 @@ export type AcquiringIntegration = {
   id: Scalars['ID']['output'];
   /**  Indicates whether the integration or app is hidden inside the CRM. Used if integration is active by default or not ready to appear inside CRM  */
   isHidden?: Maybe<Scalars['Boolean']['output']>;
+  /**  Logo of integration's company or integration itself  */
+  logo?: Maybe<File>;
   /**  The maximum payment amount that can be accepted  */
   maximumPaymentAmount?: Maybe<Scalars['String']['output']>;
   /**  The minimum payment amount that can be accepted  */
@@ -888,8 +892,12 @@ export type AcquiringIntegration = {
   newId?: Maybe<Scalars['String']['output']>;
   /**  Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
+  /**  Title for the settings tab  */
+  setupTitle?: Maybe<Scalars['String']['output']>;
   /**  Url to setup page of acquiring integration  */
   setupUrl?: Maybe<Scalars['String']['output']>;
+  /**  Short description / catch phrase providing information about integration functionality. Will be shown on integration's card  */
+  shortDescription?: Maybe<Scalars['String']['output']>;
   /**  Supported billing integrations group. Useful when you need to restrict this acquiring to accept payment only from certain billing.  */
   supportedBillingIntegrationsGroup?: Maybe<Scalars['String']['output']>;
   /**  Defines the integration type. ONLINE_PROCESSING: used for processing and accepting payments. EXTERNAL_IMPORT: used for storing information about payments completed through other channels  */
@@ -1966,16 +1974,20 @@ export type AcquiringIntegrationCreateInput = {
   createdAt?: InputMaybe<Scalars['String']['input']>;
   createdBy?: InputMaybe<UserRelateToOneInput>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
+  displayPriority?: InputMaybe<Scalars['Int']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   explicitFeeDistributionSchema?: InputMaybe<Array<FeeDistributionFieldInput>>;
   hostUrl?: InputMaybe<Scalars['String']['input']>;
   isHidden?: InputMaybe<Scalars['Boolean']['input']>;
+  logo?: InputMaybe<Scalars['FileMeta']['input']>;
   maximumPaymentAmount?: InputMaybe<Scalars['String']['input']>;
   minimumPaymentAmount?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['String']['input']>;
   sender?: InputMaybe<SenderFieldInput>;
+  setupTitle?: InputMaybe<Scalars['String']['input']>;
   setupUrl?: InputMaybe<Scalars['String']['input']>;
+  shortDescription?: InputMaybe<Scalars['String']['input']>;
   supportedBillingIntegrationsGroup?: InputMaybe<Scalars['String']['input']>;
   type?: InputMaybe<AcquiringIntegrationTypeType>;
   updatedAt?: InputMaybe<Scalars['String']['input']>;
@@ -2000,6 +2012,7 @@ export type AcquiringIntegrationHistoryRecord = {
   createdAt?: Maybe<Scalars['String']['output']>;
   createdBy?: Maybe<Scalars['String']['output']>;
   deletedAt?: Maybe<Scalars['String']['output']>;
+  displayPriority?: Maybe<Scalars['Int']['output']>;
   dv?: Maybe<Scalars['Int']['output']>;
   explicitFeeDistributionSchema?: Maybe<Scalars['JSON']['output']>;
   history_action?: Maybe<AcquiringIntegrationHistoryRecordHistoryActionType>;
@@ -2008,12 +2021,15 @@ export type AcquiringIntegrationHistoryRecord = {
   hostUrl?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   isHidden?: Maybe<Scalars['Boolean']['output']>;
+  logo?: Maybe<Scalars['JSON']['output']>;
   maximumPaymentAmount?: Maybe<Scalars['String']['output']>;
   minimumPaymentAmount?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   newId?: Maybe<Scalars['JSON']['output']>;
   sender?: Maybe<Scalars['JSON']['output']>;
+  setupTitle?: Maybe<Scalars['String']['output']>;
   setupUrl?: Maybe<Scalars['String']['output']>;
+  shortDescription?: Maybe<Scalars['String']['output']>;
   supportedBillingIntegrationsGroup?: Maybe<Scalars['String']['output']>;
   type?: Maybe<Scalars['String']['output']>;
   updatedAt?: Maybe<Scalars['String']['output']>;
@@ -2028,6 +2044,7 @@ export type AcquiringIntegrationHistoryRecordCreateInput = {
   createdAt?: InputMaybe<Scalars['String']['input']>;
   createdBy?: InputMaybe<Scalars['String']['input']>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
+  displayPriority?: InputMaybe<Scalars['Int']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   explicitFeeDistributionSchema?: InputMaybe<Scalars['JSON']['input']>;
   history_action?: InputMaybe<AcquiringIntegrationHistoryRecordHistoryActionType>;
@@ -2035,12 +2052,15 @@ export type AcquiringIntegrationHistoryRecordCreateInput = {
   history_id?: InputMaybe<Scalars['String']['input']>;
   hostUrl?: InputMaybe<Scalars['String']['input']>;
   isHidden?: InputMaybe<Scalars['Boolean']['input']>;
+  logo?: InputMaybe<Scalars['JSON']['input']>;
   maximumPaymentAmount?: InputMaybe<Scalars['String']['input']>;
   minimumPaymentAmount?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['JSON']['input']>;
   sender?: InputMaybe<Scalars['JSON']['input']>;
+  setupTitle?: InputMaybe<Scalars['String']['input']>;
   setupUrl?: InputMaybe<Scalars['String']['input']>;
+  shortDescription?: InputMaybe<Scalars['String']['input']>;
   supportedBillingIntegrationsGroup?: InputMaybe<Scalars['String']['input']>;
   type?: InputMaybe<Scalars['String']['input']>;
   updatedAt?: InputMaybe<Scalars['String']['input']>;
@@ -2061,6 +2081,7 @@ export type AcquiringIntegrationHistoryRecordUpdateInput = {
   createdAt?: InputMaybe<Scalars['String']['input']>;
   createdBy?: InputMaybe<Scalars['String']['input']>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
+  displayPriority?: InputMaybe<Scalars['Int']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   explicitFeeDistributionSchema?: InputMaybe<Scalars['JSON']['input']>;
   history_action?: InputMaybe<AcquiringIntegrationHistoryRecordHistoryActionType>;
@@ -2068,12 +2089,15 @@ export type AcquiringIntegrationHistoryRecordUpdateInput = {
   history_id?: InputMaybe<Scalars['String']['input']>;
   hostUrl?: InputMaybe<Scalars['String']['input']>;
   isHidden?: InputMaybe<Scalars['Boolean']['input']>;
+  logo?: InputMaybe<Scalars['JSON']['input']>;
   maximumPaymentAmount?: InputMaybe<Scalars['String']['input']>;
   minimumPaymentAmount?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['JSON']['input']>;
   sender?: InputMaybe<Scalars['JSON']['input']>;
+  setupTitle?: InputMaybe<Scalars['String']['input']>;
   setupUrl?: InputMaybe<Scalars['String']['input']>;
+  shortDescription?: InputMaybe<Scalars['String']['input']>;
   supportedBillingIntegrationsGroup?: InputMaybe<Scalars['String']['input']>;
   type?: InputMaybe<Scalars['String']['input']>;
   updatedAt?: InputMaybe<Scalars['String']['input']>;
@@ -2125,6 +2149,14 @@ export type AcquiringIntegrationHistoryRecordWhereInput = {
   deletedAt_lte?: InputMaybe<Scalars['String']['input']>;
   deletedAt_not?: InputMaybe<Scalars['String']['input']>;
   deletedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  displayPriority?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_gt?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_gte?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  displayPriority_lt?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_lte?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_not?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   dv_gt?: InputMaybe<Scalars['Int']['input']>;
   dv_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -2177,6 +2209,10 @@ export type AcquiringIntegrationHistoryRecordWhereInput = {
   id_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   isHidden?: InputMaybe<Scalars['Boolean']['input']>;
   isHidden_not?: InputMaybe<Scalars['Boolean']['input']>;
+  logo?: InputMaybe<Scalars['JSON']['input']>;
+  logo_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  logo_not?: InputMaybe<Scalars['JSON']['input']>;
+  logo_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
   maximumPaymentAmount?: InputMaybe<Scalars['String']['input']>;
   maximumPaymentAmount_gt?: InputMaybe<Scalars['String']['input']>;
   maximumPaymentAmount_gte?: InputMaybe<Scalars['String']['input']>;
@@ -2219,6 +2255,24 @@ export type AcquiringIntegrationHistoryRecordWhereInput = {
   sender_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
   sender_not?: InputMaybe<Scalars['JSON']['input']>;
   sender_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  setupTitle?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_contains?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_contains_i?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_ends_with?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_i?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  setupTitle_not?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_not_contains?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_not_i?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  setupTitle_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_starts_with?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   setupUrl?: InputMaybe<Scalars['String']['input']>;
   setupUrl_contains?: InputMaybe<Scalars['String']['input']>;
   setupUrl_contains_i?: InputMaybe<Scalars['String']['input']>;
@@ -2237,6 +2291,24 @@ export type AcquiringIntegrationHistoryRecordWhereInput = {
   setupUrl_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   setupUrl_starts_with?: InputMaybe<Scalars['String']['input']>;
   setupUrl_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  shortDescription?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_contains?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_contains_i?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_ends_with?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_i?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  shortDescription_not?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_not_contains?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_not_i?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  shortDescription_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_starts_with?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   supportedBillingIntegrationsGroup?: InputMaybe<Scalars['String']['input']>;
   supportedBillingIntegrationsGroup_contains?: InputMaybe<Scalars['String']['input']>;
   supportedBillingIntegrationsGroup_contains_i?: InputMaybe<Scalars['String']['input']>;
@@ -2345,16 +2417,20 @@ export type AcquiringIntegrationUpdateInput = {
   createdAt?: InputMaybe<Scalars['String']['input']>;
   createdBy?: InputMaybe<UserRelateToOneInput>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
+  displayPriority?: InputMaybe<Scalars['Int']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   explicitFeeDistributionSchema?: InputMaybe<Array<FeeDistributionFieldInput>>;
   hostUrl?: InputMaybe<Scalars['String']['input']>;
   isHidden?: InputMaybe<Scalars['Boolean']['input']>;
+  logo?: InputMaybe<Scalars['FileMeta']['input']>;
   maximumPaymentAmount?: InputMaybe<Scalars['String']['input']>;
   minimumPaymentAmount?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['String']['input']>;
   sender?: InputMaybe<SenderFieldInput>;
+  setupTitle?: InputMaybe<Scalars['String']['input']>;
   setupUrl?: InputMaybe<Scalars['String']['input']>;
+  shortDescription?: InputMaybe<Scalars['String']['input']>;
   supportedBillingIntegrationsGroup?: InputMaybe<Scalars['String']['input']>;
   type?: InputMaybe<AcquiringIntegrationTypeType>;
   updatedAt?: InputMaybe<Scalars['String']['input']>;
@@ -2396,6 +2472,14 @@ export type AcquiringIntegrationWhereInput = {
   deletedAt_lte?: InputMaybe<Scalars['String']['input']>;
   deletedAt_not?: InputMaybe<Scalars['String']['input']>;
   deletedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  displayPriority?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_gt?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_gte?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  displayPriority_lt?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_lte?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_not?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   dv_gt?: InputMaybe<Scalars['Int']['input']>;
   dv_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -2432,6 +2516,10 @@ export type AcquiringIntegrationWhereInput = {
   id_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   isHidden?: InputMaybe<Scalars['Boolean']['input']>;
   isHidden_not?: InputMaybe<Scalars['Boolean']['input']>;
+  logo?: InputMaybe<Scalars['String']['input']>;
+  logo_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  logo_not?: InputMaybe<Scalars['String']['input']>;
+  logo_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   maximumPaymentAmount?: InputMaybe<Scalars['String']['input']>;
   maximumPaymentAmount_gt?: InputMaybe<Scalars['String']['input']>;
   maximumPaymentAmount_gte?: InputMaybe<Scalars['String']['input']>;
@@ -2474,6 +2562,24 @@ export type AcquiringIntegrationWhereInput = {
   sender_in?: InputMaybe<Array<InputMaybe<SenderFieldInput>>>;
   sender_not?: InputMaybe<SenderFieldInput>;
   sender_not_in?: InputMaybe<Array<InputMaybe<SenderFieldInput>>>;
+  setupTitle?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_contains?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_contains_i?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_ends_with?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_i?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  setupTitle_not?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_not_contains?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_not_i?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  setupTitle_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_starts_with?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   setupUrl?: InputMaybe<Scalars['String']['input']>;
   setupUrl_contains?: InputMaybe<Scalars['String']['input']>;
   setupUrl_contains_i?: InputMaybe<Scalars['String']['input']>;
@@ -2492,6 +2598,24 @@ export type AcquiringIntegrationWhereInput = {
   setupUrl_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   setupUrl_starts_with?: InputMaybe<Scalars['String']['input']>;
   setupUrl_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  shortDescription?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_contains?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_contains_i?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_ends_with?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_i?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  shortDescription_not?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_not_contains?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_not_i?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  shortDescription_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_starts_with?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   supportedBillingIntegrationsGroup?: InputMaybe<Scalars['String']['input']>;
   supportedBillingIntegrationsGroup_contains?: InputMaybe<Scalars['String']['input']>;
   supportedBillingIntegrationsGroup_contains_i?: InputMaybe<Scalars['String']['input']>;
@@ -4171,6 +4295,7 @@ export type B2BAppAccessRightSet = {
   canManageBillingReceipts?: Maybe<Scalars['Boolean']['output']>;
   /**  Currently, this field is read-only. You cannot get manage access for the specified schema.  */
   canManageBillingRecipients?: Maybe<Scalars['Boolean']['output']>;
+  canManageCallRecords?: Maybe<Scalars['Boolean']['output']>;
   canManageContacts?: Maybe<Scalars['Boolean']['output']>;
   canManageCustomValues?: Maybe<Scalars['Boolean']['output']>;
   canManageInvoices?: Maybe<Scalars['Boolean']['output']>;
@@ -4201,6 +4326,7 @@ export type B2BAppAccessRightSet = {
   canReadBillingReceiptFiles?: Maybe<Scalars['Boolean']['output']>;
   canReadBillingReceipts?: Maybe<Scalars['Boolean']['output']>;
   canReadBillingRecipients?: Maybe<Scalars['Boolean']['output']>;
+  canReadCallRecords?: Maybe<Scalars['Boolean']['output']>;
   canReadContacts?: Maybe<Scalars['Boolean']['output']>;
   canReadCustomValues?: Maybe<Scalars['Boolean']['output']>;
   canReadInvoices?: Maybe<Scalars['Boolean']['output']>;
@@ -4262,6 +4388,7 @@ export type B2BAppAccessRightSetCreateInput = {
   canManageBillingReceiptFiles?: InputMaybe<Scalars['Boolean']['input']>;
   canManageBillingReceipts?: InputMaybe<Scalars['Boolean']['input']>;
   canManageBillingRecipients?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageCallRecords?: InputMaybe<Scalars['Boolean']['input']>;
   canManageContacts?: InputMaybe<Scalars['Boolean']['input']>;
   canManageCustomValues?: InputMaybe<Scalars['Boolean']['input']>;
   canManageInvoices?: InputMaybe<Scalars['Boolean']['input']>;
@@ -4288,6 +4415,7 @@ export type B2BAppAccessRightSetCreateInput = {
   canReadBillingReceiptFiles?: InputMaybe<Scalars['Boolean']['input']>;
   canReadBillingReceipts?: InputMaybe<Scalars['Boolean']['input']>;
   canReadBillingRecipients?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadCallRecords?: InputMaybe<Scalars['Boolean']['input']>;
   canReadContacts?: InputMaybe<Scalars['Boolean']['input']>;
   canReadCustomValues?: InputMaybe<Scalars['Boolean']['input']>;
   canReadInvoices?: InputMaybe<Scalars['Boolean']['input']>;
@@ -4349,6 +4477,7 @@ export type B2BAppAccessRightSetHistoryRecord = {
   canManageBillingReceiptFiles?: Maybe<Scalars['Boolean']['output']>;
   canManageBillingReceipts?: Maybe<Scalars['Boolean']['output']>;
   canManageBillingRecipients?: Maybe<Scalars['Boolean']['output']>;
+  canManageCallRecords?: Maybe<Scalars['Boolean']['output']>;
   canManageContacts?: Maybe<Scalars['Boolean']['output']>;
   canManageCustomValues?: Maybe<Scalars['Boolean']['output']>;
   canManageInvoices?: Maybe<Scalars['Boolean']['output']>;
@@ -4375,6 +4504,7 @@ export type B2BAppAccessRightSetHistoryRecord = {
   canReadBillingReceiptFiles?: Maybe<Scalars['Boolean']['output']>;
   canReadBillingReceipts?: Maybe<Scalars['Boolean']['output']>;
   canReadBillingRecipients?: Maybe<Scalars['Boolean']['output']>;
+  canReadCallRecords?: Maybe<Scalars['Boolean']['output']>;
   canReadContacts?: Maybe<Scalars['Boolean']['output']>;
   canReadCustomValues?: Maybe<Scalars['Boolean']['output']>;
   canReadInvoices?: Maybe<Scalars['Boolean']['output']>;
@@ -4430,6 +4560,7 @@ export type B2BAppAccessRightSetHistoryRecordCreateInput = {
   canManageBillingReceiptFiles?: InputMaybe<Scalars['Boolean']['input']>;
   canManageBillingReceipts?: InputMaybe<Scalars['Boolean']['input']>;
   canManageBillingRecipients?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageCallRecords?: InputMaybe<Scalars['Boolean']['input']>;
   canManageContacts?: InputMaybe<Scalars['Boolean']['input']>;
   canManageCustomValues?: InputMaybe<Scalars['Boolean']['input']>;
   canManageInvoices?: InputMaybe<Scalars['Boolean']['input']>;
@@ -4456,6 +4587,7 @@ export type B2BAppAccessRightSetHistoryRecordCreateInput = {
   canReadBillingReceiptFiles?: InputMaybe<Scalars['Boolean']['input']>;
   canReadBillingReceipts?: InputMaybe<Scalars['Boolean']['input']>;
   canReadBillingRecipients?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadCallRecords?: InputMaybe<Scalars['Boolean']['input']>;
   canReadContacts?: InputMaybe<Scalars['Boolean']['input']>;
   canReadCustomValues?: InputMaybe<Scalars['Boolean']['input']>;
   canReadInvoices?: InputMaybe<Scalars['Boolean']['input']>;
@@ -4516,6 +4648,7 @@ export type B2BAppAccessRightSetHistoryRecordUpdateInput = {
   canManageBillingReceiptFiles?: InputMaybe<Scalars['Boolean']['input']>;
   canManageBillingReceipts?: InputMaybe<Scalars['Boolean']['input']>;
   canManageBillingRecipients?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageCallRecords?: InputMaybe<Scalars['Boolean']['input']>;
   canManageContacts?: InputMaybe<Scalars['Boolean']['input']>;
   canManageCustomValues?: InputMaybe<Scalars['Boolean']['input']>;
   canManageInvoices?: InputMaybe<Scalars['Boolean']['input']>;
@@ -4542,6 +4675,7 @@ export type B2BAppAccessRightSetHistoryRecordUpdateInput = {
   canReadBillingReceiptFiles?: InputMaybe<Scalars['Boolean']['input']>;
   canReadBillingReceipts?: InputMaybe<Scalars['Boolean']['input']>;
   canReadBillingRecipients?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadCallRecords?: InputMaybe<Scalars['Boolean']['input']>;
   canReadContacts?: InputMaybe<Scalars['Boolean']['input']>;
   canReadCustomValues?: InputMaybe<Scalars['Boolean']['input']>;
   canReadInvoices?: InputMaybe<Scalars['Boolean']['input']>;
@@ -4616,6 +4750,8 @@ export type B2BAppAccessRightSetHistoryRecordWhereInput = {
   canManageBillingReceipts_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageBillingRecipients?: InputMaybe<Scalars['Boolean']['input']>;
   canManageBillingRecipients_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageCallRecords?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageCallRecords_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageContacts?: InputMaybe<Scalars['Boolean']['input']>;
   canManageContacts_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageCustomValues?: InputMaybe<Scalars['Boolean']['input']>;
@@ -4668,6 +4804,8 @@ export type B2BAppAccessRightSetHistoryRecordWhereInput = {
   canReadBillingReceipts_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadBillingRecipients?: InputMaybe<Scalars['Boolean']['input']>;
   canReadBillingRecipients_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadCallRecords?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadCallRecords_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadContacts?: InputMaybe<Scalars['Boolean']['input']>;
   canReadContacts_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadCustomValues?: InputMaybe<Scalars['Boolean']['input']>;
@@ -4898,6 +5036,7 @@ export type B2BAppAccessRightSetUpdateInput = {
   canManageBillingReceiptFiles?: InputMaybe<Scalars['Boolean']['input']>;
   canManageBillingReceipts?: InputMaybe<Scalars['Boolean']['input']>;
   canManageBillingRecipients?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageCallRecords?: InputMaybe<Scalars['Boolean']['input']>;
   canManageContacts?: InputMaybe<Scalars['Boolean']['input']>;
   canManageCustomValues?: InputMaybe<Scalars['Boolean']['input']>;
   canManageInvoices?: InputMaybe<Scalars['Boolean']['input']>;
@@ -4924,6 +5063,7 @@ export type B2BAppAccessRightSetUpdateInput = {
   canReadBillingReceiptFiles?: InputMaybe<Scalars['Boolean']['input']>;
   canReadBillingReceipts?: InputMaybe<Scalars['Boolean']['input']>;
   canReadBillingRecipients?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadCallRecords?: InputMaybe<Scalars['Boolean']['input']>;
   canReadContacts?: InputMaybe<Scalars['Boolean']['input']>;
   canReadCustomValues?: InputMaybe<Scalars['Boolean']['input']>;
   canReadInvoices?: InputMaybe<Scalars['Boolean']['input']>;
@@ -4993,6 +5133,8 @@ export type B2BAppAccessRightSetWhereInput = {
   canManageBillingReceipts_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageBillingRecipients?: InputMaybe<Scalars['Boolean']['input']>;
   canManageBillingRecipients_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageCallRecords?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageCallRecords_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageContacts?: InputMaybe<Scalars['Boolean']['input']>;
   canManageContacts_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageCustomValues?: InputMaybe<Scalars['Boolean']['input']>;
@@ -5045,6 +5187,8 @@ export type B2BAppAccessRightSetWhereInput = {
   canReadBillingReceipts_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadBillingRecipients?: InputMaybe<Scalars['Boolean']['input']>;
   canReadBillingRecipients_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadCallRecords?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadCallRecords_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadContacts?: InputMaybe<Scalars['Boolean']['input']>;
   canReadContacts_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadCustomValues?: InputMaybe<Scalars['Boolean']['input']>;
@@ -19761,6 +19905,8 @@ export type BillingIntegration = {
   deletedAt?: Maybe<Scalars['String']['output']>;
   /**  Text describing app functionality, connection process and pricing in full detail. Written in markdown without html tags. Will be shown on app's page  */
   detailedDescription?: Maybe<Scalars['String']['output']>;
+  /**  The number used to determine the position of the integration among the others.   */
+  displayPriority?: Maybe<Scalars['Int']['output']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']['output']>;
   /**  If this flag is set to true, then in the "Accruals and Payments" section will appear an additional tab with the "billingPageTitle" or "name" field and iframe from "appUrl" inside  */
@@ -20141,6 +20287,7 @@ export type BillingIntegrationCreateInput = {
   dataFormat?: InputMaybe<BillingIntegrationDataFormatFieldInput>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
   detailedDescription?: InputMaybe<Scalars['String']['input']>;
+  displayPriority?: InputMaybe<Scalars['Int']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   extendsBillingPage?: InputMaybe<Scalars['Boolean']['input']>;
   group?: InputMaybe<Scalars['String']['input']>;
@@ -20387,6 +20534,7 @@ export type BillingIntegrationHistoryRecord = {
   dataFormat?: Maybe<Scalars['JSON']['output']>;
   deletedAt?: Maybe<Scalars['String']['output']>;
   detailedDescription?: Maybe<Scalars['JSON']['output']>;
+  displayPriority?: Maybe<Scalars['Int']['output']>;
   dv?: Maybe<Scalars['Int']['output']>;
   extendsBillingPage?: Maybe<Scalars['Boolean']['output']>;
   group?: Maybe<Scalars['String']['output']>;
@@ -20433,6 +20581,7 @@ export type BillingIntegrationHistoryRecordCreateInput = {
   dataFormat?: InputMaybe<Scalars['JSON']['input']>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
   detailedDescription?: InputMaybe<Scalars['JSON']['input']>;
+  displayPriority?: InputMaybe<Scalars['Int']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   extendsBillingPage?: InputMaybe<Scalars['Boolean']['input']>;
   group?: InputMaybe<Scalars['String']['input']>;
@@ -20484,6 +20633,7 @@ export type BillingIntegrationHistoryRecordUpdateInput = {
   dataFormat?: InputMaybe<Scalars['JSON']['input']>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
   detailedDescription?: InputMaybe<Scalars['JSON']['input']>;
+  displayPriority?: InputMaybe<Scalars['Int']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   extendsBillingPage?: InputMaybe<Scalars['Boolean']['input']>;
   group?: InputMaybe<Scalars['String']['input']>;
@@ -20733,6 +20883,14 @@ export type BillingIntegrationHistoryRecordWhereInput = {
   detailedDescription_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
   detailedDescription_not?: InputMaybe<Scalars['JSON']['input']>;
   detailedDescription_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  displayPriority?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_gt?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_gte?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  displayPriority_lt?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_lte?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_not?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   dv_gt?: InputMaybe<Scalars['Int']['input']>;
   dv_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -21600,6 +21758,7 @@ export type BillingIntegrationUpdateInput = {
   dataFormat?: InputMaybe<BillingIntegrationDataFormatFieldInput>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
   detailedDescription?: InputMaybe<Scalars['String']['input']>;
+  displayPriority?: InputMaybe<Scalars['Int']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   extendsBillingPage?: InputMaybe<Scalars['Boolean']['input']>;
   group?: InputMaybe<Scalars['String']['input']>;
@@ -21820,6 +21979,14 @@ export type BillingIntegrationWhereInput = {
   detailedDescription_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   detailedDescription_starts_with?: InputMaybe<Scalars['String']['input']>;
   detailedDescription_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  displayPriority?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_gt?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_gte?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  displayPriority_lt?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_lte?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_not?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   dv_gt?: InputMaybe<Scalars['Int']['input']>;
   dv_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -94576,6 +94743,8 @@ export enum SortAcquiringIntegrationHistoryRecordsBy {
   CreatedAtDesc = 'createdAt_DESC',
   DeletedAtAsc = 'deletedAt_ASC',
   DeletedAtDesc = 'deletedAt_DESC',
+  DisplayPriorityAsc = 'displayPriority_ASC',
+  DisplayPriorityDesc = 'displayPriority_DESC',
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
   HistoryActionAsc = 'history_action_ASC',
@@ -94594,8 +94763,12 @@ export enum SortAcquiringIntegrationHistoryRecordsBy {
   MinimumPaymentAmountDesc = 'minimumPaymentAmount_DESC',
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
+  SetupTitleAsc = 'setupTitle_ASC',
+  SetupTitleDesc = 'setupTitle_DESC',
   SetupUrlAsc = 'setupUrl_ASC',
   SetupUrlDesc = 'setupUrl_DESC',
+  ShortDescriptionAsc = 'shortDescription_ASC',
+  ShortDescriptionDesc = 'shortDescription_DESC',
   SupportedBillingIntegrationsGroupAsc = 'supportedBillingIntegrationsGroup_ASC',
   SupportedBillingIntegrationsGroupDesc = 'supportedBillingIntegrationsGroup_DESC',
   TypeAsc = 'type_ASC',
@@ -94621,6 +94794,8 @@ export enum SortAcquiringIntegrationsBy {
   CreatedByDesc = 'createdBy_DESC',
   DeletedAtAsc = 'deletedAt_ASC',
   DeletedAtDesc = 'deletedAt_DESC',
+  DisplayPriorityAsc = 'displayPriority_ASC',
+  DisplayPriorityDesc = 'displayPriority_DESC',
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
   HostUrlAsc = 'hostUrl_ASC',
@@ -94635,8 +94810,12 @@ export enum SortAcquiringIntegrationsBy {
   MinimumPaymentAmountDesc = 'minimumPaymentAmount_DESC',
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
+  SetupTitleAsc = 'setupTitle_ASC',
+  SetupTitleDesc = 'setupTitle_DESC',
   SetupUrlAsc = 'setupUrl_ASC',
   SetupUrlDesc = 'setupUrl_DESC',
+  ShortDescriptionAsc = 'shortDescription_ASC',
+  ShortDescriptionDesc = 'shortDescription_DESC',
   SupportedBillingIntegrationsGroupAsc = 'supportedBillingIntegrationsGroup_ASC',
   SupportedBillingIntegrationsGroupDesc = 'supportedBillingIntegrationsGroup_DESC',
   TypeAsc = 'type_ASC',
@@ -94818,6 +94997,8 @@ export enum SortB2BAppAccessRightSetHistoryRecordsBy {
   CanManageBillingReceiptsDesc = 'canManageBillingReceipts_DESC',
   CanManageBillingRecipientsAsc = 'canManageBillingRecipients_ASC',
   CanManageBillingRecipientsDesc = 'canManageBillingRecipients_DESC',
+  CanManageCallRecordsAsc = 'canManageCallRecords_ASC',
+  CanManageCallRecordsDesc = 'canManageCallRecords_DESC',
   CanManageContactsAsc = 'canManageContacts_ASC',
   CanManageContactsDesc = 'canManageContacts_DESC',
   CanManageCustomValuesAsc = 'canManageCustomValues_ASC',
@@ -94870,6 +95051,8 @@ export enum SortB2BAppAccessRightSetHistoryRecordsBy {
   CanReadBillingReceiptsDesc = 'canReadBillingReceipts_DESC',
   CanReadBillingRecipientsAsc = 'canReadBillingRecipients_ASC',
   CanReadBillingRecipientsDesc = 'canReadBillingRecipients_DESC',
+  CanReadCallRecordsAsc = 'canReadCallRecords_ASC',
+  CanReadCallRecordsDesc = 'canReadCallRecords_DESC',
   CanReadContactsAsc = 'canReadContacts_ASC',
   CanReadContactsDesc = 'canReadContacts_DESC',
   CanReadCustomValuesAsc = 'canReadCustomValues_ASC',
@@ -94967,6 +95150,8 @@ export enum SortB2BAppAccessRightSetsBy {
   CanManageBillingReceiptsDesc = 'canManageBillingReceipts_DESC',
   CanManageBillingRecipientsAsc = 'canManageBillingRecipients_ASC',
   CanManageBillingRecipientsDesc = 'canManageBillingRecipients_DESC',
+  CanManageCallRecordsAsc = 'canManageCallRecords_ASC',
+  CanManageCallRecordsDesc = 'canManageCallRecords_DESC',
   CanManageContactsAsc = 'canManageContacts_ASC',
   CanManageContactsDesc = 'canManageContacts_DESC',
   CanManageCustomValuesAsc = 'canManageCustomValues_ASC',
@@ -95019,6 +95204,8 @@ export enum SortB2BAppAccessRightSetsBy {
   CanReadBillingReceiptsDesc = 'canReadBillingReceipts_DESC',
   CanReadBillingRecipientsAsc = 'canReadBillingRecipients_ASC',
   CanReadBillingRecipientsDesc = 'canReadBillingRecipients_DESC',
+  CanReadCallRecordsAsc = 'canReadCallRecords_ASC',
+  CanReadCallRecordsDesc = 'canReadCallRecords_DESC',
   CanReadContactsAsc = 'canReadContacts_ASC',
   CanReadContactsDesc = 'canReadContacts_DESC',
   CanReadCustomValuesAsc = 'canReadCustomValues_ASC',
@@ -96925,6 +97112,8 @@ export enum SortBillingIntegrationHistoryRecordsBy {
   CurrencyCodeDesc = 'currencyCode_DESC',
   DeletedAtAsc = 'deletedAt_ASC',
   DeletedAtDesc = 'deletedAt_DESC',
+  DisplayPriorityAsc = 'displayPriority_ASC',
+  DisplayPriorityDesc = 'displayPriority_DESC',
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
   ExtendsBillingPageAsc = 'extendsBillingPage_ASC',
@@ -97071,6 +97260,8 @@ export enum SortBillingIntegrationsBy {
   DeletedAtDesc = 'deletedAt_DESC',
   DetailedDescriptionAsc = 'detailedDescription_ASC',
   DetailedDescriptionDesc = 'detailedDescription_DESC',
+  DisplayPriorityAsc = 'displayPriority_ASC',
+  DisplayPriorityDesc = 'displayPriority_DESC',
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
   ExtendsBillingPageAsc = 'extendsBillingPage_ASC',

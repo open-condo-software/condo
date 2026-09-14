@@ -4,10 +4,12 @@
 
 const path = require('path')
 
+const { faker } = require('@faker-js/faker')
+
 const { makeClient, UUID_RE, DATETIME_RE, expectValuesOfCommonFields,
     expectToThrowValidationFailureError, catchErrorFrom, expectToThrowGQLError,
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
-    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAccessDeniedErrorToObj, expectToThrowUniqueConstraintViolationError,
 } = require('@open-condo/keystone/test.utils')
 
 const { BillingReceipt, BillingReceiptFile, createTestBillingReceiptFile, updateTestBillingReceiptFile, PUBLIC_FILE, PRIVATE_FILE } = require('@condo/domains/billing/utils/testSchema')
@@ -270,15 +272,54 @@ describe('BillingReceiptFile', () => {
 
         describe('Check integration way to create pdf receipt file', () => {
             it('can pass importId and pdf receipt will be auto bind', async () => {
-                const [file] = await createTestBillingReceiptFile(integrationUser, null, context, { importId: receiptByService.importId })
+                const [receipt] = await createTestBillingReceipt(integrationUser, context, property, account)
+                const [file] = await createTestBillingReceiptFile(integrationUser, null, context, { importId: receipt.importId })
                 expect(file).toBeDefined()
                 expect(file).toHaveProperty(['context', 'id'], context.id)
-                expect(file).toHaveProperty(['receipt', 'id'], receiptByService.id)
+                expect(file).toHaveProperty(['receipt', 'id'], receipt.id)
             })
             it('will bind receipt file to receipt after save', async () => {
-                const [file] = await createTestBillingReceiptFile(integrationUser, null, context, { importId: receiptByService.importId })
-                const receiptAfterFileSave = await BillingReceipt.getOne(integrationUser, { id: receiptByService.id })
+                const [receipt] = await createTestBillingReceipt(integrationUser, context, property, account)
+                const [file] = await createTestBillingReceiptFile(integrationUser, null, context, { importId: receipt.importId })
+                const receiptAfterFileSave = await BillingReceipt.getOne(integrationUser, { id: receipt.id })
                 expect(receiptAfterFileSave.file.id).toEqual(file.id)
+            })
+        })
+
+        describe('Constraints', () => {
+            describe('Import ID', () => {
+                test('Receipt file with same importId can exist in different context', async () => {
+                    const importId = faker.datatype.uuid()
+                    const [anotherReceipt] = await createTestBillingReceipt(admin, anotherContext, anotherProperty, anotherAccount)
+
+                    const [file] = await createTestBillingReceiptFile(admin, receiptByAdmin, context, { importId })
+                    const [anotherFile] = await createTestBillingReceiptFile(admin, anotherReceipt, anotherContext, { importId })
+
+                    expect(file.id).toBeDefined()
+                    expect(anotherFile.id).toBeDefined()
+                })
+
+                test('Receipt file with same importId cannot exist in same context', async () => {
+                    const importId = faker.datatype.uuid()
+
+                    await createTestBillingReceiptFile(admin, receiptByAdmin, context, { importId })
+
+                    await expectToThrowUniqueConstraintViolationError(async () => {
+                        await createTestBillingReceiptFile(admin, receiptByAdmin, context, { importId })
+                    }, 'billingReceiptFile_unique_context_and_importId')
+                })
+
+                test('Two identical importIds are allowed in one context if one of the receipt files is deleted', async () => {
+                    const importId = faker.datatype.uuid()
+                    const [file] = await createTestBillingReceiptFile(admin, receiptByAdmin, context, { importId })
+
+                    await BillingReceiptFile.softDelete(admin, file.id)
+
+                    const [anotherFile] = await createTestBillingReceiptFile(admin, receiptByAdmin, context, { importId })
+
+                    expect(file.id).toBeDefined()
+                    expect(anotherFile.id).toBeDefined()
+                })
             })
         })
         // 480

@@ -8,14 +8,25 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { getByCondition } = require('@open-condo/keystone/schema')
 
 const {
+    canReadObjectsAsB2BAppServiceUser,
+    canManageObjectsAsB2BAppServiceUser,
+} = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
+const {
     checkPermissionsInEmployedOrRelatedOrganizations,
     getEmployedOrRelatedOrganizationsByPermissions,
 } = require('@condo/domains/organization/utils/accessSchema')
+const { SERVICE } = require('@condo/domains/user/constants/common')
 
-async function canReadCallRecordFragments ({ authentication: { item: user }, context }) {
+async function canReadCallRecordFragments (args) {
+    const { authentication: { item: user }, context } = args
+
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return {}
+
+    if (user.type === SERVICE) {
+        return await canReadObjectsAsB2BAppServiceUser({ ...args, listKey: 'CallRecord' })
+    }
 
     const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadCallRecords')
 
@@ -26,10 +37,30 @@ async function canReadCallRecordFragments ({ authentication: { item: user }, con
     }
 }
 
-async function canManageCallRecordFragments ({ authentication: { item: user }, context, originalInput, operation, itemId }) {
+async function canManageCallRecordFragments (args) {
+    const { authentication: { item: user }, context, originalInput, operation, itemId } = args
+
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
+
+    if (user.type === SERVICE) {
+        let callRecordId
+        if (operation === 'create') {
+            callRecordId = get(originalInput, 'callRecord.connect.id', null)
+        } else if (operation === 'update' && itemId) {
+            const callRecordFragment = await getByCondition('CallRecordFragment', { id: itemId, deletedAt: null })
+            callRecordId = get(callRecordFragment, 'callRecord', null)
+        }
+        if (!callRecordId) return false
+
+        return await canManageObjectsAsB2BAppServiceUser({
+            ...args,
+            listKey: 'CallRecord',
+            operation: 'update',
+            itemId: callRecordId,
+        })
+    }
 
     let organizationId
     if (operation === 'create') {

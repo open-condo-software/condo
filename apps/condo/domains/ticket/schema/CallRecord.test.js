@@ -4,15 +4,21 @@
 const {
     makeLoggedInAdminClient, makeClient,
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
-    expectToThrowAccessDeniedErrorToObj, expectToThrowGQLError,
+    expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects, expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 
 const { COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
+const {
+    createTestB2BApp,
+    createTestB2BAppContext,
+    createTestB2BAppAccessRightSet,
+    createTestB2BAppAccessRight,
+} = require('@condo/domains/miniapp/utils/testSchema')
 const { HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee, createTestOrganizationLink } = require('@condo/domains/organization/utils/testSchema')
 const { CALL_RECORD_ERRORS } = require('@condo/domains/ticket/constants/errors')
 const { CallRecord, createTestCallRecord, updateTestCallRecord } = require('@condo/domains/ticket/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 
 
 describe('CallRecord', () => {
@@ -267,6 +273,116 @@ describe('CallRecord', () => {
             test('can\'t delete', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await CallRecord.delete(anonymous, testCallRecord.id)
+                })
+            })
+        })
+
+        describe('Service user (B2B app)', () => {
+            let serviceOrganization, otherOrganization, otherOrgCallRecord
+
+            beforeAll(async () => {
+                const [org] = await createTestOrganization(admin)
+                const [anotherOrg] = await createTestOrganization(admin)
+                serviceOrganization = org
+                otherOrganization = anotherOrg
+            })
+            beforeEach(async () => {
+                const [callRecord] = await createTestCallRecord(admin, otherOrganization)
+                otherOrgCallRecord = callRecord
+            })
+
+            async function makeServiceClient ({ canReadCallRecords = false, canManageCallRecords = false } = {}) {
+                const serviceClient = await makeClientWithServiceUser()
+                const [app] = await createTestB2BApp(admin)
+                await createTestB2BAppContext(admin, app, serviceOrganization, { status: 'Finished' })
+                const [accessRightSet] = await createTestB2BAppAccessRightSet(admin, app, {
+                    canReadOrganizations: true,
+                    canReadCallRecords,
+                    canManageCallRecords,
+                })
+                await createTestB2BAppAccessRight(admin, serviceClient.user, app, accessRightSet)
+                return serviceClient
+            }
+
+            describe('with canManageCallRecords', () => {
+                test('can create for the linked organization', async () => {
+                    const serviceClient = await makeServiceClient({ canManageCallRecords: true })
+
+                    const [callRecord] = await createTestCallRecord(serviceClient, serviceOrganization)
+
+                    expect(callRecord).toHaveProperty('organization.id', serviceOrganization.id)
+                })
+                test('can\'t create for an organization without a linked context', async () => {
+                    const serviceClient = await makeServiceClient({ canManageCallRecords: true })
+
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await createTestCallRecord(serviceClient, otherOrganization)
+                    })
+                })
+                test('can update a record of the linked organization', async () => {
+                    const serviceClient = await makeServiceClient({ canManageCallRecords: true })
+                    const [callRecord] = await createTestCallRecord(admin, serviceOrganization)
+
+                    const [updated] = await updateTestCallRecord(serviceClient, callRecord.id, { isIncomingCall: false })
+
+                    expect(updated).toHaveProperty('isIncomingCall', false)
+                })
+                test('can\'t update a record of another organization', async () => {
+                    const serviceClient = await makeServiceClient({ canManageCallRecords: true })
+
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await updateTestCallRecord(serviceClient, otherOrgCallRecord.id, { isIncomingCall: false })
+                    })
+                })
+                test('can\'t delete', async () => {
+                    const serviceClient = await makeServiceClient({ canManageCallRecords: true })
+                    const [callRecord] = await createTestCallRecord(admin, serviceOrganization)
+
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await CallRecord.delete(serviceClient, callRecord.id)
+                    })
+                })
+            })
+
+            describe('without canManageCallRecords', () => {
+                test('can\'t create', async () => {
+                    const serviceClient = await makeServiceClient({ canReadCallRecords: true })
+
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await createTestCallRecord(serviceClient, serviceOrganization)
+                    })
+                })
+                test('can\'t update', async () => {
+                    const serviceClient = await makeServiceClient({ canReadCallRecords: true })
+                    const [callRecord] = await createTestCallRecord(admin, serviceOrganization)
+
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await updateTestCallRecord(serviceClient, callRecord.id, { isIncomingCall: false })
+                    })
+                })
+            })
+
+            describe('with canReadCallRecords', () => {
+                test('can read records of the linked organization only', async () => {
+                    const serviceClient = await makeServiceClient({ canReadCallRecords: true })
+                    const [callRecord] = await createTestCallRecord(admin, serviceOrganization)
+
+                    const read = await CallRecord.getOne(serviceClient, { id: callRecord.id })
+                    expect(read).toHaveProperty('id', callRecord.id)
+
+                    const foreign = await CallRecord.getOne(serviceClient, { id: otherOrgCallRecord.id })
+                    expect(foreign).toBeUndefined()
+                })
+            })
+
+            describe('without canReadCallRecords', () => {
+                test('can\'t read', async () => {
+                    const serviceClient = await makeServiceClient({ canManageCallRecords: true })
+                    const [callRecord] = await createTestCallRecord(admin, serviceOrganization)
+
+                    await expectToThrowAccessDeniedErrorToObjects(async () => {
+                        await CallRecord.getOne(serviceClient, { id: callRecord.id })
+                    })
                 })
             })
         })
