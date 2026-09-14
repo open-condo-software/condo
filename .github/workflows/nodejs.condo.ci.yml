@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - 'release-v*'
 
   # NOTE: change pull_request_target to pull_request if you want to change the CI in your branch
   pull_request_target:
@@ -57,13 +58,13 @@ jobs:
           echo "DOCKER_CACHE_FROM=type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/condo/condo-image:${ref}" >> $GITHUB_ENV
           echo "DOCKER_CACHE_TO=type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/condo/condo-image:${ref},mode=max,image-manifest=true" >> $GITHUB_ENV
       - name: Login to cloud registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v3.7.0
         with:
           registry: ${{ secrets.DOCKER_REGISTRY }}
           username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
           password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.4.0
         with:
           fetch-depth: 0
           submodules: recursive
@@ -78,14 +79,14 @@ jobs:
           docker context create builders
       - name: Setup Docker BuildX
         id: buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v3.12.0
         with:
           endpoint: builders
           driver-opts: |
             env.BUILDKIT_STEP_LOG_MAX_SIZE=10485760
             image=${{ secrets.DOCKER_REGISTRY }}/doma/utils/buildkit:buildx-stable-2
       - name: Build repo image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v6.19.2
         with:
           context: .
           file: Dockerfile
@@ -95,8 +96,9 @@ jobs:
             REGISTRY=${{ secrets.DOCKER_REGISTRY }}/doma/utils
             TURBO_TEAM=condo-ci
             TURBO_REMOTE_ONLY=true
-            TURBO_TOKEN=${{ secrets.TURBO_TOKEN }}
             TURBO_API=${{ secrets.TURBO_API }}
+          secrets: |
+            TURBO_TOKEN=${{ secrets.TURBO_TOKEN }}
           provenance: false
           cache-from: ${{ env.DOCKER_CACHE_FROM }}
           cache-to: ${{ env.DOCKER_CACHE_TO }}
@@ -106,7 +108,7 @@ jobs:
         with:
           dest: './docker-logs'
       - name: Upload log artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.6.2
         if: failure()
         with:
           name: logs
@@ -114,6 +116,19 @@ jobs:
             *.log
             ./docker-logs
           retention-days: 2
+
+  # Start development deploy as soon as the image is pushed
+  deploy-development:
+    name: Development Deploy
+    needs:
+      - build-image
+    if: >-
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/deploy_development.yaml
+    with:
+      ref: ${{ github.sha }}
+    secrets: inherit
 
   # SRC: https://how.wtf/run-workflow-step-or-job-based-on-file-changes-github-actions.html
   detect-changes:
@@ -144,7 +159,7 @@ jobs:
       ecom-gateway: ${{ steps.detect-changes.outputs.ecom-gateway }}
     steps:
       - name: Checkout code with submodules
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.4.0
         with:
           fetch-depth: 0
           submodules: recursive
@@ -154,7 +169,7 @@ jobs:
           # Quote from link: Yes it is (workflow is vulnerable), because a workflow triggered on pull_request_target still has the read/write repository token in memory that is potentially available to any running program. If the workflow uses actions/checkout and does not pass the optional parameter persist-credentials as false, it makes it even worse. The default for the parameter is true. It means that in any subsequent steps any running code can simply read the stored repository token from the disk. If you don’t need a repository write access or secrets, just stick to the pull_request trigger.
           persist-credentials: false
       - name: Scan changed files
-        uses: dorny/paths-filter@v3
+        uses: dorny/paths-filter@v3.0.4
         id: detect-changes
         with:
           filters: |
@@ -234,14 +249,14 @@ jobs:
         node-version: [ 24.x ]
     steps:
       - name: Checkout code with submodules
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.4.0
         with:
           fetch-depth: 0
           submodules: recursive
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
           ref: ${{ env.REF }}
       - name: Prepare Node environment
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v3.9.1
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'yarn'
@@ -271,14 +286,14 @@ jobs:
         node-version: [ 24.x ]
     steps:
       - name: Checkout code with submodules
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.4.0
         with:
           fetch-depth: 0
           submodules: recursive
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
           ref: ${{ env.REF }}
       - name: Prepare Node environment
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v3.9.1
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'yarn'
@@ -301,7 +316,7 @@ jobs:
     steps:
       # Fetch project source with GitHub Actions Checkout.
       - name: Checkout code with submodules
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.4.0
         with:
           fetch-depth: 0
           submodules: recursive
@@ -325,7 +340,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout code without submodules
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.4.0
         with:
           fetch-depth: 0
           submodules: 'false'
@@ -346,11 +361,11 @@ jobs:
         run: |
           docker compose up -d postgresdb redis
       - name: Prepare Python environment
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v5.6.0
         with:
           python-version: ${{ matrix.python-version }}
       - name: Prepare Node environment
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v3.9.1
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'yarn'
@@ -383,7 +398,7 @@ jobs:
     if: ${{ needs.detect-changes.outputs.address-service == 'true' || needs.detect-changes.outputs.force-all == 'true' }}
     steps:
       - name: Login to cloud registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v3.7.0
         with:
           registry: ${{ secrets.DOCKER_REGISTRY }}
           username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
@@ -469,7 +484,7 @@ jobs:
     if: ${{ needs.detect-changes.outputs.dev-portal-api == 'true' || needs.detect-changes.outputs.force-all == 'true' }}
     steps:
       - name: Login to cloud registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v3.7.0
         with:
           registry: ${{ secrets.DOCKER_REGISTRY }}
           username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
@@ -518,7 +533,7 @@ jobs:
         with:
           dest: './docker-logs'
       - name: Upload log artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.6.2
         if: failure()
         with:
           name: dev-portal-api
@@ -538,7 +553,7 @@ jobs:
     if: ${{ needs.detect-changes.outputs.eps == 'true' || needs.detect-changes.outputs.force-all == 'true' }}
     steps:
       - name: Login to cloud registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v3.7.0
         with:
           registry: ${{ secrets.DOCKER_REGISTRY }}
           username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
@@ -590,7 +605,7 @@ jobs:
     if: ${{ needs.detect-changes.outputs.meter-importer == 'true' || needs.detect-changes.outputs.force-all == 'true' }}
     steps:
       - name: Login to cloud registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v3.7.0
         with:
           registry: ${{ secrets.DOCKER_REGISTRY }}
           username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
@@ -642,7 +657,7 @@ jobs:
     if: ${{ needs.detect-changes.outputs.pos-integration == 'true' || needs.detect-changes.outputs.force-all == 'true' }}
     steps:
       - name: Login to cloud registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v3.7.0
         with:
           registry: ${{ secrets.DOCKER_REGISTRY }}
           username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
@@ -694,7 +709,7 @@ jobs:
     if: ${{ needs.detect-changes.outputs.accruals-gateway == 'true' || needs.detect-changes.outputs.force-all == 'true' }}
     steps:
       - name: Login to cloud registry
-        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef
+        uses: docker/login-action@v3.7.0
         with:
           registry: ${{ secrets.DOCKER_REGISTRY }}
           username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
@@ -746,7 +761,7 @@ jobs:
     if: ${{ needs.detect-changes.outputs.external-api == 'true' || needs.detect-changes.outputs.force-all == 'true' }}
     steps:
       - name: Login to cloud registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v3.7.0
         with:
           registry: ${{ secrets.DOCKER_REGISTRY }}
           username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
@@ -793,7 +808,7 @@ jobs:
     if: ${{ needs.detect-changes.outputs.migrator == 'true' || needs.detect-changes.outputs.force-all == 'true' }}
     steps:
       - name: Checkout code with submodules
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.4.0
         with:
           fetch-depth: 0
           submodules: recursive
@@ -820,7 +835,7 @@ jobs:
     if: ${{ needs.detect-changes.outputs.miniapp-utils == 'true' || needs.detect-changes.outputs.force-all == 'true' }}
     steps:
       - name: Checkout code with submodules
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.4.0
         with:
           fetch-depth: 0
           submodules: recursive
@@ -848,7 +863,7 @@ jobs:
     if: ${{ needs.detect-changes.outputs.rb == 'true' || needs.detect-changes.outputs.force-all == 'true' }}
     steps:
       - name: Login to cloud registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v3.7.0
         with:
           registry: ${{ secrets.DOCKER_REGISTRY }}
           username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
@@ -900,7 +915,7 @@ jobs:
     if: ${{ needs.detect-changes.outputs.registry-importer == 'true' || needs.detect-changes.outputs.force-all == 'true' }}
     steps:
       - name: Login to cloud registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v3.7.0
         with:
           registry: ${{ secrets.DOCKER_REGISTRY }}
           username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
@@ -952,7 +967,7 @@ jobs:
     if: ${{ needs.detect-changes.outputs.resident-app == 'true' || needs.detect-changes.outputs.force-all == 'true' }}
     steps:
       - name: Checkout code with submodules
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.4.0
         with:
           fetch-depth: 0
           submodules: recursive
@@ -981,7 +996,7 @@ jobs:
     if: ${{ needs.detect-changes.outputs.ecom-gateway == 'true' || needs.detect-changes.outputs.force-all == 'true' }}
     steps:
       - name: Login to cloud registry
-        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9
+        uses: docker/login-action@v3.7.0
         with:
           registry: ${{ secrets.DOCKER_REGISTRY }}
           username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
@@ -1031,7 +1046,7 @@ jobs:
     if: ${{ needs.detect-changes.outputs.webhooks == 'true' || needs.detect-changes.outputs.force-all == 'true' }}
     steps:
       - name: Checkout code with submodules
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.4.0
         with:
           fetch-depth: 0
           submodules: recursive
