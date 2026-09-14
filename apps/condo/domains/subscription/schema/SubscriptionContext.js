@@ -56,11 +56,6 @@ const ERRORS = {
         type: 'RECURRENT_PAYMENT_REQUIRES_PAID_SUBSCRIPTION',
         message: 'bindingId can only be set for paid subscriptions with pricing rule',
     },
-    BUNDLE_DATES_MISMATCH: {
-        code: BAD_USER_INPUT,
-        type: 'BUNDLE_DATES_MISMATCH',
-        message: 'All subscription contexts sharing one invoice must have the same startAt and endAt',
-    },
     INVOICE_MUST_BE_B2B: {
         code: BAD_USER_INPUT,
         type: 'INVOICE_MUST_BE_B2B',
@@ -184,6 +179,17 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
             },
         },
 
+        renewalCancelledAt: {
+            schemaDoc: 'When the organization declined to renew this subscription. Independent of the payment method: a card subscription also clears bindingId, an invoice one has nothing else to clear. A filled value keeps the context out of the set offered for renewal, it does not affect the period already paid for',
+            type: 'DateTimeUtc',
+            isRequired: false,
+            access: {
+                read: true,
+                create: true,
+                update: true,
+            },
+        },
+
         frozenPaymentInfo: {
             schemaDoc: 'Frozen payment information at the time of subscription context creation. Includes payment method details, invoice information, and pricing rule ID',
             type: 'Json',
@@ -259,15 +265,6 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
                 const invoiceItem = await getById('Invoice', invoiceId)
                 if (invoiceItem && invoiceItem.type !== INVOICE_TYPE_B2B) {
                     throw new GQLError(ERRORS.INVOICE_MUST_BE_B2B, context)
-                }
-
-                // Checked on create only: activation updates a bundle one context at a time, so the
-                // dates legitimately diverge until the last one is written.
-                if (operation === 'create') {
-                    const bundleContexts = await find('SubscriptionContext', { invoice: { id: invoiceId }, deletedAt: null })
-                    if (bundleContexts.some(ctx => ctx.startAt !== startAt || ctx.endAt !== endAt)) {
-                        throw new GQLError(ERRORS.BUNDLE_DATES_MISMATCH, context)
-                    }
                 }
             }
 
@@ -380,15 +377,23 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
                         otherContext => !updatedItem.invoice || otherContext.invoice !== updatedItem.invoice
                     )
 
+                    const supersededContextIds = []
                     for (const otherContext of activeContextsWithAutopayment) {
                         const otherPlan = await getById('SubscriptionPlan', otherContext.subscriptionPlan)
                         if (!otherPlan) continue
 
                         if (!isPlanSubsetOf(otherPlan, activatedPlan)) continue
 
+                        supersededContextIds.push(otherContext.id)
+                    }
+
+                    // Named explicitly: passing a single context would stop auto-renewal for its whole
+                    // invoice, taking down bundle mates the activated plan does not cover
+                    if (supersededContextIds.length > 0) {
                         await updateSubscriptionContextPaymentMethod(context, {
                             sender: updatedItem.sender,
-                            subscriptionContext: { id: otherContext.id },
+                            subscriptionContext: { id: supersededContextIds[0] },
+                            subscriptionContexts: supersededContextIds.map(id => ({ id })),
                             bindingId: null,
                         })
                     }

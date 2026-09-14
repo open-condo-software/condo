@@ -14,32 +14,20 @@ const logger = getLogger('processRecurrentSubscriptionPayments')
 
 const SENDER = { dv: 1, fingerprint: 'processRecurrentSubscriptionPayments' }
 
+// Renewed together means expiring together, not paid together: one invoice can cover periods that
+// end on different days, and only what ends on the same day can share a renewal charge. Grouping
+// stays inside an invoice so a renewal never invents a bundle the organization never bought
 function groupContextsIntoRenewalBundles (contexts) {
-    const bundlesByInvoice = new Map()
-    const standaloneBundles = []
+    const bundles = new Map()
 
     for (const subscriptionContext of contexts) {
-        if (!subscriptionContext.invoice) {
-            standaloneBundles.push({ invoiceId: null, contexts: [subscriptionContext] })
-            continue
-        }
-        if (!bundlesByInvoice.has(subscriptionContext.invoice)) {
-            bundlesByInvoice.set(subscriptionContext.invoice, { invoiceId: subscriptionContext.invoice, contexts: [] })
-        }
-        bundlesByInvoice.get(subscriptionContext.invoice).contexts.push(subscriptionContext)
+        const { organization, invoice, endAt, bindingId, id } = subscriptionContext
+        const key = [organization, invoice || `standalone:${id}`, endAt, bindingId].join('|')
+        if (!bundles.has(key)) bundles.set(key, { invoiceId: invoice || null, contexts: [] })
+        bundles.get(key).contexts.push(subscriptionContext)
     }
 
-    return [...bundlesByInvoice.values(), ...standaloneBundles]
-}
-
-function findBundleInconsistency (bundle) {
-    const distinct = (field) => new Set(bundle.contexts.map(subscriptionContext => subscriptionContext[field]))
-
-    if (distinct('organization').size > 1) return 'contexts of one bundle belong to different organizations'
-    if (distinct('bindingId').size > 1) return 'contexts of one bundle have different payment card bindings'
-    if (distinct('endAt').size > 1) return 'contexts of one bundle end on different dates'
-
-    return null
+    return [...bundles.values()]
 }
 
 // Finds a renewal a previous run already registered, so a failed charge is retried on the existing
@@ -149,12 +137,6 @@ async function processRecurrentSubscriptionPayments () {
         const bundleContextIds = bundle.contexts.map(subscriptionContext => subscriptionContext.id)
 
         try {
-            const inconsistency = findBundleInconsistency(bundle)
-            if (inconsistency) {
-                logger.error({ msg: 'inconsistent bundle, skipping', data: { bundleContextIds, invoiceId: bundle.invoiceId, reason: inconsistency } })
-                continue
-            }
-
             const renewalState = await getBundleRenewalState(bundle)
             if (renewalState === 'RENEWED') {
                 logger.info({ msg: 'bundle already renewed, skipping', data: { bundleContextIds } })

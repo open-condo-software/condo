@@ -102647,6 +102647,8 @@ export enum SortSubscriptionContextHistoryRecordsBy {
   IdDesc = 'id_DESC',
   IsTrialAsc = 'isTrial_ASC',
   IsTrialDesc = 'isTrial_DESC',
+  RenewalCancelledAtAsc = 'renewalCancelledAt_ASC',
+  RenewalCancelledAtDesc = 'renewalCancelledAt_DESC',
   StartAtAsc = 'startAt_ASC',
   StartAtDesc = 'startAt_DESC',
   StatusAsc = 'status_ASC',
@@ -102678,6 +102680,8 @@ export enum SortSubscriptionContextsBy {
   IsTrialDesc = 'isTrial_DESC',
   OrganizationAsc = 'organization_ASC',
   OrganizationDesc = 'organization_DESC',
+  RenewalCancelledAtAsc = 'renewalCancelledAt_ASC',
+  RenewalCancelledAtDesc = 'renewalCancelledAt_DESC',
   StartAtAsc = 'startAt_ASC',
   StartAtDesc = 'startAt_DESC',
   StatusAsc = 'status_ASC',
@@ -105235,6 +105239,8 @@ export type SubscriptionContext = {
   newId?: Maybe<Scalars['String']['output']>;
   /**  Organization that has this subscription  */
   organization?: Maybe<Organization>;
+  /**  When the organization declined to renew this subscription. Independent of the payment method: a card subscription also clears bindingId, an invoice one has nothing else to clear. A filled value keeps the context out of the set offered for renewal, it does not affect the period already paid for  */
+  renewalCancelledAt?: Maybe<Scalars['String']['output']>;
   /**  Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   /**  Subscription start date  */
@@ -105263,6 +105269,7 @@ export type SubscriptionContextCreateInput = {
   isTrial?: InputMaybe<Scalars['Boolean']['input']>;
   newId?: InputMaybe<Scalars['String']['input']>;
   organization?: InputMaybe<OrganizationRelateToOneInput>;
+  renewalCancelledAt?: InputMaybe<Scalars['String']['input']>;
   sender?: InputMaybe<SenderFieldInput>;
   startAt?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<SubscriptionContextStatusType>;
@@ -105299,6 +105306,7 @@ export type SubscriptionContextHistoryRecord = {
   isTrial?: Maybe<Scalars['Boolean']['output']>;
   newId?: Maybe<Scalars['JSON']['output']>;
   organization?: Maybe<Scalars['String']['output']>;
+  renewalCancelledAt?: Maybe<Scalars['String']['output']>;
   sender?: Maybe<Scalars['JSON']['output']>;
   startAt?: Maybe<Scalars['String']['output']>;
   status?: Maybe<Scalars['String']['output']>;
@@ -105324,6 +105332,7 @@ export type SubscriptionContextHistoryRecordCreateInput = {
   isTrial?: InputMaybe<Scalars['Boolean']['input']>;
   newId?: InputMaybe<Scalars['JSON']['input']>;
   organization?: InputMaybe<Scalars['String']['input']>;
+  renewalCancelledAt?: InputMaybe<Scalars['String']['input']>;
   sender?: InputMaybe<Scalars['JSON']['input']>;
   startAt?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<Scalars['String']['input']>;
@@ -105355,6 +105364,7 @@ export type SubscriptionContextHistoryRecordUpdateInput = {
   isTrial?: InputMaybe<Scalars['Boolean']['input']>;
   newId?: InputMaybe<Scalars['JSON']['input']>;
   organization?: InputMaybe<Scalars['String']['input']>;
+  renewalCancelledAt?: InputMaybe<Scalars['String']['input']>;
   sender?: InputMaybe<Scalars['JSON']['input']>;
   startAt?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<Scalars['String']['input']>;
@@ -105460,6 +105470,14 @@ export type SubscriptionContextHistoryRecordWhereInput = {
   organization_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   organization_not?: InputMaybe<Scalars['String']['input']>;
   organization_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  renewalCancelledAt?: InputMaybe<Scalars['String']['input']>;
+  renewalCancelledAt_gt?: InputMaybe<Scalars['String']['input']>;
+  renewalCancelledAt_gte?: InputMaybe<Scalars['String']['input']>;
+  renewalCancelledAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  renewalCancelledAt_lt?: InputMaybe<Scalars['String']['input']>;
+  renewalCancelledAt_lte?: InputMaybe<Scalars['String']['input']>;
+  renewalCancelledAt_not?: InputMaybe<Scalars['String']['input']>;
+  renewalCancelledAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   sender?: InputMaybe<Scalars['JSON']['input']>;
   sender_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
   sender_not?: InputMaybe<Scalars['JSON']['input']>;
@@ -105552,6 +105570,7 @@ export type SubscriptionContextUpdateInput = {
   isTrial?: InputMaybe<Scalars['Boolean']['input']>;
   newId?: InputMaybe<Scalars['String']['input']>;
   organization?: InputMaybe<OrganizationRelateToOneInput>;
+  renewalCancelledAt?: InputMaybe<Scalars['String']['input']>;
   sender?: InputMaybe<SenderFieldInput>;
   startAt?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<SubscriptionContextStatusType>;
@@ -105635,6 +105654,14 @@ export type SubscriptionContextWhereInput = {
   newId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   organization?: InputMaybe<OrganizationWhereInput>;
   organization_is_null?: InputMaybe<Scalars['Boolean']['input']>;
+  renewalCancelledAt?: InputMaybe<Scalars['String']['input']>;
+  renewalCancelledAt_gt?: InputMaybe<Scalars['String']['input']>;
+  renewalCancelledAt_gte?: InputMaybe<Scalars['String']['input']>;
+  renewalCancelledAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  renewalCancelledAt_lt?: InputMaybe<Scalars['String']['input']>;
+  renewalCancelledAt_lte?: InputMaybe<Scalars['String']['input']>;
+  renewalCancelledAt_not?: InputMaybe<Scalars['String']['input']>;
+  renewalCancelledAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   sender?: InputMaybe<SenderFieldInput>;
   sender_in?: InputMaybe<Array<InputMaybe<SenderFieldInput>>>;
   sender_not?: InputMaybe<SenderFieldInput>;
@@ -118197,6 +118224,7 @@ export type UpdateSubscriptionContextPaymentMethodInput = {
   dv: Scalars['Int']['input'];
   sender: SenderFieldInput;
   subscriptionContext: SubscriptionContextWhereUniqueInput;
+  subscriptionContexts?: InputMaybe<Array<SubscriptionContextWhereUniqueInput>>;
 };
 
 export type UpdateSubscriptionContextPaymentMethodOutput = {
