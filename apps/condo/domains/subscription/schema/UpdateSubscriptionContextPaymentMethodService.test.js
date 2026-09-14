@@ -446,5 +446,81 @@ describe('UpdateSubscriptionContextPaymentMethodService', () => {
                 expect(updated.bindingId).toBeNull()
             }
         })
+
+        test('subscriptionContexts narrows the change to the named contexts, leaving the rest of the bundle renewing', async () => {
+            const [featurePlan] = await createTestSubscriptionPlan(admin, {
+                organizationType: MANAGING_COMPANY_TYPE,
+                planType: SUBSCRIPTION_PLAN_TYPE_FEATURE,
+                ai: true,
+            })
+            const [featureRule] = await createTestSubscriptionPlanPricingRule(admin, featurePlan, {
+                period: SUBSCRIPTION_PERIOD.MONTH,
+                price: '500.00',
+                currencyCode: 'RUB',
+            })
+
+            const [registered] = await registerSubscriptionContextsByTestClient(admin, {
+                organization: { id: organization.id },
+                subscriptionPlanPricingRules: [{ id: pricingRule.id }, { id: featureRule.id }],
+                paymentType: 'invoice',
+                isTrial: false,
+            })
+
+            const bundleContexts = registered.subscriptionContexts
+            expect(bundleContexts).toHaveLength(2)
+            const bindingId = faker.datatype.uuid()
+
+            for (const ctx of bundleContexts) {
+                await SubscriptionContext.update(admin, ctx.id, {
+                    sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                    status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+                    bindingId,
+                })
+            }
+
+            const featureContext = bundleContexts.find(ctx => ctx.subscriptionPlan.id === featurePlan.id)
+            const serviceContext = bundleContexts.find(ctx => ctx.subscriptionPlan.id === subscriptionPlan.id)
+
+            await updateSubscriptionContextPaymentMethodByTestClient(admin, {
+                subscriptionContext: { id: featureContext.id },
+                subscriptionContexts: [{ id: featureContext.id }],
+                bindingId: null,
+            })
+
+            const [updatedFeature] = await SubscriptionContext.getAll(admin, { id: featureContext.id })
+            expect(updatedFeature.bindingId).toBeNull()
+
+            // the plan the feature was bought with keeps its card and goes on renewing
+            const [updatedService] = await SubscriptionContext.getAll(admin, { id: serviceContext.id })
+            expect(updatedService.bindingId).toBe(bindingId)
+        })
+
+        test('cannot reach into a context of another organization', async () => {
+            const otherUser = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [otherOrganization] = await registerNewOrganization(otherUser, { type: MANAGING_COMPANY_TYPE })
+
+            const [ownContext] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
+                isTrial: false,
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+            })
+            const [foreignContext] = await createTestSubscriptionContext(admin, otherOrganization, subscriptionPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
+                isTrial: false,
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+            })
+
+            await expectToThrowGQLError(async () => {
+                await updateSubscriptionContextPaymentMethodByTestClient(admin, {
+                    subscriptionContext: { id: ownContext.id },
+                    subscriptionContexts: [{ id: ownContext.id }, { id: foreignContext.id }],
+                    bindingId: null,
+                })
+            }, ERRORS.SUBSCRIPTION_CONTEXT_NOT_FOUND, 'result')
+        })
     })
 })

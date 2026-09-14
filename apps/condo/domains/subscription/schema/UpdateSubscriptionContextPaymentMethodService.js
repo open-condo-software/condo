@@ -3,6 +3,7 @@
  */
 const dayjs = require('dayjs')
 const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -46,7 +47,7 @@ const UpdateSubscriptionContextPaymentMethodService = new GQLCustomSchema('Updat
     types: [
         {
             access: true,
-            type: 'input UpdateSubscriptionContextPaymentMethodInput { dv: Int!, sender: SenderFieldInput!, subscriptionContext: SubscriptionContextWhereUniqueInput!, bindingId: String }',
+            type: 'input UpdateSubscriptionContextPaymentMethodInput { dv: Int!, sender: SenderFieldInput!, subscriptionContext: SubscriptionContextWhereUniqueInput!, subscriptionContexts: [SubscriptionContextWhereUniqueInput!], bindingId: String }',
         },
         {
             access: true,
@@ -60,7 +61,7 @@ const UpdateSubscriptionContextPaymentMethodService = new GQLCustomSchema('Updat
             schema: 'updateSubscriptionContextPaymentMethod(data: UpdateSubscriptionContextPaymentMethodInput!): UpdateSubscriptionContextPaymentMethodOutput',
             resolver: async (parent, args, context) => {
                 const { data } = args
-                const { subscriptionContext: subscriptionContextWhere, bindingId, dv, sender } = data
+                const { subscriptionContext: subscriptionContextWhere, subscriptionContexts: explicitContextsWhere, bindingId, dv, sender } = data
                 const subscriptionContextId = subscriptionContextWhere.id
 
                 const subscriptionContext = await getById('SubscriptionContext', subscriptionContextId)
@@ -72,7 +73,21 @@ const UpdateSubscriptionContextPaymentMethodService = new GQLCustomSchema('Updat
                 const invoiceId = subscriptionContext.invoice
 
                 let targetContexts = [subscriptionContext]
-                if (invoiceId) {
+                if (!isEmpty(explicitContextsWhere)) {
+                    // The caller named the contexts to change, which is how a couple of features
+                    // are dropped from a bundle without disturbing the plan they were bought with.
+                    // Filtering by organization keeps a caller from reaching into someone else's bundle.
+                    const explicitContextIds = explicitContextsWhere.map(({ id }) => id)
+                    const foundContexts = await find('SubscriptionContext', {
+                        id_in: explicitContextIds,
+                        organization: { id: organizationId },
+                        deletedAt: null,
+                    })
+                    if (foundContexts.length !== new Set(explicitContextIds).size) {
+                        throw new GQLError(ERRORS.SUBSCRIPTION_CONTEXT_NOT_FOUND, context)
+                    }
+                    targetContexts = foundContexts
+                } else if (invoiceId) {
                     const bundleContexts = await find('SubscriptionContext', {
                         invoice: { id: invoiceId },
                         deletedAt: null,
@@ -87,11 +102,17 @@ const UpdateSubscriptionContextPaymentMethodService = new GQLCustomSchema('Updat
                     targetContexts.map(ctx => ctx.bindingId).filter(Boolean)
                 )
 
+                // Clearing the card is how a renewal is declined, and attaching one is how it is taken
+                // back. Recorded separately so that an invoice-paid context, which has no card to
+                // clear, still carries the decision into the next renewal
+                const renewalCancelledAt = bindingId === null ? new Date().toISOString() : null
+
                 for (const ctx of targetContexts) {
                     await SubscriptionContext.update(context, ctx.id, {
                         dv,
                         sender,
                         bindingId,
+                        renewalCancelledAt,
                     })
                 }
 

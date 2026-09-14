@@ -83,7 +83,7 @@ const ActivateSubscriptionContextService = new GQLCustomSchema('ActivateSubscrip
             access: access.canActivateSubscriptionContext,
             schema: 'activateSubscriptionContext(data: ActivateSubscriptionContextInput!): ActivateSubscriptionContextOutput',
             doc: {
-                summary: 'Activates a subscription context whose invoice is paid: resolves the payment method (if any), sets status to DONE and recomputes startAt/endAt so the paid period starts at payment time rather than registration time. The period is computed once for the whole bundle sharing the invoice, so every context of a bundle keeps the same startAt/endAt.',
+                summary: 'Activates a subscription context whose invoice is paid: resolves the payment method (if any), sets status to DONE and recomputes startAt/endAt so the paid period starts at payment time rather than registration time.',
                 errors: ERRORS,
             },
             resolver: async (parent, args, context) => {
@@ -150,20 +150,10 @@ const ActivateSubscriptionContextService = new GQLCustomSchema('ActivateSubscrip
                 const bindingId = paymentMethod?.bindingId || null
                 const frozenPaymentInfo = freezePaymentInfo(multiPayment, invoice, subscriptionContext.subscriptionPlanPricingRule)
 
-                // The bundle's own contexts are excluded: they are activated one by one, and a sibling that
-                // is already DONE would push the remaining ones into the next period, splitting the bundle
-                const bundleContexts = await find('SubscriptionContext', {
-                    invoice: { id: invoice.id },
-                    deletedAt: null,
-                })
-                const bundleContextIds = bundleContexts.map(({ id }) => id)
-                const bundlePlanIds = [...new Set(bundleContexts.map(({ subscriptionPlan }) => subscriptionPlan))]
-
                 const existingDoneContexts = await find('SubscriptionContext', {
                     organization: { id: subscriptionContext.organization },
-                    subscriptionPlan: { id_in: bundlePlanIds },
+                    subscriptionPlan: { id: subscriptionContext.subscriptionPlan },
                     status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
-                    id_not_in: bundleContextIds,
                     deletedAt: null,
                 })
                 const paidStartAt = calculateSubscriptionStartDate(existingDoneContexts)
