@@ -55,9 +55,21 @@
 
 .price-content {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   gap: 8px;
-  align-items: flex-start;
+  align-items: center;
+}
+
+/* Clicking a status badge picks the row, which brings up the action bar for that status */
+.badge-button {
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.badge-button:disabled {
+  cursor: default;
 }
 
 .price-actions {

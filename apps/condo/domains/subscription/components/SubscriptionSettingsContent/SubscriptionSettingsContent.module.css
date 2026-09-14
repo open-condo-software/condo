@@ -28,12 +28,12 @@
   position: relative;
 }
 
-/* The badge belongs to the yearly option, sitting above the switch itself */
+/* The badge sits above the yearly option; antd lifts the checked option to z-index 1 */
 .period-discount-badge {
   position: absolute;
   top: -10px;
   left: 16px;
-  z-index: 1;
+  z-index: 2;
   pointer-events: none;
 }
 

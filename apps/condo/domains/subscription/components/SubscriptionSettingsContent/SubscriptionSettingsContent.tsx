@@ -1,4 +1,5 @@
 import dayjs from 'dayjs'
+import getConfig from 'next/config'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
@@ -13,12 +14,13 @@ import { SUBSCRIPTION_PERIOD } from '@condo/domains/subscription/constants'
 import {
     useActivateSubscriptions,
     useTrialSubscriptions,
+    useOrganizationSubscription,
     useSubscriptionPlansPage,
     useSubscriptionSelection,
     useCancelSubscriptionFeatures,
 } from '@condo/domains/subscription/hooks'
 import { useSubscriptionPaymentModal } from '@condo/domains/subscription/hooks/useSubscriptionPaymentModal'
-import { formatAmount } from '@condo/domains/subscription/utils/subscriptionPricing'
+import { formatAmount, getAmount } from '@condo/domains/subscription/utils/subscriptionPricing'
 
 import { PromoBanner } from './PromoBanner/PromoBanner'
 import { SubscriptionCheckoutModal } from './SubscriptionCheckoutModal/SubscriptionCheckoutModal'
@@ -31,9 +33,12 @@ import styles from './SubscriptionSettingsContent.module.css'
 import type { RowBadge } from './SubscriptionFeatureTable/SubscriptionFeatureTable'
 import type { PaymentType } from '@condo/domains/subscription/hooks/useSubscriptionPaymentModal'
 import type { CatalogRow } from '@condo/domains/subscription/utils/subscriptionCatalog'
+import type { PlanAlert } from '@condo/domains/subscription/utils/subscriptionPlanAlerts'
 import type { PlanPeriod } from '@condo/domains/subscription/utils/subscriptionPricing'
 import type { RadioChangeEvent } from 'antd'
 
+
+const { publicRuntimeConfig: { HelpRequisites } } = getConfig()
 
 const PLAN_CARD_EMOJIS = ['🏠', '🏁', '💼', '👑']
 
@@ -52,6 +57,8 @@ export const SubscriptionSettingsContent: React.FC = () => {
     const CheckoutMessage = intl.formatMessage({ id: 'subscription.actionBar.checkout' })
     const RenewMessage = intl.formatMessage({ id: 'subscription.actionBar.renew' })
     const RemoveMessage = intl.formatMessage({ id: 'subscription.actionBar.remove' })
+    const CancelMessage = intl.formatMessage({ id: 'subscription.actionBar.cancel' })
+    const ContactSupportMessage = intl.formatMessage({ id: 'subscription.actionBar.contactSupport' })
 
     const periodSwitchRef = useRef<HTMLDivElement>(null)
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false)
@@ -72,9 +79,10 @@ export const SubscriptionSettingsContent: React.FC = () => {
         activeServiceContext,
         rows,
         counters,
-        featureContextByPlanId,
         refetchActivatedSubscriptions,
+        refetchUnpaidSubscriptions,
     } = useSubscriptionPlansPage()
+    const { isInBufferPeriod } = useOrganizationSubscription()
 
     const { trialSubscriptions } = useTrialSubscriptions()
     const { registerSubscriptionBundle, activateLoading } = useActivateSubscriptions()
@@ -86,11 +94,12 @@ export const SubscriptionSettingsContent: React.FC = () => {
         activePlanId,
         period,
         includedCount: counters.included,
+        isActivePlanPaymentExpired: Boolean(isInBufferPeriod),
     })
 
     const handleRefetch = useCallback(async () => {
-        await refetchActivatedSubscriptions()
-    }, [refetchActivatedSubscriptions])
+        await Promise.all([refetchActivatedSubscriptions(), refetchUnpaidSubscriptions()])
+    }, [refetchActivatedSubscriptions, refetchUnpaidSubscriptions])
 
     const { cancelFeatures, loading: cancelLoading } = useCancelSubscriptionFeatures({
         onCancelled: handleRefetch,
@@ -113,38 +122,33 @@ export const SubscriptionSettingsContent: React.FC = () => {
      * table when its trial runs on a different schedule than the plan's.
      */
     const getRowBadge = useCallback((row: CatalogRow): RowBadge | null => {
-        if (!row.featurePlan) return null
+        const status = row.includedInPlan ? null : row.status
+        if (!status) return null
 
-        const context = featureContextByPlanId.get(row.featurePlan.id)
-        if (!context) return null
-
-        // Cancelling only stops the next renewal, so the feature keeps working and would otherwise
-        // look untouched until it quietly disappears at the end of the period
-        if (context.renewalCancelledAt) {
-            return {
-                text: intl.formatMessage({ id: 'subscription.planCard.badge.renewalCancelled' }),
-                bgColor: colors.gray[7],
-            }
+        switch (status.type) {
+            case 'connected':
+                return { text: intl.formatMessage({ id: 'subscription.featureTable.badge.connected' }), bgColor: colors.green[5] }
+            // Cancelling only stops the next renewal, so the feature keeps working until the period ends
+            case 'renewalCancelled':
+                return { text: intl.formatMessage({ id: 'subscription.planCard.badge.renewalCancelled' }), bgColor: colors.gray[7] }
+            case 'trialExpired':
+                return { text: intl.formatMessage({ id: 'subscription.planCard.badge.trialExpired' }), bgColor: colors.gray[7] }
+            case 'paymentExpired':
+                return { text: intl.formatMessage({ id: 'subscription.planCard.badge.paymentExpired' }), bgColor: colors.red[5] }
+            case 'trial':
+                // A trial running in step with the plan is already announced on the plan card
+                if (isSameDay(status.endAt, activeServiceContext?.endAt)) return null
+                return {
+                    text: intl.formatMessage({ id: 'subscription.planCard.badge.activeDays' }, { days: status.daysLeft }),
+                    bgColor: status.daysLeft <= 7 ? colors.orange[5] : colors.green[5],
+                }
+            default:
+                return null
         }
+    }, [activeServiceContext?.endAt, intl])
 
-        if (!context.isTrial) return null
-        if (isSameDay(context.endAt, activeServiceContext?.endAt)) return null
-
-        const daysLeft = Math.max(0, Math.ceil(dayjs(context.endAt).diff(dayjs(), 'day', true)))
-        if (daysLeft <= 0) {
-            return {
-                text: intl.formatMessage({ id: 'subscription.planCard.badge.trialExpired' }),
-                bgColor: colors.gray[7],
-            }
-        }
-
-        return {
-            text: intl.formatMessage({ id: 'subscription.planCard.badge.activeDays' }, { days: daysLeft }),
-            bgColor: daysLeft <= 7 ? colors.orange[5] : colors.green[5],
-        }
-    }, [featureContextByPlanId, activeServiceContext?.endAt, intl])
-
-    const { totals, mode, selectedRows, isPlanInCart, selectedPlanCard, clearSelection } = selection
+    const { totals, mode, selectedRows, isPlanInCart, isPlanRenewable, selectedPlanCard, clearSelection } = selection
+    const isBuying = mode === 'idle' || mode === 'buy'
 
     /** Everything the checkout is about to buy, as pricing rule ids */
     const cartPriceIds = useMemo(() => {
@@ -175,7 +179,20 @@ export const SubscriptionSettingsContent: React.FC = () => {
         })
         clearSelection()
         setUpsellPlanId(null)
-    }, [upsellPriceIds, cartPriceIds, registerSubscriptionBundle, selectedPlanCard, isPlanInCart, clearSelection])
+        await refetchUnpaidSubscriptions()
+    }, [upsellPriceIds, cartPriceIds, registerSubscriptionBundle, selectedPlanCard, isPlanInCart, clearSelection, refetchUnpaidSubscriptions])
+
+    /** An unpaid invoice has expired: the same plan or features get a fresh invoice */
+    const handleReissueInvoice = useCallback(async (alert: PlanAlert) => {
+        await registerSubscriptionBundle({
+            priceIds: alert.priceIds,
+            isTrial: false,
+            planName: alert.planNames.join(', '),
+            paymentType: 'invoice',
+            includesServicePlan: alert.scope === 'plan',
+        })
+        await refetchUnpaidSubscriptions()
+    }, [registerSubscriptionBundle, refetchUnpaidSubscriptions])
 
     const { PaymentModal, openModal: openPaymentModal } = useSubscriptionPaymentModal({
         registerSubscriptionContext: purchase,
@@ -195,26 +212,36 @@ export const SubscriptionSettingsContent: React.FC = () => {
     }, [openPaymentModal])
 
     const handleRemoveConfirm = useCallback(async () => {
-        const contextIds = selectedRows
-            .map(row => row.featurePlan && featureContextByPlanId.get(row.featurePlan.id)?.id)
-            .filter(Boolean) as string[]
+        const contextIds = selectedRows.map(row => row.status?.contextId).filter(Boolean)
 
         await cancelFeatures(contextIds)
         setIsRemoveOpen(false)
         clearSelection()
-    }, [selectedRows, featureContextByPlanId, cancelFeatures, clearSelection])
+    }, [selectedRows, cancelFeatures, clearSelection])
 
     const handleTryFree = useCallback(async () => {
         if (cartPriceIds.length === 0) return
 
+        const trialDays = isPlanInCart
+            ? Number(selectedPlanCard?.planInfo?.plan?.trialDays ?? 0)
+            : Math.min(...selectedRows.map(row => Number(row.featurePlan?.trialDays ?? 0)))
+
         await registerSubscriptionBundle({
             priceIds: cartPriceIds,
             isTrial: true,
-            planName: selectedPlanCard?.planInfo?.plan?.name ?? '',
-            trialDays: Number(selectedPlanCard?.planInfo?.plan?.trialDays ?? 0),
+            planName: isPlanInCart
+                ? selectedPlanCard?.planInfo?.plan?.name ?? ''
+                : selectedRows.map(row => row.label).join(', '),
+            trialDays,
+            includesServicePlan: isPlanInCart,
         })
         clearSelection()
-    }, [cartPriceIds, registerSubscriptionBundle, selectedPlanCard, clearSelection])
+    }, [cartPriceIds, isPlanInCart, registerSubscriptionBundle, selectedPlanCard, selectedRows, clearSelection])
+
+    const handleContactSupport = useCallback(() => {
+        const supportEmail = HelpRequisites?.support_email || HelpRequisites?.email
+        if (supportEmail) window.open(`mailto:${supportEmail}`, '_self')
+    }, [])
 
     /** A feature keeps its own trial button until it is tried, bought or put in the cart */
     const canTryRow = useCallback((row: CatalogRow): boolean => {
@@ -238,40 +265,71 @@ export const SubscriptionSettingsContent: React.FC = () => {
 
     /** Trials are offered only while nothing in the cart has been tried or paid for yet */
     const canTryFree = useMemo(() => {
-        if (mode === 'remove' || !isPlanInCart) return false
+        if (!isBuying) return false
+        if (!isPlanInCart) return selectedRows.length > 0 && selectedRows.every(canTryRow)
+
         const plan = selectedPlanCard?.planInfo?.plan
         if (!plan || Number(plan.trialDays ?? 0) <= 0) return false
 
         return !trialSubscriptions.some(trial => trial.subscriptionPlan?.id === plan.id)
-    }, [mode, isPlanInCart, selectedPlanCard, trialSubscriptions])
+    }, [isBuying, isPlanInCart, selectedRows, canTryRow, selectedPlanCard, trialSubscriptions])
 
     if (hidePaidFeatures) return null
     if (loading) return <Loader />
 
     const selectedPlanName = selectedPlanInfo?.plan?.name ?? ''
     const hasSelection = totals.count > 0 && (isPlanInCart || selectedRows.length > 0)
-    const isRenewal = !isPlanInCart && mode === 'add' && Boolean(activePlanId)
 
+    const periodNoun = intl.formatMessage({ id: `subscription.planCard.planPrice.${period}.noun` as FormatjsIntl.Message['ids'] })
+    const featuresAmount = selectedRows.reduce((sum, row) => sum + (getAmount(row.price) ?? 0), 0)
     const actionBarMessage = [
-        intl.formatMessage({ id: 'subscription.actionBar.selected' }, { count: totals.count }),
-        totals.fullAmount !== null ? formatAmount(totals.fullAmount, totals.currencyCode, intl.locale) : null,
-        formatAmount(totals.amount, totals.currencyCode, intl.locale),
-    ].filter(Boolean).join(' ')
+        isPlanInCart && selectedPlanCard ? intl.formatMessage(
+            { id: 'subscription.actionBar.plan' },
+            {
+                planName: selectedPlanCard.planInfo.plan.name,
+                amount: formatAmount(getAmount(selectedPlanCard.price), totals.currencyCode, intl.locale),
+                period: periodNoun,
+            }
+        ) : null,
+        selectedRows.length > 0 ? intl.formatMessage(
+            { id: 'subscription.actionBar.features' },
+            { count: selectedRows.length, amount: formatAmount(featuresAmount, totals.currencyCode, intl.locale), period: periodNoun }
+        ) : null,
+    ].filter(Boolean).join(' + ')
 
-    const actions = mode === 'remove'
-        ? [
-            <Button
-                key='remove'
-                id='subscription-action-bar-remove-button'
-                type='secondary'
-                danger
-                onClick={() => setIsRemoveOpen(true)}
-                disabled={!canManageSubscriptions}
-            >
-                {RemoveMessage}
+    const removeButton = (
+        <Button
+            key='remove'
+            id='subscription-action-bar-remove-button'
+            type='secondary'
+            danger
+            onClick={() => setIsRemoveOpen(true)}
+            disabled={!canManageSubscriptions}
+        >
+            {RemoveMessage}
+        </Button>
+    )
+
+    // The plan alone is bought or renewed without a way back; picked features can always be unpicked
+    const cancelButton = selectedRows.length > 0 && !isPlanInCart ? [
+        <Button key='cancel' id='subscription-action-bar-cancel-button' type='secondary' onClick={clearSelection}>
+            {CancelMessage}
+        </Button>,
+    ] : []
+
+    let actions: React.ReactElement[]
+    if (mode === 'connected') {
+        actions = [removeButton, ...cancelButton]
+    } else if (mode === 'paymentExpired') {
+        actions = [
+            <Button key='support' id='subscription-action-bar-support-button' type='primary' onClick={handleContactSupport}>
+                {ContactSupportMessage}
             </Button>,
+            removeButton,
+            ...cancelButton,
         ]
-        : [
+    } else {
+        actions = [
             <Button
                 key='checkout'
                 id='subscription-action-bar-checkout-button'
@@ -279,7 +337,7 @@ export const SubscriptionSettingsContent: React.FC = () => {
                 onClick={() => setIsCheckoutOpen(true)}
                 disabled={!canManageSubscriptions || cartPriceIds.length === 0}
             >
-                {isRenewal ? RenewMessage : CheckoutMessage}
+                {isPlanRenewable ? RenewMessage : CheckoutMessage}
             </Button>,
             ...(canTryFree ? [
                 <Button
@@ -292,18 +350,13 @@ export const SubscriptionSettingsContent: React.FC = () => {
                 >
                     {intl.formatMessage(
                         { id: 'subscription.planCard.tryFree' },
-                        {
-                            formattedPrice: new Intl.NumberFormat(intl.locale, {
-                                style: 'currency',
-                                currency: totals.currencyCode || 'RUB',
-                                minimumFractionDigits: 0,
-                                maximumFractionDigits: 0,
-                            }).format(0),
-                        }
+                        { formattedPrice: formatAmount(0, totals.currencyCode || 'RUB', intl.locale) }
                     )}
                 </Button>,
             ] : []),
+            ...cancelButton,
         ]
+    }
 
     return (
         <>
@@ -328,9 +381,7 @@ export const SubscriptionSettingsContent: React.FC = () => {
                 onCancel={() => setIsRemoveOpen(false)}
                 rows={selectedRows}
                 planName={selectedPlanName}
-                paidUntil={selectedRows[0]?.featurePlan
-                    ? featureContextByPlanId.get(selectedRows[0].featurePlan.id)?.endAt ?? null
-                    : null}
+                paidUntil={selectedRows[0]?.status?.endAt ?? null}
                 loading={cancelLoading}
                 onConfirm={handleRemoveConfirm}
             />
@@ -367,6 +418,7 @@ export const SubscriptionSettingsContent: React.FC = () => {
                                 trial => trial.subscriptionPlan?.id === card.planInfo.plan.id
                             )}
                             onSelect={handleSelectPlan}
+                            onReissueInvoice={handleReissueInvoice}
                             refetchActivatedSubscriptions={handleRefetch}
                         />
                     ))}
@@ -379,6 +431,7 @@ export const SubscriptionSettingsContent: React.FC = () => {
                         period={period}
                         isRowSelected={selection.isRowSelected}
                         isRowDisabled={selection.isRowDisabled}
+                        isRowBlockedByMode={selection.isRowBlockedByMode}
                         onToggleRow={selection.toggleRow}
                         canTryRow={canTryRow}
                         onTryRow={handleTryRow}

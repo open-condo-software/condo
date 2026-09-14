@@ -56,14 +56,16 @@ export const SubscriptionFeatureProgress: React.FC = () => {
         skip: !organization?.id || !hasSubscriptionModalConfig,
     })
 
+    /** The promoted plan above the current one; an organization without a plan is offered it as well */
     const bestPlan = useMemo(() => {
-        const planId = contextData?.subscriptionContext?.subscriptionPlan?.id
+        const currentPlan = contextData?.subscriptionContext?.subscriptionPlan
+        const currentPriority = currentPlan?.priority ?? -1
 
         const availablePlans = plansData?.result?.plans || []
         return availablePlans
-            .filter(p => p.plan.canBePromoted && planId && planId !== p.plan.id)
+            .filter(p => p.plan.canBePromoted && p.plan.id !== currentPlan?.id && (p.plan.priority ?? 0) > currentPriority)
             .sort((a, b) => (b.plan.priority ?? 0) - (a.plan.priority ?? 0))[0]
-    }, [plansData?.result?.plans, contextData?.subscriptionContext?.subscriptionPlan?.id])
+    }, [plansData?.result?.plans, contextData?.subscriptionContext?.subscriptionPlan])
 
     const formattedCurrency = useMemo(() => {
         const currencyCode = bestPlan?.prices?.[0]?.currencyCode

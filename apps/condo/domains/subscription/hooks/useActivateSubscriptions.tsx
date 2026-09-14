@@ -68,7 +68,8 @@ export const useActivateSubscriptions = () => {
         planName: string,
         trialDays: number,
         isCustomPrice: boolean,
-        includesServicePlan: boolean
+        includesServicePlan: boolean,
+        paymentType: PaymentType
     ) => {
         if (isTrial) {
             notification.success({
@@ -90,7 +91,7 @@ export const useActivateSubscriptions = () => {
                 description: intl.formatMessage({ id: 'subscription.activation.paid.custom.description' }),
                 duration: 5,
             })
-        } else if (!includesServicePlan) {
+        } else if (!includesServicePlan && paymentType !== 'invoice') {
             notification.success({
                 message: (
                     <Typography.Text strong size='large'>
@@ -137,7 +138,8 @@ export const useActivateSubscriptions = () => {
 
         setActivateLoading(true)
         try {
-            if (paymentType === 'userHelpRequest') {
+            // A price on request cannot be invoiced, so a manager has to make an offer first
+            if (isCustomPrice) {
                 await createUserHelpRequest({
                     variables: {
                         data: {
@@ -158,7 +160,7 @@ export const useActivateSubscriptions = () => {
                             sender: getClientSideSenderInfo(),
                             organization: { id: organization.id },
                             subscriptionPlanPricingRules: priceIds.map(id => ({ id })),
-                            paymentType: SubscriptionPaymentType.Card,
+                            paymentType: paymentType === 'invoice' ? SubscriptionPaymentType.Invoice : SubscriptionPaymentType.Card,
                             isTrial,
                         },
                     },
@@ -178,7 +180,7 @@ export const useActivateSubscriptions = () => {
             }
 
             await refetchData(isTrial)
-            showSuccessNotification(isTrial, planName, trialDays, isCustomPrice, includesServicePlan)
+            showSuccessNotification(isTrial, planName, trialDays, isCustomPrice, includesServicePlan, paymentType)
         } catch (error) {
             console.error('Failed to activate subscription:', error)
             notification.error({
