@@ -216,6 +216,26 @@ export const SubscriptionSettingsContent: React.FC = () => {
         clearSelection()
     }, [cartPriceIds, registerSubscriptionBundle, selectedPlanCard, clearSelection])
 
+    /** A feature keeps its own trial button until it is tried, bought or put in the cart */
+    const canTryRow = useCallback((row: CatalogRow): boolean => {
+        const plan = row.featurePlan
+        if (!plan || row.includedInPlan || row.purchased || Number(plan.trialDays ?? 0) <= 0) return false
+
+        return !trialSubscriptions.some(trial => trial.subscriptionPlan?.id === plan.id)
+    }, [trialSubscriptions])
+
+    const handleTryRow = useCallback(async (row: CatalogRow) => {
+        if (!row.price?.id) return
+
+        await registerSubscriptionBundle({
+            priceIds: [row.price.id],
+            isTrial: true,
+            planName: row.label,
+            trialDays: Number(row.featurePlan?.trialDays ?? 0),
+            includesServicePlan: false,
+        })
+    }, [registerSubscriptionBundle])
+
     /** Trials are offered only while nothing in the cart has been tried or paid for yet */
     const canTryFree = useMemo(() => {
         if (mode === 'remove' || !isPlanInCart) return false
@@ -360,6 +380,8 @@ export const SubscriptionSettingsContent: React.FC = () => {
                         isRowSelected={selection.isRowSelected}
                         isRowDisabled={selection.isRowDisabled}
                         onToggleRow={selection.toggleRow}
+                        canTryRow={canTryRow}
+                        onTryRow={handleTryRow}
                         getRowBadge={getRowBadge}
                         canManageSubscriptions={canManageSubscriptions}
                     />
