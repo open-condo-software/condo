@@ -16,7 +16,7 @@ export const useIntegrationContexts = ({ integrationIds }: UseIntegrationContext
     const [actionLoading, setActionLoading] = useState(false)
 
     const { objs: contexts, loading: contextsLoading } = AcquiringIntegrationContext.useObjects({
-        where: { organization: { id: orgId }, deletedAt: null },
+        where: { organization: { id: orgId } },
     })
 
     const createContextAction = AcquiringIntegrationContext.useCreate({ settings: { dv: 1 }, state: { dv: 1 } })
