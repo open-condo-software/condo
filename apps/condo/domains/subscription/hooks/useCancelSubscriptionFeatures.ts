@@ -1,4 +1,4 @@
-import { useUpdateSubscriptionContextPaymentMethodMutation } from '@app/condo/gql'
+import { useCancelSubscriptionRenewalMutation } from '@app/condo/gql'
 import { notification } from 'antd'
 import { useCallback, useState } from 'react'
 
@@ -21,22 +21,19 @@ export const useCancelSubscriptionFeatures = ({ onCancelled }: UseCancelSubscrip
     const ErrorMessage = intl.formatMessage({ id: 'subscription.remove.error.title' })
 
     const [loading, setLoading] = useState(false)
-    const [updateSubscriptionContextPaymentMethod] = useUpdateSubscriptionContextPaymentMethodMutation()
+    const [cancelSubscriptionRenewal] = useCancelSubscriptionRenewalMutation()
 
     const cancelFeatures = useCallback(async (contextIds: ReadonlyArray<string>) => {
         if (contextIds.length === 0) return
 
         setLoading(true)
         try {
-            await updateSubscriptionContextPaymentMethod({
+            await cancelSubscriptionRenewal({
                 variables: {
                     data: {
                         dv: 1,
                         sender: getClientSideSenderInfo(),
-                        // the first context anchors the organization the permission check runs against
-                        subscriptionContext: { id: contextIds[0] },
                         subscriptionContexts: contextIds.map(id => ({ id })),
-                        bindingId: null,
                     },
                 },
             })
@@ -53,7 +50,7 @@ export const useCancelSubscriptionFeatures = ({ onCancelled }: UseCancelSubscrip
         } finally {
             setLoading(false)
         }
-    }, [updateSubscriptionContextPaymentMethod, onCancelled, DoneMessage, ErrorMessage])
+    }, [cancelSubscriptionRenewal, onCancelled, DoneMessage, ErrorMessage])
 
     return { cancelFeatures, loading }
 }

@@ -249,22 +249,31 @@ query getLastDoneSubscriptionContext($organizationId: ID!, $planId: ID!) {
     }
 }
 
-query getLastFailedPaymentContext($organizationId: ID!, $subscriptionPlanId: ID!) {
-    lastFailedContext: allSubscriptionContexts(
+query getOrganizationUnpaidSubscriptions($organizationId: ID!) {
+    unpaidSubscriptions: allSubscriptionContexts(
         where: {
             organization: { id: $organizationId }
-            subscriptionPlan: { id: $subscriptionPlanId }
-            bindingId_not: null
-            status_in: [ERROR, PENDING]
+            status_in: [CREATED, PENDING, ERROR]
             isTrial: false
         }
         sortBy: [createdAt_DESC]
-        first: 1
+        first: 100
     ) {
         id
+        subscriptionPlan {
+            id
+            name
+            planType
+        }
+        subscriptionPlanPricingRule {
+            id
+        }
         status
-        bindingId
         createdAt
+        endAt
+        frozenPaymentInfo {
+            paymentType
+        }
     }
 }
 

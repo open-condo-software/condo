@@ -6865,57 +6865,67 @@ export type GetLastDoneSubscriptionContextQueryHookResult = ReturnType<typeof us
 export type GetLastDoneSubscriptionContextLazyQueryHookResult = ReturnType<typeof useGetLastDoneSubscriptionContextLazyQuery>;
 export type GetLastDoneSubscriptionContextSuspenseQueryHookResult = ReturnType<typeof useGetLastDoneSubscriptionContextSuspenseQuery>;
 export type GetLastDoneSubscriptionContextQueryResult = Apollo.QueryResult<Types.GetLastDoneSubscriptionContextQuery, Types.GetLastDoneSubscriptionContextQueryVariables>;
-export const GetLastFailedPaymentContextDocument = gql`
-    query getLastFailedPaymentContext($organizationId: ID!, $subscriptionPlanId: ID!) {
-  lastFailedContext: allSubscriptionContexts(
-    where: {organization: {id: $organizationId}, subscriptionPlan: {id: $subscriptionPlanId}, bindingId_not: null, status_in: [ERROR, PENDING], isTrial: false}
+export const GetOrganizationUnpaidSubscriptionsDocument = gql`
+    query getOrganizationUnpaidSubscriptions($organizationId: ID!) {
+  unpaidSubscriptions: allSubscriptionContexts(
+    where: {organization: {id: $organizationId}, status_in: [CREATED, PENDING, ERROR], isTrial: false}
     sortBy: [createdAt_DESC]
-    first: 1
+    first: 100
   ) {
     id
+    subscriptionPlan {
+      id
+      name
+      planType
+    }
+    subscriptionPlanPricingRule {
+      id
+    }
     status
-    bindingId
     createdAt
+    endAt
+    frozenPaymentInfo {
+      paymentType
+    }
   }
 }
     `;
 
 /**
- * __useGetLastFailedPaymentContextQuery__
+ * __useGetOrganizationUnpaidSubscriptionsQuery__
  *
- * To run a query within a React component, call `useGetLastFailedPaymentContextQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetLastFailedPaymentContextQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetOrganizationUnpaidSubscriptionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOrganizationUnpaidSubscriptionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetLastFailedPaymentContextQuery({
+ * const { data, loading, error } = useGetOrganizationUnpaidSubscriptionsQuery({
  *   variables: {
  *      organizationId: // value for 'organizationId'
- *      subscriptionPlanId: // value for 'subscriptionPlanId'
  *   },
  * });
  */
-export function useGetLastFailedPaymentContextQuery(baseOptions: Apollo.QueryHookOptions<Types.GetLastFailedPaymentContextQuery, Types.GetLastFailedPaymentContextQueryVariables> & ({ variables: Types.GetLastFailedPaymentContextQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+export function useGetOrganizationUnpaidSubscriptionsQuery(baseOptions: Apollo.QueryHookOptions<Types.GetOrganizationUnpaidSubscriptionsQuery, Types.GetOrganizationUnpaidSubscriptionsQueryVariables> & ({ variables: Types.GetOrganizationUnpaidSubscriptionsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<Types.GetLastFailedPaymentContextQuery, Types.GetLastFailedPaymentContextQueryVariables>(GetLastFailedPaymentContextDocument, options);
+        return Apollo.useQuery<Types.GetOrganizationUnpaidSubscriptionsQuery, Types.GetOrganizationUnpaidSubscriptionsQueryVariables>(GetOrganizationUnpaidSubscriptionsDocument, options);
       }
-export function useGetLastFailedPaymentContextLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetLastFailedPaymentContextQuery, Types.GetLastFailedPaymentContextQueryVariables>) {
+export function useGetOrganizationUnpaidSubscriptionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetOrganizationUnpaidSubscriptionsQuery, Types.GetOrganizationUnpaidSubscriptionsQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<Types.GetLastFailedPaymentContextQuery, Types.GetLastFailedPaymentContextQueryVariables>(GetLastFailedPaymentContextDocument, options);
+          return Apollo.useLazyQuery<Types.GetOrganizationUnpaidSubscriptionsQuery, Types.GetOrganizationUnpaidSubscriptionsQueryVariables>(GetOrganizationUnpaidSubscriptionsDocument, options);
         }
 // @ts-ignore
-export function useGetLastFailedPaymentContextSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<Types.GetLastFailedPaymentContextQuery, Types.GetLastFailedPaymentContextQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetLastFailedPaymentContextQuery, Types.GetLastFailedPaymentContextQueryVariables>;
-export function useGetLastFailedPaymentContextSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetLastFailedPaymentContextQuery, Types.GetLastFailedPaymentContextQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetLastFailedPaymentContextQuery | undefined, Types.GetLastFailedPaymentContextQueryVariables>;
-export function useGetLastFailedPaymentContextSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetLastFailedPaymentContextQuery, Types.GetLastFailedPaymentContextQueryVariables>) {
+export function useGetOrganizationUnpaidSubscriptionsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<Types.GetOrganizationUnpaidSubscriptionsQuery, Types.GetOrganizationUnpaidSubscriptionsQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetOrganizationUnpaidSubscriptionsQuery, Types.GetOrganizationUnpaidSubscriptionsQueryVariables>;
+export function useGetOrganizationUnpaidSubscriptionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetOrganizationUnpaidSubscriptionsQuery, Types.GetOrganizationUnpaidSubscriptionsQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetOrganizationUnpaidSubscriptionsQuery | undefined, Types.GetOrganizationUnpaidSubscriptionsQueryVariables>;
+export function useGetOrganizationUnpaidSubscriptionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetOrganizationUnpaidSubscriptionsQuery, Types.GetOrganizationUnpaidSubscriptionsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<Types.GetLastFailedPaymentContextQuery, Types.GetLastFailedPaymentContextQueryVariables>(GetLastFailedPaymentContextDocument, options);
+          return Apollo.useSuspenseQuery<Types.GetOrganizationUnpaidSubscriptionsQuery, Types.GetOrganizationUnpaidSubscriptionsQueryVariables>(GetOrganizationUnpaidSubscriptionsDocument, options);
         }
-export type GetLastFailedPaymentContextQueryHookResult = ReturnType<typeof useGetLastFailedPaymentContextQuery>;
-export type GetLastFailedPaymentContextLazyQueryHookResult = ReturnType<typeof useGetLastFailedPaymentContextLazyQuery>;
-export type GetLastFailedPaymentContextSuspenseQueryHookResult = ReturnType<typeof useGetLastFailedPaymentContextSuspenseQuery>;
-export type GetLastFailedPaymentContextQueryResult = Apollo.QueryResult<Types.GetLastFailedPaymentContextQuery, Types.GetLastFailedPaymentContextQueryVariables>;
+export type GetOrganizationUnpaidSubscriptionsQueryHookResult = ReturnType<typeof useGetOrganizationUnpaidSubscriptionsQuery>;
+export type GetOrganizationUnpaidSubscriptionsLazyQueryHookResult = ReturnType<typeof useGetOrganizationUnpaidSubscriptionsLazyQuery>;
+export type GetOrganizationUnpaidSubscriptionsSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationUnpaidSubscriptionsSuspenseQuery>;
+export type GetOrganizationUnpaidSubscriptionsQueryResult = Apollo.QueryResult<Types.GetOrganizationUnpaidSubscriptionsQuery, Types.GetOrganizationUnpaidSubscriptionsQueryVariables>;
 export const CancelSubscriptionRenewalDocument = gql`
     mutation cancelSubscriptionRenewal($data: CancelSubscriptionRenewalInput!) {
   result: cancelSubscriptionRenewal(data: $data) {

@@ -1022,13 +1022,12 @@ export type GetLastDoneSubscriptionContextQueryVariables = Types.Exact<{
 
 export type GetLastDoneSubscriptionContextQuery = { __typename?: 'Query', contexts?: Array<{ __typename?: 'SubscriptionContext', id: string, createdAt?: string | null } | null> | null };
 
-export type GetLastFailedPaymentContextQueryVariables = Types.Exact<{
+export type GetOrganizationUnpaidSubscriptionsQueryVariables = Types.Exact<{
   organizationId: Types.Scalars['ID']['input'];
-  subscriptionPlanId: Types.Scalars['ID']['input'];
 }>;
 
 
-export type GetLastFailedPaymentContextQuery = { __typename?: 'Query', lastFailedContext?: Array<{ __typename?: 'SubscriptionContext', id: string, status?: Types.SubscriptionContextStatusType | null, bindingId?: string | null, createdAt?: string | null } | null> | null };
+export type GetOrganizationUnpaidSubscriptionsQuery = { __typename?: 'Query', unpaidSubscriptions?: Array<{ __typename?: 'SubscriptionContext', id: string, status?: Types.SubscriptionContextStatusType | null, createdAt?: string | null, endAt?: string | null, subscriptionPlan?: { __typename?: 'SubscriptionPlan', id: string, name?: string | null, planType?: Types.SubscriptionPlanPlanTypeType | null } | null, subscriptionPlanPricingRule?: { __typename?: 'SubscriptionPlanPricingRule', id: string } | null, frozenPaymentInfo?: { __typename?: 'FrozenPaymentInfo', paymentType?: string | null } | null } | null> | null };
 
 export type CancelSubscriptionRenewalMutationVariables = Types.Exact<{
   data: Types.CancelSubscriptionRenewalInput;

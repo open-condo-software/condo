@@ -7,6 +7,7 @@ const {
     buildCatalog,
     getCatalogCounters,
     findUpsellPlan,
+    resolveFeatureStatus,
 } = require('./subscriptionCatalog')
 
 const APP_ID = '00000000-0000-0000-0000-0000000000aa'
@@ -131,10 +132,17 @@ describe('subscriptionCatalog', () => {
             expect(marketplaceRow.label).toBe('Marketplace')
         })
 
-        it('puts the personal manager first, then the rest of the paid rows, then included ones', () => {
-            const rows = build(servicePlan('basic', ['news']))
+        it('puts features the plan does not give first, then included rows, then bought ones, pinned rows leading each group', () => {
+            const rows = buildCatalog({
+                servicePlan: servicePlan('basic', ['news']),
+                featurePlans: [...featurePlans, featurePlan('marketplace-plan', ['marketplace'])],
+                period: 'year',
+                purchasedFeaturePlanIds: new Set(['marketplace-plan']),
+                capabilityLabels: labels,
+                pinnedCapabilities: ['support'],
+            })
 
-            expect(rows.map(row => row.key)).toEqual(['manager-plan', 'ai-plan', 'news-plan'])
+            expect(rows.map(row => row.key)).toEqual(['manager-plan', 'ai-plan', 'news-plan', 'marketplace-plan'])
         })
 
         it('does not offer a feature whose price needs a manual offer', () => {
@@ -162,6 +170,47 @@ describe('subscriptionCatalog', () => {
             })
 
             expect(rows[0].description).toBe('Editorial description')
+        })
+    })
+
+    describe('resolveFeatureStatus', () => {
+        const now = new Date('2026-09-15T12:00:00Z')
+        const context = (overrides) => ({ id: 'ctx', isTrial: false, startAt: '2026-08-15', endAt: '2026-10-15', renewalCancelledAt: null, ...overrides })
+
+        it('reads an active paid context as connected', () => {
+            expect(resolveFeatureStatus([context()], now, 5)).toMatchObject({ type: 'connected', contextId: 'ctx' })
+        })
+
+        it('reads an active paid context with declined renewal as renewalCancelled', () => {
+            expect(resolveFeatureStatus([context({ renewalCancelledAt: '2026-09-01' })], now, 5).type).toBe('renewalCancelled')
+        })
+
+        it('reads an active trial as trial with the days left', () => {
+            expect(resolveFeatureStatus([context({ isTrial: true, endAt: '2026-09-20T12:00:00Z' })], now, 5))
+                .toMatchObject({ type: 'trial', daysLeft: 5 })
+        })
+
+        it('reads a paid period that ended within the buffer as an expired payment', () => {
+            expect(resolveFeatureStatus([context({ endAt: '2026-09-13' })], now, 5).type).toBe('paymentExpired')
+        })
+
+        it('reads an ended trial, a cancelled period or one past the buffer as an expired trial', () => {
+            expect(resolveFeatureStatus([context({ isTrial: true, endAt: '2026-09-13' })], now, 5).type).toBe('trialExpired')
+            expect(resolveFeatureStatus([context({ endAt: '2026-09-13', renewalCancelledAt: '2026-09-01' })], now, 5).type).toBe('trialExpired')
+            expect(resolveFeatureStatus([context({ endAt: '2026-09-01' })], now, 5).type).toBe('trialExpired')
+        })
+
+        it('prefers the context running now over an ended one', () => {
+            const status = resolveFeatureStatus([
+                context({ id: 'old', endAt: '2026-09-13' }),
+                context({ id: 'renewed', startAt: '2026-09-13', endAt: '2026-10-13' }),
+            ], now, 5)
+
+            expect(status).toMatchObject({ type: 'connected', contextId: 'renewed' })
+        })
+
+        it('has no status without contexts', () => {
+            expect(resolveFeatureStatus([], now, 5)).toBeNull()
         })
     })
 
