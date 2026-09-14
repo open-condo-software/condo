@@ -14,6 +14,7 @@ It can be used for both B2B and B2C miniapps.
 - [i18n](#i18n)
 - [Bridge](#bridge)
 - [Authorization](#authorization)
+- [Condo API](#condo-api)
 
 ## Purpose
 
@@ -146,6 +147,32 @@ export const MyComponent: React.FC<MyComponentProps> = ({}) => {
 ```
 - Avoid using relative imports from parent folders (like `../`), only sibling imports are allowed (`./`), for rest use absolute imports `@/`
 
+### GraphQL queries
+
+**Important:** Always refer to the actual Condo schema (via GraphQL Playground at https://condo.d.doma.ai/admin/api or schema files in `apps/condo/domains/*/schema/` locally or in [`GitHub`](https://github.com/open-condo-software/condo)) before writing queries or mutations. Never guess query names, field names, or types.
+
+**File organization:**
+- List-related queries and mutations should be stored in files named after the model they operate on (e.g., `domains/ticket/queries/TicketComment.gql`)
+- Other queries and mutations should be stored in files named same as mutation / query itself (e.g., `domains/billing/queries/RegisterBillingReceipts.gql`)
+
+**Query design:**
+- Always use named queries/mutations instead of anonymous, so all types and hooks are generated correctly by graphql-codegen
+- Naming like `get<Somehting>By<Something>` is preferred for queries, mutations can just copy original mutation name
+- Use GraphQL variables for dynamic values - you can hard-code static arguments like pagination (`first: 1`,  `skip: 0` or so) directly in the query to reduce complexity with variables
+- Avoid using generic arguments when specific ones are clearer (e.g., `query getPropertyByAddressKet($addressKey: String)` is better than `query allProperties($where: PropertyWhereInput)`)
+- Fetch only the data you need to minimize rate-limit consumption and make your code more resilient to schema changes - avoid fetching redundant relations (e.g., `createdBy`, `updatedBy` and any other) unless specifically required
+- Use fragments when you have multiple queries for the same list to increase Apollo cache hit ratio - define fragments for generic queries and extend them in specific heavy queries
+- Use GraphQL aliases to improve TypeScript code readability. Aliases let you rename fields in the response, making your component code cleaner. For example:
+  ```graphql
+  query getTicketsByOrganization($orgId: ID!) {
+      tickets: allTickets(where: { organization: { id: $orgId } }) {
+          id
+          name
+      }
+  }
+  ```
+  This allows accessing data as `data.tickets` instead of `data.allTickets` in your TypeScript code
+
 ## i18n
 
 i18n is handled by `react-intl` and `@open-condo/miniapp-utils` packages.
@@ -231,7 +258,191 @@ That's our case, since this app does not have backend. All auth are done automat
 
 ## Condo API
 
+Condo API is a GraphQL API that provides access to all Condo platform functionality. 
+The source of truth for the API schema is the [GraphQL Playground](https://condo.d.doma.ai/admin/api) where you can introspect the schema, view schemaDocs, and test queries and mutations. 
+For additional documentation and guides, refer to the [Condo Developers Portal](https://developers.doma.ai).
 
+### Generic API Rules
 
+**Mutation inputs:**
+- All mutations must accept `dv` (data version) and `sender` parameters for audit trail
+- Use `getClientSideSenderInfo` from `@open-condo/miniapp-utils/helpers/sender` to generate sender info
 
+**Deletion:**
+- Hard-delete is prohibited - never use delete mutations
+- Instead, set `deletedAt` to an ISO 8601 timestamp string (e.g., `new Date().toISOString()`)
 
+**List queries pattern:**
+For most models (e.g., Ticket), the standard query pattern is:
+- `all<ModelName>s` - for listing with filtering (where, orderBy, first, skip)
+- `<ModelName>` - for fetching a single record by ID
+- `_all<ModelName>sMeta` - for getting counts (with same where filters)
+- `create<ModelName>` - for creating a record
+- `update<ModelName>` - for updating and soft-deleting a record
+
+**Pagination:**
+- API won't return more than 1000 objects per request
+- Due to rate limits on Condo API, it's recommended to request no more than 100 objects per page
+- Always use `first` and `skip` arguments in `all<ModelName>s` queries for pagination
+
+**Relations:**
+- When connecting related records, use `{ connect: { id } }` in relation input
+- Example: `{ organization: { connect: { id: orgId } } }`
+
+**Address handling:**
+- Always use `addressKey` to link addresses to properties - it's the unique address identifier in Condo
+- Do not use `address` field for linking, as the address string can change while `addressKey` remains stable
+
+### Main Domains and Models
+
+#### Organization
+
+Represents property management companies and their structure.
+
+**Key queries/mutations:**
+- `Organization` / `allOrganizations` - fetch organization data
+- `Employee` / `allEmployees` - manage company employees
+
+**Common patterns:**
+
+Current organization ID is passed in `condoContextEntityId` from launch params.
+
+**Fetch organization by ID:**
+```graphql
+fragment OrganizationInfo on Organization {
+    id
+    tin
+    name
+    country
+}
+
+query getOrganizationById($id: ID!) {
+    organization: Organization(where: {id: $id}) {
+        ...OrganizationInfo
+    }
+}
+```
+
+**Fetch current employee with role:**
+```graphql
+query getEmployeeByUserAndOrganization($userId: ID!, $organizationId: ID!) {
+    allOrganizationEmployees(
+        first: 1
+        where: { user: {id: $userId}, organization: { id: $organizationId }}
+    ) {
+        id
+        organization {
+            ...OrganizationInfo
+        }
+        role {
+            id
+            name
+            canReadTickets
+        }
+    }
+}
+```
+
+Get `userId` from `useAuth()` and `organizationId` from launch params.
+
+Use this domain when you need to work with company structure or employee management.
+
+#### Property
+
+Represents a property (building) divided into separate units (flats, parking spaces, etc.) that can be owned independently.
+
+**Key queries/mutations:**
+- `Property` / `allProperties` - fetch property data
+- Properties are linked to organizations and have address information via `addressKey`
+
+**Key concepts:**
+- Property has a map/schema defining its structure (sections, floors, units)
+- Each unit can be independently owned 
+- Properties are linked to managing organizations
+- Use `addressKey` for stable address references (see [Generic API Rules](#generic-api-rules) above)
+
+Use this when working with property management, unit information, or building structure.
+
+#### Contact
+
+Represents the organization's list of contacts, managed by the organization itself.
+
+**Key queries/mutations:**
+- `Contact` / `allContacts` - fetch and manage contact information
+- `ContactRole` / `allContactRoles` - manage contact roles
+
+**Key concepts:**
+- Contacts serve as the organization's managed list of persons (residents and other contacts)
+- Contact fields like `role` and `isVerified` may be resolved to matching residents (by addressKey, unitName, unitType, phone)
+- Residents can automatically create contacts when interacting with the managing company (e.g., during ticket creation)
+- Contacts are uniquely identified by property, unitName, unitType, and phone combination
+
+Use this when working with contact management, ticket contacts, or resident verification.
+
+#### Resident
+
+Represents a person living at a specific address (addressKey + unitName + unitType).
+
+**Key concepts:**
+- Residents can be linked to managing companies automatically or via Service Consumer
+- Service Consumer represents a resident's intent to consume services from a specific company using an account number
+- Use this when working with resident profiles, contact information, or service relationships
+
+**Key queries/mutations:**
+- `Resident` / `allResidents` - fetch resident data
+- `ServiceConsumer` / `allServiceConsumers` - manage service relationships
+
+**Key fields:**
+- Resident: `addressKey` (unique address identifier), `unitName` (unit within property), `unitType` (flat/parking/commercial), `isVerifiedByManagingCompany` (verification status)
+- ServiceConsumer: `organization` (service provider), `accountNumber` (billing account)
+
+#### Ticket
+
+Core domain for managing support tickets and requests.
+
+**Key queries/mutations:**
+- `Ticket` / `allTickets` - fetch ticket details and lists
+- `TicketComment` / `allTicketComments` - textual comments on tickets
+- `TicketFile` / `allTicketFiles` - files attached to tickets
+- `TicketCommentFile` / `allTicketCommentFiles` - files attached to ticket comments
+- `createTicket` - create new tickets
+- `updateTicket` - update ticket status, details, assignments
+- `_allTicketsMeta` - get ticket counts with filters
+
+**Key concepts:**
+- Resident tickets are automatically classified (category, problem, place classifiers)
+- Classifiers can be fetched from the API - their IDs are consistent across all Condo instances
+- Use this when working with support tickets, comments, file attachments, or ticket classification
+
+#### Incident
+
+Represents mass incidents affecting multiple properties (e.g., electricity/water outage).
+
+**Key queries/mutations:**
+- `Incident` / `allIncidents` - fetch incident details and lists
+- Incidents have `workStart`, `workFinish`, `status` (actual/not_actual), and `textForResident` fields
+
+**Key concepts:**
+- Used for planned or emergency work affecting entire properties or organization
+- Can be marked as emergency or scheduled
+- Includes text for residents explaining the situation
+
+Use this when working with mass notifications, utility outages, or property-wide maintenance.
+
+#### Meter
+
+Domain for working with utility meters and readings.
+
+**Key queries/mutations:**
+- `Meter` / `allMeters` - fetch meter information (number, accountNumber, unitName, unitType, resource)
+- `MeterReading` / `allMeterReadings` - manage meter readings (date, value1-value4 for tariffs, source)
+- `MeterResource` / `allMeterResources` - fetch resource types (e.g., cold water, hot water, electricity)
+- `createMeterReading` - submit new readings
+- `updateMeterReading` - correct existing readings
+
+**Key concepts:**
+- MeterResource IDs are consistent across all Condo instances (like ticket classifiers)
+- Meters can be single-tariff (value1 only) or multi-tariff (value1-value4)
+- Readings have source tracking (mobile_app, billing, call, etc.)
+
+Use this when working with utility meter management, readings submission, or resource tracking.
