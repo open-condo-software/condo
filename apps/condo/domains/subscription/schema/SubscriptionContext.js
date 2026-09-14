@@ -56,6 +56,11 @@ const ERRORS = {
         type: 'RECURRENT_PAYMENT_REQUIRES_PAID_SUBSCRIPTION',
         message: 'bindingId can only be set for paid subscriptions with pricing rule',
     },
+    BUNDLE_DATES_MISMATCH: {
+        code: BAD_USER_INPUT,
+        type: 'BUNDLE_DATES_MISMATCH',
+        message: 'All subscription contexts sharing one invoice must have the same startAt and endAt',
+    },
     INVOICE_MUST_BE_B2B: {
         code: BAD_USER_INPUT,
         type: 'INVOICE_MUST_BE_B2B',
@@ -254,6 +259,15 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
                 const invoiceItem = await getById('Invoice', invoiceId)
                 if (invoiceItem && invoiceItem.type !== INVOICE_TYPE_B2B) {
                     throw new GQLError(ERRORS.INVOICE_MUST_BE_B2B, context)
+                }
+
+                // Checked on create only: activation updates a bundle one context at a time, so the
+                // dates legitimately diverge until the last one is written.
+                if (operation === 'create') {
+                    const bundleContexts = await find('SubscriptionContext', { invoice: { id: invoiceId }, deletedAt: null })
+                    if (bundleContexts.some(ctx => ctx.startAt !== startAt || ctx.endAt !== endAt)) {
+                        throw new GQLError(ERRORS.BUNDLE_DATES_MISMATCH, context)
+                    }
                 }
             }
 

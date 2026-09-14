@@ -103,6 +103,14 @@ const ERRORS = {
         message: 'A feature plan in the bundle is already covered by another plan in the same bundle',
         messageForUser: 'api.subscription.registerSubscriptionContexts.FEATURE_ALREADY_IN_PLAN',
     },
+    MIXED_SUBSCRIPTION_START_DATES: {
+        mutation: 'registerSubscriptionContexts',
+        variable: ['data', 'subscriptionPlanPricingRules'],
+        code: BAD_USER_INPUT,
+        type: 'MIXED_SUBSCRIPTION_START_DATES',
+        message: 'Plans in a bundle would start on different dates because some of them are already covered by an active subscription',
+        messageForUser: 'api.subscription.registerSubscriptionContexts.MIXED_SUBSCRIPTION_START_DATES',
+    },
     NO_ACTIVE_SERVICE_SUBSCRIPTION: {
         mutation: 'registerSubscriptionContexts',
         variable: ['data', 'organization'],
@@ -280,13 +288,20 @@ const RegisterSubscriptionContextsService = new GQLCustomSchema('RegisterSubscri
 
                 const activePaidContexts = await find('SubscriptionContext', {
                     organization: { id: organization.id },
-                    subscriptionPlan: { id: baseSubscription.plan.id },
+                    subscriptionPlan: { id_in: planIds },
                     status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
                     deletedAt: null,
                 })
-                const startAt = calculateSubscriptionStartDate(activePaidContexts)
-                const startAtStr = startAt.format('YYYY-MM-DD')
-                const endAtStr = startAt.add(months, 'month').format('YYYY-MM-DD')
+                const startDatesByPlan = subscriptions.map(({ plan }) => calculateSubscriptionStartDate(
+                    activePaidContexts.filter(paidContext => paidContext.subscriptionPlan === plan.id)
+                ).format('YYYY-MM-DD'))
+                if (new Set(startDatesByPlan).size > 1) {
+                    logger.warn({ msg: 'Bundle plans would start on different dates', data: { organizationId: organization.id, planIds, startDatesByPlan } })
+                    throw new GQLError(ERRORS.MIXED_SUBSCRIPTION_START_DATES, context)
+                }
+
+                const startAtStr = startDatesByPlan[0]
+                const endAtStr = dayjs(startAtStr).add(months, 'month').format('YYYY-MM-DD')
 
                 const { recipientOrgId: recipientOrganizationId } = await getSubscriptionPaymentRecipient()
                 if (!recipientOrganizationId) {

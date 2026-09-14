@@ -4,7 +4,7 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx, find, itemsQuery } = require('@open-condo/keystone/schema')
 
 const { registerMultiPayment } = require('@condo/domains/acquiring/utils/serverSchema')
-const { INVOICE_STATUS_PAID } = require('@condo/domains/marketplace/constants')
+const { INVOICE_STATUS_PUBLISHED } = require('@condo/domains/marketplace/constants')
 const { SUBSCRIPTION_PAYMENT_BUFFER_DAYS, SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PLAN_TYPE_SERVICE, SUBSCRIPTION_PAYMENT_TYPE_CARD } = require('@condo/domains/subscription/constants')
 const { SubscriptionPaymentAdapter } = require('@condo/domains/subscription/tasks/utils/SubscriptionPaymentAdapter')
 const { registerSubscriptionContexts, SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
@@ -14,13 +14,43 @@ const logger = getLogger('processRecurrentSubscriptionPayments')
 
 const SENDER = { dv: 1, fingerprint: 'processRecurrentSubscriptionPayments' }
 
+function groupContextsIntoRenewalBundles (contexts) {
+    const bundlesByInvoice = new Map()
+    const standaloneBundles = []
+
+    for (const subscriptionContext of contexts) {
+        if (!subscriptionContext.invoice) {
+            standaloneBundles.push({ invoiceId: null, contexts: [subscriptionContext] })
+            continue
+        }
+        if (!bundlesByInvoice.has(subscriptionContext.invoice)) {
+            bundlesByInvoice.set(subscriptionContext.invoice, { invoiceId: subscriptionContext.invoice, contexts: [] })
+        }
+        bundlesByInvoice.get(subscriptionContext.invoice).contexts.push(subscriptionContext)
+    }
+
+    return [...bundlesByInvoice.values(), ...standaloneBundles]
+}
+
+function findBundleInconsistency (bundle) {
+    const distinct = (field) => new Set(bundle.contexts.map(subscriptionContext => subscriptionContext[field]))
+
+    if (distinct('organization').size > 1) return 'contexts of one bundle belong to different organizations'
+    if (distinct('bindingId').size > 1) return 'contexts of one bundle have different payment card bindings'
+    if (distinct('endAt').size > 1) return 'contexts of one bundle end on different dates'
+
+    return null
+}
+
+// Finds a renewal a previous run already registered, so a failed charge is retried on the existing
+// invoice instead of billing the organization twice. CREATED covers a run that died before paying
 async function findExistingRenewalBundle (organizationId, renewalRuleIds, bufferDate) {
     const wantedComposition = [...renewalRuleIds].sort().join(',')
 
     const contexts = await itemsQuery('SubscriptionContext', {
         where: {
             organization: { id: organizationId },
-            status: SUBSCRIPTION_CONTEXT_STATUS.PENDING,
+            status_in: [SUBSCRIPTION_CONTEXT_STATUS.CREATED, SUBSCRIPTION_CONTEXT_STATUS.PENDING],
             isTrial: false,
             createdAt_gte: dayjs(bufferDate).toISOString(),
             deletedAt: null,
@@ -43,6 +73,51 @@ async function findExistingRenewalBundle (organizationId, renewalRuleIds, buffer
     return null
 }
 
+async function getBundleRenewalState (bundle) {
+    const planIds = bundle.contexts.map(subscriptionContext => subscriptionContext.subscriptionPlan)
+
+    const successorContexts = await itemsQuery('SubscriptionContext', {
+        where: {
+            organization: { id: bundle.contexts[0].organization },
+            subscriptionPlan: { id_in: planIds },
+            status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+            endAt_gt: bundle.contexts[0].endAt,
+            deletedAt: null,
+        },
+    })
+
+    const renewedPlanIds = new Set(successorContexts.map(subscriptionContext => subscriptionContext.subscriptionPlan))
+    const renewedCount = planIds.filter(planId => renewedPlanIds.has(planId)).length
+
+    if (renewedCount === 0) return 'NOT_RENEWED'
+    if (renewedCount === planIds.length) return 'RENEWED'
+    return 'PARTIALLY_RENEWED'
+}
+
+async function collectRenewalRuleIds (bundle) {
+    const serviceRuleIds = []
+    const featureRuleIds = []
+
+    for (const subscriptionContext of bundle.contexts) {
+        if (!subscriptionContext.subscriptionPlanPricingRule) continue
+
+        const [plan] = await find('SubscriptionPlan', { id: subscriptionContext.subscriptionPlan, deletedAt: null })
+        if (plan && plan.planType === SUBSCRIPTION_PLAN_TYPE_SERVICE) {
+            serviceRuleIds.push(subscriptionContext.subscriptionPlanPricingRule)
+        } else {
+            featureRuleIds.push(subscriptionContext.subscriptionPlanPricingRule)
+        }
+    }
+
+    return [...serviceRuleIds, ...featureRuleIds]
+}
+
+async function setContextsStatus (context, contextIds, status) {
+    for (const contextId of contextIds) {
+        await SubscriptionContext.update(context, contextId, { dv: 1, sender: SENDER, status })
+    }
+}
+
 async function processRecurrentSubscriptionPayments () {
     const { keystone } = getSchemaCtx('SubscriptionContext')
     const context = await keystone.createContext({ skipAccessControl: true })
@@ -63,54 +138,36 @@ async function processRecurrentSubscriptionPayments () {
         sortBy: ['endAt_DESC'],
     })
 
-    const groups = new Map()
-    for (const subscriptionContext of contexts) {
-        const key = subscriptionContext.invoice || `no-invoice:${subscriptionContext.id}`
-        if (!groups.has(key)) groups.set(key, [])
-        groups.get(key).push(subscriptionContext)
-    }
+    const renewalBundles = groupContextsIntoRenewalBundles(contexts)
 
-    logger.info({ msg: 'found subscription contexts to renew', count: contexts.length, groupCount: groups.size })
+    logger.info({ msg: 'found subscription contexts to renew', count: contexts.length, bundleCount: renewalBundles.length })
 
-    for (const group of groups.values()) {
-        const organizationId = group[0].organization
-        const bindingId = group[0].bindingId
-        const groupEndAt = group[0].endAt
-        const groupContextIds = group.map(subscriptionContext => subscriptionContext.id)
+    for (const bundle of renewalBundles) {
+        const organizationId = bundle.contexts[0].organization
+        const bindingId = bundle.contexts[0].bindingId
+        const bundleEndAt = bundle.contexts[0].endAt
+        const bundleContextIds = bundle.contexts.map(subscriptionContext => subscriptionContext.id)
 
         try {
-            const renewedContexts = await itemsQuery('SubscriptionContext', {
-                where: {
-                    organization: { id: organizationId },
-                    subscriptionPlan: { id_in: group.map(subscriptionContext => subscriptionContext.subscriptionPlan) },
-                    status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
-                    endAt_gt: groupEndAt,
-                    deletedAt: null,
-                },
-            })
-            const renewedPlanIds = new Set(renewedContexts.map(subscriptionContext => subscriptionContext.subscriptionPlan))
-            const notRenewed = group.filter(subscriptionContext => !renewedPlanIds.has(subscriptionContext.subscriptionPlan))
-            if (notRenewed.length === 0) {
-                logger.info({ msg: 'bundle already renewed, skipping group', data: { groupContextIds } })
+            const inconsistency = findBundleInconsistency(bundle)
+            if (inconsistency) {
+                logger.error({ msg: 'inconsistent bundle, skipping', data: { bundleContextIds, invoiceId: bundle.invoiceId, reason: inconsistency } })
                 continue
             }
-            if (notRenewed.length < group.length) {
-                logger.warn({ msg: 'bundle is partially renewed, renewing the remaining plans only', data: { groupContextIds, notRenewedContextIds: notRenewed.map(({ id }) => id) } })
+
+            const renewalState = await getBundleRenewalState(bundle)
+            if (renewalState === 'RENEWED') {
+                logger.info({ msg: 'bundle already renewed, skipping', data: { bundleContextIds } })
+                continue
+            }
+            if (renewalState === 'PARTIALLY_RENEWED') {
+                logger.error({ msg: 'bundle is partially renewed, skipping', data: { bundleContextIds, invoiceId: bundle.invoiceId } })
+                continue
             }
 
-            const serviceRuleIds = []
-            const featureRuleIds = []
-            for (const subscriptionContext of notRenewed) {
-                const [plan] = await find('SubscriptionPlan', { id: subscriptionContext.subscriptionPlan, deletedAt: null })
-                if (plan && plan.planType === SUBSCRIPTION_PLAN_TYPE_SERVICE) {
-                    serviceRuleIds.push(subscriptionContext.subscriptionPlanPricingRule)
-                } else {
-                    featureRuleIds.push(subscriptionContext.subscriptionPlanPricingRule)
-                }
-            }
-            const renewalRuleIds = [...serviceRuleIds, ...featureRuleIds]
-            if (renewalRuleIds.length === 0) {
-                logger.warn({ msg: 'group has no pricing rules, skipping', data: { groupContextIds } })
+            const renewalRuleIds = await collectRenewalRuleIds(bundle)
+            if (renewalRuleIds.length !== bundle.contexts.length) {
+                logger.error({ msg: 'bundle has contexts without a pricing rule, skipping', data: { bundleContextIds, renewalRuleIds } })
                 continue
             }
 
@@ -121,8 +178,8 @@ async function processRecurrentSubscriptionPayments () {
             const existing = await findExistingRenewalBundle(organizationId, renewalRuleIds, bufferDate)
             if (existing) {
                 const [invoice] = await find('Invoice', { id: existing.invoiceId, deletedAt: null })
-                if (invoice && invoice.status === INVOICE_STATUS_PAID) {
-                    logger.info({ msg: 'renewal already paid, skipping group', data: { organizationId, invoiceId: existing.invoiceId } })
+                if (!invoice || invoice.status !== INVOICE_STATUS_PUBLISHED) {
+                    logger.info({ msg: 'existing renewal invoice is not payable, skipping', data: { organizationId, invoiceId: existing.invoiceId, invoiceStatus: invoice?.status || null } })
                     continue
                 }
                 invoiceId = existing.invoiceId
@@ -145,14 +202,12 @@ async function processRecurrentSubscriptionPayments () {
                 logger.info({ msg: 'registered renewal bundle', data: { organizationId, invoiceId, renewalContextIds } })
             }
 
-            const isLastBufferDay = !dayjs(groupEndAt).isAfter(dayjs(bufferDate))
+            const isLastBufferDay = !dayjs(bundleEndAt).isAfter(dayjs(bufferDate))
             const errorStatus = isLastBufferDay ? SUBSCRIPTION_CONTEXT_STATUS.ERROR : SUBSCRIPTION_CONTEXT_STATUS.PENDING
 
             if (!directPaymentUrl || !invoiceId) {
                 logger.warn({ msg: 'no directPaymentUrl or invoice for renewal payment', data: { organizationId, invoiceId } })
-                for (const renewalContextId of renewalContextIds) {
-                    await SubscriptionContext.update(context, renewalContextId, { dv: 1, sender: SENDER, status: SUBSCRIPTION_CONTEXT_STATUS.ERROR })
-                }
+                await setContextsStatus(context, renewalContextIds, SUBSCRIPTION_CONTEXT_STATUS.ERROR)
                 continue
             }
 
@@ -164,21 +219,20 @@ async function processRecurrentSubscriptionPayments () {
                 const { status: paymentStatus, paid, errorMessage, cancellationDetails } = paymentResult
 
                 if (paid) {
-                    logger.info({ msg: 'renewal payment succeeded', data: { organizationId, invoiceId } })
+                    // Findable until the acquiring callback lands, so the next run retries this invoice
+                    // instead of registering another one and charging the card twice
+                    await setContextsStatus(context, renewalContextIds, SUBSCRIPTION_CONTEXT_STATUS.PENDING)
+                    logger.info({ msg: 'renewal payment succeeded', data: { organizationId, invoiceId, renewalContextIds } })
                 } else {
                     logger.error({ msg: 'renewal payment failed', data: { organizationId, invoiceId, paymentStatus, errorMessage, cancellationDetails, isLastBufferDay, willSetStatus: errorStatus } })
-                    for (const renewalContextId of renewalContextIds) {
-                        await SubscriptionContext.update(context, renewalContextId, { dv: 1, sender: SENDER, status: errorStatus })
-                    }
+                    await setContextsStatus(context, renewalContextIds, errorStatus)
                 }
             } catch (paymentError) {
                 logger.error({ msg: 'renewal payment processing error', err: paymentError, data: { organizationId, invoiceId, isLastBufferDay, willSetStatus: errorStatus } })
-                for (const renewalContextId of renewalContextIds) {
-                    await SubscriptionContext.update(context, renewalContextId, { dv: 1, sender: SENDER, status: errorStatus })
-                }
+                await setContextsStatus(context, renewalContextIds, errorStatus)
             }
         } catch (error) {
-            logger.error({ msg: 'failed to process renewal group', err: error, data: { groupContextIds } })
+            logger.error({ msg: 'failed to process renewal bundle', err: error, data: { bundleContextIds } })
         }
     }
 
