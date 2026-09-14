@@ -1,4 +1,4 @@
-import Router from 'next/router'
+import Router, { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
@@ -193,6 +193,8 @@ const Logo: React.FC = () => {
 export const CoworkLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
     const { useFlag } = useFeatureFlags()
     const coworkEnabled = useFlag(UI_AI_COWORK)
+    const router = useRouter()
+    const isChatPage = router.pathname === '/ai-engineer/chat'
 
     useEffect(() => {
         if (!coworkEnabled) void Router.replace('/')
@@ -203,6 +205,7 @@ export const CoworkLayout: React.FC<React.PropsWithChildren> = ({ children }) =>
     return (
         <AiAssistantsChatStorageProvider>
             <BaseLayout
+                className={isChatPage ? styles['cowork-layout'] : undefined}
                 TopMenuItems={CoworkTopMenuItems}
                 menuDataRender={() => []}
                 logoLocation='/ai-engineer'

@@ -76,16 +76,20 @@ const TextRenderer: React.FC<RendererProps> = ({ component, surface }) => {
     return <Typography.Text>{text}</Typography.Text>
 }
 
-// Row — horizontal flex, children fill space equally (grid-like)
+// Row — horizontal flex, children fill space proportionally to weight (grid-like)
 const RowRenderer: React.FC<RendererProps> = ({ component, surface }) => {
     const children = resolveChildren(component, surface)
     return (
-        <div style={{ display: 'flex', flexDirection: 'row', gap: 12, width: '100%' }}>
-            {children.map(child => (
-                <div key={child.id} style={{ flex: 1, minWidth: 0 }}>
-                    <ComponentRenderer component={child} surface={surface} />
-                </div>
-            ))}
+        <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 12, width: '100%' }}>
+            {children.map(child => {
+                const rawWeight = child.properties.weight
+                const weight = typeof rawWeight === 'number' && rawWeight > 0 && Number.isFinite(rawWeight) ? rawWeight : 1
+                return (
+                    <div key={child.id} style={{ flex: weight, minWidth: 0 }}>
+                        <ComponentRenderer component={child} surface={surface} />
+                    </div>
+                )
+            })}
         </div>
     )
 }
@@ -110,15 +114,14 @@ const ReactECharts = dynamic(
 )
 
 const CHART_COLOR_SET = [
-    colors.purple['7'],
-    colors.purple['5'],
     colors.blue['7'],
-    colors.blue['5'],
-    colors.green['7'],
-    colors.green['5'],
     colors.teal['5'],
+    colors.green['7'],
+    colors.blue['5'],
+    colors.green['5'],
     colors.cyan['5'],
     colors.cyan['3'],
+    colors.purple['5'],
 ]
 
 const ChartRenderer: React.FC<RendererProps> = ({ component, surface }) => {

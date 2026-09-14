@@ -43,10 +43,14 @@ type AIChatProps = {
     initialMessage?: string
     onFirstUserMessage?: (text: string) => void
     showWelcomeMessage?: boolean
+    showScenarioButtons?: boolean
     selectedSkills?: AISkillRef[]
     availableSkills?: AISkillRef[]
     selectedSkillId?: string | null
     onSkillSelect?: (skillId: string | null) => void
+    initialInputValue?: string
+    onInputChange?: (value: string) => void
+    inputAutoSize?: { minRows: number, maxRows: number }
 }
 
 export const AIChat: React.FC<AIChatProps> = ({
@@ -54,10 +58,14 @@ export const AIChat: React.FC<AIChatProps> = ({
     initialMessage,
     onFirstUserMessage,
     showWelcomeMessage = true,
+    showScenarioButtons = true,
     selectedSkills,
     availableSkills,
     selectedSkillId,
     onSkillSelect,
+    initialInputValue,
+    onInputChange,
+    inputAutoSize,
 }) => {
     const intl = useIntl()
     const loadingLabel = intl.formatMessage({ id: 'ai.chat.loading' })
@@ -85,7 +93,7 @@ export const AIChat: React.FC<AIChatProps> = ({
         }
     }, [buttonConfig?.welcomeMessage, welcomeMessage])
 
-    const [inputValue, setInputValue] = useState('')
+    const [inputValue, setInputValue] = useState(initialInputValue || '')
     const [messages, setMessages] = useState<Message[]>([])
     // User message id of the turn currently pinned/clamped in the scroller
     const [activeTurnUserMessageId, setActiveTurnUserMessageId] = useState<string | null>(null)
@@ -538,10 +546,11 @@ export const AIChat: React.FC<AIChatProps> = ({
         }
 
         setInputValue('')
+        onInputChange?.('')
         attachments?.resetAttachments()
 
         await startUserTurn(userMessage, { attachments: attachmentsToSend })
-    }, [inputValue, canSendWithAttachments, loading, attachmentsUploading, user, attachments, messages, startUserTurn, onFirstUserMessage, selectedSkillNames])
+    }, [inputValue, canSendWithAttachments, loading, attachmentsUploading, user, attachments, messages, startUserTurn, onFirstUserMessage, selectedSkillNames, onInputChange])
 
     // Auto-send the initial message once, after history load, if the session has no user messages yet
     useEffect(() => {
@@ -682,7 +691,7 @@ export const AIChat: React.FC<AIChatProps> = ({
                         canExecuteAIFlow={canExecuteAIFlow}
                     />
                 )}
-                {scenarioButtons.length > 0 && (
+                {showScenarioButtons && scenarioButtons.length > 0 && (
                     <AIChatSuggestions
                         items={scenarioButtons.map((btn) => ({
                             key: btn.buttonId,
@@ -712,6 +721,7 @@ export const AIChat: React.FC<AIChatProps> = ({
                                     message={assistantMessage}
                                     onSuggestionClick={handleSuggestionButtonClick}
                                     canExecuteAIFlow={canExecuteAIFlow}
+                                    aiSessionId={aiSessionId}
                                 />
                             )}
                         </div>
@@ -726,7 +736,10 @@ export const AIChat: React.FC<AIChatProps> = ({
                 canSendMessage={canSendMessage}
                 inputRef={inputRef}
                 inputValue={inputValue}
-                onInputChange={setInputValue}
+                onInputChange={(val) => {
+                    setInputValue(val)
+                    onInputChange?.(val)
+                }}
                 onInputKeyDown={handleComposerKeyDown}
                 onSendMessage={handleSendMessage}
                 placeholder={placeholder}
@@ -734,6 +747,7 @@ export const AIChat: React.FC<AIChatProps> = ({
                     ...(skillPickerButton ? [skillPickerButton] : []),
                     ...(selectedSkillTags || []),
                 ]}
+                autoSize={inputAutoSize}
             />
         </div>
     )

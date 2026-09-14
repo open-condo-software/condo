@@ -24,6 +24,7 @@ type AIChatInputProps = {
     onSendMessage: () => void | Promise<void>
     placeholder: string
     extraBottomPanelUtils?: React.ReactElement[]
+    autoSize?: { minRows: number, maxRows: number }
 }
 
 export const AIChatInput: React.FC<AIChatInputProps> = ({
@@ -38,6 +39,7 @@ export const AIChatInput: React.FC<AIChatInputProps> = ({
     onSendMessage,
     placeholder,
     extraBottomPanelUtils,
+    autoSize = { minRows: 1, maxRows: 4 },
 }) => {
     const intl = useIntl()
     const attachmentsUploading = attachments ? attachments.uploading : false
@@ -87,7 +89,7 @@ export const AIChatInput: React.FC<AIChatInputProps> = ({
                         placeholder={placeholder}
                         disabled={!canExecuteAIFlow}
                         isSubmitDisabled={!canSendMessage || !canExecuteAIFlow}
-                        autoSize={{ minRows: 1, maxRows: 4 }}
+                        autoSize={autoSize}
                         bottomPanelUtils={[
                             ...(attachments ? [
                                 <Upload

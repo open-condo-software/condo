@@ -3,11 +3,11 @@ import { Popover } from 'antd'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { Check, Edit, Plus, Share, Star, StarFilled, Trash } from '@open-condo/icons'
+import { Check, Copy, Edit, Plus, Star, StarFilled, Trash } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Button, Input, Modal, Space, Tag, Tooltip } from '@open-condo/ui'
+import { Button, Input, Modal, Space, Tag, Tooltip, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import { AIChat } from '@condo/domains/ai/components/AIChat'
@@ -16,7 +16,7 @@ import coworkStyles from '@condo/domains/ai/components/Cowork/Cowork.module.css'
 import { useAiAssistantsChatStorage } from '@condo/domains/ai/components/Cowork/SavedChatsContext'
 import { setSessionId } from '@condo/domains/ai/utils/aiChatStorage'
 import { useObjects as useAISkillObjects } from '@condo/domains/ai/utils/clientSchema/AISkill'
-import { PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { PageComponentType } from '@condo/domains/common/types'
 import { SMART_HOME_CATEGORY } from '@condo/domains/miniapp/constants'
 import { B2BAppContext } from '@condo/domains/miniapp/utils/clientSchema'
@@ -37,6 +37,9 @@ const CoworkPage: PageComponentType = () => {
     const welcomeCapabilitiesLabel = intl.formatMessage({ id: 'ai.cowork.welcomeCapabilities' })
     const welcomeNoIntegrationsLabel = intl.formatMessage({ id: 'ai.cowork.welcomeNoIntegrations' })
     const editChatNameLabel = intl.formatMessage({ id: 'ai.cowork.editChatName' })
+    const editChatNameTitleLabel = intl.formatMessage({ id: 'ai.cowork.editChatNameTitle' })
+    const saveLabel = intl.formatMessage({ id: 'Save' })
+    const cancelLabel = intl.formatMessage({ id: 'Cancel' })
     const shareLabel = intl.formatMessage({ id: 'ai.cowork.share' })
     const shareCopiedLabel = intl.formatMessage({ id: 'ai.cowork.shareCopied' })
     const deleteChatLabel = intl.formatMessage({ id: 'ai.cowork.deleteChat' })
@@ -79,8 +82,8 @@ const CoworkPage: PageComponentType = () => {
                 { scope: AiSkillScopeType.B2bApp },
             ],
             isPublic: true,
-            locale: intl.locale as AiSkillLocaleType,
             deletedAt: null,
+            locale: intl.locale as AiSkillLocaleType,
         },
     }, {
         skip: !organizationId,
@@ -110,7 +113,10 @@ const CoworkPage: PageComponentType = () => {
 
     const suggestions = useMemo(() => {
         return (visibleSkills || []).flatMap((skill) =>
-            Array.isArray(skill.examples) ? skill.examples : []
+            (Array.isArray(skill.examples) ? skill.examples : []).map((example) => ({
+                text: example,
+                skillId: skill.id,
+            }))
         ).slice(0, 12)
     }, [visibleSkills])
 
@@ -125,13 +131,19 @@ const CoworkPage: PageComponentType = () => {
     const [activeChatId, setActiveChatId] = useState<string | null>(null)
     const [initialMessage, setInitialMessage] = useState('')
     const [inputValue, setInputValue] = useState('')
-    const [editingChatName, setEditingChatName] = useState(false)
-    const [chatNameInput, setChatNameInput] = useState('')
+    const [isEditNameModalOpen, setIsEditNameModalOpen] = useState(false)
+    const [editNameInput, setEditNameInput] = useState('')
     const [shareCopied, setShareCopied] = useState(false)
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
     const [skillPickerOpen, setSkillPickerOpen] = useState(false)
     const inputRef = useRef<any>(null)
-    const chatNameInputRef = useRef<any>(null)
+
+    // Per-chat draft state: each chat remembers its own selectedSkillId and input.
+    // The active-chat input draft is stored via onInputChange from AIChat;
+    // selectedSkillId is saved/restored on chat switch below.
+    const chatSkillRef = useRef<Record<string, string | null>>({})
+    const chatInputRef = useRef<Record<string, string>>({})
+    const prevActiveChatIdRef = useRef<string | null>(null)
 
     // URL is the source of truth: ?chatId=xyz loads that chat, no chatId = new chat (welcome screen).
     // chats is read via a ref so that creating a chat (which updates chats) does not re-run this
@@ -154,6 +166,37 @@ const CoworkPage: PageComponentType = () => {
 
         setActiveChatId(null)
     }, [organizationId, queryChatId])
+
+    // Save/restore per-chat draft state (selectedSkillId) on chat switch.
+    // New chat (activeChatId null) always starts fresh — no skill, empty input.
+    // Each existing chat remembers the skill that was selected while it was active.
+    useEffect(() => {
+        const prevId = prevActiveChatIdRef.current
+        if (prevId === activeChatId) return
+
+        // Save current skill to the previous chat (only if it was an active chat)
+        if (prevId !== null) {
+            chatSkillRef.current[prevId] = selectedSkillId
+        }
+
+        if (activeChatId === null) {
+            // Switching to new chat: clear skill and input
+            setSelectedSkillId(null)
+            setInputValue('')
+        } else if (prevId === null) {
+            // Coming from welcome screen: restore target chat's saved skill with null fallback
+            setSelectedSkillId(chatSkillRef.current[activeChatId] ?? null)
+        } else {
+            // Switching between existing chats: restore target chat's skill
+            const savedSkill = chatSkillRef.current[activeChatId]
+            setSelectedSkillId(savedSkill !== undefined ? savedSkill : null)
+        }
+
+        prevActiveChatIdRef.current = activeChatId
+        // selectedSkillId is read from the closure to capture the value at switch time,
+        // not to re-run the effect on every skill change.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [activeChatId])
 
     // Pre-fill input from ?prompt= and pre-select skill from ?skillId= (used by Skills page "Run")
     // Both are one-shot: read once, then clean the URL in a single replace to avoid conflicts.
@@ -200,11 +243,12 @@ const CoworkPage: PageComponentType = () => {
 
         const newChat = createChat(trimmedInput.slice(0, 50))
         saveSessionId(newChat.id)
+        chatSkillRef.current[newChat.id] = selectedSkillId
         setInitialMessage(trimmedInput)
         setActiveChatId(newChat.id)
         setInputValue('')
         void router.push(`/ai-engineer/chat?chatId=${newChat.id}`, undefined, { shallow: true })
-    }, [organizationId, inputValue, createChat, saveSessionId, router])
+    }, [organizationId, inputValue, createChat, saveSessionId, router, selectedSkillId])
 
     const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if (e.key !== 'Enter' || e.shiftKey) return
@@ -214,36 +258,21 @@ const CoworkPage: PageComponentType = () => {
 
     const activeChat = useMemo(() => chats.find((c) => c.id === activeChatId), [chats, activeChatId])
 
+    const handleOpenEditNameModal = useCallback(() => {
+        setEditNameInput(activeChat?.name || '')
+        setIsEditNameModalOpen(true)
+    }, [activeChat?.name])
+
     const handleSaveChatName = useCallback(() => {
         if (!organizationId || !activeChatId) return
-        const trimmedName = chatNameInput.trim()
+        const trimmedName = editNameInput.trim()
         if (!trimmedName) {
-            setEditingChatName(false)
+            setIsEditNameModalOpen(false)
             return
         }
         updateChat(activeChatId, { name: trimmedName.slice(0, 100) })
-        setEditingChatName(false)
-    }, [organizationId, activeChatId, chatNameInput, updateChat])
-
-    const handleChatNameKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter') {
-            e.preventDefault()
-            handleSaveChatName()
-        } else if (e.key === 'Escape') {
-            e.preventDefault()
-            setEditingChatName(false)
-        }
-    }, [handleSaveChatName])
-
-    useEffect(() => {
-        if (editingChatName) {
-            setChatNameInput(activeChat?.name || '')
-            setTimeout(() => {
-                chatNameInputRef.current?.focus()
-                chatNameInputRef.current?.select()
-            }, 0)
-        }
-    }, [editingChatName, activeChat?.name])
+        setIsEditNameModalOpen(false)
+    }, [organizationId, activeChatId, editNameInput, updateChat])
 
     const handleShare = useCallback(async () => {
         if (!activeChatId) return
@@ -270,71 +299,83 @@ const CoworkPage: PageComponentType = () => {
 
     const canSend = useMemo(() => Boolean(inputValue.trim()), [inputValue])
 
+    // Restore the active chat's saved input draft (read from ref during render so AIChat
+    // picks it up on mount via key={activeChatId}).
+    const aiChatInitialInput = useMemo(() => {
+        if (!activeChatId) return ''
+        return chatInputRef.current[activeChatId] || ''
+    }, [activeChatId])
+
+    // Save the active chat's input draft continuously so it survives chat switches.
+    const handleAIChatInputChange = useCallback((value: string) => {
+        if (activeChatId) {
+            chatInputRef.current[activeChatId] = value
+        }
+    }, [activeChatId])
+
     const renderChatHeader = () => {
         if (!hasStarted) return null
 
+        const chatNameTitle = (
+            <Typography.Title level={2}>{activeChat?.name || newChatLabel}</Typography.Title>
+        )
+
+        const headerExtra = (
+            <Space size={8}>
+                <Tooltip title={editChatNameLabel}>
+                    <Button
+                        type='secondary'
+                        size='large'
+                        compact
+                        minimal
+                        icon={<Edit size='small' />}
+                        onClick={handleOpenEditNameModal}
+                        aria-label={editChatNameLabel}
+                    />
+                </Tooltip>
+                <Tooltip title={activeChat?.pinned ? unpinChatLabel : pinChatLabel}>
+                    <Button
+                        type='secondary'
+                        size='large'
+                        compact
+                        minimal
+                        icon={activeChat?.pinned ? <StarFilled size='small' /> : <Star size='small' />}
+                        onClick={handleTogglePin}
+                        aria-label={activeChat?.pinned ? unpinChatLabel : pinChatLabel}
+                    />
+                </Tooltip>
+                <Tooltip title={shareCopied ? shareCopiedLabel : shareLabel}>
+                    <Button
+                        type='secondary'
+                        size='large'
+                        compact
+                        minimal
+                        icon={shareCopied ? <Check size='small' /> : <Copy size='small' />}
+                        onClick={handleShare}
+                        disabled={shareCopied}
+                        aria-label={shareLabel}
+                    />
+                </Tooltip>
+                <Tooltip title={deleteChatLabel}>
+                    <Button
+                        type='secondary'
+                        size='large'
+                        compact
+                        minimal
+                        icon={<Trash size='small' />}
+                        onClick={() => setIsDeleteModalOpen(true)}
+                        aria-label={deleteChatLabel}
+                    />
+                </Tooltip>
+            </Space>
+        )
+
         return (
-            <div className={coworkStyles.chatHeader}>
-                <div className={coworkStyles.chatHeaderLeft}>
-                    {editingChatName ? (
-                        <Input
-                            ref={chatNameInputRef}
-                            className={coworkStyles.chatNameInput}
-                            value={chatNameInput}
-                            onChange={(e) => setChatNameInput(e.target.value)}
-                            onKeyDown={handleChatNameKeyDown}
-                            onBlur={handleSaveChatName}
-                        />
-                    ) : (
-                        <Tooltip title={editChatNameLabel}>
-                            <button
-                                type='button'
-                                className={coworkStyles.chatNameButton}
-                                onClick={() => setEditingChatName(true)}
-                            >
-                                <span className={coworkStyles.chatNameText}>{activeChat?.name || newChatLabel}</span>
-                                <span className={coworkStyles.chatNameEditIcon}><Edit size='small' /></span>
-                            </button>
-                        </Tooltip>
-                    )}
-                </div>
-                <div className={coworkStyles.chatHeaderRight}>
-                    <Tooltip title={activeChat?.pinned ? unpinChatLabel : pinChatLabel}>
-                        <Button
-                            type='secondary'
-                            size='medium'
-                            compact
-                            minimal
-                            icon={activeChat?.pinned ? <StarFilled size='small' /> : <Star size='small' />}
-                            onClick={handleTogglePin}
-                            aria-label={activeChat?.pinned ? unpinChatLabel : pinChatLabel}
-                        />
-                    </Tooltip>
-                    <Tooltip title={shareCopied ? shareCopiedLabel : shareLabel}>
-                        <Button
-                            type='secondary'
-                            size='medium'
-                            compact
-                            minimal
-                            icon={shareCopied ? <Check size='small' /> : <Share size='small' />}
-                            onClick={handleShare}
-                            disabled={shareCopied}
-                            aria-label={shareLabel}
-                        />
-                    </Tooltip>
-                    <Tooltip title={deleteChatLabel}>
-                        <Button
-                            type='secondary'
-                            size='medium'
-                            compact
-                            minimal
-                            icon={<Trash size='small' />}
-                            onClick={() => setIsDeleteModalOpen(true)}
-                            aria-label={deleteChatLabel}
-                        />
-                    </Tooltip>
-                </div>
-            </div>
+            <PageHeader
+                title={chatNameTitle}
+                extra={headerExtra}
+                className={coworkStyles.chatPageHeader}
+            />
         )
     }
 
@@ -400,7 +441,7 @@ const CoworkPage: PageComponentType = () => {
                             onKeyDown={handleKeyDown}
                             onSubmit={handleStartChat}
                             placeholder={placeholder}
-                            autoSize={{ minRows: 1, maxRows: 4 }}
+                            autoSize={{ minRows: 2, maxRows: 6 }}
                             isSubmitDisabled={!canSend}
                             bottomPanelUtils={[
                                 <Popover
@@ -453,9 +494,12 @@ const CoworkPage: PageComponentType = () => {
                                         type='secondary'
                                         size='medium'
                                         className={coworkStyles['suggestion-button']}
-                                        onClick={() => setInputValue(suggestion)}
+                                        onClick={() => {
+                                            setInputValue(suggestion.text)
+                                            setSelectedSkillId(suggestion.skillId)
+                                        }}
                                     >
-                                        {suggestion}
+                                        {suggestion.text}
                                     </Button>
                                 ))}
                             </Space>
@@ -486,10 +530,14 @@ const CoworkPage: PageComponentType = () => {
                             aiSessionId={activeChatId}
                             initialMessage={initialMessage || undefined}
                             showWelcomeMessage={false}
+                            showScenarioButtons={false}
                             selectedSkills={selectedSkillObjects}
                             availableSkills={availableSkillRefs}
                             selectedSkillId={selectedSkillId}
                             onSkillSelect={setSelectedSkillId}
+                            initialInputValue={aiChatInitialInput}
+                            onInputChange={handleAIChatInputChange}
+                            inputAutoSize={{ minRows: 2, maxRows: 6 }}
                         />
                     </div>
                 )}
@@ -498,9 +546,36 @@ const CoworkPage: PageComponentType = () => {
     }
 
     return (
-        <PageWrapper className={coworkStyles.chatPageWrapper}>
+        <PageWrapper>
             {renderChatHeader()}
             {renderMain()}
+            <Modal
+                open={isEditNameModalOpen}
+                title={editChatNameTitleLabel}
+                onCancel={() => setIsEditNameModalOpen(false)}
+                footer={
+                    <div className={coworkStyles.modalFooter}>
+                        <Button type='secondary' onClick={() => setIsEditNameModalOpen(false)}>
+                            {cancelLabel}
+                        </Button>
+                        <Button type='primary' onClick={handleSaveChatName}>
+                            {saveLabel}
+                        </Button>
+                    </div>
+                }
+            >
+                <Input
+                    value={editNameInput}
+                    onChange={(e) => setEditNameInput(e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault()
+                            handleSaveChatName()
+                        }
+                    }}
+                    autoFocus
+                />
+            </Modal>
             <Modal
                 open={isDeleteModalOpen}
                 title={deleteChatConfirmLabel}

@@ -2,6 +2,8 @@ import type { A2uiMessage } from '@a2ui/web_core/v0_9'
 
 const A2UI_BLOCK_REGEX = /<a2ui>([\s\S]*?)<\/a2ui>/g
 
+const A2UI_MESSAGE_KEYS = new Set(['version', 'createSurface', 'updateComponents', 'updateDataModel', 'deleteSurface'])
+
 export interface ParsedA2UIAnswer {
     text: string
     a2uiMessages: A2uiMessage[]
@@ -24,8 +26,15 @@ export function extractA2UIMessages (answer: string): ParsedA2UIAnswer {
         for (const line of lines) {
             try {
                 const parsed = JSON.parse(line) as A2uiMessage
-                if (parsed && typeof parsed === 'object' && 'version' in parsed) {
-                    messages.push(parsed)
+                if (parsed && typeof parsed === 'object') {
+                    const knownKey = Object.keys(parsed).find(k => A2UI_MESSAGE_KEYS.has(k))
+                    if (knownKey && parsed[knownKey] != null) {
+                        messages.push(parsed)
+                    } else if (knownKey) {
+                        console.warn('[A2UI] Dropped message with null payload for key:', knownKey, line)
+                    } else {
+                        console.warn('[A2UI] Dropped message without known A2UI keys:', line)
+                    }
                 }
             } catch {
                 // Skip invalid JSON lines
