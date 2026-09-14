@@ -3371,6 +3371,7 @@
   "subscription.planCard.planPrice.month.noun": "mes",
   "subscription.planCard.planPrice.year.noun": "año",
   "subscription.planCard.badge.active": "Activo",
+  "subscription.planCard.badge.renewalCancelled": "Renovación cancelada",
   "subscription.planCard.badge.activeDays": "{days, plural, one {Queda # día} other {Quedan # días}}",
   "subscription.planCard.badge.trialExpired": "Prueba expirada",
   "subscription.planCard.requestPending": "Solicitud pendiente",

@@ -26,6 +26,7 @@ query getOrganizationActivatedSubscriptions($organizationId: ID!) {
         startAt
         endAt
         bindingId
+        renewalCancelledAt
         invoice {
             id
             toPay
@@ -50,6 +51,7 @@ query getOrganizationActiveFeatureSubscriptionContexts($organizationId: ID!) {
     ) {
         id
         bindingId
+        renewalCancelledAt
         startAt
         endAt
         isTrial

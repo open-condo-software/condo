@@ -6309,6 +6309,7 @@ export const GetOrganizationActivatedSubscriptionsDocument = gql`
     startAt
     endAt
     bindingId
+    renewalCancelledAt
     invoice {
       id
       toPay
@@ -6382,6 +6383,7 @@ export const GetOrganizationActiveFeatureSubscriptionContextsDocument = gql`
   ) {
     id
     bindingId
+    renewalCancelledAt
     startAt
     endAt
     isTrial
