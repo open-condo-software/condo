@@ -27,25 +27,29 @@
   border-bottom: none;
 }
 
-.toggle-cell {
-  width: 72px;
+.checkbox-cell {
+  width: 56px;
   padding-left: 24px !important;
 }
 
-.toggle-wrapper {
+.checkbox-wrapper {
   display: inline-flex;
 }
 
+.availability-cell {
+  width: 40px;
+}
+
 .label-cell {
-  width: 24%;
+  width: 22%;
 }
 
 .description-cell {
-  width: 46%;
+  width: 40%;
 }
 
 .price-cell {
-  width: 22%;
+  width: 26%;
   padding-right: 24px !important;
 }
 
@@ -54,6 +58,13 @@
   flex-direction: column;
   gap: 8px;
   align-items: flex-start;
+}
+
+.price-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
 }
 
 @media (max-width: 768px) {

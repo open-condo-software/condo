@@ -3436,6 +3436,7 @@
   "subscription.featureTable.column.price.year": "Price per year",
   "subscription.featureTable.column.price.month": "Price per month",
   "subscription.featureTable.freeInPlan": "Free in the plan",
+  "subscription.featureTable.addToCart": "Add to cart",
   "subscription.featureTable.includedTooltip": "Features included in the plan by default cannot be removed from it 🙂",
   "subscription.planCard.featureCount": "{count, plural, one {# feature} other {# features}}",
   "subscription.planCard.serviceCount": "{count, plural, one {# service} other {# services}}",

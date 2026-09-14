@@ -3436,6 +3436,7 @@
   "subscription.featureTable.column.price.year": "Цена на год",
   "subscription.featureTable.column.price.month": "Цена на месяц",
   "subscription.featureTable.freeInPlan": "Бесплатно в тарифе",
+  "subscription.featureTable.addToCart": "В корзину",
   "subscription.featureTable.includedTooltip": "Фичи, которые входят в тариф по умолчанию, убрать из тарифа нельзя 🙂",
   "subscription.planCard.featureCount": "{count, plural, one {# фича} few {# фичи} many {# фич} other {# фич}}",
   "subscription.planCard.serviceCount": "{count, plural, one {# сервис} few {# сервиса} many {# сервисов} other {# сервисов}}",

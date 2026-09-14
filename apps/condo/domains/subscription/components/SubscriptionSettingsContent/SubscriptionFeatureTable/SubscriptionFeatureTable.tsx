@@ -1,7 +1,8 @@
 import React from 'react'
 
+import { Check, Close, Plus } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Switch, Tooltip, Typography, Tag } from '@open-condo/ui'
+import { Button, Checkbox, Tooltip, Typography, Tag } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import { SUBSCRIPTION_PERIOD } from '@condo/domains/subscription/constants'
@@ -24,6 +25,9 @@ type SubscriptionFeatureTableProps = {
     isRowSelected: (row: CatalogRow) => boolean
     isRowDisabled: (row: CatalogRow) => boolean
     onToggleRow: (row: CatalogRow) => void
+    /** Set when a row can still be tried for free, which puts a trial button next to its price */
+    canTryRow?: (row: CatalogRow) => boolean
+    onTryRow?: (row: CatalogRow) => void
     getRowBadge?: (row: CatalogRow) => RowBadge | null
     canManageSubscriptions: boolean
 }
@@ -38,55 +42,91 @@ const FeatureRow: React.FC<FeatureRowProps> = ({
     isRowSelected,
     isRowDisabled,
     onToggleRow,
+    canTryRow,
+    onTryRow,
     getRowBadge,
     canManageSubscriptions,
 }) => {
     const intl = useIntl()
     const FreeInPlanMessage = intl.formatMessage({ id: 'subscription.featureTable.freeInPlan' })
     const IncludedTooltip = intl.formatMessage({ id: 'subscription.featureTable.includedTooltip' })
+    const AddToCartLabel = intl.formatMessage({ id: 'subscription.featureTable.addToCart' })
 
     const periodMessage = intl.formatMessage({
         id: `subscription.planCard.planPrice.${period}` as FormatjsIntl.Message['ids'],
     })
+    const TryFreeMessage = intl.formatMessage(
+        { id: 'subscription.planCard.tryFree' },
+        { formattedPrice: formatAmount(0, row.price?.currencyCode ?? 'RUB', intl.locale) }
+    )
 
-    const isOn = row.includedInPlan
-        // a purchased row starts on and is turned off to cancel it
-        ? true
-        : row.purchased
-            ? !isRowSelected(row)
-            : isRowSelected(row)
-
+    const selected = isRowSelected(row)
     const disabled = isRowDisabled(row) || !canManageSubscriptions
     const badge = getRowBadge?.(row) ?? null
+    const isAvailable = row.includedInPlan || row.purchased
+    const hasOwnPrice = !row.includedInPlan && Boolean(row.price) && !isCustomPrice(row.price)
 
-    const priceCell = row.includedInPlan || !row.price || isCustomPrice(row.price)
-        ? <Typography.Text type='secondary'>{FreeInPlanMessage}</Typography.Text>
-        : (
-            <>
-                <Typography.Text>{formatAmount(Number(row.price.price), row.price.currencyCode, intl.locale)}</Typography.Text>
-                <Typography.Text type='secondary'>{` /${periodMessage}`}</Typography.Text>
-            </>
+    const priceText = hasOwnPrice ? formatAmount(Number(row.price.price), row.price.currencyCode, intl.locale) : null
+
+    // Adding the row to the cart turns its price into plain text: the action bar takes over from here
+    const showCartButton = hasOwnPrice && row.purchasable && !selected
+    const canTry = showCartButton && Boolean(canTryRow?.(row)) && Boolean(onTryRow)
+
+    let priceContent: React.ReactNode
+    if (!hasOwnPrice) {
+        priceContent = <Typography.Text type='secondary'>{FreeInPlanMessage}</Typography.Text>
+    } else if (showCartButton) {
+        priceContent = (
+            <div className={styles.priceActions}>
+                <Button
+                    type='primary'
+                    compact
+                    disabled={disabled}
+                    icon={<Plus size='small' />}
+                    aria-label={AddToCartLabel}
+                    onClick={() => onToggleRow(row)}
+                >
+                    {priceText}
+                </Button>
+                {canTry && (
+                    <Button type='secondary' compact onClick={() => onTryRow(row)}>
+                        {TryFreeMessage}
+                    </Button>
+                )}
+            </div>
         )
+    } else {
+        priceContent = (
+            <span>
+                <Typography.Text>{priceText}</Typography.Text>
+                <Typography.Text type='secondary'>{` /${periodMessage}`}</Typography.Text>
+            </span>
+        )
+    }
 
-    const toggle = (
-        <Switch
-            size='large'
-            checked={isOn}
+    const checkbox = (
+        <Checkbox
+            checked={selected}
             disabled={disabled}
-            id={`subscription-feature-toggle-${row.key}`}
+            id={`subscription-feature-checkbox-${row.key}`}
             onChange={() => onToggleRow(row)}
         />
     )
 
     return (
         <tr className={styles.row}>
-            <td className={styles.toggleCell}>
+            <td className={styles.checkboxCell}>
                 {row.includedInPlan ? (
                     <Tooltip title={IncludedTooltip}>
-                        {/* a disabled switch swallows pointer events, the wrapper keeps the tooltip */}
-                        <span className={styles.toggleWrapper}>{toggle}</span>
+                        {/* a disabled checkbox swallows pointer events, the wrapper keeps the tooltip */}
+                        <span className={styles.checkboxWrapper}>{checkbox}</span>
                     </Tooltip>
-                ) : toggle}
+                ) : checkbox}
+            </td>
+            <td className={styles.availabilityCell}>
+                {isAvailable
+                    ? <Check size='small' color={colors.green[5]} />
+                    : <Close size='small' color={colors.gray[5]} />}
             </td>
             <td className={styles.labelCell}>
                 <Typography.Text underline={!row.includedInPlan}>{row.label}</Typography.Text>
@@ -96,7 +136,7 @@ const FeatureRow: React.FC<FeatureRowProps> = ({
             </td>
             <td className={styles.priceCell}>
                 <div className={styles.priceContent}>
-                    <div>{priceCell}</div>
+                    {priceContent}
                     {badge && (
                         <span>
                             <Tag bgColor={badge.bgColor} textColor={colors.white}>{badge.text}</Tag>
@@ -125,7 +165,8 @@ export const SubscriptionFeatureTable: React.FC<SubscriptionFeatureTableProps> =
             <table className={styles.table}>
                 <thead>
                     <tr>
-                        <th className={styles.toggleCell} aria-label={FeatureColumn} />
+                        <th className={styles.checkboxCell} aria-label={FeatureColumn} />
+                        <th className={styles.availabilityCell} />
                         <th className={styles.labelCell}>
                             <Typography.Text type='secondary' size='small'>{FeatureColumn}</Typography.Text>
                         </th>
