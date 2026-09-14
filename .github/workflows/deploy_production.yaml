@@ -137,3 +137,4 @@ jobs:
           DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
           TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
           TURBO_API: ${{ secrets.TURBO_API }}
+          TURBO_REMOTE_ONLY: "true"
