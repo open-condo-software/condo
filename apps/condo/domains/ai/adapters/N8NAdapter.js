@@ -111,12 +111,10 @@ class N8NAdapter extends AbstractAdapter {
                         })
                         break
                     default:
-                        await onEvent({
-                            type: EVENT_TYPES.ERROR,
-                            meta: event?.metadata,
-                            error: `Unknown event type: ${event.type}`,
-                        })
-                        throw new Error('Unknown event type')
+                        // Ignore unknown chunk types (e.g. tool-call-start, tool-call-end,
+                        // node-execute-before/after) — these are n8n streaming progress events
+                        // that we don't handle yet.
+                        break
                 }
             }
 
