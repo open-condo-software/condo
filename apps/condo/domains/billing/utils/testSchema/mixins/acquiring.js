@@ -6,7 +6,6 @@ const {
     ACQUIRING_INTEGRATION_EXTERNAL_IMPORT_TYPE,
     ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE,
 } = require('@condo/domains/acquiring/constants/integration')
-
 const {
     PAYMENT_DONE_STATUS,
     MULTIPAYMENT_DONE_STATUS,

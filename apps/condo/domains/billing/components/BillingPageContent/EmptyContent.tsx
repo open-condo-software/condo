@@ -1,22 +1,19 @@
 import get from 'lodash/get'
-import React, { CSSProperties } from 'react'
+import React from 'react'
 
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Space, Typography, Button } from '@open-condo/ui'
 
-import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
 import { B2BAppFrame } from '@condo/domains/miniapp/components/B2BAppFrame'
 
 import { useBillingAndAcquiringContexts } from './ContextProvider'
 
-
-const BLOCK_GAP = 24
 const BLOCK_CONTENT_GAP = 16
 const ERROR_MASCOT_IMG = '/mascot/fail.webp'
 const SEARCHING_MASCOT_IMG = '/mascot/searching.webp'
-const IMG_STYLES: CSSProperties = { marginBottom: 24 }
 
 type EmptyContentProps = {
     uploadComponent?: React.ReactElement
@@ -46,25 +43,27 @@ export const EmptyContent: React.FC<EmptyContentProps> = ({
     if (connectedUrl && !connectedMessage) {
         return <B2BAppFrame src={connectedUrl} initialHeight={400}/>
     }
-
     return (
-        <BasicEmptyListView spaceSize={BLOCK_GAP} image={mascotImg} imageStyle={IMG_STYLES}>
-            <Space size={BLOCK_CONTENT_GAP} direction='vertical' align='center'>
-                <Typography.Title level={3}>{title}</Typography.Title>
-                {Boolean(message) && (
-                    <Typography.Text type='secondary'>{message}</Typography.Text>
-                )}
-            </Space>
-            {Boolean(canImportBillingReceipts && (instructionUrl || uploadComponent)) && (
+        <EmptyListContent
+            image={mascotImg}
+            label={title}
+            message={
                 <Space size={BLOCK_CONTENT_GAP} direction='vertical' align='center'>
-                    {uploadComponent}
-                    {Boolean(instructionUrl) && (
-                        <Button type='secondary' target='_blank' href={instructionUrl}>
-                            {InstructionButtonLabel}
-                        </Button>
+                    {Boolean(message) && (
+                        <Typography.Text type='secondary'>{message}</Typography.Text>
+                    )}
+                    {Boolean(canImportBillingReceipts && (instructionUrl || uploadComponent)) && (
+                        <Space size={BLOCK_CONTENT_GAP} direction='vertical' align='center'>
+                            {uploadComponent}
+                            {Boolean(instructionUrl) && (
+                                <Button type='secondary' target='_blank' onClick={() => window.open(instructionUrl, '_blank', 'noopener,noreferrer')}>
+                                    {InstructionButtonLabel}
+                                </Button>
+                            )}
+                        </Space>
                     )}
                 </Space>
-            )}
-        </BasicEmptyListView>
+            }
+        />
     )
 }
