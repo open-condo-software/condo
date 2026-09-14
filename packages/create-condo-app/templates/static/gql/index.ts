@@ -2986,6 +2986,7 @@ export type B2BAppAccessRightSetCreateInput = {
   canExecuteSetPaymentPosReceiptUrl?: InputMaybe<Scalars['Boolean']['input']>;
   canManageB2BAccessTokens?: InputMaybe<Scalars['Boolean']['input']>;
   canManageBillingIntegrationOrganizationContexts?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageCallRecords?: InputMaybe<Scalars['Boolean']['input']>;
   canManageContacts?: InputMaybe<Scalars['Boolean']['input']>;
   canManageCustomValues?: InputMaybe<Scalars['Boolean']['input']>;
   canManageInvoices?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3008,6 +3009,7 @@ export type B2BAppAccessRightSetCreateInput = {
   canReadBillingReceiptFiles?: InputMaybe<Scalars['Boolean']['input']>;
   canReadBillingReceipts?: InputMaybe<Scalars['Boolean']['input']>;
   canReadBillingRecipients?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadCallRecords?: InputMaybe<Scalars['Boolean']['input']>;
   canReadContacts?: InputMaybe<Scalars['Boolean']['input']>;
   canReadCustomValues?: InputMaybe<Scalars['Boolean']['input']>;
   canReadInvoices?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3051,6 +3053,7 @@ export type B2BAppAccessRightSetHistoryRecordCreateInput = {
   canManageBillingReceiptFiles?: InputMaybe<Scalars['Boolean']['input']>;
   canManageBillingReceipts?: InputMaybe<Scalars['Boolean']['input']>;
   canManageBillingRecipients?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageCallRecords?: InputMaybe<Scalars['Boolean']['input']>;
   canManageContacts?: InputMaybe<Scalars['Boolean']['input']>;
   canManageCustomValues?: InputMaybe<Scalars['Boolean']['input']>;
   canManageInvoices?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3077,6 +3080,7 @@ export type B2BAppAccessRightSetHistoryRecordCreateInput = {
   canReadBillingReceiptFiles?: InputMaybe<Scalars['Boolean']['input']>;
   canReadBillingReceipts?: InputMaybe<Scalars['Boolean']['input']>;
   canReadBillingRecipients?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadCallRecords?: InputMaybe<Scalars['Boolean']['input']>;
   canReadContacts?: InputMaybe<Scalars['Boolean']['input']>;
   canReadCustomValues?: InputMaybe<Scalars['Boolean']['input']>;
   canReadInvoices?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3157,6 +3161,8 @@ export type B2BAppAccessRightSetHistoryRecordWhereInput = {
   canManageBillingReceipts_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageBillingRecipients?: InputMaybe<Scalars['Boolean']['input']>;
   canManageBillingRecipients_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageCallRecords?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageCallRecords_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageContacts?: InputMaybe<Scalars['Boolean']['input']>;
   canManageContacts_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageCustomValues?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3209,6 +3215,8 @@ export type B2BAppAccessRightSetHistoryRecordWhereInput = {
   canReadBillingReceipts_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadBillingRecipients?: InputMaybe<Scalars['Boolean']['input']>;
   canReadBillingRecipients_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadCallRecords?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadCallRecords_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadContacts?: InputMaybe<Scalars['Boolean']['input']>;
   canReadContacts_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadCustomValues?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3428,6 +3436,7 @@ export type B2BAppAccessRightSetUpdateInput = {
   canExecuteSetPaymentPosReceiptUrl?: InputMaybe<Scalars['Boolean']['input']>;
   canManageB2BAccessTokens?: InputMaybe<Scalars['Boolean']['input']>;
   canManageBillingIntegrationOrganizationContexts?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageCallRecords?: InputMaybe<Scalars['Boolean']['input']>;
   canManageContacts?: InputMaybe<Scalars['Boolean']['input']>;
   canManageCustomValues?: InputMaybe<Scalars['Boolean']['input']>;
   canManageInvoices?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3450,6 +3459,7 @@ export type B2BAppAccessRightSetUpdateInput = {
   canReadBillingReceiptFiles?: InputMaybe<Scalars['Boolean']['input']>;
   canReadBillingReceipts?: InputMaybe<Scalars['Boolean']['input']>;
   canReadBillingRecipients?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadCallRecords?: InputMaybe<Scalars['Boolean']['input']>;
   canReadContacts?: InputMaybe<Scalars['Boolean']['input']>;
   canReadCustomValues?: InputMaybe<Scalars['Boolean']['input']>;
   canReadInvoices?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3512,6 +3522,8 @@ export type B2BAppAccessRightSetWhereInput = {
   canManageBillingReceipts_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageBillingRecipients?: InputMaybe<Scalars['Boolean']['input']>;
   canManageBillingRecipients_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageCallRecords?: InputMaybe<Scalars['Boolean']['input']>;
+  canManageCallRecords_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageContacts?: InputMaybe<Scalars['Boolean']['input']>;
   canManageContacts_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageCustomValues?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3564,6 +3576,8 @@ export type B2BAppAccessRightSetWhereInput = {
   canReadBillingReceipts_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadBillingRecipients?: InputMaybe<Scalars['Boolean']['input']>;
   canReadBillingRecipients_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadCallRecords?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadCallRecords_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadContacts?: InputMaybe<Scalars['Boolean']['input']>;
   canReadContacts_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadCustomValues?: InputMaybe<Scalars['Boolean']['input']>;
@@ -49472,6 +49486,8 @@ export enum SortB2BAppAccessRightSetHistoryRecordsBy {
   CanManageBillingReceiptsDesc = 'canManageBillingReceipts_DESC',
   CanManageBillingRecipientsAsc = 'canManageBillingRecipients_ASC',
   CanManageBillingRecipientsDesc = 'canManageBillingRecipients_DESC',
+  CanManageCallRecordsAsc = 'canManageCallRecords_ASC',
+  CanManageCallRecordsDesc = 'canManageCallRecords_DESC',
   CanManageContactsAsc = 'canManageContacts_ASC',
   CanManageContactsDesc = 'canManageContacts_DESC',
   CanManageCustomValuesAsc = 'canManageCustomValues_ASC',
@@ -49524,6 +49540,8 @@ export enum SortB2BAppAccessRightSetHistoryRecordsBy {
   CanReadBillingReceiptsDesc = 'canReadBillingReceipts_DESC',
   CanReadBillingRecipientsAsc = 'canReadBillingRecipients_ASC',
   CanReadBillingRecipientsDesc = 'canReadBillingRecipients_DESC',
+  CanReadCallRecordsAsc = 'canReadCallRecords_ASC',
+  CanReadCallRecordsDesc = 'canReadCallRecords_DESC',
   CanReadContactsAsc = 'canReadContacts_ASC',
   CanReadContactsDesc = 'canReadContacts_DESC',
   CanReadCustomValuesAsc = 'canReadCustomValues_ASC',
@@ -49621,6 +49639,8 @@ export enum SortB2BAppAccessRightSetsBy {
   CanManageBillingReceiptsDesc = 'canManageBillingReceipts_DESC',
   CanManageBillingRecipientsAsc = 'canManageBillingRecipients_ASC',
   CanManageBillingRecipientsDesc = 'canManageBillingRecipients_DESC',
+  CanManageCallRecordsAsc = 'canManageCallRecords_ASC',
+  CanManageCallRecordsDesc = 'canManageCallRecords_DESC',
   CanManageContactsAsc = 'canManageContacts_ASC',
   CanManageContactsDesc = 'canManageContacts_DESC',
   CanManageCustomValuesAsc = 'canManageCustomValues_ASC',
@@ -49673,6 +49693,8 @@ export enum SortB2BAppAccessRightSetsBy {
   CanReadBillingReceiptsDesc = 'canReadBillingReceipts_DESC',
   CanReadBillingRecipientsAsc = 'canReadBillingRecipients_ASC',
   CanReadBillingRecipientsDesc = 'canReadBillingRecipients_DESC',
+  CanReadCallRecordsAsc = 'canReadCallRecords_ASC',
+  CanReadCallRecordsDesc = 'canReadCallRecords_DESC',
   CanReadContactsAsc = 'canReadContacts_ASC',
   CanReadContactsDesc = 'canReadContacts_DESC',
   CanReadCustomValuesAsc = 'canReadCustomValues_ASC',
