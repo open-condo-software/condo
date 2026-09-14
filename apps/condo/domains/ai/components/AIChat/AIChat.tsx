@@ -28,7 +28,7 @@ import type { Message } from '@condo/domains/ai/utils/aiChatStorage'
 
 const WELCOME_UI_MESSAGE_ID = 'welcome-ui-message'
 
-const AI_FLOW_TIMEOUT_MS = 3 * 60 * 1000
+const AI_FLOW_TIMEOUT_MS = 6 * 60 * 1000
 
 type ExecuteAIMessageOptions = {
     additionalContext?: Record<string, unknown>
