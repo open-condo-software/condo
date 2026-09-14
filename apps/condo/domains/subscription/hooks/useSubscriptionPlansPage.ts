@@ -2,6 +2,7 @@ import {
     useGetAvailableServiceSubscriptionPlansQuery,
     useGetAvailableFeatureSubscriptionPlansQuery,
     useGetOrganizationActivatedSubscriptionsQuery,
+    useGetOrganizationUnpaidSubscriptionsQuery,
     useGetSubscriptionB2BAppsQuery,
 } from '@app/condo/gql'
 import { useMemo, useState, useCallback } from 'react'
@@ -9,13 +10,16 @@ import { useMemo, useState, useCallback } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
-import { SUBSCRIPTION_PERIOD } from '@condo/domains/subscription/constants'
+import { SUBSCRIPTION_PAYMENT_BUFFER_DAYS, SUBSCRIPTION_PERIOD } from '@condo/domains/subscription/constants'
 import {
     buildCatalog,
     getCatalogCounters,
-    getPlanCapabilities,
+    OWNED_FEATURE_STATUSES,
+    resolveFeatureStatus,
 } from '@condo/domains/subscription/utils/subscriptionCatalog'
+import { buildPlanCardAlerts } from '@condo/domains/subscription/utils/subscriptionPlanAlerts'
 import {
+    getAmount,
     getDiscount,
     getMaxDiscountPercent,
     getPriceForPeriod,
@@ -28,7 +32,9 @@ import type {
     CapabilityLabel,
     CatalogPlanInfo,
     CatalogRow,
+    FeatureStatus,
 } from '@condo/domains/subscription/utils/subscriptionCatalog'
+import type { PlanAlert } from '@condo/domains/subscription/utils/subscriptionPlanAlerts'
 import type { PlanPeriod, PlanDiscount, PlanPrice } from '@condo/domains/subscription/utils/subscriptionPricing'
 
 
@@ -55,18 +61,16 @@ export type ServicePlanView = {
     planInfo: CatalogPlanInfo
     price: PlanPrice | null
     discount: PlanDiscount | null
+    /** Everything the client can use on this plan, separately bought features included */
     featureCount: number
-    serviceCount: number
+    /** Price of the paid features bought on top of the active plan, 0 for any other card */
+    extraFeaturesAmount: number
+    /** Payment and trial alerts of the card, most critical first */
+    alerts: ReadonlyArray<PlanAlert>
     isActive: boolean
+    /** A lower plan than the active one: it can be looked at but not bought */
+    isBelowActive: boolean
     isSelected: boolean
-}
-
-const isContextActive = (context: ActivatedContext): boolean => {
-    const now = new Date()
-    const hasStarted = !context.startAt || new Date(context.startAt) <= now
-    const hasNotEnded = Boolean(context.endAt) && new Date(context.endAt) > now
-
-    return hasStarted && hasNotEnded
 }
 
 /**
@@ -101,6 +105,14 @@ export const useSubscriptionPlansPage = () => {
         skip: !organizationId,
     })
 
+    const {
+        data: unpaidData,
+        refetch: refetchUnpaidSubscriptions,
+    } = useGetOrganizationUnpaidSubscriptionsQuery({
+        variables: { organizationId: organizationId || '' },
+        skip: !organizationId,
+    })
+
     const servicePlans = useMemo<ReadonlyArray<CatalogPlanInfo>>(() => (
         (servicePlansData?.result?.plans ?? [])
             .filter(planInfo => Boolean(planInfo?.plan))
@@ -127,26 +139,28 @@ export const useSubscriptionPlansPage = () => {
 
     const activatedSubscriptions = useMemo(() => activatedData?.activatedSubscriptions ?? [], [activatedData])
 
-    /** Feature plans currently usable by this organization, whether paid for or on trial */
-    const activeFeatureContexts = useMemo(() => activatedSubscriptions.filter(context => (
-        context?.subscriptionPlan?.planType === 'feature' && isContextActive(context)
-    )), [activatedSubscriptions])
-
-    const purchasedFeaturePlanIds = useMemo(
-        () => new Set(activeFeatureContexts.map(context => context.subscriptionPlan.id)),
-        [activeFeatureContexts]
-    )
-
-    const featureContextByPlanId = useMemo(() => {
-        const map = new Map<string, ActivatedContext>()
-        for (const context of activeFeatureContexts) {
+    const featureStatusByPlanId = useMemo(() => {
+        const contextsByPlanId = new Map<string, ActivatedContext[]>()
+        for (const context of activatedSubscriptions) {
+            if (context?.subscriptionPlan?.planType !== 'feature') continue
             const planId = context.subscriptionPlan.id
-            const known = map.get(planId)
-            // several renewals can overlap, the one running longest is the one in force
-            if (!known || new Date(context.endAt) > new Date(known.endAt)) map.set(planId, context)
+            contextsByPlanId.set(planId, [...(contextsByPlanId.get(planId) ?? []), context])
         }
-        return map
-    }, [activeFeatureContexts])
+
+        const now = new Date()
+        const statuses = new Map<string, FeatureStatus>()
+        for (const [planId, contexts] of contextsByPlanId) {
+            const status = resolveFeatureStatus(contexts, now, SUBSCRIPTION_PAYMENT_BUFFER_DAYS)
+            if (status) statuses.set(planId, status)
+        }
+        return statuses
+    }, [activatedSubscriptions])
+
+    const purchasedFeaturePlanIds = useMemo(() => new Set(
+        Array.from(featureStatusByPlanId)
+            .filter(([, status]) => OWNED_FEATURE_STATUSES.includes(status.type))
+            .map(([planId]) => planId)
+    ), [featureStatusByPlanId])
 
     const capabilityLabels = useMemo<Record<CapabilityKey, CapabilityLabel>>(() => {
         const labels: Record<CapabilityKey, CapabilityLabel> = {}
@@ -192,29 +206,58 @@ export const useSubscriptionPlansPage = () => {
         [availablePlans, selectedPlanId]
     )
 
+    const buildPlanRows = useCallback((planInfo: CatalogPlanInfo | null): ReadonlyArray<CatalogRow> => buildCatalog({
+        servicePlan: planInfo?.plan ?? null,
+        featurePlans,
+        period,
+        purchasedFeaturePlanIds,
+        capabilityLabels,
+        featureStatuses: featureStatusByPlanId,
+        pinnedCapabilities: PINNED_CAPABILITIES,
+    }), [featurePlans, period, purchasedFeaturePlanIds, capabilityLabels, featureStatusByPlanId])
+
+    const activePriority = useMemo(
+        () => availablePlans.find(({ plan }) => plan.id === activePlanId)?.plan?.priority ?? null,
+        [availablePlans, activePlanId]
+    )
+
     const planCards = useMemo<ReadonlyArray<ServicePlanView>>(() => availablePlans.map(planInfo => {
-        const capabilities = getPlanCapabilities(planInfo.plan)
-        const appIds = new Set(b2bAppIds)
+        const isActive = planInfo.plan.id === activePlanId
+        const planRows = buildPlanRows(planInfo)
+        const extraRows = planRows.filter(row => row.purchased && !row.includedInPlan)
+
+        const extraFeaturesAmount = isActive
+            ? extraRows
+                .filter(row => row.status?.type === 'connected' || row.status?.type === 'paymentExpired')
+                .reduce((sum, row) => sum + (getAmount(row.price) ?? 0), 0)
+            : 0
+
+        const alerts = buildPlanCardAlerts({
+            planId: planInfo.plan.id,
+            isActivePlan: isActive,
+            activeServiceContext,
+            unpaidContexts: unpaidData?.unpaidSubscriptions ?? [],
+            paidContexts: activatedSubscriptions,
+            now: new Date(),
+        })
 
         return {
             planInfo,
             price: getPriceForPeriod(planInfo.prices, period),
             discount: getDiscount(planInfo.prices, period),
-            featureCount: capabilities.filter(capability => !appIds.has(capability)).length,
-            serviceCount: capabilities.filter(capability => appIds.has(capability)).length,
-            isActive: planInfo.plan.id === activePlanId,
+            featureCount: getCatalogCounters(planRows).included,
+            extraFeaturesAmount,
+            alerts,
+            isActive,
+            isBelowActive: activePriority !== null && (planInfo.plan.priority ?? 0) < activePriority,
             isSelected: planInfo.plan.id === selectedPlanId,
         }
-    }), [availablePlans, period, b2bAppIds, activePlanId, selectedPlanId])
+    }), [availablePlans, period, activePlanId, activePriority, selectedPlanId, buildPlanRows, activeServiceContext, unpaidData, activatedSubscriptions])
 
-    const rows = useMemo<ReadonlyArray<CatalogRow>>(() => buildCatalog({
-        servicePlan: selectedPlanInfo?.plan ?? null,
-        featurePlans,
-        period,
-        purchasedFeaturePlanIds,
-        capabilityLabels,
-        pinnedCapabilities: PINNED_CAPABILITIES,
-    }), [selectedPlanInfo, featurePlans, period, purchasedFeaturePlanIds, capabilityLabels])
+    const rows = useMemo<ReadonlyArray<CatalogRow>>(
+        () => buildPlanRows(selectedPlanInfo),
+        [buildPlanRows, selectedPlanInfo]
+    )
 
     const counters = useMemo(() => getCatalogCounters(rows), [rows])
 
@@ -238,8 +281,9 @@ export const useSubscriptionPlansPage = () => {
         activeServiceContext,
         rows,
         counters,
-        featureContextByPlanId,
+        featureStatusByPlanId,
         activatedSubscriptions,
         refetchActivatedSubscriptions,
+        refetchUnpaidSubscriptions,
     }
 }

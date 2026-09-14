@@ -5,6 +5,11 @@
   cursor: pointer;
 }
 
+/* A lower plan than the active one can be opened to compare, but it is not for sale */
+.card-wrapper-below-active {
+  opacity: 0.5;
+}
+
 .card-wrapper:focus-visible {
   border-radius: var(--condo-global-border-radius-medium);
   outline: 2px solid var(--condo-global-color-green-5);

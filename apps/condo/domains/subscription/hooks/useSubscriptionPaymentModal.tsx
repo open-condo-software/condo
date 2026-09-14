@@ -9,7 +9,7 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 import { UI_HIDE_PAID_FEATURES } from '@condo/domains/common/constants/featureflags'
 
 
-export type PaymentType = 'card' | 'userHelpRequest'
+export type PaymentType = 'card' | 'invoice'
 
 interface UseSubscriptionPaymentModalProps {
     registerSubscriptionContext: (params: { paymentType: PaymentType }) => Promise<void> | void
@@ -64,8 +64,8 @@ export const useSubscriptionPaymentModal = ({
         setSelectedMethod('card')
     }, [])
 
-    const handleUserHelpRequestSelect = useCallback(() => {
-        setSelectedMethod('userHelpRequest')
+    const handleInvoiceSelect = useCallback(() => {
+        setSelectedMethod('invoice')
     }, [])
 
     const handleProceedToPayment = useCallback(async () => {
@@ -73,8 +73,8 @@ export const useSubscriptionPaymentModal = ({
         closeModal()
     }, [registerSubscriptionContext, closeModal])
 
-    const handleCreateUserHelpRequest = useCallback(async () => {
-        await registerSubscriptionContext({ paymentType: 'userHelpRequest' })
+    const handleIssueInvoice = useCallback(async () => {
+        await registerSubscriptionContext({ paymentType: 'invoice' })
         closeModal()
     }, [registerSubscriptionContext, closeModal])
 
@@ -82,7 +82,7 @@ export const useSubscriptionPaymentModal = ({
         if (hidePaidFeatures) return null
 
         const isCardSelected = selectedMethod === 'card'
-        const isUserHelpRequestSelected = selectedMethod === 'userHelpRequest'
+        const isInvoiceSelected = selectedMethod === 'invoice'
 
         const footerButton = isCardSelected ? (
             <Button
@@ -97,7 +97,7 @@ export const useSubscriptionPaymentModal = ({
             <Button
                 id='subscription-payment-modal-issue-invoice-button'
                 type='primary'
-                onClick={handleCreateUserHelpRequest}
+                onClick={handleIssueInvoice}
                 disabled={activateLoading}
                 loading={activateLoading}
             >
@@ -167,8 +167,8 @@ export const useSubscriptionPaymentModal = ({
                                 <Card
                                     hoverable
                                     bodyPadding={breakpoints.TABLET_LARGE ? '32px 8px' : 19}
-                                    active={isUserHelpRequestSelected}
-                                    onClick={handleUserHelpRequestSelect}
+                                    active={isInvoiceSelected}
+                                    onClick={handleInvoiceSelect}
                                 >
                                     {
                                         breakpoints.TABLET_LARGE
@@ -239,9 +239,9 @@ export const useSubscriptionPaymentModal = ({
         activateLoading,
         closeModal,
         handleCardSelect,
-        handleUserHelpRequestSelect,
+        handleInvoiceSelect,
         handleProceedToPayment,
-        handleCreateUserHelpRequest,
+        handleIssueInvoice,
     ])
 
     return {

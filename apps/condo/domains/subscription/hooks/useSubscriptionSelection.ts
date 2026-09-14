@@ -8,11 +8,12 @@ import type { PlanPeriod } from '@condo/domains/subscription/utils/subscriptionP
 
 
 /**
- * Buying and cancelling never mix in one action bar. The first toggle the user flips decides
- * which of the two they are doing, and everything that does not belong to that intent is
- * disabled until they clear the selection again.
+ * Features in different states never mix in one action bar. The first row the user picks decides
+ * the group, and rows of any other group stay disabled until the selection is cleared.
  */
-export type SelectionMode = 'idle' | 'add' | 'remove'
+export type SelectionMode = 'idle' | 'buy' | 'connected' | 'paymentExpired'
+
+type RowGroup = Exclude<SelectionMode, 'idle'>
 
 export type SelectionTotals = {
     /** How many features the purchase covers: everything in the plan plus the extras picked */
@@ -32,6 +33,8 @@ type UseSubscriptionSelectionParams = {
     period: PlanPeriod
     /** Features the selected plan already covers, counted into the cart when the plan is bought */
     includedCount: number
+    /** The active plan's paid period is over, so the page offers to renew it */
+    isActivePlanPaymentExpired: boolean
 }
 
 export const useSubscriptionSelection = ({
@@ -41,6 +44,7 @@ export const useSubscriptionSelection = ({
     activePlanId,
     period,
     includedCount,
+    isActivePlanPaymentExpired,
 }: UseSubscriptionSelectionParams) => {
     const [mode, setMode] = useState<SelectionMode>('idle')
     const [selectedRowKeys, setSelectedRowKeys] = useState<ReadonlyArray<string>>([])
@@ -50,11 +54,11 @@ export const useSubscriptionSelection = ({
         setSelectedRowKeys([])
     }, [])
 
-    // what is included, purchasable or already owned all change with the plan and the period,
-    // so a cart assembled against the previous one would no longer mean anything
-    useEffect(() => {
-        clearSelection()
-    }, [selectedPlanId, period, clearSelection])
+    const purchasedRowKeys = useMemo(
+        () => rows.filter(row => row.status?.type === 'connected' || row.status?.type === 'paymentExpired').map(row => row.key),
+        [rows]
+    )
+    const purchasedRowKeysSignature = purchasedRowKeys.join(',')
 
     const selectedPlanCard = useMemo(
         () => planCards.find(card => card.planInfo.plan.id === selectedPlanId) ?? null,
@@ -82,41 +86,76 @@ export const useSubscriptionSelection = ({
         return selectedPriority > activePriority
     }, [selectedPlanCard, activePlanCard])
 
+    /**
+     * A paid plan that is fine produces no action bar. Once its paid period is over, the page offers
+     * a renewal instead: the plan goes back into the cart together with the features bought on top of it.
+     */
+    const isPlanRenewable = useMemo(() => {
+        if (!isActivePlanPaymentExpired || !selectedPlanCard || !selectedPlanCard.isActive) return false
+
+        return Boolean(selectedPlanCard.price) && !isCustomPrice(selectedPlanCard.price)
+    }, [isActivePlanPaymentExpired, selectedPlanCard])
+
+    // what is included, purchasable or already owned all change with the plan and the period, so a
+    // cart assembled against the previous one would no longer mean anything. A paid plan opens with
+    // everything it covers already picked, which makes renewing it a single click
+    useEffect(() => {
+        const preselected = isPlanRenewable ? purchasedRowKeysSignature.split(',').filter(Boolean) : []
+        setSelectedRowKeys(preselected)
+        setMode(preselected.length > 0 ? 'buy' : 'idle')
+    }, [selectedPlanId, period, isPlanRenewable, purchasedRowKeysSignature])
+
     const rowsByKey = useMemo(() => new Map(rows.map(row => [row.key, row])), [rows])
 
     const isRowSelected = useCallback((row: CatalogRow) => selectedRowKeys.includes(row.key), [selectedRowKeys])
 
-    /** Included rows are on and frozen; the rest follow the mode the first toggle established */
-    const isRowDisabled = useCallback((row: CatalogRow): boolean => {
-        if (row.includedInPlan) return true
-        if (row.purchased) return mode === 'add'
-        if (row.purchasable) return mode === 'remove'
+    const getRowGroup = useCallback((row: CatalogRow): RowGroup | null => {
+        if (row.includedInPlan) return null
+        const statusType = row.status?.type
+        if (isPlanRenewable && (statusType === 'connected' || statusType === 'paymentExpired')) return 'buy'
+        if (statusType === 'paymentExpired') return 'paymentExpired'
+        if (statusType === 'connected') return 'connected'
+        if (statusType === 'trial' || row.purchasable) return 'buy'
 
-        return true
-    }, [mode])
+        return null
+    }, [isPlanRenewable])
+
+    const getRowPrice = (row: CatalogRow) => (row.price && !isCustomPrice(row.price) ? row.price : null)
+
+    /** Included rows are on and frozen; the rest follow the group the first pick established */
+    const isRowDisabled = useCallback((row: CatalogRow): boolean => {
+        const group = getRowGroup(row)
+        if (!group) return true
+        if (group === 'buy' && !getRowPrice(row)) return true
+
+        return mode !== 'idle' && mode !== group
+    }, [mode, getRowGroup])
+
+    /** Set when the row is blocked only because the selection already holds features in another state */
+    const isRowBlockedByMode = useCallback((row: CatalogRow): boolean => {
+        const group = getRowGroup(row)
+        return Boolean(group) && mode !== 'idle' && mode !== group
+    }, [mode, getRowGroup])
 
     const toggleRow = useCallback((row: CatalogRow) => {
-        if (row.includedInPlan) return
-        if (!row.purchased && !row.purchasable) return
-
-        const nextMode: SelectionMode = row.purchased ? 'remove' : 'add'
-        if (mode !== 'idle' && mode !== nextMode) return
+        if (isRowDisabled(row)) return
+        const group = getRowGroup(row)
 
         const next = selectedRowKeys.includes(row.key)
             ? selectedRowKeys.filter(key => key !== row.key)
             : [...selectedRowKeys, row.key]
 
         setSelectedRowKeys(next)
-        setMode(next.length === 0 ? 'idle' : nextMode)
-    }, [mode, selectedRowKeys])
+        setMode(next.length === 0 ? 'idle' : group)
+    }, [selectedRowKeys, isRowDisabled, getRowGroup])
 
     const selectedRows = useMemo(
         () => selectedRowKeys.map(key => rowsByKey.get(key)).filter((row): row is CatalogRow => Boolean(row)),
         [selectedRowKeys, rowsByKey]
     )
 
-    /** The plan joins the cart automatically whenever an unowned plan is on screen */
-    const isPlanInCart = isPlanPurchasable && mode !== 'remove'
+    /** The plan joins the cart whenever it is on screen and can be bought or bought again */
+    const isPlanInCart = (isPlanPurchasable || isPlanRenewable) && (mode === 'idle' || mode === 'buy')
 
     const totals = useMemo<SelectionTotals>(() => {
         const planPrice = isPlanInCart ? selectedPlanCard?.price ?? null : null
@@ -152,10 +191,12 @@ export const useSubscriptionSelection = ({
         selectedRowKeys,
         isRowSelected,
         isRowDisabled,
+        isRowBlockedByMode,
         toggleRow,
         clearSelection,
         isPlanInCart,
         isPlanPurchasable,
+        isPlanRenewable,
         selectedPlanCard,
         totals,
     }

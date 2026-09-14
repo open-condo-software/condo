@@ -29,6 +29,61 @@ export type CapabilityLabel = {
     description: string | null
 }
 
+export type FeatureStatusType = 'connected' | 'renewalCancelled' | 'trial' | 'trialExpired' | 'paymentExpired'
+
+export type FeatureStatus = {
+    type: FeatureStatusType
+    /** Context the status is read from, the one a cancellation acts on */
+    contextId: string
+    endAt: string
+    daysLeft: number
+}
+
+export type FeatureContext = {
+    id: string
+    isTrial?: boolean | null
+    startAt?: string | null
+    endAt?: string | null
+    renewalCancelledAt?: string | null
+}
+
+/** The feature is still usable under these statuses, so the table counts it as owned */
+export const OWNED_FEATURE_STATUSES: ReadonlyArray<FeatureStatusType> = ['connected', 'renewalCancelled', 'trial', 'paymentExpired']
+
+const DAY_MS = 24 * 60 * 60 * 1000
+
+const byEndAtDesc = (left: FeatureContext, right: FeatureContext): number =>
+    new Date(right.endAt).getTime() - new Date(left.endAt).getTime()
+
+/**
+ * A paid period that ended less than `bufferDays` ago is still being renewed, so it reads as an expired
+ * payment. Any other ended context, a cancelled one included, has used up the trial for good.
+ */
+export const resolveFeatureStatus = (
+    contexts: ReadonlyArray<FeatureContext>,
+    now: Date,
+    bufferDays: number
+): FeatureStatus | null => {
+    const withEnd = contexts.filter(context => Boolean(context.endAt))
+    const active = withEnd
+        .filter(context => (!context.startAt || new Date(context.startAt) <= now) && new Date(context.endAt) > now)
+        .sort(byEndAtDesc)[0]
+
+    if (active) {
+        const type: FeatureStatusType = active.isTrial ? 'trial' : active.renewalCancelledAt ? 'renewalCancelled' : 'connected'
+        const daysLeft = Math.max(0, Math.ceil((new Date(active.endAt).getTime() - now.getTime()) / DAY_MS))
+        return { type, contextId: active.id, endAt: active.endAt, daysLeft }
+    }
+
+    const ended = withEnd.filter(context => new Date(context.endAt) <= now).sort(byEndAtDesc)[0]
+    if (!ended) return null
+
+    const isRenewing = !ended.isTrial && !ended.renewalCancelledAt
+        && now.getTime() < new Date(ended.endAt).getTime() + bufferDays * DAY_MS
+
+    return { type: isRenewing ? 'paymentExpired' : 'trialExpired', contextId: ended.id, endAt: ended.endAt, daysLeft: 0 }
+}
+
 export type CatalogRow = {
     /** Feature plan id when the row can be bought, otherwise the capability key */
     key: string
@@ -46,6 +101,8 @@ export type CatalogRow = {
     includedInPlan: boolean
     /** Already paid for separately by this organization */
     purchased: boolean
+    /** Where the organization stands with this feature plan, null when it never had it */
+    status: FeatureStatus | null
     /** Can be added to the cart right now */
     purchasable: boolean
 }
@@ -70,6 +127,7 @@ type BuildCatalogParams = {
     /** Capability keys covered by feature plans the organization already paid for */
     purchasedFeaturePlanIds: ReadonlySet<string>
     capabilityLabels: Record<CapabilityKey, CapabilityLabel>
+    featureStatuses?: ReadonlyMap<string, FeatureStatus>
     /** Rows that should always float to the top of the table, most important first */
     pinnedCapabilities?: ReadonlyArray<CapabilityKey>
 }
@@ -88,6 +146,7 @@ export const buildCatalog = ({
     period,
     purchasedFeaturePlanIds,
     capabilityLabels,
+    featureStatuses,
     pinnedCapabilities = [],
 }: BuildCatalogParams): ReadonlyArray<CatalogRow> => {
     const planCapabilities = getPlanCapabilities(servicePlan)
@@ -115,6 +174,7 @@ export const buildCatalog = ({
             prices,
             includedInPlan,
             purchased,
+            status: featureStatuses?.get(plan.id) ?? null,
             purchasable: !includedInPlan && !purchased && Boolean(price) && !isCustomPrice(price),
         })
     }
@@ -134,6 +194,7 @@ export const buildCatalog = ({
             prices: [],
             includedInPlan: true,
             purchased: false,
+            status: null,
             purchasable: false,
         })
     }
@@ -142,26 +203,28 @@ export const buildCatalog = ({
 }
 
 /**
- * Paid rows go above included ones so that switching between plan cards makes the difference
- * between plans read from the top of the table, with the pinned upsells first of all.
+ * Features the plan does not give go first, then what the plan includes, then what was bought separately.
+ * Pinned rows lead their group.
  */
 export const sortCatalogRows = (
     rows: ReadonlyArray<CatalogRow>,
     pinnedCapabilities: ReadonlyArray<CapabilityKey>
 ): ReadonlyArray<CatalogRow> => {
-    const weightOf = (row: CatalogRow): number => {
-        const pinnedIndex = pinnedCapabilities.findIndex(capability => row.capabilities.includes(capability))
-        if (pinnedIndex >= 0 && !row.includedInPlan) return pinnedIndex
-        if (!row.includedInPlan) return pinnedCapabilities.length
-        return pinnedCapabilities.length + 1
+    const groupOf = (row: CatalogRow): number => {
+        if (row.includedInPlan) return 1
+        if (row.purchased) return 2
+        return 0
+    }
+    const pinnedIndexOf = (row: CatalogRow): number => {
+        const index = pinnedCapabilities.findIndex(capability => row.capabilities.includes(capability))
+        return index >= 0 ? index : pinnedCapabilities.length
     }
 
-    return [...rows].sort((left, right) => {
-        const weightDiff = weightOf(left) - weightOf(right)
-        if (weightDiff !== 0) return weightDiff
-
-        return left.label.localeCompare(right.label)
-    })
+    return [...rows].sort((left, right) => (
+        groupOf(left) - groupOf(right)
+        || pinnedIndexOf(left) - pinnedIndexOf(right)
+        || left.label.localeCompare(right.label)
+    ))
 }
 
 export type CatalogCounters = {

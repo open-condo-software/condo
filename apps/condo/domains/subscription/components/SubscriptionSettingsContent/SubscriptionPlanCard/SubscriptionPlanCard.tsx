@@ -1,7 +1,7 @@
 import { OrganizationFeature } from '@app/condo/schema'
 import classnames from 'classnames'
 import dayjs from 'dayjs'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { CreditCard, Bill } from '@open-condo/icons'
@@ -11,7 +11,6 @@ import { Card, Typography, Space, Tag } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import { ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID } from '@condo/domains/common/constants/featureflags'
-import { SubscriptionPaymentErrorAlert } from '@condo/domains/subscription/components/SubscriptionPaymentErrorAlert'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 import { useLinkedCardsModal } from '@condo/domains/subscription/hooks/useLinkedCardsModal'
 import { usePaymentHistoryModal } from '@condo/domains/subscription/hooks/usePaymentHistoryModal'
@@ -19,7 +18,10 @@ import { formatAmount, isCustomPrice } from '@condo/domains/subscription/utils/s
 
 import styles from './SubscriptionPlanCard.module.css'
 
+import { PlanAlertBadge, SubscriptionPlanAlerts } from '../SubscriptionPlanAlerts/SubscriptionPlanAlerts'
+
 import type { ServicePlanView } from '@condo/domains/subscription/hooks/useSubscriptionPlansPage'
+import type { PlanAlert } from '@condo/domains/subscription/utils/subscriptionPlanAlerts'
 
 
 type TrialContext = { subscriptionPlan?: { id?: string } | null }
@@ -29,6 +31,7 @@ type SubscriptionPlanCardProps = {
     emoji?: string
     activatedTrial?: TrialContext
     onSelect: (planId: string) => void
+    onReissueInvoice: (alert: PlanAlert) => void
     refetchActivatedSubscriptions: () => Promise<void> | void
 }
 
@@ -43,16 +46,13 @@ const SubscriptionPlanBadge: React.FC<SubscriptionPlanBadgeProps> = ({ isActiveP
     const intl = useIntl()
     const ActiveMessage = intl.formatMessage({ id: 'subscription.planCard.badge.active' })
     const ExpiredMessage = intl.formatMessage({ id: 'subscription.planCard.badge.trialExpired' })
+    const PaymentExpiredMessage = intl.formatMessage({ id: 'subscription.planCard.badge.paymentExpired' })
 
-    const { activeSubscriptionEndAt, activeSubscriptionEndAtWithoutBuffer, isInBufferPeriod } = useOrganizationSubscription()
+    const { activeSubscriptionEndAtWithoutBuffer, isInBufferPeriod } = useOrganizationSubscription()
 
     const daysRemainingWithoutBuffer = activeSubscriptionEndAtWithoutBuffer
         ? Math.max(0, Math.ceil(activeSubscriptionEndAtWithoutBuffer.diff(dayjs(), 'day', true)))
         : 0
-    const daysRemainingWithBuffer = activeSubscriptionEndAt
-        ? Math.max(0, Math.ceil(dayjs(activeSubscriptionEndAt).diff(dayjs(), 'day', true)))
-        : 0
-
     let badgeMessage: string | null = hasTrialExpired ? ExpiredMessage : null
     let bgColor = colors.gray[7]
 
@@ -62,7 +62,9 @@ const SubscriptionPlanBadge: React.FC<SubscriptionPlanBadgeProps> = ({ isActiveP
         if (hasPaymentMethod) {
             badgeMessage = ActiveMessage
         } else if (isInBufferPeriod) {
-            badgeMessage = intl.formatMessage({ id: 'subscription.planCard.badge.activeDays' }, { days: daysRemainingWithBuffer })
+            // The paid period is over and the plan is only alive on the grace days, so the card says
+            // the payment lapsed rather than counting down days the organization has not paid for
+            badgeMessage = PaymentExpiredMessage
             bgColor = colors.red[5]
         } else if (daysRemainingWithoutBuffer > 0 && daysRemainingWithoutBuffer <= 30) {
             badgeMessage = intl.formatMessage({ id: 'subscription.planCard.badge.activeDays' }, { days: daysRemainingWithoutBuffer })
@@ -88,6 +90,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({
     emoji,
     activatedTrial,
     onSelect,
+    onReissueInvoice,
     refetchActivatedSubscriptions,
 }) => {
     const intl = useIntl()
@@ -99,8 +102,11 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({
     const { useFlagValue } = useFeatureFlags()
     const { subscriptionContext: activeServiceContext, activeSubscriptionEndAtWithoutBuffer } = useOrganizationSubscription()
 
-    const { planInfo, price, discount, featureCount, serviceCount, isActive, isSelected } = card
+    const { planInfo, price, discount, featureCount, extraFeaturesAmount, alerts, isActive, isBelowActive, isSelected } = card
     const { plan } = planInfo
+
+    const [activeAlertIndex, setActiveAlertIndex] = useState(0)
+    const alertIndex = Math.min(activeAlertIndex, Math.max(alerts.length - 1, 0))
 
     const activeBankingPlanId = useFlagValue(ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID)
     const hasActiveBanking = organization?.features?.includes(OrganizationFeature.ActiveBanking)
@@ -118,18 +124,14 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({
      * The count covers everything the client can use on this plan, separate purchases included,
      * so it never contradicts the table right below the cards.
      */
-    const summary = useMemo(() => {
-        if (plan.description) return plan.description
-
-        const features = intl.formatMessage({ id: 'subscription.planCard.featureCount' }, { count: featureCount })
-        if (serviceCount <= 0) return features
-
-        const services = intl.formatMessage({ id: 'subscription.planCard.serviceCount' }, { count: serviceCount })
-
-        return intl.formatMessage({ id: 'subscription.planCard.featuresAndServices' }, { features, services })
-    }, [plan.description, featureCount, serviceCount, intl])
+    const summary = useMemo(() => (
+        plan.description || intl.formatMessage({ id: 'subscription.planCard.featureCount' }, { count: featureCount })
+    ), [plan.description, featureCount, intl])
 
     const hasCustomPrice = isCustomPrice(price)
+    /** The active plan shows what the organization pays in total, features bought on top included */
+    const shownAmount = (isFreeForPartner ? 0 : Number(price?.price ?? 0)) + extraFeaturesAmount
+    const showPriceForPartner = isFreeForPartner && extraFeaturesAmount > 0
     const PeriodMessage = price?.period
         ? intl.formatMessage({ id: `subscription.planCard.planPrice.${price.period}` as FormatjsIntl.Message['ids'] })
         : ''
@@ -143,7 +145,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({
 
     /** The active plan swaps the period suffix for when it renews or runs out */
     const periodMessage = useMemo(() => {
-        if (isFreeForPartner) return null
+        if (isFreeForPartner && !showPriceForPartner) return null
         if (isActive && formattedEndDate) {
             if (hasPaymentMethodForActivePlan) {
                 return intl.formatMessage({ id: 'subscription.planCard.willBeCharged' }, { date: formattedEndDate })
@@ -154,7 +156,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({
         }
 
         return PeriodMessage
-    }, [isFreeForPartner, isActive, formattedEndDate, hasPaymentMethodForActivePlan, activeServiceContext?.isTrial, PeriodMessage, intl])
+    }, [isFreeForPartner, showPriceForPartner, isActive, formattedEndDate, hasPaymentMethodForActivePlan, activeServiceContext?.isTrial, PeriodMessage, intl])
 
     const handleSelect = useCallback(() => onSelect(plan.id), [onSelect, plan.id])
     const handleKeyDown = useCallback((event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -170,13 +172,14 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({
         [styles.subscriptionPlanCardPromoted]: plan.canBePromoted,
         [styles.subscriptionPlanCardSelected]: isSelected,
     })
+    const wrapperClassName = classnames(styles.cardWrapper, { [styles.cardWrapperBelowActive]: isBelowActive })
 
     return (
         <>
             {LinkedCardsModal}
             {PaymentHistoryModal}
             <div
-                className={styles.cardWrapper}
+                className={wrapperClassName}
                 role='tab'
                 tabIndex={0}
                 aria-selected={isSelected}
@@ -184,12 +187,18 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({
                 onKeyDown={handleKeyDown}
                 id={`subscription-plan-card-${plan.id}`}
             >
-                <SubscriptionPlanBadge
-                    planId={plan.id}
-                    isActivePlan={isActive}
-                    hasTrialExpired={Boolean(activatedTrial)}
-                    hasPaymentMethod={hasPaymentMethodForActivePlan}
-                />
+                {alerts.length > 0 ? (
+                    <span className={styles.badge}>
+                        <PlanAlertBadge alert={alerts[alertIndex]} />
+                    </span>
+                ) : (
+                    <SubscriptionPlanBadge
+                        planId={plan.id}
+                        isActivePlan={isActive}
+                        hasTrialExpired={Boolean(activatedTrial)}
+                        hasPaymentMethod={hasPaymentMethodForActivePlan}
+                    />
+                )}
                 <Card className={cardClassName}>
                     <div className={styles.cardBody}>
                         <div className={styles.cardHead}>
@@ -202,7 +211,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({
                         </div>
 
                         <div className={styles.cardFoot}>
-                            {isFreeForPartner ? (
+                            {isFreeForPartner && !showPriceForPartner ? (
                                 <Typography.Text type='secondary'>
                                     {`✅ ${FreeForPartnerMessage}`}
                                 </Typography.Text>
@@ -211,19 +220,19 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({
                             ) : (
                                 <>
                                     <div className={styles.priceLine}>
-                                        {discount && (
+                                        {discount && extraFeaturesAmount === 0 && (
                                             <Typography.Text type='secondary' delete>
                                                 {formatAmount(discount.fullAmount, price?.currencyCode, intl.locale)}
                                             </Typography.Text>
                                         )}
-                                        <Typography.Title level={3} type={discount ? 'success' : undefined}>
-                                            {formatAmount(Number(price?.price), price?.currencyCode, intl.locale)}
+                                        <Typography.Title level={3} type={discount && extraFeaturesAmount === 0 ? 'success' : undefined}>
+                                            {formatAmount(shownAmount, price?.currencyCode, intl.locale)}
                                         </Typography.Title>
                                         {periodMessage && (
                                             <Typography.Text type='secondary'>{` /${periodMessage}`}</Typography.Text>
                                         )}
                                     </div>
-                                    {discount && (
+                                    {discount && extraFeaturesAmount === 0 && (
                                         <Typography.Text type='success' size='small'>
                                             {intl.formatMessage(
                                                 { id: 'subscription.planCard.discount' },
@@ -234,7 +243,12 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({
                                 </>
                             )}
 
-                            {isActive && <SubscriptionPaymentErrorAlert subscriptionPlanId={plan.id} />}
+                            <SubscriptionPlanAlerts
+                                alerts={alerts}
+                                activeIndex={alertIndex}
+                                onChangeIndex={setActiveAlertIndex}
+                                onReissueInvoice={onReissueInvoice}
+                            />
 
                             {hasPaymentMethodForActivePlan && hasPaymentMethod && (
                                 <div onClick={stopSelection} role='presentation'>
