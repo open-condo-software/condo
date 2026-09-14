@@ -1,0 +1,6 @@
+.attachment-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--condo-global-spacing-4);
+  width: 100%;
+}

@@ -1,0 +1,47 @@
+query getDocumentsForTable ($where: DocumentWhereInput, $first: Int, $skip: Int, $sortBy: [SortDocumentsBy!]) {
+    documents: allDocuments(
+        where: $where
+        first: $first
+        skip: $skip
+        sortBy: $sortBy
+    ) {
+        id
+        name
+        createdAt
+        organization {
+            id
+        }
+        property {
+            id
+            deletedAt
+            address
+            addressMeta {
+                ...AddressMetaForTableAddress
+            }
+        }
+        category {
+            id
+            name
+        }
+        file {
+            id
+            publicUrl
+            originalFilename
+            filename
+            mimetype
+        }
+    }
+
+    meta: _allDocumentsMeta(where: $where) {
+        count
+    }
+}
+
+query checkDocumentExistence ($where: DocumentWhereInput) {
+    documents: allDocuments(
+        where: $where,
+        first: 1,
+    ) {
+        id
+    }
+}
