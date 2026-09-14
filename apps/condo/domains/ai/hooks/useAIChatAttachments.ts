@@ -72,11 +72,13 @@ export function useAIChatAttachments ({ onFileListChange }: UseAIChatAttachments
     }, [fileList])
 
     const resetAttachments = useCallback(() => {
+        console.log('useAIChatAttachments:resetAttachments')
         pendingUploadAcceptsRef.current = 0
         setFileList([])
     }, [])
 
     const removeAttachmentFile = useCallback((file: UploadFile) => {
+        console.log('useAIChatAttachments:removeAttachmentFile')
         setFileList((prev) => prev.filter((item) => item.uid !== file.uid))
     }, [])
 
@@ -93,6 +95,7 @@ export function useAIChatAttachments ({ onFileListChange }: UseAIChatAttachments
     )
 
     const handleBeforeUpload: UseAIChatAttachmentsResult['handleBeforeUpload'] = (file) => {
+        console.log('useAIChatAttachments:handleBeforeUpload')
         if (file.size > maxFileSizeBytes) {
             return Upload.LIST_IGNORE
         }
@@ -107,6 +110,7 @@ export function useAIChatAttachments ({ onFileListChange }: UseAIChatAttachments
     }
 
     const handleUploadRequest: NonNullable<UploadProps['customRequest']> = async (options) => {
+        console.log('useAIChatAttachments:handleUploadRequest')
         const { file, onSuccess, onError, onProgress } = options
         const rcFile = file as RcFile
 
@@ -163,6 +167,7 @@ export function useAIChatAttachments ({ onFileListChange }: UseAIChatAttachments
     }
 
     const handleUploadFileListChange: UploadProps['onChange'] = ({ fileList: nextFileList }) => {
+        console.log('useAIChatAttachments:handleUploadFileListChange')
         const trimmed = nextFileList.slice(0, maxAttachments)
         setFileList(trimmed)
         onFileListChange?.()

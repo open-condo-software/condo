@@ -1,7 +1,4 @@
 import { AcquiringIntegrationTypeType } from '@app/condo/schema'
-import { notification } from 'antd'
-import dayjs from 'dayjs'
-import getConfig from 'next/config'
 import Head from 'next/head'
 import React, { useMemo } from 'react'
 
@@ -17,7 +14,7 @@ import { Loader } from '@condo/domains/common/components/Loader'
 import { ControlRoomSettingsContent } from '@condo/domains/common/components/settings/ControlRoomSettingsContent'
 import { MobileFeatureConfigContent } from '@condo/domains/common/components/settings/MobileFeatureConfigContent'
 import { TabsPageContent } from '@condo/domains/common/components/TabsPageContent'
-import { SUBSCRIPTIONS, UI_HIDE_PAID_FEATURES } from '@condo/domains/common/constants/featureflags'
+import { UI_HIDE_PAID_FEATURES } from '@condo/domains/common/constants/featureflags'
 import {
     SETTINGS_TAB_CONTACT_ROLES,
     SETTINGS_TAB_PAYMENT_DETAILS,
@@ -26,9 +23,11 @@ import {
     SETTINGS_TAB_EMPLOYEE_ROLES,
     SETTINGS_TAB_MOBILE_FEATURE_CONFIG,
     SETTINGS_TAB_MARKETPLACE,
+    SETTINGS_TAB_DOCUMENTS,
 } from '@condo/domains/common/constants/settingsTabs'
 import { PageComponentType } from '@condo/domains/common/types'
 import { ContactRolesSettingsContent } from '@condo/domains/contact/components/contactRoles/ContactRolesSettingsContent'
+import { OrganizationDocuments } from '@condo/domains/document/components/OrganizationDocuments/OrganizationDocuments'
 import { CONTEXT_FINISHED_STATUS } from '@condo/domains/miniapp/constants'
 import {
     EmployeeRolesSettingsContent,
@@ -56,6 +55,7 @@ const SettingsPage: PageComponentType = () => {
     const EmployeeRolesTitle = intl.formatMessage({ id: 'EmployeeRoles' })
     const MobileFeatureConfigTitle = intl.formatMessage({ id: 'pages.condo.settings.barItem.MobileFeatureConfig' })
     const MarketSettingTitle = intl.formatMessage({ id: 'global.section.marketplace' })
+    const DocumentsTitle = intl.formatMessage({ id: 'global.section.documents' })
     const SubscriptionsTitle = intl.formatMessage({ id: 'Subscriptions' })
 
     const userOrganization = useOrganization()
@@ -65,6 +65,7 @@ const SettingsPage: PageComponentType = () => {
     const canManageEmployeeRoles = useMemo(() => userOrganization?.role?.canManageRoles || false, [userOrganization])
     const canManageMobileFeatureConfigsRoles = useMemo(() => userOrganization?.role?.canManageMobileFeatureConfigs || false, [userOrganization])
     const canManageMarketSettingRoles = useMemo(() => userOrganization?.role?.canManageMarketSetting || false, [userOrganization])
+    const canReadDocuments = useMemo(() => userOrganization?.role?.canReadDocuments || false, [userOrganization])
 
     const { hasSubscription, hasAvailablePlans, loading: subscriptionsLoading, subscriptionContext, hasSubscriptionsFeature } = useOrganizationSubscription()
     const { useFlag } = useFeatureFlags()
@@ -93,9 +94,10 @@ const SettingsPage: PageComponentType = () => {
         if (canManageMobileFeatureConfigsRoles) availableTabs.push(SETTINGS_TAB_MOBILE_FEATURE_CONFIG)
         if (canManageMarketSettingRoles && Boolean(acquiringIntegrationContext) && !acquiringIntegrationContextLoading) availableTabs.push(SETTINGS_TAB_MARKETPLACE)
         if (!hidePaidFeatures && isSubscriptionsEnabled) availableTabs.push(SETTINGS_TAB_SUBSCRIPTION)
+        if (canReadDocuments) availableTabs.push(SETTINGS_TAB_DOCUMENTS)
     
         return availableTabs
-    }, [hidePaidFeatures, hasSubscription, isSubscriptionsEnabled, canManageEmployeeRoles, isManagingCompany, canManageContactRoles, canManageMobileFeatureConfigsRoles, canManageMarketSettingRoles, acquiringIntegrationContext, acquiringIntegrationContextLoading])
+    }, [hidePaidFeatures, hasSubscription, isSubscriptionsEnabled, canManageEmployeeRoles, isManagingCompany, canManageContactRoles, canManageMobileFeatureConfigsRoles, canManageMarketSettingRoles, acquiringIntegrationContext, acquiringIntegrationContextLoading, canReadDocuments])
 
     const settingsTabs: TabItem[] = useMemo(() => {
         const subscriptionTab = {
@@ -137,9 +139,14 @@ const SettingsPage: PageComponentType = () => {
                 label: MarketSettingTitle,
                 children: <MarketplaceSettingsPage/>,
             },
+            canReadDocuments && {
+                key: SETTINGS_TAB_DOCUMENTS,
+                label: DocumentsTitle,
+                children: <OrganizationDocuments/>,
+            },
             !hidePaidFeatures && isSubscriptionsEnabled && subscriptionTab,
         ].filter(Boolean)
-    }, [SubscriptionsTitle, hidePaidFeatures, hasSubscription, isSubscriptionsEnabled, canManageEmployeeRoles, isManagingCompany, EmployeeRolesTitle, DetailsTitle, canManageContactRoles, RolesTitle, ControlRoomTitle, canManageMobileFeatureConfigsRoles, MobileFeatureConfigTitle, canManageMarketSettingRoles, acquiringIntegrationContext, acquiringIntegrationContextLoading, MarketSettingTitle])
+    }, [SubscriptionsTitle, hidePaidFeatures, hasSubscription, isSubscriptionsEnabled, canManageEmployeeRoles, isManagingCompany, EmployeeRolesTitle, DetailsTitle, canManageContactRoles, RolesTitle, ControlRoomTitle, canManageMobileFeatureConfigsRoles, MobileFeatureConfigTitle, canManageMarketSettingRoles, acquiringIntegrationContext, acquiringIntegrationContextLoading, MarketSettingTitle, canReadDocuments, DocumentsTitle])
 
     const titleContent = useMemo(() => (
         <Typography.Title>{PageTitle}</Typography.Title>

@@ -38,7 +38,7 @@ export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
 
     const isAIChatEnabled = useFlag(UI_AI_CHAT_WITH_CONDO)
     const isCoworkEnabled = useFlag(UI_AI_COWORK)
-    
+
     const isUserMenuHidden = useFlag(UI_HIDE_USER_LINKS)
 
     const PaymentHistoryLabel = intl.formatMessage({ id: 'subscription.paymentHistory.title' })
