@@ -116,7 +116,18 @@ export const SubscriptionSettingsContent: React.FC = () => {
         if (!row.featurePlan) return null
 
         const context = featureContextByPlanId.get(row.featurePlan.id)
-        if (!context?.isTrial) return null
+        if (!context) return null
+
+        // Cancelling only stops the next renewal, so the feature keeps working and would otherwise
+        // look untouched until it quietly disappears at the end of the period
+        if (context.renewalCancelledAt) {
+            return {
+                text: intl.formatMessage({ id: 'subscription.planCard.badge.renewalCancelled' }),
+                bgColor: colors.gray[7],
+            }
+        }
+
+        if (!context.isTrial) return null
         if (isSameDay(context.endAt, activeServiceContext?.endAt)) return null
 
         const daysLeft = Math.max(0, Math.ceil(dayjs(context.endAt).diff(dayjs(), 'day', true)))
