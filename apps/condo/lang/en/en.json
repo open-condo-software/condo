@@ -630,6 +630,7 @@
   "api.scope.propertyScope.MAX_NAME_LENGTH_ERROR": "Exceeded the maximum number of characters in the title ({max} characters)",
   "api.subscription.registerSubscriptionContexts.DUPLICATE_PLAN_IN_BUNDLE": "A bundle cannot contain the same subscription plan more than once",
   "api.subscription.registerSubscriptionContexts.FEATURE_ALREADY_IN_PLAN": "A feature plan in the bundle is already covered by another plan in the same bundle",
+  "api.subscription.registerSubscriptionContexts.MIXED_SUBSCRIPTION_START_DATES": "Plans in the bundle would start on different dates, because some of them are already covered by an active subscription",
   "api.subscription.registerSubscriptionContexts.INVALID_ORGANIZATION_TYPE": "Organization type does not match subscription plan organization type",
   "api.subscription.registerSubscriptionContexts.MIXED_PRICING_RULE_PERIODS": "All pricing rules in a bundle must have the same period",
   "api.subscription.registerSubscriptionContexts.MULTIPLE_SERVICE_PLANS_IN_BUNDLE": "A bundle can contain at most one service plan",
