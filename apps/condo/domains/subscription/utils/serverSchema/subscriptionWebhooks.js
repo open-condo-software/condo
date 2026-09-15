@@ -36,64 +36,70 @@ async function buildSubscriptionContextsPayload (subscriptionContexts) {
     })
 }
 
+/**
+ * Throws when no WebhookPayload could be created. Once it exists, a failure to schedule the immediate send is only
+ * logged: retryFailedWebhookPayloads picks pending payloads up.
+ */
 async function queueSubscriptionWebhook ({ url, secret, eventType, invoiceId, subscriptionContexts, getUser, getExtraPayload = () => ({}), sender }) {
     if (!url || !secret || subscriptionContexts.length === 0) return
 
+    const invoice = await getById('Invoice', invoiceId)
+    if (!invoice) throw new Error(`Invoice not found: ${invoiceId}`)
+
+    const organization = invoice.payerOrganization ? await getById('Organization', invoice.payerOrganization) : null
+    if (!organization) throw new Error(`Organization not found: ${invoice.payerOrganization}`)
+
+    const user = await getUser(invoice)
+    const itemId = subscriptionContexts[0].id
+    const payload = {
+        invoiceId: invoice.id,
+        toPay: invoice.toPay,
+        currencyCode: invoice.currencyCode,
+        ...getExtraPayload(invoice),
+        subscriptionContexts: await buildSubscriptionContextsPayload(subscriptionContexts),
+        organization: {
+            id: organization.id,
+            name: organization.name,
+            tin: organization.tin,
+        },
+        ...(user && { user }),
+    }
+
+    const { keystone: context } = getSchemaCtx('WebhookPayload')
     try {
-        const invoice = await getById('Invoice', invoiceId)
-        if (!invoice) return
-
-        const organization = invoice.payerOrganization ? await getById('Organization', invoice.payerOrganization) : null
-        if (!organization) {
-            throw new Error(`Organization not found: ${invoice.payerOrganization}`)
-        }
-        const user = await getUser(invoice)
-
-        const { keystone: context } = getSchemaCtx('WebhookPayload')
-        await queueWebhookPayload(context, {
-            url,
-            secret,
-            eventType,
-            modelName: 'SubscriptionContext',
-            itemId: subscriptionContexts[0].id,
-            payload: {
-                invoiceId: invoice.id,
-                toPay: invoice.toPay,
-                currencyCode: invoice.currencyCode,
-                ...getExtraPayload(invoice),
-                subscriptionContexts: await buildSubscriptionContextsPayload(subscriptionContexts),
-                organization: {
-                    id: organization.id,
-                    name: organization.name,
-                    tin: organization.tin,
-                },
-                ...(user && { user }),
-            },
-            sender,
-        })
+        await queueWebhookPayload(context, { url, secret, eventType, modelName: 'SubscriptionContext', itemId, payload, sender })
     } catch (err) {
-        logger.error({ msg: 'failed to queue subscription webhook', err, entity: 'Invoice', entityId: invoiceId, data: { eventType } })
+        const [createdPayload] = await find('WebhookPayload', { eventType, itemId, deletedAt: null })
+        if (!createdPayload) throw err
+        logger.error({ msg: 'failed to schedule subscription webhook, it stays pending for the retry task', err, entity: 'WebhookPayload', entityId: createdPayload.id, data: { eventType } })
     }
 }
 
-/** Sent once a paid invoice has activated its contexts */
+/** Sent once a paid invoice has activated its contexts; the activation is already done, so a failure is only logged */
 async function queueSubscriptionActivatedWebhook ({ invoiceId, subscriptionContexts, sender }) {
-    await queueSubscriptionWebhook({
-        url: conf['SUBSCRIPTION_ACTIVATED_WEBHOOK_URL'],
-        secret: conf['SUBSCRIPTION_ACTIVATED_WEBHOOK_SECRET'],
-        eventType: WEBHOOK_EVENT_SUBSCRIPTION_ACTIVATED,
-        invoiceId,
-        subscriptionContexts,
-        getUser: async (invoice) => {
-            const user = invoice.createdBy ? await getById('User', invoice.createdBy) : null
-            return user ? { id: user.id, name: user.name } : null
-        },
-        getExtraPayload: (invoice) => ({ paidAt: invoice.paidAt }),
-        sender,
-    })
+    try {
+        await queueSubscriptionWebhook({
+            url: conf['SUBSCRIPTION_ACTIVATED_WEBHOOK_URL'],
+            secret: conf['SUBSCRIPTION_ACTIVATED_WEBHOOK_SECRET'],
+            eventType: WEBHOOK_EVENT_SUBSCRIPTION_ACTIVATED,
+            invoiceId,
+            subscriptionContexts,
+            getUser: async (invoice) => {
+                const user = invoice.createdBy ? await getById('User', invoice.createdBy) : null
+                return user ? { id: user.id, name: user.name } : null
+            },
+            getExtraPayload: (invoice) => ({ paidAt: invoice.paidAt }),
+            sender,
+        })
+    } catch (err) {
+        logger.error({ msg: 'failed to queue subscription activated webhook', err, entity: 'Invoice', entityId: invoiceId })
+    }
 }
 
-/** Sent when a bundle is registered to be paid by invoice, so a manager can send the invoice and reach the client */
+/**
+ * Sent when a bundle is registered to be paid by invoice, so a manager can send the invoice and reach the client.
+ * Throws when the request could not be recorded, the registration rolls back then
+ */
 async function queueSubscriptionInvoiceRequestedWebhook ({ invoiceId, subscriptionContexts, userId, sender }) {
     await queueSubscriptionWebhook({
         url: conf['SUBSCRIPTION_INVOICE_REQUESTED_WEBHOOK_URL'],

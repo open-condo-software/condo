@@ -12,7 +12,13 @@ const {
 const { freezePaymentInfo } = require('@condo/domains/acquiring/utils/billingFridge')
 const { INVOICE_STATUS_PAID } = require('@condo/domains/marketplace/constants')
 const access = require('@condo/domains/subscription/access/ActivateSubscriptionContextService')
-const { PERIOD_TO_MONTHS, SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_CONTEXT_STATUS_TRANSITIONS } = require('@condo/domains/subscription/constants')
+const {
+    PERIOD_TO_MONTHS,
+    SUBSCRIPTION_CONTEXT_STATUS,
+    SUBSCRIPTION_CONTEXT_STATUS_TRANSITIONS,
+    SUBSCRIPTION_PAYMENT_TYPE_CARD,
+    SUBSCRIPTION_PAYMENT_TYPE_INVOICE,
+} = require('@condo/domains/subscription/constants')
 const { SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
 const { calculateSubscriptionPeriod } = require('@condo/domains/subscription/utils/subscriptionContext')
 
@@ -147,7 +153,12 @@ const ActivateSubscriptionContextService = new GQLCustomSchema('ActivateSubscrip
 
                 const paymentMethod = multiPayment?.meta?.paymentMethod || null
                 const bindingId = paymentMethod?.bindingId || null
-                const frozenPaymentInfo = freezePaymentInfo(multiPayment, invoice, subscriptionContext.subscriptionPlanPricingRule)
+                const frozenPaymentInfo = {
+                    ...freezePaymentInfo(multiPayment, invoice, subscriptionContext.subscriptionPlanPricingRule),
+                    // how the organization chose to pay when it registered, contexts created before it was recorded read it off the payment
+                    paymentType: subscriptionContext.frozenPaymentInfo?.paymentType
+                        || (multiPayment ? SUBSCRIPTION_PAYMENT_TYPE_CARD : SUBSCRIPTION_PAYMENT_TYPE_INVOICE),
+                }
 
                 const existingDoneContexts = await find('SubscriptionContext', {
                     organization: { id: subscriptionContext.organization },
