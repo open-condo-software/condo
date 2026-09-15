@@ -3,7 +3,7 @@
   "version": "0.0.0-development",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack & npm run types:watch",
+    "dev": "next dev & npm run types:watch",
     "build": "next build",
     "start": "next start",
     "maketypes": "graphql-codegen --config codegen.ts",
@@ -13,7 +13,9 @@
     "@apollo/client": "^3.14.1",
     "@open-condo/apollo": "^2.1.38",
     "@open-condo/bridge": "^3.1.0",
+    "@open-condo/icons": "^2.6.1",
     "@open-condo/miniapp-utils": "^4.1.2",
+    "@open-condo/ui": "^2.56.0",
     "next": "^15.5.21",
     "oidc-client-ts": "^3.5.0",
     "react": "^18.3.1",

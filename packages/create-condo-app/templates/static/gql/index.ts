@@ -1482,15 +1482,19 @@ export type AcquiringIntegrationContextsUpdateInput = {
 export type AcquiringIntegrationCreateInput = {
   canGroupReceipts?: InputMaybe<Scalars['Boolean']['input']>;
   contextDefaultStatus?: InputMaybe<AcquiringIntegrationContextDefaultStatusType>;
+  displayPriority?: InputMaybe<Scalars['Int']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   explicitFeeDistributionSchema?: InputMaybe<Array<FeeDistributionFieldInput>>;
   hostUrl?: InputMaybe<Scalars['String']['input']>;
   isHidden?: InputMaybe<Scalars['Boolean']['input']>;
+  logo?: InputMaybe<Scalars['FileMeta']['input']>;
   maximumPaymentAmount?: InputMaybe<Scalars['String']['input']>;
   minimumPaymentAmount?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   sender?: InputMaybe<SenderFieldInput>;
+  setupTitle?: InputMaybe<Scalars['String']['input']>;
   setupUrl?: InputMaybe<Scalars['String']['input']>;
+  shortDescription?: InputMaybe<Scalars['String']['input']>;
   supportedBillingIntegrationsGroup?: InputMaybe<Scalars['String']['input']>;
   type?: InputMaybe<AcquiringIntegrationTypeType>;
   vatPercentOptions?: InputMaybe<Scalars['String']['input']>;
@@ -1502,6 +1506,7 @@ export type AcquiringIntegrationHistoryRecordCreateInput = {
   createdAt?: InputMaybe<Scalars['String']['input']>;
   createdBy?: InputMaybe<Scalars['String']['input']>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
+  displayPriority?: InputMaybe<Scalars['Int']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   explicitFeeDistributionSchema?: InputMaybe<Scalars['JSON']['input']>;
   history_action?: InputMaybe<AcquiringIntegrationHistoryRecordHistoryActionType>;
@@ -1509,12 +1514,15 @@ export type AcquiringIntegrationHistoryRecordCreateInput = {
   history_id?: InputMaybe<Scalars['String']['input']>;
   hostUrl?: InputMaybe<Scalars['String']['input']>;
   isHidden?: InputMaybe<Scalars['Boolean']['input']>;
+  logo?: InputMaybe<Scalars['JSON']['input']>;
   maximumPaymentAmount?: InputMaybe<Scalars['String']['input']>;
   minimumPaymentAmount?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['JSON']['input']>;
   sender?: InputMaybe<Scalars['JSON']['input']>;
+  setupTitle?: InputMaybe<Scalars['String']['input']>;
   setupUrl?: InputMaybe<Scalars['String']['input']>;
+  shortDescription?: InputMaybe<Scalars['String']['input']>;
   supportedBillingIntegrationsGroup?: InputMaybe<Scalars['String']['input']>;
   type?: InputMaybe<Scalars['String']['input']>;
   updatedAt?: InputMaybe<Scalars['String']['input']>;
@@ -1572,6 +1580,14 @@ export type AcquiringIntegrationHistoryRecordWhereInput = {
   deletedAt_lte?: InputMaybe<Scalars['String']['input']>;
   deletedAt_not?: InputMaybe<Scalars['String']['input']>;
   deletedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  displayPriority?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_gt?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_gte?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  displayPriority_lt?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_lte?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_not?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   dv_gt?: InputMaybe<Scalars['Int']['input']>;
   dv_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -1624,6 +1640,10 @@ export type AcquiringIntegrationHistoryRecordWhereInput = {
   id_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   isHidden?: InputMaybe<Scalars['Boolean']['input']>;
   isHidden_not?: InputMaybe<Scalars['Boolean']['input']>;
+  logo?: InputMaybe<Scalars['JSON']['input']>;
+  logo_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  logo_not?: InputMaybe<Scalars['JSON']['input']>;
+  logo_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
   maximumPaymentAmount?: InputMaybe<Scalars['String']['input']>;
   maximumPaymentAmount_gt?: InputMaybe<Scalars['String']['input']>;
   maximumPaymentAmount_gte?: InputMaybe<Scalars['String']['input']>;
@@ -1666,6 +1686,24 @@ export type AcquiringIntegrationHistoryRecordWhereInput = {
   sender_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
   sender_not?: InputMaybe<Scalars['JSON']['input']>;
   sender_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  setupTitle?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_contains?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_contains_i?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_ends_with?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_i?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  setupTitle_not?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_not_contains?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_not_i?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  setupTitle_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_starts_with?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   setupUrl?: InputMaybe<Scalars['String']['input']>;
   setupUrl_contains?: InputMaybe<Scalars['String']['input']>;
   setupUrl_contains_i?: InputMaybe<Scalars['String']['input']>;
@@ -1684,6 +1722,24 @@ export type AcquiringIntegrationHistoryRecordWhereInput = {
   setupUrl_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   setupUrl_starts_with?: InputMaybe<Scalars['String']['input']>;
   setupUrl_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  shortDescription?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_contains?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_contains_i?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_ends_with?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_i?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  shortDescription_not?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_not_contains?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_not_i?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  shortDescription_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_starts_with?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   supportedBillingIntegrationsGroup?: InputMaybe<Scalars['String']['input']>;
   supportedBillingIntegrationsGroup_contains?: InputMaybe<Scalars['String']['input']>;
   supportedBillingIntegrationsGroup_contains_i?: InputMaybe<Scalars['String']['input']>;
@@ -1784,16 +1840,20 @@ export type AcquiringIntegrationUpdateInput = {
   canGroupReceipts?: InputMaybe<Scalars['Boolean']['input']>;
   contextDefaultStatus?: InputMaybe<AcquiringIntegrationContextDefaultStatusType>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
+  displayPriority?: InputMaybe<Scalars['Int']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   explicitFeeDistributionSchema?: InputMaybe<Array<FeeDistributionFieldInput>>;
   hostUrl?: InputMaybe<Scalars['String']['input']>;
   isHidden?: InputMaybe<Scalars['Boolean']['input']>;
+  logo?: InputMaybe<Scalars['FileMeta']['input']>;
   maximumPaymentAmount?: InputMaybe<Scalars['String']['input']>;
   minimumPaymentAmount?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['String']['input']>;
   sender?: InputMaybe<SenderFieldInput>;
+  setupTitle?: InputMaybe<Scalars['String']['input']>;
   setupUrl?: InputMaybe<Scalars['String']['input']>;
+  shortDescription?: InputMaybe<Scalars['String']['input']>;
   supportedBillingIntegrationsGroup?: InputMaybe<Scalars['String']['input']>;
   type?: InputMaybe<AcquiringIntegrationTypeType>;
   vatPercentOptions?: InputMaybe<Scalars['String']['input']>;
@@ -1832,6 +1892,14 @@ export type AcquiringIntegrationWhereInput = {
   deletedAt_lte?: InputMaybe<Scalars['String']['input']>;
   deletedAt_not?: InputMaybe<Scalars['String']['input']>;
   deletedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  displayPriority?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_gt?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_gte?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  displayPriority_lt?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_lte?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_not?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   dv_gt?: InputMaybe<Scalars['Int']['input']>;
   dv_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -1868,6 +1936,10 @@ export type AcquiringIntegrationWhereInput = {
   id_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   isHidden?: InputMaybe<Scalars['Boolean']['input']>;
   isHidden_not?: InputMaybe<Scalars['Boolean']['input']>;
+  logo?: InputMaybe<Scalars['String']['input']>;
+  logo_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  logo_not?: InputMaybe<Scalars['String']['input']>;
+  logo_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   maximumPaymentAmount?: InputMaybe<Scalars['String']['input']>;
   maximumPaymentAmount_gt?: InputMaybe<Scalars['String']['input']>;
   maximumPaymentAmount_gte?: InputMaybe<Scalars['String']['input']>;
@@ -1910,6 +1982,24 @@ export type AcquiringIntegrationWhereInput = {
   sender_in?: InputMaybe<Array<InputMaybe<SenderFieldInput>>>;
   sender_not?: InputMaybe<SenderFieldInput>;
   sender_not_in?: InputMaybe<Array<InputMaybe<SenderFieldInput>>>;
+  setupTitle?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_contains?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_contains_i?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_ends_with?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_i?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  setupTitle_not?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_not_contains?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_not_i?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  setupTitle_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_starts_with?: InputMaybe<Scalars['String']['input']>;
+  setupTitle_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   setupUrl?: InputMaybe<Scalars['String']['input']>;
   setupUrl_contains?: InputMaybe<Scalars['String']['input']>;
   setupUrl_contains_i?: InputMaybe<Scalars['String']['input']>;
@@ -1928,6 +2018,24 @@ export type AcquiringIntegrationWhereInput = {
   setupUrl_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   setupUrl_starts_with?: InputMaybe<Scalars['String']['input']>;
   setupUrl_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  shortDescription?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_contains?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_contains_i?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_ends_with?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_i?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  shortDescription_not?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_not_contains?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_not_i?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  shortDescription_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_starts_with?: InputMaybe<Scalars['String']['input']>;
+  shortDescription_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   supportedBillingIntegrationsGroup?: InputMaybe<Scalars['String']['input']>;
   supportedBillingIntegrationsGroup_contains?: InputMaybe<Scalars['String']['input']>;
   supportedBillingIntegrationsGroup_contains_i?: InputMaybe<Scalars['String']['input']>;
@@ -15117,6 +15225,7 @@ export type BillingIntegrationCreateInput = {
   currencyCode?: InputMaybe<BillingIntegrationCurrencyCodeType>;
   dataFormat?: InputMaybe<BillingIntegrationDataFormatFieldInput>;
   detailedDescription?: InputMaybe<Scalars['String']['input']>;
+  displayPriority?: InputMaybe<Scalars['Int']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   extendsBillingPage?: InputMaybe<Scalars['Boolean']['input']>;
   group?: InputMaybe<Scalars['String']['input']>;
@@ -15342,6 +15451,7 @@ export type BillingIntegrationHistoryRecordCreateInput = {
   dataFormat?: InputMaybe<Scalars['JSON']['input']>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
   detailedDescription?: InputMaybe<Scalars['JSON']['input']>;
+  displayPriority?: InputMaybe<Scalars['Int']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   extendsBillingPage?: InputMaybe<Scalars['Boolean']['input']>;
   group?: InputMaybe<Scalars['String']['input']>;
@@ -15597,6 +15707,14 @@ export type BillingIntegrationHistoryRecordWhereInput = {
   detailedDescription_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
   detailedDescription_not?: InputMaybe<Scalars['JSON']['input']>;
   detailedDescription_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  displayPriority?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_gt?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_gte?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  displayPriority_lt?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_lte?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_not?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   dv_gt?: InputMaybe<Scalars['Int']['input']>;
   dv_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -16293,6 +16411,7 @@ export type BillingIntegrationUpdateInput = {
   dataFormat?: InputMaybe<BillingIntegrationDataFormatFieldInput>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
   detailedDescription?: InputMaybe<Scalars['String']['input']>;
+  displayPriority?: InputMaybe<Scalars['Int']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   extendsBillingPage?: InputMaybe<Scalars['Boolean']['input']>;
   group?: InputMaybe<Scalars['String']['input']>;
@@ -16510,6 +16629,14 @@ export type BillingIntegrationWhereInput = {
   detailedDescription_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   detailedDescription_starts_with?: InputMaybe<Scalars['String']['input']>;
   detailedDescription_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  displayPriority?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_gt?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_gte?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  displayPriority_lt?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_lte?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_not?: InputMaybe<Scalars['Int']['input']>;
+  displayPriority_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   dv_gt?: InputMaybe<Scalars['Int']['input']>;
   dv_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -49244,6 +49371,8 @@ export enum SortAcquiringIntegrationHistoryRecordsBy {
   CreatedAtDesc = 'createdAt_DESC',
   DeletedAtAsc = 'deletedAt_ASC',
   DeletedAtDesc = 'deletedAt_DESC',
+  DisplayPriorityAsc = 'displayPriority_ASC',
+  DisplayPriorityDesc = 'displayPriority_DESC',
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
   HistoryActionAsc = 'history_action_ASC',
@@ -49262,8 +49391,12 @@ export enum SortAcquiringIntegrationHistoryRecordsBy {
   MinimumPaymentAmountDesc = 'minimumPaymentAmount_DESC',
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
+  SetupTitleAsc = 'setupTitle_ASC',
+  SetupTitleDesc = 'setupTitle_DESC',
   SetupUrlAsc = 'setupUrl_ASC',
   SetupUrlDesc = 'setupUrl_DESC',
+  ShortDescriptionAsc = 'shortDescription_ASC',
+  ShortDescriptionDesc = 'shortDescription_DESC',
   SupportedBillingIntegrationsGroupAsc = 'supportedBillingIntegrationsGroup_ASC',
   SupportedBillingIntegrationsGroupDesc = 'supportedBillingIntegrationsGroup_DESC',
   TypeAsc = 'type_ASC',
@@ -49289,6 +49422,8 @@ export enum SortAcquiringIntegrationsBy {
   CreatedByDesc = 'createdBy_DESC',
   DeletedAtAsc = 'deletedAt_ASC',
   DeletedAtDesc = 'deletedAt_DESC',
+  DisplayPriorityAsc = 'displayPriority_ASC',
+  DisplayPriorityDesc = 'displayPriority_DESC',
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
   HostUrlAsc = 'hostUrl_ASC',
@@ -49303,8 +49438,12 @@ export enum SortAcquiringIntegrationsBy {
   MinimumPaymentAmountDesc = 'minimumPaymentAmount_DESC',
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
+  SetupTitleAsc = 'setupTitle_ASC',
+  SetupTitleDesc = 'setupTitle_DESC',
   SetupUrlAsc = 'setupUrl_ASC',
   SetupUrlDesc = 'setupUrl_DESC',
+  ShortDescriptionAsc = 'shortDescription_ASC',
+  ShortDescriptionDesc = 'shortDescription_DESC',
   SupportedBillingIntegrationsGroupAsc = 'supportedBillingIntegrationsGroup_ASC',
   SupportedBillingIntegrationsGroupDesc = 'supportedBillingIntegrationsGroup_DESC',
   TypeAsc = 'type_ASC',
@@ -51601,6 +51740,8 @@ export enum SortBillingIntegrationHistoryRecordsBy {
   CurrencyCodeDesc = 'currencyCode_DESC',
   DeletedAtAsc = 'deletedAt_ASC',
   DeletedAtDesc = 'deletedAt_DESC',
+  DisplayPriorityAsc = 'displayPriority_ASC',
+  DisplayPriorityDesc = 'displayPriority_DESC',
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
   ExtendsBillingPageAsc = 'extendsBillingPage_ASC',
@@ -51747,6 +51888,8 @@ export enum SortBillingIntegrationsBy {
   DeletedAtDesc = 'deletedAt_DESC',
   DetailedDescriptionAsc = 'detailedDescription_ASC',
   DetailedDescriptionDesc = 'detailedDescription_DESC',
+  DisplayPriorityAsc = 'displayPriority_ASC',
+  DisplayPriorityDesc = 'displayPriority_DESC',
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
   ExtendsBillingPageAsc = 'extendsBillingPage_ASC',
@@ -73394,12 +73537,144 @@ export type _KsListsMetaInput = {
   key?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type OrganizationInfoFragment = { __typename?: 'Organization', id: string, tin?: string | null, name?: string | null, country?: OrganizationCountryType | null };
+
+export type GetEmployeeByUserAndOrganizationQueryVariables = Exact<{
+  userId: Scalars['ID']['input'];
+  organizationId: Scalars['ID']['input'];
+}>;
+
+
+export type GetEmployeeByUserAndOrganizationQuery = { __typename?: 'Query', employees?: Array<{ __typename?: 'OrganizationEmployee', id: string, organization?: { __typename?: 'Organization', id: string, tin?: string | null, name?: string | null, country?: OrganizationCountryType | null } | null, role?: { __typename?: 'OrganizationEmployeeRole', id: string, name?: string | null } | null } | null> | null };
+
+export type ResidentInfoFragment = { __typename?: 'Resident', id: string, address?: string | null, unitName?: string | null, unitType?: ResidentUnitTypeType | null, isVerifiedByManagingCompany?: boolean | null };
+
+export type GetResidentByIdQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetResidentByIdQuery = { __typename?: 'Query', resident?: { __typename?: 'Resident', id: string, address?: string | null, unitName?: string | null, unitType?: ResidentUnitTypeType | null, isVerifiedByManagingCompany?: boolean | null } | null };
+
 export type AuthenticatedUserQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type AuthenticatedUserQuery = { __typename?: 'Query', authenticatedUser?: { __typename?: 'User', id: string, name?: string | null, type?: UserTypeType | null, phone?: string | null } | null };
 
+export const OrganizationInfoFragmentDoc = gql`
+    fragment OrganizationInfo on Organization {
+  id
+  tin
+  name
+  country
+}
+    `;
+export const ResidentInfoFragmentDoc = gql`
+    fragment ResidentInfo on Resident {
+  id
+  address
+  unitName
+  unitType
+  isVerifiedByManagingCompany
+}
+    `;
+export const GetEmployeeByUserAndOrganizationDocument = gql`
+    query getEmployeeByUserAndOrganization($userId: ID!, $organizationId: ID!) {
+  employees: allOrganizationEmployees(
+    first: 1
+    where: {user: {id: $userId}, organization: {id: $organizationId}}
+  ) {
+    id
+    organization {
+      ...OrganizationInfo
+    }
+    role {
+      id
+      name
+    }
+  }
+}
+    ${OrganizationInfoFragmentDoc}`;
 
+/**
+ * __useGetEmployeeByUserAndOrganizationQuery__
+ *
+ * To run a query within a React component, call `useGetEmployeeByUserAndOrganizationQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetEmployeeByUserAndOrganizationQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetEmployeeByUserAndOrganizationQuery({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *      organizationId: // value for 'organizationId'
+ *   },
+ * });
+ */
+export function useGetEmployeeByUserAndOrganizationQuery(baseOptions: Apollo.QueryHookOptions<GetEmployeeByUserAndOrganizationQuery, GetEmployeeByUserAndOrganizationQueryVariables> & ({ variables: GetEmployeeByUserAndOrganizationQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetEmployeeByUserAndOrganizationQuery, GetEmployeeByUserAndOrganizationQueryVariables>(GetEmployeeByUserAndOrganizationDocument, options);
+      }
+export function useGetEmployeeByUserAndOrganizationLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetEmployeeByUserAndOrganizationQuery, GetEmployeeByUserAndOrganizationQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetEmployeeByUserAndOrganizationQuery, GetEmployeeByUserAndOrganizationQueryVariables>(GetEmployeeByUserAndOrganizationDocument, options);
+        }
+// @ts-ignore
+export function useGetEmployeeByUserAndOrganizationSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetEmployeeByUserAndOrganizationQuery, GetEmployeeByUserAndOrganizationQueryVariables>): Apollo.UseSuspenseQueryResult<GetEmployeeByUserAndOrganizationQuery, GetEmployeeByUserAndOrganizationQueryVariables>;
+export function useGetEmployeeByUserAndOrganizationSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetEmployeeByUserAndOrganizationQuery, GetEmployeeByUserAndOrganizationQueryVariables>): Apollo.UseSuspenseQueryResult<GetEmployeeByUserAndOrganizationQuery | undefined, GetEmployeeByUserAndOrganizationQueryVariables>;
+export function useGetEmployeeByUserAndOrganizationSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetEmployeeByUserAndOrganizationQuery, GetEmployeeByUserAndOrganizationQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetEmployeeByUserAndOrganizationQuery, GetEmployeeByUserAndOrganizationQueryVariables>(GetEmployeeByUserAndOrganizationDocument, options);
+        }
+export type GetEmployeeByUserAndOrganizationQueryHookResult = ReturnType<typeof useGetEmployeeByUserAndOrganizationQuery>;
+export type GetEmployeeByUserAndOrganizationLazyQueryHookResult = ReturnType<typeof useGetEmployeeByUserAndOrganizationLazyQuery>;
+export type GetEmployeeByUserAndOrganizationSuspenseQueryHookResult = ReturnType<typeof useGetEmployeeByUserAndOrganizationSuspenseQuery>;
+export type GetEmployeeByUserAndOrganizationQueryResult = Apollo.QueryResult<GetEmployeeByUserAndOrganizationQuery, GetEmployeeByUserAndOrganizationQueryVariables>;
+export const GetResidentByIdDocument = gql`
+    query getResidentById($id: ID!) {
+  resident: Resident(where: {id: $id}) {
+    ...ResidentInfo
+  }
+}
+    ${ResidentInfoFragmentDoc}`;
+
+/**
+ * __useGetResidentByIdQuery__
+ *
+ * To run a query within a React component, call `useGetResidentByIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetResidentByIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetResidentByIdQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetResidentByIdQuery(baseOptions: Apollo.QueryHookOptions<GetResidentByIdQuery, GetResidentByIdQueryVariables> & ({ variables: GetResidentByIdQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetResidentByIdQuery, GetResidentByIdQueryVariables>(GetResidentByIdDocument, options);
+      }
+export function useGetResidentByIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetResidentByIdQuery, GetResidentByIdQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetResidentByIdQuery, GetResidentByIdQueryVariables>(GetResidentByIdDocument, options);
+        }
+// @ts-ignore
+export function useGetResidentByIdSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetResidentByIdQuery, GetResidentByIdQueryVariables>): Apollo.UseSuspenseQueryResult<GetResidentByIdQuery, GetResidentByIdQueryVariables>;
+export function useGetResidentByIdSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetResidentByIdQuery, GetResidentByIdQueryVariables>): Apollo.UseSuspenseQueryResult<GetResidentByIdQuery | undefined, GetResidentByIdQueryVariables>;
+export function useGetResidentByIdSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetResidentByIdQuery, GetResidentByIdQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetResidentByIdQuery, GetResidentByIdQueryVariables>(GetResidentByIdDocument, options);
+        }
+export type GetResidentByIdQueryHookResult = ReturnType<typeof useGetResidentByIdQuery>;
+export type GetResidentByIdLazyQueryHookResult = ReturnType<typeof useGetResidentByIdLazyQuery>;
+export type GetResidentByIdSuspenseQueryHookResult = ReturnType<typeof useGetResidentByIdSuspenseQuery>;
+export type GetResidentByIdQueryResult = Apollo.QueryResult<GetResidentByIdQuery, GetResidentByIdQueryVariables>;
 export const AuthenticatedUserDocument = gql`
     query authenticatedUser {
   authenticatedUser {

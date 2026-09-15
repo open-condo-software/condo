@@ -15,6 +15,7 @@ It can be used for both B2B and B2C miniapps.
 - [Bridge](#bridge)
 - [Authorization](#authorization)
 - [Condo API](#condo-api)
+- [App Architecture](#app-architecture)
 
 ## Purpose
 
@@ -204,11 +205,11 @@ All locales must contain the same keys, so total number of rows as well as order
 
 Dynamic translations with values should use values as second arg as react-intl requires:
 ```ts
-const SomeTitle = intl.formatMessage({ id: 'user.components.userCard.title'}, { name: 'John' })
+const SomeTitle = intl.formatMessage({ id: 'components.user.userCard.title'}, { name: 'John' })
 ```
 React-intl also supports pluralization in templates (zero, one, two, few, many, other):
 ```ts
-const SomeTitle = intl.formatMessage({ id: 'marketplace.components.marketplaceCard.total.text'}, { total: 100500 })
+const SomeTitle = intl.formatMessage({ id: 'components.marketplace.marketplaceCard.total.text'}, { total: 100500 })
 ```
 
 You should use intl from hook and its methods on top of components, like `formatMessage` or `formatDate`, when possible. If not, prefer using components like `FormattedMessage` or `FormattedNumber`, 
@@ -446,3 +447,16 @@ Domain for working with utility meters and readings.
 - Readings have source tracking (mobile_app, billing, call, etc.)
 
 Use this when working with utility meter management, readings submission, or resource tracking.
+
+## App Architecture
+
+This section is used by AI coding agents to store app-specific context, learnings, and other app-specific data accumulated during development. Agents should document:
+
+- **Architecture decisions** - Key design choices and their rationale
+- **Domain-specific patterns** - Reusable patterns specific to this app's domains
+- **Integration details** - How different parts of the app interact with Condo API and Bridge
+- **Performance learnings** - Optimization strategies and performance considerations
+- **Known limitations** - Constraints or limitations discovered during development
+- **Future improvements** - Ideas for enhancements or refactoring
+
+This context helps maintain consistency across development sessions and provides valuable information for future agents working on this app.

@@ -1,3 +1,5 @@
+import { nextCamelCaseCSSModulesTransform } from '@open-condo/miniapp-utils/helpers/webpack'
+
 import { version } from './package.json'
 
 import type { NextConfig } from 'next'
@@ -19,6 +21,9 @@ const nextConfig: NextConfig = {
     },
     images: {
         unoptimized: true,
+    },
+    webpack: (config) => {
+        return nextCamelCaseCSSModulesTransform(config)
     },
 }
 
