@@ -5,12 +5,12 @@
 
 
 const { ActivateSubscriptionContextService } = require('./ActivateSubscriptionContextService')
+const { CancelSubscriptionRenewalService } = require('./CancelSubscriptionRenewalService')
 const { GetAvailableSubscriptionPlansService } = require('./GetAvailableSubscriptionPlansService')
 const { RegisterSubscriptionContextsService } = require('./RegisterSubscriptionContextsService')
 const { SubscriptionContext } = require('./SubscriptionContext')
 const { SubscriptionPlan } = require('./SubscriptionPlan')
 const { SubscriptionPlanPricingRule } = require('./SubscriptionPlanPricingRule')
-const { UpdateSubscriptionContextPaymentMethodService } = require('./UpdateSubscriptionContextPaymentMethodService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -20,6 +20,6 @@ module.exports = {
     GetAvailableSubscriptionPlansService,
     ActivateSubscriptionContextService,
     RegisterSubscriptionContextsService,
-    UpdateSubscriptionContextPaymentMethodService,
+    CancelSubscriptionRenewalService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

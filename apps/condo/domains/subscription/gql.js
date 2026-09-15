@@ -14,7 +14,7 @@ const SubscriptionPlan = generateGqlQueries('SubscriptionPlan', SUBSCRIPTION_PLA
 const SUBSCRIPTION_PLAN_PRICING_RULE_FIELDS = '{ name description subscriptionPlan { id } period conditions price currencyCode priority isHidden id dv sender { dv fingerprint } v }'
 const SubscriptionPlanPricingRule = generateGqlQueries('SubscriptionPlanPricingRule', SUBSCRIPTION_PLAN_PRICING_RULE_FIELDS)
 
-const SUBSCRIPTION_CONTEXT_FIELDS = '{ organization { id } subscriptionPlan { id priority } subscriptionPlanPricingRule { id } invoice { id } startAt endAt isTrial status bindingId frozenPaymentInfo { paymentMethod { bindingId paymentSystem cardNumber expiration bankName bankCountryCode } invoice { id rows { name count price toPay } toPay } pricingRuleId multiPaymentId } deletedAt id dv sender { dv fingerprint } v }'
+const SUBSCRIPTION_CONTEXT_FIELDS = '{ organization { id } subscriptionPlan { id priority } subscriptionPlanPricingRule { id } invoice { id } startAt endAt isTrial status bindingId renewalCancelledAt frozenPaymentInfo { paymentMethod { bindingId paymentSystem cardNumber expiration bankName bankCountryCode } invoice { id rows { name count price toPay } toPay } pricingRuleId multiPaymentId } deletedAt id dv sender { dv fingerprint } v }'
 const SubscriptionContext = generateGqlQueries('SubscriptionContext', SUBSCRIPTION_CONTEXT_FIELDS)
 
 const ACTIVATE_SUBSCRIPTION_CONTEXT_MUTATION = gql`
@@ -37,9 +37,9 @@ const REGISTER_SUBSCRIPTION_CONTEXTS_MUTATION = gql`
     }
 `
 
-const UPDATE_SUBSCRIPTION_CONTEXT_PAYMENT_METHOD_MUTATION = gql`
-    mutation updateSubscriptionContextPaymentMethod ($data: UpdateSubscriptionContextPaymentMethodInput!) {
-        result: updateSubscriptionContextPaymentMethod(data: $data) { id }
+const CANCEL_SUBSCRIPTION_RENEWAL_MUTATION = gql`
+    mutation cancelSubscriptionRenewal ($data: CancelSubscriptionRenewalInput!) {
+        result: cancelSubscriptionRenewal(data: $data) { subscriptionContexts { id bindingId renewalCancelledAt } }
     }
 `
 
@@ -52,6 +52,6 @@ module.exports = {
     ACTIVATE_SUBSCRIPTION_CONTEXT_MUTATION,
     GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY,
     REGISTER_SUBSCRIPTION_CONTEXTS_MUTATION,
-    UPDATE_SUBSCRIPTION_CONTEXT_PAYMENT_METHOD_MUTATION,
+    CANCEL_SUBSCRIPTION_RENEWAL_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

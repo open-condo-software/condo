@@ -25948,6 +25948,17 @@ export type CallRecordsUpdateInput = {
   id: Scalars['ID']['input'];
 };
 
+export type CancelSubscriptionRenewalInput = {
+  dv: Scalars['Int']['input'];
+  sender: SenderFieldInput;
+  subscriptionContexts: Array<SubscriptionContextWhereUniqueInput>;
+};
+
+export type CancelSubscriptionRenewalOutput = {
+  __typename?: 'CancelSubscriptionRenewalOutput';
+  subscriptionContexts: Array<SubscriptionContext>;
+};
+
 export type ChangePasswordWithTokenInput = {
   dv: Scalars['Int']['input'];
   password: Scalars['String']['input'];
@@ -47317,7 +47328,13 @@ export type Mutation = {
    * `{
    *   "code": "BAD_USER_INPUT",
    *   "type": "SUBSCRIPTION_CONTEXT_INVALID_STATUS",
-   *   "message": "SubscriptionContext must have status CREATED"
+   *   "message": "SubscriptionContext must have status CREATED or PENDING"
+   * }`
+   *
+   * `{
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "PRICING_RULE_NOT_FOUND",
+   *   "message": "Pricing rule not found for SubscriptionContext"
    * }`
    *
    * `{
@@ -47605,6 +47622,28 @@ export type Mutation = {
    * }`
    */
   authenticateUserWithPhoneAndPassword?: Maybe<AuthenticateUserWithPhoneAndPasswordOutput>;
+  /**
+   * Cancels renewal of exactly the given subscription contexts: detaches the card and records renewalCancelledAt. The paid period stays active.
+   *
+   *
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOT_FOUND",
+   *   "message": "SubscriptionContext not found"
+   * }`
+   *
+   * `{
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "SUBSCRIPTION_CONTEXTS_FROM_DIFFERENT_ORGANIZATIONS",
+   *   "message": "All subscription contexts must belong to the same organization"
+   * }`
+   */
+  cancelSubscriptionRenewal?: Maybe<CancelSubscriptionRenewalOutput>;
   /**
    * Changes password this action via correct token, that should correspond to ConfirmPhoneAction.
    * Only used for staff users
@@ -51087,7 +51126,7 @@ export type Mutation = {
    */
   registerServiceConsumer?: Maybe<ServiceConsumer>;
   /**
-   * Registers a subscription for an organization from one or more pricing rules (a bundle). For trials (isTrial=true) creates a status DONE SubscriptionContext for every plan whose trial is available (its own trialDays), skipping plans with no trial or an already used one. For paid subscriptions creates one Invoice with a row per pricing rule and one SubscriptionContext per pricing rule with status CREATED; when paymentType=card a MultiPayment and directPaymentUrl are also created. Every call registers a fresh Invoice + contexts; it does not look at or touch earlier unpaid registrations.
+   * Registers subscription contexts for an organization from a bundle of pricing rules: trial contexts or one invoice for all paid ones.
    *
    *
    *
@@ -54843,7 +54882,6 @@ export type Mutation = {
   updateSubscriptionContextHistoryRecord?: Maybe<SubscriptionContextHistoryRecord>;
   /**  Update multiple SubscriptionContextHistoryRecord items by ID.  */
   updateSubscriptionContextHistoryRecords?: Maybe<Array<Maybe<SubscriptionContextHistoryRecord>>>;
-  updateSubscriptionContextPaymentMethod?: Maybe<UpdateSubscriptionContextPaymentMethodOutput>;
   /**  Update multiple SubscriptionContext items by ID.  */
   updateSubscriptionContexts?: Maybe<Array<Maybe<SubscriptionContext>>>;
   /**  Update a single SubscriptionPlan item by ID.  */
@@ -55242,6 +55280,11 @@ export type MutationAuthenticateUserWithPasswordArgs = {
 
 export type MutationAuthenticateUserWithPhoneAndPasswordArgs = {
   data: AuthenticateUserWithPhoneAndPasswordInput;
+};
+
+
+export type MutationCancelSubscriptionRenewalArgs = {
+  data: CancelSubscriptionRenewalInput;
 };
 
 
@@ -64509,11 +64552,6 @@ export type MutationUpdateSubscriptionContextHistoryRecordArgs = {
 
 export type MutationUpdateSubscriptionContextHistoryRecordsArgs = {
   data?: InputMaybe<Array<InputMaybe<SubscriptionContextHistoryRecordsUpdateInput>>>;
-};
-
-
-export type MutationUpdateSubscriptionContextPaymentMethodArgs = {
-  data: UpdateSubscriptionContextPaymentMethodInput;
 };
 
 
@@ -105076,7 +105114,7 @@ export type SubscriptionContext = {
   newId?: Maybe<Scalars['String']['output']>;
   /**  Organization that has this subscription  */
   organization?: Maybe<Organization>;
-  /**  When the organization declined to renew this subscription. Independent of the payment method: a card subscription also clears bindingId, an invoice one has nothing else to clear. A filled value keeps the context out of the set offered for renewal, it does not affect the period already paid for  */
+  /**  When the organization cancelled renewal of this subscription. The paid period stays active  */
   renewalCancelledAt?: Maybe<Scalars['String']['output']>;
   /**  Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
@@ -118054,19 +118092,6 @@ export type UnitType = {
   __typename?: 'UnitType';
   unitName: Scalars['String']['output'];
   unitType: BuildingUnitSubType;
-};
-
-export type UpdateSubscriptionContextPaymentMethodInput = {
-  bindingId?: InputMaybe<Scalars['String']['input']>;
-  dv: Scalars['Int']['input'];
-  sender: SenderFieldInput;
-  subscriptionContext: SubscriptionContextWhereUniqueInput;
-  subscriptionContexts?: InputMaybe<Array<SubscriptionContextWhereUniqueInput>>;
-};
-
-export type UpdateSubscriptionContextPaymentMethodOutput = {
-  __typename?: 'UpdateSubscriptionContextPaymentMethodOutput';
-  id: Scalars['String']['output'];
 };
 
 /**  Individual / person / service account / impersonal company account. Used primarily for authorization purposes, optimized access control with checking of `type` field, tracking authority of performed CRUD operations. Think of `User` as a technical entity, not a business actor. Business actor entities are Resident, OrganizationEmployee etc., — they are participating in high-level business scenarios and have connected to `User`. Almost everyting, created in the system, ends up to `User` as a source of action.  */

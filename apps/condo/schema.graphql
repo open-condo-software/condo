@@ -60800,7 +60800,7 @@ type SubscriptionContext {
   """
   bindingId: String
 
-  """ When the organization declined to renew this subscription. Independent of the payment method: a card subscription also clears bindingId, an invoice one has nothing else to clear. A filled value keeps the context out of the set offered for renewal, it does not affect the period already paid for 
+  """ When the organization cancelled renewal of this subscription. The paid period stays active 
   """
   renewalCancelledAt: String
 
@@ -96915,16 +96915,14 @@ type RegisterSubscriptionContextsOutput {
   multiPayment: MultiPayment
 }
 
-input UpdateSubscriptionContextPaymentMethodInput {
+input CancelSubscriptionRenewalInput {
   dv: Int!
   sender: SenderFieldInput!
-  subscriptionContext: SubscriptionContextWhereUniqueInput!
-  subscriptionContexts: [SubscriptionContextWhereUniqueInput!]
-  bindingId: String
+  subscriptionContexts: [SubscriptionContextWhereUniqueInput!]!
 }
 
-type UpdateSubscriptionContextPaymentMethodOutput {
-  id: String!
+type CancelSubscriptionRenewalOutput {
+  subscriptionContexts: [SubscriptionContext!]!
 }
 
 input RegisterMultiPaymentReceiptAmountInput {
@@ -112220,7 +112218,13 @@ type Mutation {
   `{
     "code": "BAD_USER_INPUT",
     "type": "SUBSCRIPTION_CONTEXT_INVALID_STATUS",
-    "message": "SubscriptionContext must have status CREATED"
+    "message": "SubscriptionContext must have status CREATED or PENDING"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "PRICING_RULE_NOT_FOUND",
+    "message": "Pricing rule not found for SubscriptionContext"
   }`
   
   `{
@@ -112238,7 +112242,7 @@ type Mutation {
   activateSubscriptionContext(data: ActivateSubscriptionContextInput!): ActivateSubscriptionContextOutput
 
   """
-  Registers a subscription for an organization from one or more pricing rules (a bundle). For trials (isTrial=true) creates a status DONE SubscriptionContext for every plan whose trial is available (its own trialDays), skipping plans with no trial or an already used one. For paid subscriptions creates one Invoice with a row per pricing rule and one SubscriptionContext per pricing rule with status CREATED; when paymentType=card a MultiPayment and directPaymentUrl are also created. Every call registers a fresh Invoice + contexts; it does not look at or touch earlier unpaid registrations.
+  Registers subscription contexts for an organization from a bundle of pricing rules: trial contexts or one invoice for all paid ones.
   
   
   
@@ -112323,7 +112327,29 @@ type Mutation {
   }`
   """
   registerSubscriptionContexts(data: RegisterSubscriptionContextsInput!): RegisterSubscriptionContextsOutput
-  updateSubscriptionContextPaymentMethod(data: UpdateSubscriptionContextPaymentMethodInput!): UpdateSubscriptionContextPaymentMethodOutput
+
+  """
+  Cancels renewal of exactly the given subscription contexts: detaches the card and records renewalCancelledAt. The paid period stays active.
+  
+  
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "NOT_FOUND",
+    "message": "SubscriptionContext not found"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "SUBSCRIPTION_CONTEXTS_FROM_DIFFERENT_ORGANIZATIONS",
+    "message": "All subscription contexts must belong to the same organization"
+  }`
+  """
+  cancelSubscriptionRenewal(data: CancelSubscriptionRenewalInput!): CancelSubscriptionRenewalOutput
   registerMultiPayment(data: RegisterMultiPaymentInput!): RegisterMultiPaymentOutput
   registerMultiPaymentForOneReceipt(data: RegisterMultiPaymentForOneReceiptInput!): RegisterMultiPaymentForOneReceiptOutput
   registerMultiPaymentForVirtualReceipt(data: RegisterMultiPaymentForVirtualReceiptInput!): RegisterMultiPaymentForOneReceiptOutput
