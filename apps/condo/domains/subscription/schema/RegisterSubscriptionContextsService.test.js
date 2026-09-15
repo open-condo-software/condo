@@ -313,9 +313,10 @@ describe('RegisterSubscriptionContextsService', () => {
         let serviceBundlePlan, serviceBundleRule
         let featureAiPlan, featureAiRule
         let featureSupportPlan, featureSupportRule
+        let prevSubscriptionsFlag
 
         beforeAll(async () => {
-            setFeatureFlag(SUBSCRIPTIONS, true)
+            prevSubscriptionsFlag = setFeatureFlag(SUBSCRIPTIONS, true)
 
             const [servicePlan] = await createTestSubscriptionPlan(admin, {
                 name: faker.commerce.productName(),
@@ -365,7 +366,7 @@ describe('RegisterSubscriptionContextsService', () => {
         })
 
         afterAll(() => {
-            setFeatureFlag(SUBSCRIPTIONS, false)
+            setFeatureFlag(SUBSCRIPTIONS, prevSubscriptionsFlag)
         })
 
         test('creates one invoice with a row per rule and one context per rule with aligned dates', async () => {
