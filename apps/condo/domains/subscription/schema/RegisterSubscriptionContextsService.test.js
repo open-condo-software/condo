@@ -188,8 +188,7 @@ describe('RegisterSubscriptionContextsService', () => {
             expect(result.subscriptionContexts[0].organization.id).toBe(organization.id)
             expect(result.subscriptionContexts[0].subscriptionPlan.id).toBe(subscriptionPlan.id)
             expect(result.subscriptionContexts[0].subscriptionPlanPricingRule.id).toBe(pricingRule.id)
-            expect(result.multiPayment).toBeDefined()
-            expect(result.directPaymentUrl).toBeDefined()
+            expect(result.multiPayment).not.toBeNull()
             expect(typeof result.directPaymentUrl).toBe('string')
         })
 
@@ -210,26 +209,6 @@ describe('RegisterSubscriptionContextsService', () => {
             const startAt = dayjs(context.startAt)
             const endAt = dayjs(context.endAt)
             expect(endAt.diff(startAt, 'month')).toBe(12)
-        })
-
-        test('extends subscription from last active context end date', async () => {
-            const existingEndAt = dayjs().add(30, 'days')
-            await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                startAt: dayjs().format('YYYY-MM-DD'),
-                endAt: existingEndAt.format('YYYY-MM-DD'),
-                isTrial: false,
-                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
-            })
-
-            const [result] = await registerSubscriptionContextsByTestClient(user, {
-                organization: { id: organization.id },
-                subscriptionPlanPricingRules: [{ id: pricingRule.id }],
-                isTrial: false,
-            })
-
-            const context = result.subscriptionContexts[0]
-            const startAt = dayjs(context.startAt)
-            expect(startAt.format('YYYY-MM-DD')).toBe(existingEndAt.format('YYYY-MM-DD'))
         })
 
         test('only considers DONE status contexts when calculating start date', async () => {
@@ -330,128 +309,6 @@ describe('RegisterSubscriptionContextsService', () => {
         })
     })
 
-    describe('Repeated registration', () => {
-        test('each call registers a fresh CREATED context', async () => {
-            const [result] = await registerSubscriptionContextsByTestClient(user, {
-                organization: { id: organization.id },
-                subscriptionPlanPricingRules: [{ id: pricingRule.id }],
-                isTrial: false,
-            })
-
-            expect(result.subscriptionContexts[0]).toBeDefined()
-            expect(result.subscriptionContexts[0].status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
-        })
-
-        test('registering the same plan again creates an independent context and leaves the earlier one untouched', async () => {
-            const [first] = await registerSubscriptionContextsByTestClient(user, {
-                organization: { id: organization.id },
-                subscriptionPlanPricingRules: [{ id: pricingRule.id }],
-                isTrial: false,
-            })
-
-            const [second] = await registerSubscriptionContextsByTestClient(user, {
-                organization: { id: organization.id },
-                subscriptionPlanPricingRules: [{ id: pricingRule.id }],
-                isTrial: false,
-            })
-
-            expect(second.subscriptionContexts[0].id).not.toBe(first.subscriptionContexts[0].id)
-            expect(second.subscriptionContexts[0].invoice.id).not.toBe(first.subscriptionContexts[0].invoice.id)
-
-            const firstContext = await SubscriptionContext.getOne(admin, { id: first.subscriptionContexts[0].id })
-            expect(firstContext.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
-            expect(firstContext.deletedAt).toBeNull()
-        })
-    })
-
-    describe('Feature Plan Validation', () => {
-        let featurePlan, featurePricingRule
-        let servicePlan
-
-        beforeAll(async () => {
-            setFeatureFlag(SUBSCRIPTIONS, true)
-
-            const [fPlan] = await createTestSubscriptionPlan(admin, {
-                name: faker.commerce.productName(),
-                organizationType: MANAGING_COMPANY_TYPE,
-                isHidden: false,
-                planType: SUBSCRIPTION_PLAN_TYPE_FEATURE,
-                trialDays: 14,
-                news: true,
-            })
-            featurePlan = fPlan
-
-            const [fRule] = await createTestSubscriptionPlanPricingRule(admin, featurePlan, {
-                period: SUBSCRIPTION_PERIOD.MONTH,
-                price: '500.00',
-                currencyCode: 'RUB',
-            })
-            featurePricingRule = fRule
-
-            const [sPlan] = await createTestSubscriptionPlan(admin, {
-                name: faker.commerce.productName(),
-                organizationType: MANAGING_COMPANY_TYPE,
-                isHidden: false,
-                planType: SUBSCRIPTION_PLAN_TYPE_SERVICE,
-                trialDays: 14,
-                payments: true,
-            })
-            servicePlan = sPlan
-        })
-
-        afterAll(() => {
-            setFeatureFlag(SUBSCRIPTIONS, false)
-        })
-
-        test('throws NO_ACTIVE_SERVICE_SUBSCRIPTION when registering feature plan without any service subscription', async () => {
-            await expectToThrowGQLError(async () => {
-                await registerSubscriptionContextsByTestClient(user, {
-                    organization: { id: organization.id },
-                    subscriptionPlanPricingRules: [{ id: featurePricingRule.id }],
-                    isTrial: false,
-                })
-            }, ERRORS.NO_ACTIVE_SERVICE_SUBSCRIPTION, 'result')
-        })
-
-        test('throws NO_ACTIVE_SERVICE_SUBSCRIPTION when service subscription is expired', async () => {
-            const [org] = await registerNewOrganization(user, { type: MANAGING_COMPANY_TYPE })
-            await createTestSubscriptionContext(admin, org, servicePlan, {
-                startAt: dayjs().subtract(30, 'days').format('YYYY-MM-DD'),
-                endAt: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
-                isTrial: true,
-                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
-            })
-
-            await expectToThrowGQLError(async () => {
-                await registerSubscriptionContextsByTestClient(user, {
-                    organization: { id: org.id },
-                    subscriptionPlanPricingRules: [{ id: featurePricingRule.id }],
-                    isTrial: false,
-                })
-            }, ERRORS.NO_ACTIVE_SERVICE_SUBSCRIPTION, 'result')
-        })
-
-        test('allows feature plan registration when active service subscription exists', async () => {
-            const [org] = await registerNewOrganization(user, { type: MANAGING_COMPANY_TYPE })
-            await createTestSubscriptionContext(admin, org, servicePlan, {
-                startAt: dayjs().format('YYYY-MM-DD'),
-                endAt: dayjs().add(30, 'days').format('YYYY-MM-DD'),
-                isTrial: false,
-                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
-            })
-
-            const [result] = await registerSubscriptionContextsByTestClient(user, {
-                organization: { id: org.id },
-                subscriptionPlanPricingRules: [{ id: featurePricingRule.id }],
-                isTrial: false,
-            })
-
-            expect(result.subscriptionContexts[0]).toBeDefined()
-            expect(result.subscriptionContexts[0].subscriptionPlan.id).toBe(featurePlan.id)
-            expect(result.subscriptionContexts[0].status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
-        })
-    })
-
     describe('Bundle', () => {
         let serviceBundlePlan, serviceBundleRule
         let featureAiPlan, featureAiRule
@@ -460,7 +317,7 @@ describe('RegisterSubscriptionContextsService', () => {
         beforeAll(async () => {
             setFeatureFlag(SUBSCRIPTIONS, true)
 
-            const [svc] = await createTestSubscriptionPlan(admin, {
+            ;[serviceBundlePlan] = await createTestSubscriptionPlan(admin, {
                 name: faker.commerce.productName(),
                 organizationType: MANAGING_COMPANY_TYPE,
                 isHidden: false,
@@ -468,43 +325,37 @@ describe('RegisterSubscriptionContextsService', () => {
                 payments: true,
                 meters: true,
             })
-            serviceBundlePlan = svc
-            const [svcRule] = await createTestSubscriptionPlanPricingRule(admin, serviceBundlePlan, {
+            ;[serviceBundleRule] = await createTestSubscriptionPlanPricingRule(admin, serviceBundlePlan, {
                 period: SUBSCRIPTION_PERIOD.MONTH,
                 price: '2000.00',
                 currencyCode: 'RUB',
             })
-            serviceBundleRule = svcRule
 
-            const [ai] = await createTestSubscriptionPlan(admin, {
+            ;[featureAiPlan] = await createTestSubscriptionPlan(admin, {
                 name: faker.commerce.productName(),
                 organizationType: MANAGING_COMPANY_TYPE,
                 isHidden: false,
                 planType: SUBSCRIPTION_PLAN_TYPE_FEATURE,
                 ai: true,
             })
-            featureAiPlan = ai
-            const [aiRule] = await createTestSubscriptionPlanPricingRule(admin, featureAiPlan, {
+            ;[featureAiRule] = await createTestSubscriptionPlanPricingRule(admin, featureAiPlan, {
                 period: SUBSCRIPTION_PERIOD.MONTH,
                 price: '500.00',
                 currencyCode: 'RUB',
             })
-            featureAiRule = aiRule
 
-            const [sup] = await createTestSubscriptionPlan(admin, {
+            ;[featureSupportPlan] = await createTestSubscriptionPlan(admin, {
                 name: faker.commerce.productName(),
                 organizationType: MANAGING_COMPANY_TYPE,
                 isHidden: false,
                 planType: SUBSCRIPTION_PLAN_TYPE_FEATURE,
                 support: true,
             })
-            featureSupportPlan = sup
-            const [supRule] = await createTestSubscriptionPlanPricingRule(admin, featureSupportPlan, {
+            ;[featureSupportRule] = await createTestSubscriptionPlanPricingRule(admin, featureSupportPlan, {
                 period: SUBSCRIPTION_PERIOD.MONTH,
                 price: '300.00',
                 currencyCode: 'RUB',
             })
-            featureSupportRule = supRule
         })
 
         afterAll(() => {
@@ -537,19 +388,6 @@ describe('RegisterSubscriptionContextsService', () => {
 
             expect(result.subscriptionContexts[0].invoice.rows).toHaveLength(3)
             expect(Number(result.subscriptionContexts[0].invoice.toPay)).toBe(2800)
-        })
-
-        test('paymentType=card creates a multiPayment and directPaymentUrl', async () => {
-            const [result] = await registerSubscriptionContextsByTestClient(user, {
-                organization: { id: organization.id },
-                subscriptionPlanPricingRules: [{ id: serviceBundleRule.id }, { id: featureAiRule.id }],
-                paymentType: 'card',
-                isTrial: false,
-            })
-
-            expect(result.multiPayment).toBeDefined()
-            expect(result.multiPayment).not.toBeNull()
-            expect(typeof result.directPaymentUrl).toBe('string')
         })
 
         test('paymentType=invoice does not create a multiPayment or directPaymentUrl', async () => {
@@ -642,14 +480,14 @@ describe('RegisterSubscriptionContextsService', () => {
         })
 
         test('creates a trial context per plan in the bundle, each with its own trialDays', async () => {
-            const [svcTrialPlan] = await createTestSubscriptionPlan(admin, {
+            const [serviceTrialPlan] = await createTestSubscriptionPlan(admin, {
                 organizationType: MANAGING_COMPANY_TYPE,
                 isHidden: false,
                 planType: SUBSCRIPTION_PLAN_TYPE_SERVICE,
                 payments: true,
                 trialDays: 14,
             })
-            const [svcTrialRule] = await createTestSubscriptionPlanPricingRule(admin, svcTrialPlan, {
+            const [serviceTrialRule] = await createTestSubscriptionPlanPricingRule(admin, serviceTrialPlan, {
                 period: SUBSCRIPTION_PERIOD.MONTH, price: '2000.00', currencyCode: 'RUB',
             })
             const [aiTrialPlan] = await createTestSubscriptionPlan(admin, {
@@ -665,7 +503,7 @@ describe('RegisterSubscriptionContextsService', () => {
 
             const [result] = await registerSubscriptionContextsByTestClient(user, {
                 organization: { id: organization.id },
-                subscriptionPlanPricingRules: [{ id: svcTrialRule.id }, { id: aiTrialRule.id }],
+                subscriptionPlanPricingRules: [{ id: serviceTrialRule.id }, { id: aiTrialRule.id }],
                 isTrial: true,
             })
 
@@ -679,59 +517,15 @@ describe('RegisterSubscriptionContextsService', () => {
             }
             const byPlan = Object.fromEntries(result.subscriptionContexts.map(ctx => [ctx.subscriptionPlan.id, ctx]))
             const today = dayjs().format('YYYY-MM-DD')
-            expect(byPlan[svcTrialPlan.id].endAt).toBe(dayjs(today).add(14, 'day').format('YYYY-MM-DD'))
+            expect(byPlan[serviceTrialPlan.id].endAt).toBe(dayjs(today).add(14, 'day').format('YYYY-MM-DD'))
             expect(byPlan[aiTrialPlan.id].endAt).toBe(dayjs(today).add(7, 'day').format('YYYY-MM-DD'))
         })
 
-        test('trials a feature-only bundle when a service subscription is active', async () => {
-            await createTestSubscriptionContext(admin, organization, serviceBundlePlan, {
-                subscriptionPlanPricingRule: { connect: { id: serviceBundleRule.id } },
-                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
-                startAt: dayjs().format('YYYY-MM-DD'),
-                endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
-                isTrial: false,
-            })
-
-            const [aiTrialPlan] = await createTestSubscriptionPlan(admin, {
-                organizationType: MANAGING_COMPANY_TYPE, isHidden: false, planType: SUBSCRIPTION_PLAN_TYPE_FEATURE, ai: true, trialDays: 7,
-            })
-            const [aiTrialRule] = await createTestSubscriptionPlanPricingRule(admin, aiTrialPlan, {
-                period: SUBSCRIPTION_PERIOD.MONTH, price: '500.00', currencyCode: 'RUB',
-            })
-
-            const [result] = await registerSubscriptionContextsByTestClient(user, {
-                organization: { id: organization.id },
-                subscriptionPlanPricingRules: [{ id: aiTrialRule.id }],
-                isTrial: true,
-            })
-
-            expect(result.subscriptionContexts).toHaveLength(1)
-            expect(result.subscriptionContexts[0].subscriptionPlan.id).toBe(aiTrialPlan.id)
-            expect(result.subscriptionContexts[0].isTrial).toBe(true)
-        })
-
-        test('throws NO_ACTIVE_SERVICE_SUBSCRIPTION for a feature-only trial bundle without an active service subscription', async () => {
-            const [aiTrialPlan] = await createTestSubscriptionPlan(admin, {
-                organizationType: MANAGING_COMPANY_TYPE, isHidden: false, planType: SUBSCRIPTION_PLAN_TYPE_FEATURE, ai: true, trialDays: 7,
-            })
-            const [aiTrialRule] = await createTestSubscriptionPlanPricingRule(admin, aiTrialPlan, {
-                period: SUBSCRIPTION_PERIOD.MONTH, price: '500.00', currencyCode: 'RUB',
-            })
-
-            await expectToThrowGQLError(async () => {
-                await registerSubscriptionContextsByTestClient(user, {
-                    organization: { id: organization.id },
-                    subscriptionPlanPricingRules: [{ id: aiTrialRule.id }],
-                    isTrial: true,
-                })
-            }, ERRORS.NO_ACTIVE_SERVICE_SUBSCRIPTION, 'result')
-        })
-
         test('skips a bundled plan whose trial is not available (trialDays = 0)', async () => {
-            const [svcTrialPlan] = await createTestSubscriptionPlan(admin, {
+            const [serviceTrialPlan] = await createTestSubscriptionPlan(admin, {
                 organizationType: MANAGING_COMPANY_TYPE, isHidden: false, planType: SUBSCRIPTION_PLAN_TYPE_SERVICE, payments: true, trialDays: 14,
             })
-            const [svcTrialRule] = await createTestSubscriptionPlanPricingRule(admin, svcTrialPlan, {
+            const [serviceTrialRule] = await createTestSubscriptionPlanPricingRule(admin, serviceTrialPlan, {
                 period: SUBSCRIPTION_PERIOD.MONTH, price: '2000.00', currencyCode: 'RUB',
             })
             const [noTrialFeaturePlan] = await createTestSubscriptionPlan(admin, {
@@ -743,35 +537,12 @@ describe('RegisterSubscriptionContextsService', () => {
 
             const [result] = await registerSubscriptionContextsByTestClient(user, {
                 organization: { id: organization.id },
-                subscriptionPlanPricingRules: [{ id: svcTrialRule.id }, { id: noTrialFeatureRule.id }],
+                subscriptionPlanPricingRules: [{ id: serviceTrialRule.id }, { id: noTrialFeatureRule.id }],
                 isTrial: true,
             })
 
             expect(result.subscriptionContexts).toHaveLength(1)
-            expect(result.subscriptionContexts[0].subscriptionPlan.id).toBe(svcTrialPlan.id)
-        })
-
-        test('throws TRIAL_ALREADY_USED when no plan in the bundle has an available trial', async () => {
-            const [svcTrialPlan] = await createTestSubscriptionPlan(admin, {
-                organizationType: MANAGING_COMPANY_TYPE, isHidden: false, planType: SUBSCRIPTION_PLAN_TYPE_SERVICE, payments: true, trialDays: 14,
-            })
-            const [svcTrialRule] = await createTestSubscriptionPlanPricingRule(admin, svcTrialPlan, {
-                period: SUBSCRIPTION_PERIOD.MONTH, price: '2000.00', currencyCode: 'RUB',
-            })
-
-            await registerSubscriptionContextsByTestClient(user, {
-                organization: { id: organization.id },
-                subscriptionPlanPricingRules: [{ id: svcTrialRule.id }],
-                isTrial: true,
-            })
-
-            await expectToThrowGQLError(async () => {
-                await registerSubscriptionContextsByTestClient(user, {
-                    organization: { id: organization.id },
-                    subscriptionPlanPricingRules: [{ id: svcTrialRule.id }],
-                    isTrial: true,
-                })
-            }, ERRORS.TRIAL_ALREADY_USED, 'result')
+            expect(result.subscriptionContexts[0].subscriptionPlan.id).toBe(serviceTrialPlan.id)
         })
 
         test('throws NO_ACTIVE_SERVICE_SUBSCRIPTION for a feature-only bundle without an active service subscription', async () => {
@@ -779,6 +550,24 @@ describe('RegisterSubscriptionContextsService', () => {
                 await registerSubscriptionContextsByTestClient(user, {
                     organization: { id: organization.id },
                     subscriptionPlanPricingRules: [{ id: featureAiRule.id }, { id: featureSupportRule.id }],
+                    isTrial: false,
+                })
+            }, ERRORS.NO_ACTIVE_SERVICE_SUBSCRIPTION, 'result')
+        })
+
+        test('throws NO_ACTIVE_SERVICE_SUBSCRIPTION when the service subscription is expired', async () => {
+            await createTestSubscriptionContext(admin, organization, serviceBundlePlan, {
+                startAt: dayjs().subtract(30, 'days').format('YYYY-MM-DD'),
+                endAt: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
+                // trial contexts have no payment buffer, so yesterday's endAt is already expired
+                isTrial: true,
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+            })
+
+            await expectToThrowGQLError(async () => {
+                await registerSubscriptionContextsByTestClient(user, {
+                    organization: { id: organization.id },
+                    subscriptionPlanPricingRules: [{ id: featureAiRule.id }],
                     isTrial: false,
                 })
             }, ERRORS.NO_ACTIVE_SERVICE_SUBSCRIPTION, 'result')

@@ -3,6 +3,7 @@
  */
 
 const dayjs = require('dayjs')
+const uniq = require('lodash/uniq')
 
 const { userIsAdmin } = require('@open-condo/keystone/access')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
@@ -18,7 +19,8 @@ const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema
 const access = require('@condo/domains/subscription/access/SubscriptionContext')
 const { SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_CONTEXT_STATUSES, SUBSCRIPTION_CONTEXT_STATUS_TRANSITIONS, SUBSCRIPTION_PLAN_TYPE_FEATURE, SUBSCRIPTION_PAYMENT_BUFFER_DAYS } = require('@condo/domains/subscription/constants')
 const { isPlanSubsetOf } = require('@condo/domains/subscription/utils/isPlanSubsetOf')
-const { updateSubscriptionContextPaymentMethod } = require('@condo/domains/subscription/utils/serverSchema')
+const { SubscriptionContext: SubscriptionContextServerUtils } = require('@condo/domains/subscription/utils/serverSchema')
+const { deleteUnusedCardTokens } = require('@condo/domains/subscription/utils/serverSchema/deleteUnusedCardTokens')
 
 const ERRORS = {
     END_DATE_MUST_BE_AFTER_START_DATE: {
@@ -180,7 +182,7 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
         },
 
         renewalCancelledAt: {
-            schemaDoc: 'When the organization declined to renew this subscription. Independent of the payment method: a card subscription also clears bindingId, an invoice one has nothing else to clear. A filled value keeps the context out of the set offered for renewal, it does not affect the period already paid for',
+            schemaDoc: 'When the organization cancelled renewal of this subscription. The paid period stays active',
             type: 'DateTimeUtc',
             isRequired: false,
             access: {
@@ -212,6 +214,14 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
 
     },
     hooks: {
+        resolveInput: async ({ resolvedData }) => {
+            // Attaching a card renews the context again. Detaching one alone is not a cancellation:
+            // renewalCancelledAt is set only when the organization declines renewal via cancelSubscriptionRenewal
+            if (resolvedData.bindingId && !('renewalCancelledAt' in resolvedData)) {
+                resolvedData.renewalCancelledAt = null
+            }
+            return resolvedData
+        },
         validateInput: async ({ resolvedData, existingItem, context, operation }) => {
             const startAt = resolvedData.startAt || existingItem?.startAt
             const endAt = resolvedData.endAt || existingItem?.endAt
@@ -368,6 +378,7 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
                     const autopaymentCandidates = await find('SubscriptionContext', {
                         organization: { id: updatedItem.organization },
                         status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+                        isTrial: false,
                         bindingId_not: null,
                         endAt_gte: bufferDate,
                         deletedAt: null,
@@ -377,26 +388,30 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
                         otherContext => !updatedItem.invoice || otherContext.invoice !== updatedItem.invoice
                     )
 
-                    const supersededContextIds = []
+                    const supersededContexts = []
                     for (const otherContext of activeContextsWithAutopayment) {
                         const otherPlan = await getById('SubscriptionPlan', otherContext.subscriptionPlan)
                         if (!otherPlan) continue
 
                         if (!isPlanSubsetOf(otherPlan, activatedPlan)) continue
 
-                        supersededContextIds.push(otherContext.id)
+                        supersededContexts.push(otherContext)
                     }
 
-                    // Named explicitly: passing a single context would stop auto-renewal for its whole
-                    // invoice, taking down bundle mates the activated plan does not cover
-                    if (supersededContextIds.length > 0) {
-                        await updateSubscriptionContextPaymentMethod(context, {
+                    // The activated plan now carries the renewal, so the superseded contexts only lose their card.
+                    // The organization did not decline anything, hence no renewalCancelledAt
+                    for (const supersededContext of supersededContexts) {
+                        await SubscriptionContextServerUtils.update(context, supersededContext.id, {
+                            dv: 1,
                             sender: updatedItem.sender,
-                            subscriptionContext: { id: supersededContextIds[0] },
-                            subscriptionContexts: supersededContextIds.map(id => ({ id })),
                             bindingId: null,
                         })
                     }
+                    await deleteUnusedCardTokens({
+                        organizationId: updatedItem.organization,
+                        bindingIds: uniq(supersededContexts.map(supersededContext => supersededContext.bindingId)),
+                        detachedContextIds: supersededContexts.map(supersededContext => supersededContext.id),
+                    })
                 }
             }
         },

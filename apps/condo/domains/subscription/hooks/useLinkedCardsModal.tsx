@@ -1,4 +1,4 @@
-import { useGetOrganizationSubscriptionContextsWithPaymentMethodsQuery, useUpdateSubscriptionContextPaymentMethodMutation } from '@app/condo/gql'
+import { useGetOrganizationSubscriptionContextsWithPaymentMethodsQuery, useCancelSubscriptionRenewalMutation } from '@app/condo/gql'
 import { notification, Row, Col } from 'antd'
 import getConfig from 'next/config'
 import { useCallback, useMemo, useState } from 'react'
@@ -173,7 +173,7 @@ export const useLinkedCardsModal = ({ onCardUnbound }: UseLinkedCardsModalProps 
         setSelectedCardId(null)
     }, [])
 
-    const [updateSubscriptionContextPaymentMethod] = useUpdateSubscriptionContextPaymentMethodMutation()
+    const [cancelSubscriptionRenewal] = useCancelSubscriptionRenewalMutation()
 
     const handleUnbindConfirm = useCallback(async () => {
         if (!organization || !canManageSubscriptions || !selectedCardId) return
@@ -186,14 +186,13 @@ export const useLinkedCardsModal = ({ onCardUnbound }: UseLinkedCardsModalProps 
                 context => context.frozenPaymentInfo?.paymentMethod?.bindingId === selectedCardId
             ) || []
 
-            for (const context of contextsToUnbind) {
-                await updateSubscriptionContextPaymentMethod({
+            if (contextsToUnbind.length > 0) {
+                await cancelSubscriptionRenewal({
                     variables: {
                         data: {
                             dv: 1,
                             sender,
-                            subscriptionContext: { id: context.id },
-                            bindingId: null,
+                            subscriptionContexts: contextsToUnbind.map(context => ({ id: context.id })),
                         },
                     },
                 })
@@ -222,7 +221,7 @@ export const useLinkedCardsModal = ({ onCardUnbound }: UseLinkedCardsModalProps 
         } finally {
             setIsUnbinding(false)
         }
-    }, [organization, canManageSubscriptions, selectedCardId, subscriptionContextsData, updateSubscriptionContextPaymentMethod, refetchSubscriptionContexts, onCardUnbound, NotificationTitle, NotificationDescription, ErrorNotificationTitle, ErrorNotificationDescription])
+    }, [organization, canManageSubscriptions, selectedCardId, subscriptionContextsData, cancelSubscriptionRenewal, refetchSubscriptionContexts, onCardUnbound, NotificationTitle, NotificationDescription, ErrorNotificationTitle, ErrorNotificationDescription])
 
     const LinkedCardsModal = useMemo(() => {
         if (hidePaidFeatures) return null

@@ -121,7 +121,7 @@ describe('ActivateSubscriptionContextService', () => {
             }, ERRORS.SUBSCRIPTION_CONTEXT_NOT_FOUND, 'result')
         })
 
-        test('throws error if subscription context has wrong status', async () => {
+        test('throws error if subscription context is already DONE', async () => {
             const [context] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
                 startAt: dayjs().format('YYYY-MM-DD'),
                 endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
@@ -134,12 +134,40 @@ describe('ActivateSubscriptionContextService', () => {
             }, ERRORS.SUBSCRIPTION_CONTEXT_INVALID_STATUS, 'result')
         })
 
+        test('throws error if subscription context is in ERROR', async () => {
+            const [context] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
+                isTrial: false,
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
+                status: SUBSCRIPTION_CONTEXT_STATUS.ERROR,
+            })
+
+            await expectToThrowGQLError(async () => {
+                await activateSubscriptionContextByTestClient(admin, context)
+            }, ERRORS.SUBSCRIPTION_CONTEXT_INVALID_STATUS, 'result')
+        })
+
+        test('throws error if pricing rule not set', async () => {
+            const [context] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
+                isTrial: false,
+                status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+            })
+
+            await expectToThrowGQLError(async () => {
+                await activateSubscriptionContextByTestClient(admin, context)
+            }, ERRORS.PRICING_RULE_NOT_FOUND, 'result')
+        })
+
         test('throws error if invoice not found', async () => {
             const [context] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
                 startAt: dayjs().format('YYYY-MM-DD'),
                 endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
                 isTrial: false,
                 status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
             })
 
             await expectToThrowGQLError(async () => {
