@@ -169,7 +169,7 @@ export const AIChatInput: React.FC<AIChatInputProps> = ({
     return (
         <div ref={containerRef} className={styles.inputContainer}>
             <Space direction='vertical' size={8} width='100%'>
-                {attachments && attachments.fileList.length > 0 && (
+                {attachments && attachedFiles.length > 0 && (
                     <div className={styles.attachmentsContainer}>
                         <div className={styles.attachmentContainer}>
                             {attachedFiles.map((file) => (
