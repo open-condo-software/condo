@@ -328,9 +328,19 @@ const RegisterSubscriptionContextsService = new GQLCustomSchema('RegisterSubscri
                             endAt: datesByPlanId.get(plan.id).endAt,
                             isTrial: false,
                             status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
-                            frozenPaymentInfo: { pricingRuleId: rule.id },
+                            frozenPaymentInfo: { pricingRuleId: rule.id, paymentType },
                         })
                         subscriptionContextIds.push(subscriptionContext.id)
+                    }
+
+                    // Nobody would ever send an invoice that no manager heard of, so a lost request rolls the bundle back
+                    if (!isCard) {
+                        await queueSubscriptionInvoiceRequestedWebhook({
+                            invoiceId: invoice.id,
+                            subscriptionContexts: await find('SubscriptionContext', { id_in: subscriptionContextIds, deletedAt: null }),
+                            userId: context.authedItem?.id,
+                            sender,
+                        })
                     }
                 } catch (error) {
                     logger.error({ msg: 'Failed to create bundle invoice or contexts, rolling back', err: error, data: { organizationId: organization.id, invoiceId: invoice?.id || null, subscriptionContextIds } })
@@ -363,14 +373,6 @@ const RegisterSubscriptionContextsService = new GQLCustomSchema('RegisterSubscri
                 }
 
                 const subscriptionContexts = await find('SubscriptionContext', { id_in: subscriptionContextIds, deletedAt: null })
-                if (!isCard) {
-                    await queueSubscriptionInvoiceRequestedWebhook({
-                        invoiceId: invoice.id,
-                        subscriptionContexts,
-                        userId: context.authedItem?.id,
-                        sender,
-                    })
-                }
                 logger.info({ msg: 'Registered subscription bundle', data: { organizationId: organization.id, invoiceId: invoice.id, contextCount: subscriptionContexts.length, multiPaymentId: multiPayment?.id || null } })
 
                 return { subscriptionContexts, directPaymentUrl, multiPayment }

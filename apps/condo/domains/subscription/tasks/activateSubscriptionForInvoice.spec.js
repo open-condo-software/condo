@@ -331,6 +331,7 @@ describe('activateSubscriptionForInvoice', () => {
             for (const ctx of contexts) {
                 expect(ctx.bindingId).toBeNull()
                 expect(ctx.frozenPaymentInfo.paymentMethod).toBeNull()
+                expect(ctx.frozenPaymentInfo.paymentType).toBe('invoice')
             }
         })
     })

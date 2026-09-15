@@ -193,7 +193,7 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
         },
 
         frozenPaymentInfo: {
-            schemaDoc: 'Frozen payment information at the time of subscription context creation. Includes payment method details, invoice information, and pricing rule ID',
+            schemaDoc: 'Frozen payment information at the time of subscription context creation. Includes payment method details, invoice information, pricing rule ID and the payment type chosen at registration (card or invoice)',
             type: 'Json',
             isRequired: false,
             sensitive: true,
@@ -201,10 +201,10 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
                 'type PaymentMethod { bindingId: String!, paymentSystem: String!, cardNumber: String!, expiration: String!, bankName: String!, bankCountryCode: String! }',
                 'type InvoiceRow { name: String, count: String, price: String, toPay: String }',
                 'type FrozenInvoice { id: String, rows: [InvoiceRow], toPay: String, currencyCode: String }',
-                'type FrozenPaymentInfo { paymentMethod: PaymentMethod, invoice: FrozenInvoice, pricingRuleId: String, multiPaymentId: String }',
+                'type FrozenPaymentInfo { paymentMethod: PaymentMethod, invoice: FrozenInvoice, pricingRuleId: String, multiPaymentId: String, paymentType: String }',
             ],
             graphQLReturnType: 'FrozenPaymentInfo',
-            graphQLAdminFragment: '{ paymentMethod { bindingId paymentSystem cardNumber expiration bankName bankCountryCode } invoice { id rows { name count price toPay } toPay currencyCode } pricingRuleId multiPaymentId }',
+            graphQLAdminFragment: '{ paymentMethod { bindingId paymentSystem cardNumber expiration bankName bankCountryCode } invoice { id rows { name count price toPay } toPay currencyCode } pricingRuleId multiPaymentId paymentType }',
             access: {
                 read: true,
                 create: userIsAdmin,
