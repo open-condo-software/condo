@@ -8,7 +8,7 @@ const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/
 const { MULTIPAYMENT_PROCESSING_STATUS } = require('@condo/domains/acquiring/constants/payment')
 const { Payment, createTestAcquiringIntegration, createTestAcquiringIntegrationContext, updateTestMultiPayment } = require('@condo/domains/acquiring/utils/testSchema')
 const { INVOICE_STATUS_CANCELED, INVOICE_STATUS_PUBLISHED, INVOICE_STATUS_PAID, INVOICE_TYPE_B2B } = require('@condo/domains/marketplace/constants')
-const { Invoice, createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
+const { Invoice, createTestInvoice, updateTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PERIOD, SUBSCRIPTION_PAYMENT_BUFFER_DAYS, SUBSCRIPTION_PLAN_TYPE_FEATURE } = require('@condo/domains/subscription/constants')
 const { processRecurrentSubscriptionPayments } = require('@condo/domains/subscription/tasks/processRecurrentSubscriptionPayments')
@@ -17,6 +17,7 @@ const {
     createTestSubscriptionPlan,
     createTestSubscriptionPlanPricingRule,
     createTestSubscriptionContext,
+    updateTestSubscriptionContext,
     registerSubscriptionContextsByTestClient,
     SubscriptionContext,
 } = require('@condo/domains/subscription/utils/testSchema')
@@ -589,6 +590,63 @@ describe('processRecurrentSubscriptionPayments', () => {
             const newRuleIds = newContexts.map(ctx => ctx.subscriptionPlanPricingRule.id).sort()
             expect(newRuleIds).toEqual([pricingRule.id, featureRule.id].sort())
         })
+
+        test('renews only the plans of a bundle that have not been renewed yet', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+            const [payerOrganization] = await createTestOrganization(adminClient)
+
+            await createTestAcquiringIntegrationContext(adminClient, organization, acquiringIntegration, {
+                invoiceStatus: CONTEXT_FINISHED_STATUS,
+            })
+
+            const bindingId = faker.datatype.uuid()
+            const startAt = dayjs().subtract(1, 'month').format('YYYY-MM-DD')
+            const endAt = dayjs().subtract(1, 'day').format('YYYY-MM-DD')
+
+            const [sharedInvoice] = await createTestInvoice(adminClient, organization, {
+                type: INVOICE_TYPE_B2B,
+                status: INVOICE_STATUS_PAID,
+                payerOrganization: { connect: { id: payerOrganization.id } },
+            })
+
+            const [serviceContext] = await createTestSubscriptionContext(adminClient, payerOrganization, subscriptionPlan, {
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
+                invoice: { connect: { id: sharedInvoice.id } },
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+                bindingId,
+                startAt,
+                endAt,
+                isTrial: false,
+            })
+            await createTestSubscriptionContext(adminClient, payerOrganization, featurePlan, {
+                subscriptionPlanPricingRule: { connect: { id: featureRule.id } },
+                invoice: { connect: { id: sharedInvoice.id } },
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+                bindingId,
+                startAt,
+                endAt,
+                isTrial: false,
+            })
+
+            await createTestSubscriptionContext(adminClient, payerOrganization, subscriptionPlan, {
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+                startAt: endAt,
+                endAt: dayjs(endAt).add(1, 'month').format('YYYY-MM-DD'),
+                isTrial: false,
+            })
+            // the successor activation detaches the card; bring it back as if that step had failed
+            await updateTestSubscriptionContext(adminClient, serviceContext.id, { bindingId })
+
+            await processRecurrentSubscriptionPayments()
+
+            const renewalContexts = await SubscriptionContext.getAll(adminClient, {
+                organization: { id: payerOrganization.id },
+                status: SUBSCRIPTION_CONTEXT_STATUS.PENDING,
+            })
+            expect(renewalContexts).toHaveLength(1)
+            expect(renewalContexts[0].subscriptionPlanPricingRule.id).toBe(featureRule.id)
+        })
     })
 
     describe('existing renewal', () => {
@@ -658,6 +716,24 @@ describe('processRecurrentSubscriptionPayments', () => {
             expect(proceedPaymentSpy).not.toHaveBeenCalled()
             const invoices = await Invoice.getAll(adminClient, { payerOrganization: { id: organization.id } })
             expect(invoices).toHaveLength(1)
+        })
+
+        test('closes a renewal whose invoice was cancelled and registers a new one', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+            await createCardContext(organization, dayjs().subtract(1, 'day').format('YYYY-MM-DD'))
+            const proceedPaymentSpy = mockFailedPayment()
+
+            await processRecurrentSubscriptionPayments()
+            const [cancelledInvoice] = await Invoice.getAll(adminClient, { payerOrganization: { id: organization.id } })
+            await updateTestInvoice(adminClient, cancelledInvoice.id, { status: INVOICE_STATUS_CANCELED })
+
+            await processRecurrentSubscriptionPayments()
+
+            expect(proceedPaymentSpy).toHaveBeenCalledTimes(2)
+            const closedContexts = await SubscriptionContext.getAll(adminClient, { invoice: { id: cancelledInvoice.id } })
+            expect(closedContexts.every(ctx => ctx.status === SUBSCRIPTION_CONTEXT_STATUS.ERROR)).toBe(true)
+            const invoices = await Invoice.getAll(adminClient, { payerOrganization: { id: organization.id } })
+            expect(invoices).toHaveLength(2)
         })
 
         test('cancels the invoice when the renewal fails on the last buffer day', async () => {
