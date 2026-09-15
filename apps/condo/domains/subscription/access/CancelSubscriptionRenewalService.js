@@ -11,7 +11,7 @@ const { STAFF } = require('@condo/domains/user/constants/common')
 async function canCancelSubscriptionRenewal ({ authentication: { item: user }, args, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isAdmin) return true
+    if (user.isAdmin || user.isSupport) return true
 
     if (user.type !== STAFF) return false
 

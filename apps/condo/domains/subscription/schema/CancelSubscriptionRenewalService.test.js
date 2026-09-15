@@ -51,22 +51,25 @@ describe('CancelSubscriptionRenewalService', () => {
         support = await makeClientWithSupportUser()
         anonymous = await makeClient()
 
-        ;[subscriptionPlan] = await createTestSubscriptionPlan(admin, {
+        const [plan] = await createTestSubscriptionPlan(admin, {
             name: faker.commerce.productName(),
             organizationType: MANAGING_COMPANY_TYPE,
             isHidden: false,
             trialDays: 14,
         })
-        ;[pricingRule] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
+        subscriptionPlan = plan
+        const [rule] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
             period: SUBSCRIPTION_PERIOD.MONTH,
             price: '1000.00',
             currencyCode: 'RUB',
         })
+        pricingRule = rule
     })
 
     beforeEach(async () => {
         user = await makeClientWithNewRegisteredAndLoggedInUser()
-        ;[organization] = await registerNewOrganization(user, { type: MANAGING_COMPANY_TYPE })
+        const [org] = await registerNewOrganization(user, { type: MANAGING_COMPANY_TYPE })
+        organization = org
     })
 
     describe('Access', () => {
@@ -116,14 +119,14 @@ describe('CancelSubscriptionRenewalService', () => {
             })
         })
 
-        test('support cannot cancel renewal', async () => {
+        test('support can cancel renewal', async () => {
             const subscriptionContext = await createPaidContext(organization)
 
-            await expectToThrowAccessDeniedErrorToResult(async () => {
-                await cancelSubscriptionRenewalByTestClient(support, {
-                    subscriptionContexts: [{ id: subscriptionContext.id }],
-                })
+            const [result] = await cancelSubscriptionRenewalByTestClient(support, {
+                subscriptionContexts: [{ id: subscriptionContext.id }],
             })
+
+            expect(result.subscriptionContexts[0].id).toBe(subscriptionContext.id)
         })
 
         test('user without employment cannot cancel renewal', async () => {
