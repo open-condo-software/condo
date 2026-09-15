@@ -187,8 +187,8 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
             isRequired: false,
             access: {
                 read: true,
-                create: true,
-                update: true,
+                create: userIsAdmin,
+                update: userIsAdmin,
             },
         },
 
@@ -371,6 +371,8 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
                 }
             }
 
+            // A paid plan became active: other active contexts of the organization whose plans it fully covers
+            // (including the previous period of the same plan) lose their card, so they are not auto-renewed and charged twice
             if (isBecomingDone && !updatedItem.isTrial) {
                 const activatedPlan = await getById('SubscriptionPlan', updatedItem.subscriptionPlan)
                 if (activatedPlan) {
@@ -398,8 +400,6 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
                         supersededContexts.push(otherContext)
                     }
 
-                    // The activated plan now carries the renewal, so the superseded contexts only lose their card.
-                    // The organization did not decline anything, hence no renewalCancelledAt
                     for (const supersededContext of supersededContexts) {
                         await SubscriptionContextServerUtils.update(context, supersededContext.id, {
                             dv: 1,

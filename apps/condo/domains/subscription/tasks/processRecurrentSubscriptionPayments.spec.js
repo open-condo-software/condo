@@ -578,7 +578,7 @@ describe('processRecurrentSubscriptionPayments', () => {
 
             const newContexts = await SubscriptionContext.getAll(adminClient, {
                 organization: { id: payerOrganization.id },
-                status_in: [SUBSCRIPTION_CONTEXT_STATUS.PENDING, SUBSCRIPTION_CONTEXT_STATUS.ERROR],
+                status: SUBSCRIPTION_CONTEXT_STATUS.PENDING,
             })
 
             expect(newContexts).toHaveLength(2)
@@ -623,6 +623,8 @@ describe('processRecurrentSubscriptionPayments', () => {
             expect(proceedPaymentSpy).toHaveBeenCalledTimes(2)
             const invoices = await Invoice.getAll(adminClient, { payerOrganization: { id: organization.id } })
             expect(invoices).toHaveLength(1)
+            const payments = await Payment.getAll(adminClient, { invoice: { id: invoices[0].id } })
+            expect(new Set(payments.map(payment => payment.multiPayment.id)).size).toBe(1)
         })
 
         test('does not charge again once the gateway started the renewal payment', async () => {

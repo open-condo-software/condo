@@ -3,8 +3,10 @@ const dayjs = require('dayjs')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx, find, itemsQuery } = require('@open-condo/keystone/schema')
 
+const { DIRECT_PAYMENT_PATH } = require('@condo/domains/acquiring/constants/links')
 const {
     MULTIPAYMENT_DONE_STATUS,
+    MULTIPAYMENT_INIT_STATUS,
     MULTIPAYMENT_PROCESSING_STATUS,
     MULTIPAYMENT_WITHDRAWN_STATUS,
     PAYMENT_DONE_STATUS,
@@ -17,6 +19,7 @@ const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
 const { SUBSCRIPTION_PAYMENT_BUFFER_DAYS, SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PAYMENT_TYPE_CARD } = require('@condo/domains/subscription/constants')
 const { SubscriptionPaymentAdapter } = require('@condo/domains/subscription/tasks/utils/SubscriptionPaymentAdapter')
 const { registerSubscriptionContexts, SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
+const { getSubscriptionPaymentRecipient } = require('@condo/domains/subscription/utils/serverSchema/getSubscriptionPaymentRecipient')
 const { buildDirectPaymentUrl } = require('@condo/domains/subscription/utils/subscriptionContext')
 
 const logger = getLogger('processRecurrentSubscriptionPayments')
@@ -90,10 +93,23 @@ async function findExistingRenewal (organizationId, renewalRuleIds, bufferDate) 
         const [invoice] = await find('Invoice', { id: invoiceId, deletedAt: null })
         if (!invoice || invoice.status !== INVOICE_STATUS_PUBLISHED) return { ...renewal, skipReason: 'INVOICE_NOT_PAYABLE' }
 
-        return { ...renewal, skipReason: null }
+        const unchargedMultiPayment = multiPayments.find(multiPayment => multiPayment.status === MULTIPAYMENT_INIT_STATUS)
+        return { ...renewal, skipReason: null, multiPaymentId: unchargedMultiPayment?.id || null }
     }
 
     return null
+}
+
+// MultiPayment id is the provider idempotency key: reusing an uncharged one cannot charge twice, a new one can
+async function getRetryPaymentUrl (context, { invoiceId, multiPaymentId }) {
+    if (multiPaymentId) {
+        const { acquiringIntegration } = await getSubscriptionPaymentRecipient()
+        if (acquiringIntegration?.hostUrl) {
+            return `${acquiringIntegration.hostUrl}${DIRECT_PAYMENT_PATH.replace('[id]', multiPaymentId)}`
+        }
+    }
+    const { directPaymentUrl } = await registerMultiPayment(context, { invoices: [{ id: invoiceId }], sender: SENDER })
+    return directPaymentUrl
 }
 
 // Returns the invoice, contexts and payment url to charge, or null when the bundle must not be charged
@@ -106,8 +122,8 @@ async function prepareRenewalPayment (context, { organizationId, renewalRuleIds,
     }
 
     if (existing) {
-        const { directPaymentUrl } = await registerMultiPayment(context, { invoices: [{ id: existing.invoiceId }], sender: SENDER })
-        logger.info({ msg: 'retrying payment for existing renewal', data: { organizationId, invoiceId: existing.invoiceId, contextIds: existing.contextIds } })
+        const directPaymentUrl = await getRetryPaymentUrl(context, existing)
+        logger.info({ msg: 'retrying payment for existing renewal', data: { organizationId, invoiceId: existing.invoiceId, contextIds: existing.contextIds, multiPaymentId: existing.multiPaymentId } })
         return { ...existing, directPaymentUrl: buildDirectPaymentUrl(directPaymentUrl, organizationId) }
     }
 
@@ -149,16 +165,17 @@ async function setContextsStatus (context, contextIds, status) {
     }
 }
 
-// ERROR is final, so its invoice is cancelled: once paid it could never activate the contexts
+// Invoice is cancelled first: ERROR contexts can never be activated by a later payment
 async function failRenewal (context, { contextIds, invoiceId }, status) {
-    await setContextsStatus(context, contextIds, status)
-    if (status !== SUBSCRIPTION_CONTEXT_STATUS.ERROR || !invoiceId) return
-
-    try {
-        await Invoice.update(context, invoiceId, { dv: 1, sender: SENDER, status: INVOICE_STATUS_CANCELED })
-    } catch (err) {
-        logger.error({ msg: 'failed to cancel invoice of a failed renewal', err, data: { invoiceId, contextIds } })
+    if (status === SUBSCRIPTION_CONTEXT_STATUS.ERROR && invoiceId) {
+        try {
+            await Invoice.update(context, invoiceId, { dv: 1, sender: SENDER, status: INVOICE_STATUS_CANCELED })
+        } catch (err) {
+            logger.error({ msg: 'failed to cancel invoice of a failed renewal, contexts keep their status', err, data: { invoiceId, contextIds } })
+            return
+        }
     }
+    await setContextsStatus(context, contextIds, status)
 }
 
 async function processRecurrentSubscriptionPayments () {
