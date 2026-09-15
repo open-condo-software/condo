@@ -26,6 +26,7 @@ const {
 const { isPlanSubsetOf } = require('@condo/domains/subscription/utils/isPlanSubsetOf')
 const { SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
 const { getSubscriptionPaymentRecipient } = require('@condo/domains/subscription/utils/serverSchema/getSubscriptionPaymentRecipient')
+const { queueSubscriptionInvoiceRequestedWebhook } = require('@condo/domains/subscription/utils/serverSchema/subscriptionWebhooks')
 const { buildDirectPaymentUrl, calculateSubscriptionPeriod } = require('@condo/domains/subscription/utils/subscriptionContext')
 
 const logger = getLogger('RegisterSubscriptionContextsService')
@@ -362,6 +363,14 @@ const RegisterSubscriptionContextsService = new GQLCustomSchema('RegisterSubscri
                 }
 
                 const subscriptionContexts = await find('SubscriptionContext', { id_in: subscriptionContextIds, deletedAt: null })
+                if (!isCard) {
+                    await queueSubscriptionInvoiceRequestedWebhook({
+                        invoiceId: invoice.id,
+                        subscriptionContexts,
+                        userId: context.authedItem?.id,
+                        sender,
+                    })
+                }
                 logger.info({ msg: 'Registered subscription bundle', data: { organizationId: organization.id, invoiceId: invoice.id, contextCount: subscriptionContexts.length, multiPaymentId: multiPayment?.id || null } })
 
                 return { subscriptionContexts, directPaymentUrl, multiPayment }
