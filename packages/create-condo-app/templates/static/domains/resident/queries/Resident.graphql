@@ -1,0 +1,13 @@
+fragment ResidentInfo on Resident {
+    id
+    address
+    unitName
+    unitType
+    isVerifiedByManagingCompany
+}
+
+query getResidentById($id: ID!) {
+    resident: Resident(where: {id: $id}) {
+        ...ResidentInfo
+    }
+}
