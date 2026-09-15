@@ -82,7 +82,7 @@ const CancelSubscriptionRenewalService = new GQLCustomSchema('CancelSubscription
                         renewalCancelledAt: subscriptionContext.renewalCancelledAt || now,
                     })
                 }
-                logger.info({ msg: 'Cancelled subscription renewal', data: { organizationId, subscriptionContextIds, releasedBindingIds } })
+                logger.info({ msg: 'Cancelled subscription renewal', data: { organizationId, subscriptionContextIds } })
 
                 await deleteUnusedCardTokens({ organizationId, bindingIds: releasedBindingIds, detachedContextIds: subscriptionContextIds })
 

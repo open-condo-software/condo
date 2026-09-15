@@ -317,7 +317,7 @@ describe('RegisterSubscriptionContextsService', () => {
         beforeAll(async () => {
             setFeatureFlag(SUBSCRIPTIONS, true)
 
-            ;[serviceBundlePlan] = await createTestSubscriptionPlan(admin, {
+            const [servicePlan] = await createTestSubscriptionPlan(admin, {
                 name: faker.commerce.productName(),
                 organizationType: MANAGING_COMPANY_TYPE,
                 isHidden: false,
@@ -325,37 +325,43 @@ describe('RegisterSubscriptionContextsService', () => {
                 payments: true,
                 meters: true,
             })
-            ;[serviceBundleRule] = await createTestSubscriptionPlanPricingRule(admin, serviceBundlePlan, {
+            serviceBundlePlan = servicePlan
+            const [serviceRule] = await createTestSubscriptionPlanPricingRule(admin, serviceBundlePlan, {
                 period: SUBSCRIPTION_PERIOD.MONTH,
                 price: '2000.00',
                 currencyCode: 'RUB',
             })
+            serviceBundleRule = serviceRule
 
-            ;[featureAiPlan] = await createTestSubscriptionPlan(admin, {
+            const [aiPlan] = await createTestSubscriptionPlan(admin, {
                 name: faker.commerce.productName(),
                 organizationType: MANAGING_COMPANY_TYPE,
                 isHidden: false,
                 planType: SUBSCRIPTION_PLAN_TYPE_FEATURE,
                 ai: true,
             })
-            ;[featureAiRule] = await createTestSubscriptionPlanPricingRule(admin, featureAiPlan, {
+            featureAiPlan = aiPlan
+            const [aiRule] = await createTestSubscriptionPlanPricingRule(admin, featureAiPlan, {
                 period: SUBSCRIPTION_PERIOD.MONTH,
                 price: '500.00',
                 currencyCode: 'RUB',
             })
+            featureAiRule = aiRule
 
-            ;[featureSupportPlan] = await createTestSubscriptionPlan(admin, {
+            const [supportPlan] = await createTestSubscriptionPlan(admin, {
                 name: faker.commerce.productName(),
                 organizationType: MANAGING_COMPANY_TYPE,
                 isHidden: false,
                 planType: SUBSCRIPTION_PLAN_TYPE_FEATURE,
                 support: true,
             })
-            ;[featureSupportRule] = await createTestSubscriptionPlanPricingRule(admin, featureSupportPlan, {
+            featureSupportPlan = supportPlan
+            const [supportRule] = await createTestSubscriptionPlanPricingRule(admin, featureSupportPlan, {
                 period: SUBSCRIPTION_PERIOD.MONTH,
                 price: '300.00',
                 currencyCode: 'RUB',
             })
+            featureSupportRule = supportRule
         })
 
         afterAll(() => {
