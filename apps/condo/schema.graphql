@@ -60755,6 +60755,7 @@ type FrozenPaymentInfo {
   invoice: FrozenInvoice
   pricingRuleId: String
   multiPaymentId: String
+  paymentType: String
 }
 
 """ Subscription context linking organization to a subscription plan with calculated pricing. When changing subscription plan, a new context must be created 
@@ -60804,7 +60805,7 @@ type SubscriptionContext {
   """
   renewalCancelledAt: String
 
-  """ Frozen payment information at the time of subscription context creation. Includes payment method details, invoice information, and pricing rule ID 
+  """ Frozen payment information at the time of subscription context creation. Includes payment method details, invoice information, pricing rule ID and the payment type chosen at registration (card or invoice) 
   """
   frozenPaymentInfo: FrozenPaymentInfo
   id: ID!

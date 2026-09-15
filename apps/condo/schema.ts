@@ -32539,6 +32539,7 @@ export type FrozenPaymentInfo = {
   invoice?: Maybe<FrozenInvoice>;
   multiPaymentId?: Maybe<Scalars['String']['output']>;
   paymentMethod?: Maybe<PaymentMethod>;
+  paymentType?: Maybe<Scalars['String']['output']>;
   pricingRuleId?: Maybe<Scalars['String']['output']>;
 };
 
@@ -105104,7 +105105,7 @@ export type SubscriptionContext = {
   dv?: Maybe<Scalars['Int']['output']>;
   /**  Subscription end date  */
   endAt?: Maybe<Scalars['String']['output']>;
-  /**  Frozen payment information at the time of subscription context creation. Includes payment method details, invoice information, and pricing rule ID  */
+  /**  Frozen payment information at the time of subscription context creation. Includes payment method details, invoice information, pricing rule ID and the payment type chosen at registration (card or invoice)  */
   frozenPaymentInfo?: Maybe<FrozenPaymentInfo>;
   id: Scalars['ID']['output'];
   /**  Invoice for this subscription payment. Populated from payment invoice  */

@@ -190,6 +190,9 @@ describe('RegisterSubscriptionContextsService', () => {
             expect(result.subscriptionContexts[0].subscriptionPlanPricingRule.id).toBe(pricingRule.id)
             expect(result.multiPayment).not.toBeNull()
             expect(typeof result.directPaymentUrl).toBe('string')
+
+            const [context] = await SubscriptionContext.getAll(admin, { id: result.subscriptionContexts[0].id })
+            expect(context.frozenPaymentInfo.paymentType).toBe('card')
         })
 
         test('calculates correct subscription dates based on pricing rule period', async () => {
@@ -411,6 +414,9 @@ describe('RegisterSubscriptionContextsService', () => {
             for (const ctx of result.subscriptionContexts) {
                 expect(ctx.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
             }
+
+            const contexts = await SubscriptionContext.getAll(admin, { id_in: result.subscriptionContexts.map(({ id }) => id) })
+            expect(contexts.every(ctx => ctx.frozenPaymentInfo.paymentType === 'invoice')).toBe(true)
         })
 
         test('throws MIXED_PRICING_RULE_PERIODS when rules have different periods', async () => {
