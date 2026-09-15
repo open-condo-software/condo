@@ -23,6 +23,7 @@ const { activateSubscriptionForInvoiceFn } = require('@condo/domains/subscriptio
 const {
     createTestSubscriptionPlan,
     createTestSubscriptionPlanPricingRule,
+    SubscriptionPlanPricingRule,
     createTestSubscriptionContext,
     registerSubscriptionContextsByTestClient,
     SubscriptionContext,
@@ -148,6 +149,33 @@ describe('activateSubscriptionForInvoice', () => {
             const [ctx] = await SubscriptionContext.getAll(adminClient, { id: contextId })
             expect(ctx.startAt).toBe(priorEndAt)
             expect(ctx.endAt).toBe(dayjs(priorEndAt).add(1, 'month').format('YYYY-MM-DD'))
+        })
+
+        test('takes the period from a pricing rule deleted after registration', async () => {
+            const [organization] = await registerNewOrganization(adminClient)
+            const [yearlyRule] = await createTestSubscriptionPlanPricingRule(adminClient, subscriptionPlan, {
+                price: '10000',
+                period: SUBSCRIPTION_PERIOD.YEAR,
+            })
+
+            const [result] = await registerSubscriptionContextsByTestClient(adminClient, {
+                organization: { id: organization.id },
+                subscriptionPlanPricingRules: [{ id: yearlyRule.id }],
+                paymentType: 'invoice',
+            })
+            const contextId = result.subscriptionContexts[0].id
+            const invoiceId = result.subscriptionContexts[0].invoice.id
+
+            await SubscriptionPlanPricingRule.softDelete(adminClient, yearlyRule.id)
+            await updateTestInvoice(adminClient, invoiceId, { status: INVOICE_STATUS_PAID })
+
+            await waitFor(async () => {
+                const [ctx] = await SubscriptionContext.getAll(adminClient, { id: contextId })
+                expect(ctx.status).toBe(SUBSCRIPTION_CONTEXT_STATUS.DONE)
+            })
+
+            const [ctx] = await SubscriptionContext.getAll(adminClient, { id: contextId })
+            expect(ctx.endAt).toBe(dayjs(ctx.startAt).add(12, 'month').format('YYYY-MM-DD'))
         })
     })
 

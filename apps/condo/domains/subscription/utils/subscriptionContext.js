@@ -101,8 +101,25 @@ function calculateSubscriptionStartDate (existingContexts) {
     return startAt
 }
 
+/**
+ * Calculates the period of a new paid subscription: it continues the chain of existing contexts
+ * and lasts for the given number of months.
+ *
+ * @param {Array} existingContexts - DONE contexts of the same organization and plan
+ * @param {number} months - Period length in months
+ * @returns {{ startAt: string, endAt: string }} - Dates in YYYY-MM-DD format
+ */
+function calculateSubscriptionPeriod (existingContexts, months) {
+    const startAt = calculateSubscriptionStartDate(existingContexts)
+    return {
+        startAt: startAt.format('YYYY-MM-DD'),
+        endAt: startAt.add(months, 'month').format('YYYY-MM-DD'),
+    }
+}
+
 module.exports = {
     buildDirectPaymentUrl,
     selectBestSubscriptionContext,
     calculateSubscriptionStartDate,
+    calculateSubscriptionPeriod,
 }

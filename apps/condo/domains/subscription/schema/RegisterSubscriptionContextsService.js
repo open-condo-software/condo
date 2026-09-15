@@ -26,7 +26,7 @@ const {
 const { isPlanSubsetOf } = require('@condo/domains/subscription/utils/isPlanSubsetOf')
 const { SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
 const { getSubscriptionPaymentRecipient } = require('@condo/domains/subscription/utils/serverSchema/getSubscriptionPaymentRecipient')
-const { buildDirectPaymentUrl, calculateSubscriptionStartDate } = require('@condo/domains/subscription/utils/subscriptionContext')
+const { buildDirectPaymentUrl, calculateSubscriptionPeriod } = require('@condo/domains/subscription/utils/subscriptionContext')
 
 const logger = getLogger('RegisterSubscriptionContextsService')
 
@@ -140,7 +140,7 @@ const RegisterSubscriptionContextsService = new GQLCustomSchema('RegisterSubscri
             access: access.canRegisterSubscriptionContexts,
             schema: 'registerSubscriptionContexts(data: RegisterSubscriptionContextsInput!): RegisterSubscriptionContextsOutput',
             doc: {
-                summary: 'Registers a subscription for an organization from one or more pricing rules (a bundle). For trials (isTrial=true) creates a status DONE SubscriptionContext for every plan whose trial is available (its own trialDays), skipping plans with no trial or an already used one. For paid subscriptions creates one Invoice with a row per pricing rule and one SubscriptionContext per pricing rule with status CREATED; when paymentType=card a MultiPayment and directPaymentUrl are also created. Every call registers a fresh Invoice + contexts; it does not look at or touch earlier unpaid registrations.',
+                summary: 'Registers subscription contexts for an organization from a bundle of pricing rules: trial contexts or one invoice for all paid ones.',
                 errors: ERRORS,
             },
             resolver: async (parent, args, context) => {
@@ -243,9 +243,9 @@ const RegisterSubscriptionContextsService = new GQLCustomSchema('RegisterSubscri
                     }
 
                     const trialStartAt = dayjs()
-                    const createdIds = []
+                    const subscriptionContextIds = []
                     for (const { plan } of trialSubscriptions) {
-                        const created = await SubscriptionContext.create(context, {
+                        const subscriptionContext = await SubscriptionContext.create(context, {
                             dv,
                             sender,
                             organization: { connect: { id: organization.id } },
@@ -255,10 +255,10 @@ const RegisterSubscriptionContextsService = new GQLCustomSchema('RegisterSubscri
                             isTrial: true,
                             status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
                         })
-                        createdIds.push(created.id)
+                        subscriptionContextIds.push(subscriptionContext.id)
                     }
 
-                    const subscriptionContexts = await find('SubscriptionContext', { id_in: createdIds, deletedAt: null })
+                    const subscriptionContexts = await find('SubscriptionContext', { id_in: subscriptionContextIds, deletedAt: null })
                     return { subscriptionContexts, directPaymentUrl: null, multiPayment: null }
                 }
 
@@ -286,15 +286,10 @@ const RegisterSubscriptionContextsService = new GQLCustomSchema('RegisterSubscri
                     status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
                     deletedAt: null,
                 })
-                const datesByPlanId = new Map(subscriptions.map(({ plan }) => {
-                    const startAt = calculateSubscriptionStartDate(
-                        activePaidContexts.filter(paidContext => paidContext.subscriptionPlan === plan.id)
-                    )
-                    return [plan.id, {
-                        startAt: startAt.format('YYYY-MM-DD'),
-                        endAt: startAt.add(months, 'month').format('YYYY-MM-DD'),
-                    }]
-                }))
+                const datesByPlanId = new Map(subscriptions.map(({ plan }) => [
+                    plan.id,
+                    calculateSubscriptionPeriod(activePaidContexts.filter(paidContext => paidContext.subscriptionPlan === plan.id), months),
+                ]))
 
                 const { recipientOrgId: recipientOrganizationId } = await getSubscriptionPaymentRecipient()
                 if (!recipientOrganizationId) {
@@ -302,25 +297,26 @@ const RegisterSubscriptionContextsService = new GQLCustomSchema('RegisterSubscri
                     throw new GQLError(ERRORS.PAYMENT_RECIPIENT_NOT_CONFIGURED, context)
                 }
 
-                const invoice = await Invoice.create(context, {
-                    dv,
-                    sender,
-                    organization: { connect: { id: recipientOrganizationId } },
-                    type: INVOICE_TYPE_B2B,
-                    payerOrganization: { connect: { id: organization.id } },
-                    status: INVOICE_STATUS_PUBLISHED,
-                    rows: subscriptions.map(({ rule, plan }) => ({
-                        name: plan.name,
-                        count: 1,
-                        toPay: rule.price,
-                        isMin: false,
-                    })),
-                })
-
-                const createdIds = []
+                let invoice = null
+                const subscriptionContextIds = []
                 try {
+                    invoice = await Invoice.create(context, {
+                        dv,
+                        sender,
+                        organization: { connect: { id: recipientOrganizationId } },
+                        type: INVOICE_TYPE_B2B,
+                        payerOrganization: { connect: { id: organization.id } },
+                        status: INVOICE_STATUS_PUBLISHED,
+                        rows: subscriptions.map(({ rule, plan }) => ({
+                            name: plan.name,
+                            count: 1,
+                            toPay: rule.price,
+                            isMin: false,
+                        })),
+                    })
+
                     for (const { rule, plan } of subscriptions) {
-                        const created = await SubscriptionContext.create(context, {
+                        const subscriptionContext = await SubscriptionContext.create(context, {
                             dv,
                             sender,
                             organization: { connect: { id: organization.id } },
@@ -333,22 +329,24 @@ const RegisterSubscriptionContextsService = new GQLCustomSchema('RegisterSubscri
                             status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
                             frozenPaymentInfo: { pricingRuleId: rule.id },
                         })
-                        createdIds.push(created.id)
+                        subscriptionContextIds.push(subscriptionContext.id)
                     }
                 } catch (error) {
-                    logger.error({ msg: 'Failed to create bundle contexts, cancelling invoice', err: error, data: { organizationId: organization.id, invoiceId: invoice.id, createdIds } })
+                    logger.error({ msg: 'Failed to create bundle invoice or contexts, rolling back', err: error, data: { organizationId: organization.id, invoiceId: invoice?.id || null, subscriptionContextIds } })
 
-                    try {
-                        await Invoice.update(context, invoice.id, { dv, sender, status: INVOICE_STATUS_CANCELED })
-                    } catch (invoiceRollbackError) {
-                        logger.error({ msg: 'Failed to cancel invoice of a partially created bundle', err: invoiceRollbackError, data: { organizationId: organization.id, invoiceId: invoice.id } })
+                    if (invoice) {
+                        try {
+                            await Invoice.update(context, invoice.id, { dv, sender, status: INVOICE_STATUS_CANCELED })
+                        } catch (invoiceRollbackError) {
+                            logger.error({ msg: 'Failed to cancel invoice of a partially created bundle', err: invoiceRollbackError, data: { organizationId: organization.id, invoiceId: invoice.id } })
+                        }
                     }
 
-                    for (const createdId of createdIds) {
+                    for (const subscriptionContextId of subscriptionContextIds) {
                         try {
-                            await SubscriptionContext.update(context, createdId, { dv, sender, deletedAt: new Date().toISOString() })
+                            await SubscriptionContext.update(context, subscriptionContextId, { dv, sender, deletedAt: new Date().toISOString() })
                         } catch (contextRollbackError) {
-                            logger.error({ msg: 'Failed to soft delete context of a partially created bundle', err: contextRollbackError, data: { organizationId: organization.id, invoiceId: invoice.id, subscriptionContextId: createdId } })
+                            logger.error({ msg: 'Failed to soft delete context of a partially created bundle', err: contextRollbackError, data: { organizationId: organization.id, invoiceId: invoice?.id || null, subscriptionContextId } })
                         }
                     }
 
@@ -363,7 +361,7 @@ const RegisterSubscriptionContextsService = new GQLCustomSchema('RegisterSubscri
                     multiPayment = await getById('MultiPayment', multiPaymentResult.multiPaymentId)
                 }
 
-                const subscriptionContexts = await find('SubscriptionContext', { id_in: createdIds, deletedAt: null })
+                const subscriptionContexts = await find('SubscriptionContext', { id_in: subscriptionContextIds, deletedAt: null })
                 logger.info({ msg: 'Registered subscription bundle', data: { organizationId: organization.id, invoiceId: invoice.id, contextCount: subscriptionContexts.length, multiPaymentId: multiPayment?.id || null } })
 
                 return { subscriptionContexts, directPaymentUrl, multiPayment }

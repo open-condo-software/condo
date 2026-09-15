@@ -5,16 +5,19 @@ const dayjs = require('dayjs')
 const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
-const { createTestAcquiringIntegration, createTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
-const { INVOICE_STATUS_PUBLISHED, INVOICE_STATUS_PAID, INVOICE_TYPE_B2B } = require('@condo/domains/marketplace/constants')
+const { MULTIPAYMENT_PROCESSING_STATUS } = require('@condo/domains/acquiring/constants/payment')
+const { Payment, createTestAcquiringIntegration, createTestAcquiringIntegrationContext, updateTestMultiPayment } = require('@condo/domains/acquiring/utils/testSchema')
+const { INVOICE_STATUS_CANCELED, INVOICE_STATUS_PUBLISHED, INVOICE_STATUS_PAID, INVOICE_TYPE_B2B } = require('@condo/domains/marketplace/constants')
 const { Invoice, createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PERIOD, SUBSCRIPTION_PAYMENT_BUFFER_DAYS, SUBSCRIPTION_PLAN_TYPE_FEATURE } = require('@condo/domains/subscription/constants')
 const { processRecurrentSubscriptionPayments } = require('@condo/domains/subscription/tasks/processRecurrentSubscriptionPayments')
+const { SubscriptionPaymentAdapter } = require('@condo/domains/subscription/tasks/utils/SubscriptionPaymentAdapter')
 const {
     createTestSubscriptionPlan,
     createTestSubscriptionPlanPricingRule,
     createTestSubscriptionContext,
+    registerSubscriptionContextsByTestClient,
     SubscriptionContext,
 } = require('@condo/domains/subscription/utils/testSchema')
 
@@ -587,5 +590,88 @@ describe('processRecurrentSubscriptionPayments', () => {
             expect(newRuleIds).toEqual([pricingRule.id, featureRule.id].sort())
         })
     })
-})
 
+    describe('existing renewal', () => {
+        const createCardContext = async (organization, endAt) => {
+            const bindingId = faker.datatype.uuid()
+            await createTestSubscriptionContext(adminClient, organization, subscriptionPlan, {
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+                bindingId,
+                startAt: dayjs(endAt).subtract(1, 'month').format('YYYY-MM-DD'),
+                endAt,
+                isTrial: false,
+                frozenPaymentInfo: { pricingRuleId: pricingRule.id },
+            })
+        }
+
+        const mockFailedPayment = () => jest.spyOn(SubscriptionPaymentAdapter, 'proceedPayment')
+            .mockResolvedValue({ status: 'failed', paid: false, errorMessage: 'Payment failed' })
+
+        afterEach(() => {
+            jest.restoreAllMocks()
+        })
+
+        test('retries the charge on the same invoice while its payment has not started', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+            await createCardContext(organization, dayjs().subtract(1, 'day').format('YYYY-MM-DD'))
+            const proceedPaymentSpy = mockFailedPayment()
+
+            await processRecurrentSubscriptionPayments()
+            await processRecurrentSubscriptionPayments()
+
+            expect(proceedPaymentSpy).toHaveBeenCalledTimes(2)
+            const invoices = await Invoice.getAll(adminClient, { payerOrganization: { id: organization.id } })
+            expect(invoices).toHaveLength(1)
+        })
+
+        test('does not charge again once the gateway started the renewal payment', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+            await createCardContext(organization, dayjs().subtract(1, 'day').format('YYYY-MM-DD'))
+            const proceedPaymentSpy = mockFailedPayment()
+
+            await processRecurrentSubscriptionPayments()
+            const [invoice] = await Invoice.getAll(adminClient, { payerOrganization: { id: organization.id } })
+            const [payment] = await Payment.getAll(adminClient, { invoice: { id: invoice.id } })
+            // what b2b-payments-gateway does on a charge; payments turn DONE only when the provider webhook lands
+            await updateTestMultiPayment(adminClient, payment.multiPayment.id, { status: MULTIPAYMENT_PROCESSING_STATUS })
+
+            await processRecurrentSubscriptionPayments()
+
+            expect(proceedPaymentSpy).toHaveBeenCalledTimes(1)
+        })
+
+        test('does not charge the card for a renewal registered to be paid by bank transfer', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+            await createCardContext(organization, dayjs().subtract(1, 'day').format('YYYY-MM-DD'))
+            await registerSubscriptionContextsByTestClient(adminClient, {
+                organization: { id: organization.id },
+                subscriptionPlanPricingRules: [{ id: pricingRule.id }],
+                paymentType: 'invoice',
+            })
+            const proceedPaymentSpy = mockFailedPayment()
+
+            await processRecurrentSubscriptionPayments()
+
+            expect(proceedPaymentSpy).not.toHaveBeenCalled()
+            const invoices = await Invoice.getAll(adminClient, { payerOrganization: { id: organization.id } })
+            expect(invoices).toHaveLength(1)
+        })
+
+        test('cancels the invoice when the renewal fails on the last buffer day', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+            await createCardContext(organization, dayjs().subtract(SUBSCRIPTION_PAYMENT_BUFFER_DAYS, 'days').format('YYYY-MM-DD'))
+            mockFailedPayment()
+
+            await processRecurrentSubscriptionPayments()
+
+            const renewalContexts = await SubscriptionContext.getAll(adminClient, {
+                organization: { id: organization.id },
+                status: SUBSCRIPTION_CONTEXT_STATUS.ERROR,
+            })
+            expect(renewalContexts).toHaveLength(1)
+            const [invoice] = await Invoice.getAll(adminClient, { id: renewalContexts[0].invoice.id })
+            expect(invoice.status).toBe(INVOICE_STATUS_CANCELED)
+        })
+    })
+})

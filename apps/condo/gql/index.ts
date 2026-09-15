@@ -6850,39 +6850,41 @@ export type GetLastFailedPaymentContextQueryHookResult = ReturnType<typeof useGe
 export type GetLastFailedPaymentContextLazyQueryHookResult = ReturnType<typeof useGetLastFailedPaymentContextLazyQuery>;
 export type GetLastFailedPaymentContextSuspenseQueryHookResult = ReturnType<typeof useGetLastFailedPaymentContextSuspenseQuery>;
 export type GetLastFailedPaymentContextQueryResult = Apollo.QueryResult<Types.GetLastFailedPaymentContextQuery, Types.GetLastFailedPaymentContextQueryVariables>;
-export const UpdateSubscriptionContextPaymentMethodDocument = gql`
-    mutation updateSubscriptionContextPaymentMethod($data: UpdateSubscriptionContextPaymentMethodInput!) {
-  result: updateSubscriptionContextPaymentMethod(data: $data) {
-    id
+export const CancelSubscriptionRenewalDocument = gql`
+    mutation cancelSubscriptionRenewal($data: CancelSubscriptionRenewalInput!) {
+  result: cancelSubscriptionRenewal(data: $data) {
+    subscriptionContexts {
+      id
+    }
   }
 }
     `;
-export type UpdateSubscriptionContextPaymentMethodMutationFn = Apollo.MutationFunction<Types.UpdateSubscriptionContextPaymentMethodMutation, Types.UpdateSubscriptionContextPaymentMethodMutationVariables>;
+export type CancelSubscriptionRenewalMutationFn = Apollo.MutationFunction<Types.CancelSubscriptionRenewalMutation, Types.CancelSubscriptionRenewalMutationVariables>;
 
 /**
- * __useUpdateSubscriptionContextPaymentMethodMutation__
+ * __useCancelSubscriptionRenewalMutation__
  *
- * To run a mutation, you first call `useUpdateSubscriptionContextPaymentMethodMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateSubscriptionContextPaymentMethodMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useCancelSubscriptionRenewalMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCancelSubscriptionRenewalMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [updateSubscriptionContextPaymentMethodMutation, { data, loading, error }] = useUpdateSubscriptionContextPaymentMethodMutation({
+ * const [cancelSubscriptionRenewalMutation, { data, loading, error }] = useCancelSubscriptionRenewalMutation({
  *   variables: {
  *      data: // value for 'data'
  *   },
  * });
  */
-export function useUpdateSubscriptionContextPaymentMethodMutation(baseOptions?: Apollo.MutationHookOptions<Types.UpdateSubscriptionContextPaymentMethodMutation, Types.UpdateSubscriptionContextPaymentMethodMutationVariables>) {
+export function useCancelSubscriptionRenewalMutation(baseOptions?: Apollo.MutationHookOptions<Types.CancelSubscriptionRenewalMutation, Types.CancelSubscriptionRenewalMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<Types.UpdateSubscriptionContextPaymentMethodMutation, Types.UpdateSubscriptionContextPaymentMethodMutationVariables>(UpdateSubscriptionContextPaymentMethodDocument, options);
+        return Apollo.useMutation<Types.CancelSubscriptionRenewalMutation, Types.CancelSubscriptionRenewalMutationVariables>(CancelSubscriptionRenewalDocument, options);
       }
-export type UpdateSubscriptionContextPaymentMethodMutationHookResult = ReturnType<typeof useUpdateSubscriptionContextPaymentMethodMutation>;
-export type UpdateSubscriptionContextPaymentMethodMutationResult = Apollo.MutationResult<Types.UpdateSubscriptionContextPaymentMethodMutation>;
-export type UpdateSubscriptionContextPaymentMethodMutationOptions = Apollo.BaseMutationOptions<Types.UpdateSubscriptionContextPaymentMethodMutation, Types.UpdateSubscriptionContextPaymentMethodMutationVariables>;
+export type CancelSubscriptionRenewalMutationHookResult = ReturnType<typeof useCancelSubscriptionRenewalMutation>;
+export type CancelSubscriptionRenewalMutationResult = Apollo.MutationResult<Types.CancelSubscriptionRenewalMutation>;
+export type CancelSubscriptionRenewalMutationOptions = Apollo.BaseMutationOptions<Types.CancelSubscriptionRenewalMutation, Types.CancelSubscriptionRenewalMutationVariables>;
 export const GetPendingSubscriptionRequestsDocument = gql`
     query getPendingSubscriptionRequests($organizationId: ID!) {
   pendingRequests: allUserHelpRequests(
