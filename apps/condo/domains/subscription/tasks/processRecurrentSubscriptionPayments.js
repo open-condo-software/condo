@@ -41,19 +41,21 @@ function groupContextsIntoRenewalBundles (contexts) {
     return [...bundles.values()]
 }
 
-async function hasRenewedPlans (bundleContexts) {
+async function filterNotRenewedContexts (bundleContexts) {
     const successorContexts = await find('SubscriptionContext', {
         organization: { id: bundleContexts[0].organization },
         subscriptionPlan: { id_in: bundleContexts.map(subscriptionContext => subscriptionContext.subscriptionPlan) },
         status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+        isTrial: false,
         endAt_gt: bundleContexts[0].endAt,
         deletedAt: null,
     })
-    return successorContexts.length > 0
+    const renewedPlanIds = new Set(successorContexts.map(subscriptionContext => subscriptionContext.subscriptionPlan))
+    return bundleContexts.filter(subscriptionContext => !renewedPlanIds.has(subscriptionContext.subscriptionPlan))
 }
 
 // Finds a renewal registered earlier in the buffer window and tells whether it may be charged
-async function findExistingRenewal (organizationId, renewalRuleIds, bufferDate) {
+async function findExistingRenewal (context, organizationId, renewalRuleIds, bufferDate) {
     const wantedComposition = [...renewalRuleIds].sort().join(',')
 
     const contexts = await itemsQuery('SubscriptionContext', {
@@ -79,6 +81,13 @@ async function findExistingRenewal (organizationId, renewalRuleIds, bufferDate) 
 
         const renewal = { invoiceId, contextIds: invoiceContexts.map(subscriptionContext => subscriptionContext.id) }
 
+        const [invoice] = await find('Invoice', { id: invoiceId, deletedAt: null })
+        // A renewal whose invoice is gone can never be paid: close it so a new one gets registered
+        if (!invoice || invoice.status === INVOICE_STATUS_CANCELED) {
+            await setContextsStatus(context, renewal.contextIds, SUBSCRIPTION_CONTEXT_STATUS.ERROR)
+            continue
+        }
+
         const payments = await find('Payment', { invoice: { id: invoiceId }, deletedAt: null })
         // No payments means the invoice was registered to be paid by bank transfer: charging the card would take the money twice
         if (payments.length === 0) return { ...renewal, skipReason: 'PAID_BY_TRANSFER' }
@@ -90,8 +99,7 @@ async function findExistingRenewal (organizationId, renewalRuleIds, bufferDate) 
             || multiPayments.some(multiPayment => MULTIPAYMENT_STARTED_STATUSES.includes(multiPayment.status))
         if (isPaymentStarted) return { ...renewal, skipReason: 'PAYMENT_STARTED' }
 
-        const [invoice] = await find('Invoice', { id: invoiceId, deletedAt: null })
-        if (!invoice || invoice.status !== INVOICE_STATUS_PUBLISHED) return { ...renewal, skipReason: 'INVOICE_NOT_PAYABLE' }
+        if (invoice.status !== INVOICE_STATUS_PUBLISHED) return { ...renewal, skipReason: 'INVOICE_NOT_PAYABLE' }
 
         const unchargedMultiPayment = multiPayments.find(multiPayment => multiPayment.status === MULTIPAYMENT_INIT_STATUS)
         return { ...renewal, skipReason: null, multiPaymentId: unchargedMultiPayment?.id || null }
@@ -114,7 +122,7 @@ async function getRetryPaymentUrl (context, { invoiceId, multiPaymentId }) {
 
 // Returns the invoice, contexts and payment url to charge, or null when the bundle must not be charged
 async function prepareRenewalPayment (context, { organizationId, renewalRuleIds, bufferDate }) {
-    const existing = await findExistingRenewal(organizationId, renewalRuleIds, bufferDate)
+    const existing = await findExistingRenewal(context, organizationId, renewalRuleIds, bufferDate)
 
     if (existing && existing.skipReason) {
         logger.info({ msg: 'existing renewal must not be charged, skipping', data: { organizationId, invoiceId: existing.invoiceId, skipReason: existing.skipReason } })
@@ -207,12 +215,13 @@ async function processRecurrentSubscriptionPayments () {
         const bundleContextIds = bundleContexts.map(subscriptionContext => subscriptionContext.id)
 
         try {
-            if (await hasRenewedPlans(bundleContexts)) {
-                logger.info({ msg: 'bundle already has renewed plans, skipping', data: { organizationId, bundleContextIds } })
+            const contextsToRenew = await filterNotRenewedContexts(bundleContexts)
+            if (contextsToRenew.length === 0) {
+                logger.info({ msg: 'bundle already renewed, skipping', data: { organizationId, bundleContextIds } })
                 continue
             }
 
-            const renewalRuleIds = bundleContexts.map(subscriptionContext => subscriptionContext.subscriptionPlanPricingRule)
+            const renewalRuleIds = contextsToRenew.map(subscriptionContext => subscriptionContext.subscriptionPlanPricingRule)
             if (renewalRuleIds.some(ruleId => !ruleId)) {
                 logger.error({ msg: 'bundle has contexts without a pricing rule, skipping', data: { organizationId, bundleContextIds } })
                 continue

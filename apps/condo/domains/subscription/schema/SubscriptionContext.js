@@ -371,8 +371,6 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
                 }
             }
 
-            // A paid plan became active: other active contexts of the organization whose plans it fully covers
-            // (including the previous period of the same plan) lose their card, so they are not auto-renewed and charged twice
             if (isBecomingDone && !updatedItem.isTrial) {
                 const activatedPlan = await getById('SubscriptionPlan', updatedItem.subscriptionPlan)
                 if (activatedPlan) {
@@ -390,18 +388,18 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
                         otherContext => !updatedItem.invoice || otherContext.invoice !== updatedItem.invoice
                     )
 
-                    const supersededContexts = []
+                    const contextsToDetachCard = []
                     for (const otherContext of activeContextsWithAutopayment) {
                         const otherPlan = await getById('SubscriptionPlan', otherContext.subscriptionPlan)
                         if (!otherPlan) continue
 
                         if (!isPlanSubsetOf(otherPlan, activatedPlan)) continue
 
-                        supersededContexts.push(otherContext)
+                        contextsToDetachCard.push(otherContext)
                     }
 
-                    for (const supersededContext of supersededContexts) {
-                        await SubscriptionContextServerUtils.update(context, supersededContext.id, {
+                    for (const subscriptionContext of contextsToDetachCard) {
+                        await SubscriptionContextServerUtils.update(context, subscriptionContext.id, {
                             dv: 1,
                             sender: updatedItem.sender,
                             bindingId: null,
@@ -409,8 +407,7 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
                     }
                     await deleteUnusedCardTokens({
                         organizationId: updatedItem.organization,
-                        bindingIds: uniq(supersededContexts.map(supersededContext => supersededContext.bindingId)),
-                        detachedContextIds: supersededContexts.map(supersededContext => supersededContext.id),
+                        bindingIds: uniq(contextsToDetachCard.map(subscriptionContext => subscriptionContext.bindingId)),
                     })
                 }
             }

@@ -11,18 +11,17 @@ const { getSubscriptionPaymentRecipient } = require('@condo/domains/subscription
 const logger = getLogger('deleteUnusedCardTokens')
 
 /**
- * Deletes card tokens on the acquiring side once no other active context of the organization pays with them.
- * The contexts the cards were just detached from are excluded from that check.
- * Failures are only logged: the cards are already detached, a leftover token is harmless
+ * Deletes card tokens on the acquiring side once no context of the organization pays with them anymore.
+ * Call it after the cards are detached from the contexts. Failures are only logged: a leftover token is harmless
  *
- * @param {{ organizationId: string, bindingIds: string[], detachedContextIds: string[] }} params
+ * @param {{ organizationId: string, bindingIds: string[] }} params
  */
-async function deleteUnusedCardTokens ({ organizationId, bindingIds, detachedContextIds }) {
+async function deleteUnusedCardTokens ({ organizationId, bindingIds }) {
     if (!bindingIds || bindingIds.length === 0) return
 
     const { recipientOrgId, acquiringIntegration } = await getSubscriptionPaymentRecipient()
     if (!recipientOrgId || !acquiringIntegration || !acquiringIntegration.hostUrl) {
-        logger.error({ msg: 'subscription payment recipient is not configured, skipping card token deletion', data: { organizationId, detachedContextIds } })
+        logger.error({ msg: 'subscription payment recipient is not configured, skipping card token deletion', data: { organizationId } })
         return
     }
 
@@ -30,7 +29,6 @@ async function deleteUnusedCardTokens ({ organizationId, bindingIds, detachedCon
         const stillUsedContexts = await find('SubscriptionContext', {
             organization: { id: organizationId },
             bindingId,
-            id_not_in: detachedContextIds,
             // still renewed with this card within the buffer window
             endAt_gte: dayjs().subtract(SUBSCRIPTION_PAYMENT_BUFFER_DAYS, 'days').format('YYYY-MM-DD'),
             deletedAt: null,
@@ -43,9 +41,9 @@ async function deleteUnusedCardTokens ({ organizationId, bindingIds, detachedCon
                 organizationId,
                 cardTokenId: bindingId,
             })
-            logger.info({ msg: 'deleted card token from payment gateway', data: { organizationId, detachedContextIds } })
+            logger.info({ msg: 'deleted card token from payment gateway', data: { organizationId } })
         } catch (err) {
-            logger.error({ msg: 'failed to delete card token from payment gateway', data: { organizationId, detachedContextIds, error: get(err, 'message') || 'Unknown error' } })
+            logger.error({ msg: 'failed to delete card token from payment gateway', data: { organizationId, error: get(err, 'message') || 'Unknown error' } })
         }
     }
 }
