@@ -28,14 +28,14 @@ jobs:
 
     steps:
       - name: Checkout code with submodules
-        uses: actions/checkout@v4.4.0
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           submodules: recursive
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
 
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3.9.1
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'yarn'
@@ -77,7 +77,7 @@ jobs:
           k6 -o experimental-prometheus-rw run --summary-trend-stats="avg,min,med,max,p(90),p(95),p(99)" apps/condo/k6/dist/registerBillingReceipt.test.js
 
       - name: Upload screenshots
-        uses: actions/upload-artifact@v4.6.2
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: screenshots
