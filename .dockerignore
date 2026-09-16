@@ -16,6 +16,8 @@
 **/.idea
 **/.kmigrator
 **/docs
+!/apps/dev-portal-web/docs
+!/apps/dev-portal-web/docs/**
 **/docker*
 **/.docker*
 **/werf*
