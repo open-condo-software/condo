@@ -1,8 +1,6 @@
 name: "[development] Deploy"
 
-concurrency:
-  group: deploy-development
-  cancel-in-progress: false
+concurrency: deploy_develop.yaml
 
 permissions:
   contents: read
@@ -122,4 +120,3 @@ jobs:
           DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
           TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
           TURBO_API: ${{ secrets.TURBO_API }}
-          TURBO_REMOTE_ONLY: "true"
