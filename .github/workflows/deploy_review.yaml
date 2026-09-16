@@ -6,7 +6,8 @@ permissions:
 
 on:
   workflow_dispatch:
-
+    branches:
+      - '/^review-.*$/'
 jobs:
   converge:
     name: "[review] Deploy"
@@ -94,9 +95,8 @@ jobs:
           WERF_REPO: ${{ secrets.DOCKER_REGISTRY }}/condo/condo
           WERF_REPO_CONTAINER_REGISTRY: default
           DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
-          TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
-          TURBO_API: ${{ secrets.TURBO_API }}
           TURBO_REMOTE_ONLY: "false"
+          TURBO_API: ${{ secrets.TURBO_API }}
       - name: Urls output
         run: |
           echo "condo: https://review-${{ env.REVIEW_URL_PREFIX }}-condo.r.doma.ai"
