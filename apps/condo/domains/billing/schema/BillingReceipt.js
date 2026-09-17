@@ -391,12 +391,17 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
                 deletedAt: null,
             })
 
-            for (const receiptFile of receiptFiles) {
-                await BillingReceiptFile.update(context, receiptFile.id, {
+            const deletedAt = new Date().toISOString()
+            const receiptFilesToDelete = receiptFiles.map(({ id }) => ({
+                id,
+                data: {
                     dv: updatedItem.dv,
                     sender: updatedItem.sender,
-                    deletedAt: new Date().toISOString(),
-                })
+                    deletedAt,
+                },
+            }))
+            if (receiptFilesToDelete.length > 0) {
+                await BillingReceiptFile.updateMany(context, receiptFilesToDelete)
             }
         },
         validateInput: async ({ resolvedData, addValidationError, existingItem, context }) => {
