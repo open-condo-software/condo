@@ -65,7 +65,7 @@ export const AIChatDocumentWithDocumentEdition: React.FC<AIChatDocumentWithDocum
     const { UpdateDocumentModal, setSelectedDocument } = useUpdateDocumentModal()
 
     return (
-        <>
+        <div className={styles.rootWrapper}>
             {
                 document.__typename === 'Document' && (
                     <UpdateDocumentModal
@@ -79,7 +79,6 @@ export const AIChatDocumentWithDocumentEdition: React.FC<AIChatDocumentWithDocum
                     />
                 )
             }
-
             <div className={styles.root}>
                 <div className={styles.icon}>
                     <Paperclip size='medium' />
@@ -102,19 +101,19 @@ export const AIChatDocumentWithDocumentEdition: React.FC<AIChatDocumentWithDocum
                                             document.property ? (
                                                 <Typography.Paragraph
                                                     ellipsis={FILE_NAME_ELLIPSIS}>
-                                                    Дом
+                                                        Дом
                                                 </Typography.Paragraph>
                                             ) : (
                                                 <Typography.Paragraph
                                                     ellipsis={FILE_NAME_ELLIPSIS}>
-                                                    Организация
+                                                        Организация
                                                 </Typography.Paragraph>
                                             )
                                         }
                                     </Typography.Link>
                                 ) : (
                                     <Typography.Paragraph>
-                                        -
+                                            -
                                     </Typography.Paragraph>
                                 )
                             }
@@ -141,7 +140,6 @@ export const AIChatDocumentWithDocumentEdition: React.FC<AIChatDocumentWithDocum
                     </div>
                 </div>
             </div>
-        </>
-
+        </div>
     )
 }

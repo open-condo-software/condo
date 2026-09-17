@@ -1,7 +1,8 @@
 import { Row, Col, Form } from 'antd'
+import classNames from 'classnames'
 import chunk from 'lodash/chunk'
 import getConfig from 'next/config'
-import React, { CSSProperties, useCallback, useMemo, useState, useEffect } from 'react'
+import React, { useCallback, useMemo, useState, useEffect } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { buildMeta, upload as uploadFiles } from '@open-condo/files'
@@ -11,7 +12,6 @@ import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Button, Space, Tooltip, Modal, Typography, Switch } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/colors'
 
 import { AIChatDocument } from '@condo/domains/ai/components/AIChatFile'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
@@ -24,9 +24,6 @@ import type { RcFile } from 'antd/es/upload/interface'
 
 
 const { publicRuntimeConfig: { fileClientId } } = getConfig()
-
-
-const FILE_WRAPPER_STYLE: CSSProperties = { width: '100%', backgroundColor: colors.gray[1], borderRadius: '8px', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }
 
 
 const SaveDocumentsModal: React.FC<any> = ({ setModalState, modalState, fileList, setFileList, onUploadComplete }) => {
@@ -216,6 +213,25 @@ const SaveDocumentsModal: React.FC<any> = ({ setModalState, modalState, fileList
         setLoading(false)
     }, [closeModal, createDocuments, isDisabledButtonSave, loading, onUploadComplete, organizationId, user?.id])
 
+    const tableContent = useMemo(() => {
+        if (isSaveFiles) {
+            return (
+                <DocumentsEditableTable documents={filesWithoutErrors} form={uploadForm} />
+            )
+        }
+
+        return (
+            <div className={styles.attachmentContainer}>
+                {filesWithoutErrors.map((file) => (
+                    <AIChatDocument
+                        key={file.uid}
+                        name={file.name}
+                    />
+                ))}
+            </div>
+        )
+    }, [filesWithoutErrors, isSaveFiles, uploadForm])
+
     return (
         <>
             <FormWithAction
@@ -244,15 +260,15 @@ const SaveDocumentsModal: React.FC<any> = ({ setModalState, modalState, fileList
                 >
                     <Row gutter={[0, 24]}>
                         <Col span={24}>
-                            <div style={FILE_WRAPPER_STYLE}>
+                            <div className={classNames(styles.saveDocumentToggleContainer, {
+                                [styles.saveDocumentToggleChecked]: isSaveFiles,
+                            })}>
                                 <Tooltip title='В следующий раз сможете выбрать эти файлы из загруженных'>
                                     <Space size={8} direction='horizontal' align='center'>
                                         <Typography.Text>
                                             Сохранить файлы на платформе
                                         </Typography.Text>
-                                        <div>
-                                            <QuestionCircle size='small'/>
-                                        </div>
+                                        <QuestionCircle size='small' />
                                     </Space>
                                 </Tooltip>
                                 <Switch
@@ -264,22 +280,7 @@ const SaveDocumentsModal: React.FC<any> = ({ setModalState, modalState, fileList
                             </div>
                         </Col>
                         <Col span={24}>
-                            {
-                                isSaveFiles
-                                    ? (
-                                        <DocumentsEditableTable documents={filesWithoutErrors} form={uploadForm} />
-                                    )
-                                    : (
-                                        <div className={styles.attachmentContainer}>
-                                            {filesWithoutErrors.map((file) => (
-                                                <AIChatDocument
-                                                    key={file.uid}
-                                                    name={file.name}
-                                                />
-                                            ))}
-                                        </div>
-                                    )
-                            }
+                            {tableContent}
                         </Col>
                     </Row>
                 </Modal>

@@ -87,3 +87,8 @@
   min-width: 160px;
   margin-left: var(--condo-global-spacing-12);
 }
+
+.root-wrapper > form {
+  height: 0;
+  overflow: hidden;
+}

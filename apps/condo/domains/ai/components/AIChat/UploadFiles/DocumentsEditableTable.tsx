@@ -16,20 +16,13 @@ type DocumentsEditableTableData = DocumentType & { name: string }
 type UseDocumentsEditableTableColumns = (form: FormInstance) => Array<TableColumn<DocumentsEditableTableData>>
 const useDocumentsEditableTableColumns: UseDocumentsEditableTableColumns = (form) => {
     const intl = useIntl()
-    const files = Form.useWatch('files', form)
-    console.log('useDocumentsEditableTableColumns', {
-        files,
-    })
 
     const renderName = useCallback<RenderTableCell<DocumentsEditableTableData, DocumentsEditableTableData['name']>>(
-        (name, _, __, globalFilter) => getTableCellRenderer({ search: globalFilter, ellipsis: { rows: 1 } })(name)
+        (name) => getTableCellRenderer({ ellipsis: { rows: 1 } })(name)
         , []
     )
 
-    const renderEditableDocumentDetails = useCallback((value, record) => {
-        console.log('renderEditableDocumentDetails', {
-            'record.uid': record.uid,
-        })
+    const renderEditableDocumentDetails = useCallback((_, record) => {
         return <EditableDocumentDetails key={record.uid} form={form} editableDocumentId={record.uid} />
     }, [form])
 
@@ -49,10 +42,10 @@ const useDocumentsEditableTableColumns: UseDocumentsEditableTableColumns = (form
             id: 'details',
             dataKey: 'id',
             initialSize: '60%',
-            render: renderEditableDocumentDetails,
             enableColumnResize: false,
             enableColumnSettings: false,
             enableSorting: false,
+            render: renderEditableDocumentDetails,
         },
     ], [renderEditableDocumentDetails, renderName])
 }
