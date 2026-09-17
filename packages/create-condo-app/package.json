@@ -28,8 +28,16 @@
   "files": [
     "dist"
   ],
-  "bin": "dist/index.js",
+  "bin": "dist/cli.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsup"
+  },
+  "dependencies": {
+    "commander": "14.0.1"
+  },
+  "devDependencies": {
+    "@open-condo/tsconfig": "workspace:^",
+    "tsup": "^8.3.6",
+    "typescript": "^5.8.3"
   }
 }
