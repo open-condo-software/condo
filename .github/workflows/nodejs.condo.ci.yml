@@ -90,6 +90,8 @@ jobs:
             fi
             sleep 1
           done
+          nslookup swr.ru-mockow-1.hc.sbercloud.ru
+          resolvectl status
 
       - name: Login to cloud registry
         uses: docker/login-action@v3
