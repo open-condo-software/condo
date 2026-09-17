@@ -10,7 +10,7 @@ import { useMemo, useState, useCallback } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
-import { SUBSCRIPTION_PAYMENT_BUFFER_DAYS, SUBSCRIPTION_PERIOD } from '@condo/domains/subscription/constants'
+import { SUBSCRIPTION_PAYMENT_BUFFER_DAYS, SUBSCRIPTION_PERIOD, SUBSCRIPTION_PLAN_TYPE_SERVICE } from '@condo/domains/subscription/constants'
 import {
     buildCatalog,
     getCatalogCounters,
@@ -68,7 +68,11 @@ export type ServicePlanView = {
     /** Payment and trial alerts of the card, most critical first */
     alerts: ReadonlyArray<PlanAlert>
     isActive: boolean
-    /** A lower plan than the active one: it can be looked at but not bought */
+    /** The plan is paid for: a period is running, in its grace days or already bought for later */
+    isPaid: boolean
+    /** Last day the plan is paid for, null when it was never paid */
+    paidUntil: string | null
+    /** A lower plan than the paid one: it can be looked at but not bought */
     isBelowActive: boolean
     isSelected: boolean
 }
@@ -183,6 +187,38 @@ export const useSubscriptionPlansPage = () => {
     const activePlanId = activeServiceContext?.subscriptionPlan?.id ?? null
 
     /**
+     * Only a paid plan bars downgrades and repeated purchases: the one running now, the one still in its grace days
+     * and the one already paid for a period that has not started yet. A trial, running or over, bars nothing —
+     * once it ends the organization is still pointed at it, yet it has to be able to buy that plan or any other.
+     */
+    /** Last day every service plan is paid for, so a plan paid during its own trial no longer reads as a trial */
+    const paidUntilByPlanId = useMemo(() => {
+        const graceStart = Date.now() - SUBSCRIPTION_PAYMENT_BUFFER_DAYS * 24 * 60 * 60 * 1000
+        const paidUntil = new Map<string, string>()
+
+        for (const context of activatedSubscriptions) {
+            const planId = context.subscriptionPlan?.id
+            if (context.isTrial || context.subscriptionPlan?.planType !== SUBSCRIPTION_PLAN_TYPE_SERVICE) continue
+            if (!planId || !context.endAt || new Date(context.endAt).getTime() <= graceStart) continue
+
+            const known = paidUntil.get(planId)
+            if (!known || new Date(context.endAt) > new Date(known)) paidUntil.set(planId, context.endAt)
+        }
+
+        return paidUntil
+    }, [activatedSubscriptions])
+
+    const paidPlanId = useMemo(() => {
+        const paidContexts = activatedSubscriptions.filter(context => (
+            context.subscriptionPlan?.id && paidUntilByPlanId.has(context.subscriptionPlan.id) && !context.isTrial
+        ))
+        // the highest plan paid for is the floor, a cheaper one bought earlier does not lower it
+        const bestPaid = [...paidContexts].sort((left, right) => (right.subscriptionPlan?.priority ?? 0) - (left.subscriptionPlan?.priority ?? 0))[0]
+
+        return bestPaid?.subscriptionPlan?.id ?? null
+    }, [activatedSubscriptions, paidUntilByPlanId])
+
+    /**
      * A plan with no pricing rule for the chosen period is not sold for that period, so it has
      * no price to show and nothing to buy — it stays off the page rather than rendering an
      * empty card.
@@ -216,9 +252,9 @@ export const useSubscriptionPlansPage = () => {
         pinnedCapabilities: PINNED_CAPABILITIES,
     }), [featurePlans, period, purchasedFeaturePlanIds, capabilityLabels, featureStatusByPlanId])
 
-    const activePriority = useMemo(
-        () => availablePlans.find(({ plan }) => plan.id === activePlanId)?.plan?.priority ?? null,
-        [availablePlans, activePlanId]
+    const paidPriority = useMemo(
+        () => availablePlans.find(({ plan }) => plan.id === paidPlanId)?.plan?.priority ?? null,
+        [availablePlans, paidPlanId]
     )
 
     const planCards = useMemo<ReadonlyArray<ServicePlanView>>(() => availablePlans.map(planInfo => {
@@ -237,7 +273,9 @@ export const useSubscriptionPlansPage = () => {
             isActivePlan: isActive,
             activeServiceContext,
             unpaidContexts: unpaidData?.unpaidSubscriptions ?? [],
-            paidContexts: activatedSubscriptions,
+            paidContexts: activatedSubscriptions.filter(context => !context.isTrial),
+            isPlanPaid: paidUntilByPlanId.has(planInfo.plan.id),
+            trialContexts: activatedSubscriptions.filter(context => context.isTrial),
             now: new Date(),
         })
 
@@ -249,10 +287,12 @@ export const useSubscriptionPlansPage = () => {
             extraFeaturesAmount,
             alerts,
             isActive,
-            isBelowActive: activePriority !== null && (planInfo.plan.priority ?? 0) < activePriority,
+            isPaid: paidUntilByPlanId.has(planInfo.plan.id),
+            paidUntil: paidUntilByPlanId.get(planInfo.plan.id) ?? null,
+            isBelowActive: paidPriority !== null && (planInfo.plan.priority ?? 0) < paidPriority,
             isSelected: planInfo.plan.id === selectedPlanId,
         }
-    }), [availablePlans, period, activePlanId, activePriority, selectedPlanId, buildPlanRows, activeServiceContext, unpaidData, activatedSubscriptions])
+    }), [availablePlans, period, activePlanId, paidPriority, paidUntilByPlanId, selectedPlanId, buildPlanRows, activeServiceContext, unpaidData, activatedSubscriptions])
 
     const rows = useMemo<ReadonlyArray<CatalogRow>>(
         () => buildPlanRows(selectedPlanInfo),
@@ -278,6 +318,7 @@ export const useSubscriptionPlansPage = () => {
         selectedPlanInfo,
         selectPlan,
         activePlanId,
+        paidPlanId,
         activeServiceContext,
         rows,
         counters,

@@ -4,13 +4,12 @@ import React from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { Alert, Button, Modal } from '@open-condo/ui'
 
-import type { CatalogRow } from '@condo/domains/subscription/utils/subscriptionCatalog'
-
 
 type SubscriptionRemoveModalProps = {
     open: boolean
     onCancel: () => void
-    rows: ReadonlyArray<CatalogRow>
+    /** Names of the features being removed */
+    names: ReadonlyArray<string>
     planName: string
     /** Last day the features stay usable, they are not revoked immediately */
     paidUntil: string | null
@@ -21,7 +20,7 @@ type SubscriptionRemoveModalProps = {
 export const SubscriptionRemoveModal: React.FC<SubscriptionRemoveModalProps> = ({
     open,
     onCancel,
-    rows,
+    names,
     planName,
     paidUntil,
     loading,
@@ -30,9 +29,20 @@ export const SubscriptionRemoveModal: React.FC<SubscriptionRemoveModalProps> = (
     const intl = useIntl()
     const ConfirmMessage = intl.formatMessage({ id: 'subscription.remove.confirm' })
 
-    const names = rows.map(row => row.label.toLowerCase()).join(', ')
-    const title = intl.formatMessage({ id: 'subscription.remove.title' }, { count: rows.length, names })
-    const formattedDate = paidUntil ? dayjs(paidUntil).format('D MMMM YYYY') : ''
+    const isSingle = names.length === 1
+    const title = isSingle
+        ? intl.formatMessage({ id: 'subscription.remove.title.one' }, { name: names[0] })
+        : intl.formatMessage(
+            { id: 'subscription.remove.title' },
+            { count: names.length, names: intl.formatList(names.map(name => name.toLowerCase()), { type: 'conjunction' }) }
+        )
+
+    // Nothing to tell about a period that has already run out: the features are blocked right away
+    const isStillPaid = Boolean(paidUntil && dayjs(paidUntil).isAfter(dayjs()))
+    const info = isStillPaid ? intl.formatMessage(
+        { id: isSingle ? 'subscription.remove.info.one' : 'subscription.remove.info' },
+        { date: dayjs(paidUntil).format('D MMMM YYYY'), planName }
+    ) : null
 
     return (
         <Modal
@@ -42,7 +52,7 @@ export const SubscriptionRemoveModal: React.FC<SubscriptionRemoveModalProps> = (
             footer={
                 <Button
                     id='subscription-remove-confirm-button'
-                    type='secondary'
+                    type='primary'
                     danger
                     onClick={onConfirm}
                     loading={loading}
@@ -51,14 +61,7 @@ export const SubscriptionRemoveModal: React.FC<SubscriptionRemoveModalProps> = (
                 </Button>
             }
         >
-            <Alert
-                type='info'
-                showIcon
-                description={intl.formatMessage(
-                    { id: 'subscription.remove.info' },
-                    { date: formattedDate, planName }
-                )}
-            />
+            {info && <Alert type='info' showIcon description={info} />}
         </Modal>
     )
 }

@@ -1012,7 +1012,7 @@ export type GetOrganizationPaymentHistoryQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetOrganizationPaymentHistoryQuery = { __typename?: 'Query', paymentHistory?: Array<{ __typename?: 'SubscriptionContext', id: string, createdAt?: string | null, subscriptionPlan?: { __typename?: 'SubscriptionPlan', id: string, name?: string | null, planType?: Types.SubscriptionPlanPlanTypeType | null, enabledB2BApps?: any | null, enabledB2CApps?: any | null } | null, frozenPaymentInfo?: { __typename?: 'FrozenPaymentInfo', multiPaymentId?: string | null, paymentMethod?: { __typename?: 'PaymentMethod', paymentSystem: string, cardNumber: string } | null, invoice?: { __typename?: 'FrozenInvoice', toPay?: string | null, currencyCode?: string | null } | null } | null } | null> | null, meta?: { __typename?: '_QueryMeta', count?: number | null } | null };
+export type GetOrganizationPaymentHistoryQuery = { __typename?: 'Query', paymentHistory?: Array<{ __typename?: 'SubscriptionContext', id: string, createdAt?: string | null, subscriptionPlan?: { __typename?: 'SubscriptionPlan', id: string, name?: string | null, planType?: Types.SubscriptionPlanPlanTypeType | null, enabledB2BApps?: any | null, enabledB2CApps?: any | null } | null, subscriptionPlanPricingRule?: { __typename?: 'SubscriptionPlanPricingRule', id: string, price?: string | null, currencyCode?: Types.SubscriptionPlanPricingRuleCurrencyCodeType | null } | null, frozenPaymentInfo?: { __typename?: 'FrozenPaymentInfo', multiPaymentId?: string | null, paymentType?: string | null, paymentMethod?: { __typename?: 'PaymentMethod', paymentSystem: string, cardNumber: string } | null, invoice?: { __typename?: 'FrozenInvoice', toPay?: string | null, currencyCode?: string | null } | null } | null } | null> | null, meta?: { __typename?: '_QueryMeta', count?: number | null } | null };
 
 export type GetLastDoneSubscriptionContextQueryVariables = Types.Exact<{
   organizationId: Types.Scalars['ID']['input'];
@@ -1020,14 +1020,21 @@ export type GetLastDoneSubscriptionContextQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetLastDoneSubscriptionContextQuery = { __typename?: 'Query', contexts?: Array<{ __typename?: 'SubscriptionContext', id: string, createdAt?: string | null } | null> | null };
+export type GetLastDoneSubscriptionContextQuery = { __typename?: 'Query', contexts?: Array<{ __typename?: 'SubscriptionContext', id: string, createdAt?: string | null, invoice?: { __typename?: 'Invoice', id: string } | null, subscriptionPlan?: { __typename?: 'SubscriptionPlan', id: string, planType?: Types.SubscriptionPlanPlanTypeType | null } | null } | null> | null };
+
+export type GetLastDoneOrganizationSubscriptionContextsQueryVariables = Types.Exact<{
+  organizationId: Types.Scalars['ID']['input'];
+}>;
+
+
+export type GetLastDoneOrganizationSubscriptionContextsQuery = { __typename?: 'Query', contexts?: Array<{ __typename?: 'SubscriptionContext', id: string, createdAt?: string | null, invoice?: { __typename?: 'Invoice', id: string } | null, subscriptionPlan?: { __typename?: 'SubscriptionPlan', id: string, planType?: Types.SubscriptionPlanPlanTypeType | null } | null } | null> | null };
 
 export type GetOrganizationUnpaidSubscriptionsQueryVariables = Types.Exact<{
   organizationId: Types.Scalars['ID']['input'];
 }>;
 
 
-export type GetOrganizationUnpaidSubscriptionsQuery = { __typename?: 'Query', unpaidSubscriptions?: Array<{ __typename?: 'SubscriptionContext', id: string, status?: Types.SubscriptionContextStatusType | null, createdAt?: string | null, endAt?: string | null, subscriptionPlan?: { __typename?: 'SubscriptionPlan', id: string, name?: string | null, planType?: Types.SubscriptionPlanPlanTypeType | null } | null, subscriptionPlanPricingRule?: { __typename?: 'SubscriptionPlanPricingRule', id: string } | null, frozenPaymentInfo?: { __typename?: 'FrozenPaymentInfo', paymentType?: string | null } | null } | null> | null };
+export type GetOrganizationUnpaidSubscriptionsQuery = { __typename?: 'Query', unpaidSubscriptions?: Array<{ __typename?: 'SubscriptionContext', id: string, status?: Types.SubscriptionContextStatusType | null, createdAt?: string | null, endAt?: string | null, renewalCancelledAt?: string | null, subscriptionPlan?: { __typename?: 'SubscriptionPlan', id: string, name?: string | null, planType?: Types.SubscriptionPlanPlanTypeType | null } | null, subscriptionPlanPricingRule?: { __typename?: 'SubscriptionPlanPricingRule', id: string, price?: string | null, currencyCode?: Types.SubscriptionPlanPricingRuleCurrencyCodeType | null } | null, frozenPaymentInfo?: { __typename?: 'FrozenPaymentInfo', paymentType?: string | null, paymentMethod?: { __typename?: 'PaymentMethod', paymentSystem: string, cardNumber: string } | null } | null } | null> | null };
 
 export type CancelSubscriptionRenewalMutationVariables = Types.Exact<{
   data: Types.CancelSubscriptionRenewalInput;
@@ -1035,6 +1042,13 @@ export type CancelSubscriptionRenewalMutationVariables = Types.Exact<{
 
 
 export type CancelSubscriptionRenewalMutation = { __typename?: 'Mutation', result?: { __typename?: 'CancelSubscriptionRenewalOutput', subscriptionContexts: Array<{ __typename?: 'SubscriptionContext', id: string }> } | null };
+
+export type RequestSubscriptionInvoiceMutationVariables = Types.Exact<{
+  data: Types.RequestSubscriptionInvoiceInput;
+}>;
+
+
+export type RequestSubscriptionInvoiceMutation = { __typename?: 'Mutation', result?: { __typename?: 'RequestSubscriptionInvoiceOutput', subscriptionContexts: Array<{ __typename?: 'SubscriptionContext', id: string }> } | null };
 
 export type GetPendingSubscriptionRequestsQueryVariables = Types.Exact<{
   organizationId: Types.Scalars['ID']['input'];
