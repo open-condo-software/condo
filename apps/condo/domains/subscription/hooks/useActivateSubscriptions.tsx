@@ -29,6 +29,8 @@ interface ActivateBundleParams {
      * even when extra features ride along; buying features alone gets its own wording.
      */
     includesServicePlan?: boolean
+    /** Set to false when the caller announces the result itself */
+    notify?: boolean
 }
 
 interface ActivatePlanParams extends Omit<ActivateBundleParams, 'priceIds'> {
@@ -133,8 +135,9 @@ export const useActivateSubscriptions = () => {
         paymentType = 'card',
         returnUrl,
         includesServicePlan = true,
-    }: ActivateBundleParams) => {
-        if (!organization || priceIds.length === 0) return
+        notify = true,
+    }: ActivateBundleParams): Promise<boolean> => {
+        if (!organization || priceIds.length === 0) return false
 
         setActivateLoading(true)
         try {
@@ -175,12 +178,13 @@ export const useActivateSubscriptions = () => {
                     url.searchParams.append('returnUrl', returnUrlWithParams.toString())
                     paymentUrl = url.toString()
                     window.open(paymentUrl, '_self')
-                    return
+                    return true
                 }
             }
 
             await refetchData(isTrial)
-            showSuccessNotification(isTrial, planName, trialDays, isCustomPrice, includesServicePlan, paymentType)
+            if (notify) showSuccessNotification(isTrial, planName, trialDays, isCustomPrice, includesServicePlan, paymentType)
+            return true
         } catch (error) {
             console.error('Failed to activate subscription:', error)
             notification.error({
@@ -188,6 +192,7 @@ export const useActivateSubscriptions = () => {
                 description: error?.message || ActivationErrorMessage,
                 duration: 5,
             })
+            return false
         } finally {
             setActivateLoading(false)
         }

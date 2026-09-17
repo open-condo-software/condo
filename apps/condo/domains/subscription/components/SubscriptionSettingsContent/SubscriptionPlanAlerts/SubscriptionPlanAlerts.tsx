@@ -17,7 +17,7 @@ type SubscriptionPlanAlertsProps = {
     alerts: ReadonlyArray<PlanAlert>
     activeIndex: number
     onChangeIndex: (index: number) => void
-    onReissueInvoice: (alert: PlanAlert) => void
+    onInvoiceAction: (alert: PlanAlert) => void
 }
 
 type PlanAlertBadgeProps = {
@@ -46,7 +46,7 @@ export const PlanAlertBadge: React.FC<PlanAlertBadgeProps> = ({ alert }) => {
     return <Tag bgColor={bgColor} textColor={colors.white}>{text}</Tag>
 }
 
-const PlanAlertSlide: React.FC<{ alert: PlanAlert, isHidden: boolean, onReissueInvoice: (alert: PlanAlert) => void }> = ({ alert, isHidden, onReissueInvoice }) => {
+const PlanAlertSlide: React.FC<{ alert: PlanAlert, isHidden: boolean, onInvoiceAction: (alert: PlanAlert) => void }> = ({ alert, isHidden, onInvoiceAction }) => {
     const intl = useIntl()
 
     const names = alert.planNames.map(name => `«${name}»`).join(', ')
@@ -84,16 +84,17 @@ const PlanAlertSlide: React.FC<{ alert: PlanAlert, isHidden: boolean, onReissueI
         <div className={classnames(styles.slide, { [styles.slideHidden]: isHidden })} style={{ background }} aria-hidden={isHidden}>
             {title && <Typography.Text strong>{title}</Typography.Text>}
             <Typography.Text size='small' type='secondary'>{description}</Typography.Text>
-            {alert.type === 'invoiceExpired' && alert.priceIds.length > 0 && (
-                <Typography.Link size='small' onClick={() => onReissueInvoice(alert)}>
-                    {intl.formatMessage({ id: 'subscription.planCard.alert.invoiceExpired.action' })}
+            {/* A pending invoice is asked for once more, an expired one is replaced by a new registration */}
+            {(alert.type === 'invoiceExpired' || alert.type === 'invoicePending') && alert.priceIds.length > 0 && (
+                <Typography.Link size='small' onClick={() => onInvoiceAction(alert)}>
+                    {intl.formatMessage({ id: `subscription.planCard.alert.${alert.type}.action` })}
                 </Typography.Link>
             )}
         </div>
     )
 }
 
-export const SubscriptionPlanAlerts: React.FC<SubscriptionPlanAlertsProps> = ({ alerts, activeIndex, onChangeIndex, onReissueInvoice }) => {
+export const SubscriptionPlanAlerts: React.FC<SubscriptionPlanAlertsProps> = ({ alerts, activeIndex, onChangeIndex, onInvoiceAction }) => {
     /** The card itself selects the plan, clicks inside the alerts must not do that */
     const stopSelection = useCallback((event: React.MouseEvent) => event.stopPropagation(), [])
 
@@ -103,7 +104,7 @@ export const SubscriptionPlanAlerts: React.FC<SubscriptionPlanAlertsProps> = ({ 
         <div onClick={stopSelection} role='presentation'>
             <div className={styles.slides}>
                 {alerts.map((alert, index) => (
-                    <PlanAlertSlide key={alert.key} alert={alert} isHidden={index !== activeIndex} onReissueInvoice={onReissueInvoice} />
+                    <PlanAlertSlide key={alert.key} alert={alert} isHidden={index !== activeIndex} onInvoiceAction={onInvoiceAction} />
                 ))}
             </div>
             {alerts.length > 1 && (

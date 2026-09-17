@@ -47,8 +47,11 @@ export type FeatureContext = {
     renewalCancelledAt?: string | null
 }
 
-/** The feature is still usable under these statuses, so the table counts it as owned */
-export const OWNED_FEATURE_STATUSES: ReadonlyArray<FeatureStatusType> = ['connected', 'renewalCancelled', 'trial', 'paymentExpired']
+/**
+ * The table counts the feature as owned under these statuses. A removed feature keeps working until its
+ * paid period ends, but the page already treats it as gone: it can be bought again right away.
+ */
+export const OWNED_FEATURE_STATUSES: ReadonlyArray<FeatureStatusType> = ['connected', 'trial', 'paymentExpired']
 
 const DAY_MS = 24 * 60 * 60 * 1000
 
@@ -82,6 +85,46 @@ export const resolveFeatureStatus = (
         && now.getTime() < new Date(ended.endAt).getTime() + bufferDays * DAY_MS
 
     return { type: isRenewing ? 'paymentExpired' : 'trialExpired', contextId: ended.id, endAt: ended.endAt, daysLeft: 0 }
+}
+
+type CancellableContext = {
+    id: string
+    isTrial?: boolean | null
+    endAt?: string | null
+    renewalCancelledAt?: string | null
+    subscriptionPlan?: { id: string } | null
+}
+
+/**
+ * Removing a feature has to stop every way it could still be charged: the paid periods that renew on
+ * their own, a period still waiting in the grace days and the renewal registrations waiting for a payment.
+ * Leaving any of them out would let the renewal job charge the card again or keep the unpaid alert on screen.
+ */
+export const getContextIdsToCancel = ({
+    planIds,
+    paidContexts,
+    unpaidContexts,
+    now,
+    bufferDays,
+}: {
+    planIds: ReadonlyArray<string>
+    paidContexts: ReadonlyArray<CancellableContext>
+    unpaidContexts: ReadonlyArray<CancellableContext>
+    now: Date
+    bufferDays: number
+}): ReadonlyArray<string> => {
+    const graceStart = now.getTime() - bufferDays * DAY_MS
+    const isOfPlan = (context: CancellableContext) => planIds.includes(context.subscriptionPlan?.id)
+
+    const paidIds = paidContexts
+        .filter(context => isOfPlan(context) && !context.isTrial && !context.renewalCancelledAt)
+        .filter(context => context.endAt && new Date(context.endAt).getTime() > graceStart)
+        .map(context => context.id)
+    const unpaidIds = unpaidContexts
+        .filter(context => isOfPlan(context) && !context.renewalCancelledAt)
+        .map(context => context.id)
+
+    return [...paidIds, ...unpaidIds]
 }
 
 export type CatalogRow = {
@@ -203,17 +246,17 @@ export const buildCatalog = ({
 }
 
 /**
- * Features the plan does not give go first, then what the plan includes, then what was bought separately.
- * Pinned rows lead their group.
+ * Pinned rows always go first, then what the plan includes, then what was bought separately,
+ * then what can still be bought.
  */
 export const sortCatalogRows = (
     rows: ReadonlyArray<CatalogRow>,
     pinnedCapabilities: ReadonlyArray<CapabilityKey>
 ): ReadonlyArray<CatalogRow> => {
     const groupOf = (row: CatalogRow): number => {
-        if (row.includedInPlan) return 1
-        if (row.purchased) return 2
-        return 0
+        if (row.includedInPlan) return 0
+        if (row.purchased) return 1
+        return 2
     }
     const pinnedIndexOf = (row: CatalogRow): number => {
         const index = pinnedCapabilities.findIndex(capability => row.capabilities.includes(capability))
@@ -221,8 +264,8 @@ export const sortCatalogRows = (
     }
 
     return [...rows].sort((left, right) => (
-        groupOf(left) - groupOf(right)
-        || pinnedIndexOf(left) - pinnedIndexOf(right)
+        pinnedIndexOf(left) - pinnedIndexOf(right)
+        || groupOf(left) - groupOf(right)
         || left.label.localeCompare(right.label)
     ))
 }

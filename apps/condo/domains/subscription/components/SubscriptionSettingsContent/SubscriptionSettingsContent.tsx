@@ -1,16 +1,20 @@
+import { useRequestSubscriptionInvoiceMutation } from '@app/condo/gql'
+import { notification } from 'antd'
 import dayjs from 'dayjs'
-import getConfig from 'next/config'
+import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Button, Radio, Tag } from '@open-condo/ui'
+import { ActionBar, Button, Dropdown, Radio, Tag, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import { Loader } from '@condo/domains/common/components/Loader'
 import { UI_HIDE_PAID_FEATURES } from '@condo/domains/common/constants/featureflags'
 import { SUBSCRIPTION_PERIOD } from '@condo/domains/subscription/constants'
+import { ROUTE_FEATURE_MAPPING } from '@condo/domains/subscription/constants/routeFeatureMapping'
 import {
     useActivateSubscriptions,
     useTrialSubscriptions,
@@ -19,8 +23,9 @@ import {
     useSubscriptionSelection,
     useCancelSubscriptionFeatures,
 } from '@condo/domains/subscription/hooks'
+import { usePaymentHistoryModal } from '@condo/domains/subscription/hooks/usePaymentHistoryModal'
 import { useSubscriptionPaymentModal } from '@condo/domains/subscription/hooks/useSubscriptionPaymentModal'
-import { formatAmount, getAmount } from '@condo/domains/subscription/utils/subscriptionPricing'
+import { formatAmount, getAmount, getDiscount } from '@condo/domains/subscription/utils/subscriptionPricing'
 
 import { PromoBanner } from './PromoBanner/PromoBanner'
 import { SubscriptionCheckoutModal } from './SubscriptionCheckoutModal/SubscriptionCheckoutModal'
@@ -38,16 +43,49 @@ import type { PlanPeriod } from '@condo/domains/subscription/utils/subscriptionP
 import type { RadioChangeEvent } from 'antd'
 
 
-const { publicRuntimeConfig: { HelpRequisites } } = getConfig()
-
 const PLAN_CARD_EMOJIS = ['🏠', '🏁', '💼', '👑']
 
 /** Trials ending on the same day as the plan's own trial are already shown on the plan card */
 const isSameDay = (left?: string | null, right?: string | null): boolean =>
     Boolean(left && right && dayjs(left).isSame(dayjs(right), 'day'))
 
+/** Where a feature lives in the product: a B2B app page or the section its flag unlocks */
+const getFeaturePath = (row: CatalogRow): string | null => {
+    const appIds = Array.isArray(row.featurePlan?.enabledB2BApps) ? row.featurePlan.enabledB2BApps as string[] : []
+    if (appIds.length > 0) return `/miniapps/${appIds[0]}`
+
+    const route = Object.entries(ROUTE_FEATURE_MAPPING).find(([, feature]) => row.capabilities.includes(feature))
+    return route ? route[0] : null
+}
+
+type PriceTextProps = {
+    amount: number
+    fullAmount: number | null
+    currencyCode: string | null
+    locale: string
+}
+
+/** A discounted price is struck through and followed by the price actually paid, with the saving pinned above it */
+const PriceText: React.FC<PriceTextProps> = ({ amount, fullAmount, currencyCode, locale }) => {
+    if (!fullAmount || fullAmount <= amount) return <>{formatAmount(amount, currencyCode, locale)}</>
+
+    return (
+        <>
+            <Typography.Text strong delete>{formatAmount(fullAmount, currencyCode, locale)}</Typography.Text>
+            {' '}
+            <span className={styles.discountedPrice}>
+                <span className={styles.discountedPriceBadge}>
+                    <Tag bgColor={colors.green[5]} textColor={colors.white}>{`-${formatAmount(fullAmount - amount, currencyCode, locale)}`}</Tag>
+                </span>
+                <Typography.Text strong type='success'>{formatAmount(amount, currencyCode, locale)}</Typography.Text>
+            </span>
+        </>
+    )
+}
+
 export const SubscriptionSettingsContent: React.FC = () => {
     const intl = useIntl()
+    const router = useRouter()
     const { useFlag } = useFeatureFlags()
     const hidePaidFeatures = useFlag(UI_HIDE_PAID_FEATURES)
     const { role } = useOrganization()
@@ -55,10 +93,10 @@ export const SubscriptionSettingsContent: React.FC = () => {
     const YearlyLabel = intl.formatMessage({ id: 'subscription.period.yearly' })
     const MonthlyLabel = intl.formatMessage({ id: 'subscription.period.monthly' })
     const CheckoutMessage = intl.formatMessage({ id: 'subscription.actionBar.checkout' })
-    const RenewMessage = intl.formatMessage({ id: 'subscription.actionBar.renew' })
     const RemoveMessage = intl.formatMessage({ id: 'subscription.actionBar.remove' })
     const CancelMessage = intl.formatMessage({ id: 'subscription.actionBar.cancel' })
-    const ContactSupportMessage = intl.formatMessage({ id: 'subscription.actionBar.contactSupport' })
+    const PaymentHistoryMessage = intl.formatMessage({ id: 'subscription.paymentHistory.title' })
+    const GoToFeatureMessage = intl.formatMessage({ id: 'subscription.activation.featureTrial.action' })
 
     const periodSwitchRef = useRef<HTMLDivElement>(null)
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false)
@@ -75,14 +113,15 @@ export const SubscriptionSettingsContent: React.FC = () => {
         selectedPlanId,
         selectedPlanInfo,
         selectPlan,
-        activePlanId,
+        paidPlanId,
         activeServiceContext,
         rows,
         counters,
         refetchActivatedSubscriptions,
         refetchUnpaidSubscriptions,
     } = useSubscriptionPlansPage()
-    const { isInBufferPeriod } = useOrganizationSubscription()
+    const { PaymentHistoryModal, openModal: openPaymentHistoryModal } = usePaymentHistoryModal()
+    const { hasSubscription } = useOrganizationSubscription()
 
     const { trialSubscriptions } = useTrialSubscriptions()
     const { registerSubscriptionBundle, activateLoading } = useActivateSubscriptions()
@@ -91,17 +130,16 @@ export const SubscriptionSettingsContent: React.FC = () => {
         rows,
         planCards,
         selectedPlanId,
-        activePlanId,
+        paidPlanId,
         period,
         includedCount: counters.included,
-        isActivePlanPaymentExpired: Boolean(isInBufferPeriod),
     })
 
     const handleRefetch = useCallback(async () => {
         await Promise.all([refetchActivatedSubscriptions(), refetchUnpaidSubscriptions()])
     }, [refetchActivatedSubscriptions, refetchUnpaidSubscriptions])
 
-    const { cancelFeatures, loading: cancelLoading } = useCancelSubscriptionFeatures({
+    const { cancelFeaturePlans, loading: cancelLoading } = useCancelSubscriptionFeatures({
         onCancelled: handleRefetch,
     })
 
@@ -128,9 +166,8 @@ export const SubscriptionSettingsContent: React.FC = () => {
         switch (status.type) {
             case 'connected':
                 return { text: intl.formatMessage({ id: 'subscription.featureTable.badge.connected' }), bgColor: colors.green[5] }
-            // Cancelling only stops the next renewal, so the feature keeps working until the period ends
+            // The feature keeps working until the paid period ends, but its trial is gone for good and it is sold again
             case 'renewalCancelled':
-                return { text: intl.formatMessage({ id: 'subscription.planCard.badge.renewalCancelled' }), bgColor: colors.gray[7] }
             case 'trialExpired':
                 return { text: intl.formatMessage({ id: 'subscription.planCard.badge.trialExpired' }), bgColor: colors.gray[7] }
             case 'paymentExpired':
@@ -147,8 +184,10 @@ export const SubscriptionSettingsContent: React.FC = () => {
         }
     }, [activeServiceContext?.endAt, intl])
 
-    const { totals, mode, selectedRows, isPlanInCart, isPlanRenewable, selectedPlanCard, clearSelection } = selection
+    const { totals, mode, selectedRows, isPlanInCart, selectedPlanCard, clearSelection } = selection
     const isBuying = mode === 'idle' || mode === 'buy'
+    // Features hang off a running plan: with none running they can only be bought together with a plan
+    const needsPlanInCart = !hasSubscription && !isPlanInCart
 
     /** Everything the checkout is about to buy, as pricing rule ids */
     const cartPriceIds = useMemo(() => {
@@ -182,8 +221,28 @@ export const SubscriptionSettingsContent: React.FC = () => {
         await refetchUnpaidSubscriptions()
     }, [upsellPriceIds, cartPriceIds, registerSubscriptionBundle, selectedPlanCard, isPlanInCart, clearSelection, refetchUnpaidSubscriptions])
 
-    /** An unpaid invoice has expired: the same plan or features get a fresh invoice */
-    const handleReissueInvoice = useCallback(async (alert: PlanAlert) => {
+    /** A client asks for an invoice again, or the old one has expired: the same plan or features get a fresh one */
+    const [requestSubscriptionInvoice] = useRequestSubscriptionInvoiceMutation()
+
+    /**
+     * An invoice still waiting for its payment is only sent once more, nothing new is registered and the deadline stays.
+     * An expired one is replaced: the same plan or features are registered again and get a fresh invoice
+     */
+    const handleInvoiceAction = useCallback(async (alert: PlanAlert) => {
+        if (alert.type === 'invoicePending') {
+            try {
+                await requestSubscriptionInvoice({
+                    variables: {
+                        data: { dv: 1, sender: getClientSideSenderInfo(), subscriptionContexts: alert.contextIds.map(id => ({ id })) },
+                    },
+                })
+                notification.success({ message: intl.formatMessage({ id: 'subscription.planCard.alert.invoicePending.requested' }), duration: 5 })
+            } catch (error) {
+                notification.error({ message: intl.formatMessage({ id: 'subscription.activation.errorTitle' }), description: error?.message, duration: 5 })
+            }
+            return
+        }
+
         await registerSubscriptionBundle({
             priceIds: alert.priceIds,
             isTrial: false,
@@ -192,7 +251,7 @@ export const SubscriptionSettingsContent: React.FC = () => {
             includesServicePlan: alert.scope === 'plan',
         })
         await refetchUnpaidSubscriptions()
-    }, [registerSubscriptionBundle, refetchUnpaidSubscriptions])
+    }, [requestSubscriptionInvoice, intl, registerSubscriptionBundle, refetchUnpaidSubscriptions])
 
     const { PaymentModal, openModal: openPaymentModal } = useSubscriptionPaymentModal({
         registerSubscriptionContext: purchase,
@@ -212,12 +271,47 @@ export const SubscriptionSettingsContent: React.FC = () => {
     }, [openPaymentModal])
 
     const handleRemoveConfirm = useCallback(async () => {
-        const contextIds = selectedRows.map(row => row.status?.contextId).filter(Boolean)
+        const planIds = selectedRows.map(row => row.featurePlan?.id).filter(Boolean)
 
-        await cancelFeatures(contextIds)
+        await cancelFeaturePlans(planIds)
         setIsRemoveOpen(false)
         clearSelection()
-    }, [selectedRows, cancelFeatures, clearSelection])
+    }, [selectedRows, cancelFeaturePlans, clearSelection])
+
+    /** A feature trial points straight at what was just unlocked, the shortest trial sets the deadline */
+    const notifyFeatureTrial = useCallback((trialRows: ReadonlyArray<CatalogRow>) => {
+        const days = Math.min(...trialRows.map(row => Number(row.featurePlan?.trialDays ?? 0)))
+        const links = trialRows
+            .map(row => ({ key: row.key, label: row.label, path: getFeaturePath(row) }))
+            .filter(link => Boolean(link.path))
+        const key = `subscription-feature-trial-${Date.now()}`
+        const goTo = (path: string) => {
+            notification.close(key)
+            router.push(path)
+        }
+
+        let btn: React.ReactNode = null
+        if (links.length === 1) {
+            btn = <Button type='primary' onClick={() => goTo(links[0].path)}>{GoToFeatureMessage}</Button>
+        } else if (links.length > 1) {
+            btn = (
+                <Dropdown.Button
+                    type='primary'
+                    items={links.map(link => ({ key: link.key, label: link.label, onClick: () => goTo(link.path) }))}
+                >
+                    {GoToFeatureMessage}
+                </Dropdown.Button>
+            )
+        }
+
+        notification.success({
+            key,
+            message: <Typography.Text strong>{intl.formatMessage({ id: 'subscription.activation.featureTrial.title' }, { days })}</Typography.Text>,
+            description: intl.formatMessage({ id: 'subscription.activation.featureTrial.description' }),
+            btn,
+            duration: 10,
+        })
+    }, [GoToFeatureMessage, intl, router])
 
     const handleTryFree = useCallback(async () => {
         if (cartPriceIds.length === 0) return
@@ -226,7 +320,7 @@ export const SubscriptionSettingsContent: React.FC = () => {
             ? Number(selectedPlanCard?.planInfo?.plan?.trialDays ?? 0)
             : Math.min(...selectedRows.map(row => Number(row.featurePlan?.trialDays ?? 0)))
 
-        await registerSubscriptionBundle({
+        const isRegistered = await registerSubscriptionBundle({
             priceIds: cartPriceIds,
             isTrial: true,
             planName: isPlanInCart
@@ -234,45 +328,45 @@ export const SubscriptionSettingsContent: React.FC = () => {
                 : selectedRows.map(row => row.label).join(', '),
             trialDays,
             includesServicePlan: isPlanInCart,
+            notify: isPlanInCart,
         })
+        if (isRegistered && !isPlanInCart) notifyFeatureTrial(selectedRows)
         clearSelection()
-    }, [cartPriceIds, isPlanInCart, registerSubscriptionBundle, selectedPlanCard, selectedRows, clearSelection])
+    }, [cartPriceIds, isPlanInCart, registerSubscriptionBundle, selectedPlanCard, selectedRows, clearSelection, notifyFeatureTrial])
 
-    const handleContactSupport = useCallback(() => {
-        const supportEmail = HelpRequisites?.support_email || HelpRequisites?.email
-        if (supportEmail) window.open(`mailto:${supportEmail}`, '_self')
-    }, [])
-
-    /** A feature keeps its own trial button until it is tried, bought or put in the cart */
+    /** A feature keeps its own trial button until it is tried, bought or put in the cart; removing it burns the trial too */
     const canTryRow = useCallback((row: CatalogRow): boolean => {
         const plan = row.featurePlan
-        if (!plan || row.includedInPlan || row.purchased || Number(plan.trialDays ?? 0) <= 0) return false
+        // a feature trial also needs a running plan to hang off
+        if (!hasSubscription || !plan || row.includedInPlan || row.purchased || row.status || Number(plan.trialDays ?? 0) <= 0) return false
 
         return !trialSubscriptions.some(trial => trial.subscriptionPlan?.id === plan.id)
-    }, [trialSubscriptions])
+    }, [hasSubscription, trialSubscriptions])
 
     const handleTryRow = useCallback(async (row: CatalogRow) => {
         if (!row.price?.id) return
 
-        await registerSubscriptionBundle({
+        const isRegistered = await registerSubscriptionBundle({
             priceIds: [row.price.id],
             isTrial: true,
             planName: row.label,
             trialDays: Number(row.featurePlan?.trialDays ?? 0),
             includesServicePlan: false,
+            notify: false,
         })
-    }, [registerSubscriptionBundle])
+        if (isRegistered) notifyFeatureTrial([row])
+    }, [registerSubscriptionBundle, notifyFeatureTrial])
 
     /** Trials are offered only while nothing in the cart has been tried or paid for yet */
     const canTryFree = useMemo(() => {
-        if (!isBuying) return false
+        if (!isBuying || needsPlanInCart) return false
         if (!isPlanInCart) return selectedRows.length > 0 && selectedRows.every(canTryRow)
 
         const plan = selectedPlanCard?.planInfo?.plan
         if (!plan || Number(plan.trialDays ?? 0) <= 0) return false
 
         return !trialSubscriptions.some(trial => trial.subscriptionPlan?.id === plan.id)
-    }, [isBuying, isPlanInCart, selectedRows, canTryRow, selectedPlanCard, trialSubscriptions])
+    }, [isBuying, needsPlanInCart, isPlanInCart, selectedRows, canTryRow, selectedPlanCard, trialSubscriptions])
 
     if (hidePaidFeatures) return null
     if (loading) return <Loader />
@@ -282,20 +376,47 @@ export const SubscriptionSettingsContent: React.FC = () => {
 
     const periodNoun = intl.formatMessage({ id: `subscription.planCard.planPrice.${period}.noun` as FormatjsIntl.Message['ids'] })
     const featuresAmount = selectedRows.reduce((sum, row) => sum + (getAmount(row.price) ?? 0), 0)
-    const actionBarMessage = [
-        isPlanInCart && selectedPlanCard ? intl.formatMessage(
-            { id: 'subscription.actionBar.plan' },
-            {
-                planName: selectedPlanCard.planInfo.plan.name,
-                amount: formatAmount(getAmount(selectedPlanCard.price), totals.currencyCode, intl.locale),
-                period: periodNoun,
-            }
-        ) : null,
-        selectedRows.length > 0 ? intl.formatMessage(
-            { id: 'subscription.actionBar.features' },
-            { count: selectedRows.length, amount: formatAmount(featuresAmount, totals.currencyCode, intl.locale), period: periodNoun }
-        ) : null,
-    ].filter(Boolean).join(' + ')
+    const featuresFullAmount = selectedRows.reduce((sum, row) => sum + (getDiscount(row.prices, period)?.fullAmount ?? getAmount(row.price) ?? 0), 0)
+    const planPart = isPlanInCart && selectedPlanCard ? intl.formatMessage(
+        { id: 'subscription.actionBar.plan' },
+        {
+            planName: selectedPlanCard.planInfo.plan.name,
+            amount: (
+                <PriceText
+                    key='plan-amount'
+                    amount={getAmount(selectedPlanCard.price) ?? 0}
+                    fullAmount={isBuying ? selectedPlanCard.discount?.fullAmount ?? null : null}
+                    currencyCode={totals.currencyCode}
+                    locale={intl.locale}
+                />
+            ),
+            period: periodNoun,
+        }
+    ) : null
+    const featuresPart = selectedRows.length > 0 ? intl.formatMessage(
+        { id: 'subscription.actionBar.features' },
+        {
+            count: selectedRows.length,
+            amount: (
+                <PriceText
+                    key='features-amount'
+                    amount={featuresAmount}
+                    fullAmount={isBuying ? featuresFullAmount : null}
+                    currencyCode={totals.currencyCode}
+                    locale={intl.locale}
+                />
+            ),
+            period: periodNoun,
+        }
+    ) : null
+    // ActionBar takes a plain string only, the priced message goes in as the first element of the bar instead
+    const actionBarMessage = (
+        <Typography.Text key='message' strong>
+            {planPart}
+            {planPart && featuresPart && ' + '}
+            {featuresPart}
+        </Typography.Text>
+    )
 
     const removeButton = (
         <Button
@@ -322,8 +443,8 @@ export const SubscriptionSettingsContent: React.FC = () => {
         actions = [removeButton, ...cancelButton]
     } else if (mode === 'paymentExpired') {
         actions = [
-            <Button key='support' id='subscription-action-bar-support-button' type='primary' onClick={handleContactSupport}>
-                {ContactSupportMessage}
+            <Button key='history' id='subscription-action-bar-payment-history-button' type='primary' onClick={openPaymentHistoryModal}>
+                {PaymentHistoryMessage}
             </Button>,
             removeButton,
             ...cancelButton,
@@ -335,9 +456,9 @@ export const SubscriptionSettingsContent: React.FC = () => {
                 id='subscription-action-bar-checkout-button'
                 type='primary'
                 onClick={() => setIsCheckoutOpen(true)}
-                disabled={!canManageSubscriptions || cartPriceIds.length === 0}
+                disabled={!canManageSubscriptions || cartPriceIds.length === 0 || needsPlanInCart}
             >
-                {isPlanRenewable ? RenewMessage : CheckoutMessage}
+                {CheckoutMessage}
             </Button>,
             ...(canTryFree ? [
                 <Button
@@ -361,6 +482,7 @@ export const SubscriptionSettingsContent: React.FC = () => {
     return (
         <>
             {PaymentModal}
+            {PaymentHistoryModal}
             <SubscriptionCheckoutModal
                 open={isCheckoutOpen}
                 onCancel={() => setIsCheckoutOpen(false)}
@@ -379,7 +501,7 @@ export const SubscriptionSettingsContent: React.FC = () => {
             <SubscriptionRemoveModal
                 open={isRemoveOpen}
                 onCancel={() => setIsRemoveOpen(false)}
-                rows={selectedRows}
+                names={selectedRows.map(row => row.label)}
                 planName={selectedPlanName}
                 paidUntil={selectedRows[0]?.status?.endAt ?? null}
                 loading={cancelLoading}
@@ -418,7 +540,7 @@ export const SubscriptionSettingsContent: React.FC = () => {
                                 trial => trial.subscriptionPlan?.id === card.planInfo.plan.id
                             )}
                             onSelect={handleSelectPlan}
-                            onReissueInvoice={handleReissueInvoice}
+                            onInvoiceAction={handleInvoiceAction}
                             refetchActivatedSubscriptions={handleRefetch}
                         />
                     ))}
@@ -441,10 +563,7 @@ export const SubscriptionSettingsContent: React.FC = () => {
                 </div>
 
                 {hasSelection && (
-                    <ActionBar
-                        message={actionBarMessage}
-                        actions={actions as [React.ReactElement, ...React.ReactElement[]]}
-                    />
+                    <ActionBar actions={[actionBarMessage, ...actions]} />
                 )}
             </div>
         </>

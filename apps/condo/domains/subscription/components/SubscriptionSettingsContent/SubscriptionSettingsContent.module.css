@@ -54,3 +54,18 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* The saving sits right above the discounted price, centered on it */
+.discounted-price {
+  position: relative;
+  display: inline-block;
+}
+
+.discounted-price-badge {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  white-space: nowrap;
+  transform: translate(-50%, -2px) rotate(-6deg);
+  pointer-events: none;
+}
