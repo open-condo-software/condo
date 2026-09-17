@@ -28,6 +28,40 @@ jobs:
         run: |
           sudo apt update && sudo apt install -y git
 
+      - name: Wait for dind to be ready
+        run: |
+          set -euo pipefail
+          cert_dir=/certs/client
+          deadline=$((SECONDS + 120))
+      
+          echo "Waiting for Docker TLS certs in ${cert_dir}"
+          while true; do
+            if [[ -f "${cert_dir}/ca.pem" && -f "${cert_dir}/cert.pem" && -f "${cert_dir}/key.pem" ]]; then
+              echo "TLS certs are present"
+              break
+            fi
+            if (( SECONDS >= deadline )); then
+              echo "Timed out waiting for Docker TLS certs in ${cert_dir}" >&2
+              ls -la "${cert_dir}" >&2 || true
+              exit 1
+            fi
+            sleep 1
+          done
+      
+          echo "Waiting for Docker daemon to accept connections"
+          while true; do
+            if docker info >/dev/null 2>&1; then
+              docker info
+              exit 0
+            fi
+            if (( SECONDS >= deadline )); then
+              echo "Timed out waiting for Docker daemon" >&2
+              docker info >&2 || true
+              exit 1
+            fi
+            sleep 1
+          done
+
       - name: Login to registry
         uses: docker/login-action@v3
         with:
