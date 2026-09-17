@@ -300,6 +300,8 @@ const RegisterSubscriptionContextsService = new GQLCustomSchema('RegisterSubscri
 
                 let invoice = null
                 const subscriptionContextIds = []
+                let directPaymentUrl = null
+                let multiPayment = null
                 try {
                     invoice = await Invoice.create(context, {
                         dv,
@@ -342,8 +344,15 @@ const RegisterSubscriptionContextsService = new GQLCustomSchema('RegisterSubscri
                             sender,
                         })
                     }
+
+                    // A card bundle nobody can pay would linger as a published invoice, so a failed payment setup rolls it back too
+                    if (isCard) {
+                        const multiPaymentResult = await registerMultiPayment(context, { invoices: [{ id: invoice.id }], sender })
+                        directPaymentUrl = buildDirectPaymentUrl(multiPaymentResult.directPaymentUrl, organization.id)
+                        multiPayment = await getById('MultiPayment', multiPaymentResult.multiPaymentId)
+                    }
                 } catch (error) {
-                    logger.error({ msg: 'Failed to create bundle invoice or contexts, rolling back', err: error, data: { organizationId: organization.id, invoiceId: invoice?.id || null, subscriptionContextIds } })
+                    logger.error({ msg: 'Failed to create bundle invoice, contexts or payment, rolling back', err: error, data: { organizationId: organization.id, invoiceId: invoice?.id || null, subscriptionContextIds } })
 
                     if (invoice) {
                         try {
@@ -362,14 +371,6 @@ const RegisterSubscriptionContextsService = new GQLCustomSchema('RegisterSubscri
                     }
 
                     throw error
-                }
-
-                let directPaymentUrl = null
-                let multiPayment = null
-                if (isCard) {
-                    const multiPaymentResult = await registerMultiPayment(context, { invoices: [{ id: invoice.id }], sender })
-                    directPaymentUrl = buildDirectPaymentUrl(multiPaymentResult.directPaymentUrl, organization.id)
-                    multiPayment = await getById('MultiPayment', multiPaymentResult.multiPaymentId)
                 }
 
                 const subscriptionContexts = await find('SubscriptionContext', { id_in: subscriptionContextIds, deletedAt: null })
