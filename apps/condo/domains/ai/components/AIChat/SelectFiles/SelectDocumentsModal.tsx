@@ -186,7 +186,7 @@ const DocumentsTableContent: React.FC<any> = ({ setSelectedDocuments }) => {
         <Row gutter={[0, 24]}>
             <Col span={24}>
                 <TableFiltersContainer>
-                    <Row gutter={[24, 12]} justify='space-between'>
+                    <Row gutter={[24, 12]} justify='space-between' align='middle'>
                         <Col flex='auto'>
                             <Input
                                 placeholder={SearchPlaceholder}
@@ -198,17 +198,19 @@ const DocumentsTableContent: React.FC<any> = ({ setSelectedDocuments }) => {
                             />
                         </Col>
                         <Col>
-                            <Row align='middle'>
-                                <Checkbox
-                                    checked={showOrganizationDocuments}
-                                    onChange={switchShowOrganizationDocuments}
-                                    children='Организация'
-                                />
-                                <Checkbox
-                                    checked={showPropertyDocuments}
-                                    onChange={switchShowPropertyDocuments}
-                                    children='Дома'
-                                />
+                            <Row>
+                                <Space size={24} align='center'>
+                                    <Checkbox
+                                        checked={showOrganizationDocuments}
+                                        onChange={switchShowOrganizationDocuments}
+                                        children='Организация'
+                                    />
+                                    <Checkbox
+                                        checked={showPropertyDocuments}
+                                        onChange={switchShowPropertyDocuments}
+                                        children='Дома'
+                                    />
+                                </Space>
                             </Row>
                         </Col>
                     </Row>

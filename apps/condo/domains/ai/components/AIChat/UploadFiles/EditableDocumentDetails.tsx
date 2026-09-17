@@ -1,14 +1,17 @@
-import { Form, Popover } from 'antd'
+import { useGetAllDocumentCategoriesQuery } from '@app/condo/gql'
+import { Form, FormInstance, Popover } from 'antd'
 import React, { useMemo, useCallback } from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { ChevronDown } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Space, Typography, Select } from '@open-condo/ui'
 
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
-import { DocumentCategory } from '@condo/domains/document/utils/clientSchema'
 import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
+
+import styles from './EditableDocumentDetails.module.css'
 
 
 const DocumentDetailsDropdown: React.FC<any>  = ({
@@ -28,7 +31,7 @@ const DocumentDetailsDropdown: React.FC<any>  = ({
             trigger='click'
             content={content}
         >
-            <Space size={8}>
+            <Space size={8} className={styles.documentDetailsDropdown}>
                 <Typography.Text type={(currentOption || loading) ? 'secondary' : 'danger'} size='medium'>
                     {
                         loading
@@ -118,15 +121,16 @@ const DocumentCategorySelect: React.FC<any> = ({ onSelect, currentDocument }) =>
 
     const currentCategoryId = currentDocument?.categoryId
 
-    // TODO(DOMA-13466): change to new utils
-    const { objs: categories, allDataLoaded: allCategoriesLoaded } = DocumentCategory.useAllObjects({})
+    const { persistor } = useCachePersistor()
+    const { data, loading } = useGetAllDocumentCategoriesQuery({
+        skip: !persistor,
+    })
+    const documentCategories = useMemo(() => data?.categories?.filter(Boolean) || [], [data?.categories])
 
-    const categoryOptions = useMemo(() => categories.map(category =>
+    const categoryOptions = useMemo(() => documentCategories.map(category =>
         ({ label: category?.name, value: category?.id })
-    ), [categories])
+    ), [documentCategories])
     const currentOption = categoryOptions?.find(option => option.value === currentCategoryId)
-
-    const loading = !allCategoriesLoaded
 
     return (
         <DocumentDetailsDropdown
@@ -148,7 +152,10 @@ const DocumentCategorySelect: React.FC<any> = ({ onSelect, currentDocument }) =>
 
 
 
-export const EditableDocumentDetails: React.FC<any> = ({ form, editableDocumentId }) => {
+export const EditableDocumentDetails: React.FC<{ form: FormInstance, editableDocumentId: string }> = ({
+    form,
+    editableDocumentId,
+}) => {
     const files = Form.useWatch('files', form)
 
     const currentDocument = useMemo(() => (files || [])?.find(file => file.uid === editableDocumentId), [files, editableDocumentId])

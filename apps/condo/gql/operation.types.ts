@@ -369,6 +369,11 @@ export type CheckDocumentExistenceQueryVariables = Types.Exact<{
 
 export type CheckDocumentExistenceQuery = { __typename?: 'Query', documents?: Array<{ __typename?: 'Document', id: string } | null> | null };
 
+export type GetAllDocumentCategoriesQueryVariables = Types.Exact<{ [key: string]: never; }>;
+
+
+export type GetAllDocumentCategoriesQuery = { __typename?: 'Query', categories?: Array<{ __typename?: 'DocumentCategory', id: string, name?: string | null } | null> | null };
+
 export type GetTicketInvoicesQueryVariables = Types.Exact<{
   ticketId: Types.Scalars['ID']['input'];
 }>;
