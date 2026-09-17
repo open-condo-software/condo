@@ -1,19 +1,23 @@
+/* antd Space does not stretch its items, so every line has to claim the width of the modal itself */
 .lines {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  width: 100%;
 }
 
 .line {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  width: 100%;
 }
 
 .line-top {
   display: flex;
   gap: 8px;
   align-items: baseline;
+  width: 100%;
 }
 
 /* Dotted leader carrying the eye from the item name to its price */

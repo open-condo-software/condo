@@ -1,9 +1,17 @@
-import { useCancelSubscriptionRenewalMutation } from '@app/condo/gql'
+import {
+    useCancelSubscriptionRenewalMutation,
+    useGetOrganizationActivatedSubscriptionsQuery,
+    useGetOrganizationUnpaidSubscriptionsQuery,
+} from '@app/condo/gql'
 import { notification } from 'antd'
 import { useCallback, useState } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+
+import { SUBSCRIPTION_PAYMENT_BUFFER_DAYS } from '@condo/domains/subscription/constants'
+import { getContextIdsToCancel } from '@condo/domains/subscription/utils/subscriptionCatalog'
 
 
 type UseCancelSubscriptionFeaturesParams = {
@@ -11,19 +19,38 @@ type UseCancelSubscriptionFeaturesParams = {
 }
 
 /**
- * Stops auto-renewal for the given subscription contexts only. The features stay usable until
- * the period already paid for runs out, and everything else bought in the same bundle — the plan
- * above all — keeps renewing on the same card.
+ * Removes feature plans from the subscription. The features stay usable until the period already
+ * paid for runs out, and everything else bought in the same bundle — the plan above all — keeps
+ * renewing on the same card.
  */
 export const useCancelSubscriptionFeatures = ({ onCancelled }: UseCancelSubscriptionFeaturesParams = {}) => {
     const intl = useIntl()
     const DoneMessage = intl.formatMessage({ id: 'subscription.remove.notification.title' })
     const ErrorMessage = intl.formatMessage({ id: 'subscription.remove.error.title' })
 
+    const { organization } = useOrganization()
+    const organizationId = organization?.id || ''
+
     const [loading, setLoading] = useState(false)
     const [cancelSubscriptionRenewal] = useCancelSubscriptionRenewalMutation()
 
-    const cancelFeatures = useCallback(async (contextIds: ReadonlyArray<string>) => {
+    const { data: activatedData, refetch: refetchActivated } = useGetOrganizationActivatedSubscriptionsQuery({
+        variables: { organizationId },
+        skip: !organizationId,
+    })
+    const { data: unpaidData, refetch: refetchUnpaid } = useGetOrganizationUnpaidSubscriptionsQuery({
+        variables: { organizationId },
+        skip: !organizationId,
+    })
+
+    const cancelFeaturePlans = useCallback(async (planIds: ReadonlyArray<string>) => {
+        const contextIds = getContextIdsToCancel({
+            planIds,
+            paidContexts: activatedData?.activatedSubscriptions ?? [],
+            unpaidContexts: unpaidData?.unpaidSubscriptions ?? [],
+            now: new Date(),
+            bufferDays: SUBSCRIPTION_PAYMENT_BUFFER_DAYS,
+        })
         if (contextIds.length === 0) return
 
         setLoading(true)
@@ -39,6 +66,7 @@ export const useCancelSubscriptionFeatures = ({ onCancelled }: UseCancelSubscrip
             })
 
             notification.success({ message: DoneMessage, duration: 5 })
+            await Promise.all([refetchActivated(), refetchUnpaid()])
             await onCancelled?.()
         } catch (error) {
             console.error('Failed to cancel subscription features:', error)
@@ -50,7 +78,7 @@ export const useCancelSubscriptionFeatures = ({ onCancelled }: UseCancelSubscrip
         } finally {
             setLoading(false)
         }
-    }, [cancelSubscriptionRenewal, onCancelled, DoneMessage, ErrorMessage])
+    }, [activatedData, unpaidData, cancelSubscriptionRenewal, refetchActivated, refetchUnpaid, onCancelled, DoneMessage, ErrorMessage])
 
-    return { cancelFeatures, loading }
+    return { cancelFeaturePlans, loading }
 }

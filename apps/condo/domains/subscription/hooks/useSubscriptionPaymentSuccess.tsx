@@ -1,15 +1,18 @@
-import { useGetLastDoneSubscriptionContextQuery } from '@app/condo/gql'
+import { useGetLastDoneOrganizationSubscriptionContextsQuery, useGetLastDoneSubscriptionContextQuery } from '@app/condo/gql'
 import { notification } from 'antd'
 import dayjs from 'dayjs'
 import { useRouter } from 'next/router'
-import React, { useCallback, useEffect, useRef } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 
+import { SUBSCRIPTION_PLAN_TYPE_SERVICE } from '@condo/domains/subscription/constants'
+
 
 type UseSubscriptionPaymentSuccessParams = {
-    planId: string | null | undefined
+    /** The plan that was paid for. Without it the latest bundle the organization paid for is taken */
+    planId?: string | null
     organizationId: string | null | undefined
     onAfterNotification?: () => void
 }
@@ -18,7 +21,7 @@ type UseSubscriptionPaymentSuccessParams = {
  * Detects successful subscription payment return (via `successPayment=true` query param)
  * and shows a notification. Optionally calls `onAfterNotification` for extra actions (e.g. a modal).
  *
- * Uses `localStorage` keyed as `subscription_last_context_at_{planId}` to avoid re-triggering.
+ * Uses `localStorage` keyed as `subscription_last_context_at_{planId or organizationId}` to avoid re-triggering.
  * The notification fires only if the last DONE context was created today.
  */
 export const useSubscriptionPaymentSuccess = ({
@@ -28,39 +31,65 @@ export const useSubscriptionPaymentSuccess = ({
 }: UseSubscriptionPaymentSuccessParams): void => {
     const intl = useIntl()
     const router = useRouter()
-    const SuccessNotificationTitle = intl.formatMessage({ id: 'subscription.payment.success.notification.title' })
-    const SuccessNotificationDescription = intl.formatMessage({ id: 'subscription.payment.success.notification.description' })
+    const PlanTitle = intl.formatMessage({ id: 'subscription.payment.success.notification.title' })
+    const PlanDescription = intl.formatMessage({ id: 'subscription.payment.success.notification.description' })
+    const FeaturesTitle = intl.formatMessage({ id: 'subscription.activation.features.title' })
+    const FeaturesDescription = intl.formatMessage({ id: 'subscription.activation.features.description' })
 
-    const storageKey = planId ? `subscription_last_context_at_${planId}` : null
+    const storageKey = planId
+        ? `subscription_last_context_at_${planId}`
+        : organizationId ? `subscription_last_context_at_${organizationId}` : null
 
     // Captured once at mount — survives URL cleanup done by router.replace below
     const inSuccessFlow = useRef(router.query.successPayment === 'true')
+    // Bypass Apollo cache so we always get the freshly-created context after redirect
+    const fetchPolicy = inSuccessFlow.current ? 'network-only' : 'cache-first'
 
-    const { data, loading } = useGetLastDoneSubscriptionContextQuery({
+    const { data: planData, loading: planLoading } = useGetLastDoneSubscriptionContextQuery({
         variables: { organizationId: organizationId as string, planId: planId as string },
         skip: !planId || !organizationId,
-        // Bypass Apollo cache so we always get the freshly-created context after redirect
-        fetchPolicy: inSuccessFlow.current ? 'network-only' : 'cache-first',
+        fetchPolicy,
+    })
+    const { data: organizationData, loading: organizationLoading } = useGetLastDoneOrganizationSubscriptionContextsQuery({
+        variables: { organizationId: organizationId as string },
+        skip: Boolean(planId) || !organizationId,
+        fetchPolicy,
     })
 
-    const currentCreatedAt: string | null = data?.contexts?.[0]?.createdAt ?? null
+    const loading = planLoading || organizationLoading
+    const contexts = useMemo(
+        () => (planId ? planData?.contexts : organizationData?.contexts) ?? [],
+        [planId, planData, organizationData]
+    )
+    const currentCreatedAt: string | null = contexts[0]?.createdAt ?? null
+
+    /** A bundle with a service plan is announced as a plan purchase, features bought on their own get their own words */
+    const isPlanPurchase = useMemo(() => {
+        const latest = contexts[0]
+        if (!latest) return false
+        const bundle = latest.invoice?.id
+            ? contexts.filter(context => context.invoice?.id === latest.invoice.id)
+            : [latest]
+
+        return bundle.some(context => context.subscriptionPlan?.planType === SUBSCRIPTION_PLAN_TYPE_SERVICE)
+    }, [contexts])
 
     const handleSuccess = useCallback(() => {
         notification.success({
             message: (
                 <Typography.Text strong size='large'>
-                    {SuccessNotificationTitle}
+                    {isPlanPurchase ? PlanTitle : FeaturesTitle}
                 </Typography.Text>
             ),
             description: (
                 <Typography.Text type='secondary' size='medium'>
-                    {SuccessNotificationDescription}
+                    {isPlanPurchase ? PlanDescription : FeaturesDescription}
                 </Typography.Text>
             ),
             duration: 5,
         })
         onAfterNotification?.()
-    }, [SuccessNotificationTitle, SuccessNotificationDescription, onAfterNotification])
+    }, [isPlanPurchase, PlanTitle, PlanDescription, FeaturesTitle, FeaturesDescription, onAfterNotification])
 
     // Keep localStorage in sync outside of success flow
     useEffect(() => {

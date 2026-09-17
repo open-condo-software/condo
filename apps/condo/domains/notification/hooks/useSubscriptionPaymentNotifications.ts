@@ -1,4 +1,4 @@
-import { useGetOrganizationSubscriptionContextsWithPaymentMethodsQuery } from '@app/condo/gql'
+import { useGetOrganizationSubscriptionContextsWithPaymentMethodsQuery, useGetOrganizationUnpaidSubscriptionsQuery } from '@app/condo/gql'
 import dayjs from 'dayjs'
 import getConfig from 'next/config'
 import { useMemo, useCallback, useState } from 'react'
@@ -13,13 +13,24 @@ import {
     SUBSCRIPTION_PAYMENT_SUCCESS_CUSTOM_CLIENT_MESSAGE_TYPE,
     SUBSCRIPTION_PAYMENT_ERROR_CUSTOM_CLIENT_MESSAGE_TYPE,
 } from '@condo/domains/notification/utils/client/constants'
-import { SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PAYMENT_BUFFER_DAYS, SUBSCRIPTION_PLAN_TYPE_FEATURE } from '@condo/domains/subscription/constants'
+import {
+    SUBSCRIPTION_CONTEXT_STATUS,
+    SUBSCRIPTION_PAYMENT_BUFFER_DAYS,
+    SUBSCRIPTION_PAYMENT_TYPE_CARD,
+    SUBSCRIPTION_PLAN_TYPE_FEATURE,
+} from '@condo/domains/subscription/constants'
 
 
 const { publicRuntimeConfig: { serverUrl } } = getConfig()
 
 const isStoredToday = (storedDate: string): boolean => {
     return dayjs(storedDate).isSame(dayjs(), 'day')
+}
+
+/** Designs spell the date out: «до 12 апреля», and keep the year only when it is not the current one */
+function formatPaidUntil (endAt: string): string {
+    const date = dayjs(endAt)
+    return date.format(date.year() === dayjs().year() ? 'D MMMM' : 'D MMMM YYYY')
 }
 
 function isForeverSubscription (endAt: string): boolean {
@@ -55,6 +66,23 @@ export const useSubscriptionPaymentNotifications = (): SubscriptionPaymentNotifi
     })
 
     const subscriptionContexts = useMemo(() => contextsData?.subscriptionContexts || [], [contextsData?.subscriptionContexts])
+
+    const { data: unpaidData } = useGetOrganizationUnpaidSubscriptionsQuery({
+        variables: {
+            organizationId: organizationId || '',
+        },
+        skip: !organizationId,
+    })
+
+    /**
+     * A renewal the card declined is a registration of its own and carries no card, so it never shows up among
+     * the contexts paid by card. Only card renewals are announced: an invoice nobody paid is not a failed payment
+     */
+    const failedRenewals = useMemo(() => (unpaidData?.unpaidSubscriptions || []).filter(context => (
+        (context?.status === SUBSCRIPTION_CONTEXT_STATUS.ERROR || context?.status === SUBSCRIPTION_CONTEXT_STATUS.PENDING)
+        && context?.frozenPaymentInfo?.paymentType === SUBSCRIPTION_PAYMENT_TYPE_CARD
+        && !context?.renewalCancelledAt
+    )), [unpaidData?.unpaidSubscriptions])
 
     const storage = useMemo(() => {
         if (typeof window === 'undefined') return null
@@ -147,7 +175,7 @@ export const useSubscriptionPaymentNotifications = (): SubscriptionPaymentNotifi
                 if (bindingId && daysSinceStarted <= SUBSCRIPTION_PAYMENT_BUFFER_DAYS && isNotForever) {
                     setCurrentSuccessContextId(contextId)
                     announcedByPlan.add(announcementKey('success', endAt))
-                    const formattedEndDate = endDate.format('DD.MM.YY')
+                    const formattedEndDate = formatPaidUntil(endAt)
                     msgs.push({
                         id: `subscription-payment-success-${contextId}`,
                         type: SUBSCRIPTION_PAYMENT_SUCCESS_CUSTOM_CLIENT_MESSAGE_TYPE,
@@ -188,27 +216,26 @@ export const useSubscriptionPaymentNotifications = (): SubscriptionPaymentNotifi
                 }
             }
 
-            if (status === SUBSCRIPTION_CONTEXT_STATUS.ERROR || status === SUBSCRIPTION_CONTEXT_STATUS.PENDING) {
-                const daysSinceStarted = now.diff(dayjs(context.startAt), 'day')
-                
-                if (daysSinceStarted >= 0 && daysSinceStarted <= SUBSCRIPTION_PAYMENT_BUFFER_DAYS) {
-                    setCurrentErrorContextId(contextId)
-                    announcedByPlan.add(announcementKey('error', endAt))
-                    msgs.push({
-                        id: `subscription-payment-error-${contextId}`,
-                        type: SUBSCRIPTION_PAYMENT_ERROR_CUSTOM_CLIENT_MESSAGE_TYPE,
-                        createdAt: errorCreatedAt,
-                        meta: { data: { url: `${serverUrl}/settings?tab=subscription` } },
-                        defaultContent: {
-                            content: intl.formatMessage(
-                                { id: 'notification.UserMessagesList.message.SUBSCRIPTION_PAYMENT_ERROR.content' },
-                                { planName }
-                            ),
-                        },
-                        customTitle: intl.formatMessage({ id: 'notification.UserMessagesList.message.SUBSCRIPTION_PAYMENT_ERROR.title' }),
-                    } as UserMessageType)
-                }
-            }
+        }
+
+        for (const context of failedRenewals) {
+            if (context.subscriptionPlan?.planType === SUBSCRIPTION_PLAN_TYPE_FEATURE) continue
+
+            setCurrentErrorContextId(context.id)
+            announcedByPlan.add(announcementKey('error', context.endAt))
+            msgs.push({
+                id: `subscription-payment-error-${context.id}`,
+                type: SUBSCRIPTION_PAYMENT_ERROR_CUSTOM_CLIENT_MESSAGE_TYPE,
+                createdAt: errorCreatedAt,
+                meta: { data: { url: `${serverUrl}/settings?tab=subscription` } },
+                defaultContent: {
+                    content: intl.formatMessage(
+                        { id: 'notification.UserMessagesList.message.SUBSCRIPTION_PAYMENT_ERROR.content' },
+                        { planName: context.subscriptionPlan?.name || '' }
+                    ),
+                },
+                customTitle: intl.formatMessage({ id: 'notification.UserMessagesList.message.SUBSCRIPTION_PAYMENT_ERROR.title' }),
+            } as UserMessageType)
         }
 
         const currentPlanName = serviceContexts.find(context => context?.subscriptionPlan?.name)?.subscriptionPlan?.name || ''
@@ -231,9 +258,9 @@ export const useSubscriptionPaymentNotifications = (): SubscriptionPaymentNotifi
             return groups
         }
 
-        const featureNamesOf = (contexts: typeof featureContexts) => contexts
-            .map(context => context.subscriptionPlan.name.toLowerCase())
-            .join(', ')
+        /** Designs spell every feature out as its own quoted name: «Маркетплейс», «Электронные квитанции» */
+        const featureNamesOf = (contexts: ReadonlyArray<{ subscriptionPlan?: { name?: string } }>) =>
+            contexts.map(context => `«${context.subscriptionPlan?.name ?? ''}»`).join(', ')
 
         // a group is identified by the features in it, so the read marker survives a re-render
         const groupIdOf = (contexts: typeof featureContexts) => contexts.map(context => context.id).sort().join('_')
@@ -254,10 +281,10 @@ export const useSubscriptionPaymentNotifications = (): SubscriptionPaymentNotifi
                 defaultContent: {
                     content: intl.formatMessage(
                         { id: 'notification.UserMessagesList.message.SUBSCRIPTION_PAYMENT_SUCCESS.features.content' },
-                        { features: featureNamesOf(contexts), date: dayjs(contexts[0].endAt).format('DD.MM.YY') }
+                        { features: featureNamesOf(contexts), date: formatPaidUntil(contexts[0].endAt) }
                     ),
                 },
-                customTitle: intl.formatMessage({ id: 'notification.UserMessagesList.message.SUBSCRIPTION_PAYMENT_SUCCESS.title' }),
+                customTitle: intl.formatMessage({ id: 'notification.UserMessagesList.message.SUBSCRIPTION_PAYMENT_SUCCESS.features.title' }),
             } as UserMessageType)
         }
 
@@ -294,13 +321,19 @@ export const useSubscriptionPaymentNotifications = (): SubscriptionPaymentNotifi
             } as UserMessageType)
         }
 
-        for (const [, contexts] of groupFeatures('error', context => {
-            if (context.status !== SUBSCRIPTION_CONTEXT_STATUS.ERROR && context.status !== SUBSCRIPTION_CONTEXT_STATUS.PENDING) return false
-            const daysSinceStarted = now.diff(dayjs(context.startAt), 'day')
+        // failed feature renewals are grouped the same way, by the date their period ends
+        const failedFeatureGroups = new Map<string, typeof failedRenewals>()
+        for (const context of failedRenewals) {
+            if (context.subscriptionPlan?.planType !== SUBSCRIPTION_PLAN_TYPE_FEATURE || !context.endAt) continue
+            const key = announcementKey('error', context.endAt)
+            if (announcedByPlan.has(key)) continue
 
-            return daysSinceStarted >= 0 && daysSinceStarted <= SUBSCRIPTION_PAYMENT_BUFFER_DAYS
-        })) {
-            const groupId = groupIdOf(contexts)
+            if (!failedFeatureGroups.has(key)) failedFeatureGroups.set(key, [])
+            failedFeatureGroups.get(key).push(context)
+        }
+
+        for (const [, contexts] of failedFeatureGroups) {
+            const groupId = contexts.map(context => context.id).sort().join('_')
             setCurrentErrorContextId(groupId)
             msgs.push({
                 id: `subscription-feature-payment-error-${groupId}`,
@@ -318,7 +351,7 @@ export const useSubscriptionPaymentNotifications = (): SubscriptionPaymentNotifi
         }
 
         return msgs
-    }, [organizationId, subscriptionContexts, intl, reminderCreatedAt, errorCreatedAt])
+    }, [organizationId, subscriptionContexts, failedRenewals, intl, reminderCreatedAt, errorCreatedAt])
 
     return {
         messages,

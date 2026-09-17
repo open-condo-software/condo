@@ -29,22 +29,20 @@ type UseSubscriptionSelectionParams = {
     rows: ReadonlyArray<CatalogRow>
     planCards: ReadonlyArray<ServicePlanView>
     selectedPlanId: string | null
-    activePlanId: string | null
+    /** The paid plan still in force, the one a purchase may only go up from. Null during or after a trial */
+    paidPlanId: string | null
     period: PlanPeriod
     /** Features the selected plan already covers, counted into the cart when the plan is bought */
     includedCount: number
-    /** The active plan's paid period is over, so the page offers to renew it */
-    isActivePlanPaymentExpired: boolean
 }
 
 export const useSubscriptionSelection = ({
     rows,
     planCards,
     selectedPlanId,
-    activePlanId,
+    paidPlanId,
     period,
     includedCount,
-    isActivePlanPaymentExpired,
 }: UseSubscriptionSelectionParams) => {
     const [mode, setMode] = useState<SelectionMode>('idle')
     const [selectedRowKeys, setSelectedRowKeys] = useState<ReadonlyArray<string>>([])
@@ -54,56 +52,39 @@ export const useSubscriptionSelection = ({
         setSelectedRowKeys([])
     }, [])
 
-    const purchasedRowKeys = useMemo(
-        () => rows.filter(row => row.status?.type === 'connected' || row.status?.type === 'paymentExpired').map(row => row.key),
-        [rows]
-    )
-    const purchasedRowKeysSignature = purchasedRowKeys.join(',')
-
     const selectedPlanCard = useMemo(
         () => planCards.find(card => card.planInfo.plan.id === selectedPlanId) ?? null,
         [planCards, selectedPlanId]
     )
 
-    const activePlanCard = useMemo(
-        () => planCards.find(card => card.planInfo.plan.id === activePlanId) ?? null,
-        [planCards, activePlanId]
+    const paidPlanCard = useMemo(
+        () => planCards.find(card => card.planInfo.plan.id === paidPlanId) ?? null,
+        [planCards, paidPlanId]
     )
 
     /**
-     * Downgrades are not offered: a lower plan can be opened to compare, but it never
-     * produces an action bar. Anything above the active plan can be bought, as long as it has
-     * a real price — a plan sold on request is handled by sales, not by the checkout.
+     * Downgrades from a paid plan are not offered: a lower plan can be opened to compare, but it never
+     * produces an action bar. Anything above the paid plan can be bought, as long as it has a real price —
+     * a plan sold on request is handled by sales, not by the checkout. Without a paid plan (a trial,
+     * running or over) every plan is for sale, the tried one included.
      */
     const isPlanPurchasable = useMemo(() => {
-        if (!selectedPlanCard || selectedPlanCard.isActive) return false
-        if (!selectedPlanCard.price || isCustomPrice(selectedPlanCard.price)) return false
-        if (!activePlanCard) return true
+        if (!selectedPlanCard || !selectedPlanCard.price || isCustomPrice(selectedPlanCard.price)) return false
+        if (!paidPlanCard) return true
+        if (selectedPlanCard.planInfo.plan.id === paidPlanCard.planInfo.plan.id) return false
 
         const selectedPriority = selectedPlanCard.planInfo.plan.priority ?? 0
-        const activePriority = activePlanCard.planInfo.plan.priority ?? 0
+        const paidPriority = paidPlanCard.planInfo.plan.priority ?? 0
 
-        return selectedPriority > activePriority
-    }, [selectedPlanCard, activePlanCard])
-
-    /**
-     * A paid plan that is fine produces no action bar. Once its paid period is over, the page offers
-     * a renewal instead: the plan goes back into the cart together with the features bought on top of it.
-     */
-    const isPlanRenewable = useMemo(() => {
-        if (!isActivePlanPaymentExpired || !selectedPlanCard || !selectedPlanCard.isActive) return false
-
-        return Boolean(selectedPlanCard.price) && !isCustomPrice(selectedPlanCard.price)
-    }, [isActivePlanPaymentExpired, selectedPlanCard])
+        return selectedPriority > paidPriority
+    }, [selectedPlanCard, paidPlanCard])
 
     // what is included, purchasable or already owned all change with the plan and the period, so a
-    // cart assembled against the previous one would no longer mean anything. A paid plan opens with
-    // everything it covers already picked, which makes renewing it a single click
+    // cart assembled against the previous one would no longer mean anything
     useEffect(() => {
-        const preselected = isPlanRenewable ? purchasedRowKeysSignature.split(',').filter(Boolean) : []
-        setSelectedRowKeys(preselected)
-        setMode(preselected.length > 0 ? 'buy' : 'idle')
-    }, [selectedPlanId, period, isPlanRenewable, purchasedRowKeysSignature])
+        setSelectedRowKeys([])
+        setMode('idle')
+    }, [selectedPlanId, period])
 
     const rowsByKey = useMemo(() => new Map(rows.map(row => [row.key, row])), [rows])
 
@@ -112,13 +93,12 @@ export const useSubscriptionSelection = ({
     const getRowGroup = useCallback((row: CatalogRow): RowGroup | null => {
         if (row.includedInPlan) return null
         const statusType = row.status?.type
-        if (isPlanRenewable && (statusType === 'connected' || statusType === 'paymentExpired')) return 'buy'
         if (statusType === 'paymentExpired') return 'paymentExpired'
         if (statusType === 'connected') return 'connected'
         if (statusType === 'trial' || row.purchasable) return 'buy'
 
         return null
-    }, [isPlanRenewable])
+    }, [])
 
     const getRowPrice = (row: CatalogRow) => (row.price && !isCustomPrice(row.price) ? row.price : null)
 
@@ -155,7 +135,7 @@ export const useSubscriptionSelection = ({
     )
 
     /** The plan joins the cart whenever it is on screen and can be bought or bought again */
-    const isPlanInCart = (isPlanPurchasable || isPlanRenewable) && (mode === 'idle' || mode === 'buy')
+    const isPlanInCart = isPlanPurchasable && (mode === 'idle' || mode === 'buy')
 
     const totals = useMemo<SelectionTotals>(() => {
         const planPrice = isPlanInCart ? selectedPlanCard?.price ?? null : null
@@ -196,7 +176,6 @@ export const useSubscriptionSelection = ({
         clearSelection,
         isPlanInCart,
         isPlanPurchasable,
-        isPlanRenewable,
         selectedPlanCard,
         totals,
     }
