@@ -71,6 +71,7 @@ const archiveDate = {
     hooks: {
         resolveInput: ({ resolvedData, fieldPath, existingItem }) => {
             const value = resolvedData[fieldPath]
+            if (value === null) return null
             if (!value) return existingItem?.[fieldPath] || null
 
             const today = dayjs()

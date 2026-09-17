@@ -1405,6 +1405,19 @@ describe('Meter', () => {
                     })
                     expect(updatedMeter3).toHaveProperty('archiveDate', pastDate)
                 })
+
+                test('should clear an existing archiveDate', async () => {
+                    const pastDate = dayjs().subtract(1, 'minute').toISOString()
+                    const [meter] = await createTestMeter(client, client.organization, client.property, resource, {
+                        archiveDate: pastDate,
+                    })
+
+                    const [updatedMeter] = await updateTestMeter(admin, meter.id, {
+                        archiveDate: null,
+                    })
+
+                    expect(updatedMeter).toHaveProperty('archiveDate', null)
+                })
             })
         })
 
