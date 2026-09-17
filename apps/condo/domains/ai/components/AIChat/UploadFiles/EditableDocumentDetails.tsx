@@ -164,10 +164,6 @@ export const EditableDocumentDetails: React.FC<{ form: FormInstance, editableDoc
     const currentPropertyId = currentDocument?.propertyId
     const currentCategoryId = currentDocument?.categoryId
 
-    console.log('renderDocumentDetailsEditable', {
-        editableDocumentId, files, currentDocument,
-    })
-
     const handleDocumentTypeSelect = useCallback((documentType) => {
         if (currentDocumentType === documentType) return
 
@@ -194,9 +190,6 @@ export const EditableDocumentDetails: React.FC<{ form: FormInstance, editableDoc
                     <>
                         <DocumentPropertySelect
                             onSelect={(propertyId, option) => {
-                                console.log({
-                                    propertyId, currentPropertyId, option,
-                                })
                                 if (currentPropertyId === propertyId) return
 
                                 const updatedFiles = files.map(file => ({
@@ -205,21 +198,12 @@ export const EditableDocumentDetails: React.FC<{ form: FormInstance, editableDoc
                                     propertyAddress: file.uid === editableDocumentId ? option?.title : file.propertyAddress,
                                 }))
                                 form.setFieldValue('files', updatedFiles)
-
-                                console.log({
-                                    propertyId, currentPropertyId,
-                                    updatedFiles,
-                                    files,
-                                })
                             }}
                             currentDocument={currentDocument}
                         />
 
                         <DocumentCategorySelect
                             onSelect={(categoryId) => {
-                                console.log({
-                                    categoryId, currentCategoryId,
-                                })
                                 if (currentCategoryId === categoryId) return
 
                                 const updatedFiles = files.map(file => ({
@@ -227,12 +211,6 @@ export const EditableDocumentDetails: React.FC<{ form: FormInstance, editableDoc
                                     categoryId: file.uid === editableDocumentId ? categoryId : file.categoryId,
                                 }))
                                 form.setFieldValue('files', updatedFiles)
-
-                                console.log({
-                                    categoryId, currentCategoryId,
-                                    updatedFiles,
-                                    files,
-                                })
                             }}
                             currentDocument={currentDocument}
                         />

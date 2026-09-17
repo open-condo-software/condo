@@ -81,12 +81,6 @@ const SaveDocumentsModal: React.FC<any> = ({ setModalState, modalState, fileList
         uploadForm.setFieldValue('files', fileListToForm(filesWithoutErrors))
     }, [filesWithoutErrors])
 
-    console.log({
-        uploadForm: uploadForm.getFieldsValue(),
-        fileList,
-        filesWithoutErrors,
-    })
-
     useEffect(() => {
         uploadForm.setFieldValue('isSaveFiles', isSaveFiles)
     }, [isSaveFiles])
@@ -109,10 +103,6 @@ const SaveDocumentsModal: React.FC<any> = ({ setModalState, modalState, fileList
 
         setLoading(true)
 
-        console.log('saveDocumentsAction', {
-            values,
-        })
-
         const senderInfo = getClientSideSenderInfo()
 
         const baseCreateData = {
@@ -128,10 +118,6 @@ const SaveDocumentsModal: React.FC<any> = ({ setModalState, modalState, fileList
                 .map((file) => file.originFileObj)
                 .filter((originFile): originFile is RcFile => !!originFile)
 
-            console.log({
-                filesToUpload,
-            })
-
             if (isSaveFiles) {
                 let createInput
 
@@ -145,11 +131,6 @@ const SaveDocumentsModal: React.FC<any> = ({ setModalState, modalState, fileList
                             fingerprint: senderInfo.fingerprint,
                             organizationId,
                         }),
-                    })
-
-                    console.log({
-                        uploadResult,
-                        filesToUpload,
                     })
 
                     createInput = uploadResult.files.map((uploadedFile, index) => ({
@@ -169,10 +150,6 @@ const SaveDocumentsModal: React.FC<any> = ({ setModalState, modalState, fileList
                 }
 
                 const res = await createDocuments(createInput)
-
-                console.log({
-                    res,
-                })
 
                 if (onUploadComplete) {
                     onUploadComplete(res.map((document, index) => ({
