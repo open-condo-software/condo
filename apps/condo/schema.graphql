@@ -6471,6 +6471,7 @@ type OrganizationSubscriptionFeatures {
   customizationEndAt: String
   propertiesEndAt: String
   analyticsEndAt: String
+  pdfReceiptsEndAt: String
   b2bApps: [SubscriptionApp!]!
   b2cApps: [SubscriptionApp!]!
   activeSubscriptionContextId: String
@@ -58901,6 +58902,7 @@ type SubscriptionPlanHistoryRecord {
   customization: Boolean
   properties: Boolean
   analytics: Boolean
+  pdfReceipts: Boolean
   enabledB2BApps: JSON
   enabledB2CApps: JSON
   id: ID!
@@ -59033,6 +59035,8 @@ input SubscriptionPlanHistoryRecordWhereInput {
   properties_not: Boolean
   analytics: Boolean
   analytics_not: Boolean
+  pdfReceipts: Boolean
+  pdfReceipts_not: Boolean
   enabledB2BApps: JSON
   enabledB2BApps_not: JSON
   enabledB2BApps_in: [JSON]
@@ -59160,6 +59164,8 @@ enum SortSubscriptionPlanHistoryRecordsBy {
   properties_DESC
   analytics_ASC
   analytics_DESC
+  pdfReceipts_ASC
+  pdfReceipts_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -59197,6 +59203,7 @@ input SubscriptionPlanHistoryRecordUpdateInput {
   customization: Boolean
   properties: Boolean
   analytics: Boolean
+  pdfReceipts: Boolean
   enabledB2BApps: JSON
   enabledB2CApps: JSON
   v: Int
@@ -59237,6 +59244,7 @@ input SubscriptionPlanHistoryRecordCreateInput {
   customization: Boolean
   properties: Boolean
   analytics: Boolean
+  pdfReceipts: Boolean
   enabledB2BApps: JSON
   enabledB2CApps: JSON
   v: Int
@@ -59336,6 +59344,9 @@ type SubscriptionPlan {
 
   """ Whether analytics feature is included in this plan """
   analytics: Boolean
+
+  """ Whether pdfReceipts feature is included in this plan """
+  pdfReceipts: Boolean
 
   """ List of B2B miniapp IDs enabled in this plan. Apps work as opt-in: if an app appears in at least one plan for this organizationType, it becomes restricted and must be explicitly listed here to be available. Apps not listed in any plan remain available to all organizations of this type. 
   """
@@ -59454,6 +59465,8 @@ input SubscriptionPlanWhereInput {
   properties_not: Boolean
   analytics: Boolean
   analytics_not: Boolean
+  pdfReceipts: Boolean
+  pdfReceipts_not: Boolean
   enabledB2BApps: JSON
   enabledB2BApps_not: JSON
   enabledB2BApps_in: [JSON]
@@ -59561,6 +59574,8 @@ enum SortSubscriptionPlansBy {
   properties_DESC
   analytics_ASC
   analytics_DESC
+  pdfReceipts_ASC
+  pdfReceipts_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -59598,6 +59613,7 @@ input SubscriptionPlanUpdateInput {
   customization: Boolean
   properties: Boolean
   analytics: Boolean
+  pdfReceipts: Boolean
   enabledB2BApps: JSON
   enabledB2CApps: JSON
   v: Int
@@ -59635,6 +59651,7 @@ input SubscriptionPlanCreateInput {
   customization: Boolean
   properties: Boolean
   analytics: Boolean
+  pdfReceipts: Boolean
   enabledB2BApps: JSON
   enabledB2CApps: JSON
   v: Int

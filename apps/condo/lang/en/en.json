@@ -3338,6 +3338,7 @@
   "subscription.features.residents": "Working with the home database",
   "subscription.features.meters": "Collecting readings",
   "subscription.features.payments": "Posting receipts in the app",
+  "subscription.features.pdfReceipts": "PDF receipts",
   "subscription.features.mobileApp": "Resident mobile app",
   "subscription.features.outages": "Outages",
   "subscription.features.news": "Sending news to residents",

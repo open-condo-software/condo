@@ -27,6 +27,7 @@ const { removeKeysFromObjectDeep } = require('@condo/domains/billing/utils/gqlWh
 const { BillingReceipt, getNewPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
 const { normalizeUnitName } = require('@condo/domains/billing/utils/unitName.utils')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
+const { getOrganizationIdsWithoutPdfReceipts } = require('@condo/domains/subscription/utils/serverSchema/pdfReceiptsAvailability')
 
 const Adapter = new FileAdapter(BILLING_RECEIPT_FILE_FOLDER_NAME)
 
@@ -163,8 +164,18 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                     deletedAt: null,
                 }, 'unitName unitType property { address }')
 
+                const organizationIdsWithoutPdfReceipts = await getOrganizationIdsWithoutPdfReceipts(
+                    context,
+                    receiptsForConsumer.map(receipt => ({
+                        integrationId: get(receipt, ['context', 'integration', 'id']),
+                        organizationId: get(receipt, ['context', 'organization', 'id']),
+                    })),
+                )
+
                 receiptsForConsumer.forEach(receipt => {
-                    const file = getFile(receipt, contacts)
+                    const file = organizationIdsWithoutPdfReceipts.has(get(receipt, ['context', 'organization', 'id']))
+                        ? null
+                        : getFile(receipt, contacts)
                     processedReceipts.push({
                         id: receipt.id,
                         dv: receipt.dv,

@@ -57,6 +57,7 @@ const SUBSCRIPTION_PLAN_FEATURE_FIELDS = {
     customization: planFeatureField('customization'),
     properties: planFeatureField('properties'),
     analytics: planFeatureField('analytics'),
+    pdfReceipts: planFeatureField('pdfReceipts'),
 }
 
 const SUBSCRIPTION_PLAN_FEATURES = Object.keys(SUBSCRIPTION_PLAN_FEATURE_FIELDS)
