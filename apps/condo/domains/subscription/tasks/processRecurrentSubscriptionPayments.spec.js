@@ -666,6 +666,10 @@ describe('processRecurrentSubscriptionPayments', () => {
         const mockFailedPayment = () => jest.spyOn(SubscriptionPaymentAdapter, 'proceedPayment')
             .mockResolvedValue({ status: 'failed', paid: false, errorMessage: 'Payment failed' })
 
+        // The cron renews every expiring bundle in the database, so only the charges of the organization under test count
+        const chargesOf = (proceedPaymentSpy, organizationId) => proceedPaymentSpy.mock.calls
+            .filter(([{ directPaymentUrl }]) => directPaymentUrl.includes(`organizationId=${organizationId}`))
+
         afterEach(() => {
             jest.restoreAllMocks()
         })
@@ -678,7 +682,7 @@ describe('processRecurrentSubscriptionPayments', () => {
             await processRecurrentSubscriptionPayments()
             await processRecurrentSubscriptionPayments()
 
-            expect(proceedPaymentSpy).toHaveBeenCalledTimes(2)
+            expect(chargesOf(proceedPaymentSpy, organization.id)).toHaveLength(2)
             const invoices = await Invoice.getAll(adminClient, { payerOrganization: { id: organization.id } })
             expect(invoices).toHaveLength(1)
             const payments = await Payment.getAll(adminClient, { invoice: { id: invoices[0].id } })
@@ -698,7 +702,7 @@ describe('processRecurrentSubscriptionPayments', () => {
 
             await processRecurrentSubscriptionPayments()
 
-            expect(proceedPaymentSpy).toHaveBeenCalledTimes(1)
+            expect(chargesOf(proceedPaymentSpy, organization.id)).toHaveLength(1)
         })
 
         test('does not charge the card for a renewal registered to be paid by bank transfer', async () => {
@@ -713,7 +717,7 @@ describe('processRecurrentSubscriptionPayments', () => {
 
             await processRecurrentSubscriptionPayments()
 
-            expect(proceedPaymentSpy).not.toHaveBeenCalled()
+            expect(chargesOf(proceedPaymentSpy, organization.id)).toHaveLength(0)
             const invoices = await Invoice.getAll(adminClient, { payerOrganization: { id: organization.id } })
             expect(invoices).toHaveLength(1)
         })
@@ -729,7 +733,7 @@ describe('processRecurrentSubscriptionPayments', () => {
 
             await processRecurrentSubscriptionPayments()
 
-            expect(proceedPaymentSpy).toHaveBeenCalledTimes(2)
+            expect(chargesOf(proceedPaymentSpy, organization.id)).toHaveLength(2)
             const closedContexts = await SubscriptionContext.getAll(adminClient, { invoice: { id: cancelledInvoice.id } })
             expect(closedContexts.every(ctx => ctx.status === SUBSCRIPTION_CONTEXT_STATUS.ERROR)).toBe(true)
             const invoices = await Invoice.getAll(adminClient, { payerOrganization: { id: organization.id } })
