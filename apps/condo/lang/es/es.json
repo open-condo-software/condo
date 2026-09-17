@@ -3338,6 +3338,7 @@
   "subscription.features.residents": "Trabajar con la base de datos de la casa",
   "subscription.features.meters": "Recogida de testimonios",
   "subscription.features.payments": "Colocar recibos en la aplicación",
+  "subscription.features.pdfReceipts": "Recibos en PDF",
   "subscription.features.mobileApp": "Aplicación móvil del residente",
   "subscription.features.outages": "Cortes",
   "subscription.features.news": "Enviar noticias a los residentes",

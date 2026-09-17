@@ -10,7 +10,7 @@ const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const ORGANIZATION_SUBSCRIPTION_FIELDS = 'paymentsEndAt metersEndAt ticketsEndAt newsEndAt marketplaceEndAt supportEndAt aiEndAt customizationEndAt propertiesEndAt analyticsEndAt b2bApps { id endAt } b2cApps { id endAt } activeSubscriptionContextId activeSubscriptionEndAt'
+const ORGANIZATION_SUBSCRIPTION_FIELDS = 'paymentsEndAt metersEndAt ticketsEndAt newsEndAt marketplaceEndAt supportEndAt aiEndAt customizationEndAt propertiesEndAt analyticsEndAt pdfReceiptsEndAt b2bApps { id endAt } b2cApps { id endAt } activeSubscriptionContextId activeSubscriptionEndAt'
 
 const ORGANIZATION_FIELDS = `{ country name type description avatar { publicUrl } meta tin features statusTransitions defaultEmployeeRoleStatusTransitions importId importRemoteSystem phone phoneNumberPrefix isApproved subscription { ${ORGANIZATION_SUBSCRIPTION_FIELDS} } ${COMMON_FIELDS} }`
 const Organization = generateGqlQueries('Organization', ORGANIZATION_FIELDS)

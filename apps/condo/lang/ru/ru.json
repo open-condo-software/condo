@@ -3338,6 +3338,7 @@
   "subscription.features.residents": "Работа с базой данных по дому",
   "subscription.features.meters": "Сбор показаний",
   "subscription.features.payments": "Размещение квитанций в приложении",
+  "subscription.features.pdfReceipts": "PDF-квитанции",
   "subscription.features.mobileApp": "Мобильное приложение жителя",
   "subscription.features.outages": "Отключения",
   "subscription.features.news": "Отправка новостей жителям",

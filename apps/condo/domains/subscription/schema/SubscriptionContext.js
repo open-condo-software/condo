@@ -11,7 +11,7 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analyt
 const { GQLListSchema, find, getById } = require('@open-condo/keystone/schema')
 
 const { INVOICE_TYPE_B2B } = require('@condo/domains/marketplace/constants')
-const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
+const { CONTEXT_FINISHED_STATUS, CONTEXT_ERROR_STATUS } = require('@condo/domains/miniapp/constants')
 const { B2BAppContext } = require('@condo/domains/miniapp/utils/serverSchema')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/subscription/access/SubscriptionContext')
@@ -323,10 +323,10 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
             const isBecomingDone = updatedItem.status === SUBSCRIPTION_CONTEXT_STATUS.DONE &&
                 existingItem?.status !== updatedItem.status
 
-            // Create finished B2BAppContext for each app in a feature plan when context becomes DONE
+            // Finish B2BAppContext for each app in a plan when context becomes DONE
             if (isBecomingDone) {
                 const plan = await getById('SubscriptionPlan', updatedItem.subscriptionPlan)
-                if (plan && plan.planType === SUBSCRIPTION_PLAN_TYPE_FEATURE) {
+                if (plan) {
                     const enabledApps = Array.isArray(plan.enabledB2BApps) ? plan.enabledB2BApps : []
                     const organizationId = updatedItem.organization
 
@@ -337,7 +337,13 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
                             deletedAt: null,
                         })
 
-                        if (!existing) {
+                        if (existing && existing.status === CONTEXT_ERROR_STATUS) {
+                            await B2BAppContext.update(context, existing.id, {
+                                dv: 1,
+                                sender: updatedItem.sender,
+                                status: CONTEXT_FINISHED_STATUS,
+                            })
+                        } else if (!existing && plan.planType === SUBSCRIPTION_PLAN_TYPE_FEATURE) {
                             await B2BAppContext.create(context, {
                                 dv: 1,
                                 sender: updatedItem.sender,

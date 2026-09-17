@@ -43,6 +43,7 @@ query getActiveOrganizationEmployee($userId: ID!, $employeeId: ID) {
                 supportEndAt
                 aiEndAt
                 customizationEndAt
+                pdfReceiptsEndAt
                 b2bApps { id endAt }
                 b2cApps { id endAt }
                 activeSubscriptionEndAt
