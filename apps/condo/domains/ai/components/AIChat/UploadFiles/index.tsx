@@ -55,10 +55,6 @@ export const UploadFiles: React.FC<any> = ({
         return false
     }, [attachments, fileList, openSaveDocumentsModal])
 
-    console.log({
-        fileList,
-    })
-
     return (
         <>
             <SaveDocumentsModal

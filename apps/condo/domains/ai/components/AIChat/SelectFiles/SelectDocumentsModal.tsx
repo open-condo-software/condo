@@ -32,7 +32,6 @@ const useDocumentsTableColumns: UseDocumentsTableColumns = () => {
     )
 
     const renderDetails = useCallback<RenderTableCell<TData>>((_, document) => {
-        console.log('renderDetails', { document })
         if (document?.property?.id) {
             return (
                 <Typography.Paragraph type='secondary' size='medium'>

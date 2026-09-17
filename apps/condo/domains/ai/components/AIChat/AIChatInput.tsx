@@ -161,11 +161,6 @@ export const AIChatInput: React.FC<AIChatInputProps> = ({
         return panelUtils
     }, [attachments, extraBottomPanelUtils, showFileSelection, attachedFiles, canExecuteAIFlow, setAttachedFiles, attachmentsTooltip, attachmentsUploadDisabled])
 
-    console.log({
-        attachedFiles,
-        attachments,
-    })
-
     return (
         <div ref={containerRef} className={styles.inputContainer}>
             <Space direction='vertical' size={8} width='100%'>

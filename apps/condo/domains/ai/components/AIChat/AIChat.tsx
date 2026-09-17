@@ -555,9 +555,6 @@ export const AIChat: React.FC<AIChatProps> = ({
             }
         }
 
-        console.log('handleSendMessage', {
-            attachedFiles, attachmentsToSend,
-        })
         const isFirstInSession = !messages.some((msg) => msg.role === 'user')
         if (isFirstInSession && trimmedInput) {
             onFirstUserMessage?.(trimmedInput)
@@ -663,10 +660,6 @@ export const AIChat: React.FC<AIChatProps> = ({
             void handleSendMessage()
         }
     }, [canExecuteAIFlow, canSendMessage, handleSendMessage])
-
-    console.log({
-        attachedFiles,
-    })
 
     const { persistor } = useCachePersistor()
     const { data: documentsExistenceData } = useCheckDocumentExistenceQuery({
