@@ -59,6 +59,7 @@ jobs:
 
       - name: Wait for dind to be ready
         run: |
+        
           set -euo pipefail
           cert_dir=/certs/client
           deadline=$((SECONDS + 120))
@@ -90,8 +91,6 @@ jobs:
             fi
             sleep 1
           done
-          echo "$(nslookup swr.ru-mockow-1.hc.sbercloud.ru)"
-          echo "$(resolvectl status)"
 
       - name: Login to cloud registry
         uses: docker/login-action@v3
