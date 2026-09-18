@@ -6,7 +6,7 @@ on:
       - main
 
   # NOTE: change pull_request_target to pull_request if you want to change the CI in your branch
-  pull_request_target:
+  pull_request:
     types:
       - opened
       - reopened
@@ -41,9 +41,29 @@ jobs:
     steps:
       - run: echo "PR is authorized to run CI jobs"
 
+  check-registry-dns:
+    name: Check registry DNS
+    needs: authorize
+    runs-on: build-runners
+    steps:
+      - name: Resolve registry domain
+        env:
+          DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
+        run: |
+          host="${DOCKER_REGISTRY#https://}"
+          host="${host#http://}"
+          host="${host%%/*}"
+          host="${host%%:*}"
+          echo start
+          timeout -v 8 nslookup example.com || true
+          timeout -v 8 nslookup "$host"
+          echo done
+
   build-image:
     name: Build Docker Image
-    needs: authorize
+    needs:
+      - authorize
+      - check-registry-dns
     runs-on: build-runners
     outputs:
       DOCKER_IMAGE: ${{ env.DOCKER_IMAGE }}
