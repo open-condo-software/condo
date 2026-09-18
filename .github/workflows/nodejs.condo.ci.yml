@@ -103,6 +103,8 @@ jobs:
           echo start
           nslookup example.com || true
           nslookup ${{ secrets.DOCKER_REGISTRY }} || true
+          ping -c 4 example.com || true
+          ping -c 4 "$host" || true
           echo done
 
       - name: Login to cloud registry
