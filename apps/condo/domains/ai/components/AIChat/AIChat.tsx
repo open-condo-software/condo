@@ -1,7 +1,10 @@
+import { useCheckDocumentExistenceQuery } from '@app/condo/gql'
+import { Document as DocumentType } from '@app/condo/schema'
 import { Popover } from 'antd'
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState, useMemo } from 'react'
 import { v4 as uuidV4 } from 'uuid'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { Check, Plus } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
@@ -76,7 +79,8 @@ export const AIChat: React.FC<AIChatProps> = ({
     const noResponseMessage = intl.formatMessage({ id: 'ai.chat.noResponse' })
 
     const { user } = useAuth()
-    const { organization } = useOrganization()
+    const { organization, role } = useOrganization()
+
     const buttonConfig = useChatWithCondoButtonConfig()
     const scenarioButtons = buttonConfig?.buttons ?? []
     const welcomeDisplayMessage = useMemo<Message | null>(() => {
@@ -256,15 +260,15 @@ export const AIChat: React.FC<AIChatProps> = ({
         return !(currentTaskId && loading)
     }, [currentTaskId, loading])
 
+
+    const [attachedFiles, setAttachedFiles] = useState<Array<DocumentType & { name: string }>>([])
     const attachments = useAIChatAttachments({
         onFileListChange: () => inputRef.current?.focus(),
     })
-    const attachmentsUploading = attachments ? attachments.uploading : false
-    const canSendWithAttachments = attachments ? attachments.canSendWithAttachments : false
 
     const canSendMessage = useMemo(() => {
-        return Boolean(inputValue.trim() || canSendWithAttachments) && !attachmentsUploading
-    }, [inputValue, canSendWithAttachments, attachmentsUploading])
+        return Boolean(inputValue.trim())
+    }, [inputValue])
 
     const saveMessagesToLocalStorage = useCallback(() => {
         saveChatHistory(aiSessionId, messages, organization?.id)
@@ -515,10 +519,42 @@ export const AIChat: React.FC<AIChatProps> = ({
         const overrideInput = initialMessageOverrideRef.current
         initialMessageOverrideRef.current = null
         const trimmedInput = (overrideInput ?? inputValue).trim()
-        const canSend = (trimmedInput || canSendWithAttachments) && !loading && !attachmentsUploading && user
+        const canSend = trimmedInput && !loading && user
         if (!canSend) return
 
-        const attachmentsToSend = attachments ? [...attachments.readyAttachments] : []
+        const attachmentsToSend = []
+        if (attachments) {
+            for (const attachedFile of attachedFiles) {
+                // @ts-ignore
+                const isSavedDocument = !attachedFile.signature
+                if (!isSavedDocument) {
+                    attachmentsToSend.push({
+                        id: attachedFile.id,
+                        // @ts-ignore
+                        name: attachedFile.originalFilename || attachedFile.name || attachedFile.id,
+                        // @ts-ignore
+                        mimeType: attachedFile.mimetype,
+                        // @ts-ignore
+                        size: attachedFile.size,
+                    })
+                } else {
+                    attachmentsToSend.push({
+                        // @ts-ignore
+                        id: attachedFile.file.id,
+                        // @ts-ignore
+                        name: attachedFile.file.originalFilename || attachedFile.name || attachedFile.file.id,
+                        // @ts-ignore
+                        mimeType: attachedFile.file.mimetype,
+                        // @ts-ignore
+                        size: attachedFile.file.size,
+                        document: {
+                            id: attachedFile.id,
+                        },
+                    })
+                }
+            }
+        }
+
         const isFirstInSession = !messages.some((msg) => msg.role === 'user')
         if (isFirstInSession && trimmedInput) {
             onFirstUserMessage?.(trimmedInput)
@@ -536,7 +572,7 @@ export const AIChat: React.FC<AIChatProps> = ({
                 text: trimmedInput,
                 ...(selectedSkillNames?.length ? { skillNames: selectedSkillNames } : {}),
                 ...(attachmentsToSend.length ? {
-                    attachments: attachmentsToSend.map(({ name, mimeType }) => ({ name, mimeType })),
+                    attachments: attachmentsToSend.map(({ name, mimetype }) => ({ name, mimeType: mimetype })),
                 } : {}),
             },
             role: 'user',
@@ -547,10 +583,10 @@ export const AIChat: React.FC<AIChatProps> = ({
 
         setInputValue('')
         onInputChange?.('')
-        attachments?.resetAttachments()
+        setAttachedFiles([])
 
         await startUserTurn(userMessage, { attachments: attachmentsToSend })
-    }, [inputValue, canSendWithAttachments, loading, attachmentsUploading, user, attachments, messages, startUserTurn, onFirstUserMessage, selectedSkillNames, onInputChange])
+    }, [inputValue, loading, user, attachments, messages, startUserTurn, onFirstUserMessage, selectedSkillNames, onInputChange])
 
     // Auto-send the initial message once, after history load, if the session has no user messages yet
     useEffect(() => {
@@ -624,6 +660,15 @@ export const AIChat: React.FC<AIChatProps> = ({
             void handleSendMessage()
         }
     }, [canExecuteAIFlow, canSendMessage, handleSendMessage])
+
+    const { persistor } = useCachePersistor()
+    const { data: documentsExistenceData } = useCheckDocumentExistenceQuery({
+        variables: {
+            where: { organization: { id: organization?.id || null } },
+        },
+        skip: !persistor || !organization?.id || !role?.canReadDocuments,
+    })
+    const showFileSelection = role?.canReadDocuments && documentsExistenceData?.documents?.length > 0
 
     const skillPickerButton = useMemo(() => {
         if (!availableSkills?.length || !onSkillSelect) return null
@@ -748,6 +793,9 @@ export const AIChat: React.FC<AIChatProps> = ({
                     ...(selectedSkillTags || []),
                 ]}
                 autoSize={inputAutoSize}
+                attachedFiles={attachedFiles}
+                setAttachedFiles={setAttachedFiles}
+                showFileSelection={showFileSelection}
             />
         </div>
     )

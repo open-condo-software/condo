@@ -352,6 +352,28 @@ export type GetCommonOrOrganizationContactRolesQueryVariables = Types.Exact<{
 
 export type GetCommonOrOrganizationContactRolesQuery = { __typename?: 'Query', roles?: Array<{ __typename?: 'ContactRole', id: string, name?: string | null } | null> | null };
 
+export type GetDocumentsForTableQueryVariables = Types.Exact<{
+  where?: Types.InputMaybe<Types.DocumentWhereInput>;
+  first?: Types.InputMaybe<Types.Scalars['Int']['input']>;
+  skip?: Types.InputMaybe<Types.Scalars['Int']['input']>;
+  sortBy?: Types.InputMaybe<Array<Types.SortDocumentsBy> | Types.SortDocumentsBy>;
+}>;
+
+
+export type GetDocumentsForTableQuery = { __typename?: 'Query', documents?: Array<{ __typename?: 'Document', id: string, name?: string | null, createdAt?: string | null, organization?: { __typename?: 'Organization', id: string } | null, property?: { __typename?: 'Property', id: string, deletedAt?: string | null, address?: string | null, addressMeta?: { __typename?: 'AddressMetaField', data: { __typename?: 'AddressMetaDataField', street_with_type?: string | null, house_type?: string | null, house?: string | null, block_type?: string | null, block?: string | null, flat_type?: string | null, flat?: string | null, region_type_full?: string | null, region: string, region_with_type?: string | null, city_with_type?: string | null, city?: string | null, settlement_with_type?: string | null, area_with_type?: string | null } } | null } | null, category?: { __typename?: 'DocumentCategory', id: string, name?: string | null } | null, file?: { __typename?: 'File', id?: string | null, publicUrl?: string | null, originalFilename?: string | null, filename?: string | null, mimetype?: string | null } | null } | null> | null, meta?: { __typename?: '_QueryMeta', count?: number | null } | null };
+
+export type CheckDocumentExistenceQueryVariables = Types.Exact<{
+  where?: Types.InputMaybe<Types.DocumentWhereInput>;
+}>;
+
+
+export type CheckDocumentExistenceQuery = { __typename?: 'Query', documents?: Array<{ __typename?: 'Document', id: string } | null> | null };
+
+export type GetAllDocumentCategoriesQueryVariables = Types.Exact<{ [key: string]: never; }>;
+
+
+export type GetAllDocumentCategoriesQuery = { __typename?: 'Query', categories?: Array<{ __typename?: 'DocumentCategory', id: string, name?: string | null } | null> | null };
+
 export type GetTicketInvoicesQueryVariables = Types.Exact<{
   ticketId: Types.Scalars['ID']['input'];
 }>;

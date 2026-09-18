@@ -1,0 +1,23 @@
+.attachment-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--condo-global-spacing-4);
+  width: 100%;
+}
+
+.save-document-toggle-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 16px;
+  border: 1px solid var(--condo-global-color-gray-3);
+  border-radius: 8px;
+  transition: border-color, background-color var(--condo-global-transition-duration-default);
+  user-select: none;
+}
+
+.save-document-toggle-container.save-document-toggle-checked {
+  background-color: var(--condo-global-color-gray-1);
+  border-color: var(--condo-global-color-gray-1);
+}

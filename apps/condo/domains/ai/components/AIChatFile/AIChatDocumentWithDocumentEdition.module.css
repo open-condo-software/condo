@@ -1,0 +1,94 @@
+.root {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: var(--condo-global-spacing-32);
+}
+
+.attached-file {
+  display: flex;
+  gap: var(--condo-global-spacing-8);
+  align-items: center;
+  width: 100%;
+  min-height: var(--condo-global-spacing-32);
+}
+
+.icon {
+  flex: 0 0 auto;
+  margin-right: var(--condo-global-spacing-8);
+}
+
+.file-content {
+  flex: 1 1 auto;
+  align-items: center;
+  min-width: 0;
+  overflow: auto;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.file-name {
+  flex: 1 1 auto;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.file-type {
+  display: flex;
+  flex: 0 1 auto;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.file-type-name {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.file-type-icon {
+  flex: 0 0 auto;
+  margin-left: var(--condo-global-spacing-8);
+}
+
+.file-name-row {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 0;
+  align-items: center;
+  min-width: 0;
+}
+
+.extension {
+  flex-shrink: 0;
+}
+
+.remove-button {
+  flex-shrink: 0;
+  margin-left: var(--condo-global-spacing-8);
+}
+
+.document-info {
+  display: flex;
+  gap: var(--condo-global-spacing-8);
+  align-items: center;
+  justify-content: end;
+  width: 100%;
+  min-height: var(--condo-global-spacing-32);
+}
+
+.end-block {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 160px;
+  margin-left: var(--condo-global-spacing-12);
+}
+
+.root-wrapper > form {
+  height: 0;
+  overflow: hidden;
+}

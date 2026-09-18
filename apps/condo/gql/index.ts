@@ -2359,6 +2359,170 @@ export type GetCommonOrOrganizationContactRolesQueryHookResult = ReturnType<type
 export type GetCommonOrOrganizationContactRolesLazyQueryHookResult = ReturnType<typeof useGetCommonOrOrganizationContactRolesLazyQuery>;
 export type GetCommonOrOrganizationContactRolesSuspenseQueryHookResult = ReturnType<typeof useGetCommonOrOrganizationContactRolesSuspenseQuery>;
 export type GetCommonOrOrganizationContactRolesQueryResult = Apollo.QueryResult<Types.GetCommonOrOrganizationContactRolesQuery, Types.GetCommonOrOrganizationContactRolesQueryVariables>;
+export const GetDocumentsForTableDocument = gql`
+    query getDocumentsForTable($where: DocumentWhereInput, $first: Int, $skip: Int, $sortBy: [SortDocumentsBy!]) {
+  documents: allDocuments(
+    where: $where
+    first: $first
+    skip: $skip
+    sortBy: $sortBy
+  ) {
+    id
+    name
+    createdAt
+    organization {
+      id
+    }
+    property {
+      id
+      deletedAt
+      address
+      addressMeta {
+        ...AddressMetaForTableAddress
+      }
+    }
+    category {
+      id
+      name
+    }
+    file {
+      id
+      publicUrl
+      originalFilename
+      filename
+      mimetype
+    }
+  }
+  meta: _allDocumentsMeta(where: $where) {
+    count
+  }
+}
+    ${AddressMetaForTableAddressFragmentDoc}`;
+
+/**
+ * __useGetDocumentsForTableQuery__
+ *
+ * To run a query within a React component, call `useGetDocumentsForTableQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetDocumentsForTableQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetDocumentsForTableQuery({
+ *   variables: {
+ *      where: // value for 'where'
+ *      first: // value for 'first'
+ *      skip: // value for 'skip'
+ *      sortBy: // value for 'sortBy'
+ *   },
+ * });
+ */
+export function useGetDocumentsForTableQuery(baseOptions?: Apollo.QueryHookOptions<Types.GetDocumentsForTableQuery, Types.GetDocumentsForTableQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetDocumentsForTableQuery, Types.GetDocumentsForTableQueryVariables>(GetDocumentsForTableDocument, options);
+      }
+export function useGetDocumentsForTableLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetDocumentsForTableQuery, Types.GetDocumentsForTableQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetDocumentsForTableQuery, Types.GetDocumentsForTableQueryVariables>(GetDocumentsForTableDocument, options);
+        }
+// @ts-ignore
+export function useGetDocumentsForTableSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<Types.GetDocumentsForTableQuery, Types.GetDocumentsForTableQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetDocumentsForTableQuery, Types.GetDocumentsForTableQueryVariables>;
+export function useGetDocumentsForTableSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetDocumentsForTableQuery, Types.GetDocumentsForTableQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetDocumentsForTableQuery | undefined, Types.GetDocumentsForTableQueryVariables>;
+export function useGetDocumentsForTableSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetDocumentsForTableQuery, Types.GetDocumentsForTableQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetDocumentsForTableQuery, Types.GetDocumentsForTableQueryVariables>(GetDocumentsForTableDocument, options);
+        }
+export type GetDocumentsForTableQueryHookResult = ReturnType<typeof useGetDocumentsForTableQuery>;
+export type GetDocumentsForTableLazyQueryHookResult = ReturnType<typeof useGetDocumentsForTableLazyQuery>;
+export type GetDocumentsForTableSuspenseQueryHookResult = ReturnType<typeof useGetDocumentsForTableSuspenseQuery>;
+export type GetDocumentsForTableQueryResult = Apollo.QueryResult<Types.GetDocumentsForTableQuery, Types.GetDocumentsForTableQueryVariables>;
+export const CheckDocumentExistenceDocument = gql`
+    query checkDocumentExistence($where: DocumentWhereInput) {
+  documents: allDocuments(where: $where, first: 1) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useCheckDocumentExistenceQuery__
+ *
+ * To run a query within a React component, call `useCheckDocumentExistenceQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCheckDocumentExistenceQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCheckDocumentExistenceQuery({
+ *   variables: {
+ *      where: // value for 'where'
+ *   },
+ * });
+ */
+export function useCheckDocumentExistenceQuery(baseOptions?: Apollo.QueryHookOptions<Types.CheckDocumentExistenceQuery, Types.CheckDocumentExistenceQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.CheckDocumentExistenceQuery, Types.CheckDocumentExistenceQueryVariables>(CheckDocumentExistenceDocument, options);
+      }
+export function useCheckDocumentExistenceLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.CheckDocumentExistenceQuery, Types.CheckDocumentExistenceQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.CheckDocumentExistenceQuery, Types.CheckDocumentExistenceQueryVariables>(CheckDocumentExistenceDocument, options);
+        }
+// @ts-ignore
+export function useCheckDocumentExistenceSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<Types.CheckDocumentExistenceQuery, Types.CheckDocumentExistenceQueryVariables>): Apollo.UseSuspenseQueryResult<Types.CheckDocumentExistenceQuery, Types.CheckDocumentExistenceQueryVariables>;
+export function useCheckDocumentExistenceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.CheckDocumentExistenceQuery, Types.CheckDocumentExistenceQueryVariables>): Apollo.UseSuspenseQueryResult<Types.CheckDocumentExistenceQuery | undefined, Types.CheckDocumentExistenceQueryVariables>;
+export function useCheckDocumentExistenceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.CheckDocumentExistenceQuery, Types.CheckDocumentExistenceQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.CheckDocumentExistenceQuery, Types.CheckDocumentExistenceQueryVariables>(CheckDocumentExistenceDocument, options);
+        }
+export type CheckDocumentExistenceQueryHookResult = ReturnType<typeof useCheckDocumentExistenceQuery>;
+export type CheckDocumentExistenceLazyQueryHookResult = ReturnType<typeof useCheckDocumentExistenceLazyQuery>;
+export type CheckDocumentExistenceSuspenseQueryHookResult = ReturnType<typeof useCheckDocumentExistenceSuspenseQuery>;
+export type CheckDocumentExistenceQueryResult = Apollo.QueryResult<Types.CheckDocumentExistenceQuery, Types.CheckDocumentExistenceQueryVariables>;
+export const GetAllDocumentCategoriesDocument = gql`
+    query getAllDocumentCategories {
+  categories: allDocumentCategories(first: 200) {
+    id
+    name
+  }
+}
+    `;
+
+/**
+ * __useGetAllDocumentCategoriesQuery__
+ *
+ * To run a query within a React component, call `useGetAllDocumentCategoriesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAllDocumentCategoriesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAllDocumentCategoriesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetAllDocumentCategoriesQuery(baseOptions?: Apollo.QueryHookOptions<Types.GetAllDocumentCategoriesQuery, Types.GetAllDocumentCategoriesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetAllDocumentCategoriesQuery, Types.GetAllDocumentCategoriesQueryVariables>(GetAllDocumentCategoriesDocument, options);
+      }
+export function useGetAllDocumentCategoriesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetAllDocumentCategoriesQuery, Types.GetAllDocumentCategoriesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetAllDocumentCategoriesQuery, Types.GetAllDocumentCategoriesQueryVariables>(GetAllDocumentCategoriesDocument, options);
+        }
+// @ts-ignore
+export function useGetAllDocumentCategoriesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<Types.GetAllDocumentCategoriesQuery, Types.GetAllDocumentCategoriesQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetAllDocumentCategoriesQuery, Types.GetAllDocumentCategoriesQueryVariables>;
+export function useGetAllDocumentCategoriesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetAllDocumentCategoriesQuery, Types.GetAllDocumentCategoriesQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetAllDocumentCategoriesQuery | undefined, Types.GetAllDocumentCategoriesQueryVariables>;
+export function useGetAllDocumentCategoriesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetAllDocumentCategoriesQuery, Types.GetAllDocumentCategoriesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetAllDocumentCategoriesQuery, Types.GetAllDocumentCategoriesQueryVariables>(GetAllDocumentCategoriesDocument, options);
+        }
+export type GetAllDocumentCategoriesQueryHookResult = ReturnType<typeof useGetAllDocumentCategoriesQuery>;
+export type GetAllDocumentCategoriesLazyQueryHookResult = ReturnType<typeof useGetAllDocumentCategoriesLazyQuery>;
+export type GetAllDocumentCategoriesSuspenseQueryHookResult = ReturnType<typeof useGetAllDocumentCategoriesSuspenseQuery>;
+export type GetAllDocumentCategoriesQueryResult = Apollo.QueryResult<Types.GetAllDocumentCategoriesQuery, Types.GetAllDocumentCategoriesQueryVariables>;
 export const GetTicketInvoicesDocument = gql`
     query getTicketInvoices($ticketId: ID!) {
   invoices: allInvoices(
