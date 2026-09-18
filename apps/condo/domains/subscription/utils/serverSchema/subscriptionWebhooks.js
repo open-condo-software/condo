@@ -98,9 +98,10 @@ async function queueSubscriptionActivatedWebhook ({ invoiceId, subscriptionConte
 
 /**
  * Sent when a bundle is registered to be paid by invoice, so a manager can send the invoice and reach the client.
- * Throws when the request could not be recorded, the registration rolls back then
+ * `isRepeated` marks a client asking again for an invoice issued before: nothing new is registered, the same invoice
+ * has to be sent once more. Throws when the request could not be recorded, the registration rolls back then
  */
-async function queueSubscriptionInvoiceRequestedWebhook ({ invoiceId, subscriptionContexts, userId, sender }) {
+async function queueSubscriptionInvoiceRequestedWebhook ({ invoiceId, subscriptionContexts, userId, isRepeated = false, sender }) {
     await queueSubscriptionWebhook({
         url: conf['SUBSCRIPTION_INVOICE_REQUESTED_WEBHOOK_URL'],
         secret: conf['SUBSCRIPTION_INVOICE_REQUESTED_WEBHOOK_SECRET'],
@@ -111,6 +112,7 @@ async function queueSubscriptionInvoiceRequestedWebhook ({ invoiceId, subscripti
             const user = userId ? await getById('User', userId) : null
             return user ? { id: user.id, name: user.name, phone: user.phone, email: user.email } : null
         },
+        getExtraPayload: () => ({ isRepeated }),
         sender,
     })
 }

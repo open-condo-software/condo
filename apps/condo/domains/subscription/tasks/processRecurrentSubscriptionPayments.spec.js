@@ -10,7 +10,15 @@ const { Payment, createTestAcquiringIntegration, createTestAcquiringIntegrationC
 const { INVOICE_STATUS_CANCELED, INVOICE_STATUS_PUBLISHED, INVOICE_STATUS_PAID, INVOICE_TYPE_B2B } = require('@condo/domains/marketplace/constants')
 const { Invoice, createTestInvoice, updateTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PERIOD, SUBSCRIPTION_PAYMENT_BUFFER_DAYS, SUBSCRIPTION_PLAN_TYPE_FEATURE } = require('@condo/domains/subscription/constants')
+const {
+    SUBSCRIPTION_CONTEXT_STATUS,
+    SUBSCRIPTION_PERIOD,
+    SUBSCRIPTION_PAYMENT_BUFFER_DAYS,
+    SUBSCRIPTION_INVOICE_PAYMENT_DAYS,
+    SUBSCRIPTION_PAYMENT_TYPE_CARD,
+    SUBSCRIPTION_PAYMENT_TYPE_INVOICE,
+    SUBSCRIPTION_PLAN_TYPE_FEATURE,
+} = require('@condo/domains/subscription/constants')
 const { processRecurrentSubscriptionPayments } = require('@condo/domains/subscription/tasks/processRecurrentSubscriptionPayments')
 const { SubscriptionPaymentAdapter } = require('@condo/domains/subscription/tasks/utils/SubscriptionPaymentAdapter')
 const {
@@ -754,6 +762,86 @@ describe('processRecurrentSubscriptionPayments', () => {
             expect(renewalContexts).toHaveLength(1)
             const [invoice] = await Invoice.getAll(adminClient, { id: renewalContexts[0].invoice.id })
             expect(invoice.status).toBe(INVOICE_STATUS_CANCELED)
+        })
+    })
+
+    describe('renewal invoices', () => {
+        let acquiringIntegration
+
+        beforeAll(async () => {
+            const [integration] = await createTestAcquiringIntegration(adminClient, { canGroupReceipts: true })
+            acquiringIntegration = integration
+        })
+
+        const createInvoicePaidContext = async (organization, extraAttrs = {}) => {
+            const [payee] = await createTestOrganization(adminClient)
+            await createTestAcquiringIntegrationContext(adminClient, payee, acquiringIntegration, { invoiceStatus: CONTEXT_FINISHED_STATUS })
+            const [invoice] = await createTestInvoice(adminClient, payee, {
+                type: INVOICE_TYPE_B2B,
+                status: INVOICE_STATUS_PAID,
+                payerOrganization: { connect: { id: organization.id } },
+            })
+            const [subscriptionContext] = await createTestSubscriptionContext(adminClient, organization, subscriptionPlan, {
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
+                invoice: { connect: { id: invoice.id } },
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+                startAt: dayjs().subtract(1, 'month').format('YYYY-MM-DD'),
+                endAt: dayjs().add(3, 'days').format('YYYY-MM-DD'),
+                isTrial: false,
+                frozenPaymentInfo: { pricingRuleId: pricingRule.id, paymentType: SUBSCRIPTION_PAYMENT_TYPE_INVOICE },
+                ...extraAttrs,
+            })
+            return subscriptionContext
+        }
+
+        const findRenewals = (organization) => SubscriptionContext.getAll(adminClient, {
+            organization: { id: organization.id },
+            status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+        })
+
+        test('issues the invoice for the next period once a period paid by invoice is about to end', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+            const paidContext = await createInvoicePaidContext(organization)
+
+            await processRecurrentSubscriptionPayments()
+
+            const renewals = await findRenewals(organization)
+            expect(renewals).toHaveLength(1)
+            expect(renewals[0]).toMatchObject({
+                subscriptionPlanPricingRule: { id: pricingRule.id },
+                startAt: paidContext.endAt,
+                frozenPaymentInfo: expect.objectContaining({ paymentType: SUBSCRIPTION_PAYMENT_TYPE_INVOICE }),
+            })
+        })
+
+        test('issues it only once', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+            await createInvoicePaidContext(organization)
+
+            await processRecurrentSubscriptionPayments()
+            await processRecurrentSubscriptionPayments()
+
+            expect(await findRenewals(organization)).toHaveLength(1)
+        })
+
+        test('leaves alone the periods that end later, were removed from the subscription or were paid by card', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+            await createInvoicePaidContext(organization, { endAt: dayjs().add(SUBSCRIPTION_INVOICE_PAYMENT_DAYS + 1, 'days').format('YYYY-MM-DD') })
+
+            const [removedOrganization] = await createTestOrganization(adminClient)
+            const removedContext = await createInvoicePaidContext(removedOrganization)
+            await updateTestSubscriptionContext(adminClient, removedContext.id, { renewalCancelledAt: dayjs().toISOString() })
+
+            const [cardOrganization] = await createTestOrganization(adminClient)
+            await createInvoicePaidContext(cardOrganization, {
+                frozenPaymentInfo: { pricingRuleId: pricingRule.id, paymentType: SUBSCRIPTION_PAYMENT_TYPE_CARD },
+            })
+
+            await processRecurrentSubscriptionPayments()
+
+            expect(await findRenewals(organization)).toHaveLength(0)
+            expect(await findRenewals(removedOrganization)).toHaveLength(0)
+            expect(await findRenewals(cardOrganization)).toHaveLength(0)
         })
     })
 })

@@ -43,6 +43,12 @@ const CANCEL_SUBSCRIPTION_RENEWAL_MUTATION = gql`
     }
 `
 
+const REQUEST_SUBSCRIPTION_INVOICE_MUTATION = gql`
+    mutation requestSubscriptionInvoice ($data: RequestSubscriptionInvoiceInput!) {
+        result: requestSubscriptionInvoice(data: $data) { subscriptionContexts { id } }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -53,5 +59,6 @@ module.exports = {
     GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY,
     REGISTER_SUBSCRIPTION_CONTEXTS_MUTATION,
     CANCEL_SUBSCRIPTION_RENEWAL_MUTATION,
+    REQUEST_SUBSCRIPTION_INVOICE_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

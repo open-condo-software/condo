@@ -51425,6 +51425,34 @@ export type Mutation = {
    */
   replaceOrganizationEmployeeRole?: Maybe<ReplaceOrganizationEmployeeRoleOutput>;
   /**
+   * Asks the sales team to send once more the invoices already issued for the given subscription contexts. Nothing new is registered and the payment deadline stays the same
+   *
+   *
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOT_FOUND",
+   *   "message": "SubscriptionContext not found"
+   * }`
+   *
+   * `{
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "SUBSCRIPTION_CONTEXTS_FROM_DIFFERENT_ORGANIZATIONS",
+   *   "message": "All subscription contexts must belong to the same organization"
+   * }`
+   *
+   * `{
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "INVOICE_NOT_AWAITING_PAYMENT",
+   *   "message": "Only a subscription registered to be paid by invoice and still waiting for the payment can have its invoice requested"
+   * }`
+   */
+  requestSubscriptionInvoice?: Maybe<RequestSubscriptionInvoiceOutput>;
+  /**
    * Resend the confirm email for existing token
    *
    *
@@ -61853,6 +61881,11 @@ export type MutationRegisterSubscriptionContextsArgs = {
 
 export type MutationReplaceOrganizationEmployeeRoleArgs = {
   data: ReplaceOrganizationEmployeeRoleInput;
+};
+
+
+export type MutationRequestSubscriptionInvoiceArgs = {
+  data: RequestSubscriptionInvoiceInput;
 };
 
 
@@ -92530,6 +92563,17 @@ export type ReplaceOrganizationEmployeeRoleInput = {
 export type ReplaceOrganizationEmployeeRoleOutput = {
   __typename?: 'ReplaceOrganizationEmployeeRoleOutput';
   status: Scalars['String']['output'];
+};
+
+export type RequestSubscriptionInvoiceInput = {
+  dv: Scalars['Int']['input'];
+  sender: SenderFieldInput;
+  subscriptionContexts: Array<SubscriptionContextWhereUniqueInput>;
+};
+
+export type RequestSubscriptionInvoiceOutput = {
+  __typename?: 'RequestSubscriptionInvoiceOutput';
+  subscriptionContexts: Array<SubscriptionContext>;
 };
 
 export type ResendConfirmEmailActionInput = {
