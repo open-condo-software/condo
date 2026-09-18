@@ -55,6 +55,8 @@ jobs:
           host="${host%%/*}"
           host="${host%%:*}"
           echo start
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq dnsutils bind9-dnsutils
           timeout -v 8 nslookup example.com || true
           timeout -v 8 nslookup "$host"
           echo done
