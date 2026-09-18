@@ -22,7 +22,7 @@ const {
 } = require('@condo/domains/acquiring/schema/fields/paymentChangeWebhook')
 const access = require('@condo/domains/billing/access/BillingReceipt')
 const { DEFAULT_BILLING_CATEGORY_ID } = require('@condo/domains/billing/constants/constants')
-const { BillingRecipient } = require('@condo/domains/billing/utils/serverSchema')
+const { BillingReceiptFile, BillingRecipient } = require('@condo/domains/billing/utils/serverSchema')
 const { WRONG_TEXT_FORMAT, UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
 const { MONEY_AMOUNT_FIELD } = require('@condo/domains/common/schema/fields')
 
@@ -382,6 +382,28 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
         ],
     },
     hooks: {
+        afterChange: async ({ context, operation, existingItem, updatedItem }) => {
+            const isSoftDeleteOperation = operation === 'update' && !existingItem.deletedAt && Boolean(updatedItem.deletedAt)
+            if (!isSoftDeleteOperation) return
+
+            const receiptFiles = await find('BillingReceiptFile', {
+                receipt: { id: updatedItem.id },
+                deletedAt: null,
+            })
+
+            const deletedAt = new Date().toISOString()
+            const receiptFilesToDelete = receiptFiles.map(({ id }) => ({
+                id,
+                data: {
+                    dv: updatedItem.dv,
+                    sender: updatedItem.sender,
+                    deletedAt,
+                },
+            }))
+            if (receiptFilesToDelete.length > 0) {
+                await BillingReceiptFile.updateMany(context, receiptFilesToDelete)
+            }
+        },
         validateInput: async ({ resolvedData, addValidationError, existingItem, context }) => {
             const newItem = { ...existingItem, ...resolvedData }
             const { context: contextId, property: propertyId, account: accountId } = newItem
