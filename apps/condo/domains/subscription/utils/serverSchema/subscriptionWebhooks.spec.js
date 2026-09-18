@@ -6,6 +6,7 @@ const index = require('@app/condo/index')
 
 const { setFakeClientMode, makeLoggedInAdminClient, waitFor } = require('@open-condo/keystone/test.utils')
 const { WebhookPayload } = require('@open-condo/webhooks/schema/utils/testSchema')
+const { encryptionManager } = require('@open-condo/webhooks/utils/encryption')
 
 const {
     WEBHOOK_EVENT_SUBSCRIPTION_ACTIVATED,
@@ -84,7 +85,7 @@ describe('subscriptionWebhooks', () => {
         const [webhookPayload] = await findWebhookPayloads(WEBHOOK_EVENT_SUBSCRIPTION_INVOICE_REQUESTED, contextIds)
         expect(webhookPayload.url).toBe(WEBHOOK_ENV.SUBSCRIPTION_INVOICE_REQUESTED_WEBHOOK_URL)
 
-        const payload = JSON.parse(webhookPayload.payload)
+        const payload = JSON.parse(encryptionManager.decrypt(webhookPayload.payload))
         expect(payload.invoiceId).toBe(result.subscriptionContexts[0].invoice.id)
         expect(payload.organization.id).toBe(organization.id)
         expect(payload.user.id).toBe(admin.user.id)
@@ -126,7 +127,7 @@ describe('subscriptionWebhooks', () => {
 
         await waitFor(async () => {
             const [webhookPayload] = await findWebhookPayloads(WEBHOOK_EVENT_SUBSCRIPTION_ACTIVATED, contextIds)
-            const payload = JSON.parse(webhookPayload.payload)
+            const payload = JSON.parse(encryptionManager.decrypt(webhookPayload.payload))
 
             expect(payload.subscriptionContexts.map(({ id }) => id).sort()).toEqual([...contextIds].sort())
             expect(payload.subscriptionContexts).toEqual(expect.arrayContaining([

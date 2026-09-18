@@ -79,7 +79,7 @@ const CancelSubscriptionRenewalService = new GQLCustomSchema('CancelSubscription
                         dv,
                         sender,
                         bindingId: null,
-                        renewalCancelledAt: subscriptionContext.renewalCancelledAt || now,
+                        ...(!subscriptionContext.renewalCancelledAt && { renewalCancelledAt: now }),
                     })
                 }
                 logger.info({ msg: 'Cancelled subscription renewal', data: { organizationId, subscriptionContextIds } })
