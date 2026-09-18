@@ -13,7 +13,7 @@ jobs:
 
     steps:
       - name: Checkout code with submodules
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.4.0
         with:
           fetch-depth: 0
           submodules: recursive
