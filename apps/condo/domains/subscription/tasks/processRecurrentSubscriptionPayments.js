@@ -16,7 +16,13 @@ const {
 const { registerMultiPayment } = require('@condo/domains/acquiring/utils/serverSchema')
 const { INVOICE_STATUS_CANCELED, INVOICE_STATUS_PUBLISHED } = require('@condo/domains/marketplace/constants')
 const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
-const { SUBSCRIPTION_PAYMENT_BUFFER_DAYS, SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PAYMENT_TYPE_CARD } = require('@condo/domains/subscription/constants')
+const {
+    SUBSCRIPTION_PAYMENT_BUFFER_DAYS,
+    SUBSCRIPTION_INVOICE_PAYMENT_DAYS,
+    SUBSCRIPTION_CONTEXT_STATUS,
+    SUBSCRIPTION_PAYMENT_TYPE_CARD,
+    SUBSCRIPTION_PAYMENT_TYPE_INVOICE,
+} = require('@condo/domains/subscription/constants')
 const { SubscriptionPaymentAdapter } = require('@condo/domains/subscription/tasks/utils/SubscriptionPaymentAdapter')
 const { registerSubscriptionContexts, SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
 const { getSubscriptionPaymentRecipient } = require('@condo/domains/subscription/utils/serverSchema/getSubscriptionPaymentRecipient')
@@ -186,6 +192,82 @@ async function failRenewal (context, { contextIds, invoiceId }, status) {
     await setContextsStatus(context, contextIds, status)
 }
 
+/**
+ * A period with any later context of the same plan is taken care of already: it was renewed, a renewal waits
+ * for its payment or its invoice expired. A new invoice after an expired one is asked for by the organization itself
+ */
+async function filterNotYetRenewedContexts (bundleContexts) {
+    const successorContexts = await find('SubscriptionContext', {
+        organization: { id: bundleContexts[0].organization },
+        subscriptionPlan: { id_in: bundleContexts.map(subscriptionContext => subscriptionContext.subscriptionPlan) },
+        isTrial: false,
+        endAt_gt: bundleContexts[0].endAt,
+        deletedAt: null,
+    })
+    const renewedPlanIds = new Set(successorContexts.map(subscriptionContext => subscriptionContext.subscriptionPlan))
+    return bundleContexts.filter(subscriptionContext => !renewedPlanIds.has(subscriptionContext.subscriptionPlan))
+}
+
+/**
+ * Nothing charges an organization that pays by invoice, so the invoice for its next period is issued when the current
+ * one is about to end, leaving it the usual days to pay. Registering it by invoice sends the sales team the same
+ * request as a manual one. Trials, periods without a price and the ones the organization removed from its
+ * subscription are never renewed
+ */
+async function issueRenewalInvoices (context) {
+    const today = dayjs().format('YYYY-MM-DD')
+    const issueUntil = dayjs().add(SUBSCRIPTION_INVOICE_PAYMENT_DAYS, 'days').format('YYYY-MM-DD')
+
+    const contexts = await itemsQuery('SubscriptionContext', {
+        where: {
+            bindingId: null,
+            renewalCancelledAt: null,
+            isTrial: false,
+            status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+            invoice_is_null: false,
+            subscriptionPlanPricingRule_is_null: false,
+            endAt_gte: today,
+            endAt_lte: issueUntil,
+            deletedAt: null,
+        },
+        sortBy: ['endAt_ASC'],
+    })
+    // a card payment without a saved card cannot renew by itself either, but the organization chose the card, not an invoice
+    const paidByInvoice = contexts.filter(subscriptionContext => subscriptionContext.frozenPaymentInfo?.paymentType !== SUBSCRIPTION_PAYMENT_TYPE_CARD)
+
+    const renewalBundles = groupContextsIntoRenewalBundles(paidByInvoice)
+    logger.info({ msg: 'found subscription contexts to issue renewal invoices for', count: paidByInvoice.length, bundleCount: renewalBundles.length, data: { today, issueUntil } })
+
+    for (const bundleContexts of renewalBundles) {
+        const organizationId = bundleContexts[0].organization
+        const bundleContextIds = bundleContexts.map(subscriptionContext => subscriptionContext.id)
+
+        try {
+            const contextsToRenew = await filterNotYetRenewedContexts(bundleContexts)
+            if (contextsToRenew.length === 0) continue
+
+            const rules = await find('SubscriptionPlanPricingRule', {
+                id_in: contextsToRenew.map(subscriptionContext => subscriptionContext.subscriptionPlanPricingRule),
+                deletedAt: null,
+            })
+            // a free period has nothing to invoice
+            const paidRules = rules.filter(rule => rule.price !== null && Number(rule.price) > 0)
+            if (paidRules.length === 0) continue
+
+            const { subscriptionContexts = [] } = await registerSubscriptionContexts(context, {
+                sender: SENDER,
+                organization: { id: organizationId },
+                subscriptionPlanPricingRules: paidRules.map(rule => ({ id: rule.id })),
+                paymentType: SUBSCRIPTION_PAYMENT_TYPE_INVOICE,
+                isTrial: false,
+            })
+            logger.info({ msg: 'issued renewal invoice', data: { organizationId, bundleContextIds, contextIds: subscriptionContexts.map(({ id }) => id) } })
+        } catch (err) {
+            logger.error({ msg: 'failed to issue renewal invoice', err, data: { organizationId, bundleContextIds } })
+        }
+    }
+}
+
 async function processRecurrentSubscriptionPayments () {
     const { keystone } = getSchemaCtx('SubscriptionContext')
     const context = await keystone.createContext({ skipAccessControl: true })
@@ -246,6 +328,8 @@ async function processRecurrentSubscriptionPayments () {
             logger.error({ msg: 'failed to process renewal bundle', err, data: { organizationId, bundleContextIds } })
         }
     }
+
+    await issueRenewalInvoices(context)
 
     logger.info({ msg: 'processing recurrent subscription payments end' })
 }
