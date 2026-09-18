@@ -6,6 +6,7 @@
 **/.DS_Store
 **/Thumbs.db
 **/Dockerfile
+!/Dockerfile
 **/node_modules
 **/.next
 **/.turbo
@@ -14,9 +15,10 @@
 !/out
 **/.idea
 **/.kmigrator
-**/docs
-!/apps/dev-portal-web/docs
-!/apps/dev-portal-web/docs/**
+/docs
+/docs/**
+apps/condo/docs
+apps/condo/docs/**
 **/docker*
 **/.docker*
 **/werf*
