@@ -6,7 +6,7 @@ on:
       - main
 
   # NOTE: change pull_request_target to pull_request if you want to change the CI in your branch
-  pull_request_target:
+  pull_request:
     types:
       - opened
       - reopened
@@ -50,7 +50,7 @@ jobs:
     steps:
       - name: Prepare runner
         run: |
-          sudo apt update && sudo apt install -y git
+          sudo apt update && sudo apt install -y git bind9-dnsutils dnsutils iputils-ping
       - name: Set registry variables
         run: |
           ref="$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9]/-/g')"
@@ -91,6 +91,21 @@ jobs:
             fi
             sleep 1
           done
+
+      - name: Check DNS
+        env:
+          DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
+        run: |
+          host="${DOCKER_REGISTRY#https://}"
+          host="${host#http://}"
+          host="${host%%/*}"
+          host="${host%%:*}"
+          echo start
+          nslookup example.com || true
+          nslookup ${{ secrets.DOCKER_REGISTRY }} || true
+          ping -c 4 example.com || true
+          ping -c 4 "$host" || true
+          echo done
 
       - name: Login to cloud registry
         uses: docker/login-action@v3
