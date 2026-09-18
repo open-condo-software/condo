@@ -73532,6 +73532,7 @@ export type OrganizationSubscriptionFeatures = {
   metersEndAt?: Maybe<Scalars['String']['output']>;
   newsEndAt?: Maybe<Scalars['String']['output']>;
   paymentsEndAt?: Maybe<Scalars['String']['output']>;
+  pdfReceiptsEndAt?: Maybe<Scalars['String']['output']>;
   propertiesEndAt?: Maybe<Scalars['String']['output']>;
   supportEndAt?: Maybe<Scalars['String']['output']>;
   ticketsEndAt?: Maybe<Scalars['String']['output']>;
@@ -102774,6 +102775,8 @@ export enum SortSubscriptionPlanHistoryRecordsBy {
   OrganizationTypeDesc = 'organizationType_DESC',
   PaymentsAsc = 'payments_ASC',
   PaymentsDesc = 'payments_DESC',
+  PdfReceiptsAsc = 'pdfReceipts_ASC',
+  PdfReceiptsDesc = 'pdfReceipts_DESC',
   PlanTypeAsc = 'planType_ASC',
   PlanTypeDesc = 'planType_DESC',
   PriorityAsc = 'priority_ASC',
@@ -102895,6 +102898,8 @@ export enum SortSubscriptionPlansBy {
   OrganizationTypeDesc = 'organizationType_DESC',
   PaymentsAsc = 'payments_ASC',
   PaymentsDesc = 'payments_DESC',
+  PdfReceiptsAsc = 'pdfReceipts_ASC',
+  PdfReceiptsDesc = 'pdfReceipts_DESC',
   PlanTypeAsc = 'planType_ASC',
   PlanTypeDesc = 'planType_DESC',
   PriorityAsc = 'priority_ASC',
@@ -105806,6 +105811,8 @@ export type SubscriptionPlan = {
   organizationType?: Maybe<SubscriptionPlanOrganizationTypeType>;
   /**  Whether payments feature is included in this plan  */
   payments?: Maybe<Scalars['Boolean']['output']>;
+  /**  Whether pdfReceipts feature is included in this plan  */
+  pdfReceipts?: Maybe<Scalars['Boolean']['output']>;
   /**  Type of subscription plan: service (base tariff) or feature (individual feature like News, AI). Feature plans require an active service subscription.  */
   planType?: Maybe<SubscriptionPlanPlanTypeType>;
   /**  Priority for sorting plans on frontend and selecting active subscription (higher values = higher priority)  */
@@ -105846,6 +105853,7 @@ export type SubscriptionPlanCreateInput = {
   news?: InputMaybe<Scalars['Boolean']['input']>;
   organizationType?: InputMaybe<SubscriptionPlanOrganizationTypeType>;
   payments?: InputMaybe<Scalars['Boolean']['input']>;
+  pdfReceipts?: InputMaybe<Scalars['Boolean']['input']>;
   planType?: InputMaybe<SubscriptionPlanPlanTypeType>;
   priority?: InputMaybe<Scalars['Int']['input']>;
   properties?: InputMaybe<Scalars['Boolean']['input']>;
@@ -105892,6 +105900,7 @@ export type SubscriptionPlanHistoryRecord = {
   news?: Maybe<Scalars['Boolean']['output']>;
   organizationType?: Maybe<Scalars['String']['output']>;
   payments?: Maybe<Scalars['Boolean']['output']>;
+  pdfReceipts?: Maybe<Scalars['Boolean']['output']>;
   planType?: Maybe<Scalars['String']['output']>;
   priority?: Maybe<Scalars['Int']['output']>;
   properties?: Maybe<Scalars['Boolean']['output']>;
@@ -105927,6 +105936,7 @@ export type SubscriptionPlanHistoryRecordCreateInput = {
   news?: InputMaybe<Scalars['Boolean']['input']>;
   organizationType?: InputMaybe<Scalars['String']['input']>;
   payments?: InputMaybe<Scalars['Boolean']['input']>;
+  pdfReceipts?: InputMaybe<Scalars['Boolean']['input']>;
   planType?: InputMaybe<Scalars['String']['input']>;
   priority?: InputMaybe<Scalars['Int']['input']>;
   properties?: InputMaybe<Scalars['Boolean']['input']>;
@@ -105968,6 +105978,7 @@ export type SubscriptionPlanHistoryRecordUpdateInput = {
   news?: InputMaybe<Scalars['Boolean']['input']>;
   organizationType?: InputMaybe<Scalars['String']['input']>;
   payments?: InputMaybe<Scalars['Boolean']['input']>;
+  pdfReceipts?: InputMaybe<Scalars['Boolean']['input']>;
   planType?: InputMaybe<Scalars['String']['input']>;
   priority?: InputMaybe<Scalars['Int']['input']>;
   properties?: InputMaybe<Scalars['Boolean']['input']>;
@@ -106115,6 +106126,8 @@ export type SubscriptionPlanHistoryRecordWhereInput = {
   organizationType_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   payments?: InputMaybe<Scalars['Boolean']['input']>;
   payments_not?: InputMaybe<Scalars['Boolean']['input']>;
+  pdfReceipts?: InputMaybe<Scalars['Boolean']['input']>;
+  pdfReceipts_not?: InputMaybe<Scalars['Boolean']['input']>;
   planType?: InputMaybe<Scalars['String']['input']>;
   planType_contains?: InputMaybe<Scalars['String']['input']>;
   planType_contains_i?: InputMaybe<Scalars['String']['input']>;
@@ -106949,6 +106962,7 @@ export type SubscriptionPlanUpdateInput = {
   news?: InputMaybe<Scalars['Boolean']['input']>;
   organizationType?: InputMaybe<SubscriptionPlanOrganizationTypeType>;
   payments?: InputMaybe<Scalars['Boolean']['input']>;
+  pdfReceipts?: InputMaybe<Scalars['Boolean']['input']>;
   planType?: InputMaybe<SubscriptionPlanPlanTypeType>;
   priority?: InputMaybe<Scalars['Int']['input']>;
   properties?: InputMaybe<Scalars['Boolean']['input']>;
@@ -107064,6 +107078,8 @@ export type SubscriptionPlanWhereInput = {
   organizationType_not_in?: InputMaybe<Array<InputMaybe<SubscriptionPlanOrganizationTypeType>>>;
   payments?: InputMaybe<Scalars['Boolean']['input']>;
   payments_not?: InputMaybe<Scalars['Boolean']['input']>;
+  pdfReceipts?: InputMaybe<Scalars['Boolean']['input']>;
+  pdfReceipts_not?: InputMaybe<Scalars['Boolean']['input']>;
   planType?: InputMaybe<SubscriptionPlanPlanTypeType>;
   planType_in?: InputMaybe<Array<InputMaybe<SubscriptionPlanPlanTypeType>>>;
   planType_not?: InputMaybe<SubscriptionPlanPlanTypeType>;

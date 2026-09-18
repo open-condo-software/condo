@@ -13,6 +13,7 @@ const access = require('@condo/domains/billing/access/BillingReceiptFile')
 const { BILLING_RECEIPT_FILE_FOLDER_NAME } = require('@condo/domains/billing/constants/constants')
 const { CONTEXT_IS_NOT_EQUAL } = require('@condo/domains/billing/constants/errors')
 const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
+const { isPdfReceiptsSubscriptionRequired, getOrganizationIdsWithoutPdfReceipts } = require('@condo/domains/subscription/utils/serverSchema/pdfReceiptsAvailability')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 const ERRORS = {
@@ -38,6 +39,17 @@ const isResidentVerified = async ({ id, phone }, billingAccountId) => {
     })
     return contacts.length !== 0
 }
+
+const isPdfReceiptsAvailable = async (context, billingContextId) => {
+    const { integration, organization } = await getById('BillingIntegrationOrganizationContext', billingContextId)
+    if (!isPdfReceiptsSubscriptionRequired(integration)) return true
+
+    const organizationIdsWithoutPdfReceipts = await getOrganizationIdsWithoutPdfReceipts(context, [
+        { integrationId: integration, organizationId: organization },
+    ])
+    return !organizationIdsWithoutPdfReceipts.has(organization)
+}
+
 const shouldResolveReceiptByImportId = (operation, receipt, importId) => operation === 'create' && !receipt && importId
 
 const BillingReceiptFile = new GQLListSchema('BillingReceiptFile', {
@@ -49,7 +61,8 @@ const BillingReceiptFile = new GQLListSchema('BillingReceiptFile', {
             type: 'Virtual',
             graphQLReturnType: 'File',
             graphQLReturnFragment: '{ id filename originalFilename publicUrl mimetype }',
-            resolver: async (item, _, { authedItem }) => {
+            resolver: async (item, _, context) => {
+                const { authedItem } = context
                 // no authed item filled up case
                 if (isNil(authedItem)) {
                     return
@@ -58,6 +71,11 @@ const BillingReceiptFile = new GQLListSchema('BillingReceiptFile', {
                 // We are changing link to publicData only for not verified residents. In other cases we return sensitive data files
                 let file = item.publicDataFile
                 if (authedItem.type === RESIDENT) {
+                    // For residents pdf receipts of some billing integrations are available only with "pdfReceipts" subscription feature
+                    if (!(await isPdfReceiptsAvailable(context, item.context))) {
+                        return null
+                    }
+
                     // Resident already has the access to the billing receipt, so we only need to check if he is approved
                     const { account } = await getById('BillingReceipt', item.receipt)
                     const isApproved = await isResidentVerified(authedItem, account)
