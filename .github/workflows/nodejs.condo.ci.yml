@@ -41,38 +41,16 @@ jobs:
     steps:
       - run: echo "PR is authorized to run CI jobs"
 
-  check-registry-dns:
-    name: Check registry DNS
-    needs: authorize
-    runs-on: build-runners
-    steps:
-      - name: Resolve registry domain
-        env:
-          DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
-        run: |
-          host="${DOCKER_REGISTRY#https://}"
-          host="${host#http://}"
-          host="${host%%/*}"
-          host="${host%%:*}"
-          echo start
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq dnsutils bind9-dnsutils
-          timeout -v 8 nslookup example.com || true
-          timeout -v 8 nslookup "$host"
-          echo done
-
   build-image:
     name: Build Docker Image
-    needs:
-      - authorize
-      - check-registry-dns
+    needs: authorize
     runs-on: build-runners
     outputs:
       DOCKER_IMAGE: ${{ env.DOCKER_IMAGE }}
     steps:
       - name: Prepare runner
         run: |
-          sudo apt update && sudo apt install -y git
+          sudo apt update && sudo apt install -y git bind9-dnsutils dnsutils
       - name: Set registry variables
         run: |
           ref="$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9]/-/g')"
@@ -113,6 +91,19 @@ jobs:
             fi
             sleep 1
           done
+
+      - name: Check DNS
+        env:
+          DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
+        run: |
+          host="${DOCKER_REGISTRY#https://}"
+          host="${host#http://}"
+          host="${host%%/*}"
+          host="${host%%:*}"
+          echo start
+          nslookup example.com || true
+          nslookup ${{ secrets.DOCKER_REGISTRY }} || true
+          echo done
 
       - name: Login to cloud registry
         uses: docker/login-action@v3
