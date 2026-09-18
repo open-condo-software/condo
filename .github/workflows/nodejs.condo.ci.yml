@@ -50,7 +50,7 @@ jobs:
     steps:
       - name: Prepare runner
         run: |
-          sudo apt update && sudo apt install -y git bind9-dnsutils dnsutils
+          sudo apt update && sudo apt install -y git bind9-dnsutils dnsutils iputils-ping
       - name: Set registry variables
         run: |
           ref="$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9]/-/g')"
