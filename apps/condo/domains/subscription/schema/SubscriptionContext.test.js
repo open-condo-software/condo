@@ -802,6 +802,23 @@ describe('SubscriptionContext', () => {
             expect(updated.bindingId).toBe(newBindingId)
         })
 
+        test('detaching a card does not cancel renewal, attaching one clears a previous cancellation', async () => {
+            const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
+                isTrial: false,
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
+                bindingId: faker.datatype.uuid(),
+            })
+
+            const [withoutCard] = await updateTestSubscriptionContext(admin, obj.id, { bindingId: null })
+            expect(withoutCard.renewalCancelledAt).toBeNull()
+
+            await updateTestSubscriptionContext(admin, obj.id, { renewalCancelledAt: dayjs().toISOString() })
+            const [withCard] = await updateTestSubscriptionContext(admin, obj.id, { bindingId: faker.datatype.uuid() })
+            expect(withCard.renewalCancelledAt).toBeNull()
+        })
+
         test('can update SubscriptionContext status with correct status tranistion', async () => {
             const [context] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
                 startAt: '2024-01-01',
@@ -858,20 +875,41 @@ describe('SubscriptionContext', () => {
         })
 
 
-        test('cannot update startAt', async () => {
+        test('support cannot update startAt or endAt', async () => {
             const [objCreated] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
                 startAt: dayjs().format('YYYY-MM-DD'),
                 endAt: dayjs().add(14, 'day').format('YYYY-MM-DD'),
                 isTrial: true,
             })
 
-            await catchErrorFrom(async () => {
-                await updateTestSubscriptionContext(admin, objCreated.id, {
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestSubscriptionContext(support, objCreated.id, {
                     startAt: dayjs().add(5, 'day').format('YYYY-MM-DD'),
                 })
-            }, ({ errors }) => {
-                expect(errors[0].message).toContain('Field "startAt" is not defined by type "SubscriptionContextUpdateInput"')
             })
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestSubscriptionContext(support, objCreated.id, {
+                    endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
+                })
+            })
+        })
+
+        test('admin can update startAt and endAt', async () => {
+            const [objCreated] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(14, 'day').format('YYYY-MM-DD'),
+                isTrial: true,
+            })
+
+            const newStartAt = dayjs().add(5, 'day').format('YYYY-MM-DD')
+            const newEndAt = dayjs().add(40, 'day').format('YYYY-MM-DD')
+            const [updated] = await updateTestSubscriptionContext(admin, objCreated.id, {
+                startAt: newStartAt,
+                endAt: newEndAt,
+            })
+
+            expect(updated.startAt).toBe(newStartAt)
+            expect(updated.endAt).toBe(newEndAt)
         })
 
         test('cannot update isTrial', async () => {
@@ -890,21 +928,6 @@ describe('SubscriptionContext', () => {
             })
         })
 
-        test('cannot update endAt', async () => {
-            const [objCreated] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                startAt: dayjs().format('YYYY-MM-DD'),
-                endAt: dayjs().add(14, 'day').format('YYYY-MM-DD'),
-                isTrial: true,
-            })
-
-            await catchErrorFrom(async () => {
-                await updateTestSubscriptionContext(admin, objCreated.id, {
-                    endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
-                })
-            }, ({ errors }) => {
-                expect(errors[0].message).toContain('Field "endAt" is not defined by type "SubscriptionContextUpdateInput"')
-            })
-        })
     })
 
     describe('UserHelpRequest cleanup', () => {
@@ -1171,6 +1194,8 @@ describe('SubscriptionContext', () => {
 
             const [updatedSubsetContext] = await SubscriptionContext.getAll(admin, { id: subsetContext.id })
             expect(updatedSubsetContext.bindingId).toBeNull()
+            // superseding is not a cancellation made by the organization
+            expect(updatedSubsetContext.renewalCancelledAt).toBeNull()
         })
 
         test('does not disable autopayment for non-subset plan context when superset plan is activated', async () => {
