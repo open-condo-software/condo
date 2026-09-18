@@ -33,7 +33,7 @@ jobs:
           set -euo pipefail
           cert_dir=/certs/client
           deadline=$((SECONDS + 120))
-      
+
           echo "Waiting for Docker TLS certs in ${cert_dir}"
           while true; do
             if [[ -f "${cert_dir}/ca.pem" && -f "${cert_dir}/cert.pem" && -f "${cert_dir}/key.pem" ]]; then
@@ -47,7 +47,7 @@ jobs:
             fi
             sleep 1
           done
-      
+
           echo "Waiting for Docker daemon to accept connections"
           while true; do
             if docker info >/dev/null 2>&1; then
@@ -63,14 +63,14 @@ jobs:
           done
 
       - name: Login to registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v3.7.0
         with:
           registry: ${{ secrets.DOCKER_REGISTRY }}
           username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
           password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
 
       - name: checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.4.0
         with:
           fetch-depth: 0
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
@@ -112,7 +112,7 @@ jobs:
           dest: './docker-logs'
 
       - name: Upload log artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.6.2
         if: failure()
         with:
           name: logs-shard-${{ inputs.shard_index }}-of-${{ inputs.shard_total }}-${{ env.GITHUB_RUN_ID }}-${{ env.GITHUB_RUN_NUMBER }}
