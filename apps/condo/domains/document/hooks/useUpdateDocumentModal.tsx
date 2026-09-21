@@ -28,6 +28,7 @@ const UpdateDocumentModal = ({ selectedDocument, setSelectedDocument, refetchDoc
     const CancelModalTitle = intl.formatMessage({ id: 'documents.updateDocumentModal.cancel.title' })
     const CancelModalMessage = intl.formatMessage({ id: 'documents.updateDocumentModal.cancel.message' })
     const ReadyMessage = intl.formatMessage({ id: 'Ready' })
+    const AttachedFileMessage = intl.formatMessage({ id: 'documents.updateDocumentModal.attachedFile' })
 
     const updateAction = Document.useUpdate({})
     const softDeleteAction = Document.useSoftDelete()
@@ -56,7 +57,7 @@ const UpdateDocumentModal = ({ selectedDocument, setSelectedDocument, refetchDoc
         }
 
         if (onDeleteComplete) {
-            onDeleteComplete(document)
+            onDeleteComplete(selectedDocument)
         }
 
         setLoading(false)
@@ -115,7 +116,7 @@ const UpdateDocumentModal = ({ selectedDocument, setSelectedDocument, refetchDoc
                     width='small'
                     open={modalState === 'update'}
                     onCancel={closeModal}
-                    title='Прикрепленный файл'
+                    title={AttachedFileMessage}
                     footer={(
                         <Space size={16} direction='horizontal' wrap>
                             <Button type='secondary' danger onClick={openConfirmDeleteModal}>

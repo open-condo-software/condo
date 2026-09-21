@@ -25,6 +25,10 @@ type TData = GetDocumentsForTableQuery['documents'][number]
 type UseDocumentsTableColumns = () => Array<TableColumn<TData>>
 
 const useDocumentsTableColumns: UseDocumentsTableColumns = () => {
+    const intl = useIntl()
+    const addressMessage = intl.formatMessage({ id: 'documents.columns.organization' })
+    const fileMessage = intl.formatMessage({ id: 'documents.columns.file' })
+    const detailsMessage = intl.formatMessage({ id: 'documents.columns.details' })
 
     const renderName = useCallback<RenderTableCell<TData, TData['name']>>(
         (name, _, __, globalFilter) => getTableCellRenderer({ search: globalFilter, ellipsis: true })(name)
@@ -47,14 +51,14 @@ const useDocumentsTableColumns: UseDocumentsTableColumns = () => {
 
         return (
             <Typography.Text type='secondary' size='medium'>
-                Организация
+                {addressMessage}
             </Typography.Text>
         )
-    }, [])
+    }, [addressMessage])
 
     return useMemo<Array<TableColumn<TData>>>(() => [
         {
-            header: 'Файл',
+            header: fileMessage,
             dataKey: 'name',
             id: 'name',
             enableSorting: true,
@@ -65,7 +69,7 @@ const useDocumentsTableColumns: UseDocumentsTableColumns = () => {
             minSize: 200,
         },
         {
-            header: 'Раздел платформы',
+            header: detailsMessage,
             id: 'details',
             dataKey: 'id',
             initialSize: 300,
@@ -75,14 +79,16 @@ const useDocumentsTableColumns: UseDocumentsTableColumns = () => {
             enableSorting: false,
             minSize: 300,
         },
-    ], [renderDetails, renderName])
+    ], [renderDetails, renderName, detailsMessage, fileMessage])
 }
 
 const DocumentsTableContent: React.FC<any> = ({ setSelectedDocuments }) => {
     const intl = useIntl()
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
+    const organizationMessage = intl.formatMessage({ id: 'documents.SelectDocumentsModal.organization' })
+    const propertyMessage = intl.formatMessage({ id: 'documents.SelectDocumentsModal.property' })
 
-    const { role, organization } = useOrganization()
+    const { organization } = useOrganization()
     const organizationId = useMemo(() => organization?.id || null, [organization])
 
     const baseSearchQuery = useMemo(() => ({
@@ -202,12 +208,12 @@ const DocumentsTableContent: React.FC<any> = ({ setSelectedDocuments }) => {
                                     <Checkbox
                                         checked={showOrganizationDocuments}
                                         onChange={switchShowOrganizationDocuments}
-                                        children='Организация'
+                                        children={organizationMessage}
                                     />
                                     <Checkbox
                                         checked={showPropertyDocuments}
                                         onChange={switchShowPropertyDocuments}
-                                        children='Дома'
+                                        children={propertyMessage}
                                     />
                                 </Space>
                             </Row>

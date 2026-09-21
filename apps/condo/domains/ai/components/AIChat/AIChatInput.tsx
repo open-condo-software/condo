@@ -11,12 +11,12 @@ import styles from './AIChatInput.module.css'
 import { SelectFiles } from './SelectFiles'
 import { UploadFiles } from './UploadFiles'
 
-import type { UseAIChatAttachmentsResult } from '@condo/domains/ai/hooks/useAIChatAttachments'
+import type { ChatWithCondoAttachmentsConfig } from '@condo/domains/ai/hooks/useChatWithCondoAttachmentsConfig'
 
 
 type AIChatInputProps = {
     containerRef?: React.RefObject<HTMLDivElement>
-    attachments: UseAIChatAttachmentsResult | null
+    attachments: ChatWithCondoAttachmentsConfig | null
     canExecuteAIFlow: boolean
     canSendMessage: boolean
     inputRef: React.RefObject<any>
@@ -53,6 +53,8 @@ export const AIChatInput: React.FC<AIChatInputProps> = ({
     showFileSelection,
 }) => {
     const intl = useIntl()
+    const AddedNewFile = intl.formatMessage({ id: 'aiChat.addFile.newFile' })
+    const AddedExistingFile = intl.formatMessage({ id: 'aiChat.addFile.existingFile' })
 
     const attachmentsUploadDisabled = attachments
         ? !canExecuteAIFlow || attachedFiles.length >= attachments.maxAttachments
@@ -100,7 +102,7 @@ export const AIChatInput: React.FC<AIChatInputProps> = ({
                                             setAttachedFiles(prevFiles => [...prevFiles, ...uploadedFiles])
                                         }}
                                     >
-                                        Загрузить новый файл
+                                        {AddedNewFile}
                                     </UploadFiles>
                                 ),
                             }, {
@@ -112,7 +114,7 @@ export const AIChatInput: React.FC<AIChatInputProps> = ({
                                             setAttachedFiles(prevFiles => [...prevFiles, ...selectedFiles])
                                         }}
                                     >
-                                        Выбрать из уже загруженных
+                                        {AddedExistingFile}
                                     </SelectFiles>
                                 ),
                             }],
@@ -159,7 +161,7 @@ export const AIChatInput: React.FC<AIChatInputProps> = ({
         }
 
         return panelUtils
-    }, [attachments, extraBottomPanelUtils, showFileSelection, attachedFiles, canExecuteAIFlow, setAttachedFiles, attachmentsTooltip, attachmentsUploadDisabled])
+    }, [attachments, extraBottomPanelUtils, showFileSelection, attachedFiles, canExecuteAIFlow, AddedNewFile, AddedExistingFile, setAttachedFiles, attachmentsTooltip, attachmentsUploadDisabled])
 
     return (
         <div ref={containerRef} className={styles.inputContainer}>

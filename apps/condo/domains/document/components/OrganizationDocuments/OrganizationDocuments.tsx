@@ -84,15 +84,7 @@ const TableContent = ({ total, documentsLoading, documents, openUploadModal, rol
     )
 }
 
-
-type OrganizationDocumentsProps = {
-    // organizationId: string
-    // role?: OrganizationEmployeeRole
-    // refetchDocumentsCount?: () => void
-    // documentsCount: number
-}
-
-export const OrganizationDocuments: React.FC<OrganizationDocumentsProps> = () => {
+export const OrganizationDocuments: React.FC = () => {
     const intl = useIntl()
     const SearchPlaceholder = intl.formatMessage({ id: 'documents.propertyDocuments.filters.search.placeholder' })
     const EmptyListLabel = intl.formatMessage({ id: 'documents.propertyDocuments.emptyList.label' })

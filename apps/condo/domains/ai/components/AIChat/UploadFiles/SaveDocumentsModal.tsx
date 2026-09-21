@@ -31,6 +31,12 @@ const SaveDocumentsModal: React.FC<any> = ({ setModalState, modalState, fileList
     const SaveMessage = intl.formatMessage({ id: 'Save' })
     const CancelModalTitle = intl.formatMessage({ id: 'documents.updateDocumentModal.cancel.title' })
     const CancelModalMessage = intl.formatMessage({ id: 'documents.updateDocumentModal.cancel.message' })
+    const UploadingParamsMessage = intl.formatMessage({ id: 'aiChat.SaveDocumentsModal.uploadingParams' })
+    const SaveAndUploadMessage = intl.formatMessage({ id: 'aiChat.SaveDocumentsModal.saveAndUpload' })
+    const TitleHintMessage = intl.formatMessage({ id: 'aiChat.SaveDocumentsModal.title.hint' })
+    const TitleMessage = intl.formatMessage({ id: 'aiChat.SaveDocumentsModal.title.message' })
+    const NoSaveMessage = intl.formatMessage({ id: 'aiChat.SaveDocumentsModal.cancel.noSave' })
+    const BackMessage = intl.formatMessage({ id: 'aiChat.SaveDocumentsModal.cancel.back' })
 
     const { user } = useAuth()
     const { organization, role } = useOrganization()
@@ -94,34 +100,76 @@ const SaveDocumentsModal: React.FC<any> = ({ setModalState, modalState, fileList
     }, [setModalState, setFileList, uploadForm])
 
     const saveDocumentsAction = useCallback(async (values) => {
-        if (loading) return
-        if (isDisabledButtonSave) return
-
         const { isSaveFiles, files } = values
 
+        if (loading) return
+        if (isDisabledButtonSave) return
         if (!Array.isArray(files) || !files.length) return
 
         setLoading(true)
 
-        const senderInfo = getClientSideSenderInfo()
+        try {
+            const senderInfo = getClientSideSenderInfo()
 
-        const baseCreateData = {
-            dv: 1,
-            sender: senderInfo,
-            organization: { connect: { id: organizationId } },
-        }
+            const baseCreateData = {
+                dv: 1,
+                sender: senderInfo,
+                organization: { connect: { id: organizationId } },
+            }
 
-        const filesChunks = chunk(files, 2)
-        for (const filesChunk of filesChunks) {
+            const filesChunks = chunk(files, 2)
+            for (const filesChunk of filesChunks) {
 
-            const filesToUpload = filesChunk
-                .map((file) => file.originFileObj)
-                .filter((originFile): originFile is RcFile => !!originFile)
+                const filesToUpload = filesChunk
+                    .map((file) => file.originFileObj)
+                    .filter((originFile): originFile is RcFile => !!originFile)
 
-            if (isSaveFiles) {
-                let createInput
+                if (isSaveFiles) {
+                    let createInput
 
-                if (fileClientId) {
+                    if (fileClientId) {
+                        const uploadResult = await uploadFiles({
+                            files: filesToUpload,
+                            meta: buildMeta({
+                                userId: user.id,
+                                fileClientId: fileClientId,
+                                modelNames: ['Document'],
+                                fingerprint: senderInfo.fingerprint,
+                                organizationId,
+                            }),
+                        })
+
+                        createInput = uploadResult.files.map((uploadedFile, index) => ({
+                            ...baseCreateData,
+                            ...(filesChunk[index]?.categoryId ? { category: { connect: { id: filesChunk[index].categoryId } } } : {}),
+                            ...(filesChunk[index]?.propertyId ? { property: { connect: { id: filesChunk[index].propertyId } } } : {}),
+                            name: filesChunk[index].name,
+                            file: {
+                                signature: uploadedFile.signature,
+                            },
+                        }))
+                    } else {
+                        createInput = filesChunk.map(file => ({
+                            ...baseCreateData,
+                            file,
+                        }))
+                    }
+
+                    const res = await createDocuments(createInput)
+
+                    if (onUploadComplete) {
+                        onUploadComplete(res.map((document, index) => ({
+                            ...document,
+                            file: {
+                                ...document.file,
+                                size: filesToUpload[index].size,
+                                mimetype: filesToUpload[index].type,
+                            },
+                            size: filesToUpload[index].size,
+                            mimetype: filesToUpload[index].type,
+                        })))
+                    }
+                } else {
                     const uploadResult = await uploadFiles({
                         files: filesToUpload,
                         meta: buildMeta({
@@ -133,61 +181,23 @@ const SaveDocumentsModal: React.FC<any> = ({ setModalState, modalState, fileList
                         }),
                     })
 
-                    createInput = uploadResult.files.map((uploadedFile, index) => ({
-                        ...baseCreateData,
-                        ...(filesChunk[index]?.categoryId ? { category: { connect: { id: filesChunk[index].categoryId } } } : {}),
-                        ...(filesChunk[index]?.propertyId ? { property: { connect: { id: filesChunk[index].propertyId } } } : {}),
-                        name: filesChunk[index].name,
-                        file: {
-                            signature: uploadedFile.signature,
-                        },
-                    }))
-                } else {
-                    createInput = filesChunk.map(file => ({
-                        ...baseCreateData,
-                        file,
-                    }))
-                }
-
-                const res = await createDocuments(createInput)
-
-                if (onUploadComplete) {
-                    onUploadComplete(res.map((document, index) => ({
-                        ...document,
-                        file: {
-                            ...document.file,
+                    if (onUploadComplete) {
+                        onUploadComplete(uploadResult.files.map((file, index) => ({
+                            name: filesChunk[index].name,
+                            ...file,
                             size: filesToUpload[index].size,
                             mimetype: filesToUpload[index].type,
-                        },
-                        size: filesToUpload[index].size,
-                        mimetype: filesToUpload[index].type,
-                    })))
-                }
-            } else {
-                const uploadResult = await uploadFiles({
-                    files: filesToUpload,
-                    meta: buildMeta({
-                        userId: user.id,
-                        fileClientId: fileClientId,
-                        modelNames: ['Document'],
-                        fingerprint: senderInfo.fingerprint,
-                        organizationId,
-                    }),
-                })
-
-                if (onUploadComplete) {
-                    onUploadComplete(uploadResult.files.map((file, index) => ({
-                        name: filesChunk[index].name,
-                        ...file,
-                        size: filesToUpload[index].size,
-                        mimetype: filesToUpload[index].type,
-                    })))
+                        })))
+                    }
                 }
             }
-        }
 
-        closeModal()
-        setLoading(false)
+            closeModal()
+        } catch (error) {
+            console.error(error)
+        } finally {
+            setLoading(false)
+        }
     }, [closeModal, createDocuments, isDisabledButtonSave, loading, onUploadComplete, organizationId, user?.id])
 
     const tableContent = useMemo(() => {
@@ -222,7 +232,7 @@ const SaveDocumentsModal: React.FC<any> = ({ setModalState, modalState, fileList
                     width='big'
                     open={modalState === 'uploadParameters'}
                     onCancel={openConfirmCancelModal}
-                    title='Параметры загрузки'
+                    title={UploadingParamsMessage}
                     footer={(
                         <Space size={16} direction='horizontal' wrap>
                             <Button
@@ -230,7 +240,7 @@ const SaveDocumentsModal: React.FC<any> = ({ setModalState, modalState, fileList
                                 onClick={() => uploadForm.submit()}
                                 disabled={isDisabledButtonSave}
                             >
-                                {isSaveFiles ? 'Сохранить и загрузить' : SaveMessage}
+                                {isSaveFiles ? SaveAndUploadMessage : SaveMessage}
                             </Button>
                         </Space>
                     )}
@@ -240,10 +250,10 @@ const SaveDocumentsModal: React.FC<any> = ({ setModalState, modalState, fileList
                             <div className={classNames(styles.saveDocumentToggleContainer, {
                                 [styles.saveDocumentToggleChecked]: isSaveFiles,
                             })}>
-                                <Tooltip title='В следующий раз сможете выбрать эти файлы из загруженных'>
+                                <Tooltip title={TitleHintMessage}>
                                     <Space size={8} direction='horizontal' align='center'>
                                         <Typography.Text>
-                                            Сохранить файлы на платформе
+                                            {TitleMessage}
                                         </Typography.Text>
                                         <QuestionCircle size='small' />
                                     </Space>
@@ -270,10 +280,10 @@ const SaveDocumentsModal: React.FC<any> = ({ setModalState, modalState, fileList
                 title={CancelModalTitle}
                 footer={[
                     <Button key='delete' type='secondary' danger onClick={closeModal}>
-                        Не сохранять
+                        {NoSaveMessage}
                     </Button>,
                     <Button key='cancel' type='secondary' onClick={() => setModalState('uploadParameters')}>
-                        Вернуться к загрузке
+                        {BackMessage}
                     </Button>,
                 ]}
             >

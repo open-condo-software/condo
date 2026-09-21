@@ -13,8 +13,8 @@ import { Button, Space, Tag } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import { CHAT_WITH_CONDO_FLOW_TYPE, TASK_STATUSES } from '@condo/domains/ai/constants'
-import { useAIChatAttachments, type AIChatAttachmentMeta } from '@condo/domains/ai/hooks/useAIChatAttachments'
 import { useAIFlow } from '@condo/domains/ai/hooks/useAIFlow'
+import { useChatWithCondoAttachmentsConfig } from '@condo/domains/ai/hooks/useChatWithCondoAttachmentsConfig'
 import { useChatWithCondoButtonConfig } from '@condo/domains/ai/hooks/useChatWithCondoButtonConfig'
 import { parseAssistantAnswer, toDisplayText } from '@condo/domains/ai/utils/aiAnswerPresenter'
 import { getChatHistory, hasUserMessage, saveChatHistory } from '@condo/domains/ai/utils/aiChatStorage'
@@ -36,7 +36,12 @@ const AI_FLOW_TIMEOUT_MS = 6 * 60 * 1000
 type ExecuteAIMessageOptions = {
     additionalContext?: Record<string, unknown>
     scenarioButtonId?: string | null
-    attachments?: AIChatAttachmentMeta[]
+    attachments?: Array<{
+        id: string
+        name: string
+        mimeType: string
+        size: number
+    }>
 }
 
 type AISkillRef = { id: string, name?: string, displayName?: string }
@@ -262,9 +267,7 @@ export const AIChat: React.FC<AIChatProps> = ({
 
 
     const [attachedFiles, setAttachedFiles] = useState<Array<DocumentType & { name: string }>>([])
-    const attachments = useAIChatAttachments({
-        onFileListChange: () => inputRef.current?.focus(),
-    })
+    const attachments = useChatWithCondoAttachmentsConfig()
 
     const canSendMessage = useMemo(() => {
         return Boolean(inputValue.trim())
@@ -586,7 +589,7 @@ export const AIChat: React.FC<AIChatProps> = ({
         setAttachedFiles([])
 
         await startUserTurn(userMessage, { attachments: attachmentsToSend })
-    }, [inputValue, loading, user, attachments, messages, startUserTurn, onFirstUserMessage, selectedSkillNames, onInputChange])
+    }, [inputValue, loading, user, attachments, messages, selectedSkillNames, onInputChange, startUserTurn, attachedFiles, onFirstUserMessage])
 
     // Auto-send the initial message once, after history load, if the session has no user messages yet
     useEffect(() => {

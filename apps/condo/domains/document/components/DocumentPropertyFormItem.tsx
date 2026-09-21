@@ -28,17 +28,15 @@ const AddressSearchInput = (props) => {
 
 export const DocumentPropertyFormItem: React.FC<DocumentPropertyFormItemProps> = ({ initialValue, onSelect, onClear }) => {
     const intl = useIntl()
-    const CategoryTitle = intl.formatMessage({ id: 'documents.uploadDocumentsModal.category.title' })
-    const CategoryPlaceholder = intl.formatMessage({ id: 'documents.uploadDocumentsModal.category.placeholder' })
-
-
+    const PropertyTitle = intl.formatMessage({ id: 'documents.uploadDocumentsModal.property.title' })
+    const PropertyPlaceholder = intl.formatMessage({ id: 'documents.uploadDocumentsModal.property.placeholder' })
 
     const { requiredValidator } = useValidations()
     const propertyValidators = useMemo(() => [requiredValidator], [requiredValidator])
 
     return (
         <Form.Item
-            label='Address'
+            label={PropertyTitle}
             name='property'
             required
             labelCol={{ span: 24 }}
@@ -50,6 +48,7 @@ export const DocumentPropertyFormItem: React.FC<DocumentPropertyFormItemProps> =
                     onSelect(option?.key)
                 }}
                 onClear={onClear}
+                placeholder={PropertyPlaceholder}
             />
         </Form.Item>
     )

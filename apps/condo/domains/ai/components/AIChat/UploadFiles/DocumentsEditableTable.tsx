@@ -16,6 +16,8 @@ type DocumentsEditableTableData = DocumentType & { name: string }
 type UseDocumentsEditableTableColumns = (form: FormInstance) => Array<TableColumn<DocumentsEditableTableData>>
 const useDocumentsEditableTableColumns: UseDocumentsEditableTableColumns = (form) => {
     const intl = useIntl()
+    const fileMessage = intl.formatMessage({ id: 'aiChat.DocumentsEditableTable.columns.file' })
+    const detailsMessage = intl.formatMessage({ id: 'aiChat.DocumentsEditableTable.columns.details' })
 
     const renderName = useCallback<RenderTableCell<DocumentsEditableTableData, DocumentsEditableTableData['name']>>(
         (name) => getTableCellRenderer({ ellipsis: { rows: 1 } })(name)
@@ -28,7 +30,7 @@ const useDocumentsEditableTableColumns: UseDocumentsEditableTableColumns = (form
 
     return useMemo<Array<TableColumn<DocumentsEditableTableData>>>(() => [
         {
-            header: 'Файл',
+            header: fileMessage,
             id: 'name',
             dataKey: 'name',
             initialSize: '40%',
@@ -38,7 +40,7 @@ const useDocumentsEditableTableColumns: UseDocumentsEditableTableColumns = (form
             render: renderName,
         },
         {
-            header: 'Раздел, в который сохраняем файл',
+            header: detailsMessage,
             id: 'details',
             dataKey: 'id',
             initialSize: '60%',
@@ -47,7 +49,7 @@ const useDocumentsEditableTableColumns: UseDocumentsEditableTableColumns = (form
             enableSorting: false,
             render: renderEditableDocumentDetails,
         },
-    ], [renderEditableDocumentDetails, renderName])
+    ], [renderEditableDocumentDetails, renderName, fileMessage, detailsMessage])
 }
 
 

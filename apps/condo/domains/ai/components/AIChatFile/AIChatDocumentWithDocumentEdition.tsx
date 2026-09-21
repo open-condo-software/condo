@@ -2,6 +2,7 @@ import { Document } from '@app/condo/schema'
 import React, { useMemo } from 'react'
 
 import { Paperclip, Trash } from '@open-condo/icons'
+import { useIntl } from '@open-condo/next/intl'
 import { Button, Typography } from '@open-condo/ui'
 
 import { useUpdateDocumentModal } from '@condo/domains/document/hooks/useUpdateDocumentModal'
@@ -23,6 +24,10 @@ export const AIChatDocumentWithDocumentEdition: React.FC<AIChatDocumentWithDocum
     onRemove,
     onUpdate,
 }) => {
+    const intl = useIntl()
+    const organizationMessage = intl.formatMessage({ id: 'documents.SelectDocumentsModal.organization' })
+    const propertyMessage = intl.formatMessage({ id: 'documents.SelectDocumentsModal.property' })
+
     const { baseName, ext } = useMemo(() => {
         const fileNameArr = document.name.split('.')
         const fileExt = fileNameArr.length > 1 ? fileNameArr.pop() : undefined
@@ -99,14 +104,12 @@ export const AIChatDocumentWithDocumentEdition: React.FC<AIChatDocumentWithDocum
                                     <Typography.Link onClick={() => setSelectedDocument(document)}>
                                         {
                                             document.property ? (
-                                                <Typography.Paragraph
-                                                    ellipsis={FILE_NAME_ELLIPSIS}>
-                                                        Дом
+                                                <Typography.Paragraph ellipsis={FILE_NAME_ELLIPSIS}>
+                                                    {propertyMessage}
                                                 </Typography.Paragraph>
                                             ) : (
-                                                <Typography.Paragraph
-                                                    ellipsis={FILE_NAME_ELLIPSIS}>
-                                                        Организация
+                                                <Typography.Paragraph ellipsis={FILE_NAME_ELLIPSIS}>
+                                                    {organizationMessage}
                                                 </Typography.Paragraph>
                                             )
                                         }

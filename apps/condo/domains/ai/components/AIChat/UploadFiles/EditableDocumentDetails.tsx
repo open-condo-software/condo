@@ -46,20 +46,25 @@ const DocumentDetailsDropdown: React.FC<any>  = ({
 }
 
 const DocumentTypeSelect: React.FC<any> = ({ onSelect, currentDocument }) => {
+    const intl = useIntl()
+    const organizationMessage = intl.formatMessage({ id: 'documents.DocumentTypeSelect.organization' })
+    const propertyMessage = intl.formatMessage({ id: 'documents.DocumentTypeSelect.property' })
+    const documentTypeMessage = intl.formatMessage({ id: 'documents.DocumentTypeSelect.documentType' })
+
     const currentDocumentType = currentDocument?.documentType
 
     const typeOptions = useMemo(() => {
         return [
             {
                 value: 'organization',
-                label: 'Организация',
+                label: organizationMessage,
             },
             {
                 value: 'property',
-                label: 'Дома',
+                label: propertyMessage,
             },
         ]
-    }, [])
+    }, [organizationMessage, propertyMessage])
 
     const currentOption = typeOptions.find(option => option.value === currentDocumentType)
 
@@ -74,7 +79,7 @@ const DocumentTypeSelect: React.FC<any> = ({ onSelect, currentDocument }) => {
                 style={{ width: '340px' }}
             />}
             currentOption={currentOption}
-            placeholder='Тип документа'
+            placeholder={documentTypeMessage}
         />
     )
 }
@@ -82,6 +87,7 @@ const DocumentTypeSelect: React.FC<any> = ({ onSelect, currentDocument }) => {
 const DocumentPropertySelect: React.FC<any> = ({ onSelect, currentDocument }) => {
     const intl = useIntl()
     const AddressPlaceholderMessage = intl.formatMessage({ id: 'placeholder.Address' })
+    const AddressDropdownMessage = intl.formatMessage({ id: 'documents.DocumentPropertySelect.address' })
 
     const { organization } = useOrganization()
     const organizationId = organization?.id || null
@@ -110,7 +116,7 @@ const DocumentPropertySelect: React.FC<any> = ({ onSelect, currentDocument }) =>
                 style={{ width: '340px' }}
             />}
             currentOption={currentOption}
-            placeholder='Адрес'
+            placeholder={AddressDropdownMessage}
         />
     )
 }
@@ -118,6 +124,7 @@ const DocumentPropertySelect: React.FC<any> = ({ onSelect, currentDocument }) =>
 const DocumentCategorySelect: React.FC<any> = ({ onSelect, currentDocument }) => {
     const intl = useIntl()
     const CategoryPlaceholder = intl.formatMessage({ id: 'documents.uploadDocumentsModal.category.placeholder' })
+    const CategoryDropdownPlaceholder = intl.formatMessage({ id: 'documents.DocumentCategorySelect.category' })
 
     const currentCategoryId = currentDocument?.categoryId
 
@@ -145,7 +152,7 @@ const DocumentCategorySelect: React.FC<any> = ({ onSelect, currentDocument }) =>
                 style={{ width: '340px' }}
             />}
             currentOption={currentOption}
-            placeholder='Категория'
+            placeholder={CategoryDropdownPlaceholder}
         />
     )
 }
