@@ -21,7 +21,7 @@ const { CUSTOM_FLOW_TYPES_LIST, AI_FLOWS_CONFIG } = require('@condo/domains/ai/u
 const { ExecutionAIFlowTask, AISkill } = require('@condo/domains/ai/utils/serverSchema')
 const { restoreSensitiveData, removeSensitiveDataFromObj } = require('@condo/domains/ai/utils/serverSchema/removeSensitiveDataFromObj')
 const { TASK_WORKER_FINGERPRINT } = require('@condo/domains/common/constants/tasks')
-const { Document } = require('@condo/domains/document/utils/serverSchema')
+const { DOCUMENT_FILE_MODEL_NAME } = require('@condo/domains/document/constants')
 
 const {
     FLOW_META_SCHEMAS,
@@ -37,7 +37,7 @@ const FLOW_ADAPTERS = {
     [FLOW_ADAPTER_NAMES.N8N]: new N8NAdapter(),
 }
 
-const ALLOWED_FILE_MODEL_NAMES = [EXECUTION_AI_FLOW_TASK_FILE_MODEL_NAME, 'Document']
+const ALLOWED_FILE_MODEL_NAMES = [EXECUTION_AI_FLOW_TASK_FILE_MODEL_NAME, DOCUMENT_FILE_MODEL_NAME]
 
 const ajv = new Ajv()
 
