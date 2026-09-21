@@ -51425,7 +51425,7 @@ export type Mutation = {
    */
   replaceOrganizationEmployeeRole?: Maybe<ReplaceOrganizationEmployeeRoleOutput>;
   /**
-   * Asks the sales team to send once more the invoices already issued for the given subscription contexts. Nothing new is registered and the payment deadline stays the same
+   * Sends a webhook to deliver once more the invoices already issued for the given subscription contexts. Nothing new is registered and the payment deadline stays the same
    *
    *
    *
