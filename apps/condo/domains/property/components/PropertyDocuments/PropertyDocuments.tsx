@@ -7,9 +7,10 @@ import React, { useCallback, useMemo } from 'react'
 
 import { Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { ActionBar, Button, Select } from '@open-condo/ui'
+import { ActionBar, Button, Select, Alert } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
+import { useChatWithCondoAttachmentsConfig } from '@condo/domains/ai/hooks/useChatWithCondoAttachmentsConfig'
 import Input from '@condo/domains/common/components/antd/Input'
 import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
@@ -106,6 +107,9 @@ export const PropertyDocuments: React.FC<PropertyDocumentsProps> = ({
     const EmptyListLabel = intl.formatMessage({ id: 'documents.propertyDocuments.emptyList.label' })
     const EmptyListMessage = intl.formatMessage({ id: 'documents.propertyDocuments.emptyList.message' })
     const AddDocumentMessage = intl.formatMessage({ id: 'documents.propertyDocuments.addDocument' })
+    const AlertMessage = intl.formatMessage({ id: 'documents.propertyDocuments.alert' })
+
+    const attachmentsConfig = useChatWithCondoAttachmentsConfig()
 
     const router = useRouter()
     const { sorters, offset } = parseQuery(router.query)
@@ -195,6 +199,17 @@ export const PropertyDocuments: React.FC<PropertyDocumentsProps> = ({
     return (
         <>
             <Row gutter={[0, 32]}>
+                {
+                    attachmentsConfig && (
+                        <Col span={24}>
+                            <Alert
+                                type='info'
+                                showIcon
+                                description={AlertMessage}
+                            />
+                        </Col>
+                    )
+                }
                 <Col span={24}>
                     <TableFiltersContainer>
                         <Row gutter={[16, 16]}>

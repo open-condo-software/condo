@@ -4055,5 +4055,6 @@
   "aiChat.addFile.existingFile": "Выбрать из уже загруженных",
   "documents.uploadDocumentsModal.property.title": "Адрес",
   "documents.uploadDocumentsModal.property.placeholder": "Выберите адрес",
-  "documents.updateDocumentModal.attachedFile": "Прикрепленный файл"
+  "documents.updateDocumentModal.attachedFile": "Прикрепленный файл",
+  "documents.propertyDocuments.alert": "Эти файлы можно выбрать в диалоге с ИИ-помощником и ссылаться на них для обсуждения вопросов"
 }

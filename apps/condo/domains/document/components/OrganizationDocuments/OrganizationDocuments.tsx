@@ -1,27 +1,26 @@
-import { OrganizationEmployeeRole, SortDocumentsBy } from '@app/condo/schema'
+import { SortDocumentsBy } from '@app/condo/schema'
 import { Col, Row } from 'antd'
-import omit from 'lodash/omit'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
 import { Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Button, Select } from '@open-condo/ui'
+import { ActionBar, Button, Alert } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
+import { useChatWithCondoAttachmentsConfig } from '@condo/domains/ai/hooks/useChatWithCondoAttachmentsConfig'
 import Input from '@condo/domains/common/components/antd/Input'
 import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
-import { getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'
-import { getFiltersFromQuery, updateQuery } from '@condo/domains/common/utils/helpers'
-import { FiltersFromQueryType, getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
+import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { useUpdateDocumentModal } from '@condo/domains/document/hooks/useUpdateDocumentModal'
 import { useUploadDocumentsModal } from '@condo/domains/document/hooks/useUploadDocumentsModal'
-import { Document, DocumentCategory } from '@condo/domains/document/utils/clientSchema'
+import { Document } from '@condo/domains/document/utils/clientSchema'
 import { usePropertyDocumentsTableColumns } from '@condo/domains/property/hooks/usePropertyDocumentsTableColumns'
 import { usePropertyDocumentsTableFilters } from '@condo/domains/property/hooks/usePropertyDocumentsTableFilters'
 
@@ -90,6 +89,9 @@ export const OrganizationDocuments: React.FC = () => {
     const EmptyListLabel = intl.formatMessage({ id: 'documents.propertyDocuments.emptyList.label' })
     const EmptyListMessage = intl.formatMessage({ id: 'documents.propertyDocuments.emptyList.message' })
     const AddDocumentMessage = intl.formatMessage({ id: 'documents.propertyDocuments.addDocument' })
+    const AlertMessage = intl.formatMessage({ id: 'documents.propertyDocuments.alert' })
+
+    const attachmentsConfig = useChatWithCondoAttachmentsConfig()
 
     const { role, organization } = useOrganization()
     const organizationId = useMemo(() => organization?.id, [organization])
@@ -167,6 +169,17 @@ export const OrganizationDocuments: React.FC = () => {
     return (
         <>
             <Row gutter={[0, 32]}>
+                {
+                    attachmentsConfig && (
+                        <Col span={24}>
+                            <Alert
+                                type='info'
+                                showIcon
+                                description={AlertMessage}
+                            />
+                        </Col>
+                    )
+                }
                 <Col span={24}>
                     <TableFiltersContainer>
                         <Input

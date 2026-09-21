@@ -4055,5 +4055,6 @@
   "aiChat.addFile.existingFile": "Seleccionar entre los archivos cargados",
   "documents.uploadDocumentsModal.property.title": "Dirección",
   "documents.uploadDocumentsModal.property.placeholder": "Selecciona una dirección",
-  "documents.updateDocumentModal.attachedFile": "Archivo adjunto"
+  "documents.updateDocumentModal.attachedFile": "Archivo adjunto",
+  "documents.propertyDocuments.alert": "Estos archivos se pueden seleccionar en el diálogo con el asistente de IA y utilizar como referencia para tratar cuestiones"
 }

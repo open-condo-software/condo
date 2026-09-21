@@ -4055,5 +4055,6 @@
   "aiChat.addFile.existingFile": "Select from uploaded files",
   "documents.uploadDocumentsModal.property.title": "Address",
   "documents.uploadDocumentsModal.property.placeholder": "Select an address",
-  "documents.updateDocumentModal.attachedFile": "Attached file"
+  "documents.updateDocumentModal.attachedFile": "Attached file",
+  "documents.propertyDocuments.alert": "These files can be selected in the AI assistant dialog and referenced when discussing questions"
 }

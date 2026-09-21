@@ -14,7 +14,7 @@ import { Loader } from '@condo/domains/common/components/Loader'
 import { ControlRoomSettingsContent } from '@condo/domains/common/components/settings/ControlRoomSettingsContent'
 import { MobileFeatureConfigContent } from '@condo/domains/common/components/settings/MobileFeatureConfigContent'
 import { TabsPageContent } from '@condo/domains/common/components/TabsPageContent'
-import { UI_HIDE_PAID_FEATURES } from '@condo/domains/common/constants/featureflags'
+import { ORGANIZATION_DOCUMENTS, UI_HIDE_PAID_FEATURES } from '@condo/domains/common/constants/featureflags'
 import {
     SETTINGS_TAB_CONTACT_ROLES,
     SETTINGS_TAB_PAYMENT_DETAILS,
@@ -43,7 +43,6 @@ import { useOrganizationSubscription, useSubscriptionPaymentSuccess } from '@con
 import MarketplaceSettingsPage from './marketplace'
 
 
-
 const ALWAYS_AVAILABLE_TABS = []
 
 const SettingsPage: PageComponentType = () => {
@@ -70,6 +69,7 @@ const SettingsPage: PageComponentType = () => {
     const { hasSubscription, hasAvailablePlans, loading: subscriptionsLoading, subscriptionContext, hasSubscriptionsFeature } = useOrganizationSubscription()
     const { useFlag } = useFeatureFlags()
     const hidePaidFeatures = useFlag(UI_HIDE_PAID_FEATURES)
+    const organizationDocumentsFeature = useFlag(ORGANIZATION_DOCUMENTS)
     const isSubscriptionsEnabled = !subscriptionsLoading && hasAvailablePlans && hasSubscriptionsFeature
 
     const { objs: [acquiringIntegrationContext], loading: acquiringIntegrationContextLoading } = AcquiringIntegrationContext.useObjects({
@@ -94,10 +94,10 @@ const SettingsPage: PageComponentType = () => {
         if (canManageMobileFeatureConfigsRoles) availableTabs.push(SETTINGS_TAB_MOBILE_FEATURE_CONFIG)
         if (canManageMarketSettingRoles && Boolean(acquiringIntegrationContext) && !acquiringIntegrationContextLoading) availableTabs.push(SETTINGS_TAB_MARKETPLACE)
         if (!hidePaidFeatures && isSubscriptionsEnabled) availableTabs.push(SETTINGS_TAB_SUBSCRIPTION)
-        if (canReadDocuments) availableTabs.push(SETTINGS_TAB_DOCUMENTS)
+        if (canReadDocuments && organizationDocumentsFeature) availableTabs.push(SETTINGS_TAB_DOCUMENTS)
     
         return availableTabs
-    }, [hidePaidFeatures, hasSubscription, isSubscriptionsEnabled, canManageEmployeeRoles, isManagingCompany, canManageContactRoles, canManageMobileFeatureConfigsRoles, canManageMarketSettingRoles, acquiringIntegrationContext, acquiringIntegrationContextLoading, canReadDocuments])
+    }, [hidePaidFeatures, hasSubscription, isSubscriptionsEnabled, canManageEmployeeRoles, isManagingCompany, canManageContactRoles, canManageMobileFeatureConfigsRoles, canManageMarketSettingRoles, acquiringIntegrationContext, acquiringIntegrationContextLoading, canReadDocuments, organizationDocumentsFeature])
 
     const settingsTabs: TabItem[] = useMemo(() => {
         const subscriptionTab = {
@@ -139,14 +139,14 @@ const SettingsPage: PageComponentType = () => {
                 label: MarketSettingTitle,
                 children: <MarketplaceSettingsPage/>,
             },
-            canReadDocuments && {
+            canReadDocuments && organizationDocumentsFeature && {
                 key: SETTINGS_TAB_DOCUMENTS,
                 label: DocumentsTitle,
                 children: <OrganizationDocuments/>,
             },
             !hidePaidFeatures && isSubscriptionsEnabled && subscriptionTab,
         ].filter(Boolean)
-    }, [SubscriptionsTitle, hidePaidFeatures, hasSubscription, isSubscriptionsEnabled, canManageEmployeeRoles, isManagingCompany, EmployeeRolesTitle, DetailsTitle, canManageContactRoles, RolesTitle, ControlRoomTitle, canManageMobileFeatureConfigsRoles, MobileFeatureConfigTitle, canManageMarketSettingRoles, acquiringIntegrationContext, acquiringIntegrationContextLoading, MarketSettingTitle, canReadDocuments, DocumentsTitle])
+    }, [SubscriptionsTitle, hidePaidFeatures, hasSubscription, isSubscriptionsEnabled, canManageEmployeeRoles, isManagingCompany, EmployeeRolesTitle, DetailsTitle, canManageContactRoles, RolesTitle, ControlRoomTitle, canManageMobileFeatureConfigsRoles, MobileFeatureConfigTitle, canManageMarketSettingRoles, acquiringIntegrationContext, acquiringIntegrationContextLoading, MarketSettingTitle, canReadDocuments, organizationDocumentsFeature, DocumentsTitle])
 
     const titleContent = useMemo(() => (
         <Typography.Title>{PageTitle}</Typography.Title>

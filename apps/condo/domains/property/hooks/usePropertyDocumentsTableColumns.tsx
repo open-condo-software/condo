@@ -1,11 +1,10 @@
 import styled from '@emotion/styled'
-import dayjs from 'dayjs'
 import get from 'lodash/get'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 
 import { Download } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Button, Tooltip, Typography } from '@open-condo/ui'
+import { Button, Tooltip } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import { getDateRender } from '@condo/domains/common/components/Table/Renders'
@@ -31,7 +30,6 @@ const StyledButton = styled(Button)`
 export const usePropertyDocumentsTableColumns = () => {
     const intl = useIntl()
     const NameTitle = intl.formatMessage({ id: 'documents.propertyDocuments.columns.name' })
-    const CategoryTitle = intl.formatMessage({ id: 'documents.propertyDocuments.columns.category' })
     const DateTitle = intl.formatMessage({ id: 'documents.propertyDocuments.columns.date' })
     const DownloadMessage = intl.formatMessage({ id: 'Download' })
 
@@ -58,11 +56,7 @@ export const usePropertyDocumentsTableColumns = () => {
         )
     }, [DownloadMessage, handleDownload])
 
-    const renderDate = useCallback((createdAt) => (
-        <Typography.Text type='secondary' size='medium'>
-            {dayjs(createdAt).format('DD.MM.YYYY')}
-        </Typography.Text>
-    ), [])
+    const renderDate = useMemo(() => getDateRender(intl), [intl])
 
     return [
         {
@@ -71,15 +65,7 @@ export const usePropertyDocumentsTableColumns = () => {
             dataIndex: 'name',
             key: 'name',
             sorter: true,
-            width: '40%',
-        },
-        {
-            title: CategoryTitle,
-            ellipsis: true,
-            dataIndex: ['category', 'name'],
-            key: 'category',
-            sorter: true,
-            width: '30%',
+            width: '70%',
         },
         {
             title: DateTitle,
