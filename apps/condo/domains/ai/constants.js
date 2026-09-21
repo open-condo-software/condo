@@ -239,6 +239,14 @@ const FLOW_META_SCHEMAS = {
                             name: { type: 'string' },
                             mimeType: { type: 'string', enum: CHAT_WITH_CONDO_ALLOWED_MIME_TYPES },
                             size: { type: 'number', maximum: CHAT_WITH_CONDO_MAX_ATTACHMENT_SIZE_BYTES },
+                            document: {
+                                type: 'object',
+                                additionalProperties: true,
+                                properties: {
+                                    id: { type: 'string' },
+                                },
+                                required: ['id'],
+                            },
                         },
                         required: ['id', 'name', 'mimeType'],
                         additionalProperties: false,
