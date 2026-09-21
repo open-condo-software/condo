@@ -3,10 +3,7 @@
  */
 const { makeLoggedInAdminClient, makeClient, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult } = require('@open-condo/keystone/test.utils')
-const { WebhookPayload } = require('@open-condo/webhooks/schema/utils/testSchema')
-const { encryptionManager } = require('@open-condo/webhooks/utils/encryption')
 
-const { WEBHOOK_EVENT_SUBSCRIPTION_INVOICE_REQUESTED } = require('@condo/domains/common/constants/webhooks')
 const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
 const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee, registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { SUBSCRIPTION_PERIOD, SUBSCRIPTION_PLAN_TYPE_SERVICE } = require('@condo/domains/subscription/constants')
@@ -19,14 +16,9 @@ const {
 } = require('@condo/domains/subscription/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
-const WEBHOOK_ENV = {
-    SUBSCRIPTION_INVOICE_REQUESTED_WEBHOOK_URL: 'https://invoice-requested.example.com/webhook',
-    SUBSCRIPTION_INVOICE_REQUESTED_WEBHOOK_SECRET: 'invoice-requested-secret',
-}
-
+/** The invoice request webhook itself is covered by subscriptionWebhooks.spec.js, it needs the webhook env of the server */
 describe('RequestSubscriptionInvoiceService', () => {
     let admin, pricingRule
-    const previousEnv = {}
 
     const registerByInvoice = async (organization, paymentType = 'invoice') => {
         const [result] = await registerSubscriptionContextsByTestClient(admin, {
@@ -37,44 +29,22 @@ describe('RequestSubscriptionInvoiceService', () => {
         return result.subscriptionContexts
     }
 
-    const findInvoiceRequests = (subscriptionContexts) => WebhookPayload.getAll(admin, {
-        eventType: WEBHOOK_EVENT_SUBSCRIPTION_INVOICE_REQUESTED,
-        itemId_in: subscriptionContexts.map(({ id }) => id),
-    }, { sortBy: ['createdAt_ASC'] })
-
     beforeAll(async () => {
-        for (const [key, value] of Object.entries(WEBHOOK_ENV)) {
-            previousEnv[key] = process.env[key]
-            process.env[key] = value
-        }
-
         admin = await makeLoggedInAdminClient()
         const [plan] = await createTestSubscriptionPlan(admin, { planType: SUBSCRIPTION_PLAN_TYPE_SERVICE, organizationType: MANAGING_COMPANY_TYPE })
         const [rule] = await createTestSubscriptionPlanPricingRule(admin, plan, { price: '1000', period: SUBSCRIPTION_PERIOD.MONTH })
         pricingRule = rule
     })
 
-    afterAll(() => {
-        for (const [key, value] of Object.entries(previousEnv)) {
-            if (value === undefined) delete process.env[key]
-            else process.env[key] = value
-        }
-    })
-
-    test('sends the same invoice to the sales team once more without registering anything new', async () => {
+    test('returns the contexts whose invoice was asked for again', async () => {
         const [organization] = await registerNewOrganization(admin, { type: MANAGING_COMPANY_TYPE })
         const subscriptionContexts = await registerByInvoice(organization)
 
         const [result] = await requestSubscriptionInvoiceByTestClient(admin, {
             subscriptionContexts: subscriptionContexts.map(({ id }) => ({ id })),
         })
-        expect(result.subscriptionContexts.map(({ id }) => id)).toEqual(subscriptionContexts.map(({ id }) => id))
 
-        const invoiceRequests = await findInvoiceRequests(subscriptionContexts)
-        expect(invoiceRequests).toHaveLength(2)
-        const [first, repeated] = invoiceRequests.map(({ payload }) => JSON.parse(encryptionManager.decrypt(payload)))
-        expect(first.isRepeated).toBe(false)
-        expect(repeated).toMatchObject({ isRepeated: true, invoiceId: subscriptionContexts[0].invoice.id })
+        expect(result.subscriptionContexts.map(({ id }) => id)).toEqual(subscriptionContexts.map(({ id }) => id))
     })
 
     test('an employee who manages subscriptions can request the invoice, others cannot', async () => {

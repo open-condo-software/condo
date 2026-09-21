@@ -26,6 +26,7 @@ const {
     createTestSubscriptionPlan,
     createTestSubscriptionPlanPricingRule,
     registerSubscriptionContextsByTestClient,
+    requestSubscriptionInvoiceByTestClient,
 } = require('@condo/domains/subscription/utils/testSchema')
 
 const WEBHOOK_ENV = {
@@ -93,6 +94,29 @@ describe('subscriptionWebhooks', () => {
             expect.objectContaining({ planName: servicePlan.name, planType: SUBSCRIPTION_PLAN_TYPE_SERVICE, period: SUBSCRIPTION_PERIOD.YEAR }),
             expect.objectContaining({ planName: featurePlan.name, planType: SUBSCRIPTION_PLAN_TYPE_FEATURE, period: SUBSCRIPTION_PERIOD.YEAR }),
         ]))
+    })
+
+    test('asking for an invoice again queues the same request marked as repeated', async () => {
+        const [organization] = await registerNewOrganization(admin)
+
+        const [result] = await registerSubscriptionContextsByTestClient(admin, {
+            organization: { id: organization.id },
+            subscriptionPlanPricingRules: [{ id: serviceRule.id }],
+            paymentType: 'invoice',
+        })
+        const subscriptionContexts = result.subscriptionContexts
+
+        await requestSubscriptionInvoiceByTestClient(admin, {
+            subscriptionContexts: subscriptionContexts.map(({ id }) => ({ id })),
+        })
+
+        const invoiceRequests = await findWebhookPayloads(WEBHOOK_EVENT_SUBSCRIPTION_INVOICE_REQUESTED, subscriptionContexts.map(({ id }) => id))
+        expect(invoiceRequests).toHaveLength(2)
+        const payloads = invoiceRequests
+            .map(({ payload }) => JSON.parse(encryptionManager.decrypt(payload)))
+            .sort((left, right) => Number(left.isRepeated) - Number(right.isRepeated))
+        expect(payloads[0].isRepeated).toBe(false)
+        expect(payloads[1]).toMatchObject({ isRepeated: true, invoiceId: subscriptionContexts[0].invoice.id })
     })
 
     test('registering a bundle to be paid by card queues no invoice request', async () => {
