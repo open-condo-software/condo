@@ -9,7 +9,7 @@ const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 
 const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/subscription/access/RequestSubscriptionInvoiceService')
-const { SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PAYMENT_TYPE_CARD } = require('@condo/domains/subscription/constants')
+const { SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PAYMENT_TYPE_INVOICE } = require('@condo/domains/subscription/constants')
 const { queueSubscriptionInvoiceRequestedWebhook } = require('@condo/domains/subscription/utils/serverSchema/subscriptionWebhooks')
 
 const logger = getLogger('RequestSubscriptionInvoiceService')
@@ -59,7 +59,7 @@ const RequestSubscriptionInvoiceService = new GQLCustomSchema('RequestSubscripti
             access: access.canRequestSubscriptionInvoice,
             schema: 'requestSubscriptionInvoice(data: RequestSubscriptionInvoiceInput!): RequestSubscriptionInvoiceOutput',
             doc: {
-                summary: 'Asks the sales team to send once more the invoices already issued for the given subscription contexts. Nothing new is registered and the payment deadline stays the same',
+                summary: 'Sends a webhook to deliver once more the invoices already issued for the given subscription contexts. Nothing new is registered and the payment deadline stays the same',
                 errors: ERRORS,
             },
             resolver: async (parent, args, context) => {
@@ -79,7 +79,7 @@ const RequestSubscriptionInvoiceService = new GQLCustomSchema('RequestSubscripti
                 // A created context of an invoice registration is exactly an invoice nobody has paid yet
                 const isAwaitingInvoicePayment = (subscriptionContext) => subscriptionContext.status === SUBSCRIPTION_CONTEXT_STATUS.CREATED
                     && Boolean(subscriptionContext.invoice)
-                    && subscriptionContext.frozenPaymentInfo?.paymentType !== SUBSCRIPTION_PAYMENT_TYPE_CARD
+                    && subscriptionContext.frozenPaymentInfo?.paymentType === SUBSCRIPTION_PAYMENT_TYPE_INVOICE
                 if (!subscriptionContexts.every(isAwaitingInvoicePayment)) {
                     throw new GQLError(ERRORS.INVOICE_NOT_AWAITING_PAYMENT, context)
                 }
