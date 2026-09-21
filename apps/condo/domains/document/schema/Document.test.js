@@ -382,7 +382,7 @@ describe('Document', () => {
                 })
             })
 
-            it('employee with canManageDocuments can not update property', async () => {
+            it('employee with canManageDocuments can update property', async () => {
                 const [createdDocument] = await createTestDocument(admin, organization, documentCategory)
                 const [otherProperty] = await createTestProperty(admin, organization)
                 const [otherCategory] = await createTestDocumentCategory(admin)
@@ -391,14 +391,12 @@ describe('Document', () => {
                     category: { connect: { id: otherCategory.id } },
                 })
 
-                expect(updatedDocument.category.id).toEqual(otherCategory.id)
-                await catchErrorFrom(async () => {
-                    await updateTestDocument(employeeUserWithDocumentPermissions, document.id, {
-                        property: { connect: { id: otherProperty.id } },
-                    })
-                }, (e) => {
-                    expect(e.errors[0].message).toContain('Field "property" is not defined by type "DocumentUpdateInput"')
+                const [updatedPropertyDocument] = await updateTestDocument(employeeUserWithDocumentPermissions, document.id, {
+                    property: { connect: { id: otherProperty.id } },
                 })
+
+                expect(updatedDocument.category.id).toEqual(otherCategory.id)
+                expect(updatedPropertyDocument.property.id).toEqual(otherProperty.id)
             })
 
             it('employee with canManageDocuments in several organizations can', async () => {

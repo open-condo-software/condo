@@ -32,6 +32,8 @@ const UpdateDocumentModal = ({ selectedDocument, setSelectedDocument, refetchDoc
     const updateAction = Document.useUpdate({})
     const softDeleteAction = Document.useSoftDelete()
 
+    const [selectedPropertyId, setSelectedPropertyId] = useState<string>(selectedDocument?.property?.id || null)
+
     const [updateForm] = Form.useForm()
 
     const { downloadFile } = useDownloadFileFromServer()
@@ -76,7 +78,7 @@ const UpdateDocumentModal = ({ selectedDocument, setSelectedDocument, refetchDoc
         if (withCategory || withProperty) {
             const valuesToUpdate = {
                 ...(withCategory ? ({ category: { connect: { id: values.category } } }) : null),
-                ...(withProperty ? ({ property: { connect: { id: values.property } } }) : null),
+                ...(withProperty ? ({ property: { connect: { id: selectedPropertyId } } }) : null),
             }
             await updateAction(valuesToUpdate, selectedDocument)
 
@@ -84,7 +86,7 @@ const UpdateDocumentModal = ({ selectedDocument, setSelectedDocument, refetchDoc
                 onUpdateComplete({
                     ...selectedDocument,
                     ...(withCategory ? ({ category: { id: values.category } }) : null),
-                    ...(withProperty ? ({ property: { id: values.property } }) : null),
+                    ...(withProperty ? ({ property: { id: selectedPropertyId } }) : null),
                 })
             }
 
@@ -95,7 +97,7 @@ const UpdateDocumentModal = ({ selectedDocument, setSelectedDocument, refetchDoc
 
         closeModal()
         setLoading(false)
-    }, [closeModal, refetchDocuments, selectedDocument, updateAction, withCategory, withProperty, onUpdateComplete])
+    }, [closeModal, refetchDocuments, selectedDocument, updateAction, withCategory, withProperty, onUpdateComplete, selectedPropertyId])
 
     const fileName = useMemo(() => selectedDocument?.name, [selectedDocument])
 
@@ -109,6 +111,7 @@ const UpdateDocumentModal = ({ selectedDocument, setSelectedDocument, refetchDoc
                 formInstance={updateForm}
             >
                 <Modal
+                    scrollX={false}
                     width='small'
                     open={modalState === 'update'}
                     onCancel={closeModal}
@@ -129,16 +132,18 @@ const UpdateDocumentModal = ({ selectedDocument, setSelectedDocument, refetchDoc
                                 {
                                     ({ getFieldValue }) => {
                                         const categoryFromField = getFieldValue('category')
+                                        const propertyFromField = getFieldValue('property')
                                         const canReadByResidentField = getFieldValue('canReadByResident')
+                                        const disabled = selectedDocument?.canReadByResident === canReadByResidentField && (
+                                            (withCategory && selectedDocument?.category?.id === categoryFromField)
+                                            && (withProperty && selectedDocument?.property?.id === propertyFromField)
+                                        )
 
                                         return (
                                             <Button
                                                 type='primary'
                                                 onClick={() => updateForm.submit()}
-                                                disabled={
-                                                    (withCategory && selectedDocument?.category?.id === categoryFromField) &&
-                                                    selectedDocument?.canReadByResident === canReadByResidentField
-                                                }
+                                                disabled={disabled}
                                                 loading={loading}
                                             >
                                                 {SaveMessage}
@@ -169,6 +174,12 @@ const UpdateDocumentModal = ({ selectedDocument, setSelectedDocument, refetchDoc
                                 <Col span={24}>
                                     <DocumentPropertyFormItem
                                         initialValue={selectedDocument?.property?.id}
+                                        onSelect={(id) => {
+                                            setSelectedPropertyId(id || null)
+                                        }}
+                                        onClear={() => {
+                                            setSelectedPropertyId(null)
+                                        }}
                                     />
                                 </Col>
                             )

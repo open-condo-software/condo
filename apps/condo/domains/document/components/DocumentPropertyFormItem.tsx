@@ -10,6 +10,8 @@ import { PropertyAddressSearchInput } from '@condo/domains/property/components/P
 
 type DocumentPropertyFormItemProps = {
     initialValue?: string
+    onSelect: (id) => void
+    onClear: () => void
 }
 
 const AddressSearchInput = (props) => {
@@ -24,7 +26,7 @@ const AddressSearchInput = (props) => {
     )
 }
 
-export const DocumentPropertyFormItem: React.FC<DocumentPropertyFormItemProps> = ({ initialValue }) => {
+export const DocumentPropertyFormItem: React.FC<DocumentPropertyFormItemProps> = ({ initialValue, onSelect, onClear }) => {
     const intl = useIntl()
     const CategoryTitle = intl.formatMessage({ id: 'documents.uploadDocumentsModal.category.title' })
     const CategoryPlaceholder = intl.formatMessage({ id: 'documents.uploadDocumentsModal.category.placeholder' })
@@ -43,7 +45,12 @@ export const DocumentPropertyFormItem: React.FC<DocumentPropertyFormItemProps> =
             initialValue={initialValue}
             rules={propertyValidators}
         >
-            <AddressSearchInput />
+            <AddressSearchInput
+                onSelect={(_, option) => {
+                    onSelect(option?.key)
+                }}
+                onClear={onClear}
+            />
         </Form.Item>
     )
 }
