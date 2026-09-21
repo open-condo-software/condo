@@ -34,7 +34,6 @@ const Document = new GQLListSchema('Document', {
             type: 'Relationship',
             ref: 'Property',
             kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
-            access: createAndReadOnlyFieldAccess,
         },
         category: {
             schemaDoc: 'Document type',

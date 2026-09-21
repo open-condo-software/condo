@@ -1,13 +1,12 @@
-import { OrganizationEmployeeRole, SortDocumentsBy } from '@app/condo/schema'
+import { SortDocumentsBy } from '@app/condo/schema'
 import { Col, Row } from 'antd'
-import get from 'lodash/get'
-import omit from 'lodash/omit'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
 import { Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { ActionBar, Button, Select, Alert } from '@open-condo/ui'
+import { useOrganization } from '@open-condo/next/organization'
+import { ActionBar, Button, Alert } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import { useChatWithCondoAttachmentsConfig } from '@condo/domains/ai/hooks/useChatWithCondoAttachmentsConfig'
@@ -17,12 +16,11 @@ import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
-import { getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'
-import { getFiltersFromQuery, updateQuery } from '@condo/domains/common/utils/helpers'
+import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { useUpdateDocumentModal } from '@condo/domains/document/hooks/useUpdateDocumentModal'
 import { useUploadDocumentsModal } from '@condo/domains/document/hooks/useUploadDocumentsModal'
-import { Document, DocumentCategory } from '@condo/domains/document/utils/clientSchema'
+import { Document } from '@condo/domains/document/utils/clientSchema'
 import { usePropertyDocumentsTableColumns } from '@condo/domains/property/hooks/usePropertyDocumentsTableColumns'
 import { usePropertyDocumentsTableFilters } from '@condo/domains/property/hooks/usePropertyDocumentsTableFilters'
 
@@ -30,7 +28,7 @@ import { usePropertyDocumentsTableFilters } from '@condo/domains/property/hooks/
 const SORTABLE_PROPERTIES = ['name', 'category', 'createdAt']
 const DOCUMENTS_DEFAULT_SORT_BY = ['createdAt_DESC']
 
-const TableContent = ({ total, documentsLoading, propertyDocuments, openUploadModal, role, refetchDocuments }) => {
+const TableContent = ({ total, documentsLoading, documents, openUploadModal, role, refetchDocuments }) => {
     const intl = useIntl()
     const AddDocumentMessage = intl.formatMessage({ id: 'documents.propertyDocuments.addDocument' })
 
@@ -38,7 +36,7 @@ const TableContent = ({ total, documentsLoading, propertyDocuments, openUploadMo
 
     const { UpdateDocumentModal, setSelectedDocument } = useUpdateDocumentModal()
 
-    const canManageDocuments = useMemo(() => get(role, 'canManageDocuments'), [role])
+    const canManageDocuments = useMemo(() => role?.canManageDocuments || false, [role])
 
     const handleRowAction = useCallback((document) => {
         return {
@@ -57,7 +55,7 @@ const TableContent = ({ total, documentsLoading, propertyDocuments, openUploadMo
                     <Table
                         totalRows={total}
                         loading={documentsLoading}
-                        dataSource={propertyDocuments}
+                        dataSource={documents}
                         columns={tableColumns}
                         onRow={handleRowAction}
                     />
@@ -80,29 +78,13 @@ const TableContent = ({ total, documentsLoading, propertyDocuments, openUploadMo
                     )
                 }
             </Row>
-            <UpdateDocumentModal refetchDocuments={refetchDocuments} withCategory={true} />
+            <UpdateDocumentModal refetchDocuments={refetchDocuments} />
         </>
     )
 }
 
-
-type PropertyDocumentsProps = {
-    organizationId: string
-    propertyId: string
-    role?: OrganizationEmployeeRole
-    refetchDocumentsCount?: () => void
-    propertyDocumentsCount: number
-}
-
-export const PropertyDocuments: React.FC<PropertyDocumentsProps> = ({
-    organizationId,
-    propertyId,
-    role,
-    refetchDocumentsCount,
-    propertyDocumentsCount,
-}) => {
+export const OrganizationDocuments: React.FC = () => {
     const intl = useIntl()
-    const AllCategoriesMessage = intl.formatMessage({ id: 'documents.propertyDocuments.filters.category.allCategories' })
     const SearchPlaceholder = intl.formatMessage({ id: 'documents.propertyDocuments.filters.search.placeholder' })
     const EmptyListLabel = intl.formatMessage({ id: 'documents.propertyDocuments.emptyList.label' })
     const EmptyListMessage = intl.formatMessage({ id: 'documents.propertyDocuments.emptyList.message' })
@@ -111,59 +93,48 @@ export const PropertyDocuments: React.FC<PropertyDocumentsProps> = ({
 
     const attachmentsConfig = useChatWithCondoAttachmentsConfig()
 
+    const { role, organization } = useOrganization()
+    const organizationId = useMemo(() => organization?.id, [organization])
+
     const router = useRouter()
     const { sorters, offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
     const filtersMeta = usePropertyDocumentsTableFilters()
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filtersMeta, SORTABLE_PROPERTIES)
     const sortBy = sortersToSortBy(sorters, DOCUMENTS_DEFAULT_SORT_BY) as SortDocumentsBy[]
-    const filters = useMemo(() => getFiltersFromQuery(router.query), [router.query])
+    const filters = useMemo(() => getFiltersFromQuery<Record<string, any>>(router.query), [router.query])
+
+    const { count: documentsCount, refetch: refetchDocumentsCount } = Document.useCount({
+        where: {
+            organization: { id: organizationId },
+            property_is_null: true,
+        },
+    }, { skip: !organizationId })
 
     const {
         loading: documentsLoading,
         count: total,
-        objs: propertyDocuments,
+        objs: documents,
         refetch: refetchDocuments,
     } = Document.useObjects({
         sortBy,
         where: {
-            property: { id: propertyId },
+            organization: { id: organizationId },
+            property_is_null: true,
             ...filtersToWhere(filters),
         },
         first: DEFAULT_PAGE_SIZE,
         skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
-    }, { skip: !propertyId })
+    }, { skip: !organizationId })
 
-    const { objs: categories, allDataLoaded: allCategoriesLoaded } = DocumentCategory.useAllObjects({})
-    const categoryOptions = useMemo(() => {
-        const options = categories.map(category => ({ label: get(category, 'name'), value: get(category, 'id') }))
-
-        return [
-            { label: AllCategoriesMessage, value: 'all' },
-            ...options,
-        ]
-    }, [AllCategoriesMessage, categories])
-    const categoryValueFromQuery = get(filters, 'category', 'all')
-    const handleCategorySelectChange = useCallback(async (value) => {
-        let newFilters = Object.assign({}, filters)
-        if (value === 'all') {
-            newFilters = omit(newFilters, 'category')
-        } else {
-            newFilters = { ...newFilters, category: value }
-        }
-        const newParameters = getFiltersQueryData(newFilters)
-        await updateQuery(router, { newParameters }, { routerAction: 'replace', resetOldParameters: false, shallow: true })
-    }, [filters, router])
-
-    const canManagePropertyDocuments = useMemo(() => get(role, 'canManageDocuments', false), [role])
+    const canManageDocuments = useMemo(() => role?.canManageDocuments || false, [role])
 
     const { setOpen, UploadDocumentsModal } = useUploadDocumentsModal()
     const openUploadModal = useCallback(() => setOpen(true), [setOpen])
 
     const initialCreateDocumentValue = useMemo(() => ({
-        property: { connect: { id: propertyId } },
         organization: { connect: { id: organizationId } },
-    }), [organizationId, propertyId])
+    }), [organizationId])
 
     const refetch = useCallback(async () => {
         await refetchDocuments()
@@ -173,13 +144,13 @@ export const PropertyDocuments: React.FC<PropertyDocumentsProps> = ({
     const [search, handleSearchChange] = useSearch()
     const handleSearch = useCallback((e) => handleSearchChange(e.target.value), [handleSearchChange])
 
-    if (propertyDocumentsCount === 0) {
+    if (documentsCount === 0) {
         return (
             <>
                 <EmptyListContent
                     label={EmptyListLabel}
                     message={EmptyListMessage}
-                    accessCheck={canManagePropertyDocuments}
+                    accessCheck={canManageDocuments}
                     button={(
                         <Button type='primary' onClick={openUploadModal}>
                             {AddDocumentMessage}
@@ -190,7 +161,6 @@ export const PropertyDocuments: React.FC<PropertyDocumentsProps> = ({
                 <UploadDocumentsModal
                     initialCreateDocumentValue={initialCreateDocumentValue}
                     onComplete={refetch}
-                    withCategory
                 />
             </>
         )
@@ -212,32 +182,20 @@ export const PropertyDocuments: React.FC<PropertyDocumentsProps> = ({
                 }
                 <Col span={24}>
                     <TableFiltersContainer>
-                        <Row gutter={[16, 16]}>
-                            <Col span={18}>
-                                <Input
-                                    placeholder={SearchPlaceholder}
-                                    onChange={handleSearch}
-                                    value={search}
-                                    allowClear
-                                    suffix={<Search size='medium' color={colors.gray[7]} />}
-                                />
-                            </Col>
-                            <Col span={6}>
-                                <Select
-                                    options={categoryOptions}
-                                    onChange={handleCategorySelectChange}
-                                    value={categoryValueFromQuery}
-                                    loading={!allCategoriesLoaded}
-                                />
-                            </Col>
-                        </Row>
+                        <Input
+                            placeholder={SearchPlaceholder}
+                            onChange={handleSearch}
+                            value={search}
+                            allowClear
+                            suffix={<Search size='medium' color={colors.gray[7]}/>}
+                        />
                     </TableFiltersContainer>
                 </Col>
                 <Col span={24}>
                     <TableContent
                         total={total}
                         documentsLoading={documentsLoading}
-                        propertyDocuments={propertyDocuments}
+                        documents={documents}
                         openUploadModal={openUploadModal}
                         role={role}
                         refetchDocuments={refetch}
@@ -247,7 +205,6 @@ export const PropertyDocuments: React.FC<PropertyDocumentsProps> = ({
             <UploadDocumentsModal
                 initialCreateDocumentValue={initialCreateDocumentValue}
                 onComplete={refetch}
-                withCategory
             />
         </>
     )

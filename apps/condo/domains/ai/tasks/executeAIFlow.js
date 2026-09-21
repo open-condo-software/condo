@@ -21,6 +21,7 @@ const { CUSTOM_FLOW_TYPES_LIST, AI_FLOWS_CONFIG } = require('@condo/domains/ai/u
 const { ExecutionAIFlowTask, AISkill } = require('@condo/domains/ai/utils/serverSchema')
 const { restoreSensitiveData, removeSensitiveDataFromObj } = require('@condo/domains/ai/utils/serverSchema/removeSensitiveDataFromObj')
 const { TASK_WORKER_FINGERPRINT } = require('@condo/domains/common/constants/tasks')
+const { DOCUMENT_FILE_MODEL_NAME } = require('@condo/domains/document/constants')
 
 const {
     FLOW_META_SCHEMAS,
@@ -35,6 +36,8 @@ const FLOW_ADAPTERS = {
     [FLOW_ADAPTER_NAMES.FLOWISE]: new FlowiseAdapter(),
     [FLOW_ADAPTER_NAMES.N8N]: new N8NAdapter(),
 }
+
+const ALLOWED_FILE_MODEL_NAMES = [EXECUTION_AI_FLOW_TASK_FILE_MODEL_NAME, DOCUMENT_FILE_MODEL_NAME]
 
 const ajv = new Ajv()
 
@@ -103,7 +106,7 @@ const executeAIFlow = async (executionAIFlowTask, additionalContext = {}) => {
             && fullContext.attachments.length > 0
         ) {
             const resolvedAttachments = []
-            
+
             for (const attachment of fullContext.attachments) {
                 const fileRecord = await FileRecord.getOne(
                     context.createContext({ skipAccessControl: true }),
@@ -120,7 +123,7 @@ const executeAIFlow = async (executionAIFlowTask, additionalContext = {}) => {
                 }
 
                 const modelNames = fileRecord.fileMeta?.meta?.modelNames || []
-                if (!modelNames.includes(EXECUTION_AI_FLOW_TASK_FILE_MODEL_NAME)) {
+                if (ALLOWED_FILE_MODEL_NAMES.every((allowedModelName) => !modelNames.includes(allowedModelName))) {
                     throw new Error(`File ${attachment.id} is not an ExecutionAIFlowTaskFile`)
                 }
 
@@ -149,6 +152,7 @@ const executeAIFlow = async (executionAIFlowTask, additionalContext = {}) => {
                     mimeType: fileRecord.fileMimeType || fileMeta.mimetype,
                     url,
                     ...(fileSize ? { size: fileSize } : {}),
+                    ...(attachment?.document?.id ? { document: { ...attachment?.document } } : null),
                 })
             }
 

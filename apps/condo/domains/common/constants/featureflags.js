@@ -45,6 +45,7 @@ const UI_AI_COWORK_SETTINGS = 'ui-ai-cowork-settings'
 const UI_NEWS_MARKDOWN = 'ui-news-markdown'
 const CHAT_WITH_CONDO_BUTTON_CONFIG = 'chat-with-condo-button-config'
 const CHAT_WITH_CONDO_ATTACHMENTS_CONFIG = 'chat-with-condo-attachments-config'
+const ORGANIZATION_DOCUMENTS = 'organization-documents'
 const AI_STREAMING = 'ai-streaming'
 const SUBSCRIPTIONS = 'subscriptions'
 const ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID = 'active-banking-subscription-plan-id'
@@ -132,4 +133,5 @@ module.exports = {
     UI_HIDE_PAID_FEATURES,
     UI_BILLING_SPP_COMBINED_PAGE,
     TICKET_STATUS_COUNTERS_LIMIT,
+    ORGANIZATION_DOCUMENTS,
 }

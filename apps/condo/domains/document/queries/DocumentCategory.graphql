@@ -1,0 +1,8 @@
+query getAllDocumentCategories {
+    categories: allDocumentCategories(
+        first: 200,
+    ) {
+        id
+        name
+    }
+}
