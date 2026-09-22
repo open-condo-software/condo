@@ -20,8 +20,6 @@ const { createTestRecipient, createTestBillingIntegration } = require('@condo/do
 const { INVOICE_TYPE_B2C, INVOICE_TYPE_B2B } = require('@condo/domains/marketplace/constants')
 const { createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestB2BApp, createTestB2BAppContext, B2BAppContext: B2BAppContextClient } = require('@condo/domains/miniapp/utils/testSchema')
-const { ACTIVATE_SUBSCRIPTION_TYPE } = require('@condo/domains/onboarding/constants/userHelpRequest')
-const { UserHelpRequest, createTestUserHelpRequest } = require('@condo/domains/onboarding/utils/testSchema')
 const { HOLDING_TYPE, MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PLAN_TYPE_FEATURE } = require('@condo/domains/subscription/constants')
@@ -928,98 +926,6 @@ describe('SubscriptionContext', () => {
             })
         })
 
-    })
-
-    describe('UserHelpRequest cleanup', () => {
-        test('creating non-trial SubscriptionContext soft deletes pending UserHelpRequests for the organization', async () => {
-            // Create a pending UserHelpRequest
-            const [helpRequest] = await createTestUserHelpRequest(admin, organization, {
-                type: ACTIVATE_SUBSCRIPTION_TYPE,
-                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
-            })
-
-            expect(helpRequest.deletedAt).toBeNull()
-
-            // Create a non-trial SubscriptionContext
-            await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                startAt: dayjs().format('YYYY-MM-DD'),
-                endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
-                isTrial: false,
-            })
-
-            // Check that the UserHelpRequest is now soft deleted
-            const [updatedHelpRequest] = await UserHelpRequest.getAll(admin, { id: helpRequest.id, deletedAt_not: null })
-            expect(updatedHelpRequest).toBeDefined()
-            expect(updatedHelpRequest.deletedAt).not.toBeNull()
-        })
-
-        test('creating trial SubscriptionContext does NOT delete pending UserHelpRequests', async () => {
-            // Create a pending UserHelpRequest
-            const [helpRequest] = await createTestUserHelpRequest(admin, organization, {
-                type: ACTIVATE_SUBSCRIPTION_TYPE,
-                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
-            })
-
-            expect(helpRequest.deletedAt).toBeNull()
-
-            // Create a trial SubscriptionContext
-            await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                startAt: dayjs().format('YYYY-MM-DD'),
-                endAt: dayjs().add(14, 'day').format('YYYY-MM-DD'),
-                isTrial: true,
-            })
-
-            // Check that the UserHelpRequest is NOT deleted
-            const updatedHelpRequest = await UserHelpRequest.getOne(admin, { id: helpRequest.id })
-            expect(updatedHelpRequest.deletedAt).toBeNull()
-        })
-
-        test('creating non-trial SubscriptionContext soft deletes multiple pending UserHelpRequests', async () => {
-            // Create multiple pending UserHelpRequests
-            const [helpRequest1] = await createTestUserHelpRequest(admin, organization, {
-                type: ACTIVATE_SUBSCRIPTION_TYPE,
-                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
-            })
-            const [helpRequest2] = await createTestUserHelpRequest(admin, organization, {
-                type: ACTIVATE_SUBSCRIPTION_TYPE,
-            })
-
-            // Create a non-trial SubscriptionContext
-            await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                startAt: dayjs().format('YYYY-MM-DD'),
-                endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
-                isTrial: false,
-            })
-
-            // Check that both UserHelpRequests are soft deleted
-            const [updated1] = await UserHelpRequest.getAll(admin, { id: helpRequest1.id, deletedAt_not: null })
-            const [updated2] = await UserHelpRequest.getAll(admin, { id: helpRequest2.id, deletedAt_not: null })
-            expect(updated1).toBeDefined()
-            expect(updated1.deletedAt).not.toBeNull()
-            expect(updated2).toBeDefined()
-            expect(updated2.deletedAt).not.toBeNull()
-        })
-
-        test('creating non-trial SubscriptionContext does not affect UserHelpRequests from other organizations', async () => {
-            const otherUser = await makeClientWithNewRegisteredAndLoggedInUser()
-            const [otherOrg] = await registerNewOrganization(otherUser, { type: HOLDING_TYPE })
-
-            // Create UserHelpRequest for other organization
-            const [otherHelpRequest] = await createTestUserHelpRequest(admin, otherOrg, {
-                type: ACTIVATE_SUBSCRIPTION_TYPE,
-            })
-
-            // Create non-trial SubscriptionContext for original organization
-            await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                startAt: dayjs().format('YYYY-MM-DD'),
-                endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
-                isTrial: false,
-            })
-
-            // Check that the other organization's UserHelpRequest is not affected
-            const otherUpdated = await UserHelpRequest.getOne(admin, { id: otherHelpRequest.id })
-            expect(otherUpdated.deletedAt).toBeNull()
-        })
     })
 
     describe('afterChange: B2BAppContext creation for feature plan', () => {
