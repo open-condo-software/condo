@@ -111,6 +111,9 @@ const executeAIFlow = async (executionAIFlowTask, additionalContext = {}) => {
                 let recordId
                 if (attachment.document?.id) {
                     const document = await getById('Document', attachment.document.id)
+                    if (!document || document.deletedAt) {
+                        throw new Error(`Document not found or has been deleted: ${attachment.document.id}`)
+                    }
                     recordId = document.file.recordId
                 } else {
                     recordId = attachment.id
