@@ -10,6 +10,7 @@ const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/subscription/access/RequestSubscriptionInvoiceService')
 const { SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PAYMENT_TYPE_INVOICE } = require('@condo/domains/subscription/constants')
+const { checkSubscriptionInvoiceRequestLimit } = require('@condo/domains/subscription/utils/serverSchema/subscriptionInvoiceRequestLimit')
 const { queueSubscriptionInvoiceRequestedWebhook } = require('@condo/domains/subscription/utils/serverSchema/subscriptionWebhooks')
 
 const logger = getLogger('RequestSubscriptionInvoiceService')
@@ -88,6 +89,9 @@ const RequestSubscriptionInvoiceService = new GQLCustomSchema('RequestSubscripti
                 const invoiceIds = uniq(subscriptionContexts.map(subscriptionContext => subscriptionContext.invoice))
                 for (const invoiceId of invoiceIds) {
                     const invoiceContexts = await find('SubscriptionContext', { invoice: { id: invoiceId }, deletedAt: null })
+
+                    await checkSubscriptionInvoiceRequestLimit(context, 'resend', organizationIds[0], invoiceContexts.map(invoiceContext => invoiceContext.subscriptionPlan))
+
                     await queueSubscriptionInvoiceRequestedWebhook({
                         invoiceId,
                         subscriptionContexts: invoiceContexts,

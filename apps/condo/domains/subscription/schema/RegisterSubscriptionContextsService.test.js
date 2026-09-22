@@ -630,5 +630,47 @@ describe('RegisterSubscriptionContextsService', () => {
             }
             expect(second.subscriptionContexts[0].invoice.id).not.toBe(firstInvoiceId)
         })
+
+        test('throttles repeated invoice requests for the same bundle, but not a card registration or a different bundle', async () => {
+            const [org] = await registerNewOrganization(user, { type: MANAGING_COMPANY_TYPE })
+            const bundle = [{ id: serviceBundleRule.id }, { id: featureAiRule.id }]
+
+            await registerSubscriptionContextsByTestClient(user, {
+                organization: { id: org.id },
+                subscriptionPlanPricingRules: bundle,
+                paymentType: 'invoice',
+                isTrial: false,
+            })
+
+            await expectToThrowGQLError(async () => {
+                await registerSubscriptionContextsByTestClient(user, {
+                    organization: { id: org.id },
+                    subscriptionPlanPricingRules: bundle,
+                    paymentType: 'invoice',
+                    isTrial: false,
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'TOO_MANY_REQUESTS',
+            }, 'result')
+
+            // a card registration of the very same bundle has its own budget
+            const [cardResult] = await registerSubscriptionContextsByTestClient(user, {
+                organization: { id: org.id },
+                subscriptionPlanPricingRules: bundle,
+                paymentType: 'card',
+                isTrial: false,
+            })
+            expect(cardResult.subscriptionContexts).toHaveLength(2)
+
+            // ...and so does a different bundle
+            const [otherBundleResult] = await registerSubscriptionContextsByTestClient(user, {
+                organization: { id: org.id },
+                subscriptionPlanPricingRules: [{ id: featureSupportRule.id }],
+                paymentType: 'invoice',
+                isTrial: false,
+            })
+            expect(otherBundleResult.subscriptionContexts).toHaveLength(1)
+        })
     })
 })
