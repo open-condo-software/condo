@@ -5,7 +5,7 @@ const { FileRecord } = require('@open-condo/files/schema/utils/serverSchema')
 const { safeFormatError } = require('@open-condo/keystone/apolloErrorFormatter')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { getLogger } = require('@open-condo/keystone/logging')
-const { getSchemaCtx } = require('@open-condo/keystone/schema')
+const { getSchemaCtx, getById } = require('@open-condo/keystone/schema')
 const { i18n } = require('@open-condo/locales/loader')
 const { buildUserTopic, publish } = require('@open-condo/messaging')
 
@@ -108,10 +108,20 @@ const executeAIFlow = async (executionAIFlowTask, additionalContext = {}) => {
             const resolvedAttachments = []
 
             for (const attachment of fullContext.attachments) {
+                let recordId
+                if (attachment.document?.id) {
+                    const document = await getById('Document', attachment.document.id)
+                    if (!document || document.deletedAt) {
+                        throw new Error(`Document not found or has been deleted: ${attachment.document.id}`)
+                    }
+                    recordId = document.file.recordId
+                } else {
+                    recordId = attachment.id
+                }
                 const fileRecord = await FileRecord.getOne(
                     context.createContext({ skipAccessControl: true }),
                     {
-                        id: attachment.id,
+                        id: recordId,
                         deletedAt: null,
                         user: { id: task.user.id },
                     },
@@ -148,6 +158,7 @@ const executeAIFlow = async (executionAIFlowTask, additionalContext = {}) => {
 
                 resolvedAttachments.push({
                     id: attachment.id,
+                    recordId,
                     name: originalFilename,
                     mimeType: fileRecord.fileMimeType || fileMeta.mimetype,
                     url,

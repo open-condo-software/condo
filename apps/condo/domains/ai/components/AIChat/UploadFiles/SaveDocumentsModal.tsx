@@ -14,6 +14,7 @@ import { useOrganization } from '@open-condo/next/organization'
 import { Button, Space, Tooltip, Modal, Typography, Switch } from '@open-condo/ui'
 
 import { AIChatDocument } from '@condo/domains/ai/components/AIChatFile'
+import { EXECUTION_AI_FLOW_TASK_FILE_MODEL_NAME } from '@condo/domains/ai/constants'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { Document } from '@condo/domains/document/utils/clientSchema'
 
@@ -175,7 +176,7 @@ const SaveDocumentsModal: React.FC<any> = ({ setModalState, modalState, fileList
                         meta: buildMeta({
                             userId: user.id,
                             fileClientId: fileClientId,
-                            modelNames: ['Document'],
+                            modelNames: [EXECUTION_AI_FLOW_TASK_FILE_MODEL_NAME],
                             fingerprint: senderInfo.fingerprint,
                             organizationId,
                         }),
