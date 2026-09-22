@@ -26,6 +26,7 @@ const {
 const { isPlanSubsetOf } = require('@condo/domains/subscription/utils/isPlanSubsetOf')
 const { SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
 const { getSubscriptionPaymentRecipient } = require('@condo/domains/subscription/utils/serverSchema/getSubscriptionPaymentRecipient')
+const { checkSubscriptionInvoiceRequestLimit } = require('@condo/domains/subscription/utils/serverSchema/subscriptionInvoiceRequestLimit')
 const { queueSubscriptionInvoiceRequestedWebhook } = require('@condo/domains/subscription/utils/serverSchema/subscriptionWebhooks')
 const { buildDirectPaymentUrl, calculateSubscriptionPeriod } = require('@condo/domains/subscription/utils/subscriptionContext')
 
@@ -264,6 +265,11 @@ const RegisterSubscriptionContextsService = new GQLCustomSchema('RegisterSubscri
                 }
 
                 const isCard = paymentType === SUBSCRIPTION_PAYMENT_TYPE_CARD
+
+                // A repeated invoice request is exactly what floods sales, so it's throttled before any invoice gets created
+                if (!isCard) {
+                    await checkSubscriptionInvoiceRequestLimit(context, 'register', organization.id, planIds)
+                }
 
                 const baseSubscription = serviceSubscriptions[0]
                     || [...subscriptions].sort((a, b) => (a.rule.id < b.rule.id ? -1 : 1))[0]

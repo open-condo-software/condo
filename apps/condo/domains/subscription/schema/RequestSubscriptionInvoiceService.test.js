@@ -82,4 +82,19 @@ describe('RequestSubscriptionInvoiceService', () => {
             await requestSubscriptionInvoiceByTestClient(admin, { subscriptionContexts: [{ id: subscriptionContexts[0].id }] })
         }, ERRORS.INVOICE_NOT_AWAITING_PAYMENT, 'result')
     })
+
+    test('throttles a repeated request for the same bundle', async () => {
+        const [organization] = await registerNewOrganization(admin, { type: MANAGING_COMPANY_TYPE })
+        const subscriptionContexts = await registerByInvoice(organization)
+        const data = { subscriptionContexts: subscriptionContexts.map(({ id }) => ({ id })) }
+
+        await requestSubscriptionInvoiceByTestClient(admin, data)
+
+        await expectToThrowGQLError(async () => {
+            await requestSubscriptionInvoiceByTestClient(admin, data)
+        }, {
+            code: 'BAD_USER_INPUT',
+            type: 'TOO_MANY_REQUESTS',
+        }, 'result')
+    })
 })
