@@ -1,8 +1,9 @@
-import React from 'react'
+import React, { useCallback, useMemo } from 'react'
 
 import { Check, Close, Plus } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Button, Checkbox, Tooltip, Typography, Tag } from '@open-condo/ui'
+import { Button, Checkbox, Space, Table, Tooltip, Typography, Tag } from '@open-condo/ui'
+import type { GetTableData, TableColumn, RenderTableCell } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import { SUBSCRIPTION_PERIOD } from '@condo/domains/subscription/constants'
@@ -34,12 +35,11 @@ type SubscriptionFeatureTableProps = {
     canManageSubscriptions: boolean
 }
 
-type FeatureRowProps = Omit<SubscriptionFeatureTableProps, 'rows'> & {
-    row: CatalogRow
-}
+const getRowId = (row: CatalogRow): string => row.key
 
-const FeatureRow: React.FC<FeatureRowProps> = ({
-    row,
+export const SubscriptionFeatureTable: React.FC<SubscriptionFeatureTableProps> = ({
+    rows,
+    period,
     isRowSelected,
     isRowDisabled,
     isRowBlockedByMode,
@@ -50,151 +50,184 @@ const FeatureRow: React.FC<FeatureRowProps> = ({
     canManageSubscriptions,
 }) => {
     const intl = useIntl()
-    const FreeInPlanMessage = intl.formatMessage({ id: 'subscription.featureTable.freeInPlan' })
+    const FeatureColumn = intl.formatMessage({ id: 'subscription.featureTable.column.feature' })
+    const DescriptionColumn = intl.formatMessage({ id: 'subscription.featureTable.column.description' })
+    const PriceColumn = intl.formatMessage({
+        id: period === SUBSCRIPTION_PERIOD.YEAR
+            ? 'subscription.featureTable.column.price.year'
+            : 'subscription.featureTable.column.price.month',
+    })
     const IncludedTooltip = intl.formatMessage({ id: 'subscription.featureTable.includedTooltip' })
     const NotIncludedTooltip = intl.formatMessage({ id: 'subscription.featureTable.notIncludedTooltip' })
     const MixedStatusesTooltip = intl.formatMessage({ id: 'subscription.featureTable.mixedStatusesTooltip' })
     const AddToCartLabel = intl.formatMessage({ id: 'subscription.featureTable.addToCart' })
+    const FreeInPlanMessage = intl.formatMessage({ id: 'subscription.featureTable.freeInPlan' })
 
-    const TryFreeMessage = intl.formatMessage(
-        { id: 'subscription.planCard.tryFree' },
-        { formattedPrice: formatAmount(0, row.price?.currencyCode ?? 'RUB', intl.locale) }
-    )
+    const renderPriceCell = useCallback((row: CatalogRow) => {
+        const selected = isRowSelected(row)
+        const disabled = isRowDisabled(row) || !canManageSubscriptions
+        const badge = getRowBadge?.(row) ?? null
+        const hasOwnPrice = !row.includedInPlan && Boolean(row.price)
+        const priceText = hasOwnPrice ? formatAmount(Number(row.price.price), row.price.currencyCode, intl.locale) : null
 
-    const selected = isRowSelected(row)
-    const disabled = isRowDisabled(row) || !canManageSubscriptions
-    const badge = getRowBadge?.(row) ?? null
-    const isAvailable = row.includedInPlan || row.purchased
-    const hasOwnPrice = !row.includedInPlan && Boolean(row.price)
-
-    const priceText = hasOwnPrice ? formatAmount(Number(row.price.price), row.price.currencyCode, intl.locale) : null
-
-    // Adding the row to the cart turns its price into plain text: the action bar takes over from here
-    const showCartButton = hasOwnPrice && row.purchasable && !selected
-    const canTry = showCartButton && Boolean(canTryRow?.(row)) && Boolean(onTryRow)
-
-    let priceContent: React.ReactNode
-    if (!hasOwnPrice) {
-        priceContent = <Typography.Text type='secondary'>{FreeInPlanMessage}</Typography.Text>
-    } else if (showCartButton) {
-        priceContent = (
-            <div className={styles.priceActions}>
-                <Button
-                    type='primary'
-                    compact
-                    disabled={disabled}
-                    icon={<Plus size='small' />}
-                    aria-label={AddToCartLabel}
-                    onClick={() => onToggleRow(row)}
-                >
-                    {priceText}
-                </Button>
-                {canTry && (
-                    <Button type='secondary' compact onClick={() => onTryRow(row)}>
-                        {TryFreeMessage}
-                    </Button>
-                )}
-            </div>
+        // Adding the row to the cart turns its price into plain text: the action bar takes over from here
+        const showCartButton = hasOwnPrice && row.purchasable && !selected
+        const canTry = showCartButton && Boolean(canTryRow?.(row)) && Boolean(onTryRow)
+        const TryFreeMessage = intl.formatMessage(
+            { id: 'subscription.planCard.tryFree' },
+            { formattedPrice: formatAmount(0, row.price?.currencyCode ?? 'RUB', intl.locale) }
         )
-    } else {
-        priceContent = <Typography.Text>{priceText}</Typography.Text>
-    }
 
-    const checkbox = (
-        <Checkbox
-            checked={selected}
-            disabled={disabled}
-            id={`subscription-feature-checkbox-${row.key}`}
-            onChange={() => onToggleRow(row)}
-        />
-    )
-
-    const checkboxTooltip = row.includedInPlan
-        ? IncludedTooltip
-        : isRowBlockedByMode(row) ? MixedStatusesTooltip : null
-
-    return (
-        <tr className={styles.row}>
-            <td className={styles.checkboxCell}>
-                {checkboxTooltip ? (
-                    <Tooltip title={checkboxTooltip}>
-                        {/* a disabled checkbox swallows pointer events, the wrapper keeps the tooltip */}
-                        <span className={styles.checkboxWrapper}>{checkbox}</span>
-                    </Tooltip>
-                ) : checkbox}
-            </td>
-            <td className={styles.availabilityCell}>
-                {isAvailable ? (
-                    <Check size='small' color={colors.green[5]} />
-                ) : (
-                    <Tooltip title={NotIncludedTooltip}>
-                        <span className={styles.checkboxWrapper}>
-                            <Close size='small' color={colors.gray[5]} />
-                        </span>
-                    </Tooltip>
-                )}
-            </td>
-            <td className={styles.labelCell}>
-                <Typography.Text underline={!row.includedInPlan}>{row.label}</Typography.Text>
-            </td>
-            <td className={styles.descriptionCell}>
-                <Typography.Text type='secondary'>{row.description}</Typography.Text>
-            </td>
-            <td className={styles.priceCell}>
-                <div className={styles.priceContent}>
-                    {priceContent}
-                    {badge && (
-                        <button
-                            type='button'
-                            className={styles.badgeButton}
-                            disabled={disabled}
-                            onClick={() => !selected && onToggleRow(row)}
-                        >
-                            <Tag bgColor={badge.bgColor} textColor={colors.white}>{badge.text}</Tag>
-                        </button>
+        let priceContent: React.ReactNode
+        if (!hasOwnPrice) {
+            priceContent = <Typography.Text type='secondary'>{FreeInPlanMessage}</Typography.Text>
+        } else if (showCartButton) {
+            priceContent = (
+                <Space size={8} wrap align='center'>
+                    <Button
+                        type='primary'
+                        compact
+                        disabled={disabled}
+                        icon={<Plus size='small' />}
+                        aria-label={AddToCartLabel}
+                        onClick={() => onToggleRow(row)}
+                    >
+                        {priceText}
+                    </Button>
+                    {canTry && (
+                        <Button type='secondary' compact onClick={() => onTryRow(row)}>
+                            {TryFreeMessage}
+                        </Button>
                     )}
-                </div>
-            </td>
-        </tr>
-    )
-}
+                </Space>
+            )
+        } else {
+            priceContent = <Typography.Text>{priceText}</Typography.Text>
+        }
 
-export const SubscriptionFeatureTable: React.FC<SubscriptionFeatureTableProps> = ({ rows, ...rowProps }) => {
-    const intl = useIntl()
-    const FeatureColumn = intl.formatMessage({ id: 'subscription.featureTable.column.feature' })
-    const DescriptionColumn = intl.formatMessage({ id: 'subscription.featureTable.column.description' })
-    const PriceColumn = intl.formatMessage({
-        id: rowProps.period === SUBSCRIPTION_PERIOD.YEAR
-            ? 'subscription.featureTable.column.price.year'
-            : 'subscription.featureTable.column.price.month',
-    })
+        return (
+            <Space size={8} wrap align='center'>
+                {priceContent}
+                {badge && (
+                    <button
+                        type='button'
+                        className={styles.badgeButton}
+                        disabled={disabled}
+                        onClick={() => !selected && onToggleRow(row)}
+                    >
+                        <Tag bgColor={badge.bgColor} textColor={colors.white}>{badge.text}</Tag>
+                    </button>
+                )}
+            </Space>
+        )
+    }, [isRowSelected, isRowDisabled, canManageSubscriptions, getRowBadge, canTryRow, onTryRow, onToggleRow, intl, FreeInPlanMessage, AddToCartLabel])
+
+    const renderSelect = useCallback<RenderTableCell<CatalogRow>>((_, row) => {
+        const selected = isRowSelected(row)
+        const disabled = isRowDisabled(row) || !canManageSubscriptions
+        const checkbox = (
+            <Checkbox
+                checked={selected}
+                disabled={disabled}
+                id={`subscription-feature-checkbox-${row.key}`}
+                onChange={() => onToggleRow(row)}
+            />
+        )
+        const checkboxTooltip = row.includedInPlan
+            ? IncludedTooltip
+            : isRowBlockedByMode(row) ? MixedStatusesTooltip : null
+
+        return checkboxTooltip ? (
+            <Tooltip title={checkboxTooltip}>
+                {/* a disabled checkbox swallows pointer events, the wrapper keeps the tooltip */}
+                <span className={styles.checkboxWrapper}>{checkbox}</span>
+            </Tooltip>
+        ) : checkbox
+    }, [isRowSelected, isRowDisabled, canManageSubscriptions, onToggleRow, isRowBlockedByMode, IncludedTooltip, MixedStatusesTooltip])
+
+    const renderAvailability = useCallback<RenderTableCell<CatalogRow>>((_, row) => (row.includedInPlan || row.purchased) ? (
+        <Check size='small' color={colors.green[5]} />
+    ) : (
+        <Tooltip title={NotIncludedTooltip}>
+            <span className={styles.checkboxWrapper}>
+                <Close size='small' color={colors.gray[5]} />
+            </span>
+        </Tooltip>
+    ), [NotIncludedTooltip])
+
+    const renderLabel = useCallback<RenderTableCell<CatalogRow, CatalogRow['label']>>((label, row) => (
+        <Typography.Text underline={!row.includedInPlan}>{label}</Typography.Text>
+    ), [])
+
+    const renderDescription = useCallback<RenderTableCell<CatalogRow, CatalogRow['description']>>((description) => (
+        <Typography.Text type='secondary'>{description}</Typography.Text>
+    ), [])
+
+    const renderPrice = useCallback<RenderTableCell<CatalogRow>>((_, row) => renderPriceCell(row), [renderPriceCell])
+
+    const columns = useMemo<TableColumn<CatalogRow>[]>(() => {
+        const selectColumn: TableColumn<CatalogRow> = {
+            id: 'select',
+            header: '',
+            enableSorting: false,
+            enableColumnSettings: false,
+            enableColumnResize: false,
+            initialSize: 56,
+            render: renderSelect,
+        }
+        const availabilityColumn: TableColumn<CatalogRow> = {
+            id: 'availability',
+            header: '',
+            enableSorting: false,
+            enableColumnSettings: false,
+            enableColumnResize: false,
+            initialSize: 40,
+            render: renderAvailability,
+        }
+        const labelColumn: TableColumn<CatalogRow> = {
+            id: 'label',
+            dataKey: 'label',
+            header: FeatureColumn,
+            enableSorting: false,
+            enableColumnSettings: false,
+            initialSize: '22%',
+            render: renderLabel,
+        }
+        const descriptionColumn: TableColumn<CatalogRow> = {
+            id: 'description',
+            dataKey: 'description',
+            header: DescriptionColumn,
+            enableSorting: false,
+            enableColumnSettings: false,
+            initialSize: '40%',
+            render: renderDescription,
+        }
+        const priceColumn: TableColumn<CatalogRow> = {
+            id: 'price',
+            header: PriceColumn,
+            enableSorting: false,
+            enableColumnSettings: false,
+            initialSize: '26%',
+            render: renderPrice,
+        }
+
+        return [selectColumn, availabilityColumn, labelColumn, descriptionColumn, priceColumn]
+    }, [renderSelect, renderAvailability, renderLabel, renderDescription, renderPrice, FeatureColumn, DescriptionColumn, PriceColumn])
+
+    const dataSource = useCallback<GetTableData<CatalogRow>>(async () => ({
+        rowData: rows as CatalogRow[],
+        rowCount: rows.length,
+    }), [rows])
 
     if (rows.length === 0) return null
 
     return (
-        <div className={styles.tableWrapper}>
-            <table className={styles.table}>
-                <thead>
-                    <tr>
-                        <th className={styles.checkboxCell} aria-label={FeatureColumn} />
-                        <th className={styles.availabilityCell} />
-                        <th className={styles.labelCell}>
-                            <Typography.Text type='secondary' size='small'>{FeatureColumn}</Typography.Text>
-                        </th>
-                        <th className={styles.descriptionCell}>
-                            <Typography.Text type='secondary' size='small'>{DescriptionColumn}</Typography.Text>
-                        </th>
-                        <th className={styles.priceCell}>
-                            <Typography.Text type='secondary' size='small'>{PriceColumn}</Typography.Text>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {rows.map(row => (
-                        <FeatureRow key={row.key} row={row} {...rowProps} />
-                    ))}
-                </tbody>
-            </table>
-        </div>
+        <Table<CatalogRow>
+            id='subscription-feature-table'
+            dataSource={dataSource}
+            columns={columns}
+            getRowId={getRowId}
+            pageSize={Math.max(rows.length, 1)}
+        />
     )
 }

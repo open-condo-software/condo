@@ -48,7 +48,6 @@ type CheckoutLineProps = {
 const CheckoutLine: React.FC<CheckoutLineProps> = ({ label, amount, strikethroughAmount, note, strong }) => (
     <div className={styles.line}>
         <div className={styles.lineTop}>
-            {/* both sides of the line are black now, the dotted leader carries the eye across */}
             <Typography.Text strong={strong}>{label}</Typography.Text>
             <span className={styles.leader} />
             <Typography.Text strong={strong}>

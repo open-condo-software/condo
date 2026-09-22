@@ -4,12 +4,7 @@
 }
 
 .slide {
-  display: flex;
-  flex-direction: column;
   grid-area: 1 / 1;
-  gap: 4px;
-  padding: 16px;
-  border-radius: var(--condo-global-border-radius-medium);
 }
 
 .slide-hidden {
