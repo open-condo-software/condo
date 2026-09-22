@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { getAmount, getDiscount, isCustomPrice } from '@condo/domains/subscription/utils/subscriptionPricing'
+import { getAmount, getDiscount } from '@condo/domains/subscription/utils/subscriptionPricing'
 
 import type { ServicePlanView } from './useSubscriptionPlansPage'
 import type { CatalogRow } from '@condo/domains/subscription/utils/subscriptionCatalog'
@@ -64,12 +64,12 @@ export const useSubscriptionSelection = ({
 
     /**
      * Downgrades from a paid plan are not offered: a lower plan can be opened to compare, but it never
-     * produces an action bar. Anything above the paid plan can be bought, as long as it has a real price —
-     * a plan sold on request is handled by sales, not by the checkout. Without a paid plan (a trial,
-     * running or over) every plan is for sale, the tried one included.
+     * produces an action bar. Anything above the paid plan can be bought, as long as it has a price for
+     * the selected period. Without a paid plan (a trial, running or over) every plan is for sale, the tried
+     * one included.
      */
     const isPlanPurchasable = useMemo(() => {
-        if (!selectedPlanCard || !selectedPlanCard.price || isCustomPrice(selectedPlanCard.price)) return false
+        if (!selectedPlanCard || !selectedPlanCard.price) return false
         if (!paidPlanCard) return true
         if (selectedPlanCard.planInfo.plan.id === paidPlanCard.planInfo.plan.id) return false
 
@@ -100,7 +100,7 @@ export const useSubscriptionSelection = ({
         return null
     }, [])
 
-    const getRowPrice = (row: CatalogRow) => (row.price && !isCustomPrice(row.price) ? row.price : null)
+    const getRowPrice = (row: CatalogRow) => row.price ?? null
 
     /** Included rows are on and frozen; the rest follow the group the first pick established */
     const isRowDisabled = useCallback((row: CatalogRow): boolean => {
