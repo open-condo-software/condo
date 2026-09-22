@@ -119,7 +119,6 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
     const {
         messages: subscriptionPaymentMessages,
         markReminderAsRead: markPaymentReminderAsRead,
-        markSuccessAsRead: markPaymentSuccessAsRead,
         markErrorAsRead: markPaymentErrorAsRead,
     } = useSubscriptionPaymentNotifications()
 
@@ -163,13 +162,11 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
         markEmailConfirmationMessageAsRead,
         markSubscriptionExpirationMessagesAsRead,
         markPaymentReminderAsRead,
-        markPaymentSuccessAsRead,
         markPaymentErrorAsRead,
     ], [
         markEmailConfirmationMessageAsRead,
         markSubscriptionExpirationMessagesAsRead,
         markPaymentReminderAsRead,
-        markPaymentSuccessAsRead,
         markPaymentErrorAsRead,
     ])
 
