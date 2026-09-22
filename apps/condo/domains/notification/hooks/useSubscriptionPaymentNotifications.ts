@@ -46,20 +46,19 @@ function formatWholeCurrency (intl: IntlShape, amount: number, currencyCode: str
 }
 
 /**
- * "success" always carries a real event timestamp (the context's own createdAt) and needs no read-state.
- * "reminder"/"error" are synthesized fresh from "now" on every render, so their timestamp is frozen the
- * first time the notification dropdown closes while they're showing - otherwise they'd never age into "read"
- * and would keep jumping back to the top of the feed.
+ * 'success' always carries a real event timestamp (the context's own createdAt). 'reminder'/'error' have
+ * none - they're recomputed from "now" on every render - so their createdAt is stored the first time the
+ * notification dropdown closes while they're showing, and reused after that instead of drifting forward.
  */
-type FreezableNotificationKind = 'reminder' | 'error'
+type TrackedNotificationKind = 'reminder' | 'error'
 
-const FROZEN_STORAGE_KEY: Record<FreezableNotificationKind, string> = {
+const STORAGE_KEY_BY_KIND: Record<TrackedNotificationKind, string> = {
     reminder: 'readPaymentReminderMessageAt',
     error: 'readPaymentErrorMessageAt',
 }
 
-/** An error notification re-opens as unread once a day for as long as the renewal keeps failing; a reminder freezes for good */
-const EXPIRES_DAILY: Record<FreezableNotificationKind, boolean> = {
+/** An error notification counts as unread again once a day, for as long as the renewal keeps failing; a reminder's stored timestamp is kept for good */
+const EXPIRES_DAILY: Record<TrackedNotificationKind, boolean> = {
     reminder: false,
     error: true,
 }
@@ -68,35 +67,34 @@ interface ReadMessageStorage {
     [messageId: string]: string
 }
 
-const isFreshEnough = (kind: FreezableNotificationKind, storedValue: string | undefined): boolean =>
+const isStillValid = (kind: TrackedNotificationKind, storedValue: string | undefined): boolean =>
     Boolean(storedValue) && (!EXPIRES_DAILY[kind] || isStoredToday(storedValue))
 
-const getFrozenCreatedAt = (
+const getStoredCreatedAt = (
     storage: LocalStorageManager<ReadMessageStorage> | null,
-    kind: FreezableNotificationKind,
+    kind: TrackedNotificationKind,
     messageId: string,
     now: string
 ): string => {
-    const storedValue = storage?.getItem(FROZEN_STORAGE_KEY[kind])?.[messageId]
-    return isFreshEnough(kind, storedValue) ? storedValue : now
+    const storedValue = storage?.getItem(STORAGE_KEY_BY_KIND[kind])?.[messageId]
+    return isStillValid(kind, storedValue) ? storedValue : now
 }
 
-/** Freezes every given message id that isn't already fresh, in one storage write */
-const freezeMessageIds = (
+const markMessageIdsAsRead = (
     storage: LocalStorageManager<ReadMessageStorage> | null,
-    kind: FreezableNotificationKind,
+    kind: TrackedNotificationKind,
     messageIds: ReadonlyArray<string>
 ): void => {
     if (!storage || messageIds.length === 0) return
 
-    const key = FROZEN_STORAGE_KEY[kind]
+    const key = STORAGE_KEY_BY_KIND[kind]
     const stored = storage.getItem(key) || {}
     const now = new Date().toISOString()
     const next = { ...stored }
     let changed = false
 
     for (const messageId of messageIds) {
-        if (isFreshEnough(kind, next[messageId])) continue
+        if (isStillValid(kind, next[messageId])) continue
         next[messageId] = now
         changed = true
     }
@@ -110,7 +108,6 @@ interface SubscriptionPaymentNotifications {
     markErrorAsRead: () => void
 }
 
-/** The handful of context fields every notification rule below actually reads */
 interface SubscriptionContextLike {
     id: string
     createdAt?: string | null
@@ -129,7 +126,7 @@ interface NotificationCandidate {
     kind: NotificationCandidateKind
     title: string
     content: string
-    /** Set only for 'success': its timestamp is the context's own, never frozen via storage */
+    /** Only 'success' sets this; reminder/error get their createdAt from storage instead, see getStoredCreatedAt */
     createdAt?: string
 }
 
@@ -143,15 +140,13 @@ const MESSAGE_TYPE_BY_KIND: Record<NotificationCandidateKind, string> = {
 const featureNamesOf = (contexts: ReadonlyArray<SubscriptionContextLike>): string =>
     contexts.map(context => `«${context.subscriptionPlan?.name ?? ''}»`).join(', ')
 
-/** A group is identified by the contexts in it, so a stable message id survives a re-render */
 const groupIdOf = (contexts: ReadonlyArray<SubscriptionContextLike>): string =>
     contexts.map(context => context.id).sort().join('_')
 
-/** Plan and feature messages of the same kind and end date would say the same thing twice, so they share one key */
+/** A feature ending the same day as an already-announced plan-level message stays silent instead of repeating it */
 const announcementKey = (kind: NotificationCandidateKind, endAt: string): string =>
     `${kind}:${dayjs(endAt).format('YYYY-MM-DD')}`
 
-/** Groups feature contexts eligible for one kind of notification by their end date, skipping dates a plan-level message already covers */
 const groupFeaturesByEndDate = (
     featureContexts: ReadonlyArray<SubscriptionContextLike>,
     kind: NotificationCandidateKind,
@@ -174,11 +169,6 @@ const groupFeaturesByEndDate = (
     return [...groups.values()]
 }
 
-/**
- * Builds every subscription-payment notification currently due: a service plan's own payment succeeded /
- * is due tomorrow / failed, and the same three for feature plans - grouped by end date, since several
- * features can renew (or fail to) on the same day and read as one message instead of a wall of them.
- */
 function buildNotificationCandidates (
     intl: IntlShape,
     subscriptionContexts: ReadonlyArray<SubscriptionContextLike>,
@@ -192,7 +182,6 @@ function buildNotificationCandidates (
     const featureContexts = subscriptionContexts.filter(context => context.subscriptionPlan?.planType === SUBSCRIPTION_PLAN_TYPE_FEATURE)
     const currentPlanName = serviceContexts.find(context => context.subscriptionPlan?.name)?.subscriptionPlan?.name || ''
 
-    // A service plan's own payment: at most one success and one reminder message, each named after the plan
     for (const context of serviceContexts) {
         const { id: contextId, endAt, status, subscriptionPlan, subscriptionPlanPricingRule, createdAt, bindingId, startAt } = context
         const planName = subscriptionPlan?.name || ''
@@ -232,9 +221,8 @@ function buildNotificationCandidates (
         }
     }
 
-    // A failed service-plan renewal. A renewal the card declined is a registration of its own and carries no
-    // card, so it never shows up among the contexts paid by card - only card renewals are announced here:
-    // an invoice nobody paid is not a failed payment
+    // A renewal the card declined is a registration of its own and carries no card, so it never shows up
+    // among the contexts paid by card - only card renewals are announced here, an unpaid invoice is not a failure
     for (const context of failedRenewals) {
         if (context.subscriptionPlan?.planType === SUBSCRIPTION_PLAN_TYPE_FEATURE || !context.endAt) continue
 
@@ -329,9 +317,8 @@ export const useSubscriptionPaymentNotifications = (): SubscriptionPaymentNotifi
 
     const storage = useMemo(() => (typeof window === 'undefined' ? null : new LocalStorageManager<ReadMessageStorage>()), [])
 
-    // ids of the reminder/error messages currently shown - refreshed every time `messages` recomputes,
-    // read back by markReminderAsRead/markErrorAsRead whenever the notification dropdown closes
-    const shownMessageIds = useRef<Record<FreezableNotificationKind, string[]>>({ reminder: [], error: [] })
+    // ids of the reminder/error messages the last `messages` computation produced, read by markReminderAsRead/markErrorAsRead
+    const shownMessageIds = useRef<Record<TrackedNotificationKind, string[]>>({ reminder: [], error: [] })
 
     const messages = useMemo(() => {
         if (!organizationId || subscriptionContexts.length === 0) return []
@@ -348,10 +335,10 @@ export const useSubscriptionPaymentNotifications = (): SubscriptionPaymentNotifi
 
             if (candidate.kind === 'reminder') {
                 reminderIds.push(candidate.id)
-                createdAt = getFrozenCreatedAt(storage, 'reminder', candidate.id, nowIso)
+                createdAt = getStoredCreatedAt(storage, 'reminder', candidate.id, nowIso)
             } else if (candidate.kind === 'error') {
                 errorIds.push(candidate.id)
-                createdAt = getFrozenCreatedAt(storage, 'error', candidate.id, nowIso)
+                createdAt = getStoredCreatedAt(storage, 'error', candidate.id, nowIso)
             }
 
             return {
@@ -369,11 +356,11 @@ export const useSubscriptionPaymentNotifications = (): SubscriptionPaymentNotifi
     }, [organizationId, subscriptionContexts, failedRenewals, intl, storage])
 
     const markReminderAsRead = useCallback(() => {
-        freezeMessageIds(storage, 'reminder', shownMessageIds.current.reminder)
+        markMessageIdsAsRead(storage, 'reminder', shownMessageIds.current.reminder)
     }, [storage])
 
     const markErrorAsRead = useCallback(() => {
-        freezeMessageIds(storage, 'error', shownMessageIds.current.error)
+        markMessageIdsAsRead(storage, 'error', shownMessageIds.current.error)
     }, [storage])
 
     return {
