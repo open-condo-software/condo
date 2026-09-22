@@ -11,11 +11,6 @@ const { maybeBoostQueryWithTin } = require('@address-service/domains/common/util
 const { AbstractSearchProvider } = require('./AbstractSearchProvider')
 
 
-/**
- * TODO (DOMA-11991)
- * ⚠️ Pullenti provider still in beta. Normalized result may differ from dadata. Use only for GUID searching.
- */
-
 const CONFIG_KEY = 'PULLENTI_CONFIG'
 
 /**
@@ -107,6 +102,10 @@ class PullentiSearchProvider extends AbstractSearchProvider {
                 meta: null,
             })
         }
+
+        // We intentionally skip coordinate heuristic for now,
+        // because pullenti provider has no "qc_geo"-like parameter which means precision.
+        // So, we can't be sure that coordinates are accurate.
 
         const fallbackKey = this.generateFallbackKey(normalizedBuilding)
         if (fallbackKey) {

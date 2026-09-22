@@ -12,7 +12,7 @@ const { mergeAddresses } = require('@address-service/domains/address/utils/merge
 const { Address } = require('@address-service/domains/address/utils/serverSchema')
 const { DADATA_PROVIDER, GOOGLE_PROVIDER, PULLENTI_PROVIDER } = require('@address-service/domains/common/constants/providers')
 const { upsertHeuristics } = require('@address-service/domains/common/utils/services/search/heuristicMatcher')
-const { DadataSearchProvider } = require('@address-service/domains/common/utils/services/search/providers')
+const { DadataSearchProvider, PullentiSearchProvider } = require('@address-service/domains/common/utils/services/search/providers')
 const { DadataSuggestionProvider } = require('@address-service/domains/common/utils/services/suggest/providers')
 
 const logger = getLogger()
@@ -120,8 +120,64 @@ const ActualizeAddressesService = new GQLCustomSchema('ActualizeAddressesService
                         failures.push({ addressId, errorMessage: 'Google not supported yet. Be free to contribute :)' })
                         continue
                     } else if (providerName === PULLENTI_PROVIDER) {
-                        failures.push({ addressId, errorMessage: 'Pullenti not supported yet. Be free to contribute :)' })
-                        continue
+                        let fiasId
+
+                        dataForLog.providerName = providerName
+
+                        if (meta.data?.house_fias_id) {
+                            fiasId = meta.data.house_fias_id
+                        } else {
+                            failures.push({ addressId, errorMessage: 'No house_fias_id in meta.data' })
+                            continue
+                        }
+
+                        dataForLog.fiasId = fiasId
+
+                        const provider = new PullentiSearchProvider({ req: context.req })
+
+                        const denormalizedResult = await provider.getAddressByFiasId(fiasId)
+                        if (!denormalizedResult) {
+                            failures.push({ addressId, errorMessage: `Address not found with provider=${providerName}` })
+                            continue
+                        }
+
+                        const [searchResult] = provider.normalize([denormalizedResult])
+                        const addressKey = provider.generateAddressKey(searchResult)
+                        const heuristics = provider.extractHeuristics(searchResult)
+
+                        dataForLog.denormalizedResult = denormalizedResult
+                        dataForLog.addressKey = addressKey
+
+                        if (key === addressKey) {
+                            failures.push({ addressId, errorMessage: `The addressKey was not changed: ${addressKey}` })
+                            continue
+                        }
+
+                        const existingAddress = await getByCondition('Address', { key: addressKey })
+                        if (existingAddress) {
+                            dataForLog.existingAddress = existingAddress
+                            await mergeAddresses(context, addressId, existingAddress.id, { dv, sender })
+                        }
+
+                        const newAddressData = {
+                            dv,
+                            sender,
+                            address: searchResult.value,
+                            key: addressKey,
+                            meta: {
+                                provider: {
+                                    name: provider.getProviderName(),
+                                    rawData: denormalizedResult,
+                                },
+                                value: searchResult.value,
+                                unrestricted_value: searchResult.unrestricted_value,
+                                data: get(searchResult, 'data', {}),
+                            },
+                        }
+                        const updatedAddress = await Address.update(context, addressId, newAddressData, 'id')
+                        await upsertHeuristics(context, updatedAddress.id, heuristics, providerName, { dv, sender })
+                        dataForLog.actualizedAddress = updatedAddress
+                        successIds.push(updatedAddress.id)
                     } else {
                         failures.push({ addressId, errorMessage: `No provider detected (name=${providerName})` })
                         continue
