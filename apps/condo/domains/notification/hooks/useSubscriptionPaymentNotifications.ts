@@ -57,7 +57,7 @@ const STORAGE_KEY_BY_KIND: Record<TrackedNotificationKind, string> = {
     error: 'readPaymentErrorMessageAt',
 }
 
-/** An error notification counts as unread again once a day, for as long as the renewal keeps failing; a reminder's stored timestamp is kept for good */
+// error resets daily (a still-failing renewal reads as unread again each day); reminder is stored once and kept
 const EXPIRES_DAILY: Record<TrackedNotificationKind, boolean> = {
     reminder: false,
     error: true,
@@ -126,7 +126,7 @@ interface NotificationCandidate {
     kind: NotificationCandidateKind
     title: string
     content: string
-    /** Only 'success' sets this; reminder/error get their createdAt from storage instead, see getStoredCreatedAt */
+    /** Only 'success' sets this; reminder/error get it from getStoredCreatedAt instead */
     createdAt?: string
 }
 
@@ -143,7 +143,6 @@ const featureNamesOf = (contexts: ReadonlyArray<SubscriptionContextLike>): strin
 const groupIdOf = (contexts: ReadonlyArray<SubscriptionContextLike>): string =>
     contexts.map(context => context.id).sort().join('_')
 
-/** A feature ending the same day as an already-announced plan-level message stays silent instead of repeating it */
 const announcementKey = (kind: NotificationCandidateKind, endAt: string): string =>
     `${kind}:${dayjs(endAt).format('YYYY-MM-DD')}`
 
@@ -221,8 +220,7 @@ function buildNotificationCandidates (
         }
     }
 
-    // A renewal the card declined is a registration of its own and carries no card, so it never shows up
-    // among the contexts paid by card - only card renewals are announced here, an unpaid invoice is not a failure
+    // an unpaid invoice isn't a failed payment - only declined card renewals land here
     for (const context of failedRenewals) {
         if (context.subscriptionPlan?.planType === SUBSCRIPTION_PLAN_TYPE_FEATURE || !context.endAt) continue
 
@@ -317,7 +315,6 @@ export const useSubscriptionPaymentNotifications = (): SubscriptionPaymentNotifi
 
     const storage = useMemo(() => (typeof window === 'undefined' ? null : new LocalStorageManager<ReadMessageStorage>()), [])
 
-    // ids of the reminder/error messages the last `messages` computation produced, read by markReminderAsRead/markErrorAsRead
     const shownMessageIds = useRef<Record<TrackedNotificationKind, string[]>>({ reminder: [], error: [] })
 
     const messages = useMemo(() => {

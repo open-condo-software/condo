@@ -3,7 +3,7 @@ import dayjs from 'dayjs'
 import React, { useCallback } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Tag, Typography } from '@open-condo/ui'
+import { Alert, Space, Tag, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import styles from './SubscriptionPlanAlerts.module.css'
@@ -78,18 +78,23 @@ const PlanAlertSlide: React.FC<{ alert: PlanAlert, isHidden: boolean, onInvoiceA
             break
     }
 
-    const background = WARNING_ALERT_TYPES.includes(alert.type) ? colors.orange[1] : colors.red[1]
+    // A pending invoice is asked for once more, an expired one is replaced by a new registration
+    const body = (alert.type === 'invoiceExpired' || alert.type === 'invoicePending') && alert.priceIds.length > 0 ? (
+        <Space size={4} direction='vertical'>
+            {description}
+            <Typography.Link size='small' onClick={() => onInvoiceAction(alert)}>
+                {intl.formatMessage({ id: `subscription.planCard.alert.${alert.type}.action` })}
+            </Typography.Link>
+        </Space>
+    ) : description
 
     return (
-        <div className={classnames(styles.slide, { [styles.slideHidden]: isHidden })} style={{ background }} aria-hidden={isHidden}>
-            {title && <Typography.Text strong>{title}</Typography.Text>}
-            <Typography.Text size='small' type='secondary'>{description}</Typography.Text>
-            {/* A pending invoice is asked for once more, an expired one is replaced by a new registration */}
-            {(alert.type === 'invoiceExpired' || alert.type === 'invoicePending') && alert.priceIds.length > 0 && (
-                <Typography.Link size='small' onClick={() => onInvoiceAction(alert)}>
-                    {intl.formatMessage({ id: `subscription.planCard.alert.${alert.type}.action` })}
-                </Typography.Link>
-            )}
+        <div className={classnames(styles.slide, { [styles.slideHidden]: isHidden })} aria-hidden={isHidden}>
+            <Alert
+                type={WARNING_ALERT_TYPES.includes(alert.type) ? 'warning' : 'error'}
+                message={title ?? description}
+                description={title ? body : undefined}
+            />
         </div>
     )
 }

@@ -39,18 +39,15 @@ type SubscriptionPlanBadgeProps = {
     planId: string
     isActivePlan: boolean
     hasTrialExpired: boolean
-    hasPaymentMethod: boolean
-    /** The plan is paid for, so it is connected even while its own trial is still counting down */
-    isPaid: boolean
 }
 
-const SubscriptionPlanBadge: React.FC<SubscriptionPlanBadgeProps> = ({ isActivePlan, hasTrialExpired, hasPaymentMethod, isPaid }) => {
+const SubscriptionPlanBadge: React.FC<SubscriptionPlanBadgeProps> = ({ isActivePlan, hasTrialExpired }) => {
     const intl = useIntl()
     const ActiveMessage = intl.formatMessage({ id: 'subscription.planCard.badge.active' })
     const ExpiredMessage = intl.formatMessage({ id: 'subscription.planCard.badge.trialExpired' })
     const PaymentExpiredMessage = intl.formatMessage({ id: 'subscription.planCard.badge.paymentExpired' })
 
-    const { activeSubscriptionEndAtWithoutBuffer, isInBufferPeriod } = useOrganizationSubscription()
+    const { subscriptionContext, activeSubscriptionEndAtWithoutBuffer, isInBufferPeriod } = useOrganizationSubscription()
 
     const daysRemainingWithoutBuffer = activeSubscriptionEndAtWithoutBuffer
         ? Math.max(0, Math.ceil(activeSubscriptionEndAtWithoutBuffer.diff(dayjs(), 'day', true)))
@@ -61,7 +58,8 @@ const SubscriptionPlanBadge: React.FC<SubscriptionPlanBadgeProps> = ({ isActiveP
     if (isActivePlan) {
         bgColor = colors.green[5]
 
-        if (hasPaymentMethod || isPaid) {
+        // the same context the header reads from - a real (non-trial) active context is what "Connected" means
+        if (!subscriptionContext?.isTrial) {
             badgeMessage = ActiveMessage
         } else if (isInBufferPeriod) {
             // The paid period is over and the plan is only alive on the grace days, so the card says
@@ -208,8 +206,6 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({
                         planId={plan.id}
                         isActivePlan={isActive}
                         hasTrialExpired={Boolean(activatedTrial)}
-                        hasPaymentMethod={hasPaymentMethodForActivePlan}
-                        isPaid={isPaid}
                     />
                 )}
                 <Card className={cardClassName}>

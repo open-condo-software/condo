@@ -22,8 +22,8 @@ import styles from './SubscriptionFeatureProgress.module.css'
 const { publicRuntimeConfig } = getConfig()
 const subscriptionModalConfig = publicRuntimeConfig?.subscriptionProgressModalConfig
 
-/** Capabilities are either plan feature flags or B2B app ids, and each is checked differently */
-const isFeatureFlag = (capability: string): capability is AvailableFeatureType =>
+/** Capabilities are either plan features or B2B app ids, and each is checked differently */
+const isPlanFeature = (capability: string): capability is AvailableFeatureType =>
     (SUBSCRIPTION_PLAN_FEATURES as ReadonlyArray<string>).includes(capability)
 
 export const SubscriptionFeatureProgress: React.FC = () => {
@@ -96,7 +96,7 @@ export const SubscriptionFeatureProgress: React.FC = () => {
         if (!organization || platformCapabilities.length === 0) return 0
 
         const availableCount = platformCapabilities.reduce((count, capability) => {
-            const isAvailable = isFeatureFlag(capability)
+            const isAvailable = isPlanFeature(capability)
                 ? isFeatureAvailable(capability)
                 : isB2BAppEnabled(capability)
 

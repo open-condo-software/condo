@@ -1,63 +1,5 @@
-/* Wide feature descriptions scroll inside the table instead of stretching the settings page */
-.table-wrapper {
-  overflow-x: auto;
-  border: 1px solid var(--condo-global-color-gray-3);
-  border-radius: var(--condo-global-border-radius-medium);
-}
-
-.table {
-  width: 100%;
-  min-width: 720px;
-  border-collapse: collapse;
-}
-
-.table th {
-  padding: 16px 12px;
-  text-align: left;
-  border-bottom: 1px solid var(--condo-global-color-gray-3);
-}
-
-.row td {
-  padding: 16px 12px;
-  vertical-align: top;
-  border-bottom: 1px solid var(--condo-global-color-gray-1);
-}
-
-.row:last-child td {
-  border-bottom: none;
-}
-
-.checkbox-cell {
-  width: 56px;
-  padding-left: 24px !important;
-}
-
 .checkbox-wrapper {
   display: inline-flex;
-}
-
-.availability-cell {
-  width: 40px;
-}
-
-.label-cell {
-  width: 22%;
-}
-
-.description-cell {
-  width: 40%;
-}
-
-.price-cell {
-  width: 26%;
-  padding-right: 24px !important;
-}
-
-.price-content {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
 }
 
 /* Clicking a status badge picks the row, which brings up the action bar for that status */
@@ -70,17 +12,4 @@
 
 .badge-button:disabled {
   cursor: default;
-}
-
-.price-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-}
-
-@media (max-width: 768px) {
-  .table {
-    min-width: 640px;
-  }
 }

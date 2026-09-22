@@ -20,11 +20,11 @@
   width: 100%;
 }
 
-/* Dotted leader carrying the eye from the item name to its price */
+/* same treatment as the kit's List divider */
 .leader {
   flex: 1 1 auto;
   min-width: 16px;
-  border-bottom: 1px dotted var(--condo-global-color-gray-5);
+  border-bottom: 1px solid var(--condo-global-color-gray-3);
 }
 
 .line-note {
