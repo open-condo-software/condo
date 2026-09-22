@@ -51,15 +51,15 @@ function formatWholeCurrency (intl: IntlShape, amount: number, currencyCode: str
  * first time the notification dropdown closes while they're showing - otherwise they'd never age into "read"
  * and would keep jumping back to the top of the feed.
  */
-type FrozenNotificationKind = 'reminder' | 'error'
+type FreezableNotificationKind = 'reminder' | 'error'
 
-const FROZEN_STORAGE_KEY: Record<FrozenNotificationKind, string> = {
+const FROZEN_STORAGE_KEY: Record<FreezableNotificationKind, string> = {
     reminder: 'readPaymentReminderMessageAt',
     error: 'readPaymentErrorMessageAt',
 }
 
 /** An error notification re-opens as unread once a day for as long as the renewal keeps failing; a reminder freezes for good */
-const EXPIRES_DAILY: Record<FrozenNotificationKind, boolean> = {
+const EXPIRES_DAILY: Record<FreezableNotificationKind, boolean> = {
     reminder: false,
     error: true,
 }
@@ -68,12 +68,12 @@ interface ReadMessageStorage {
     [messageId: string]: string
 }
 
-const isFreshEnough = (kind: FrozenNotificationKind, storedValue: string | undefined): boolean =>
+const isFreshEnough = (kind: FreezableNotificationKind, storedValue: string | undefined): boolean =>
     Boolean(storedValue) && (!EXPIRES_DAILY[kind] || isStoredToday(storedValue))
 
 const getFrozenCreatedAt = (
     storage: LocalStorageManager<ReadMessageStorage> | null,
-    kind: FrozenNotificationKind,
+    kind: FreezableNotificationKind,
     messageId: string,
     now: string
 ): string => {
@@ -84,7 +84,7 @@ const getFrozenCreatedAt = (
 /** Freezes every given message id that isn't already fresh, in one storage write */
 const freezeMessageIds = (
     storage: LocalStorageManager<ReadMessageStorage> | null,
-    kind: FrozenNotificationKind,
+    kind: FreezableNotificationKind,
     messageIds: ReadonlyArray<string>
 ): void => {
     if (!storage || messageIds.length === 0) return
@@ -331,7 +331,7 @@ export const useSubscriptionPaymentNotifications = (): SubscriptionPaymentNotifi
 
     // ids of the reminder/error messages currently shown - refreshed every time `messages` recomputes,
     // read back by markReminderAsRead/markErrorAsRead whenever the notification dropdown closes
-    const shownMessageIds = useRef<Record<FrozenNotificationKind, string[]>>({ reminder: [], error: [] })
+    const shownMessageIds = useRef<Record<FreezableNotificationKind, string[]>>({ reminder: [], error: [] })
 
     const messages = useMemo(() => {
         if (!organizationId || subscriptionContexts.length === 0) return []
