@@ -14,7 +14,7 @@ import { ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID } from '@condo/domains/common/const
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 import { useLinkedCardsModal } from '@condo/domains/subscription/hooks/useLinkedCardsModal'
 import { usePaymentHistoryModal } from '@condo/domains/subscription/hooks/usePaymentHistoryModal'
-import { formatAmount, isCustomPrice } from '@condo/domains/subscription/utils/subscriptionPricing'
+import { formatAmount } from '@condo/domains/subscription/utils/subscriptionPricing'
 
 import styles from './SubscriptionPlanCard.module.css'
 
@@ -134,7 +134,6 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({
         plan.description || intl.formatMessage({ id: 'subscription.planCard.featureCount' }, { count: featureCount })
     ), [plan.description, featureCount, intl])
 
-    const hasCustomPrice = isCustomPrice(price)
     /** The active plan shows what the organization pays in total, features bought on top included */
     const shownAmount = (isFreeForPartner ? 0 : Number(price?.price ?? 0)) + extraFeaturesAmount
     const showPriceForPartner = isFreeForPartner && extraFeaturesAmount > 0
@@ -229,8 +228,6 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({
                                 <Typography.Text type='secondary'>
                                     {`✅ ${FreeForPartnerMessage}`}
                                 </Typography.Text>
-                            ) : hasCustomPrice ? (
-                                <Typography.Text type='secondary'>{price?.name}</Typography.Text>
                             ) : (
                                 <>
                                     <div className={styles.priceLine}>

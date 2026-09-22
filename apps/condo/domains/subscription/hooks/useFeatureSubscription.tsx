@@ -104,7 +104,6 @@ export const useFeatureSubscription = (feature: AvailableFeatureType, b2bAppId?:
             isTrial: false,
             planName: featurePlanInfo?.plan?.name || '',
             trialDays: 0,
-            isCustomPrice: !featurePlanFirstPrice.price,
             paymentType,
             returnUrl,
         })

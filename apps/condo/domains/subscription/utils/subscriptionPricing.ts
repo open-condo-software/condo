@@ -25,12 +25,8 @@ export type PlanDiscount = {
 export const getPriceForPeriod = (prices: ReadonlyArray<PlanPrice>, period: PlanPeriod): PlanPrice | null =>
     prices?.find(price => price?.period === period) ?? null
 
-/** Pricing rules with an empty price require a manual offer instead of a checkout */
-export const isCustomPrice = (price?: PlanPrice | null): boolean =>
-    !price || price.price === null || price.price === undefined
-
 export const getAmount = (price?: PlanPrice | null): number | null =>
-    isCustomPrice(price) ? null : Math.floor(Number(price.price))
+    price ? Math.floor(Number(price.price)) : null
 
 export const formatAmount = (amount: number | null | undefined, currencyCode: string | null | undefined, locale: string): string => {
     if (amount === null || amount === undefined || Number.isNaN(amount)) return ''

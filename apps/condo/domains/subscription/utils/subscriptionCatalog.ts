@@ -1,5 +1,5 @@
 import { SUBSCRIPTION_PLAN_FEATURES } from '@condo/domains/subscription/constants'
-import { getPriceForPeriod, isCustomPrice } from '@condo/domains/subscription/utils/subscriptionPricing'
+import { getPriceForPeriod } from '@condo/domains/subscription/utils/subscriptionPricing'
 
 import type { PlanPeriod, PlanPrice } from '@condo/domains/subscription/utils/subscriptionPricing'
 
@@ -218,7 +218,7 @@ export const buildCatalog = ({
             includedInPlan,
             purchased,
             status: featureStatuses?.get(plan.id) ?? null,
-            purchasable: !includedInPlan && !purchased && Boolean(price) && !isCustomPrice(price),
+            purchasable: !includedInPlan && !purchased && Boolean(price),
         })
     }
 
@@ -284,7 +284,7 @@ export const getCatalogCounters = (rows: ReadonlyArray<CatalogRow>): CatalogCoun
 
 export type UpsellCandidate = {
     plan: CatalogPlan
-    /** Price of the plan for the period being bought, null when it needs a manual offer */
+    /** Price of the plan for the period being bought, null when it has no price for that period */
     amount: number | null
 }
 

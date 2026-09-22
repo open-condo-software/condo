@@ -4,7 +4,7 @@ import React, { useCallback, useMemo } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
-import { Button, Tooltip, Typography } from '@open-condo/ui'
+import { Button, Typography } from '@open-condo/ui'
 
 import { UI_HIDE_PAID_FEATURES } from '@condo/domains/common/constants/featureflags'
 import { SETTINGS_TAB_SUBSCRIPTION } from '@condo/domains/common/constants/settingsTabs'
@@ -29,8 +29,6 @@ export const BlockedB2BAppTab: React.FC<BlockedB2BAppTabProps> = ({ appId, short
     const FeatureGuardTitle = intl.formatMessage({ id: 'subscription.accessGuard.feature.title' })
     const GoToPlansMessage = intl.formatMessage({ id: 'subscription.accessGuard.goToPlans' })
     const FeaturePayButton = intl.formatMessage({ id: 'subscription.accessGuard.feature.payButton' })
-    const AwaitingPaymentMessage = intl.formatMessage({ id: 'subscription.planCard.requestPending' })
-    const AwaitingPaymentTooltipMessage = intl.formatMessage({ id: 'subscription.planCard.requestPending.tooltip' })
     const LearnMoreMessage = intl.formatMessage({ id: 'subscription.accessGuard.learnMore' })
     const UnavailableTitle = intl.formatMessage({ id: 'subscription.accessGuard.unavailable.title' }, { defaultMessage: 'Access denied' })
     const UnavailableDescription = intl.formatMessage({ id: 'subscription.accessGuard.unavailable.description' }, { defaultMessage: 'You do not have access to this service' })
@@ -45,15 +43,10 @@ export const BlockedB2BAppTab: React.FC<BlockedB2BAppTabProps> = ({ appId, short
         formattedFeaturePrice,
         forPlanLabel,
         promotedServicePlan,
-        featurePlanId,
         registerFeatureSubscription,
     } = useFeatureSubscription('b2bApp', appId, returnUrl)
 
-    const { activateLoading, pendingRequests } = useActivateSubscriptions()
-
-    const hasPendingFeatureRequest = pendingRequests.some(
-        req => req.subscriptionPlanPricingRule?.subscriptionPlan?.id === featurePlanId
-    )
+    const { activateLoading } = useActivateSubscriptions()
 
     const { PaymentModal, openModal } = useSubscriptionPaymentModal({
         registerSubscriptionContext: registerFeatureSubscription,
@@ -101,20 +94,9 @@ export const BlockedB2BAppTab: React.FC<BlockedB2BAppTabProps> = ({ appId, short
         )
     }
 
-    let primaryButton: React.ReactNode
-    if (!hasFeaturePlan) {
-        primaryButton = <Button type='primary' onClick={handleGoToPlans}>{GoToPlansMessage}</Button>
-    } else if (hasPendingFeatureRequest) {
-        primaryButton = (
-            <Tooltip title={AwaitingPaymentTooltipMessage}>
-                <span>
-                    <Button type='primary' disabled>{AwaitingPaymentMessage}</Button>
-                </span>
-            </Tooltip>
-        )
-    } else {
-        primaryButton = <Button type='primary' onClick={openModal}>{FeaturePayButton}</Button>
-    }
+    const primaryButton: React.ReactNode = !hasFeaturePlan
+        ? <Button type='primary' onClick={handleGoToPlans}>{GoToPlansMessage}</Button>
+        : <Button type='primary' onClick={openModal}>{FeaturePayButton}</Button>
 
     return (
         <>

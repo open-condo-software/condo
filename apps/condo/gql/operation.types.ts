@@ -1050,13 +1050,6 @@ export type RequestSubscriptionInvoiceMutationVariables = Types.Exact<{
 
 export type RequestSubscriptionInvoiceMutation = { __typename?: 'Mutation', result?: { __typename?: 'RequestSubscriptionInvoiceOutput', subscriptionContexts: Array<{ __typename?: 'SubscriptionContext', id: string }> } | null };
 
-export type GetPendingSubscriptionRequestsQueryVariables = Types.Exact<{
-  organizationId: Types.Scalars['ID']['input'];
-}>;
-
-
-export type GetPendingSubscriptionRequestsQuery = { __typename?: 'Query', pendingRequests?: Array<{ __typename?: 'UserHelpRequest', id: string, createdAt?: string | null, subscriptionPlanPricingRule?: { __typename?: 'SubscriptionPlanPricingRule', id: string, subscriptionPlan?: { __typename?: 'SubscriptionPlan', id: string } | null } | null } | null> | null };
-
 export type GetPendingBankingRequestQueryVariables = Types.Exact<{
   organizationId: Types.Scalars['ID']['input'];
 }>;

@@ -6,7 +6,7 @@ import { Button, Checkbox, Tooltip, Typography, Tag } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import { SUBSCRIPTION_PERIOD } from '@condo/domains/subscription/constants'
-import { formatAmount, isCustomPrice } from '@condo/domains/subscription/utils/subscriptionPricing'
+import { formatAmount } from '@condo/domains/subscription/utils/subscriptionPricing'
 
 import styles from './SubscriptionFeatureTable.module.css'
 
@@ -65,7 +65,7 @@ const FeatureRow: React.FC<FeatureRowProps> = ({
     const disabled = isRowDisabled(row) || !canManageSubscriptions
     const badge = getRowBadge?.(row) ?? null
     const isAvailable = row.includedInPlan || row.purchased
-    const hasOwnPrice = !row.includedInPlan && Boolean(row.price) && !isCustomPrice(row.price)
+    const hasOwnPrice = !row.includedInPlan && Boolean(row.price)
 
     const priceText = hasOwnPrice ? formatAmount(Number(row.price.price), row.price.currencyCode, intl.locale) : null
 

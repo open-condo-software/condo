@@ -147,7 +147,6 @@ export const NoSubscriptionTooltip: React.FC<NoSubscriptionTooltipProps> = ({ ch
                 isTrial: true,
                 planName,
                 trialDays: bestPlanWithFeature.plan?.trialDays || 0,
-                isCustomPrice: false,
             })
         } finally {
             setIsActivating(false)
