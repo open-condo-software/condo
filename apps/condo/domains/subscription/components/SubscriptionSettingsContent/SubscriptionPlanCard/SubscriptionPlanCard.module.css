@@ -19,7 +19,6 @@
 .subscription-plan-card {
   display: flex;
   flex-direction: column;
-  width: 100%;
   transition: border-color var(--condo-global-transition-duration-default) ease;
 }
 
@@ -64,13 +63,6 @@
   flex-direction: column;
   gap: 8px;
   margin-top: auto;
-}
-
-.price-line {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: baseline;
 }
 
 .subscription-plan-card-selected:global(.condo-card) {

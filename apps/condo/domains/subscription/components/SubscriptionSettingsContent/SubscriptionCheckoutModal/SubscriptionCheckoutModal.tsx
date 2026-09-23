@@ -46,7 +46,7 @@ type CheckoutLineProps = {
 }
 
 const CheckoutLine: React.FC<CheckoutLineProps> = ({ label, amount, strikethroughAmount, note, strong }) => (
-    <div className={styles.line}>
+    <Space size={4} direction='vertical' width='100%'>
         <div className={styles.lineTop}>
             <Typography.Text strong={strong}>{label}</Typography.Text>
             <span className={styles.leader} />
@@ -65,7 +65,7 @@ const CheckoutLine: React.FC<CheckoutLineProps> = ({ label, amount, strikethroug
                 <Typography.Text type='success' size='small'>{note}</Typography.Text>
             </div>
         )}
-    </div>
+    </Space>
 )
 
 export const SubscriptionCheckoutModal: React.FC<SubscriptionCheckoutModalProps> = ({
@@ -204,7 +204,7 @@ export const SubscriptionCheckoutModal: React.FC<SubscriptionCheckoutModalProps>
                     </Space>
                 )}
 
-                <div className={styles.lines}>
+                <Space size={16} direction='vertical' width='100%'>
                     {planCard && (
                         <CheckoutLine
                             label={PlanRowMessage}
@@ -231,7 +231,7 @@ export const SubscriptionCheckoutModal: React.FC<SubscriptionCheckoutModalProps>
                             strong
                         />
                     </div>
-                </div>
+                </Space>
 
                 {upsell && (
                     <Banner
@@ -245,6 +245,7 @@ export const SubscriptionCheckoutModal: React.FC<SubscriptionCheckoutModalProps>
                                 count: selectedRows.length,
                                 amount: formatAmount(total, currencyCode, intl.locale),
                                 planName: upsell.plan.name,
+                                planAmount: formatAmount(upsell.amount, currencyCode, intl.locale),
                                 extraCount: upsell.extraCount,
                             }
                         )}
