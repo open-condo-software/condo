@@ -208,7 +208,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({
                         hasTrialExpired={Boolean(activatedTrial)}
                     />
                 )}
-                <Card className={cardClassName}>
+                <Card className={cardClassName} width='100%'>
                     <div className={styles.cardBody}>
                         <div className={styles.cardHead}>
                             <Typography.Title level={3} ellipsis={false}>
@@ -226,7 +226,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({
                                 </Typography.Text>
                             ) : (
                                 <>
-                                    <div className={styles.priceLine}>
+                                    <Space size={8} wrap align='baseline'>
                                         {discount && extraFeaturesAmount === 0 && (
                                             <Typography.Text type='secondary' delete>
                                                 {formatAmount(discount.fullAmount, price?.currencyCode, intl.locale)}
@@ -240,7 +240,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({
                                                 {priceSuffix.isPeriod ? `/${priceSuffix.text}` : ` ${priceSuffix.text}`}
                                             </Typography.Text>
                                         )}
-                                    </div>
+                                    </Space>
                                     {discount && extraFeaturesAmount === 0 && (
                                         <Typography.Text type='success' size='small'>
                                             {intl.formatMessage(
@@ -254,7 +254,6 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({
 
                             <SubscriptionPlanAlerts
                                 alerts={alerts}
-                                activeIndex={alertIndex}
                                 onChangeIndex={setActiveAlertIndex}
                                 onInvoiceAction={onInvoiceAction}
                             />
