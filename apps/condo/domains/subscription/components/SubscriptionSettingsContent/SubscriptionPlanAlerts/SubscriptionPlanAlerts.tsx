@@ -1,12 +1,9 @@
-import classnames from 'classnames'
 import dayjs from 'dayjs'
 import React, { useCallback } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Alert, Space, Tag, Typography } from '@open-condo/ui'
+import { Alert, Carousel, Space, Tag, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
-
-import styles from './SubscriptionPlanAlerts.module.css'
 
 import type { PlanAlert } from '@condo/domains/subscription/utils/subscriptionPlanAlerts'
 
@@ -15,7 +12,6 @@ const WARNING_ALERT_TYPES: ReadonlyArray<PlanAlert['type']> = ['invoicePending',
 
 type SubscriptionPlanAlertsProps = {
     alerts: ReadonlyArray<PlanAlert>
-    activeIndex: number
     onChangeIndex: (index: number) => void
     onInvoiceAction: (alert: PlanAlert) => void
 }
@@ -46,7 +42,7 @@ export const PlanAlertBadge: React.FC<PlanAlertBadgeProps> = ({ alert }) => {
     return <Tag bgColor={bgColor} textColor={colors.white}>{text}</Tag>
 }
 
-const PlanAlertSlide: React.FC<{ alert: PlanAlert, isHidden: boolean, onInvoiceAction: (alert: PlanAlert) => void }> = ({ alert, isHidden, onInvoiceAction }) => {
+const PlanAlertSlide: React.FC<{ alert: PlanAlert, onInvoiceAction: (alert: PlanAlert) => void }> = ({ alert, onInvoiceAction }) => {
     const intl = useIntl()
 
     const names = alert.planNames.map(name => `«${name}»`).join(', ')
@@ -89,42 +85,35 @@ const PlanAlertSlide: React.FC<{ alert: PlanAlert, isHidden: boolean, onInvoiceA
     ) : description
 
     return (
-        <div className={classnames(styles.slide, { [styles.slideHidden]: isHidden })} aria-hidden={isHidden}>
-            <Alert
-                type={WARNING_ALERT_TYPES.includes(alert.type) ? 'warning' : 'error'}
-                message={title ?? description}
-                description={title ? body : undefined}
-            />
-        </div>
+        <Alert
+            type={WARNING_ALERT_TYPES.includes(alert.type) ? 'warning' : 'error'}
+            message={title ?? description}
+            description={title ? body : undefined}
+        />
     )
 }
 
-export const SubscriptionPlanAlerts: React.FC<SubscriptionPlanAlertsProps> = ({ alerts, activeIndex, onChangeIndex, onInvoiceAction }) => {
+export const SubscriptionPlanAlerts: React.FC<SubscriptionPlanAlertsProps> = ({ alerts, onChangeIndex, onInvoiceAction }) => {
     /** The card itself selects the plan, clicks inside the alerts must not do that */
     const stopSelection = useCallback((event: React.MouseEvent) => event.stopPropagation(), [])
+    // the badge on top of the card names the alert currently on screen, so it follows the carousel
+    const handleBeforeChange = useCallback((_: number, next: number) => onChangeIndex(next), [onChangeIndex])
 
     if (alerts.length === 0) return null
 
     return (
         <div onClick={stopSelection} role='presentation'>
-            <div className={styles.slides}>
-                {alerts.map((alert, index) => (
-                    <PlanAlertSlide key={alert.key} alert={alert} isHidden={index !== activeIndex} onInvoiceAction={onInvoiceAction} />
+            {/* fading in place keeps the card at the height of its tallest alert instead of jumping */}
+            <Carousel
+                effect='fade'
+                dots={alerts.length > 1}
+                controlsSize='small'
+                beforeChange={handleBeforeChange}
+            >
+                {alerts.map(alert => (
+                    <PlanAlertSlide key={alert.key} alert={alert} onInvoiceAction={onInvoiceAction} />
                 ))}
-            </div>
-            {alerts.length > 1 && (
-                <div className={styles.dots}>
-                    {alerts.map((alert, index) => (
-                        <button
-                            key={alert.key}
-                            type='button'
-                            aria-label={String(index + 1)}
-                            className={classnames(styles.dot, { [styles.dotActive]: index === activeIndex })}
-                            onClick={() => onChangeIndex(index)}
-                        />
-                    ))}
-                </div>
-            )}
+            </Carousel>
         </div>
     )
 }

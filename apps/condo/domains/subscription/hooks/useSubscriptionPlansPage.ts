@@ -10,7 +10,7 @@ import { useMemo, useState, useCallback } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
-import { SUBSCRIPTION_PAYMENT_BUFFER_DAYS, SUBSCRIPTION_PERIOD, SUBSCRIPTION_PLAN_TYPE_SERVICE } from '@condo/domains/subscription/constants'
+import { SUBSCRIPTION_PAYMENT_BUFFER_DAYS, SUBSCRIPTION_PERIOD, SUBSCRIPTION_PLAN_FEATURES, SUBSCRIPTION_PLAN_TYPE_SERVICE } from '@condo/domains/subscription/constants'
 import {
     buildCatalog,
     getCatalogCounters,
@@ -27,6 +27,7 @@ import {
 
 import { useOrganizationSubscription } from './useOrganizationSubscription'
 
+import type { AvailableFeatureType } from '@condo/domains/subscription/constants/features'
 import type {
     CapabilityKey,
     CapabilityLabel,
@@ -40,18 +41,9 @@ import type { PlanPeriod, PlanDiscount, PlanPrice } from '@condo/domains/subscri
 
 type ActivatedContext = ReturnType<typeof useGetOrganizationActivatedSubscriptionsQuery>['data']['activatedSubscriptions'][number]
 
-/** Feature flags carry no name of their own, so the table borrows the plan card wording */
-const FEATURE_LABEL_IDS: Record<string, string> = {
-    payments: 'subscription.features.payments',
-    meters: 'subscription.features.meters',
-    tickets: 'subscription.features.tickets',
-    news: 'subscription.features.news',
-    marketplace: 'subscription.features.marketplace',
+/** Every key is 'subscription.features.<key>', except support: sales calls it the personal manager */
+const FEATURE_LABEL_ID_OVERRIDES: Partial<Record<AvailableFeatureType, string>> = {
     support: 'subscription.features.personalManager',
-    ai: 'subscription.features.ai',
-    customization: 'subscription.features.customization',
-    properties: 'subscription.features.properties',
-    analytics: 'subscription.features.analytics',
 }
 
 /** Sales asked for the personal manager to always be the first upsell in the table */
@@ -169,7 +161,8 @@ export const useSubscriptionPlansPage = () => {
     const capabilityLabels = useMemo<Record<CapabilityKey, CapabilityLabel>>(() => {
         const labels: Record<CapabilityKey, CapabilityLabel> = {}
 
-        for (const [featureKey, messageId] of Object.entries(FEATURE_LABEL_IDS)) {
+        for (const featureKey of SUBSCRIPTION_PLAN_FEATURES) {
+            const messageId = FEATURE_LABEL_ID_OVERRIDES[featureKey] ?? `subscription.features.${featureKey}`
             labels[featureKey] = {
                 label: intl.formatMessage({ id: messageId as FormatjsIntl.Message['ids'] }),
                 description: intl.formatMessage({ id: `subscription.features.${featureKey}.description` as FormatjsIntl.Message['ids'] }),

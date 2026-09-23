@@ -1,4 +1,7 @@
+import dayjs from 'dayjs'
+
 import { SUBSCRIPTION_PLAN_FEATURES } from '@condo/domains/subscription/constants'
+import { ROUTE_FEATURE_MAPPING } from '@condo/domains/subscription/constants/routeFeatureMapping'
 import { getPriceForPeriod } from '@condo/domains/subscription/utils/subscriptionPricing'
 
 import type { PlanPeriod, PlanPrice } from '@condo/domains/subscription/utils/subscriptionPricing'
@@ -132,7 +135,6 @@ export type CatalogRow = {
     key: string
     label: string
     description: string | null
-    /** Everything this row unlocks: feature flags and/or B2B app ids */
     capabilities: ReadonlyArray<CapabilityKey>
     /** Set when the row can be bought on its own */
     featurePlan: CatalogPlan | null
@@ -146,7 +148,6 @@ export type CatalogRow = {
     purchased: boolean
     /** Where the organization stands with this feature plan, null when it never had it */
     status: FeatureStatus | null
-    /** Can be added to the cart right now */
     purchasable: boolean
 }
 
@@ -273,7 +274,6 @@ export const sortCatalogRows = (
 export type CatalogCounters = {
     /** Rows the organization can use with the selected plan, including separately bought ones */
     included: number
-    /** Rows still available for purchase */
     available: number
 }
 
@@ -281,6 +281,19 @@ export const getCatalogCounters = (rows: ReadonlyArray<CatalogRow>): CatalogCoun
     included: rows.filter(row => row.includedInPlan || row.purchased).length,
     available: rows.filter(row => row.purchasable).length,
 })
+
+/** Trials ending on the same day as the plan's own trial are already shown on the plan card */
+export const isSameDay = (left?: string | null, right?: string | null): boolean =>
+    Boolean(left && right && dayjs(left).isSame(dayjs(right), 'day'))
+
+/** Where a feature lives in the product: a B2B app page or the section its flag unlocks */
+export const getFeaturePath = (row: CatalogRow): string | null => {
+    const appIds = Array.isArray(row.featurePlan?.enabledB2BApps) ? row.featurePlan.enabledB2BApps as string[] : []
+    if (appIds.length > 0) return `/miniapps/${appIds[0]}`
+
+    const route = Object.entries(ROUTE_FEATURE_MAPPING).find(([, feature]) => row.capabilities.includes(feature))
+    return route ? route[0] : null
+}
 
 export type UpsellCandidate = {
     plan: CatalogPlan

@@ -1,21 +1,3 @@
-/*
- * The page owns its own vertical rhythm instead of leaning on Space: an antd Space item does not
- * stretch to the container, which leaves a grid inside it shrink-wrapped to one column.
- */
-.page {
-  display: flex;
-  flex-direction: column;
-  gap: 40px;
-  width: 100%;
-}
-
-.table-section {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  width: 100%;
-}
-
 /* Plan cards behave as tabs, so the switch above them is the anchor a card click scrolls to */
 .period-switch {
   display: flex;
@@ -53,19 +35,4 @@
   .plan-list {
     grid-template-columns: 1fr;
   }
-}
-
-/* The saving sits right above the discounted price, centered on it */
-.discounted-price {
-  position: relative;
-  display: inline-block;
-}
-
-.discounted-price-badge {
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  white-space: nowrap;
-  transform: translate(-50%, -2px) rotate(-6deg);
-  pointer-events: none;
 }
