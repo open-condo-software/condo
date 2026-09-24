@@ -31,6 +31,8 @@ type UseSubscriptionSelectionParams = {
     selectedPlanId: string | null
     /** The paid plan still in force, the one a purchase may only go up from. Null during or after a trial */
     paidPlanId: string | null
+    /** Priority of the paid plan, read from every service plan so a period it is not sold for keeps the floor */
+    paidPriority: number | null
     period: PlanPeriod
     /** Features the selected plan already covers, counted into the cart when the plan is bought */
     includedCount: number
@@ -41,6 +43,7 @@ export const useSubscriptionSelection = ({
     planCards,
     selectedPlanId,
     paidPlanId,
+    paidPriority,
     period,
     includedCount,
 }: UseSubscriptionSelectionParams) => {
@@ -57,11 +60,6 @@ export const useSubscriptionSelection = ({
         [planCards, selectedPlanId]
     )
 
-    const paidPlanCard = useMemo(
-        () => planCards.find(card => card.planInfo.plan.id === paidPlanId) ?? null,
-        [planCards, paidPlanId]
-    )
-
     /**
      * Downgrades from a paid plan are not offered: a lower plan can be opened to compare, but it never
      * produces an action bar. Anything above the paid plan can be bought, as long as it has a price for
@@ -69,15 +67,12 @@ export const useSubscriptionSelection = ({
      * one included.
      */
     const isPlanPurchasable = useMemo(() => {
-        if (!selectedPlanCard || !selectedPlanCard.price) return false
-        if (!paidPlanCard) return true
-        if (selectedPlanCard.planInfo.plan.id === paidPlanCard.planInfo.plan.id) return false
+        if (!selectedPlanCard?.price) return false
+        if (!paidPlanId) return true
+        if (selectedPlanCard.planInfo.plan.id === paidPlanId) return false
 
-        const selectedPriority = selectedPlanCard.planInfo.plan.priority ?? 0
-        const paidPriority = paidPlanCard.planInfo.plan.priority ?? 0
-
-        return selectedPriority > paidPriority
-    }, [selectedPlanCard, paidPlanCard])
+        return (selectedPlanCard.planInfo.plan.priority ?? 0) > (paidPriority ?? 0)
+    }, [selectedPlanCard, paidPlanId, paidPriority])
 
     // what is included, purchasable or already owned all change with the plan and the period, so a
     // cart assembled against the previous one would no longer mean anything
@@ -106,10 +101,11 @@ export const useSubscriptionSelection = ({
     const isRowDisabled = useCallback((row: CatalogRow): boolean => {
         const group = getRowGroup(row)
         if (!group) return true
-        if (group === 'buy' && !getRowPrice(row)) return true
+        // a plan below the paid one is only there to compare: nothing is bought against it
+        if (group === 'buy' && (!getRowPrice(row) || selectedPlanCard?.isBelowActive)) return true
 
         return mode !== 'idle' && mode !== group
-    }, [mode, getRowGroup])
+    }, [mode, getRowGroup, selectedPlanCard])
 
     /** Set when the row is blocked only because the selection already holds features in another state */
     const isRowBlockedByMode = useCallback((row: CatalogRow): boolean => {

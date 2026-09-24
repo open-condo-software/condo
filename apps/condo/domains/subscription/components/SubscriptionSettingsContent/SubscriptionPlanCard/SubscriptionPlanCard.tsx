@@ -36,10 +36,30 @@ type SubscriptionPlanCardProps = {
 }
 
 type SubscriptionPlanBadgeProps = {
-    planId: string
     isActivePlan: boolean
     hasTrialExpired: boolean
 }
+
+const countdownColor = (daysRemaining: number): string => {
+    if (daysRemaining <= 1) return colors.red[5]
+    if (daysRemaining <= 7) return colors.orange[5]
+    return colors.green[5]
+}
+
+/** a plan paid during its own trial runs until the paid period ends, not until the trial does */
+const resolveEndDate = (paidUntil: string | null, endAtWithoutBuffer: dayjs.Dayjs | null): dayjs.Dayjs | null => {
+    const now = dayjs()
+    const paidUntilDate = paidUntil ? dayjs(paidUntil) : null
+
+    if (paidUntilDate?.isAfter(now)) return paidUntilDate
+    if (endAtWithoutBuffer?.isAfter(now)) return endAtWithoutBuffer
+
+    return null
+}
+
+const formatEndDate = (date: dayjs.Dayjs | null): string | null => (
+    date ? date.format(date.year() === dayjs().year() ? 'D MMMM' : 'D MMMM YYYY') : null
+)
 
 const SubscriptionPlanBadge: React.FC<SubscriptionPlanBadgeProps> = ({ isActivePlan, hasTrialExpired }) => {
     const intl = useIntl()
@@ -52,36 +72,109 @@ const SubscriptionPlanBadge: React.FC<SubscriptionPlanBadgeProps> = ({ isActiveP
     const daysRemainingWithoutBuffer = activeSubscriptionEndAtWithoutBuffer
         ? Math.max(0, Math.ceil(activeSubscriptionEndAtWithoutBuffer.diff(dayjs(), 'day', true)))
         : 0
-    let badgeMessage: string | null = hasTrialExpired ? ExpiredMessage : null
-    let bgColor = colors.gray[7]
 
-    if (isActivePlan) {
-        bgColor = colors.green[5]
-
+    const badge = useMemo<{ message: string, bgColor: string } | null>(() => {
+        if (!isActivePlan) return hasTrialExpired ? { message: ExpiredMessage, bgColor: colors.gray[7] } : null
+        // The paid period is over and the plan is only alive on the grace days, so the card says
+        // the payment lapsed rather than counting down days the organization has not paid for
+        if (isInBufferPeriod) return { message: PaymentExpiredMessage, bgColor: colors.red[5] }
         // the same context the header reads from - a real (non-trial) active context is what "Connected" means
-        if (!subscriptionContext?.isTrial) {
-            badgeMessage = ActiveMessage
-        } else if (isInBufferPeriod) {
-            // The paid period is over and the plan is only alive on the grace days, so the card says
-            // the payment lapsed rather than counting down days the organization has not paid for
-            badgeMessage = PaymentExpiredMessage
-            bgColor = colors.red[5]
-        } else if (daysRemainingWithoutBuffer > 0 && daysRemainingWithoutBuffer <= 30) {
-            badgeMessage = intl.formatMessage({ id: 'subscription.planCard.badge.activeDays' }, { days: daysRemainingWithoutBuffer })
+        if (!subscriptionContext?.isTrial) return { message: ActiveMessage, bgColor: colors.green[5] }
+        if (daysRemainingWithoutBuffer < 1 || daysRemainingWithoutBuffer > 30) return { message: ActiveMessage, bgColor: colors.green[5] }
 
-            if (daysRemainingWithoutBuffer <= 7) bgColor = colors.orange[5]
-            if (daysRemainingWithoutBuffer <= 1) bgColor = colors.red[5]
-        } else {
-            badgeMessage = ActiveMessage
+        return {
+            message: intl.formatMessage({ id: 'subscription.planCard.badge.activeDays' }, { days: daysRemainingWithoutBuffer }),
+            bgColor: countdownColor(daysRemainingWithoutBuffer),
         }
-    }
+    }, [isActivePlan, hasTrialExpired, ExpiredMessage, isInBufferPeriod, PaymentExpiredMessage, subscriptionContext?.isTrial, ActiveMessage, daysRemainingWithoutBuffer, intl])
 
-    if (!badgeMessage) return null
+    if (!badge) return null
 
     return (
         <span className={styles.badge}>
-            <Tag bgColor={bgColor} textColor={colors.white}>{badgeMessage}</Tag>
+            <Tag bgColor={badge.bgColor} textColor={colors.white}>{badge.message}</Tag>
         </span>
+    )
+}
+
+type SubscriptionPlanPriceProps = {
+    card: ServicePlanView
+    isFreeForPartner: boolean
+    hasPaymentMethodForActivePlan: boolean
+}
+
+const SubscriptionPlanPrice: React.FC<SubscriptionPlanPriceProps> = ({
+    card,
+    isFreeForPartner,
+    hasPaymentMethodForActivePlan,
+}) => {
+    const intl = useIntl()
+    const FreeForPartnerMessage = intl.formatMessage({ id: 'subscription.planCard.freeForPartner' })
+
+    const { activeSubscriptionEndAtWithoutBuffer } = useOrganizationSubscription()
+
+    const { price, discount, extraFeaturesAmount, isActive, isPaid, paidUntil } = card
+
+    /** The active plan shows what the organization pays in total, features bought on top included */
+    const shownAmount = (isFreeForPartner ? 0 : Number(price?.price ?? 0)) + extraFeaturesAmount
+    const showPriceForPartner = isFreeForPartner && extraFeaturesAmount > 0
+    const showDiscount = Boolean(discount) && extraFeaturesAmount === 0
+    const PeriodMessage = price?.period
+        ? intl.formatMessage({ id: `subscription.planCard.planPrice.${price.period}` as FormatjsIntl.Message['ids'] })
+        : ''
+
+    const formattedEndDate = formatEndDate(isActive ? resolveEndDate(paidUntil, activeSubscriptionEndAtWithoutBuffer) : null)
+
+    /**
+     * The active plan swaps the period suffix for when it renews or runs out. Only the period itself reads as
+     * part of the price («1000 ₽/в год»), a date is a sentence of its own and gets a separator instead of a slash
+     */
+    const priceSuffix = useMemo<{ text: string, isPeriod: boolean } | null>(() => {
+        if (isFreeForPartner && !showPriceForPartner) return null
+        if (formattedEndDate && hasPaymentMethodForActivePlan) {
+            return { text: intl.formatMessage({ id: 'subscription.planCard.willBeCharged' }, { date: formattedEndDate }), isPeriod: false }
+        }
+        if (formattedEndDate && isPaid) {
+            return { text: intl.formatMessage({ id: 'subscription.planCard.paidUntil' }, { date: formattedEndDate }), isPeriod: false }
+        }
+
+        return PeriodMessage ? { text: PeriodMessage, isPeriod: true } : null
+    }, [isFreeForPartner, showPriceForPartner, formattedEndDate, hasPaymentMethodForActivePlan, isPaid, PeriodMessage, intl])
+
+    if (isFreeForPartner && !showPriceForPartner) {
+        return (
+            <Typography.Text type='secondary'>
+                {`✅ ${FreeForPartnerMessage}`}
+            </Typography.Text>
+        )
+    }
+
+    return (
+        <>
+            <Space size={8} wrap align='baseline'>
+                {showDiscount && (
+                    <Typography.Text type='secondary' delete>
+                        {formatAmount(discount.fullAmount, price?.currencyCode, intl.locale)}
+                    </Typography.Text>
+                )}
+                <Typography.Title level={3} type={showDiscount ? 'success' : undefined}>
+                    {formatAmount(shownAmount, price?.currencyCode, intl.locale)}
+                </Typography.Title>
+                {priceSuffix && (
+                    <Typography.Text type='secondary'>
+                        {priceSuffix.isPeriod ? `/${priceSuffix.text}` : ` ${priceSuffix.text}`}
+                    </Typography.Text>
+                )}
+            </Space>
+            {showDiscount && (
+                <Typography.Text type='success' size='small'>
+                    {intl.formatMessage(
+                        { id: 'subscription.planCard.discount' },
+                        { amount: formatAmount(discount.discountAmount, price?.currencyCode, intl.locale) }
+                    )}
+                </Typography.Text>
+            )}
+        </>
     )
 }
 
@@ -94,15 +187,14 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({
     refetchActivatedSubscriptions,
 }) => {
     const intl = useIntl()
-    const FreeForPartnerMessage = intl.formatMessage({ id: 'subscription.planCard.freeForPartner' })
     const LinkedCardsLinkLabel = intl.formatMessage({ id: 'subscription.linkedCards.title' })
     const PaymentHistoryLinkLabel = intl.formatMessage({ id: 'subscription.paymentHistory.title' })
 
     const { organization } = useOrganization()
     const { useFlagValue } = useFeatureFlags()
-    const { subscriptionContext: activeServiceContext, activeSubscriptionEndAtWithoutBuffer } = useOrganizationSubscription()
+    const { subscriptionContext: activeServiceContext } = useOrganizationSubscription()
 
-    const { planInfo, price, discount, featureCount, extraFeaturesAmount, alerts, isActive, isPaid, paidUntil, isBelowActive, isSelected } = card
+    const { planInfo, featureCount, alerts, isActive, isPaid, isBelowActive, isSelected } = card
     const { plan } = planInfo
 
     const [activeAlertIndex, setActiveAlertIndex] = useState(0)
@@ -132,42 +224,6 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({
         plan.description || intl.formatMessage({ id: 'subscription.planCard.featureCount' }, { count: featureCount })
     ), [plan.description, featureCount, intl])
 
-    /** The active plan shows what the organization pays in total, features bought on top included */
-    const shownAmount = (isFreeForPartner ? 0 : Number(price?.price ?? 0)) + extraFeaturesAmount
-    const showPriceForPartner = isFreeForPartner && extraFeaturesAmount > 0
-    const PeriodMessage = price?.period
-        ? intl.formatMessage({ id: `subscription.planCard.planPrice.${price.period}` as FormatjsIntl.Message['ids'] })
-        : ''
-
-    // a plan paid during its own trial runs until the paid period ends, not until the trial does
-    const paidUntilDate = paidUntil ? dayjs(paidUntil) : null
-    const endDate = isActive && paidUntilDate?.isAfter(dayjs())
-        ? paidUntilDate
-        : isActive && activeSubscriptionEndAtWithoutBuffer?.isAfter(dayjs())
-            ? activeSubscriptionEndAtWithoutBuffer
-            : null
-    const formattedEndDate = endDate
-        ? endDate.format(endDate.year() === dayjs().year() ? 'D MMMM' : 'D MMMM YYYY')
-        : null
-
-    /**
-     * The active plan swaps the period suffix for when it renews or runs out. Only the period itself reads as
-     * part of the price («1000 ₽/в год»), a date is a sentence of its own and gets a separator instead of a slash
-     */
-    const priceSuffix = useMemo<{ text: string, isPeriod: boolean } | null>(() => {
-        if (isFreeForPartner && !showPriceForPartner) return null
-        if (isActive && formattedEndDate) {
-            if (hasPaymentMethodForActivePlan) {
-                return { text: intl.formatMessage({ id: 'subscription.planCard.willBeCharged' }, { date: formattedEndDate }), isPeriod: false }
-            }
-            if (isPaid) {
-                return { text: intl.formatMessage({ id: 'subscription.planCard.paidUntil' }, { date: formattedEndDate }), isPeriod: false }
-            }
-        }
-
-        return PeriodMessage ? { text: PeriodMessage, isPeriod: true } : null
-    }, [isFreeForPartner, showPriceForPartner, isActive, formattedEndDate, hasPaymentMethodForActivePlan, isPaid, PeriodMessage, intl])
-
     const handleSelect = useCallback(() => onSelect(plan.id), [onSelect, plan.id])
     const handleKeyDown = useCallback((event: React.KeyboardEvent<HTMLDivElement>) => {
         if (event.key !== 'Enter' && event.key !== ' ') return
@@ -176,7 +232,14 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({
     }, [onSelect, plan.id])
 
     /** The whole card selects the plan, so the links inside it must not do that as well */
-    const stopSelection = useCallback((event: React.MouseEvent) => event.stopPropagation(), [])
+    const handlePaymentHistoryClick = useCallback((event: React.MouseEvent) => {
+        event.stopPropagation()
+        openPaymentHistoryModal()
+    }, [openPaymentHistoryModal])
+    const handleLinkedCardsClick = useCallback((event: React.MouseEvent) => {
+        event.stopPropagation()
+        openLinkedCardsModal()
+    }, [openLinkedCardsModal])
 
     const cardClassName = classnames(styles.subscriptionPlanCard, {
         [styles.subscriptionPlanCardPromoted]: plan.canBePromoted,
@@ -203,7 +266,6 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({
                     </span>
                 ) : (
                     <SubscriptionPlanBadge
-                        planId={plan.id}
                         isActivePlan={isActive}
                         hasTrialExpired={Boolean(activatedTrial)}
                     />
@@ -220,37 +282,11 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({
                         </div>
 
                         <div className={styles.cardFoot}>
-                            {isFreeForPartner && !showPriceForPartner ? (
-                                <Typography.Text type='secondary'>
-                                    {`✅ ${FreeForPartnerMessage}`}
-                                </Typography.Text>
-                            ) : (
-                                <>
-                                    <Space size={8} wrap align='baseline'>
-                                        {discount && extraFeaturesAmount === 0 && (
-                                            <Typography.Text type='secondary' delete>
-                                                {formatAmount(discount.fullAmount, price?.currencyCode, intl.locale)}
-                                            </Typography.Text>
-                                        )}
-                                        <Typography.Title level={3} type={discount && extraFeaturesAmount === 0 ? 'success' : undefined}>
-                                            {formatAmount(shownAmount, price?.currencyCode, intl.locale)}
-                                        </Typography.Title>
-                                        {priceSuffix && (
-                                            <Typography.Text type='secondary'>
-                                                {priceSuffix.isPeriod ? `/${priceSuffix.text}` : ` ${priceSuffix.text}`}
-                                            </Typography.Text>
-                                        )}
-                                    </Space>
-                                    {discount && extraFeaturesAmount === 0 && (
-                                        <Typography.Text type='success' size='small'>
-                                            {intl.formatMessage(
-                                                { id: 'subscription.planCard.discount' },
-                                                { amount: formatAmount(discount.discountAmount, price?.currencyCode, intl.locale) }
-                                            )}
-                                        </Typography.Text>
-                                    )}
-                                </>
-                            )}
+                            <SubscriptionPlanPrice
+                                card={card}
+                                isFreeForPartner={isFreeForPartner}
+                                hasPaymentMethodForActivePlan={hasPaymentMethodForActivePlan}
+                            />
 
                             <SubscriptionPlanAlerts
                                 alerts={alerts}
@@ -259,28 +295,26 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({
                             />
 
                             {(showPaymentHistoryLink || showLinkedCardsLink) && (
-                                <div onClick={stopSelection} role='presentation'>
-                                    <Space size={8} direction='vertical'>
-                                        {showPaymentHistoryLink && <Typography.Link
-                                            id={`subscription-plan-card-${plan.id}-payment-history-link`}
-                                            onClick={openPaymentHistoryModal}
-                                        >
-                                            <Space size={4} direction='horizontal' align='center'>
-                                                <Bill size='small' />
-                                                {PaymentHistoryLinkLabel}
-                                            </Space>
-                                        </Typography.Link>}
-                                        {showLinkedCardsLink && <Typography.Link
-                                            id={`subscription-plan-card-${plan.id}-linked-cards-link`}
-                                            onClick={openLinkedCardsModal}
-                                        >
-                                            <Space size={4} direction='horizontal' align='center'>
-                                                <CreditCard size='small' />
-                                                {LinkedCardsLinkLabel}
-                                            </Space>
-                                        </Typography.Link>}
-                                    </Space>
-                                </div>
+                                <Space size={8} direction='vertical'>
+                                    {showPaymentHistoryLink && <Typography.Link
+                                        id={`subscription-plan-card-${plan.id}-payment-history-link`}
+                                        onClick={handlePaymentHistoryClick}
+                                    >
+                                        <Space size={4} direction='horizontal' align='center'>
+                                            <Bill size='small' />
+                                            {PaymentHistoryLinkLabel}
+                                        </Space>
+                                    </Typography.Link>}
+                                    {showLinkedCardsLink && <Typography.Link
+                                        id={`subscription-plan-card-${plan.id}-linked-cards-link`}
+                                        onClick={handleLinkedCardsClick}
+                                    >
+                                        <Space size={4} direction='horizontal' align='center'>
+                                            <CreditCard size='small' />
+                                            {LinkedCardsLinkLabel}
+                                        </Space>
+                                    </Typography.Link>}
+                                </Space>
                             )}
                         </div>
                     </div>

@@ -133,9 +133,8 @@ export const SubscriptionFeatureTable: React.FC<SubscriptionFeatureTableProps> =
                 onChange={() => onToggleRow(row)}
             />
         )
-        const checkboxTooltip = row.includedInPlan
-            ? IncludedTooltip
-            : isRowBlockedByMode(row) ? MixedStatusesTooltip : null
+        const blockedTooltip = isRowBlockedByMode(row) ? MixedStatusesTooltip : null
+        const checkboxTooltip = row.includedInPlan ? IncludedTooltip : blockedTooltip
 
         return checkboxTooltip ? (
             <Tooltip title={checkboxTooltip}>

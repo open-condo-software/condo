@@ -80,22 +80,27 @@ const getStoredCreatedAt = (
     return isStillValid(kind, storedValue) ? storedValue : now
 }
 
-const markMessageIdsAsRead = (
+interface ShownMessage {
+    id: string
+    createdAt: string
+}
+
+const markMessagesAsRead = (
     storage: LocalStorageManager<ReadMessageStorage> | null,
     kind: TrackedNotificationKind,
-    messageIds: ReadonlyArray<string>
+    messages: ReadonlyArray<ShownMessage>
 ): void => {
-    if (!storage || messageIds.length === 0) return
+    if (!storage || messages.length === 0) return
 
     const key = STORAGE_KEY_BY_KIND[kind]
     const stored = storage.getItem(key) || {}
-    const now = new Date().toISOString()
     const next = { ...stored }
     let changed = false
 
-    for (const messageId of messageIds) {
-        if (isStillValid(kind, next[messageId])) continue
-        next[messageId] = now
+    // the timestamp the message was shown with, so it does not jump forward when the dropdown closes
+    for (const message of messages) {
+        if (isStillValid(kind, next[message.id])) continue
+        next[message.id] = message.createdAt
         changed = true
     }
 
@@ -141,7 +146,7 @@ const featureNamesOf = (contexts: ReadonlyArray<SubscriptionContextLike>): strin
     contexts.map(context => `«${context.subscriptionPlan?.name ?? ''}»`).join(', ')
 
 const groupIdOf = (contexts: ReadonlyArray<SubscriptionContextLike>): string =>
-    contexts.map(context => context.id).sort().join('_')
+    contexts.map(context => context.id).sort((left, right) => left.localeCompare(right)).join('_')
 
 const announcementKey = (kind: NotificationCandidateKind, endAt: string): string =>
     `${kind}:${dayjs(endAt).format('YYYY-MM-DD')}`
@@ -214,7 +219,7 @@ function buildNotificationCandidates (
                 title: intl.formatMessage({ id: 'notification.UserMessagesList.message.SUBSCRIPTION_PAYMENT_REMINDER.title' }),
                 content: intl.formatMessage(
                     { id: 'notification.UserMessagesList.message.SUBSCRIPTION_PAYMENT_REMINDER.content' },
-                    { planName, price: formatWholeCurrency(intl, parseFloat(price), currencyCode) }
+                    { planName, price: formatWholeCurrency(intl, Number.parseFloat(price), currencyCode) }
                 ),
             })
         }
@@ -260,7 +265,7 @@ function buildNotificationCandidates (
         && Boolean(context.subscriptionPlanPricingRule?.currencyCode)
         && dayjs(context.endAt).startOf('day').diff(now.startOf('day'), 'day') === 1
     ))) {
-        const totalPrice = contexts.reduce((sum, context) => sum + parseFloat(context.subscriptionPlanPricingRule.price), 0)
+        const totalPrice = contexts.reduce((sum, context) => sum + Number.parseFloat(context.subscriptionPlanPricingRule.price), 0)
         candidates.push({
             id: `subscription-feature-payment-reminder-${groupIdOf(contexts)}`,
             kind: 'reminder',
@@ -315,7 +320,7 @@ export const useSubscriptionPaymentNotifications = (): SubscriptionPaymentNotifi
 
     const storage = useMemo(() => (typeof window === 'undefined' ? null : new LocalStorageManager<ReadMessageStorage>()), [])
 
-    const shownMessageIds = useRef<Record<TrackedNotificationKind, string[]>>({ reminder: [], error: [] })
+    const shownMessages = useRef<Record<TrackedNotificationKind, ShownMessage[]>>({ reminder: [], error: [] })
 
     const messages = useMemo(() => {
         if (!organizationId || subscriptionContexts.length === 0) return []
@@ -324,18 +329,18 @@ export const useSubscriptionPaymentNotifications = (): SubscriptionPaymentNotifi
         const nowIso = now.toISOString()
         const candidates = buildNotificationCandidates(intl, subscriptionContexts, failedRenewals, now)
 
-        const reminderIds: string[] = []
-        const errorIds: string[] = []
+        const shownReminders: ShownMessage[] = []
+        const shownErrors: ShownMessage[] = []
 
         const result = candidates.map(candidate => {
             let createdAt = candidate.createdAt
 
             if (candidate.kind === 'reminder') {
-                reminderIds.push(candidate.id)
                 createdAt = getStoredCreatedAt(storage, 'reminder', candidate.id, nowIso)
+                shownReminders.push({ id: candidate.id, createdAt })
             } else if (candidate.kind === 'error') {
-                errorIds.push(candidate.id)
                 createdAt = getStoredCreatedAt(storage, 'error', candidate.id, nowIso)
+                shownErrors.push({ id: candidate.id, createdAt })
             }
 
             return {
@@ -348,16 +353,16 @@ export const useSubscriptionPaymentNotifications = (): SubscriptionPaymentNotifi
             } as UserMessageType
         })
 
-        shownMessageIds.current = { reminder: reminderIds, error: errorIds }
+        shownMessages.current = { reminder: shownReminders, error: shownErrors }
         return result
     }, [organizationId, subscriptionContexts, failedRenewals, intl, storage])
 
     const markReminderAsRead = useCallback(() => {
-        markMessageIdsAsRead(storage, 'reminder', shownMessageIds.current.reminder)
+        markMessagesAsRead(storage, 'reminder', shownMessages.current.reminder)
     }, [storage])
 
     const markErrorAsRead = useCallback(() => {
-        markMessageIdsAsRead(storage, 'error', shownMessageIds.current.error)
+        markMessagesAsRead(storage, 'error', shownMessages.current.error)
     }, [storage])
 
     return {

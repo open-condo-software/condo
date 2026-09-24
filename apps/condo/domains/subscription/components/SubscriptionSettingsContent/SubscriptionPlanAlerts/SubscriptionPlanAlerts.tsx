@@ -8,7 +8,7 @@ import { colors } from '@open-condo/ui/colors'
 import type { PlanAlert } from '@condo/domains/subscription/utils/subscriptionPlanAlerts'
 
 
-const WARNING_ALERT_TYPES: ReadonlyArray<PlanAlert['type']> = ['invoicePending', 'trial']
+const WARNING_ALERT_TYPES: ReadonlySet<PlanAlert['type']> = new Set(['invoicePending', 'trial'])
 
 type SubscriptionPlanAlertsProps = {
     alerts: ReadonlyArray<PlanAlert>
@@ -86,7 +86,7 @@ const PlanAlertSlide: React.FC<{ alert: PlanAlert, onInvoiceAction: (alert: Plan
 
     return (
         <Alert
-            type={WARNING_ALERT_TYPES.includes(alert.type) ? 'warning' : 'error'}
+            type={WARNING_ALERT_TYPES.has(alert.type) ? 'warning' : 'error'}
             message={title ?? description}
             description={title ? body : undefined}
         />

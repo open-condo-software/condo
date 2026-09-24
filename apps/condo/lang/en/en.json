@@ -3478,7 +3478,7 @@
   "subscription.checkout.total": "Total to pay",
   "subscription.checkout.buy": "Buy",
   "subscription.checkout.upsell.title": "Get the «{planName}» plan for {amount}",
-  "subscription.checkout.upsell.description": "You have already added {count} options for {amount}. Switching to the «{planName}» plan includes {extraCount} more features for that money.",
+  "subscription.checkout.upsell.description": "You have already added {count, plural, one {# option} other {# options}} for {amount}. Switching to the «{planName}» plan includes {extraCount, plural, one {# more feature} other {# more features}} for that money.",
   "subscription.checkout.upsell.buyFeatures": "Buy only {count, plural, one {# feature} other {# features}}",
   "subscription.checkout.upsell.buyPlan": "Get «{planName}»",
   "subscription.remove.title": "Remove {count, plural, one {# feature} other {# features}} from the subscription: {names}?",

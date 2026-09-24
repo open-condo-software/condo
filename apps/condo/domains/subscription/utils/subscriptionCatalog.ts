@@ -61,6 +61,12 @@ const DAY_MS = 24 * 60 * 60 * 1000
 const byEndAtDesc = (left: FeatureContext, right: FeatureContext): number =>
     new Date(right.endAt).getTime() - new Date(left.endAt).getTime()
 
+const resolveActiveStatusType = (context: FeatureContext): FeatureStatusType => {
+    if (context.isTrial) return 'trial'
+    if (context.renewalCancelledAt) return 'renewalCancelled'
+    return 'connected'
+}
+
 /**
  * A paid period that ended less than `bufferDays` ago is still being renewed, so it reads as an expired
  * payment. Any other ended context, a cancelled one included, has used up the trial for good.
@@ -76,7 +82,7 @@ export const resolveFeatureStatus = (
         .sort(byEndAtDesc)[0]
 
     if (active) {
-        const type: FeatureStatusType = active.isTrial ? 'trial' : active.renewalCancelledAt ? 'renewalCancelled' : 'connected'
+        const type = resolveActiveStatusType(active)
         const daysLeft = Math.max(0, Math.ceil((new Date(active.endAt).getTime() - now.getTime()) / DAY_MS))
         return { type, contextId: active.id, endAt: active.endAt, daysLeft }
     }
