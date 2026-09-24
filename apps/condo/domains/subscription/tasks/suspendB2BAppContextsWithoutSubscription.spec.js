@@ -141,6 +141,71 @@ describe('suspendB2BAppContextsWithoutSubscription', () => {
             const notChangedContext = await B2BAppContext.getOne(admin, { id: b2bAppContext.id })
             expect(notChangedContext.status).toBe(CONTEXT_FINISHED_STATUS)
         })
+
+        test('moves context back to Finished when subscription for the app becomes active', async () => {
+            const [organization] = await registerNewOrganization(admin, { type: HOLDING_TYPE })
+            const [app] = await createTestB2BApp(admin)
+            const [subscriptionPlan] = await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: HOLDING_TYPE,
+                enabledB2BApps: [app.id],
+            })
+            await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
+                endAt: dayjs().add(30, 'days').format('YYYY-MM-DD'),
+                isTrial: false,
+            })
+            const [b2bAppContext] = await createTestB2BAppContext(admin, app, organization, {
+                status: CONTEXT_ERROR_STATUS,
+                errorReason: CONTEXT_ERROR_REASON_NO_SUBSCRIPTION,
+            })
+
+            await suspendB2BAppContextsWithoutSubscription()
+
+            const activatedContext = await B2BAppContext.getOne(admin, { id: b2bAppContext.id })
+            expect(activatedContext.status).toBe(CONTEXT_FINISHED_STATUS)
+            expect(activatedContext.errorReason).toBeNull()
+        })
+
+        test('moves context back to Finished when app is no longer included into any subscription plan', async () => {
+            const [organization] = await registerNewOrganization(admin, { type: HOLDING_TYPE })
+            const [app] = await createTestB2BApp(admin)
+            const [b2bAppContext] = await createTestB2BAppContext(admin, app, organization, {
+                status: CONTEXT_ERROR_STATUS,
+                errorReason: CONTEXT_ERROR_REASON_NO_SUBSCRIPTION,
+            })
+
+            await suspendB2BAppContextsWithoutSubscription()
+
+            const activatedContext = await B2BAppContext.getOne(admin, { id: b2bAppContext.id })
+            expect(activatedContext.status).toBe(CONTEXT_FINISHED_STATUS)
+            expect(activatedContext.errorReason).toBeNull()
+        })
+
+        test('keeps context in Error when it was not suspended for NoSubscription reason', async () => {
+            const [organization] = await registerNewOrganization(admin, { type: HOLDING_TYPE })
+            const [app] = await createTestB2BApp(admin)
+            const [subscriptionPlan] = await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: HOLDING_TYPE,
+                enabledB2BApps: [app.id],
+            })
+            await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
+                endAt: dayjs().add(30, 'days').format('YYYY-MM-DD'),
+                isTrial: false,
+            })
+            const [b2bAppContext] = await createTestB2BAppContext(admin, app, organization, {
+                status: CONTEXT_ERROR_STATUS,
+                errorReason: null,
+            })
+
+            await suspendB2BAppContextsWithoutSubscription()
+
+            const notChangedContext = await B2BAppContext.getOne(admin, { id: b2bAppContext.id })
+            expect(notChangedContext.status).toBe(CONTEXT_ERROR_STATUS)
+            expect(notChangedContext.errorReason).toBeNull()
+        })
     })
 
     describe('with disabled subscriptions', () => {
