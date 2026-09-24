@@ -29,7 +29,7 @@ function getPdfReceiptsSubscriptionRequiredBillingIntegrationIds () {
         throw new Error('PDF_RECEIPTS_SUBSCRIPTION_REQUIRED_BILLING_INTEGRATION_IDS must be a JSON array of billing integration ids')
     }
     if (!Array.isArray(integrationIds)) {
-        throw new Error('PDF_RECEIPTS_SUBSCRIPTION_REQUIRED_BILLING_INTEGRATION_IDS must be a JSON array of billing integration ids')
+        throw new TypeError('PDF_RECEIPTS_SUBSCRIPTION_REQUIRED_BILLING_INTEGRATION_IDS must be a JSON array of billing integration ids')
     }
     return integrationIds
 }

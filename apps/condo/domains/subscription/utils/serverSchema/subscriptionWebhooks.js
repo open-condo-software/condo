@@ -1,5 +1,3 @@
-const uniq = require('lodash/uniq')
-
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { find, getById, getSchemaCtx } = require('@open-condo/keystone/schema')
@@ -14,8 +12,8 @@ const logger = getLogger('subscriptionWebhooks')
 
 /** Plan and period of every context; rules and plans are read even when deleted, the contexts still point at them */
 async function buildSubscriptionContextsPayload (subscriptionContexts) {
-    const planIds = uniq(subscriptionContexts.map(subscriptionContext => subscriptionContext.subscriptionPlan))
-    const ruleIds = uniq(subscriptionContexts.map(subscriptionContext => subscriptionContext.subscriptionPlanPricingRule).filter(Boolean))
+    const planIds = [...new Set(subscriptionContexts.map(subscriptionContext => subscriptionContext.subscriptionPlan))]
+    const ruleIds = [...new Set(subscriptionContexts.map(subscriptionContext => subscriptionContext.subscriptionPlanPricingRule).filter(Boolean))]
 
     const plans = await find('SubscriptionPlan', { id_in: planIds })
     const rules = ruleIds.length > 0 ? await find('SubscriptionPlanPricingRule', { id_in: ruleIds }) : []

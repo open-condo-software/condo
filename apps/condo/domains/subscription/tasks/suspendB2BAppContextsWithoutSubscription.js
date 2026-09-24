@@ -30,7 +30,7 @@ function getOrganizationTypesByAppId (plans) {
  */
 function isAppSubscriptionExpired (organization, appId, now) {
     const subscriptionApp = (organization.subscription?.b2bApps || []).find(app => app.id === appId)
-    if (!subscriptionApp || !subscriptionApp.endAt) return true
+    if (!subscriptionApp?.endAt) return true
 
     return !dayjs(subscriptionApp.endAt).isAfter(now)
 }

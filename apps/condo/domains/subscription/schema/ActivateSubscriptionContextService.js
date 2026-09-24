@@ -142,7 +142,7 @@ const ActivateSubscriptionContextService = new GQLCustomSchema('ActivateSubscrip
                 const payment = payments[0]
 
                 let multiPayment = null
-                if (payment && payment.multiPayment) {
+                if (payment?.multiPayment) {
                     const [foundMultiPayment] = await find('MultiPayment', {
                         id: payment.multiPayment,
                         deletedAt: null,

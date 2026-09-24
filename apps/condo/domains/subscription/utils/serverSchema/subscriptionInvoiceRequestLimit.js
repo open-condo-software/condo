@@ -14,7 +14,7 @@ const redisGuard = new RedisGuard()
  * Throws GQL_ERRORS.TOO_MANY_REQUESTS (via RedisGuard) once exceeded.
  */
 async function checkSubscriptionInvoiceRequestLimit (context, action, organizationId, planIds) {
-    const sortedPlanIds = [...new Set(planIds)].sort()
+    const sortedPlanIds = [...new Set(planIds)].sort((a, b) => a.localeCompare(b))
 
     await redisGuard.checkCustomLimitCounters(
         `subscription-invoice-request:${action}:${organizationId}:${sortedPlanIds.join(',')}`,
