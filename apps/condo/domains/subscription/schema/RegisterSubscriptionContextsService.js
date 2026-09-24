@@ -43,7 +43,7 @@ const ERRORS = {
     },
     PRICING_RULE_NOT_FOUND: {
         mutation: 'registerSubscriptionContexts',
-        variable: ['data', 'subscriptionPlanPricingRule'],
+        variable: ['data', 'subscriptionPlanPricingRules'],
         code: BAD_USER_INPUT,
         type: NOT_FOUND,
         message: 'Subscription plan pricing rule not found',
@@ -75,7 +75,7 @@ const ERRORS = {
     },
     MIXED_PRICING_RULE_PERIODS: {
         mutation: 'registerSubscriptionContexts',
-        variable: ['data', 'additionalPricingRules'],
+        variable: ['data', 'subscriptionPlanPricingRules'],
         code: BAD_USER_INPUT,
         type: 'MIXED_PRICING_RULE_PERIODS',
         message: 'All pricing rules in a bundle must have the same period',
@@ -83,7 +83,7 @@ const ERRORS = {
     },
     DUPLICATE_PLAN_IN_BUNDLE: {
         mutation: 'registerSubscriptionContexts',
-        variable: ['data', 'additionalPricingRules'],
+        variable: ['data', 'subscriptionPlanPricingRules'],
         code: BAD_USER_INPUT,
         type: 'DUPLICATE_PLAN_IN_BUNDLE',
         message: 'A bundle cannot contain the same subscription plan more than once',
@@ -91,7 +91,7 @@ const ERRORS = {
     },
     MULTIPLE_SERVICE_PLANS_IN_BUNDLE: {
         mutation: 'registerSubscriptionContexts',
-        variable: ['data', 'additionalPricingRules'],
+        variable: ['data', 'subscriptionPlanPricingRules'],
         code: BAD_USER_INPUT,
         type: 'MULTIPLE_SERVICE_PLANS_IN_BUNDLE',
         message: 'A bundle can contain at most one service plan',
@@ -99,7 +99,7 @@ const ERRORS = {
     },
     FEATURE_ALREADY_IN_PLAN: {
         mutation: 'registerSubscriptionContexts',
-        variable: ['data', 'additionalPricingRules'],
+        variable: ['data', 'subscriptionPlanPricingRules'],
         code: BAD_USER_INPUT,
         type: 'FEATURE_ALREADY_IN_PLAN',
         message: 'A feature plan in the bundle is already covered by another plan in the same bundle',
@@ -266,11 +266,6 @@ const RegisterSubscriptionContextsService = new GQLCustomSchema('RegisterSubscri
 
                 const isCard = paymentType === SUBSCRIPTION_PAYMENT_TYPE_CARD
 
-                // A repeated invoice request is exactly what floods sales, so it's throttled before any invoice gets created
-                if (!isCard) {
-                    await checkSubscriptionInvoiceRequestLimit(context, 'register', organization.id, planIds)
-                }
-
                 const baseSubscription = serviceSubscriptions[0]
                     || [...subscriptions].sort((a, b) => (a.rule.id < b.rule.id ? -1 : 1))[0]
 
@@ -302,6 +297,11 @@ const RegisterSubscriptionContextsService = new GQLCustomSchema('RegisterSubscri
                 if (!recipientOrganizationId) {
                     logger.error({ msg: 'SUBSCRIPTION_PAYMENT_RECIPIENT is not configured' })
                     throw new GQLError(ERRORS.PAYMENT_RECIPIENT_NOT_CONFIGURED, context)
+                }
+
+                // A repeated invoice request is exactly what floods sales, so it's throttled before any invoice gets created
+                if (!isCard) {
+                    await checkSubscriptionInvoiceRequestLimit(context, 'register', organization.id, planIds)
                 }
 
                 let invoice = null
