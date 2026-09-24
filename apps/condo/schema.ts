@@ -5848,6 +5848,8 @@ export type B2BAppContext = {
   deletedAt?: Maybe<Scalars['String']['output']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']['output']>;
+  /**  Reason why status is set to "Error". Can be one of the following: ["NoSubscription"]  */
+  errorReason?: Maybe<B2BAppContextErrorReasonType>;
   id: Scalars['ID']['output'];
   /**  Data that is required for specified app to work with specified organization. Filled by app's service account / support and can have any JSON structure  */
   meta?: Maybe<Scalars['JSON']['output']>;
@@ -5870,6 +5872,7 @@ export type B2BAppContextCreateInput = {
   createdBy?: InputMaybe<UserRelateToOneInput>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
+  errorReason?: InputMaybe<B2BAppContextErrorReasonType>;
   meta?: InputMaybe<Scalars['JSON']['input']>;
   newId?: InputMaybe<Scalars['String']['input']>;
   organization?: InputMaybe<OrganizationRelateToOneInput>;
@@ -5884,6 +5887,10 @@ export enum B2BAppContextDefaultStatusType {
   Error = 'Error',
   Finished = 'Finished',
   InProgress = 'InProgress'
+}
+
+export enum B2BAppContextErrorReasonType {
+  NoSubscription = 'NoSubscription'
 }
 
 /**  A keystone list  */
@@ -5902,6 +5909,7 @@ export type B2BAppContextHistoryRecord = {
   createdBy?: Maybe<Scalars['String']['output']>;
   deletedAt?: Maybe<Scalars['String']['output']>;
   dv?: Maybe<Scalars['Int']['output']>;
+  errorReason?: Maybe<Scalars['String']['output']>;
   history_action?: Maybe<B2BAppContextHistoryRecordHistoryActionType>;
   history_date?: Maybe<Scalars['String']['output']>;
   history_id?: Maybe<Scalars['String']['output']>;
@@ -5922,6 +5930,7 @@ export type B2BAppContextHistoryRecordCreateInput = {
   createdBy?: InputMaybe<Scalars['String']['input']>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
+  errorReason?: InputMaybe<Scalars['String']['input']>;
   history_action?: InputMaybe<B2BAppContextHistoryRecordHistoryActionType>;
   history_date?: InputMaybe<Scalars['String']['input']>;
   history_id?: InputMaybe<Scalars['String']['input']>;
@@ -5947,6 +5956,7 @@ export type B2BAppContextHistoryRecordUpdateInput = {
   createdBy?: InputMaybe<Scalars['String']['input']>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
+  errorReason?: InputMaybe<Scalars['String']['input']>;
   history_action?: InputMaybe<B2BAppContextHistoryRecordHistoryActionType>;
   history_date?: InputMaybe<Scalars['String']['input']>;
   history_id?: InputMaybe<Scalars['String']['input']>;
@@ -5995,6 +6005,24 @@ export type B2BAppContextHistoryRecordWhereInput = {
   dv_lte?: InputMaybe<Scalars['Int']['input']>;
   dv_not?: InputMaybe<Scalars['Int']['input']>;
   dv_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  errorReason?: InputMaybe<Scalars['String']['input']>;
+  errorReason_contains?: InputMaybe<Scalars['String']['input']>;
+  errorReason_contains_i?: InputMaybe<Scalars['String']['input']>;
+  errorReason_ends_with?: InputMaybe<Scalars['String']['input']>;
+  errorReason_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  errorReason_i?: InputMaybe<Scalars['String']['input']>;
+  errorReason_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  errorReason_not?: InputMaybe<Scalars['String']['input']>;
+  errorReason_not_contains?: InputMaybe<Scalars['String']['input']>;
+  errorReason_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  errorReason_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  errorReason_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  errorReason_not_i?: InputMaybe<Scalars['String']['input']>;
+  errorReason_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  errorReason_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  errorReason_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  errorReason_starts_with?: InputMaybe<Scalars['String']['input']>;
+  errorReason_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   history_action?: InputMaybe<B2BAppContextHistoryRecordHistoryActionType>;
   history_action_in?: InputMaybe<Array<InputMaybe<B2BAppContextHistoryRecordHistoryActionType>>>;
   history_action_not?: InputMaybe<B2BAppContextHistoryRecordHistoryActionType>;
@@ -6103,6 +6131,7 @@ export type B2BAppContextUpdateInput = {
   createdBy?: InputMaybe<UserRelateToOneInput>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
+  errorReason?: InputMaybe<B2BAppContextErrorReasonType>;
   meta?: InputMaybe<Scalars['JSON']['input']>;
   newId?: InputMaybe<Scalars['String']['input']>;
   organization?: InputMaybe<OrganizationRelateToOneInput>;
@@ -6144,6 +6173,10 @@ export type B2BAppContextWhereInput = {
   dv_lte?: InputMaybe<Scalars['Int']['input']>;
   dv_not?: InputMaybe<Scalars['Int']['input']>;
   dv_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  errorReason?: InputMaybe<B2BAppContextErrorReasonType>;
+  errorReason_in?: InputMaybe<Array<InputMaybe<B2BAppContextErrorReasonType>>>;
+  errorReason_not?: InputMaybe<B2BAppContextErrorReasonType>;
+  errorReason_not_in?: InputMaybe<Array<InputMaybe<B2BAppContextErrorReasonType>>>;
   id?: InputMaybe<Scalars['ID']['input']>;
   id_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   id_not?: InputMaybe<Scalars['ID']['input']>;
@@ -95448,6 +95481,8 @@ export enum SortB2BAppContextHistoryRecordsBy {
   DeletedAtDesc = 'deletedAt_DESC',
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
+  ErrorReasonAsc = 'errorReason_ASC',
+  ErrorReasonDesc = 'errorReason_DESC',
   HistoryActionAsc = 'history_action_ASC',
   HistoryActionDesc = 'history_action_DESC',
   HistoryDateAsc = 'history_date_ASC',
@@ -95473,6 +95508,8 @@ export enum SortB2BAppContextsBy {
   DeletedAtDesc = 'deletedAt_DESC',
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
+  ErrorReasonAsc = 'errorReason_ASC',
+  ErrorReasonDesc = 'errorReason_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   OrganizationAsc = 'organization_ASC',
