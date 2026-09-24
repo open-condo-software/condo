@@ -64,10 +64,12 @@ async function queueSubscriptionWebhook ({ url, secret, eventType, invoiceId, su
     }
 
     const { keystone: context } = getSchemaCtx('WebhookPayload')
+    const queuedAt = new Date().toISOString()
     try {
         await queueWebhookPayload(context, { url, secret, eventType, modelName: 'SubscriptionContext', itemId, payload, sender })
     } catch (err) {
-        const [createdPayload] = await find('WebhookPayload', { eventType, itemId, deletedAt: null })
+        // only a payload of this very call proves the record was written: an earlier one must not hide a failed create
+        const [createdPayload] = await find('WebhookPayload', { eventType, itemId, createdAt_gte: queuedAt, deletedAt: null })
         if (!createdPayload) throw err
         logger.error({ msg: 'failed to schedule subscription webhook, it stays pending for the retry task', err, entity: 'WebhookPayload', entityId: createdPayload.id, data: { eventType } })
     }
