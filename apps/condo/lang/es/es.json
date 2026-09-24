@@ -3478,7 +3478,7 @@
   "subscription.checkout.total": "Importe a pagar",
   "subscription.checkout.buy": "Comprar",
   "subscription.checkout.upsell.title": "Contrate el plan «{planName}» por {amount}",
-  "subscription.checkout.upsell.description": "Ya ha añadido {count} opciones por {amount}. Cambiar al plan «{planName}» incluye {extraCount} funciones más por ese importe.",
+  "subscription.checkout.upsell.description": "Ya ha añadido {count, plural, one {# opción} other {# opciones}} por {amount}. Cambiar al plan «{planName}» incluye {extraCount, plural, one {# función más} other {# funciones más}} por ese importe.",
   "subscription.checkout.upsell.buyFeatures": "Comprar solo {count, plural, one {# función} other {# funciones}}",
   "subscription.checkout.upsell.buyPlan": "Contratar «{planName}»",
   "subscription.remove.title": "¿Quitar de la suscripción {count, plural, one {# función} other {# funciones}}: {names}?",

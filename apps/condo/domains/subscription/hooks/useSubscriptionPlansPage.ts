@@ -245,9 +245,11 @@ export const useSubscriptionPlansPage = () => {
         pinnedCapabilities: PINNED_CAPABILITIES,
     }), [featurePlans, period, purchasedFeaturePlanIds, capabilityLabels, featureStatusByPlanId])
 
+    // read from every service plan, not only the ones sold for the selected period: a paid plan without a
+    // price for that period is still the floor a purchase may only go up from
     const paidPriority = useMemo(
-        () => availablePlans.find(({ plan }) => plan.id === paidPlanId)?.plan?.priority ?? null,
-        [availablePlans, paidPlanId]
+        () => servicePlans.find(({ plan }) => plan.id === paidPlanId)?.plan?.priority ?? null,
+        [servicePlans, paidPlanId]
     )
 
     const planCards = useMemo<ReadonlyArray<ServicePlanView>>(() => availablePlans.map(planInfo => {
@@ -312,6 +314,7 @@ export const useSubscriptionPlansPage = () => {
         selectPlan,
         activePlanId,
         paidPlanId,
+        paidPriority,
         activeServiceContext,
         rows,
         counters,

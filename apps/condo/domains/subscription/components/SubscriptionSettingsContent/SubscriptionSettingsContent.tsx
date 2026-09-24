@@ -35,9 +35,39 @@ import type { RowBadge } from './SubscriptionFeatureTable/SubscriptionFeatureTab
 import type { CatalogRow } from '@condo/domains/subscription/utils/subscriptionCatalog'
 import type { PlanPeriod } from '@condo/domains/subscription/utils/subscriptionPricing'
 import type { RadioChangeEvent } from 'antd'
+import type { IntlShape } from 'react-intl'
 
 
 const PLAN_CARD_EMOJIS = ['🏠', '🏁', '💼', '👑']
+
+/**
+ * The plan card already carries a trial badge. A feature only gets its own badge in the
+ * table when its trial runs on a different schedule than the plan's.
+ */
+const buildRowBadge = (row: CatalogRow, intl: IntlShape, planEndAt?: string | null): RowBadge | null => {
+    const status = row.includedInPlan ? null : row.status
+    if (!status) return null
+
+    switch (status.type) {
+        case 'connected':
+            return { text: intl.formatMessage({ id: 'subscription.featureTable.badge.connected' }), bgColor: colors.green[5] }
+        // The feature keeps working until the paid period ends, but its trial is gone for good and it is sold again
+        case 'renewalCancelled':
+        case 'trialExpired':
+            return { text: intl.formatMessage({ id: 'subscription.planCard.badge.trialExpired' }), bgColor: colors.gray[7] }
+        case 'paymentExpired':
+            return { text: intl.formatMessage({ id: 'subscription.planCard.badge.paymentExpired' }), bgColor: colors.red[5] }
+        case 'trial':
+            // A trial running in step with the plan is already announced on the plan card
+            if (isSameDay(status.endAt, planEndAt)) return null
+            return {
+                text: intl.formatMessage({ id: 'subscription.planCard.badge.activeDays' }, { days: status.daysLeft }),
+                bgColor: status.daysLeft <= 7 ? colors.orange[5] : colors.green[5],
+            }
+        default:
+            return null
+    }
+}
 
 export const SubscriptionSettingsContent: React.FC = () => {
     const intl = useIntl()
@@ -64,6 +94,7 @@ export const SubscriptionSettingsContent: React.FC = () => {
         selectedPlanInfo,
         selectPlan,
         paidPlanId,
+        paidPriority,
         activeServiceContext,
         rows,
         counters,
@@ -81,6 +112,7 @@ export const SubscriptionSettingsContent: React.FC = () => {
         planCards,
         selectedPlanId,
         paidPlanId,
+        paidPriority,
         period,
         includedCount: counters.included,
     })
@@ -105,34 +137,10 @@ export const SubscriptionSettingsContent: React.FC = () => {
 
     const canManageSubscriptions = Boolean(role?.canManageSubscriptions)
 
-    /**
-     * The plan card already carries a trial badge. A feature only gets its own badge in the
-     * table when its trial runs on a different schedule than the plan's.
-     */
-    const getRowBadge = useCallback((row: CatalogRow): RowBadge | null => {
-        const status = row.includedInPlan ? null : row.status
-        if (!status) return null
-
-        switch (status.type) {
-            case 'connected':
-                return { text: intl.formatMessage({ id: 'subscription.featureTable.badge.connected' }), bgColor: colors.green[5] }
-            // The feature keeps working until the paid period ends, but its trial is gone for good and it is sold again
-            case 'renewalCancelled':
-            case 'trialExpired':
-                return { text: intl.formatMessage({ id: 'subscription.planCard.badge.trialExpired' }), bgColor: colors.gray[7] }
-            case 'paymentExpired':
-                return { text: intl.formatMessage({ id: 'subscription.planCard.badge.paymentExpired' }), bgColor: colors.red[5] }
-            case 'trial':
-                // A trial running in step with the plan is already announced on the plan card
-                if (isSameDay(status.endAt, activeServiceContext?.endAt)) return null
-                return {
-                    text: intl.formatMessage({ id: 'subscription.planCard.badge.activeDays' }, { days: status.daysLeft }),
-                    bgColor: status.daysLeft <= 7 ? colors.orange[5] : colors.green[5],
-                }
-            default:
-                return null
-        }
-    }, [activeServiceContext?.endAt, intl])
+    const getRowBadge = useCallback(
+        (row: CatalogRow): RowBadge | null => buildRowBadge(row, intl, activeServiceContext?.endAt),
+        [activeServiceContext?.endAt, intl]
+    )
 
     const { totals, mode, selectedRows, isPlanInCart, selectedPlanCard, clearSelection } = selection
     const isBuying = mode === 'idle' || mode === 'buy'
