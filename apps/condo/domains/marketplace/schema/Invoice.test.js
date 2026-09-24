@@ -3429,6 +3429,7 @@ describe('Invoice', () => {
                     isTrial: false,
                 })
 
+                expect(result.subscriptionContexts).toHaveLength(1)
                 expect(result.subscriptionContexts[0]).toBeDefined()
                 expect(result.subscriptionContexts[0].status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
                 expect(result.multiPayment).toBeDefined()
@@ -3470,6 +3471,7 @@ describe('Invoice', () => {
                     isTrial: false,
                 })
 
+                expect(result.subscriptionContexts).toHaveLength(1)
                 expect(result.subscriptionContexts[0]).toBeDefined()
                 expect(result.subscriptionContexts[0].status).toBe(SUBSCRIPTION_CONTEXT_STATUS.CREATED)
                 expect(result.multiPayment).toBeDefined()
