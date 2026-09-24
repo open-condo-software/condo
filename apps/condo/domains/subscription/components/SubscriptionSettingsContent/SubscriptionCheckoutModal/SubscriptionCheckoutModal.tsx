@@ -123,16 +123,16 @@ export const SubscriptionCheckoutModal: React.FC<SubscriptionCheckoutModalProps>
     const planEndsEarlier = Boolean(!planCard && planEndAt && dayjs(planEndAt).isBefore(featuresEndAt, 'day'))
     const formatDate = (date: dayjs.Dayjs) => date.format('D MMMM YYYY')
 
-    const subtitle = planCard
-        ? selectedRows.length > 0
-            ? intl.formatMessage(
-                { id: 'subscription.checkout.subtitle.withAdditional' },
-                { planCount: includedCount, additionalCount: selectedRows.length }
-            )
-            : intl.formatMessage({ id: 'subscription.checkout.subtitle.planOnly' }, { count: includedCount })
-        : planEndsEarlier
-            ? intl.formatMessage({ id: 'subscription.checkout.connectedUntil' }, { date: formatDate(dayjs(planEndAt)) })
-            : null
+    const planSubtitle = selectedRows.length > 0
+        ? intl.formatMessage(
+            { id: 'subscription.checkout.subtitle.withAdditional' },
+            { planCount: includedCount, additionalCount: selectedRows.length }
+        )
+        : intl.formatMessage({ id: 'subscription.checkout.subtitle.planOnly' }, { count: includedCount })
+    const featuresSubtitle = planEndsEarlier
+        ? intl.formatMessage({ id: 'subscription.checkout.connectedUntil' }, { date: formatDate(dayjs(planEndAt)) })
+        : null
+    const subtitle = planCard ? planSubtitle : featuresSubtitle
 
     const upsell = useMemo(() => {
         if (selectedRows.length === 0) return null

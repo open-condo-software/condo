@@ -36,9 +36,8 @@ export const useSubscriptionPaymentSuccess = ({
     const FeaturesTitle = intl.formatMessage({ id: 'subscription.activation.features.title' })
     const FeaturesDescription = intl.formatMessage({ id: 'subscription.activation.features.description' })
 
-    const storageKey = planId
-        ? `subscription_last_context_at_${planId}`
-        : organizationId ? `subscription_last_context_at_${organizationId}` : null
+    const storageScopeId = planId || organizationId
+    const storageKey = storageScopeId ? `subscription_last_context_at_${storageScopeId}` : null
 
     // Captured once at mount — survives URL cleanup done by router.replace below
     const inSuccessFlow = useRef(router.query.successPayment === 'true')

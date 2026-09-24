@@ -348,7 +348,7 @@ export const usePaymentHistoryModal = () => {
                         loading={loading}
                         dataSource={rows}
                         columns={columns}
-                        totalRows={totalCount + (currentPageIndex === 1 ? unpaidRows.length : 0)}
+                        totalRows={totalCount}
                         pageSize={PAGE_SIZE}
                         rowKey={getRowId}
                     />
@@ -364,7 +364,7 @@ export const usePaymentHistoryModal = () => {
                 />
             </>
         )
-    }, [hidePaidFeatures, canManageSubscriptions, removableFeatures, intl, RemoveAllLabel, RemoveManyLabel, NeedHelpLabel, activatedData, featuresToRemove, isModalOpen, closeModal, PaymentHistoryTitle, loading, rows, columns, totalCount, currentPageIndex, unpaidRows.length, getRowId, activeServiceContext, cancelLoading, handleRemoveConfirm])
+    }, [hidePaidFeatures, canManageSubscriptions, removableFeatures, intl, RemoveAllLabel, RemoveManyLabel, NeedHelpLabel, activatedData, featuresToRemove, isModalOpen, closeModal, PaymentHistoryTitle, loading, rows, columns, totalCount, getRowId, activeServiceContext, cancelLoading, handleRemoveConfirm])
 
     return {
         PaymentHistoryModal,

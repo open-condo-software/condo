@@ -143,6 +143,98 @@ type BuildPlanCardAlertsParams = {
     now: Date
 }
 
+const trialExpiredAlert = (): PlanAlert => ({
+    key: 'plan-trialExpired', type: 'trialExpired', scope: 'plan', planNames: [], daysLeft: 0, deadline: null, priceIds: [], contextIds: [],
+})
+
+const buildPlanAlert = (context: UnpaidSubscriptionContext | undefined, now: Date): PlanAlert | null => {
+    const state = context && resolveUnpaidState(context, now)
+    if (!context || !state) return null
+
+    return {
+        key: `plan-${state.type}`,
+        scope: 'plan',
+        planNames: [context.subscriptionPlan?.name ?? ''],
+        priceIds: context.subscriptionPlanPricingRule?.id ? [context.subscriptionPlanPricingRule.id] : [],
+        contextIds: [context.id],
+        ...state,
+    }
+}
+
+const mergeFeatureAlert = (
+    known: PlanAlert,
+    context: UnpaidSubscriptionContext,
+    state: Pick<PlanAlert, 'type' | 'daysLeft' | 'deadline'>,
+    priceIds: ReadonlyArray<string>,
+): PlanAlert => {
+    // the earliest deadline among the grouped invoices is the one the client has to meet
+    const isEarlier = state.deadline && known.deadline && new Date(state.deadline) < new Date(known.deadline)
+
+    return {
+        ...known,
+        planNames: [...known.planNames, context.subscriptionPlan.name ?? ''],
+        priceIds: [...known.priceIds, ...priceIds],
+        contextIds: [...known.contextIds, context.id],
+        ...(isEarlier && { daysLeft: state.daysLeft, deadline: state.deadline }),
+    }
+}
+
+/** One alert per state, naming every feature waiting for that same payment */
+const buildFeatureAlerts = (
+    latestUnpaidByPlanId: ReadonlyMap<string, UnpaidSubscriptionContext>,
+    now: Date,
+): ReadonlyArray<PlanAlert> => {
+    const alertsByType = new Map<PlanAlertType, PlanAlert>()
+
+    for (const context of latestUnpaidByPlanId.values()) {
+        if (context.subscriptionPlan?.planType !== 'feature') continue
+        const state = resolveUnpaidState(context, now)
+        if (!state) continue
+
+        const known = alertsByType.get(state.type)
+        const priceIds = context.subscriptionPlanPricingRule?.id ? [context.subscriptionPlanPricingRule.id] : []
+
+        alertsByType.set(state.type, known ? mergeFeatureAlert(known, context, state, priceIds) : {
+            key: `features-${state.type}`,
+            scope: 'features',
+            planNames: [context.subscriptionPlan.name ?? ''],
+            priceIds,
+            contextIds: [context.id],
+            ...state,
+        })
+    }
+
+    return [...alertsByType.values()]
+}
+
+/** a trial paid for before it ran out is just a plan now, whatever date the paid period starts on */
+const buildTrialAlert = (
+    planId: string,
+    activeServiceContext: ServiceSubscriptionContext | null,
+    isPlanPaid: boolean,
+    now: Date,
+): PlanAlert | null => {
+    if (isPlanPaid || !activeServiceContext?.isTrial) return null
+    if (activeServiceContext.subscriptionPlan?.id !== planId || !activeServiceContext.endAt) return null
+
+    const trialEnd = new Date(activeServiceContext.endAt)
+    if (trialEnd <= now) return trialExpiredAlert()
+
+    return { key: 'plan-trial', type: 'trial', scope: 'plan', planNames: [], daysLeft: daysUntil(trialEnd, now), deadline: null, priceIds: [], contextIds: [] }
+}
+
+const hasUnpaidTrialToBuy = (
+    planId: string,
+    trialContexts: ReadonlyArray<TrialSubscriptionContext>,
+    paidContexts: ReadonlyArray<PaidSubscriptionContext>,
+    now: Date,
+): boolean => {
+    const isTrialOver = trialContexts.some(trial => trial.subscriptionPlan?.id === planId && trial.endAt && new Date(trial.endAt) <= now)
+    const isPaid = paidContexts.some(paid => paid.subscriptionPlan?.id === planId && paid.endAt && new Date(paid.endAt) > now)
+
+    return isTrialOver && !isPaid
+}
+
 /**
  * Alerts of a plan card, most critical first. The card of the plan warns about its own unpaid invoice or payment;
  * the active plan card also warns about its trial and about features bought on top of it, one alert per state.
@@ -161,63 +253,22 @@ export const buildPlanCardAlerts = ({
     const alerts: PlanAlert[] = []
     const latestUnpaidByPlanId = getLatestUnpaidByPlanId(unpaidContexts, paidContexts, now)
 
-    const planContext = latestUnpaidByPlanId.get(planId)
-    const planState = planContext ? resolveUnpaidState(planContext, now) : null
-    if (planContext && planState) {
-        alerts.push({
-            key: `plan-${planState.type}`,
-            scope: 'plan',
-            planNames: [planContext.subscriptionPlan?.name ?? ''],
-            priceIds: planContext.subscriptionPlanPricingRule?.id ? [planContext.subscriptionPlanPricingRule.id] : [],
-            contextIds: [planContext.id],
-            ...planState,
-        })
-    }
+    const planAlert = buildPlanAlert(latestUnpaidByPlanId.get(planId), now)
+    if (planAlert) alerts.push(planAlert)
 
     if (isActivePlan) {
-        const featureAlerts = new Map<PlanAlertType, PlanAlert>()
-        for (const context of latestUnpaidByPlanId.values()) {
-            if (context.subscriptionPlan?.planType !== 'feature') continue
-            const state = resolveUnpaidState(context, now)
-            if (!state) continue
+        alerts.push(...buildFeatureAlerts(latestUnpaidByPlanId, now))
 
-            const known = featureAlerts.get(state.type)
-            const priceIds = context.subscriptionPlanPricingRule?.id ? [context.subscriptionPlanPricingRule.id] : []
-            if (!known) {
-                featureAlerts.set(state.type, { key: `features-${state.type}`, scope: 'features', planNames: [context.subscriptionPlan.name ?? ''], priceIds, contextIds: [context.id], ...state })
-                continue
-            }
-
-            // the earliest deadline among the grouped invoices is the one the client has to meet
-            const isEarlier = state.deadline && known.deadline && new Date(state.deadline) < new Date(known.deadline)
-            featureAlerts.set(state.type, {
-                ...known,
-                planNames: [...known.planNames, context.subscriptionPlan.name ?? ''],
-                priceIds: [...known.priceIds, ...priceIds],
-                contextIds: [...known.contextIds, context.id],
-                ...(isEarlier && { daysLeft: state.daysLeft, deadline: state.deadline }),
-            })
-        }
-        alerts.push(...featureAlerts.values())
-
-        // a trial paid for before it ran out is just a plan now, whatever date the paid period starts on
-        if (!isPlanPaid && activeServiceContext?.isTrial && activeServiceContext.subscriptionPlan?.id === planId && activeServiceContext.endAt) {
-            const trialEnd = new Date(activeServiceContext.endAt)
-            alerts.push(trialEnd > now
-                ? { key: 'plan-trial', type: 'trial', scope: 'plan', planNames: [], daysLeft: daysUntil(trialEnd, now), deadline: null, priceIds: [], contextIds: [] }
-                : { key: 'plan-trialExpired', type: 'trialExpired', scope: 'plan', planNames: [], daysLeft: 0, deadline: null, priceIds: [], contextIds: [] })
-        }
+        const trialAlert = buildTrialAlert(planId, activeServiceContext, isPlanPaid, now)
+        if (trialAlert) alerts.push(trialAlert)
     }
 
     // Without a running plan the organization cannot use the platform, so a plan whose trial ran out asks to be paid
     const hasRunningServicePlan = Boolean(activeServiceContext?.endAt && new Date(activeServiceContext.endAt) > now)
-    if (!isActivePlan && !hasRunningServicePlan && !isPlanPaid) {
-        const isTrialOver = trialContexts.some(trial => trial.subscriptionPlan?.id === planId && trial.endAt && new Date(trial.endAt) <= now)
-        const isPaid = paidContexts.some(paid => paid.subscriptionPlan?.id === planId && paid.endAt && new Date(paid.endAt) > now)
-        if (isTrialOver && !isPaid && !alerts.some(alert => alert.scope === 'plan')) {
-            alerts.push({ key: 'plan-trialExpired', type: 'trialExpired', scope: 'plan', planNames: [], daysLeft: 0, deadline: null, priceIds: [], contextIds: [] })
-        }
-    }
+    const asksToBePaid = !isActivePlan && !hasRunningServicePlan && !isPlanPaid
+        && !alerts.some(alert => alert.scope === 'plan')
+        && hasUnpaidTrialToBuy(planId, trialContexts, paidContexts, now)
+    if (asksToBePaid) alerts.push(trialExpiredAlert())
 
     return alerts.sort((left, right) => (
         SEVERITY[left.type] - SEVERITY[right.type]
