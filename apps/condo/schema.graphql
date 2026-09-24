@@ -3048,7 +3048,7 @@ type UserRightsSetHistoryRecord {
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
   canExecuteGetAvailableSubscriptionPlans: Boolean
-  canExecuteRegisterSubscriptionContext: Boolean
+  canExecuteRegisterSubscriptionContexts: Boolean
   canExecuteInviteNewOrganizationEmployee: Boolean
   canExecuteSigninAsUser: Boolean
   canManageOrganizationIsApprovedField: Boolean
@@ -3214,8 +3214,8 @@ input UserRightsSetHistoryRecordWhereInput {
   canExecute_allBillingReceiptsSum_not: Boolean
   canExecuteGetAvailableSubscriptionPlans: Boolean
   canExecuteGetAvailableSubscriptionPlans_not: Boolean
-  canExecuteRegisterSubscriptionContext: Boolean
-  canExecuteRegisterSubscriptionContext_not: Boolean
+  canExecuteRegisterSubscriptionContexts: Boolean
+  canExecuteRegisterSubscriptionContexts_not: Boolean
   canExecuteInviteNewOrganizationEmployee: Boolean
   canExecuteInviteNewOrganizationEmployee_not: Boolean
   canExecuteSigninAsUser: Boolean
@@ -3439,8 +3439,8 @@ enum SortUserRightsSetHistoryRecordsBy {
   canExecute_allBillingReceiptsSum_DESC
   canExecuteGetAvailableSubscriptionPlans_ASC
   canExecuteGetAvailableSubscriptionPlans_DESC
-  canExecuteRegisterSubscriptionContext_ASC
-  canExecuteRegisterSubscriptionContext_DESC
+  canExecuteRegisterSubscriptionContexts_ASC
+  canExecuteRegisterSubscriptionContexts_DESC
   canExecuteInviteNewOrganizationEmployee_ASC
   canExecuteInviteNewOrganizationEmployee_DESC
   canExecuteSigninAsUser_ASC
@@ -3539,7 +3539,7 @@ input UserRightsSetHistoryRecordUpdateInput {
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
   canExecuteGetAvailableSubscriptionPlans: Boolean
-  canExecuteRegisterSubscriptionContext: Boolean
+  canExecuteRegisterSubscriptionContexts: Boolean
   canExecuteInviteNewOrganizationEmployee: Boolean
   canExecuteSigninAsUser: Boolean
   canManageOrganizationIsApprovedField: Boolean
@@ -3630,7 +3630,7 @@ input UserRightsSetHistoryRecordCreateInput {
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
   canExecuteGetAvailableSubscriptionPlans: Boolean
-  canExecuteRegisterSubscriptionContext: Boolean
+  canExecuteRegisterSubscriptionContexts: Boolean
   canExecuteInviteNewOrganizationEmployee: Boolean
   canExecuteSigninAsUser: Boolean
   canManageOrganizationIsApprovedField: Boolean
@@ -3914,9 +3914,9 @@ type UserRightsSet {
   """
   canExecuteGetAvailableSubscriptionPlans: Boolean
 
-  """ Enables a user with the given UserRightsSet to execute "registerSubscriptionContext" query/mutation 
+  """ Enables a user with the given UserRightsSet to execute "registerSubscriptionContexts" query/mutation 
   """
-  canExecuteRegisterSubscriptionContext: Boolean
+  canExecuteRegisterSubscriptionContexts: Boolean
 
   """ Enables a user with the given UserRightsSet to execute "inviteNewOrganizationEmployee" query/mutation 
   """
@@ -4117,8 +4117,8 @@ input UserRightsSetWhereInput {
   canExecute_allBillingReceiptsSum_not: Boolean
   canExecuteGetAvailableSubscriptionPlans: Boolean
   canExecuteGetAvailableSubscriptionPlans_not: Boolean
-  canExecuteRegisterSubscriptionContext: Boolean
-  canExecuteRegisterSubscriptionContext_not: Boolean
+  canExecuteRegisterSubscriptionContexts: Boolean
+  canExecuteRegisterSubscriptionContexts_not: Boolean
   canExecuteInviteNewOrganizationEmployee: Boolean
   canExecuteInviteNewOrganizationEmployee_not: Boolean
   canExecuteSigninAsUser: Boolean
@@ -4322,8 +4322,8 @@ enum SortUserRightsSetsBy {
   canExecute_allBillingReceiptsSum_DESC
   canExecuteGetAvailableSubscriptionPlans_ASC
   canExecuteGetAvailableSubscriptionPlans_DESC
-  canExecuteRegisterSubscriptionContext_ASC
-  canExecuteRegisterSubscriptionContext_DESC
+  canExecuteRegisterSubscriptionContexts_ASC
+  canExecuteRegisterSubscriptionContexts_DESC
   canExecuteInviteNewOrganizationEmployee_ASC
   canExecuteInviteNewOrganizationEmployee_DESC
   canExecuteSigninAsUser_ASC
@@ -4422,7 +4422,7 @@ input UserRightsSetUpdateInput {
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
   canExecuteGetAvailableSubscriptionPlans: Boolean
-  canExecuteRegisterSubscriptionContext: Boolean
+  canExecuteRegisterSubscriptionContexts: Boolean
   canExecuteInviteNewOrganizationEmployee: Boolean
   canExecuteSigninAsUser: Boolean
   canManageOrganizationIsApprovedField: Boolean
@@ -4510,7 +4510,7 @@ input UserRightsSetCreateInput {
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
   canExecuteGetAvailableSubscriptionPlans: Boolean
-  canExecuteRegisterSubscriptionContext: Boolean
+  canExecuteRegisterSubscriptionContexts: Boolean
   canExecuteInviteNewOrganizationEmployee: Boolean
   canExecuteSigninAsUser: Boolean
   canManageOrganizationIsApprovedField: Boolean
@@ -6471,6 +6471,7 @@ type OrganizationSubscriptionFeatures {
   customizationEndAt: String
   propertiesEndAt: String
   analyticsEndAt: String
+  pdfReceiptsEndAt: String
   b2bApps: [SubscriptionApp!]!
   b2cApps: [SubscriptionApp!]!
   activeSubscriptionContextId: String
@@ -58901,6 +58902,7 @@ type SubscriptionPlanHistoryRecord {
   customization: Boolean
   properties: Boolean
   analytics: Boolean
+  pdfReceipts: Boolean
   enabledB2BApps: JSON
   enabledB2CApps: JSON
   id: ID!
@@ -59033,6 +59035,8 @@ input SubscriptionPlanHistoryRecordWhereInput {
   properties_not: Boolean
   analytics: Boolean
   analytics_not: Boolean
+  pdfReceipts: Boolean
+  pdfReceipts_not: Boolean
   enabledB2BApps: JSON
   enabledB2BApps_not: JSON
   enabledB2BApps_in: [JSON]
@@ -59160,6 +59164,8 @@ enum SortSubscriptionPlanHistoryRecordsBy {
   properties_DESC
   analytics_ASC
   analytics_DESC
+  pdfReceipts_ASC
+  pdfReceipts_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -59197,6 +59203,7 @@ input SubscriptionPlanHistoryRecordUpdateInput {
   customization: Boolean
   properties: Boolean
   analytics: Boolean
+  pdfReceipts: Boolean
   enabledB2BApps: JSON
   enabledB2CApps: JSON
   v: Int
@@ -59237,6 +59244,7 @@ input SubscriptionPlanHistoryRecordCreateInput {
   customization: Boolean
   properties: Boolean
   analytics: Boolean
+  pdfReceipts: Boolean
   enabledB2BApps: JSON
   enabledB2CApps: JSON
   v: Int
@@ -59336,6 +59344,9 @@ type SubscriptionPlan {
 
   """ Whether analytics feature is included in this plan """
   analytics: Boolean
+
+  """ Whether pdfReceipts feature is included in this plan """
+  pdfReceipts: Boolean
 
   """ List of B2B miniapp IDs enabled in this plan. Apps work as opt-in: if an app appears in at least one plan for this organizationType, it becomes restricted and must be explicitly listed here to be available. Apps not listed in any plan remain available to all organizations of this type. 
   """
@@ -59454,6 +59465,8 @@ input SubscriptionPlanWhereInput {
   properties_not: Boolean
   analytics: Boolean
   analytics_not: Boolean
+  pdfReceipts: Boolean
+  pdfReceipts_not: Boolean
   enabledB2BApps: JSON
   enabledB2BApps_not: JSON
   enabledB2BApps_in: [JSON]
@@ -59561,6 +59574,8 @@ enum SortSubscriptionPlansBy {
   properties_DESC
   analytics_ASC
   analytics_DESC
+  pdfReceipts_ASC
+  pdfReceipts_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -59598,6 +59613,7 @@ input SubscriptionPlanUpdateInput {
   customization: Boolean
   properties: Boolean
   analytics: Boolean
+  pdfReceipts: Boolean
   enabledB2BApps: JSON
   enabledB2CApps: JSON
   v: Int
@@ -59635,6 +59651,7 @@ input SubscriptionPlanCreateInput {
   customization: Boolean
   properties: Boolean
   analytics: Boolean
+  pdfReceipts: Boolean
   enabledB2BApps: JSON
   enabledB2CApps: JSON
   v: Int
@@ -60466,6 +60483,7 @@ type SubscriptionContextHistoryRecord {
   isTrial: Boolean
   status: String
   bindingId: String
+  renewalCancelledAt: String
   frozenPaymentInfo: JSON
   id: ID!
   v: Int
@@ -60555,6 +60573,14 @@ input SubscriptionContextHistoryRecordWhereInput {
   bindingId_not_ends_with_i: String
   bindingId_in: [String]
   bindingId_not_in: [String]
+  renewalCancelledAt: String
+  renewalCancelledAt_not: String
+  renewalCancelledAt_lt: String
+  renewalCancelledAt_lte: String
+  renewalCancelledAt_gt: String
+  renewalCancelledAt_gte: String
+  renewalCancelledAt_in: [String]
+  renewalCancelledAt_not_in: [String]
   frozenPaymentInfo: JSON
   frozenPaymentInfo_not: JSON
   frozenPaymentInfo_in: [JSON]
@@ -60652,6 +60678,8 @@ enum SortSubscriptionContextHistoryRecordsBy {
   status_DESC
   bindingId_ASC
   bindingId_DESC
+  renewalCancelledAt_ASC
+  renewalCancelledAt_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -60680,6 +60708,7 @@ input SubscriptionContextHistoryRecordUpdateInput {
   isTrial: Boolean
   status: String
   bindingId: String
+  renewalCancelledAt: String
   frozenPaymentInfo: JSON
   v: Int
   createdAt: String
@@ -60710,6 +60739,7 @@ input SubscriptionContextHistoryRecordCreateInput {
   isTrial: Boolean
   status: String
   bindingId: String
+  renewalCancelledAt: String
   frozenPaymentInfo: JSON
   v: Int
   createdAt: String
@@ -60771,6 +60801,7 @@ type FrozenPaymentInfo {
   invoice: FrozenInvoice
   pricingRuleId: String
   multiPaymentId: String
+  paymentType: String
 }
 
 """ Subscription context linking organization to a subscription plan with calculated pricing. When changing subscription plan, a new context must be created 
@@ -60816,7 +60847,11 @@ type SubscriptionContext {
   """
   bindingId: String
 
-  """ Frozen payment information at the time of subscription context creation. Includes payment method details, invoice information, and pricing rule ID 
+  """ When the organization cancelled renewal of this subscription. The paid period stays active 
+  """
+  renewalCancelledAt: String
+
+  """ Frozen payment information at the time of subscription context creation. Includes payment method details, invoice information, pricing rule ID and the payment type chosen at registration (card or invoice) 
   """
   frozenPaymentInfo: FrozenPaymentInfo
   id: ID!
@@ -60893,6 +60928,14 @@ input SubscriptionContextWhereInput {
   bindingId_not_ends_with_i: String
   bindingId_in: [String]
   bindingId_not_in: [String]
+  renewalCancelledAt: String
+  renewalCancelledAt_not: String
+  renewalCancelledAt_lt: String
+  renewalCancelledAt_lte: String
+  renewalCancelledAt_gt: String
+  renewalCancelledAt_gte: String
+  renewalCancelledAt_in: [String]
+  renewalCancelledAt_not_in: [String]
   frozenPaymentInfo: JSON
   frozenPaymentInfo_not: JSON
   frozenPaymentInfo_in: [JSON]
@@ -60978,6 +61021,8 @@ enum SortSubscriptionContextsBy {
   status_DESC
   bindingId_ASC
   bindingId_DESC
+  renewalCancelledAt_ASC
+  renewalCancelledAt_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -61006,6 +61051,7 @@ input SubscriptionContextUpdateInput {
   isTrial: Boolean
   status: SubscriptionContextStatusType
   bindingId: String
+  renewalCancelledAt: String
   frozenPaymentInfo: JSON
   v: Int
   createdAt: String
@@ -61033,6 +61079,7 @@ input SubscriptionContextCreateInput {
   isTrial: Boolean
   status: SubscriptionContextStatusType
   bindingId: String
+  renewalCancelledAt: String
   frozenPaymentInfo: JSON
   v: Int
   createdAt: String
@@ -75037,6 +75084,7 @@ type B2BAppContextHistoryRecord {
   organization: String
   meta: JSON
   status: String
+  errorReason: String
   id: ID!
   v: Int
   createdAt: String
@@ -75085,6 +75133,24 @@ input B2BAppContextHistoryRecordWhereInput {
   status_not_ends_with_i: String
   status_in: [String]
   status_not_in: [String]
+  errorReason: String
+  errorReason_not: String
+  errorReason_contains: String
+  errorReason_not_contains: String
+  errorReason_starts_with: String
+  errorReason_not_starts_with: String
+  errorReason_ends_with: String
+  errorReason_not_ends_with: String
+  errorReason_i: String
+  errorReason_not_i: String
+  errorReason_contains_i: String
+  errorReason_not_contains_i: String
+  errorReason_starts_with_i: String
+  errorReason_not_starts_with_i: String
+  errorReason_ends_with_i: String
+  errorReason_not_ends_with_i: String
+  errorReason_in: [String]
+  errorReason_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -75170,6 +75236,8 @@ input B2BAppContextHistoryRecordWhereUniqueInput {
 enum SortB2BAppContextHistoryRecordsBy {
   status_ASC
   status_DESC
+  errorReason_ASC
+  errorReason_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -75193,6 +75261,7 @@ input B2BAppContextHistoryRecordUpdateInput {
   organization: String
   meta: JSON
   status: String
+  errorReason: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -75217,6 +75286,7 @@ input B2BAppContextHistoryRecordCreateInput {
   organization: String
   meta: JSON
   status: String
+  errorReason: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -75239,6 +75309,10 @@ enum B2BAppContextStatusType {
   InProgress
   Error
   Finished
+}
+
+enum B2BAppContextErrorReasonType {
+  NoSubscription
 }
 
 """ Object which connects B2B App and Organization. Used to determine if app is connected or not, and store settings / state of app for specific organization 
@@ -75266,6 +75340,10 @@ type B2BAppContext {
   """ Status of B2BApp connection, Can be one of the following: ["InProgress", "Error", "Finished"]. If not specified explicitly on creation, uses default value from related B2BApp model 
   """
   status: B2BAppContextStatusType
+
+  """ Reason why status is set to "Error". Can be one of the following: ["NoSubscription"] 
+  """
+  errorReason: B2BAppContextErrorReasonType
   id: ID!
   v: Int
   createdAt: String
@@ -75304,6 +75382,10 @@ input B2BAppContextWhereInput {
   status_not: B2BAppContextStatusType
   status_in: [B2BAppContextStatusType]
   status_not_in: [B2BAppContextStatusType]
+  errorReason: B2BAppContextErrorReasonType
+  errorReason_not: B2BAppContextErrorReasonType
+  errorReason_in: [B2BAppContextErrorReasonType]
+  errorReason_not_in: [B2BAppContextErrorReasonType]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -75373,6 +75455,8 @@ enum SortB2BAppContextsBy {
   organization_DESC
   status_ASC
   status_DESC
+  errorReason_ASC
+  errorReason_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -75396,6 +75480,7 @@ input B2BAppContextUpdateInput {
   organization: OrganizationRelateToOneInput
   meta: JSON
   status: B2BAppContextStatusType
+  errorReason: B2BAppContextErrorReasonType
   v: Int
   createdAt: String
   updatedAt: String
@@ -75417,6 +75502,7 @@ input B2BAppContextCreateInput {
   organization: OrganizationRelateToOneInput
   meta: JSON
   status: B2BAppContextStatusType
+  errorReason: B2BAppContextErrorReasonType
   v: Int
   createdAt: String
   updatedAt: String
@@ -94323,7 +94409,7 @@ type WebhookPayload {
   """
   secret: String
 
-  """ Type of event that triggered this webhook. Custom events: payment.status.updated, subscription.activated, paymentsFile.status.updated. Auto-generated events from models with webHooked() plugin: ModelName.created, ModelName.updated, ModelName.deleted (e.g., Payment.created, Ticket.updated). 
+  """ Type of event that triggered this webhook. Custom events: payment.status.updated, subscription.activated, subscription.invoice.requested, paymentsFile.status.updated. Auto-generated events from models with webHooked() plugin: ModelName.created, ModelName.updated, ModelName.deleted (e.g., Payment.created, Ticket.updated). 
   """
   eventType: String
 
@@ -97037,29 +97123,44 @@ type ActivateSubscriptionContextOutput {
   subscriptionContext: SubscriptionContext
 }
 
-input RegisterSubscriptionContextInput {
+enum SubscriptionPaymentType {
+  card
+  invoice
+}
+
+input RegisterSubscriptionContextsInput {
   dv: Int!
   sender: SenderFieldInput!
   organization: OrganizationWhereUniqueInput!
-  subscriptionPlanPricingRule: SubscriptionPlanPricingRuleWhereUniqueInput!
+  subscriptionPlanPricingRules: [SubscriptionPlanPricingRuleWhereUniqueInput!]!
+  paymentType: SubscriptionPaymentType!
   isTrial: Boolean
 }
 
-type RegisterSubscriptionContextOutput {
-  subscriptionContext: SubscriptionContext
+type RegisterSubscriptionContextsOutput {
+  subscriptionContexts: [SubscriptionContext!]!
   directPaymentUrl: String
   multiPayment: MultiPayment
 }
 
-input UpdateSubscriptionContextPaymentMethodInput {
+input CancelSubscriptionRenewalInput {
   dv: Int!
   sender: SenderFieldInput!
-  subscriptionContext: SubscriptionContextWhereUniqueInput!
-  bindingId: String
+  subscriptionContexts: [SubscriptionContextWhereUniqueInput!]!
 }
 
-type UpdateSubscriptionContextPaymentMethodOutput {
-  id: String!
+type CancelSubscriptionRenewalOutput {
+  subscriptionContexts: [SubscriptionContext!]!
+}
+
+input RequestSubscriptionInvoiceInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  subscriptionContexts: [SubscriptionContextWhereUniqueInput!]!
+}
+
+type RequestSubscriptionInvoiceOutput {
+  subscriptionContexts: [SubscriptionContext!]!
 }
 
 input RegisterMultiPaymentReceiptAmountInput {
@@ -112338,7 +112439,7 @@ type Mutation {
   registerPropertyMetersReadings(data: RegisterPropertyMetersReadingsInput!): [RegisterPropertyMetersReadingsOutput]
 
   """
-  Activates a subscription context with status CREATED. Checks that invoice is paid, retrieves payment method from multiPayment, and updates context status to DONE.
+  Activates a subscription context whose invoice is paid: resolves the payment method (if any), sets status to DONE and recomputes startAt/endAt so the paid period starts at payment time rather than registration time.
   
   
   
@@ -112355,7 +112456,13 @@ type Mutation {
   `{
     "code": "BAD_USER_INPUT",
     "type": "SUBSCRIPTION_CONTEXT_INVALID_STATUS",
-    "message": "SubscriptionContext must have status CREATED"
+    "message": "SubscriptionContext must have status CREATED or PENDING"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "PRICING_RULE_NOT_FOUND",
+    "message": "Pricing rule not found for SubscriptionContext"
   }`
   
   `{
@@ -112369,23 +112476,11 @@ type Mutation {
     "type": "INVOICE_NOT_PAID",
     "message": "Invoice is not paid"
   }`
-  
-  `{
-    "code": "BAD_USER_INPUT",
-    "type": "MULTI_PAYMENT_NOT_FOUND",
-    "message": "MultiPayment not found for invoice"
-  }`
-  
-  `{
-    "code": "BAD_USER_INPUT",
-    "type": "PAYMENT_NOT_FOUND",
-    "message": "Payment not found in MultiPayment"
-  }`
   """
   activateSubscriptionContext(data: ActivateSubscriptionContextInput!): ActivateSubscriptionContextOutput
 
   """
-  Registers a subscription context for an organization. For trial subscriptions (isTrial=true), creates SubscriptionContext with status DONE. For paid subscriptions (isTrial=false), creates Invoice + SubscriptionContext with status CREATED + MultiPayment.
+  Registers subscription contexts for an organization from a bundle of pricing rules: trial contexts or one invoice for all paid ones.
   
   
   
@@ -112430,6 +112525,34 @@ type Mutation {
   
   `{
     "code": "BAD_USER_INPUT",
+    "type": "MIXED_PRICING_RULE_PERIODS",
+    "message": "All pricing rules in a bundle must have the same period",
+    "messageForUser": "All pricing rules in a bundle must have the same period"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "DUPLICATE_PLAN_IN_BUNDLE",
+    "message": "A bundle cannot contain the same subscription plan more than once",
+    "messageForUser": "A bundle cannot contain the same subscription plan more than once"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "MULTIPLE_SERVICE_PLANS_IN_BUNDLE",
+    "message": "A bundle can contain at most one service plan",
+    "messageForUser": "A bundle can contain at most one service plan"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "FEATURE_ALREADY_IN_PLAN",
+    "message": "A feature plan in the bundle is already covered by another plan in the same bundle",
+    "messageForUser": "A feature plan in the bundle is already covered by another plan in the same bundle"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
     "type": "NO_ACTIVE_SERVICE_SUBSCRIPTION",
     "message": "Cannot subscribe to a feature plan without an active service subscription",
     "messageForUser": "Cannot subscribe to a feature plan without an active service subscription"
@@ -112437,13 +112560,63 @@ type Mutation {
   
   `{
     "code": "BAD_USER_INPUT",
-    "type": "ACTIVE_SUPERSET_PLAN_EXISTS",
-    "message": "Cannot register a subscription that is already fully covered by an active non-trial plan",
-    "messageForUser": "Cannot register a subscription that is already fully covered by an active non-trial plan"
+    "type": "NOT_FOUND",
+    "message": "SUBSCRIPTION_PAYMENT_RECIPIENT is not configured"
   }`
   """
-  registerSubscriptionContext(data: RegisterSubscriptionContextInput!): RegisterSubscriptionContextOutput
-  updateSubscriptionContextPaymentMethod(data: UpdateSubscriptionContextPaymentMethodInput!): UpdateSubscriptionContextPaymentMethodOutput
+  registerSubscriptionContexts(data: RegisterSubscriptionContextsInput!): RegisterSubscriptionContextsOutput
+
+  """
+  Cancels renewal of exactly the given subscription contexts: detaches the card and records renewalCancelledAt. The paid period stays active.
+  
+  
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "NOT_FOUND",
+    "message": "SubscriptionContext not found"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "SUBSCRIPTION_CONTEXTS_FROM_DIFFERENT_ORGANIZATIONS",
+    "message": "All subscription contexts must belong to the same organization"
+  }`
+  """
+  cancelSubscriptionRenewal(data: CancelSubscriptionRenewalInput!): CancelSubscriptionRenewalOutput
+
+  """
+  Sends a webhook to deliver once more the invoices already issued for the given subscription contexts. Nothing new is registered and the payment deadline stays the same
+  
+  
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "NOT_FOUND",
+    "message": "SubscriptionContext not found"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "SUBSCRIPTION_CONTEXTS_FROM_DIFFERENT_ORGANIZATIONS",
+    "message": "All subscription contexts must belong to the same organization"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INVOICE_NOT_AWAITING_PAYMENT",
+    "message": "Only a subscription registered to be paid by invoice and still waiting for the payment can have its invoice requested"
+  }`
+  """
+  requestSubscriptionInvoice(data: RequestSubscriptionInvoiceInput!): RequestSubscriptionInvoiceOutput
   registerMultiPayment(data: RegisterMultiPaymentInput!): RegisterMultiPaymentOutput
   registerMultiPaymentForOneReceipt(data: RegisterMultiPaymentForOneReceiptInput!): RegisterMultiPaymentForOneReceiptOutput
   registerMultiPaymentForVirtualReceipt(data: RegisterMultiPaymentForVirtualReceiptInput!): RegisterMultiPaymentForOneReceiptOutput
