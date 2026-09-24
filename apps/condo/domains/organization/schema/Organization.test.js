@@ -573,6 +573,7 @@ describe('Organization', () => {
                 expect(org.subscription.customizationEndAt).toContain(String(farFutureYear))
                 expect(org.subscription.propertiesEndAt).toContain(String(farFutureYear))
                 expect(org.subscription.analyticsEndAt).toContain(String(farFutureYear))
+                expect(org.subscription.pdfReceiptsEndAt).toContain(String(farFutureYear))
             })
 
             test('computes far-future dates dynamically on each call', async () => {

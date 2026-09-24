@@ -56,6 +56,7 @@ const BASE_FEATURES = [
     { label: 'subscription.features.residents', hint: 'subscription.features.residents.hint' },
     { featureKey: 'meters', label: 'subscription.features.meters', hint: null },
     { featureKey: 'payments', label: 'subscription.features.payments', hint: null },
+    { featureKey: 'pdfReceipts', label: 'subscription.features.pdfReceipts', hint: null },
     { label: 'subscription.features.mobileApp', hint: null },
     { label: 'subscription.features.outages', hint: null },
     { featureKey: 'news', label: 'subscription.features.news', hint: null },

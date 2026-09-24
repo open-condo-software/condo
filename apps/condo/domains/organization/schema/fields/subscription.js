@@ -6,6 +6,7 @@ const { find } = require('@open-condo/keystone/schema')
 
 const { SUBSCRIPTIONS } = require('@condo/domains/common/constants/featureflags')
 const { SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PAYMENT_BUFFER_DAYS, SUBSCRIPTION_PLAN_TYPE_SERVICE, SUBSCRIPTION_PLAN_FEATURES } = require('@condo/domains/subscription/constants')
+const { canUsePdfReceiptsWithoutSubscription } = require('@condo/domains/subscription/utils/serverSchema/pdfReceiptsAvailability')
 const { selectBestSubscriptionContext } = require('@condo/domains/subscription/utils/subscriptionContext')
 
 
@@ -29,6 +30,7 @@ const SUBSCRIPTION_FEATURES_GRAPHQL_TYPES = `
         customizationEndAt: String
         propertiesEndAt: String
         analyticsEndAt: String
+        pdfReceiptsEndAt: String
         b2bApps: [SubscriptionApp!]!
         b2cApps: [SubscriptionApp!]!
         activeSubscriptionContextId: String
@@ -70,6 +72,7 @@ async function buildSubscriptionResponse (date = null) {
         customizationEndAt: date,
         propertiesEndAt: date,
         analyticsEndAt: date,
+        pdfReceiptsEndAt: date,
         b2bApps,
         b2cApps,
         activeSubscriptionContextId: null,
@@ -289,7 +292,7 @@ const ORGANIZATION_SUBSCRIPTION_FIELD = {
     type: 'Virtual',
     extendGraphQLTypes: SUBSCRIPTION_FEATURES_GRAPHQL_TYPES,
     graphQLReturnType: SUBSCRIPTION_FEATURES_TYPE_NAME,
-    graphQLReturnFragment: '{ paymentsEndAt metersEndAt ticketsEndAt newsEndAt marketplaceEndAt supportEndAt aiEndAt customizationEndAt propertiesEndAt analyticsEndAt b2bApps { id endAt } b2cApps { id endAt } activeSubscriptionContextId activeSubscriptionEndAt }',
+    graphQLReturnFragment: '{ paymentsEndAt metersEndAt ticketsEndAt newsEndAt marketplaceEndAt supportEndAt aiEndAt customizationEndAt propertiesEndAt analyticsEndAt pdfReceiptsEndAt b2bApps { id endAt } b2cApps { id endAt } activeSubscriptionContextId activeSubscriptionEndAt }',
     resolver: async (organization, args, context) => {
         const hasSubscriptionFeature = await featureToggleManager.isFeatureEnabled(context, SUBSCRIPTIONS, { 
             userId: context.authedItem?.id || null,
@@ -311,8 +314,13 @@ const ORGANIZATION_SUBSCRIPTION_FIELD = {
             status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
             deletedAt: null,
         })
+        const hasPdfReceiptsWithoutSubscription = await canUsePdfReceiptsWithoutSubscription(organization.id)
         if (allContexts.length === 0) {
-            return await buildSubscriptionResponse(null)
+            const subscription = await buildSubscriptionResponse(null)
+            if (hasPdfReceiptsWithoutSubscription) {
+                subscription.pdfReceiptsEndAt = futureDate
+            }
+            return subscription
         }
 
         const now = new Date().toISOString()
@@ -356,6 +364,7 @@ const ORGANIZATION_SUBSCRIPTION_FIELD = {
             customizationEndAt: featureExpirationDates.customization,
             propertiesEndAt: featureExpirationDates.properties,
             analyticsEndAt: featureExpirationDates.analytics,
+            pdfReceiptsEndAt: hasPdfReceiptsWithoutSubscription ? futureDate : featureExpirationDates.pdfReceipts,
             b2bApps,
             b2cApps,
             activeSubscriptionContextId,

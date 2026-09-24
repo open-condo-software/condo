@@ -4608,6 +4608,7 @@ export const GetActiveOrganizationEmployeeDocument = gql`
         supportEndAt
         aiEndAt
         customizationEndAt
+        pdfReceiptsEndAt
         b2bApps {
           id
           endAt
@@ -6145,6 +6146,7 @@ export const GetAvailableFeatureSubscriptionPlansDocument = gql`
         support
         ai
         customization
+        pdfReceipts
       }
       prices {
         id
@@ -6222,6 +6224,7 @@ export const GetAvailableServiceSubscriptionPlansDocument = gql`
         enabledB2BApps
         enabledB2CApps
         customization
+        pdfReceipts
       }
       prices {
         id

@@ -16,6 +16,7 @@ query getAvailableFeatureSubscriptionPlans($organization: OrganizationWhereUniqu
                 support
                 ai
                 customization
+                pdfReceipts
             }
             prices {
                 id
@@ -53,6 +54,7 @@ query getAvailableServiceSubscriptionPlans($organization: OrganizationWhereUniqu
                 enabledB2BApps
                 enabledB2CApps
                 customization
+                pdfReceipts
             }
             prices {
                 id

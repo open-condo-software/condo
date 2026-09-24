@@ -6471,6 +6471,7 @@ type OrganizationSubscriptionFeatures {
   customizationEndAt: String
   propertiesEndAt: String
   analyticsEndAt: String
+  pdfReceiptsEndAt: String
   b2bApps: [SubscriptionApp!]!
   b2cApps: [SubscriptionApp!]!
   activeSubscriptionContextId: String
@@ -58901,6 +58902,7 @@ type SubscriptionPlanHistoryRecord {
   customization: Boolean
   properties: Boolean
   analytics: Boolean
+  pdfReceipts: Boolean
   enabledB2BApps: JSON
   enabledB2CApps: JSON
   id: ID!
@@ -59033,6 +59035,8 @@ input SubscriptionPlanHistoryRecordWhereInput {
   properties_not: Boolean
   analytics: Boolean
   analytics_not: Boolean
+  pdfReceipts: Boolean
+  pdfReceipts_not: Boolean
   enabledB2BApps: JSON
   enabledB2BApps_not: JSON
   enabledB2BApps_in: [JSON]
@@ -59160,6 +59164,8 @@ enum SortSubscriptionPlanHistoryRecordsBy {
   properties_DESC
   analytics_ASC
   analytics_DESC
+  pdfReceipts_ASC
+  pdfReceipts_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -59197,6 +59203,7 @@ input SubscriptionPlanHistoryRecordUpdateInput {
   customization: Boolean
   properties: Boolean
   analytics: Boolean
+  pdfReceipts: Boolean
   enabledB2BApps: JSON
   enabledB2CApps: JSON
   v: Int
@@ -59237,6 +59244,7 @@ input SubscriptionPlanHistoryRecordCreateInput {
   customization: Boolean
   properties: Boolean
   analytics: Boolean
+  pdfReceipts: Boolean
   enabledB2BApps: JSON
   enabledB2CApps: JSON
   v: Int
@@ -59336,6 +59344,9 @@ type SubscriptionPlan {
 
   """ Whether analytics feature is included in this plan """
   analytics: Boolean
+
+  """ Whether pdfReceipts feature is included in this plan """
+  pdfReceipts: Boolean
 
   """ List of B2B miniapp IDs enabled in this plan. Apps work as opt-in: if an app appears in at least one plan for this organizationType, it becomes restricted and must be explicitly listed here to be available. Apps not listed in any plan remain available to all organizations of this type. 
   """
@@ -59454,6 +59465,8 @@ input SubscriptionPlanWhereInput {
   properties_not: Boolean
   analytics: Boolean
   analytics_not: Boolean
+  pdfReceipts: Boolean
+  pdfReceipts_not: Boolean
   enabledB2BApps: JSON
   enabledB2BApps_not: JSON
   enabledB2BApps_in: [JSON]
@@ -59561,6 +59574,8 @@ enum SortSubscriptionPlansBy {
   properties_DESC
   analytics_ASC
   analytics_DESC
+  pdfReceipts_ASC
+  pdfReceipts_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -59598,6 +59613,7 @@ input SubscriptionPlanUpdateInput {
   customization: Boolean
   properties: Boolean
   analytics: Boolean
+  pdfReceipts: Boolean
   enabledB2BApps: JSON
   enabledB2CApps: JSON
   v: Int
@@ -59635,6 +59651,7 @@ input SubscriptionPlanCreateInput {
   customization: Boolean
   properties: Boolean
   analytics: Boolean
+  pdfReceipts: Boolean
   enabledB2BApps: JSON
   enabledB2CApps: JSON
   v: Int
@@ -75067,6 +75084,7 @@ type B2BAppContextHistoryRecord {
   organization: String
   meta: JSON
   status: String
+  errorReason: String
   id: ID!
   v: Int
   createdAt: String
@@ -75115,6 +75133,24 @@ input B2BAppContextHistoryRecordWhereInput {
   status_not_ends_with_i: String
   status_in: [String]
   status_not_in: [String]
+  errorReason: String
+  errorReason_not: String
+  errorReason_contains: String
+  errorReason_not_contains: String
+  errorReason_starts_with: String
+  errorReason_not_starts_with: String
+  errorReason_ends_with: String
+  errorReason_not_ends_with: String
+  errorReason_i: String
+  errorReason_not_i: String
+  errorReason_contains_i: String
+  errorReason_not_contains_i: String
+  errorReason_starts_with_i: String
+  errorReason_not_starts_with_i: String
+  errorReason_ends_with_i: String
+  errorReason_not_ends_with_i: String
+  errorReason_in: [String]
+  errorReason_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -75200,6 +75236,8 @@ input B2BAppContextHistoryRecordWhereUniqueInput {
 enum SortB2BAppContextHistoryRecordsBy {
   status_ASC
   status_DESC
+  errorReason_ASC
+  errorReason_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -75223,6 +75261,7 @@ input B2BAppContextHistoryRecordUpdateInput {
   organization: String
   meta: JSON
   status: String
+  errorReason: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -75247,6 +75286,7 @@ input B2BAppContextHistoryRecordCreateInput {
   organization: String
   meta: JSON
   status: String
+  errorReason: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -75269,6 +75309,10 @@ enum B2BAppContextStatusType {
   InProgress
   Error
   Finished
+}
+
+enum B2BAppContextErrorReasonType {
+  NoSubscription
 }
 
 """ Object which connects B2B App and Organization. Used to determine if app is connected or not, and store settings / state of app for specific organization 
@@ -75296,6 +75340,10 @@ type B2BAppContext {
   """ Status of B2BApp connection, Can be one of the following: ["InProgress", "Error", "Finished"]. If not specified explicitly on creation, uses default value from related B2BApp model 
   """
   status: B2BAppContextStatusType
+
+  """ Reason why status is set to "Error". Can be one of the following: ["NoSubscription"] 
+  """
+  errorReason: B2BAppContextErrorReasonType
   id: ID!
   v: Int
   createdAt: String
@@ -75334,6 +75382,10 @@ input B2BAppContextWhereInput {
   status_not: B2BAppContextStatusType
   status_in: [B2BAppContextStatusType]
   status_not_in: [B2BAppContextStatusType]
+  errorReason: B2BAppContextErrorReasonType
+  errorReason_not: B2BAppContextErrorReasonType
+  errorReason_in: [B2BAppContextErrorReasonType]
+  errorReason_not_in: [B2BAppContextErrorReasonType]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -75403,6 +75455,8 @@ enum SortB2BAppContextsBy {
   organization_DESC
   status_ASC
   status_DESC
+  errorReason_ASC
+  errorReason_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -75426,6 +75480,7 @@ input B2BAppContextUpdateInput {
   organization: OrganizationRelateToOneInput
   meta: JSON
   status: B2BAppContextStatusType
+  errorReason: B2BAppContextErrorReasonType
   v: Int
   createdAt: String
   updatedAt: String
@@ -75447,6 +75502,7 @@ input B2BAppContextCreateInput {
   organization: OrganizationRelateToOneInput
   meta: JSON
   status: B2BAppContextStatusType
+  errorReason: B2BAppContextErrorReasonType
   v: Int
   createdAt: String
   updatedAt: String

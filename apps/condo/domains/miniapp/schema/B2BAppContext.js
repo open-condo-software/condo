@@ -11,7 +11,7 @@ const { GQLListSchema, find } = require('@open-condo/keystone/schema')
 const { webHooked } = require('@open-condo/webhooks/plugins')
 
 const access = require('@condo/domains/miniapp/access/B2BAppContext')
-const { NO_CONTEXT_STATUS_ERROR, CONTEXT_FINISHED_STATUS, ACCESS_TOKEN_UPDATE_MANY_CHUNK_SIZE } = require('@condo/domains/miniapp/constants')
+const { NO_CONTEXT_STATUS_ERROR, CONTEXT_FINISHED_STATUS, ACCESS_TOKEN_UPDATE_MANY_CHUNK_SIZE, CONTEXT_ERROR_REASONS } = require('@condo/domains/miniapp/constants')
 const { STATUS_FIELD, getStatusResolver, getStatusDescription } = require('@condo/domains/miniapp/schema/fields/context')
 const { deleteB2BAppRoles } = require('@condo/domains/miniapp/tasks')
 const { B2BAppRole, B2BAccessToken } = require('@condo/domains/miniapp/utils/serverSchema')
@@ -121,6 +121,13 @@ const B2BAppContext = new GQLListSchema('B2BAppContext', {
             hooks: {
                 resolveInput: getStatusResolver('B2BApp', 'app'),
             },
+        },
+        errorReason: {
+            schemaDoc: `Reason why status is set to "Error". Can be one of the following: [${CONTEXT_ERROR_REASONS.map(reason => `"${reason}"`).join(', ')}]`,
+            type: 'Select',
+            dataType: 'string',
+            options: CONTEXT_ERROR_REASONS,
+            isRequired: false,
         },
     },
     kmigratorOptions: {
