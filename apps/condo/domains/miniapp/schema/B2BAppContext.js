@@ -123,7 +123,7 @@ const B2BAppContext = new GQLListSchema('B2BAppContext', {
             },
         },
         errorReason: {
-            schemaDoc: `Reason why status is set to "Error". Can be one of the following: [${CONTEXT_ERROR_REASONS.map(reason => `"${reason}"`).join(', ')}]`,
+            schemaDoc: 'Reason why status is set to "Error". Can be one of the following: [' + CONTEXT_ERROR_REASONS.map(reason => `"${reason}"`).join(', ') + ']',
             type: 'Select',
             dataType: 'string',
             options: CONTEXT_ERROR_REASONS,

@@ -31,8 +31,8 @@ const { buildDirectPaymentUrl } = require('@condo/domains/subscription/utils/sub
 const logger = getLogger('processRecurrentSubscriptionPayments')
 
 const SENDER = { dv: 1, fingerprint: 'processRecurrentSubscriptionPayments' }
-const PAYMENT_STARTED_STATUSES = [PAYMENT_PROCESSING_STATUS, PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS]
-const MULTIPAYMENT_STARTED_STATUSES = [MULTIPAYMENT_PROCESSING_STATUS, MULTIPAYMENT_WITHDRAWN_STATUS, MULTIPAYMENT_DONE_STATUS]
+const PAYMENT_STARTED_STATUSES = new Set([PAYMENT_PROCESSING_STATUS, PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS])
+const MULTIPAYMENT_STARTED_STATUSES = new Set([MULTIPAYMENT_PROCESSING_STATUS, MULTIPAYMENT_WITHDRAWN_STATUS, MULTIPAYMENT_DONE_STATUS])
 
 function groupContextsIntoRenewalBundles (contexts) {
     const bundles = new Map()
@@ -60,6 +60,35 @@ async function filterNotRenewedContexts (bundleContexts) {
     return bundleContexts.filter(subscriptionContext => !renewedPlanIds.has(subscriptionContext.subscriptionPlan))
 }
 
+// Tells whether a renewal already registered on this invoice may still be charged, or why it must be skipped.
+// Returns null when the invoice is gone, meaning the caller should keep looking for another matching invoice
+async function evaluateRenewalCandidate (context, invoiceId, invoiceContexts) {
+    const renewal = { invoiceId, contextIds: invoiceContexts.map(subscriptionContext => subscriptionContext.id) }
+
+    const [invoice] = await find('Invoice', { id: invoiceId, deletedAt: null })
+    // A renewal whose invoice is gone can never be paid: close it so a new one gets registered
+    if (!invoice || invoice.status === INVOICE_STATUS_CANCELED) {
+        await setContextsStatus(context, renewal.contextIds, SUBSCRIPTION_CONTEXT_STATUS.ERROR)
+        return null
+    }
+
+    const payments = await find('Payment', { invoice: { id: invoiceId }, deletedAt: null })
+    // No payments means the invoice was registered to be paid by bank transfer: charging the card would take the money twice
+    if (payments.length === 0) return { ...renewal, skipReason: 'PAID_BY_TRANSFER' }
+    // The gateway moves only the MultiPayment to PROCESSING when it charges; payments turn DONE later, from the provider webhook.
+    // Either one started means the money may already be taken
+    const multiPaymentIds = [...new Set(payments.map(payment => payment.multiPayment).filter(Boolean))]
+    const multiPayments = multiPaymentIds.length > 0 ? await find('MultiPayment', { id_in: multiPaymentIds, deletedAt: null }) : []
+    const isPaymentStarted = payments.some(payment => PAYMENT_STARTED_STATUSES.has(payment.status))
+        || multiPayments.some(multiPayment => MULTIPAYMENT_STARTED_STATUSES.has(multiPayment.status))
+    if (isPaymentStarted) return { ...renewal, skipReason: 'PAYMENT_STARTED' }
+
+    if (invoice.status !== INVOICE_STATUS_PUBLISHED) return { ...renewal, skipReason: 'INVOICE_NOT_PAYABLE' }
+
+    const unchargedMultiPayment = multiPayments.find(multiPayment => multiPayment.status === MULTIPAYMENT_INIT_STATUS)
+    return { ...renewal, skipReason: null, multiPaymentId: unchargedMultiPayment?.id || null }
+}
+
 // Finds a renewal registered earlier in the buffer window and tells whether it may be charged
 async function findExistingRenewal (context, organizationId, renewalRuleIds, bufferDate) {
     const wantedComposition = [...renewalRuleIds].sort().join(',')
@@ -85,30 +114,8 @@ async function findExistingRenewal (context, organizationId, renewalRuleIds, buf
         const composition = invoiceContexts.map(subscriptionContext => subscriptionContext.subscriptionPlanPricingRule).sort().join(',')
         if (composition !== wantedComposition) continue
 
-        const renewal = { invoiceId, contextIds: invoiceContexts.map(subscriptionContext => subscriptionContext.id) }
-
-        const [invoice] = await find('Invoice', { id: invoiceId, deletedAt: null })
-        // A renewal whose invoice is gone can never be paid: close it so a new one gets registered
-        if (!invoice || invoice.status === INVOICE_STATUS_CANCELED) {
-            await setContextsStatus(context, renewal.contextIds, SUBSCRIPTION_CONTEXT_STATUS.ERROR)
-            continue
-        }
-
-        const payments = await find('Payment', { invoice: { id: invoiceId }, deletedAt: null })
-        // No payments means the invoice was registered to be paid by bank transfer: charging the card would take the money twice
-        if (payments.length === 0) return { ...renewal, skipReason: 'PAID_BY_TRANSFER' }
-        // The gateway moves only the MultiPayment to PROCESSING when it charges; payments turn DONE later, from the provider webhook.
-        // Either one started means the money may already be taken
-        const multiPaymentIds = [...new Set(payments.map(payment => payment.multiPayment).filter(Boolean))]
-        const multiPayments = multiPaymentIds.length > 0 ? await find('MultiPayment', { id_in: multiPaymentIds, deletedAt: null }) : []
-        const isPaymentStarted = payments.some(payment => PAYMENT_STARTED_STATUSES.includes(payment.status))
-            || multiPayments.some(multiPayment => MULTIPAYMENT_STARTED_STATUSES.includes(multiPayment.status))
-        if (isPaymentStarted) return { ...renewal, skipReason: 'PAYMENT_STARTED' }
-
-        if (invoice.status !== INVOICE_STATUS_PUBLISHED) return { ...renewal, skipReason: 'INVOICE_NOT_PAYABLE' }
-
-        const unchargedMultiPayment = multiPayments.find(multiPayment => multiPayment.status === MULTIPAYMENT_INIT_STATUS)
-        return { ...renewal, skipReason: null, multiPaymentId: unchargedMultiPayment?.id || null }
+        const renewal = await evaluateRenewalCandidate(context, invoiceId, invoiceContexts)
+        if (renewal) return renewal
     }
 
     return null
@@ -130,7 +137,7 @@ async function getRetryPaymentUrl (context, { invoiceId, multiPaymentId }) {
 async function prepareRenewalPayment (context, { organizationId, renewalRuleIds, bufferDate }) {
     const existing = await findExistingRenewal(context, organizationId, renewalRuleIds, bufferDate)
 
-    if (existing && existing.skipReason) {
+    if (existing?.skipReason) {
         logger.info({ msg: 'existing renewal must not be charged, skipping', data: { organizationId, invoiceId: existing.invoiceId, skipReason: existing.skipReason } })
         return null
     }

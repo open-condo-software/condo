@@ -28,14 +28,12 @@ async function activateSubscriptionForInvoice (invoiceId) {
         return
     }
 
-    const activatedContextIds = []
     for (const subscriptionContext of subscriptionContexts) {
         try {
             await activateSubscriptionContext(context, {
                 sender: SENDER,
                 subscriptionContext: { id: subscriptionContext.id },
             })
-            activatedContextIds.push(subscriptionContext.id)
             logger.info({
                 msg: 'subscription context activated',
                 entity: 'Invoice',

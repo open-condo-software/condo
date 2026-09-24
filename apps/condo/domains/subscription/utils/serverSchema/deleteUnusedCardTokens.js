@@ -20,7 +20,7 @@ async function deleteUnusedCardTokens ({ organizationId, bindingIds }) {
     if (!bindingIds || bindingIds.length === 0) return
 
     const { recipientOrgId, acquiringIntegration } = await getSubscriptionPaymentRecipient()
-    if (!recipientOrgId || !acquiringIntegration || !acquiringIntegration.hostUrl) {
+    if (!recipientOrgId || !acquiringIntegration?.hostUrl) {
         logger.error({ msg: 'subscription payment recipient is not configured, skipping card token deletion', data: { organizationId } })
         return
     }
