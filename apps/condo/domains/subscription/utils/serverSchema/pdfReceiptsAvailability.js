@@ -39,7 +39,9 @@ function isPdfReceiptsSubscriptionRequired (integrationId) {
 }
 
 /**
- * Organization is exempt only when none of its billing integrations require the "pdfReceipts" subscription feature.
+ * Organization is exempt only when it has at least one billing integration and none of them require the
+ * "pdfReceipts" subscription feature. An organization with no billing integrations at all has nothing to be
+ * exempt from, so it is not exempt (there is no matching receipt to gate either way).
  * A billing integration that doesn't require subscription must not exempt a subscription-required one
  * connected to the same organization
  *
@@ -50,38 +52,44 @@ async function canUsePdfReceiptsWithoutSubscription (organizationId) {
     const subscriptionRequiredIntegrationIds = getPdfReceiptsSubscriptionRequiredBillingIntegrationIds()
     if (subscriptionRequiredIntegrationIds.length === 0) return true
 
-    const restrictedIntegrationContexts = await find('BillingIntegrationOrganizationContext', {
+    const integrationContexts = await find('BillingIntegrationOrganizationContext', {
         organization: { id: organizationId },
-        integration: { id_in: subscriptionRequiredIntegrationIds, deletedAt: null },
         deletedAt: null,
     })
+    if (integrationContexts.length === 0) return false
 
-    return restrictedIntegrationContexts.length === 0
+    return integrationContexts.every(({ integration }) => !subscriptionRequiredIntegrationIds.includes(integration))
+}
+
+function buildPdfReceiptsRestrictionKey (organizationId, integrationId) {
+    return `${organizationId}:${integrationId}`
 }
 
 /**
- * Returns ids of organizations whose residents can't see pdf receipts of billing integrations requiring subscription
+ * Returns keys of organization+integration pairs whose residents can't see pdf receipts, so an organization
+ * connected to both a subscription-required and an unrestricted billing integration keeps files for the latter
  *
  * @param {object} context - keystone context
  * @param {Array<{ integrationId: string, organizationId: string }>} billingContexts
  * @returns {Promise<Set<string>>}
  */
 async function getOrganizationIdsWithoutPdfReceipts (context, billingContexts) {
-    const organizationIds = [...new Set(
-        billingContexts
-            .filter(({ integrationId }) => isPdfReceiptsSubscriptionRequired(integrationId))
-            .map(({ organizationId }) => organizationId)
-            .filter(Boolean)
-    )]
+    const restrictedContexts = billingContexts.filter(({ integrationId }) => isPdfReceiptsSubscriptionRequired(integrationId))
+    const organizationIds = [...new Set(restrictedContexts.map(({ organizationId }) => organizationId).filter(Boolean))]
     if (!organizationIds.length) return new Set()
 
     const subscriptionMap = await getOrganizationsSubscriptionMap(context, organizationIds, PDF_RECEIPTS_FEATURE)
 
-    return new Set(organizationIds.filter(organizationId => !subscriptionMap.get(organizationId)))
+    return new Set(
+        restrictedContexts
+            .filter(({ organizationId }) => organizationId && !subscriptionMap.get(organizationId))
+            .map(({ organizationId, integrationId }) => buildPdfReceiptsRestrictionKey(organizationId, integrationId))
+    )
 }
 
 module.exports = {
     isPdfReceiptsSubscriptionRequired,
     canUsePdfReceiptsWithoutSubscription,
     getOrganizationIdsWithoutPdfReceipts,
+    buildPdfReceiptsRestrictionKey,
 }

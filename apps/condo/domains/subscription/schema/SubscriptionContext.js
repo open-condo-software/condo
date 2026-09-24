@@ -323,7 +323,10 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
             const isBecomingDone = updatedItem.status === SUBSCRIPTION_CONTEXT_STATUS.DONE &&
                 existingItem?.status !== updatedItem.status
 
-            // Finish B2BAppContext for each app in a plan when context becomes DONE
+            // Finish B2BAppContext for each app in a plan when context becomes DONE and its period has actually started;
+            // a context bought ahead of time (future startAt) is picked up later by suspendB2BAppContextsWithoutSubscription
+            const isEffectiveNow = isBecomingDone && updatedItem.startAt && !dayjs(updatedItem.startAt).isAfter(dayjs())
+
             if (isBecomingDone) {
                 const plan = await getById('SubscriptionPlan', updatedItem.subscriptionPlan)
                 if (plan) {
@@ -337,7 +340,7 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
                             deletedAt: null,
                         })
 
-                        if (existing && existing.status === CONTEXT_ERROR_STATUS) {
+                        if (existing && existing.status === CONTEXT_ERROR_STATUS && isEffectiveNow) {
                             await B2BAppContext.update(context, existing.id, {
                                 dv: 1,
                                 sender: updatedItem.sender,

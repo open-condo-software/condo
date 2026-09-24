@@ -13,7 +13,7 @@ const access = require('@condo/domains/billing/access/BillingReceiptFile')
 const { BILLING_RECEIPT_FILE_FOLDER_NAME } = require('@condo/domains/billing/constants/constants')
 const { CONTEXT_IS_NOT_EQUAL } = require('@condo/domains/billing/constants/errors')
 const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
-const { isPdfReceiptsSubscriptionRequired, getOrganizationIdsWithoutPdfReceipts } = require('@condo/domains/subscription/utils/serverSchema/pdfReceiptsAvailability')
+const { isPdfReceiptsSubscriptionRequired, getOrganizationIdsWithoutPdfReceipts, buildPdfReceiptsRestrictionKey } = require('@condo/domains/subscription/utils/serverSchema/pdfReceiptsAvailability')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 const ERRORS = {
@@ -44,10 +44,10 @@ const isPdfReceiptsAvailable = async (context, billingContextId) => {
     const { integration, organization } = await getById('BillingIntegrationOrganizationContext', billingContextId)
     if (!isPdfReceiptsSubscriptionRequired(integration)) return true
 
-    const organizationIdsWithoutPdfReceipts = await getOrganizationIdsWithoutPdfReceipts(context, [
+    const pdfReceiptsRestrictionKeys = await getOrganizationIdsWithoutPdfReceipts(context, [
         { integrationId: integration, organizationId: organization },
     ])
-    return !organizationIdsWithoutPdfReceipts.has(organization)
+    return !pdfReceiptsRestrictionKeys.has(buildPdfReceiptsRestrictionKey(organization, integration))
 }
 
 const shouldResolveReceiptByImportId = (operation, receipt, importId) => operation === 'create' && !receipt && importId
