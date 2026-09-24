@@ -5,7 +5,7 @@ const dayjs = require('dayjs')
 const { setFakeClientMode, makeLoggedInAdminClient, setFeatureFlag } = require('@open-condo/keystone/test.utils')
 
 const { SUBSCRIPTIONS } = require('@condo/domains/common/constants/featureflags')
-const { CONTEXT_FINISHED_STATUS, CONTEXT_ERROR_STATUS } = require('@condo/domains/miniapp/constants')
+const { CONTEXT_FINISHED_STATUS, CONTEXT_ERROR_STATUS, CONTEXT_ERROR_REASON_NO_SUBSCRIPTION } = require('@condo/domains/miniapp/constants')
 const { createTestB2BApp, createTestB2BAppContext, B2BAppContext } = require('@condo/domains/miniapp/utils/testSchema')
 const { HOLDING_TYPE, SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
@@ -47,6 +47,7 @@ describe('suspendB2BAppContextsWithoutSubscription', () => {
 
             const suspendedContext = await B2BAppContext.getOne(admin, { id: b2bAppContext.id })
             expect(suspendedContext.status).toBe(CONTEXT_ERROR_STATUS)
+            expect(suspendedContext.errorReason).toBe(CONTEXT_ERROR_REASON_NO_SUBSCRIPTION)
         })
 
         test('moves context to Error when subscription for the app is expired', async () => {
@@ -68,6 +69,7 @@ describe('suspendB2BAppContextsWithoutSubscription', () => {
 
             const suspendedContext = await B2BAppContext.getOne(admin, { id: b2bAppContext.id })
             expect(suspendedContext.status).toBe(CONTEXT_ERROR_STATUS)
+            expect(suspendedContext.errorReason).toBe(CONTEXT_ERROR_REASON_NO_SUBSCRIPTION)
         })
 
         test('keeps context Finished when subscription for the app is active', async () => {

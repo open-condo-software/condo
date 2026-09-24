@@ -11,18 +11,27 @@ const PDF_RECEIPTS_FEATURE = 'pdfReceipts'
 /**
  * Billing integrations whose pdf receipts are available to residents only with "pdfReceipts" subscription feature.
  * Organizations connected to any other billing integration can use pdf receipts without subscription.
- * Env value is a JSON array of billing integration ids
+ * Env value is a JSON array of billing integration ids.
+ * A configured value that is not valid JSON or not an array is a misconfiguration and must fail loudly,
+ * since silently falling back to an empty list would disable the paywall for everyone
  *
  * @returns {string[]}
  */
 function getPdfReceiptsSubscriptionRequiredBillingIntegrationIds () {
+    const rawValue = conf['PDF_RECEIPTS_SUBSCRIPTION_REQUIRED_BILLING_INTEGRATION_IDS']
+    if (!rawValue) return []
+
+    let integrationIds
     try {
-        const integrationIds = JSON.parse(conf['PDF_RECEIPTS_SUBSCRIPTION_REQUIRED_BILLING_INTEGRATION_IDS'] || '[]')
-        return Array.isArray(integrationIds) ? integrationIds : []
+        integrationIds = JSON.parse(rawValue)
     } catch (err) {
         logger.error({ msg: 'invalid PDF_RECEIPTS_SUBSCRIPTION_REQUIRED_BILLING_INTEGRATION_IDS', err })
-        return []
+        throw new Error('PDF_RECEIPTS_SUBSCRIPTION_REQUIRED_BILLING_INTEGRATION_IDS must be a JSON array of billing integration ids')
     }
+    if (!Array.isArray(integrationIds)) {
+        throw new Error('PDF_RECEIPTS_SUBSCRIPTION_REQUIRED_BILLING_INTEGRATION_IDS must be a JSON array of billing integration ids')
+    }
+    return integrationIds
 }
 
 function isPdfReceiptsSubscriptionRequired (integrationId) {
@@ -30,6 +39,10 @@ function isPdfReceiptsSubscriptionRequired (integrationId) {
 }
 
 /**
+ * Organization is exempt only when none of its billing integrations require the "pdfReceipts" subscription feature.
+ * A billing integration that doesn't require subscription must not exempt a subscription-required one
+ * connected to the same organization
+ *
  * @param {string} organizationId
  * @returns {Promise<boolean>}
  */
@@ -37,13 +50,13 @@ async function canUsePdfReceiptsWithoutSubscription (organizationId) {
     const subscriptionRequiredIntegrationIds = getPdfReceiptsSubscriptionRequiredBillingIntegrationIds()
     if (subscriptionRequiredIntegrationIds.length === 0) return true
 
-    const otherIntegrationContexts = await find('BillingIntegrationOrganizationContext', {
+    const restrictedIntegrationContexts = await find('BillingIntegrationOrganizationContext', {
         organization: { id: organizationId },
-        integration: { id_not_in: subscriptionRequiredIntegrationIds, deletedAt: null },
+        integration: { id_in: subscriptionRequiredIntegrationIds, deletedAt: null },
         deletedAt: null,
     })
 
-    return otherIntegrationContexts.length > 0
+    return restrictedIntegrationContexts.length === 0
 }
 
 /**

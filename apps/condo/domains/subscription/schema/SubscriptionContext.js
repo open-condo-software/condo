@@ -342,6 +342,7 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
                                 dv: 1,
                                 sender: updatedItem.sender,
                                 status: CONTEXT_FINISHED_STATUS,
+                                errorReason: null,
                             })
                         } else if (!existing && plan.planType === SUBSCRIPTION_PLAN_TYPE_FEATURE) {
                             await B2BAppContext.create(context, {

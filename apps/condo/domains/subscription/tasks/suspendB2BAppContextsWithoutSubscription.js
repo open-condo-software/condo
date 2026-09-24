@@ -3,7 +3,7 @@ const dayjs = require('dayjs')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx, find, itemsQuery } = require('@open-condo/keystone/schema')
 
-const { CONTEXT_FINISHED_STATUS, CONTEXT_ERROR_STATUS } = require('@condo/domains/miniapp/constants')
+const { CONTEXT_FINISHED_STATUS, CONTEXT_ERROR_STATUS, CONTEXT_ERROR_REASON_NO_SUBSCRIPTION } = require('@condo/domains/miniapp/constants')
 const { B2BAppContext } = require('@condo/domains/miniapp/utils/serverSchema')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 
@@ -37,7 +37,12 @@ function isAppSubscriptionExpired (organization, appId, now) {
 
 async function suspendB2BAppContext (context, b2bAppContext) {
     try {
-        await B2BAppContext.update(context, b2bAppContext.id, { dv: 1, sender: SENDER, status: CONTEXT_ERROR_STATUS })
+        await B2BAppContext.update(context, b2bAppContext.id, {
+            dv: 1,
+            sender: SENDER,
+            status: CONTEXT_ERROR_STATUS,
+            errorReason: CONTEXT_ERROR_REASON_NO_SUBSCRIPTION,
+        })
         logger.info({
             msg: 'suspended B2BAppContext without subscription',
             entity: 'B2BAppContext',

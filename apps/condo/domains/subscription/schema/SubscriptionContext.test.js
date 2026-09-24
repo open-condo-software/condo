@@ -19,7 +19,7 @@ const {
 const { createTestRecipient, createTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
 const { INVOICE_TYPE_B2C, INVOICE_TYPE_B2B } = require('@condo/domains/marketplace/constants')
 const { createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
-const { CONTEXT_ERROR_STATUS, CONTEXT_IN_PROGRESS_STATUS } = require('@condo/domains/miniapp/constants')
+const { CONTEXT_ERROR_STATUS, CONTEXT_IN_PROGRESS_STATUS, CONTEXT_ERROR_REASON_NO_SUBSCRIPTION } = require('@condo/domains/miniapp/constants')
 const { createTestB2BApp, createTestB2BAppContext, B2BAppContext: B2BAppContextClient } = require('@condo/domains/miniapp/utils/testSchema')
 const { HOLDING_TYPE, MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
@@ -1043,6 +1043,7 @@ describe('SubscriptionContext', () => {
         test('restores suspended B2BAppContext to Finished when feature context becomes DONE', async () => {
             const [b2bAppContext] = await createTestB2BAppContext(admin, { id: featurePlan._testAppId }, featureOrganization, {
                 status: CONTEXT_ERROR_STATUS,
+                errorReason: CONTEXT_ERROR_REASON_NO_SUBSCRIPTION,
             })
 
             await createTestSubscriptionContext(admin, featureOrganization, featurePlan, {
@@ -1054,6 +1055,7 @@ describe('SubscriptionContext', () => {
 
             const restoredContext = await B2BAppContextClient.getOne(admin, { id: b2bAppContext.id })
             expect(restoredContext.status).toBe(CONTEXT_FINISHED_STATUS)
+            expect(restoredContext.errorReason).toBeNull()
         })
 
         test('restores suspended B2BAppContext to Finished when service context becomes DONE', async () => {
@@ -1066,6 +1068,7 @@ describe('SubscriptionContext', () => {
             })
             const [b2bAppContext] = await createTestB2BAppContext(admin, app, featureOrganization, {
                 status: CONTEXT_ERROR_STATUS,
+                errorReason: CONTEXT_ERROR_REASON_NO_SUBSCRIPTION,
             })
 
             await createTestSubscriptionContext(admin, featureOrganization, servicePlan, {
@@ -1077,6 +1080,7 @@ describe('SubscriptionContext', () => {
 
             const restoredContext = await B2BAppContextClient.getOne(admin, { id: b2bAppContext.id })
             expect(restoredContext.status).toBe(CONTEXT_FINISHED_STATUS)
+            expect(restoredContext.errorReason).toBeNull()
         })
 
         test('does not change InProgress B2BAppContext when context becomes DONE', async () => {
