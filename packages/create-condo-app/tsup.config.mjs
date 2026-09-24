@@ -8,4 +8,5 @@ export default defineConfig({
     format: ['cjs', 'esm'],
     target: 'node16',
     minify: true,
+    publicDir: 'templates',
 })
