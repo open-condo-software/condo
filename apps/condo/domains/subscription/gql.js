@@ -8,7 +8,7 @@ const { gql } = require('graphql-tag')
 
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
-const SUBSCRIPTION_PLAN_FIELDS = '{ name description organizationType trialDays properties analytics news marketplace support ai enabledB2BApps enabledB2CApps customization isHidden priority canBePromoted id dv sender { dv fingerprint } v }'
+const SUBSCRIPTION_PLAN_FIELDS = '{ name description organizationType trialDays properties analytics news marketplace support ai enabledB2BApps enabledB2CApps customization pdfReceipts isHidden priority canBePromoted id dv sender { dv fingerprint } v }'
 const SubscriptionPlan = generateGqlQueries('SubscriptionPlan', SUBSCRIPTION_PLAN_FIELDS)
 
 const SUBSCRIPTION_PLAN_PRICING_RULE_FIELDS = '{ name description subscriptionPlan { id } period conditions price currencyCode priority isHidden id dv sender { dv fingerprint } v }'
