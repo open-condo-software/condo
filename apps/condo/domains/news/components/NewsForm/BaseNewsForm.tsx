@@ -50,6 +50,7 @@ import { LabelWithInfo } from '@condo/domains/common/components/LabelWithInfo'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { extractGraphQLErrorsWithExtensions } from '@condo/domains/common/utils/graphql'
 import { NewsCardGrid } from '@condo/domains/news/components/NewsForm/NewsCardGrid'
 import SelectSharingAppControl from '@condo/domains/news/components/NewsForm/SelectSharingAppControl'
 import { CondoNewsItemCard, SharingNewsItemCard } from '@condo/domains/news/components/NewsItemCard'
@@ -70,6 +71,7 @@ import { InputStep, SharingAppValuesType } from './InputStep'
 import { UploadFileType, useModifiedFiles } from '../FilesUploadList'
 
 import type { NewsItemScopeNoInstanceType } from '../types'
+import type { GraphQLErrorWithExtensions } from '@condo/domains/common/utils/graphql'
 import type { FormRule as Rule } from 'antd'
 
 
@@ -340,6 +342,24 @@ const getAllUnits = (property: IProperty): IBuildingUnit[] => {
 
 const INITIAL_VALUES = {}
 const CHUNK_SIZE = 50
+const PROFANITY_TYPE_TO_FIELD: Record<string, 'title' | 'body'> = {
+    [PROFANITY_TITLE_DETECTED_MOT_ERF_KER]: 'title',
+    [PROFANITY_BODY_DETECTED_MOT_ERF_KER]: 'body',
+}
+
+const collectBadWordsFromError = (graphQLError: GraphQLErrorWithExtensions): string[] => {
+    const badWords = get(graphQLError, 'extensions.badWords')
+
+    if (!badWords) return []
+
+    const values = Array.isArray(badWords) ? badWords : [badWords]
+
+    return values
+        .filter((value): value is string => typeof value === 'string')
+        .flatMap((value) => value.split(','))
+        .map((word) => word.trim())
+        .filter((word) => word.length > 0)
+}
 
 export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     organizationId,
@@ -664,7 +684,45 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             title,
         }
 
-        const newsItem = await createOrUpdateNewsItem(updatedNewsItemValues)
+        let newsItem
+        try {
+            newsItem = await createOrUpdateNewsItem(updatedNewsItemValues)
+        } catch (error) {
+            const graphQLErrors = extractGraphQLErrorsWithExtensions(error)
+            const profanityFieldErrors = new Map<string, { words: Set<string> }>()
+
+            graphQLErrors.forEach((graphQLError) => {
+                const errorType = get(graphQLError, 'extensions.type') as string | undefined
+                const hasBadWordsExtension = has(graphQLError, 'extensions.badWords')
+
+                if (!hasBadWordsExtension && !errorType) return
+
+                const fieldName = PROFANITY_TYPE_TO_FIELD[errorType || ''] || 'body'
+                const entry = profanityFieldErrors.get(fieldName) || { words: new Set<string>() }
+                collectBadWordsFromError(graphQLError).forEach((word) => entry.words.add(word))
+                profanityFieldErrors.set(fieldName, entry)
+            })
+
+            if (profanityFieldErrors.size > 0) {
+                const defaultProfanityMessage = intl.formatMessage({ id: 'pages.condo.news.profanity.badWords.default' })
+                const formErrors = Array.from(profanityFieldErrors.entries()).map(([fieldName, { words }]) => {
+                    const uniqueBadWords = Array.from(words)
+                    const message = uniqueBadWords.length > 0
+                        ? intl.formatMessage({ id: 'pages.condo.news.profanity.badWords.list' }, { badWords: uniqueBadWords.join(', ') })
+                        : defaultProfanityMessage
+
+                    return { name: fieldName, errors: [message] }
+                })
+
+                newsItemsForm.setFields(formErrors)
+
+                const handledError = new Error('PROFANITY_DETECTED') as Error & { originalError?: unknown }
+                handledError.originalError = error
+                throw handledError
+            }
+
+            throw error
+        }
         const newsItemId = get(newsItem, 'id')
 
         const sender = getClientSideSenderInfo()
