@@ -29,7 +29,7 @@ so it best suited for apps with no server-side logic.
 
 ## Tech-stack description
 
-This app is based on Next.js, React, and TypeScript. Next.js is configured for [static export mode](./next.config.ts), 
+This app is based on Next.js, React, and TypeScript. Next.js is configured for [static export mode](next.config.ts), 
 so no server-side features like API routes or middleware are available.
 
 For passing config variables to app, you can use runtime config inside `next.config.ts`. 
@@ -248,7 +248,7 @@ Bridge is primarily used to get launch params (locale / user id / organization o
 ## Authorization
 
 App uses OIDC code flow with PKCE for authorization. This flow is used, when app cannot store client secret safely or / and its code is exposed in browser.
-That's our case, since this app does not have backend. All auth are done automatically by [AuthContext](./domains/user/components/AuthContext.tsx). The flow is following:
+That's our case, since this app does not have backend. All auth are done automatically by [AuthContext](domains/user/components/AuthContext.tsx). The flow is following:
 1. `authenticatedUser` query is fired to Condo API on app startup to receive current user data using token from `localStorage` (if available)
 2. If user is `null` (unauthenticated), token is missing/expired, or its id does not match with launch params user id (in case user changed between sessions), then OIDC flow is performed
 3. OIDC flow is performed in background, using [Condo Bridge](#bridge) `RequestAuth` method and `oidc-client-ts` library as helper for generating verifiers and processing code response
