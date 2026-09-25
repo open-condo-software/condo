@@ -1,9 +1,9 @@
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 
 import { Check, Close, Plus } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Checkbox, Space, Table, Tooltip, Typography, Tag } from '@open-condo/ui'
-import type { GetTableData, TableColumn, RenderTableCell } from '@open-condo/ui'
+import type { GetTableData, TableColumn, TableRef, RenderTableCell } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import { SUBSCRIPTION_PERIOD } from '@condo/domains/subscription/constants'
@@ -218,11 +218,25 @@ export const SubscriptionFeatureTable: React.FC<SubscriptionFeatureTableProps> =
         rowCount: rows.length,
     }), [rows])
 
+    /**
+     * The kit's Table reads its dataSource through a ref and only refetches on paging, sorting or
+     * filtering, so another plan or period has to ask it for the new rows itself
+     */
+    const tableApiRef = useRef<TableRef['api'] | null>(null)
+    const handleTableReady = useCallback((table: TableRef) => {
+        tableApiRef.current = table.api
+    }, [])
+
+    useEffect(() => {
+        tableApiRef.current?.refetchData()
+    }, [rows])
+
     if (rows.length === 0) return null
 
     return (
         <Table<CatalogRow>
             id='subscription-feature-table'
+            onTableReady={handleTableReady}
             dataSource={dataSource}
             columns={columns}
             getRowId={getRowId}

@@ -33,7 +33,8 @@ type UseSubscriptionCheckoutParams = {
     trialSubscriptions: ReturnType<typeof useTrialSubscriptions>['trialSubscriptions']
     registerSubscriptionBundle: ReturnType<typeof useActivateSubscriptions>['registerSubscriptionBundle']
     activateLoading: boolean
-    refetchUnpaidSubscriptions: () => Promise<unknown>
+    /** Re-reads both what the organization owns and what it still owes, so the page reflects a purchase at once */
+    refetchSubscriptions: () => Promise<unknown>
     cancelFeaturePlans: (planIds: ReadonlyArray<string>) => Promise<void>
 }
 
@@ -54,7 +55,7 @@ export const useSubscriptionCheckout = ({
     trialSubscriptions,
     registerSubscriptionBundle,
     activateLoading,
-    refetchUnpaidSubscriptions,
+    refetchSubscriptions,
     cancelFeaturePlans,
 }: UseSubscriptionCheckoutParams) => {
     const intl = useIntl()
@@ -94,8 +95,8 @@ export const useSubscriptionCheckout = ({
         })
         clearSelection()
         setUpsellPlanId(null)
-        await refetchUnpaidSubscriptions()
-    }, [upsellPriceIds, cartPriceIds, registerSubscriptionBundle, selectedPlanCard, isPlanInCart, clearSelection, refetchUnpaidSubscriptions])
+        await refetchSubscriptions()
+    }, [upsellPriceIds, cartPriceIds, registerSubscriptionBundle, selectedPlanCard, isPlanInCart, clearSelection, refetchSubscriptions])
 
     const [requestSubscriptionInvoice] = useRequestSubscriptionInvoiceMutation()
 
@@ -127,8 +128,8 @@ export const useSubscriptionCheckout = ({
             paymentType: 'invoice',
             includesServicePlan: alert.scope === 'plan',
         })
-        await refetchUnpaidSubscriptions()
-    }, [requestSubscriptionInvoice, intl, registerSubscriptionBundle, refetchUnpaidSubscriptions])
+        await refetchSubscriptions()
+    }, [requestSubscriptionInvoice, intl, registerSubscriptionBundle, refetchSubscriptions])
 
     const { PaymentModal, openModal: openPaymentModal } = useSubscriptionPaymentModal({
         registerSubscriptionContext: purchase,

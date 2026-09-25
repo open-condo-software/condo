@@ -22,10 +22,14 @@
 /*
  * Equal-width columns with stretched items are what keeps every plan card the same height,
  * whatever the length of its description.
+ *
+ * The minimum track has to stay small enough for four plans to share the narrowest desktop
+ * width: at 1280px the row is 944px wide, which leaves (944 - 3 * 24) / 4 = 218px per card.
+ * A larger minimum drops the fourth plan onto a second row, and designs put them all in one.
  */
 .plan-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
   gap: 24px;
   align-items: stretch;
   width: 100%;

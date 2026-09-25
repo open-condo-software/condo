@@ -68,6 +68,13 @@ const resolveActiveStatusType = (context: FeatureContext): FeatureStatusType => 
 }
 
 /**
+ * Periods are stored as calendar dates, so they are compared as whole days in the viewer's timezone,
+ * the same way the server reads them. Treating them as instants would put a period that starts today
+ * in the future for everyone east of UTC, and would count one day too many until UTC catches up.
+ */
+const asDay = (value: string | Date): dayjs.Dayjs => dayjs(value).startOf('day')
+
+/**
  * A paid period that ended less than `bufferDays` ago is still being renewed, so it reads as an expired
  * payment. Any other ended context, a cancelled one included, has used up the trial for good.
  */
@@ -76,22 +83,23 @@ export const resolveFeatureStatus = (
     now: Date,
     bufferDays: number
 ): FeatureStatus | null => {
+    const today = asDay(now)
     const withEnd = contexts.filter(context => Boolean(context.endAt))
     const active = withEnd
-        .filter(context => (!context.startAt || new Date(context.startAt) <= now) && new Date(context.endAt) > now)
+        .filter(context => (!context.startAt || !asDay(context.startAt).isAfter(today)) && asDay(context.endAt).isAfter(today))
         .sort(byEndAtDesc)[0]
 
     if (active) {
         const type = resolveActiveStatusType(active)
-        const daysLeft = Math.max(0, Math.ceil((new Date(active.endAt).getTime() - now.getTime()) / DAY_MS))
+        const daysLeft = Math.max(0, asDay(active.endAt).diff(today, 'day'))
         return { type, contextId: active.id, endAt: active.endAt, daysLeft }
     }
 
-    const ended = withEnd.filter(context => new Date(context.endAt) <= now).sort(byEndAtDesc)[0]
+    const ended = withEnd.filter(context => !asDay(context.endAt).isAfter(today)).sort(byEndAtDesc)[0]
     if (!ended) return null
 
     const isRenewing = !ended.isTrial && !ended.renewalCancelledAt
-        && now.getTime() < new Date(ended.endAt).getTime() + bufferDays * DAY_MS
+        && today.isBefore(asDay(ended.endAt).add(bufferDays, 'day'))
 
     return { type: isRenewing ? 'paymentExpired' : 'trialExpired', contextId: ended.id, endAt: ended.endAt, daysLeft: 0 }
 }

@@ -84,11 +84,12 @@ const PlanAlertSlide: React.FC<{ alert: PlanAlert, onInvoiceAction: (alert: Plan
         </Space>
     ) : description
 
+    // The message slot is a heading: an alert that is one plain sentence keeps it in the body instead
     return (
         <Alert
             type={WARNING_ALERT_TYPES.has(alert.type) ? 'warning' : 'error'}
-            message={title ?? description}
-            description={title ? body : undefined}
+            message={title ?? undefined}
+            description={title ? body : description}
         />
     )
 }

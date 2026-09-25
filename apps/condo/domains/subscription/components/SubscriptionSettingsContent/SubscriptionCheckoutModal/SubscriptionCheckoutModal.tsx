@@ -3,7 +3,7 @@ import React, { useMemo } from 'react'
 
 import { QuestionCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Button, Banner, Modal, Space, Tooltip, Typography } from '@open-condo/ui'
+import { Button, Modal, Space, Tooltip, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import { SUBSCRIPTION_PERIOD } from '@condo/domains/subscription/constants'
@@ -45,8 +45,10 @@ type CheckoutLineProps = {
     strong?: boolean
 }
 
+/* The kit's Space is inline-flex, so a row laid out with it shrinks to its content instead of
+ * filling the modal, which leaves the leader line short of the price */
 const CheckoutLine: React.FC<CheckoutLineProps> = ({ label, amount, strikethroughAmount, note, strong }) => (
-    <Space size={4} direction='vertical' width='100%'>
+    <div className={styles.line}>
         <div className={styles.lineTop}>
             <Typography.Text strong={strong}>{label}</Typography.Text>
             <span className={styles.leader} />
@@ -65,7 +67,7 @@ const CheckoutLine: React.FC<CheckoutLineProps> = ({ label, amount, strikethroug
                 <Typography.Text type='success' size='small'>{note}</Typography.Text>
             </div>
         )}
-    </Space>
+    </div>
 )
 
 export const SubscriptionCheckoutModal: React.FC<SubscriptionCheckoutModalProps> = ({
@@ -103,7 +105,9 @@ export const SubscriptionCheckoutModal: React.FC<SubscriptionCheckoutModalProps>
         discount: getDiscount(row.prices, period),
     })), [selectedRows, period])
 
-    const total = (planAmount ?? 0) + featureLines.reduce((sum, line) => sum + line.amount, 0)
+    /** What the picked features alone cost: the upsell sentence is about them, not about the whole cart */
+    const featuresAmount = featureLines.reduce((sum, line) => sum + line.amount, 0)
+    const total = (planAmount ?? 0) + featuresAmount
 
     const title = planCard
         ? intl.formatMessage(
@@ -224,35 +228,36 @@ export const SubscriptionCheckoutModal: React.FC<SubscriptionCheckoutModalProps>
                             strikethroughAmount={line.discount ? formatAmount(line.discount.fullAmount, currencyCode, intl.locale) : null}
                         />
                     ))}
-                    <div className={styles.totalLine}>
-                        <CheckoutLine
-                            label={TotalMessage}
-                            amount={formatAmount(total, currencyCode, intl.locale)}
-                            strong
-                        />
-                    </div>
+                    <CheckoutLine
+                        label={TotalMessage}
+                        amount={formatAmount(total, currencyCode, intl.locale)}
+                        strong
+                    />
                 </Space>
 
                 {upsell && (
-                    <Banner
-                        title={intl.formatMessage(
-                            { id: 'subscription.checkout.upsell.title' },
-                            { planName: upsell.plan.name, amount: formatAmount(upsell.amount, currencyCode, intl.locale) }
-                        )}
-                        subtitle={intl.formatMessage(
-                            { id: 'subscription.checkout.upsell.description' },
-                            {
-                                count: selectedRows.length,
-                                amount: formatAmount(total, currencyCode, intl.locale),
-                                planName: upsell.plan.name,
-                                planAmount: formatAmount(upsell.amount, currencyCode, intl.locale),
-                                extraCount: upsell.extraCount,
-                            }
-                        )}
-                        backgroundColor={colors.blue[5]}
-                        invertText
-                        size='small'
-                    />
+                    <div className={styles.upsell}>
+                        <div className={styles.upsellText}>
+                            <Typography.Title level={4} type='inverted'>
+                                {intl.formatMessage(
+                                    { id: 'subscription.checkout.upsell.title' },
+                                    { planName: upsell.plan.name, amount: formatAmount(upsell.amount, currencyCode, intl.locale) }
+                                )}
+                            </Typography.Title>
+                            <Typography.Paragraph type='inverted' size='medium'>
+                                {intl.formatMessage(
+                                    { id: 'subscription.checkout.upsell.description' },
+                                    {
+                                        count: selectedRows.length,
+                                        amount: formatAmount(featuresAmount, currencyCode, intl.locale),
+                                        planName: upsell.plan.name,
+                                        planAmount: formatAmount(upsell.amount, currencyCode, intl.locale),
+                                        extraCount: upsell.extraCount,
+                                    }
+                                )}
+                            </Typography.Paragraph>
+                        </div>
+                    </div>
                 )}
             </Space>
         </Modal>
