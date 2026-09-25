@@ -1,6 +1,42 @@
-.plan-list {
+/* Plan cards behave as tabs, so the switch above them is the anchor a card click scrolls to */
+.period-switch {
   display: flex;
-  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+  scroll-margin-top: 20px;
+}
+
+.period-switch-inner {
+  position: relative;
+}
+
+/* The badge sits above the yearly option; antd lifts the checked option to z-index 1 */
+.period-discount-badge {
+  position: absolute;
+  top: -10px;
+  left: 16px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/*
+ * Equal-width columns with stretched items are what keeps every plan card the same height,
+ * whatever the length of its description.
+ *
+ * The minimum track has to stay small enough for four plans to share the narrowest desktop
+ * width: at 1280px the row is 944px wide, which leaves (944 - 3 * 24) / 4 = 218px per card.
+ * A larger minimum drops the fourth plan onto a second row, and designs put them all in one.
+ */
+.plan-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
   gap: 24px;
-  align-items: flex-start;
+  align-items: stretch;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .plan-list {
+    grid-template-columns: 1fr;
+  }
 }

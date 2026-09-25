@@ -1,7 +1,4 @@
 import { AcquiringIntegrationTypeType } from '@app/condo/schema'
-import { notification } from 'antd'
-import dayjs from 'dayjs'
-import getConfig from 'next/config'
 import Head from 'next/head'
 import React, { useMemo } from 'react'
 
@@ -17,7 +14,7 @@ import { Loader } from '@condo/domains/common/components/Loader'
 import { ControlRoomSettingsContent } from '@condo/domains/common/components/settings/ControlRoomSettingsContent'
 import { MobileFeatureConfigContent } from '@condo/domains/common/components/settings/MobileFeatureConfigContent'
 import { TabsPageContent } from '@condo/domains/common/components/TabsPageContent'
-import { SUBSCRIPTIONS, UI_HIDE_PAID_FEATURES } from '@condo/domains/common/constants/featureflags'
+import { UI_HIDE_PAID_FEATURES } from '@condo/domains/common/constants/featureflags'
 import {
     SETTINGS_TAB_CONTACT_ROLES,
     SETTINGS_TAB_PAYMENT_DETAILS,
@@ -66,7 +63,7 @@ const SettingsPage: PageComponentType = () => {
     const canManageMobileFeatureConfigsRoles = useMemo(() => userOrganization?.role?.canManageMobileFeatureConfigs || false, [userOrganization])
     const canManageMarketSettingRoles = useMemo(() => userOrganization?.role?.canManageMarketSetting || false, [userOrganization])
 
-    const { hasSubscription, hasAvailablePlans, loading: subscriptionsLoading, subscriptionContext, hasSubscriptionsFeature } = useOrganizationSubscription()
+    const { hasSubscription, hasAvailablePlans, loading: subscriptionsLoading, hasSubscriptionsFeature } = useOrganizationSubscription()
     const { useFlag } = useFeatureFlags()
     const hidePaidFeatures = useFlag(UI_HIDE_PAID_FEATURES)
     const isSubscriptionsEnabled = !subscriptionsLoading && hasAvailablePlans && hasSubscriptionsFeature
@@ -145,8 +142,8 @@ const SettingsPage: PageComponentType = () => {
         <Typography.Title>{PageTitle}</Typography.Title>
     ), [PageTitle])
 
+    // the settings page sells plans and features together, so the latest paid bundle decides what to congratulate on
     useSubscriptionPaymentSuccess({
-        planId: subscriptionContext?.subscriptionPlan?.id || null,
         organizationId: userOrganizationId,
     })
 

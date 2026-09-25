@@ -1,587 +1,325 @@
-import {
-    GetAvailableServiceSubscriptionPlansQueryResult,
-    GetPendingSubscriptionRequestsQueryResult,
-    GetOrganizationTrialSubscriptionsQuery,
-    GetOrganizationActivatedSubscriptionsQuery,
-} from '@app/condo/gql'
 import { OrganizationFeature } from '@app/condo/schema'
-import { Collapse } from 'antd'
 import classnames from 'classnames'
 import dayjs from 'dayjs'
-import getConfig from 'next/config'
-import React, { useState, useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
-import { Unlock, Lock, QuestionCircle, ChevronDown, CreditCard, Bill } from '@open-condo/icons'
+import { CreditCard, Bill } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Card, Typography, Space, Button, Tooltip, Tag } from '@open-condo/ui'
+import { Card, Typography, Space, Tag } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
-import { CURRENCY_SYMBOLS } from '@condo/domains/common/constants/currencies'
-import { ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID, SUBSCRIPTION_PAYMENT_MODAL } from '@condo/domains/common/constants/featureflags'
-import { analytics } from '@condo/domains/common/utils/analytics'
-import { SubscriptionPaymentErrorAlert } from '@condo/domains/subscription/components/SubscriptionPaymentErrorAlert'
+import { ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID } from '@condo/domains/common/constants/featureflags'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 import { useLinkedCardsModal } from '@condo/domains/subscription/hooks/useLinkedCardsModal'
 import { usePaymentHistoryModal } from '@condo/domains/subscription/hooks/usePaymentHistoryModal'
-import { useSubscriptionPaymentModal } from '@condo/domains/subscription/hooks/useSubscriptionPaymentModal'
-import { type PaymentType } from '@condo/domains/subscription/hooks/useSubscriptionPaymentModal'
+import { formatAmount } from '@condo/domains/subscription/utils/subscriptionPricing'
 
 import styles from './SubscriptionPlanCard.module.css'
 
-import type { AvailableFeatureType } from '@condo/domains/subscription/constants/features'
+import { PlanAlertBadge, SubscriptionPlanAlerts } from '../SubscriptionPlanAlerts/SubscriptionPlanAlerts'
+
+import type { ServicePlanView } from '@condo/domains/subscription/hooks/useSubscriptionPlansPage'
+import type { PlanAlert } from '@condo/domains/subscription/utils/subscriptionPlanAlerts'
 
 
-type PlanType = GetAvailableServiceSubscriptionPlansQueryResult['data']['result']['plans'][number]
+type TrialContext = { subscriptionPlan?: { id?: string } | null }
 
-const { Panel } = Collapse
-
-type FeatureConfig = {
-    featureKey?: AvailableFeatureType
-    label: string
-    hint: string | null
-}
-
-const BASE_FEATURES = [
-    { label: 'subscription.features.profile', hint: null },
-    { label: 'subscription.features.notifications', hint: null },
-    { label: 'subscription.features.guide', hint: null },
-    { label: 'subscription.features.services', hint: null },
-    { label: 'subscription.features.settings', hint: null },
-    { featureKey: 'analytics', label: 'subscription.features.analytics', hint: null },
-    { featureKey: 'tickets', label: 'subscription.features.tickets', hint: null },
-    { featureKey: 'properties', label: 'subscription.features.properties', hint: 'subscription.features.properties.hint' },
-    { label: 'subscription.features.employees', hint: null },
-    { label: 'subscription.features.residents', hint: 'subscription.features.residents.hint' },
-    { featureKey: 'meters', label: 'subscription.features.meters', hint: null },
-    { featureKey: 'payments', label: 'subscription.features.payments', hint: null },
-    { featureKey: 'pdfReceipts', label: 'subscription.features.pdfReceipts', hint: null },
-    { label: 'subscription.features.mobileApp', hint: null },
-    { label: 'subscription.features.outages', hint: null },
-    { featureKey: 'news', label: 'subscription.features.news', hint: null },
-    { featureKey: 'marketplace', label: 'subscription.features.marketplace', hint: null },
-    { featureKey: 'support', label: 'subscription.features.personalManager', hint: 'subscription.features.personalManager.hint' },
-    { featureKey: 'ai', label: 'subscription.features.ai', hint: null },
-] satisfies FeatureConfig[]
-
-const PREMIUM_FEATURES = [
-    { featureKey: 'customization', label: 'subscription.features.customization', hint: 'subscription.features.customization.hint' },
-] satisfies FeatureConfig[]
-
-const { publicRuntimeConfig: { subscriptionFeatureHelpLinks = {} } } = getConfig()
-
-interface FeatureItemProps {
-    label: string
-    available: boolean
-    helpLink?: string
-    hint?: string | null
-}
-
-type PendingRequest = GetPendingSubscriptionRequestsQueryResult['data']['pendingRequests'][number]
-type TrialContextType = GetOrganizationTrialSubscriptionsQuery['trialSubscriptions'][number]
-type ActivatedSubscriptionType = GetOrganizationActivatedSubscriptionsQuery['activatedSubscriptions'][number]
-
-interface SubscriptionPlanCardProps {
-    planInfo: PlanType
-    activatedTrial?: TrialContextType
-    pendingRequest?: PendingRequest
-    activatedSubscriptions: ActivatedSubscriptionType[]
-    refetchActivatedSubscriptions: () => Promise<void>
-    registerSubscriptionContext: (params: {
-        priceId: string
-        isTrial?: boolean
-        planName?: string
-        trialDays?: number
-        isCustomPrice?: boolean
-        paymentType?: PaymentType
-    }) => Promise<void>
-    b2bAppsMap: Map<string, { id: string, name?: string }>
-    allB2BAppIds: string[]
+type SubscriptionPlanCardProps = {
+    card: ServicePlanView
     emoji?: string
-    trialActivateLoading?: boolean
+    activatedTrial?: TrialContext
+    onSelect: (planId: string) => void
+    onInvoiceAction: (alert: PlanAlert) => void
+    refetchActivatedSubscriptions: () => Promise<void> | void
 }
 
-interface SubscriptionPlanBadgeProps {
-    plan: PlanType['plan']
-    activatedTrial?: TrialContextType
-    hasPaymentMethod?: boolean
+type SubscriptionPlanBadgeProps = {
+    isActivePlan: boolean
+    hasTrialExpired: boolean
 }
 
-const FeatureItem: React.FC<FeatureItemProps> = ({ label, available, helpLink, hint }) => {
-    const intl = useIntl()
-    const featureLabel = intl.formatMessage({ id: label as FormatjsIntl.Message['ids'] })
-    const hintText = hint ? intl.formatMessage({ id: hint as FormatjsIntl.Message['ids'] }) : null
-
-    const icon = available ? <Unlock color={colors.green[5]} size='small' /> : <Lock color={colors.red[5]} size='small' />
-
-    const textContent = helpLink && !available ? (
-        <Typography.Link href={helpLink} target='_blank' rel='noopener noreferrer'>
-            <Typography.Text type='secondary'>{featureLabel}</Typography.Text>
-        </Typography.Link>
-    ) : (
-        <Typography.Text type='secondary'>{featureLabel}</Typography.Text>
-    )
-
-    return (
-        <Space size={8} direction='horizontal' align='center'>
-            {icon}
-            {textContent}
-            {hintText && (
-                <Tooltip title={hintText}>
-                    <span className={styles.hintWrapper}>
-                        <QuestionCircle color={colors.gray[7]} size='small' />
-                    </span>
-                </Tooltip>
-            )}
-        </Space>
-    )
+const countdownColor = (daysRemaining: number): string => {
+    if (daysRemaining <= 1) return colors.red[5]
+    if (daysRemaining <= 7) return colors.orange[5]
+    return colors.green[5]
 }
 
-const SubscriptionPlanBadge: React.FC<SubscriptionPlanBadgeProps> = ({ plan, activatedTrial, hasPaymentMethod }) => {
+/** a plan paid during its own trial runs until the paid period ends, not until the trial does */
+const resolveEndDate = (paidUntil: string | null, endAtWithoutBuffer: dayjs.Dayjs | null): dayjs.Dayjs | null => {
+    const now = dayjs()
+    const paidUntilDate = paidUntil ? dayjs(paidUntil) : null
+
+    if (paidUntilDate?.isAfter(now)) return paidUntilDate
+    if (endAtWithoutBuffer?.isAfter(now)) return endAtWithoutBuffer
+
+    return null
+}
+
+const formatEndDate = (date: dayjs.Dayjs | null): string | null => (
+    date ? date.format(date.year() === dayjs().year() ? 'D MMMM' : 'D MMMM YYYY') : null
+)
+
+const SubscriptionPlanBadge: React.FC<SubscriptionPlanBadgeProps> = ({ isActivePlan, hasTrialExpired }) => {
     const intl = useIntl()
     const ActiveMessage = intl.formatMessage({ id: 'subscription.planCard.badge.active' })
     const ExpiredMessage = intl.formatMessage({ id: 'subscription.planCard.badge.trialExpired' })
+    const PaymentExpiredMessage = intl.formatMessage({ id: 'subscription.planCard.badge.paymentExpired' })
 
-    const { subscriptionContext, activeSubscriptionEndAt, activeSubscriptionEndAtWithoutBuffer, isInBufferPeriod } = useOrganizationSubscription()
-
-    const activePlanId = subscriptionContext?.subscriptionPlan?.id
-    const isActivePlan = activePlanId === plan?.id
-    const isTrialExpired = !!activatedTrial
+    const { subscriptionContext, activeSubscriptionEndAtWithoutBuffer, isInBufferPeriod } = useOrganizationSubscription()
 
     const daysRemainingWithoutBuffer = activeSubscriptionEndAtWithoutBuffer
         ? Math.max(0, Math.ceil(activeSubscriptionEndAtWithoutBuffer.diff(dayjs(), 'day', true)))
         : 0
-    const daysRemainingWithBuffer = activeSubscriptionEndAt
-        ? Math.max(0, Math.ceil(dayjs(activeSubscriptionEndAt).diff(dayjs(), 'day', true)))
-        : 0
 
-    let badgeMessage: string | null = null
-    let bgColor = colors.gray[7]
+    const badge = useMemo<{ message: string, bgColor: string } | null>(() => {
+        if (!isActivePlan) return hasTrialExpired ? { message: ExpiredMessage, bgColor: colors.gray[7] } : null
+        // The paid period is over and the plan is only alive on the grace days, so the card says
+        // the payment lapsed rather than counting down days the organization has not paid for
+        if (isInBufferPeriod) return { message: PaymentExpiredMessage, bgColor: colors.red[5] }
+        // the same context the header reads from - a real (non-trial) active context is what "Connected" means
+        if (!subscriptionContext?.isTrial) return { message: ActiveMessage, bgColor: colors.green[5] }
+        if (daysRemainingWithoutBuffer < 1 || daysRemainingWithoutBuffer > 30) return { message: ActiveMessage, bgColor: colors.green[5] }
 
-    if (isTrialExpired) {
-        badgeMessage = ExpiredMessage
-    }
-
-    if (isActivePlan) {
-        bgColor = colors.green[5]
-
-        if (hasPaymentMethod) {
-            badgeMessage = ActiveMessage
-        } else if (isInBufferPeriod) {
-            badgeMessage = intl.formatMessage({ id: 'subscription.planCard.badge.activeDays' }, { days: daysRemainingWithBuffer })
-            bgColor = colors.red[5]
-        } else if (daysRemainingWithoutBuffer > 0 && daysRemainingWithoutBuffer <= 30) {
-            badgeMessage = intl.formatMessage({ id: 'subscription.planCard.badge.activeDays' }, { days: daysRemainingWithoutBuffer })
-
-            if (daysRemainingWithoutBuffer <= 7) bgColor = colors.orange[5]
-            if (daysRemainingWithoutBuffer <= 1) bgColor = colors.red[5]
-        } else {
-            badgeMessage = ActiveMessage
+        return {
+            message: intl.formatMessage({ id: 'subscription.planCard.badge.activeDays' }, { days: daysRemainingWithoutBuffer }),
+            bgColor: countdownColor(daysRemainingWithoutBuffer),
         }
-    }
+    }, [isActivePlan, hasTrialExpired, ExpiredMessage, isInBufferPeriod, PaymentExpiredMessage, subscriptionContext?.isTrial, ActiveMessage, daysRemainingWithoutBuffer, intl])
 
-    if (!badgeMessage) return null
+    if (!badge) return null
 
     return (
-        <Tag bgColor={bgColor} textColor={colors.white}>
-            {badgeMessage}
-        </Tag>
+        <span className={styles.badge}>
+            <Tag bgColor={badge.bgColor} textColor={colors.white}>{badge.message}</Tag>
+        </span>
     )
 }
 
-export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ planInfo, activatedTrial, pendingRequest, activatedSubscriptions, refetchActivatedSubscriptions, registerSubscriptionContext, b2bAppsMap, allB2BAppIds, emoji, trialActivateLoading = false }) => {
+type SubscriptionPlanPriceProps = {
+    card: ServicePlanView
+    isFreeForPartner: boolean
+    hasPaymentMethodForActivePlan: boolean
+}
+
+const SubscriptionPlanPrice: React.FC<SubscriptionPlanPriceProps> = ({
+    card,
+    isFreeForPartner,
+    hasPaymentMethodForActivePlan,
+}) => {
     const intl = useIntl()
-    const RequestPendingMessage = intl.formatMessage({ id: 'subscription.planCard.requestPending' })
-    const SubmitRequestMessage = intl.formatMessage({ id: 'subscription.planCard.submitRequest' })
-    const BuyMessage = intl.formatMessage({ id: 'subscription.planCard.buy' })
-    const PayMessage = intl.formatMessage({ id: 'subscription.planCard.pay' })
-    const FeaturesTitle = intl.formatMessage({ id: 'subscription.features.title' })
     const FreeForPartnerMessage = intl.formatMessage({ id: 'subscription.planCard.freeForPartner' })
+
+    const { activeSubscriptionEndAtWithoutBuffer } = useOrganizationSubscription()
+
+    const { price, discount, extraFeaturesAmount, isActive, isPaid, paidUntil } = card
+
+    /** The active plan shows what the organization pays in total, features bought on top included */
+    const shownAmount = (isFreeForPartner ? 0 : Number(price?.price ?? 0)) + extraFeaturesAmount
+    const showPriceForPartner = isFreeForPartner && extraFeaturesAmount > 0
+    const showDiscount = Boolean(discount) && extraFeaturesAmount === 0
+    const PeriodMessage = price?.period
+        ? intl.formatMessage({ id: `subscription.planCard.planPrice.${price.period}` as FormatjsIntl.Message['ids'] })
+        : ''
+
+    const formattedEndDate = formatEndDate(isActive ? resolveEndDate(paidUntil, activeSubscriptionEndAtWithoutBuffer) : null)
+
+    /**
+     * The active plan swaps the period suffix for when it renews or runs out. Only the period itself reads as
+     * part of the price («1000 ₽/в год»), a date is a sentence of its own and gets a separator instead of a slash
+     */
+    const priceSuffix = useMemo<{ text: string, isPeriod: boolean } | null>(() => {
+        if (isFreeForPartner && !showPriceForPartner) return null
+        if (formattedEndDate && hasPaymentMethodForActivePlan) {
+            return { text: intl.formatMessage({ id: 'subscription.planCard.willBeCharged' }, { date: formattedEndDate }), isPeriod: false }
+        }
+        if (formattedEndDate && isPaid) {
+            return { text: intl.formatMessage({ id: 'subscription.planCard.paidUntil' }, { date: formattedEndDate }), isPeriod: false }
+        }
+
+        return PeriodMessage ? { text: PeriodMessage, isPeriod: true } : null
+    }, [isFreeForPartner, showPriceForPartner, formattedEndDate, hasPaymentMethodForActivePlan, isPaid, PeriodMessage, intl])
+
+    if (isFreeForPartner && !showPriceForPartner) {
+        return (
+            <Typography.Text type='secondary'>
+                {`✅ ${FreeForPartnerMessage}`}
+            </Typography.Text>
+        )
+    }
+
+    return (
+        <>
+            <Space size={8} wrap align='baseline'>
+                {showDiscount && (
+                    <Typography.Text type='secondary' delete>
+                        {formatAmount(discount.fullAmount, price?.currencyCode, intl.locale)}
+                    </Typography.Text>
+                )}
+                <Typography.Title level={3} type={showDiscount ? 'success' : undefined}>
+                    {formatAmount(shownAmount, price?.currencyCode, intl.locale)}
+                </Typography.Title>
+                {priceSuffix && (
+                    <Typography.Text type='secondary'>
+                        {priceSuffix.isPeriod ? `/${priceSuffix.text}` : ` ${priceSuffix.text}`}
+                    </Typography.Text>
+                )}
+            </Space>
+            {showDiscount && (
+                <Typography.Text type='success' size='small'>
+                    {intl.formatMessage(
+                        { id: 'subscription.planCard.discount' },
+                        { amount: formatAmount(discount.discountAmount, price?.currencyCode, intl.locale) }
+                    )}
+                </Typography.Text>
+            )}
+        </>
+    )
+}
+
+export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({
+    card,
+    emoji,
+    activatedTrial,
+    onSelect,
+    onInvoiceAction,
+    refetchActivatedSubscriptions,
+}) => {
+    const intl = useIntl()
     const LinkedCardsLinkLabel = intl.formatMessage({ id: 'subscription.linkedCards.title' })
     const PaymentHistoryLinkLabel = intl.formatMessage({ id: 'subscription.paymentHistory.title' })
 
-    const { organization, role } = useOrganization()
+    const { organization } = useOrganization()
     const { useFlagValue } = useFeatureFlags()
-    const { subscriptionContext: activeSubscriptionContext, activeSubscriptionEndAtWithoutBuffer } = useOrganizationSubscription()
-    const [activateLoading, setActivateLoading] = useState<boolean>(false)
+    const { subscriptionContext: activeServiceContext } = useOrganizationSubscription()
 
-    const { plan, prices } = planInfo
-    const price = prices?.[0]
-    const usePaymentModal = useFlagValue(SUBSCRIPTION_PAYMENT_MODAL)
+    const { planInfo, featureCount, alerts, isActive, isPaid, isBelowActive, isSelected } = card
+    const { plan } = planInfo
+
+    const [activeAlertIndex, setActiveAlertIndex] = useState(0)
+    const alertIndex = Math.min(activeAlertIndex, Math.max(alerts.length - 1, 0))
+
     const activeBankingPlanId = useFlagValue(ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID)
-
-    const formattedPriceForTrial = useMemo(() => {
-        const currencyCode = price?.currencyCode
-        if (!currencyCode) return '0'
-
-        return new Intl.NumberFormat(intl.locale, {
-            style: 'currency',
-            currency: currencyCode,
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0,
-        }).format(0)
-    }, [price?.currencyCode, intl.locale])
-
-    const TryFreeMessage = intl.formatMessage({ id: 'subscription.planCard.tryFree' }, { formattedPrice: formattedPriceForTrial })
-    const PeriodMessage = intl.formatMessage({ id: `subscription.planCard.planPrice.${price?.period}` as FormatjsIntl.Message['ids'] })
-
     const hasActiveBanking = organization?.features?.includes(OrganizationFeature.ActiveBanking)
-    const isActiveBankingPlan = activeBankingPlanId && plan?.id === activeBankingPlanId
-    const isCustomPrice = price?.price === null || price?.price === undefined
-    const priceInteger = price?.price !== null && price?.price !== undefined ? Math.floor(Number(price.price)) : -1
-    const formattedPrice = priceInteger >= 0 ? priceInteger.toLocaleString(intl.locale).replace(/,/g, ' ') : ''
-    const isFreeForPartner = hasActiveBanking && isActiveBankingPlan
-    const hasActivatedThisPlanOrHigher = activatedSubscriptions.some(
-        ctx => ctx.subscriptionPlan && (
-            ctx.subscriptionPlan.id === plan.id ||
-            ctx.subscriptionPlan.priority > (plan.priority || 0)
-        )
-    )
-    const canActivateTrial = !activatedTrial && plan.trialDays > 0 && !hasActivatedThisPlanOrHigher
-    const hasPendingRequest = !!pendingRequest
-
-    const primaryButtonLabel = useMemo(() => {
-        if (hasPendingRequest) return RequestPendingMessage
-        if (isCustomPrice) return SubmitRequestMessage
-        if (usePaymentModal) return PayMessage
-        return BuyMessage
-    }, [hasPendingRequest, isCustomPrice, usePaymentModal, RequestPendingMessage, SubmitRequestMessage, PayMessage, BuyMessage])
-
-    const canManageSubscriptions = role?.canManageSubscriptions
-    const isActivePlan = activeSubscriptionContext?.subscriptionPlan?.id === plan?.id
-    const currentPlanPriority = plan?.priority
-
-    const hasHigherPriorityPaidSubscription = useMemo(() => {
-        if (currentPlanPriority === undefined) return false
-
-        const now = new Date()
-
-        return activatedSubscriptions.some(ctx => {
-            const isPaid = !ctx.isTrial
-            const ctxPriority = ctx.subscriptionPlan?.priority
-            const hasStarted = !ctx.startAt || new Date(ctx.startAt) <= now
-            const hasNotEnded = ctx.endAt && new Date(ctx.endAt) > now
-            const isActive = hasStarted && hasNotEnded
-
-            return isPaid && isActive && ctxPriority !== undefined && ctxPriority > currentPlanPriority
-        })
-    }, [activatedSubscriptions, currentPlanPriority])
-
-    const isActivePaidPlan = useMemo(() => {
-        const now = new Date()
-
-        return activatedSubscriptions.some(ctx => {
-            const isCurrentPlan = ctx.subscriptionPlan?.id === plan?.id
-            const isPaid = !ctx.isTrial
-            const hasStarted = !ctx.startAt || new Date(ctx.startAt) <= now
-            const hasNotEnded = ctx.endAt && new Date(ctx.endAt) > now
-            const isActive = hasStarted && hasNotEnded
-
-            return isCurrentPlan && isPaid && isActive
-        })
-    }, [activatedSubscriptions, plan?.id])
-
-    const registerSubscriptionContextForModal = useCallback(async ({ paymentType }: { paymentType: PaymentType }) => {
-        if (!price?.id) return
-
-        analytics.track('subscription_purchase_click', {
-            paymentMethod: paymentType,
-            planId: plan.id,
-            planName: plan.name,
-            priceAmount: price?.price !== null && price?.price !== undefined ? Number(price.price) : null,
-            period: price?.period ?? null,
-        })
-        setActivateLoading(true)
-        try {
-            await registerSubscriptionContext({
-                priceId: price.id,
-                isTrial: false,
-                planName: plan.name,
-                trialDays: plan.trialDays,
-                isCustomPrice,
-                paymentType,
-            })
-        } finally {
-            setActivateLoading(false)
-        }
-    }, [price, registerSubscriptionContext, plan.id, plan.name, plan.trialDays, isCustomPrice])
-
-    const { PaymentModal, openModal: openPaymentModal } = useSubscriptionPaymentModal({
-        registerSubscriptionContext: registerSubscriptionContextForModal,
-        activateLoading,
-    })
-
-    const autoPaymentContext = useMemo(() => {
-        const contextsWithPaymentMethod = activatedSubscriptions
-            .filter(ctx => ctx?.subscriptionPlan?.id === plan?.id && ctx?.bindingId)
-            .sort((a, b) => dayjs(b.endAt).diff(dayjs(a.endAt)))
-
-        return contextsWithPaymentMethod.length > 0 ? contextsWithPaymentMethod[0] : null
-    }, [activatedSubscriptions, plan?.id])
-
-    const contextPaymentMethodId = autoPaymentContext?.bindingId || null
+    const isFreeForPartner = Boolean(hasActiveBanking && activeBankingPlanId && plan.id === activeBankingPlanId)
 
     const { LinkedCardsModal, openModal: openLinkedCardsModal, hasPaymentMethod } = useLinkedCardsModal({
         onCardUnbound: refetchActivatedSubscriptions,
     })
+    const { PaymentHistoryModal, openModal: openPaymentHistoryModal, hasPaymentHistory } = usePaymentHistoryModal()
 
-    const { PaymentHistoryModal, openModal: openPaymentHistoryModal } = usePaymentHistoryModal()
+    const hasPaymentMethodForActivePlan = Boolean(isActive && activeServiceContext?.bindingId)
+    // A paid plan links to its payments and cards however it was paid, a trial has nothing to show there yet
+    const isPaidActivePlan = isActive && isPaid
+    const showPaymentHistoryLink = isPaidActivePlan && hasPaymentHistory
+    const showLinkedCardsLink = isPaidActivePlan && hasPaymentMethod
 
-    const handleActivePlanClick = useCallback(async () => {
-        if (!price?.id) return
+    /**
+     * Top plans describe themselves ("all platform features"), the rest are read as a count.
+     * The count covers everything the client can use on this plan, separate purchases included,
+     * so it never contradicts the table right below the cards.
+     */
+    const summary = useMemo(() => (
+        plan.description || intl.formatMessage({ id: 'subscription.planCard.featureCount' }, { count: featureCount })
+    ), [plan.description, featureCount, intl])
 
-        if (isCustomPrice) {
-            setActivateLoading(true)
-            try {
-                await registerSubscriptionContext({
-                    priceId: price.id,
-                    isTrial: false,
-                    planName: plan.name,
-                    trialDays: plan.trialDays,
-                    isCustomPrice: true,
-                    paymentType: 'userHelpRequest',
-                })
-            } finally {
-                setActivateLoading(false)
-            }
-            return
-        }
+    const handleSelect = useCallback(() => onSelect(plan.id), [onSelect, plan.id])
+    const handleKeyDown = useCallback((event: React.KeyboardEvent<HTMLDivElement>) => {
+        if (event.key !== 'Enter' && event.key !== ' ') return
+        event.preventDefault()
+        onSelect(plan.id)
+    }, [onSelect, plan.id])
 
-        if (usePaymentModal) {
-            openPaymentModal()
-            return
-        }
+    /** The whole card selects the plan, so the links inside it must not do that as well */
+    const handlePaymentHistoryClick = useCallback((event: React.MouseEvent) => {
+        event.stopPropagation()
+        openPaymentHistoryModal()
+    }, [openPaymentHistoryModal])
+    const handleLinkedCardsClick = useCallback((event: React.MouseEvent) => {
+        event.stopPropagation()
+        openLinkedCardsModal()
+    }, [openLinkedCardsModal])
 
-        setActivateLoading(true)
-        try {
-            await registerSubscriptionContext({
-                priceId: price.id,
-                isTrial: false,
-                planName: plan.name,
-                trialDays: plan.trialDays,
-                isCustomPrice: false,
-            })
-        } finally {
-            setActivateLoading(false)
-        }
-    }, [price?.id, plan.name, plan.trialDays, isCustomPrice, usePaymentModal, openPaymentModal, registerSubscriptionContext])
-
-    const handleTrialActivateClick = useCallback(async () => {
-        if (!price?.id) return
-
-        await registerSubscriptionContext({
-            priceId: price.id,
-            isTrial: true,
-            planName: plan.name,
-            trialDays: plan.trialDays,
-            isCustomPrice,
-        })
-    }, [price?.id, plan.name, plan.trialDays, isCustomPrice, registerSubscriptionContext])
-
-    const renderFeature = useCallback(({ featureKey, label, hint }: FeatureConfig) => (
-        <FeatureItem
-            key={featureKey || label}
-            label={label}
-            available={!featureKey ? true : Boolean(plan?.[featureKey as keyof typeof plan])}
-            helpLink={featureKey ? subscriptionFeatureHelpLinks[featureKey] : undefined}
-            hint={hint}
-        />
-    ), [plan])
-
-    const hasPaymentMethodForActivePlan = Boolean(
-        isActivePlan &&
-        (contextPaymentMethodId || activeSubscriptionContext?.bindingId)
-    )
-
-    const shouldShowPayButtonForActivePlan = isActivePlan && !contextPaymentMethodId
-
-    const endDate = isActivePlan && activeSubscriptionEndAtWithoutBuffer?.isAfter(dayjs())
-        ? activeSubscriptionEndAtWithoutBuffer
-        : null
-    const currentYear = dayjs().year()
-    const isCurrentYear = endDate?.year() === currentYear
-    const dateFormat = isCurrentYear ? 'D MMMM' : 'D MMMM YYYY'
-    const formattedDate = endDate ? endDate.format(dateFormat) : null
-
-    const isNonTrialWithEndDate = !activeSubscriptionContext?.isTrial && endDate
-    const endsInLessThan10Years = endDate && endDate.diff(dayjs(), 'year') < 10
-
-    const autoPaymentEndDate = autoPaymentContext?.endAt ? dayjs(autoPaymentContext.endAt) : null
-    const autoPaymentFormattedDate = autoPaymentEndDate
-        ? autoPaymentEndDate.format(autoPaymentEndDate.year() === currentYear ? 'D MMMM' : 'D MMMM YYYY')
-        : formattedDate
-
-    const pricingRuleName = activeSubscriptionContext?.subscriptionPlanPricingRule?.name
-
-    const dateMessage = useMemo(() => {
-        if (isActivePlan && formattedDate) {
-            if (isFreeForPartner) {
-                return `✅ ${FreeForPartnerMessage}`
-            } else if (isCustomPrice) {
-                return `✅ ${pricingRuleName ?? intl.formatMessage({ id: 'subscription.planCard.custom.paidUntil' }, { date: formattedDate })}`
-            } else if (hasPaymentMethodForActivePlan && autoPaymentFormattedDate) {
-                return ` /${intl.formatMessage({ id: 'subscription.planCard.willBeCharged' }, { date: autoPaymentFormattedDate })}`
-            } else if (isNonTrialWithEndDate && endsInLessThan10Years) {
-                return ` /${intl.formatMessage({ id: 'subscription.planCard.paidUntil' }, { date: formattedDate })}`
-            }
-        } else if (!isCustomPrice && !isFreeForPartner) {
-            return ` /${PeriodMessage}`
-        }
-    }, [FreeForPartnerMessage, PeriodMessage, endsInLessThan10Years, formattedDate, hasPaymentMethodForActivePlan, intl, isActivePlan, isCustomPrice, isFreeForPartner, isNonTrialWithEndDate, autoPaymentFormattedDate, pricingRuleName])
-
-
-    const displayPrice = useMemo(() => {
-        if (!price) return null
-
-        if (isCustomPrice) {
-            return isActivePlan ? null : price.name
-        } else if (isFreeForPartner) {
-            return null
-        } else if (hasPaymentMethodForActivePlan && autoPaymentContext?.frozenPaymentInfo?.invoice?.toPay !== undefined) {
-            const contextPrice = Math.floor(Number(autoPaymentContext.frozenPaymentInfo.invoice.toPay))
-            const formattedContextPrice = contextPrice >= 0 ? contextPrice.toLocaleString(intl.locale).replace(/,/g, ' ') : ''
-            return `${formattedContextPrice} ${CURRENCY_SYMBOLS[price.currencyCode]}`
-        } else {
-            return `${formattedPrice} ${CURRENCY_SYMBOLS[price.currencyCode]}`
-        }
-    }, [price, activeSubscriptionContext?.invoice?.toPay, formattedPrice, hasPaymentMethodForActivePlan, intl.locale, isActivePlan, isCustomPrice, isFreeForPartner])
-
-    const cardClassName = classnames(
-        styles.subscriptionPlanCard,
-        {
-            [styles.subscriptionPlanCardPromoted]: plan.canBePromoted,
-        }
-    )
+    const cardClassName = classnames(styles.subscriptionPlanCard, {
+        [styles.subscriptionPlanCardPromoted]: plan.canBePromoted,
+        [styles.subscriptionPlanCardSelected]: isSelected,
+    })
+    const wrapperClassName = classnames(styles.cardWrapper, { [styles.cardWrapperBelowActive]: isBelowActive })
 
     return (
         <>
-            {usePaymentModal && PaymentModal}
             {LinkedCardsModal}
             {PaymentHistoryModal}
-            <Card className={cardClassName}>
-                <Space size={40} direction='vertical' width='100%'>
-                    <div className={styles.mainContent}>
-                        <Space size={60} direction='vertical' width='100%'>
-                            <Space size={12} direction='vertical'>
-                                <Space size={4} direction='horizontal' className={styles.header} width='100%'>
-                                    <Typography.Title level={3}>
-                                        {plan.name} {emoji ? emoji : ''}
-                                    </Typography.Title>
-                                    <SubscriptionPlanBadge
-                                        plan={plan}
-                                        activatedTrial={activatedTrial}
-                                        hasPaymentMethod={hasPaymentMethodForActivePlan}
-                                    />
-                                </Space>
-                                <div className={styles.description}>
-                                    <Typography.Paragraph type='secondary'>
-                                        {plan.description}
-                                    </Typography.Paragraph>
-                                </div>
-                            </Space>
-                            {!hasHigherPriorityPaidSubscription && (
-                                <Space size={24} direction='vertical' width='100%'>
-                                    <Space size={24} direction='vertical'>
-                                        <Space size={4} direction='horizontal'>
-                                            <Typography.Title level={3}>
-                                                {displayPrice}
-                                                <Typography.Text type='secondary'>
-                                                    {dateMessage}
-                                                </Typography.Text>
-                                            </Typography.Title>
+            <div
+                className={wrapperClassName}
+                role='tab'
+                tabIndex={0}
+                aria-selected={isSelected}
+                onClick={handleSelect}
+                onKeyDown={handleKeyDown}
+                id={`subscription-plan-card-${plan.id}`}
+            >
+                {alerts.length > 0 ? (
+                    <span className={styles.badge}>
+                        <PlanAlertBadge alert={alerts[alertIndex]} />
+                    </span>
+                ) : (
+                    <SubscriptionPlanBadge
+                        isActivePlan={isActive}
+                        hasTrialExpired={Boolean(activatedTrial)}
+                    />
+                )}
+                <Card className={cardClassName} width='100%'>
+                    <div className={styles.cardBody}>
+                        <div className={styles.cardHead}>
+                            <Typography.Title level={3} ellipsis={false}>
+                                {plan.name} {emoji ?? ''}
+                            </Typography.Title>
+                            <Typography.Paragraph type='secondary'>
+                                {summary}
+                            </Typography.Paragraph>
+                        </div>
+
+                        <div className={styles.cardFoot}>
+                            <SubscriptionPlanPrice
+                                card={card}
+                                isFreeForPartner={isFreeForPartner}
+                                hasPaymentMethodForActivePlan={hasPaymentMethodForActivePlan}
+                            />
+
+                            <SubscriptionPlanAlerts
+                                alerts={alerts}
+                                onChangeIndex={setActiveAlertIndex}
+                                onInvoiceAction={onInvoiceAction}
+                            />
+
+                            {(showPaymentHistoryLink || showLinkedCardsLink) && (
+                                <Space size={8} direction='vertical'>
+                                    {showPaymentHistoryLink && <Typography.Link
+                                        id={`subscription-plan-card-${plan.id}-payment-history-link`}
+                                        onClick={handlePaymentHistoryClick}
+                                    >
+                                        <Space size={4} direction='horizontal' align='center'>
+                                            <Bill size='small' />
+                                            {PaymentHistoryLinkLabel}
                                         </Space>
-                                        {isActivePlan && (
-                                            <>
-                                                <SubscriptionPaymentErrorAlert subscriptionPlanId={plan.id} />
-                                            </>
-                                        )}
-                                        {hasPaymentMethodForActivePlan && hasPaymentMethod && (
-                                            <>
-                                                <Space size={8} direction='vertical'>
-                                                    <Typography.Link id={`subscription-plan-card-${plan.id}-payment-history-link`} onClick={openPaymentHistoryModal}>
-                                                        <Space size={4} direction='horizontal' align='center'>
-                                                            <Bill size='small' />
-                                                            {PaymentHistoryLinkLabel}
-                                                        </Space>
-                                                    </Typography.Link>
-                                                    <Typography.Link id={`subscription-plan-card-${plan.id}-linked-cards-link`} onClick={openLinkedCardsModal}>
-                                                        <Space size={4} direction='horizontal' align='center'>
-                                                            <CreditCard size='small' />
-                                                            {LinkedCardsLinkLabel}
-                                                        </Space>
-                                                    </Typography.Link>
-                                                </Space>
-                                            </>
-                                        )}
-                                    </Space>
-                                    {!hasHigherPriorityPaidSubscription && !isFreeForPartner && (!isActivePaidPlan || shouldShowPayButtonForActivePlan) && (
-                                        <Space size={16} direction='vertical' width='100%'>
-                                            <Button
-                                                id={`subscription-plan-card-${plan.id}-buy-button`}
-                                                block
-                                                type='primary'
-                                                onClick={handleActivePlanClick}
-                                                loading={activateLoading}
-                                                disabled={hasPendingRequest || !price?.id || !canManageSubscriptions}
-                                            >
-                                                {primaryButtonLabel}
-                                            </Button>
-                                            {canActivateTrial && (
-                                                <Button
-                                                    id={`subscription-plan-card-${plan.id}-trial-button`}
-                                                    block
-                                                    type='accent'
-                                                    onClick={handleTrialActivateClick}
-                                                    loading={trialActivateLoading}
-                                                    disabled={!canManageSubscriptions || trialActivateLoading}
-                                                >
-                                                    {TryFreeMessage}
-                                                </Button>
-                                            )}
+                                    </Typography.Link>}
+                                    {showLinkedCardsLink && <Typography.Link
+                                        id={`subscription-plan-card-${plan.id}-linked-cards-link`}
+                                        onClick={handleLinkedCardsClick}
+                                    >
+                                        <Space size={4} direction='horizontal' align='center'>
+                                            <CreditCard size='small' />
+                                            {LinkedCardsLinkLabel}
                                         </Space>
-                                    )}
+                                    </Typography.Link>}
                                 </Space>
                             )}
-                        </Space>
+                        </div>
                     </div>
-                    <Collapse
-                        ghost
-                        className={styles.collapse}
-                        expandIcon={({ isActive }) => (
-                            <span className={classnames(styles.collapseIcon, { [styles.collapseIconActive]: isActive })}>
-                                <ChevronDown size='small' />
-                            </span>
-                        )}
-                    >
-                        <Panel
-                            header={<Typography.Text strong>{FeaturesTitle}</Typography.Text>}
-                            key='features'
-                        >
-                            <Space direction='vertical' size={8}>
-                                {BASE_FEATURES.map(renderFeature)}
-                                {allB2BAppIds.map((appId) => {
-                                    const app = b2bAppsMap.get(appId)
-                                    if (!app || !app.name) return null
-
-                                    const enabledApps = plan.enabledB2BApps || []
-                                    const isAvailable = enabledApps.includes(appId)
-
-                                    return (
-                                        <FeatureItem
-                                            key={appId}
-                                            label={app.name}
-                                            available={isAvailable}
-                                            helpLink={subscriptionFeatureHelpLinks[appId]}
-                                        />
-                                    )
-                                })}
-                                {PREMIUM_FEATURES.map(renderFeature)}
-                            </Space>
-                        </Panel>
-                    </Collapse>
-                </Space>
-            </Card>
+                </Card>
+            </div>
         </>
     )
 }

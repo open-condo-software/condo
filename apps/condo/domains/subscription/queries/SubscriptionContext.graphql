@@ -12,11 +12,21 @@ query getOrganizationActivatedSubscriptions($organizationId: ID!) {
             id
             name
             priority
+            planType
+            trialDays
+        }
+        subscriptionPlanPricingRule {
+            id
+            name
+            period
+            price
+            currencyCode
         }
         isTrial
         startAt
         endAt
         bindingId
+        renewalCancelledAt
         invoice {
             id
             toPay
@@ -41,6 +51,7 @@ query getOrganizationActiveFeatureSubscriptionContexts($organizationId: ID!) {
     ) {
         id
         bindingId
+        renewalCancelledAt
         startAt
         endAt
         isTrial
@@ -198,6 +209,11 @@ query getOrganizationPaymentHistory($organizationId: ID!, $offset: Int, $first: 
             enabledB2BApps
             enabledB2CApps
         }
+        subscriptionPlanPricingRule {
+            id
+            price
+            currencyCode
+        }
         frozenPaymentInfo {
             paymentMethod {
                 paymentSystem
@@ -208,6 +224,7 @@ query getOrganizationPaymentHistory($organizationId: ID!, $offset: Int, $first: 
                 currencyCode
             }
             multiPaymentId
+            paymentType
         }
     }
     meta: _allSubscriptionContextsMeta(
@@ -235,30 +252,80 @@ query getLastDoneSubscriptionContext($organizationId: ID!, $planId: ID!) {
     ) {
         id
         createdAt
+        invoice {
+            id
+        }
+        subscriptionPlan {
+            id
+            planType
+        }
     }
 }
 
-query getLastFailedPaymentContext($organizationId: ID!, $subscriptionPlanId: ID!) {
-    lastFailedContext: allSubscriptionContexts(
+query getLastDoneOrganizationSubscriptionContexts($organizationId: ID!) {
+    contexts: allSubscriptionContexts(
         where: {
             organization: { id: $organizationId }
-            subscriptionPlan: { id: $subscriptionPlanId }
             bindingId_not: null
-            status_in: [ERROR, PENDING]
+            status: DONE
             isTrial: false
         }
         sortBy: [createdAt_DESC]
-        first: 1
+        first: 20
     ) {
         id
-        status
-        bindingId
         createdAt
+        invoice {
+            id
+        }
+        subscriptionPlan {
+            id
+            planType
+        }
+    }
+}
+
+query getOrganizationUnpaidSubscriptions($organizationId: ID!) {
+    unpaidSubscriptions: allSubscriptionContexts(
+        where: {
+            organization: { id: $organizationId }
+            status_in: [CREATED, PENDING, ERROR]
+            isTrial: false
+        }
+        sortBy: [createdAt_DESC]
+        first: 100
+    ) {
+        id
+        subscriptionPlan {
+            id
+            name
+            planType
+        }
+        subscriptionPlanPricingRule {
+            id
+            price
+            currencyCode
+        }
+        status
+        createdAt
+        endAt
+        renewalCancelledAt
+        frozenPaymentInfo {
+            paymentMethod { paymentSystem cardNumber }
+            paymentType
+        }
     }
 }
 
 mutation cancelSubscriptionRenewal($data: CancelSubscriptionRenewalInput!) {
     result: cancelSubscriptionRenewal(data: $data) {
+        subscriptionContexts {
+            id
+        }
+    }
+}
+mutation requestSubscriptionInvoice($data: RequestSubscriptionInvoiceInput!) {
+    result: requestSubscriptionInvoice(data: $data) {
         subscriptionContexts {
             id
         }
