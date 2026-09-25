@@ -72,7 +72,9 @@ const GetAvailableSubscriptionPlansService = new GQLCustomSchema('GetAvailableSu
                     whereConditions.planType = planType
                 }
 
-                const plans = await find('SubscriptionPlan', whereConditions)
+                // Plans are shown in this order, the cheapest (lowest priority) first
+                const plans = (await find('SubscriptionPlan', whereConditions))
+                    .sort((a, b) => (a.priority ?? 0) - (b.priority ?? 0))
 
                 const result = []
 
