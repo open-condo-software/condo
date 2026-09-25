@@ -4,7 +4,7 @@ const FLAT_WITHOUT_FLAT_TYPE_MESSAGE = 'Flat is specified, but flat type is not!
 
 const { find, itemsQuery } = require('@open-condo/keystone/schema')
 
-const { Meter } = require('@condo/domains/meter/utils/serverSchema')
+const { Meter, PropertyMeter } = require('@condo/domains/meter/utils/serverSchema')
 const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
 
 /**
@@ -121,17 +121,28 @@ async function getOldestNonDeletedProperty ({ addressKey }) {
 }
 
 async function softDeletePropertyMeters (context, property) {
-    const meters = await find('Meter', {
-        property: { id: property.id },
-        deletedAt: null,
-    })
+    const [meters, propertyMeters] = await Promise.all([
+        find('Meter', {
+            property: { id: property.id },
+            deletedAt: null,
+        }),
+        find('PropertyMeter', {
+            property: { id: property.id },
+            deletedAt: null,
+        }),
+    ])
 
-    if (meters.length > 0) {
+    if (meters.length > 0 || propertyMeters.length > 0) {
         const meterContext = context.createContext({ skipAccessControl: true })
-        await Meter.softDeleteMany(meterContext, meters.map(({ id }) => id), 'id', {
-            dv: property.dv,
-            sender: property.sender,
-        })
+        const dvAndSender = { dv: property.dv, sender: property.sender }
+
+        if (meters.length > 0) {
+            await Meter.softDeleteMany(meterContext, meters.map(({ id }) => id), 'id', dvAndSender)
+        }
+
+        if (propertyMeters.length > 0) {
+            await PropertyMeter.softDeleteMany(meterContext, propertyMeters.map(({ id }) => id), 'id', dvAndSender)
+        }
     }
 }
 
