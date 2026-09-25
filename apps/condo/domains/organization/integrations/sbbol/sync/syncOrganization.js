@@ -106,6 +106,10 @@ const syncOrganization = async ({ context, user, userData, authedUser, organizat
             const [authedUserEmployee] = await OrganizationEmployee.getAll(adminContext, {
                 user: { id: authedUser.id },
                 organization: { tin: `${organizationInfo.meta.inn}`, deletedAt: null },
+                role: {
+                    canManageOrganization: true,
+                    canManageEmployees: true,
+                },
                 deletedAt: null,
             }, 'id organization { id meta }', { first: 1, sortBy: ['updatedAt_DESC'] })
             
