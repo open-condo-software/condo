@@ -152,6 +152,11 @@ export const SubscriptionFeatureProgress: React.FC = () => {
         openModal()
     }
 
+    // Nothing left to sell once every capability is already available, so the plate has nothing to say
+    if (featurePercentage >= 100) {
+        return null
+    }
+
     if (hidePaidFeatures || !bestPlan || !bestPlan?.prices?.[0] || !hasSubscriptionModalConfig) {
         return null
     }

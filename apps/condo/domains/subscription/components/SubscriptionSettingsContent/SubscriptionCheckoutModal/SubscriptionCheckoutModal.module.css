@@ -1,3 +1,10 @@
+.line {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
 .line-top {
   display: flex;
   gap: 8px;
@@ -16,12 +23,28 @@
   text-align: right;
 }
 
-.total-line {
-  padding-top: 8px;
-  border-top: 1px solid var(--condo-global-color-gray-3);
-}
-
 .hint {
   display: inline-flex;
   align-items: center;
+}
+
+/*
+ * The upsell block is laid out here rather than taken from the kit's Banner, which clips its
+ * subtitle to two lines — this text runs longer. The right column is left free for the artwork.
+ */
+.upsell {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background: var(--condo-global-color-blue-5);
+  border-radius: var(--condo-global-border-radius-medium);
+}
+
+.upsell-text {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
 }
