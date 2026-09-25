@@ -1,15 +1,16 @@
 import { Command } from 'commander'
 import Conf from 'conf'
-import { cyan, red, green, bold } from 'picocolors'
+import { cyan, red, green, bold, blue } from 'picocolors'
 import prompts from 'prompts'
 
 import packageJson from '../package.json'
 
 import type { InitialReturnValue } from 'prompts'
 
-import { setConfig, getConfig } from '@/utils/config'
-import { resolvePackagePath } from '@/utils/fs'
+import { setConfig } from '@/utils/config'
+import { getAvailableTemplates, resolvePackagePath } from '@/utils/fs'
 import { validateNpmName } from '@/utils/npm'
+import { isValidPreferences } from '@/utils/objects'
 import { getPackageManager } from '@/utils/packageManagers'
 
 function onTermination () {
@@ -33,6 +34,11 @@ const onPromptState = (state: {
     }
 }
 
+const onCancel = () => {
+    console.error('Exiting.')
+    process.exit(1)
+}
+
 let projectPath: string | undefined
 
 const program = new Command(packageJson.name)
@@ -44,12 +50,12 @@ const program = new Command(packageJson.name)
     .argument('[directory]')
     .usage('[directory] [options]')
     .helpOption('-h, --help', 'Display this help message')
-    .option('--empty', 'Remove "getting started" usage examples from generated app', false)
+    .option('--empty', 'Remove "getting started" usage examples from generated app')
     .option('--reset', 'Reset user preferences saved to create-condo-app')
     .option('--use-npm', 'Explicitly tell the CLI to bootstrap the application using npm')
     .option('--use-yarn', 'Explicitly tell the CLI to bootstrap the application using yarn')
     .option('--use-pnpm', 'Explicitly tell the CLI to bootstrap the application using yarn')
-    .option('--agents-md', 'Include AGENTS.md to guide coding agents to write up-to-date Next.js code. (default)', true)
+    .option('--agents-md', 'Include AGENTS.md to guide coding agents to write up-to-date Next.js code. (default)')
     .action((name) => {
         // Commander does not implicitly support negated options. When they are used
         // by the user they will be interpreted as the positional argument (name) in
@@ -144,7 +150,63 @@ async function run () {
                     getPackageManager()
     setConfig({ packageManager })
 
-    console.log(getConfig())
+    // STEP 3: Resolve choices
+    const initialPreferences = (conf.get('preferences') || {})
+    const preferences = isValidPreferences(initialPreferences) ? initialPreferences : {}
+    const availableTemplates = getAvailableTemplates()
+
+    if (availableTemplates.length > 1) {
+        const { selectedTemplate } = await prompts({
+            onState: onPromptState,
+            type: 'select',
+            name: 'selectedTemplate',
+            message: 'Which template would you like to use?',
+            initial: preferences.template,
+            choices: availableTemplates.map(t => ({
+                title: t.name,
+                value: t.id,
+                description: t.description,
+            })),
+        }, { onCancel })
+
+        preferences.template = selectedTemplate
+    } else {
+        preferences.template = availableTemplates[0].id
+    }
+
+    if (typeof opts.empty === 'boolean') {
+        preferences.examples = !opts.empty
+    } else {
+        const { examples } = await prompts({
+            type: 'toggle',
+            name: 'examples',
+            message: `Would you like to add ${blue('examples')}?`,
+            initial: preferences.examples ?? true,
+            active: 'Yes',
+            inactive: 'No',
+        }, { onCancel })
+        preferences.examples = examples
+    }
+
+    if (typeof opts.agentsMd === 'boolean') {
+        preferences.agentsMd = opts.agentsMd
+    } else {
+        const { agentsMd } = await prompts({
+            type: 'toggle',
+            name: 'agentsMd',
+            message: `Would you like to include ${blue('AGENTS.md')} to guide coding agents to write relevant code?`,
+            initial: preferences.agentsMd ?? true,
+            active: 'Yes',
+            inactive: 'No',
+        }, { onCancel })
+        preferences.agentsMd = agentsMd
+    }
+
+    conf.set('preferences', preferences)
+    setConfig({ preferences })
+
+    // STEP 4: App creation
+    // TODO: do me
 }
 
 async function exit (reason: { command?: string }) {
