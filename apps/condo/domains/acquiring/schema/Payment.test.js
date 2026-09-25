@@ -79,7 +79,7 @@ const {
     createTestOrganizationEmployee,
     createTestOrganizationEmployeeRole,
 } = require('@condo/domains/organization/utils/testSchema')
-const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+const { FLAT_UNIT_TYPE, PARKING_UNIT_TYPE, UNIT_TYPES } = require('@condo/domains/property/constants/common')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { registerResidentByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const {
@@ -1189,6 +1189,50 @@ describe('Payment', () => {
             const payments = await Payment.getAll(utils.clients.admin, { receipt: { id: receiptId } })
             expect(payments).toHaveLength(1)
             expect(payments[0]).toHaveProperty('rawAddress', notNormalizedAddress)
+        })
+    })
+
+    describe('Address fields (addressKey, unitType, unitName)', () => {
+        test('admin can create a Payment with addressKey, unitType, and unitName', async () => {
+            const { admin, organization, billingReceipts, acquiringContext } = await makePayer()
+            const addressKey = faker.datatype.uuid()
+            const unitName = faker.random.alphaNumeric(5)
+
+            const [payment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext, {
+                addressKey,
+                unitType: PARKING_UNIT_TYPE,
+                unitName,
+            })
+
+            expect(payment).toBeDefined()
+            expect(payment).toHaveProperty('addressKey', addressKey)
+            expect(payment).toHaveProperty('unitType', PARKING_UNIT_TYPE)
+            expect(payment).toHaveProperty('unitName', unitName)
+        })
+
+        test('admin can create a Payment without address fields (backward compatibility)', async () => {
+            const { admin, organization, billingReceipts, acquiringContext } = await makePayer()
+
+            const [payment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
+
+            expect(payment).toBeDefined()
+            expect(payment).toHaveProperty('addressKey', null)
+            expect(payment).toHaveProperty('unitName', null)
+        })
+
+        test('unitType accepts all valid UNIT_TYPES values', async () => {
+            const { admin, organization, billingReceipts, acquiringContext } = await makePayer()
+            const addressKey = faker.datatype.uuid()
+            const unitName = faker.random.alphaNumeric(5)
+
+            for (const unitType of UNIT_TYPES) {
+                const [payment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext, {
+                    addressKey,
+                    unitType,
+                    unitName,
+                })
+                expect(payment).toHaveProperty('unitType', unitType)
+            }
         })
     })
 })
