@@ -34,7 +34,7 @@ export const SubscriptionRemoveModal: React.FC<SubscriptionRemoveModalProps> = (
         ? intl.formatMessage({ id: 'subscription.remove.title.one' }, { name: names[0] })
         : intl.formatMessage(
             { id: 'subscription.remove.title' },
-            { count: names.length, names: intl.formatList(names.map(name => name.toLowerCase()), { type: 'conjunction' }) }
+            { count: names.length, names: intl.formatList(names.map(name => `«${name}»`), { type: 'conjunction' }) }
         )
 
     // Nothing to tell about a period that has already run out: the features are blocked right away

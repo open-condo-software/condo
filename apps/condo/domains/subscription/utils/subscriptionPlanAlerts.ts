@@ -1,3 +1,5 @@
+import dayjs from 'dayjs'
+
 import { SUBSCRIPTION_PAYMENT_TYPE_CARD, SUBSCRIPTION_PAYMENT_TYPE_INVOICE } from '@condo/domains/subscription/constants'
 
 
@@ -62,6 +64,12 @@ const SEVERITY: Record<PlanAlertType, number> = {
 }
 
 const daysUntil = (date: Date, now: Date): number => Math.max(0, Math.ceil((date.getTime() - now.getTime()) / DAY_MS))
+
+/**
+ * A trial period is stored as a calendar date, so it is measured in whole days in the viewer's timezone.
+ * Measuring it as an instant counts one day too many for everyone east of UTC until UTC catches up.
+ */
+const asDay = (value: string | Date): dayjs.Dayjs => dayjs(value).startOf('day')
 
 /** Abandoned card checkouts stay CREATED too, they are not something to warn about */
 const resolveUnpaidState = (context: UnpaidSubscriptionContext, now: Date): Pick<PlanAlert, 'type' | 'daysLeft' | 'deadline'> | null => {
@@ -217,10 +225,11 @@ const buildTrialAlert = (
     if (isPlanPaid || !activeServiceContext?.isTrial) return null
     if (activeServiceContext.subscriptionPlan?.id !== planId || !activeServiceContext.endAt) return null
 
-    const trialEnd = new Date(activeServiceContext.endAt)
-    if (trialEnd <= now) return trialExpiredAlert()
+    const trialEnd = asDay(activeServiceContext.endAt)
+    const today = asDay(now)
+    if (!trialEnd.isAfter(today)) return trialExpiredAlert()
 
-    return { key: 'plan-trial', type: 'trial', scope: 'plan', planNames: [], daysLeft: daysUntil(trialEnd, now), deadline: null, priceIds: [], contextIds: [] }
+    return { key: 'plan-trial', type: 'trial', scope: 'plan', planNames: [], daysLeft: trialEnd.diff(today, 'day'), deadline: null, priceIds: [], contextIds: [] }
 }
 
 const hasUnpaidTrialToBuy = (

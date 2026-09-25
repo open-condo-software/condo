@@ -176,7 +176,7 @@ export const SubscriptionSettingsContent: React.FC = () => {
         trialSubscriptions,
         registerSubscriptionBundle,
         activateLoading,
-        refetchUnpaidSubscriptions,
+        refetchSubscriptions: handleRefetch,
         cancelFeaturePlans,
     })
 
