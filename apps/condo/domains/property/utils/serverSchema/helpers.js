@@ -2,8 +2,9 @@ const { get, omitBy, isNull, isArray } = require('lodash')
 
 const FLAT_WITHOUT_FLAT_TYPE_MESSAGE = 'Flat is specified, but flat type is not!'
 
-const { itemsQuery } = require('@open-condo/keystone/schema')
+const { find, itemsQuery } = require('@open-condo/keystone/schema')
 
+const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
 
 /**
@@ -119,6 +120,21 @@ async function getOldestNonDeletedProperty ({ addressKey }) {
     return oldestProperty
 }
 
+async function softDeletePropertyMeters (context, property) {
+    const meters = await find('Meter', {
+        property: { id: property.id },
+        deletedAt: null,
+    })
+
+    if (meters.length > 0) {
+        const meterContext = context.createContext({ skipAccessControl: true })
+        await Meter.softDeleteMany(meterContext, meters.map(({ id }) => id), 'id', {
+            dv: property.dv,
+            sender: property.sender,
+        })
+    }
+}
+
 module.exports = {
     FLAT_WITHOUT_FLAT_TYPE_MESSAGE,
     getAddressUpToBuildingFrom,
@@ -126,4 +142,5 @@ module.exports = {
     getAddressDetails,
     getUnitsFromSections,
     getOldestNonDeletedProperty,
+    softDeletePropertyMeters,
 }

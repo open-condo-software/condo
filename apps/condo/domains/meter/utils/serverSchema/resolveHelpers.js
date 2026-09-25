@@ -1,7 +1,6 @@
 const dayjs = require('dayjs')
 const get = require('lodash/get')
 
-const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 const { getOrCreateContactByClientData } = require('@condo/domains/ticket/utils/serverSchema/resolveHelpers')
 
 function addClientInfoToResidentMeterReading (context, resolvedData) {
@@ -22,19 +21,6 @@ async function connectContactToMeterReading (context, resolvedData, existingItem
     }
 
     return contactId
-}
-
-async function softDeleteMetersByProperty (context, updatedItem) {
-    const { dv, sender, id } = updatedItem
-    const meterContext = context.createContext({ skipAccessControl: true })
-    const meters = await Meter.getAll(meterContext, {
-        property: { id },
-        deletedAt: null,
-    }, 'id')
-
-    if (meters.length > 0) {
-        await Meter.softDeleteMany(meterContext, meters.map(({ id }) => id), 'id', { dv, sender })
-    }
 }
 
 /**
@@ -89,5 +75,4 @@ module.exports = {
     addClientInfoToResidentMeterReading,
     connectContactToMeterReading,
     isReadingDateAllowed,
-    softDeleteMetersByProperty,
 }

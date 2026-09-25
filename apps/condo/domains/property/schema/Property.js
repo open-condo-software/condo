@@ -20,7 +20,6 @@ const {
 } = require('@condo/domains/common/constants/errors')
 const { compareStrI } = require('@condo/domains/common/utils/string.utils')
 const { hasDbFields } = require('@condo/domains/common/utils/validation.utils')
-const { softDeleteMetersByProperty } = require('@condo/domains/meter/utils/serverSchema/resolveHelpers')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/property/access/Property')
 const MapSchemaJSON = require('@condo/domains/property/components/panels/Builder/MapJsonSchema.json')
@@ -28,8 +27,7 @@ const { PROPERTY_ALREADY_EXISTS } = require('@condo/domains/property/constants/e
 const { PROPERTY_MAP_JSON_FIELDS } = require('@condo/domains/property/gql')
 const { PROPERTY_MAP_GRAPHQL_TYPES } = require('@condo/domains/property/gql')
 const { Property: PropertyAPI } = require('@condo/domains/property/utils/serverSchema')
-const { normalizePropertyMap } = require('@condo/domains/property/utils/serverSchema/helpers')
-const { getUnitsFromSections } = require('@condo/domains/property/utils/serverSchema/helpers')
+const { normalizePropertyMap, getUnitsFromSections, softDeletePropertyMeters } = require('@condo/domains/property/utils/serverSchema/helpers')
 const { manageResidentToPropertyAndOrganizationConnections, discoverServiceConsumersTask } = require('@condo/domains/resident/tasks')
 const { softDeletePropertyScopeProperties } = require('@condo/domains/scope/utils/serverSchema')
 const { manageTicketPropertyAddressChange } = require('@condo/domains/ticket/tasks')
@@ -369,7 +367,7 @@ const Property = new GQLListSchema('Property', {
                 if (isSoftDeleteOperation) {
                     await softDeleteTicketHintPropertiesByProperty(context, updatedItem)
                     await softDeletePropertyScopeProperties(context, updatedItem)
-                    await softDeleteMetersByProperty(context, updatedItem)
+                    await softDeletePropertyMeters(context, updatedItem)
                 }
             }
 
