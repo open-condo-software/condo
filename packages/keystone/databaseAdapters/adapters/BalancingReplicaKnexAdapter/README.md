@@ -111,3 +111,35 @@ const routingRules = [
 ```dotenv
 DATABASE_ROUTING_RULES='[{"target":"main","gqlOperationType":"mutation"},{"target":"replicas","sqlOperationName":"select"},{"target":"replicas","sqlOperationName":"show"},{"target":"main"}]'
 ```
+
+## Migrations (kmigrator)
+
+When `DATABASE_URL` uses the `custom:{...}` format with multiple named databases, schema migrations apply to **every writable** named connection (pools with `writable: true` in `DATABASE_POOLS`), not only the default routing pool. Read-only replicas stay in `DATABASE_URL` for runtime `select` routing but are **not** migrated.
+
+- `yarn workspace @app/condo migrate` — runs the same knex migration directory on each writable physical DB from `DATABASE_URL` (each DB keeps its own `knex_migrations` table).
+- `yarn workspace @app/condo makemigrations` — still produces a single migration file; Django schema diff uses the **default pool** database (the last target in `__kmigratorKnexAdapters()`, see `bin/kmigrator.py`).
+- All databases used for cross-db routing must be **reachable and writable** when you run migrate.
+- Runtime query routing (`DATABASE_ROUTING_RULES`) is not used during migrations; tables are created on all sources even if only some tables are routed to a given pool at runtime.
+
+### kmigrator environment variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `KMIGRATOR_TARGETS` | *(unset or empty)* | No filtering: migrate **all** writable `DATABASE_URL` databases. Set to comma-separated or JSON list (`main`, `external`, or `["main","external"]`) to run the command on specific targets only. |
+| `KMIGRATOR_ROLLBACK_ON_FAILURE` | `false` | `true` or `false`. When `true`, if `migrate`/`up` succeeds on one target and fails on a later one, kmigrator runs `migrate.down` for each migration applied in that run on the successful targets. |
+
+Examples:
+
+```bash
+# All writable databases (default)
+yarn workspace @app/condo migrate
+
+# Migrate only external DB
+KMIGRATOR_TARGETS=external yarn workspace @app/condo migrate
+
+# Roll back earlier targets if a later one fails
+KMIGRATOR_ROLLBACK_ON_FAILURE=true yarn workspace @app/condo migrate
+
+# One migration step down on main only
+KMIGRATOR_TARGETS=main yarn workspace @app/condo migrate:down
+```
