@@ -176,6 +176,18 @@ describe('SberCloudFileAdapter', () => {
             })
         })
 
+        it('preserves transient OBS status on metadata errors', async () => {
+            const adapter = new SberCloudFileAdapter(config)
+            mockS3Client.getObjectMetadata.mockResolvedValueOnce({
+                CommonMsg: { Status: 503 },
+            })
+
+            await expect(adapter.getFileSize(file)).rejects.toMatchObject({
+                message: 'Unable to stat file: OBS status 503',
+                statusCode: 503,
+            })
+        })
+
         it('requests and returns an exact byte range', async () => {
             const adapter = new SberCloudFileAdapter(config)
 
