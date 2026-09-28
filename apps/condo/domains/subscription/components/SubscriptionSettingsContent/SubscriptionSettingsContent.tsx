@@ -1,3 +1,4 @@
+import dayjs from 'dayjs'
 import React, { useCallback, useRef } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
@@ -51,8 +52,15 @@ const buildRowBadge = (row: CatalogRow, intl: IntlShape, planEndAt?: string | nu
     switch (status.type) {
         case 'connected':
             return { text: intl.formatMessage({ id: 'subscription.featureTable.badge.connected' }), bgColor: colors.green[5] }
-        // The feature keeps working until the paid period ends, but its trial is gone for good and it is sold again
-        case 'renewalCancelled':
+        // still works, but won't renew - the end date is what tells them apart from a plain connected one
+        case 'renewalCancelled': {
+            const date = dayjs(status.endAt)
+            const formattedDate = date.format(date.year() === dayjs().year() ? 'D MMMM' : 'D MMMM YYYY')
+            return {
+                text: intl.formatMessage({ id: 'subscription.featureTable.badge.connectedUntil' }, { date: formattedDate }),
+                bgColor: colors.green[5],
+            }
+        }
         case 'trialExpired':
             return { text: intl.formatMessage({ id: 'subscription.planCard.badge.trialExpired' }), bgColor: colors.gray[7] }
         case 'paymentExpired':
@@ -95,6 +103,7 @@ export const SubscriptionSettingsContent: React.FC = () => {
         selectPlan,
         paidPlanId,
         paidPriority,
+        activePlanId,
         activeServiceContext,
         rows,
         counters,
@@ -371,6 +380,7 @@ export const SubscriptionSettingsContent: React.FC = () => {
                         onTryRow={handleTryRow}
                         getRowBadge={getRowBadge}
                         canManageSubscriptions={canManageSubscriptions}
+                        isViewingActivePlan={Boolean(activePlanId) && selectedPlanId === activePlanId}
                     />
                 </Space>
 
