@@ -6,9 +6,9 @@
 
 .discounted-price-badge {
   position: absolute;
-  bottom: 100%;
-  left: 50%;
+  bottom: 40px;
+  left: 0;
   white-space: nowrap;
-  transform: translate(-50%, -2px) rotate(-6deg);
+  transform: rotate(-15deg);
   pointer-events: none;
 }

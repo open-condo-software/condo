@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 
-import { Check, Close, Plus } from '@open-condo/icons'
+import { Check, Close, ShoppingCartPlus } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Checkbox, Space, Table, Tooltip, Typography, Tag } from '@open-condo/ui'
 import type { GetTableData, TableColumn, TableRef, RenderTableCell } from '@open-condo/ui'
@@ -92,16 +92,22 @@ export const SubscriptionFeatureTable: React.FC<SubscriptionFeatureTableProps> =
                 <Space size={8} wrap align='center'>
                     <Button
                         type='primary'
-                        compact
                         disabled={disabled}
-                        icon={<Plus size='small' />}
+                        size='medium'
+                        icon={<ShoppingCartPlus size='small' />}
                         aria-label={AddToCartLabel}
                         onClick={() => onToggleRow(row)}
                     >
                         {priceText}
                     </Button>
                     {canTry && (
-                        <Button type='secondary' compact disabled={disabled} loading={activateLoading} onClick={() => onTryRow(row)}>
+                        <Button 
+                            type='accent'
+                            disabled={disabled}
+                            size='medium'
+                            loading={activateLoading}
+                            onClick={() => onTryRow(row)}
+                        >
                             {TryFreeMessage}
                         </Button>
                     )}

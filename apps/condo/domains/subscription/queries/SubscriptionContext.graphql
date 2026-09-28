@@ -220,6 +220,7 @@ query getOrganizationPaymentHistory($organizationId: ID!, $offset: Int, $first: 
                 cardNumber
             }
             invoice {
+                id
                 toPay
                 currencyCode
             }
@@ -310,6 +311,9 @@ query getOrganizationUnpaidSubscriptions($organizationId: ID!) {
         createdAt
         endAt
         renewalCancelledAt
+        invoice {
+            id
+        }
         frozenPaymentInfo {
             paymentMethod { paymentSystem cardNumber }
             paymentType
