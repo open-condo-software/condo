@@ -116,7 +116,9 @@ class SberCloudFileAdapter {
         })
         const status = Number(result?.CommonMsg?.Status || 0)
         if (status >= 300) {
-            throw new Error(`Unable to stat file: OBS status ${status}`)
+            const error = new Error(`Unable to stat file: OBS status ${status}`)
+            error.statusCode = status
+            throw error
         }
         const contentLengthPossibleValues = [
             result?.InterfaceResult?.ContentLength,
