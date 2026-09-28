@@ -6770,6 +6770,7 @@ export const GetOrganizationPaymentHistoryDocument = gql`
         cardNumber
       }
       invoice {
+        id
         toPay
         currencyCode
       }
@@ -6955,6 +6956,9 @@ export const GetOrganizationUnpaidSubscriptionsDocument = gql`
     createdAt
     endAt
     renewalCancelledAt
+    invoice {
+      id
+    }
     frozenPaymentInfo {
       paymentMethod {
         paymentSystem

@@ -45,7 +45,7 @@ export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
     const LinkedCardsLabel = intl.formatMessage({ id: 'subscription.linkedCards.title' })
     const CoworkLabel = intl.formatMessage({ id: 'ai.cowork.menuLabel' })
 
-    const { LinkedCardsModal, openModal: openLinkedCardsModal } = useLinkedCardsModal()
+    const { LinkedCardsModal, openModal: openLinkedCardsModal, hasPaymentMethod } = useLinkedCardsModal()
     const { PaymentHistoryModal, openModal: openPaymentHistoryModal, hasPaymentHistory } = usePaymentHistoryModal()
 
     const router = useRouter()
@@ -58,13 +58,13 @@ export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
                 label: <Typography.Text size='medium' type='inherit'>{PaymentHistoryLabel}</Typography.Text>,
                 onClick: openPaymentHistoryModal,
             },
-            {
+            hasPaymentMethod && {
                 key: 'linkedCards',
                 label: <Typography.Text size='medium' type='inherit'>{LinkedCardsLabel}</Typography.Text>,
                 onClick: openLinkedCardsModal,
             },
         ]
-    }, [hasPaymentHistory, openPaymentHistoryModal, openLinkedCardsModal, PaymentHistoryLabel, LinkedCardsLabel])
+    }, [hasPaymentHistory, PaymentHistoryLabel, openPaymentHistoryModal, hasPaymentMethod, LinkedCardsLabel, openLinkedCardsModal])
 
     const userMenuExtraItems = useMemo(() => {
         const items = [...subscriptionMenuItems]

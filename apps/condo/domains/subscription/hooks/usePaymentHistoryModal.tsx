@@ -41,18 +41,44 @@ type PlanLabelSource = Pick<PaymentHistoryRecord['subscriptionPlan'], 'name' | '
 type PaymentRow = {
     id: string
     createdAt: string
-    plan: PlanLabelSource | null
+    planLabel: string
     isInvoice: boolean
     card: { paymentSystem?: string | null, cardNumber?: string | null } | null
     amount: { value: string, currencyCode: string } | null
     /** Null for a paid row, otherwise what is wrong with the payment */
     unpaid: { type: PlanAlertType, daysLeft: number } | null
     multiPaymentId: string | null
+    /** Several contexts can share one invoice (a plan bought together with features); those collapse into a single row */
+    invoiceId: string | null
 }
 
 type RemovableFeature = {
     planId: string
     name: string
+}
+
+/** One invoice is one document to the client, so contexts sharing an invoice show as a single row */
+const mergeRowsByInvoice = (rows: ReadonlyArray<PaymentRow>): PaymentRow[] => {
+    const merged: PaymentRow[] = []
+    const mergedInvoiceIds = new Set<string>()
+
+    for (const row of rows) {
+        if (row.invoiceId && mergedInvoiceIds.has(row.invoiceId)) continue
+        if (!row.invoiceId) {
+            merged.push(row)
+            continue
+        }
+        mergedInvoiceIds.add(row.invoiceId)
+
+        const group = rows.filter(other => other.invoiceId === row.invoiceId)
+        const amount = group.every(item => item.amount)
+            ? { value: String(group.reduce((sum, item) => sum + Number(item.amount?.value), 0)), currencyCode: group[0].amount.currencyCode }
+            : group[0].amount
+
+        merged.push({ ...row, planLabel: group.map(item => item.planLabel).join(', '), amount })
+    }
+
+    return merged
 }
 
 export const usePaymentHistoryModal = () => {
@@ -121,7 +147,7 @@ export const usePaymentHistoryModal = () => {
     const unpaidRows = useMemo<PaymentRow[]>(() => outstandingPayments.map(({ context, type, daysLeft }) => ({
         id: context.id,
         createdAt: context.createdAt,
-        plan: context.subscriptionPlan,
+        planLabel: getPlanLabel(context.subscriptionPlan),
         isInvoice: context.frozenPaymentInfo?.paymentType === SUBSCRIPTION_PAYMENT_TYPE_INVOICE,
         card: context.frozenPaymentInfo?.paymentMethod ?? null,
         amount: context.subscriptionPlanPricingRule?.price && context.subscriptionPlanPricingRule?.currencyCode
@@ -129,7 +155,8 @@ export const usePaymentHistoryModal = () => {
             : null,
         unpaid: { type, daysLeft },
         multiPaymentId: null,
-    })), [outstandingPayments])
+        invoiceId: context.invoice?.id ?? null,
+    })), [outstandingPayments, getPlanLabel])
 
     // Unpaid rows are prepended on page 1 only, so paid rows there fill whatever room is left,
     // and every later page's paid offset shifts back by however many unpaid rows took that room
@@ -158,25 +185,59 @@ export const usePaymentHistoryModal = () => {
         return {
             id: record.id,
             createdAt: record.createdAt,
-            plan: record.subscriptionPlan,
+            planLabel: getPlanLabel(record.subscriptionPlan),
             isInvoice: record.frozenPaymentInfo?.paymentType === SUBSCRIPTION_PAYMENT_TYPE_INVOICE || !record.frozenPaymentInfo?.paymentMethod,
             card: record.frozenPaymentInfo?.paymentMethod ?? null,
             amount: value && currencyCode ? { value, currencyCode } : null,
             unpaid: null,
             multiPaymentId: record.frozenPaymentInfo?.multiPaymentId ?? null,
+            invoiceId: record.frozenPaymentInfo?.invoice?.id ?? null,
         }
-    }), [data])
+    }), [data, getPlanLabel])
 
     // What still waits for a payment is what the client came here for, so it leads the first page
     const rows = useMemo(
-        () => currentPageIndex === 1 ? [...unpaidRows, ...paidRows] : paidRows,
+        () => mergeRowsByInvoice(currentPageIndex === 1 ? [...unpaidRows, ...paidRows] : paidRows),
         [currentPageIndex, unpaidRows, paidRows]
     )
 
-    const removableFeatures = useMemo<ReadonlyArray<RemovableFeature>>(() => outstandingPayments
-        .filter(({ context }) => context.subscriptionPlan?.planType === SUBSCRIPTION_PLAN_TYPE_FEATURE)
-        .map(({ context }) => ({ planId: context.subscriptionPlan.id, name: context.subscriptionPlan.name || '' })),
-    [outstandingPayments])
+    // A bundle that also bought the plan itself is not offered here - only a features-only invoice can be dropped
+    const planBundleInvoiceIds = useMemo(() => new Set(
+        outstandingPayments
+            .filter(({ context }) => context.subscriptionPlan?.planType !== SUBSCRIPTION_PLAN_TYPE_FEATURE && context.invoice?.id)
+            .map(({ context }) => context.invoice.id)
+    ), [outstandingPayments])
+
+    // Only a dead invoice/charge can be dropped by hand - one still within its payment window is still owed
+    const removableFeatures = useMemo<ReadonlyArray<RemovableFeature & { invoiceId: string | null }>>(() => outstandingPayments
+        .filter(({ context, type }) => context.subscriptionPlan?.planType === SUBSCRIPTION_PLAN_TYPE_FEATURE
+            && (type === 'invoiceExpired' || type === 'cardFailed')
+            && !(context.invoice?.id && planBundleInvoiceIds.has(context.invoice.id)))
+        .map(({ context }) => ({ planId: context.subscriptionPlan.id, name: context.subscriptionPlan.name || '', invoiceId: context.invoice?.id ?? null })),
+    [outstandingPayments, planBundleInvoiceIds])
+
+    // One invoice is removed as a whole, never one feature at a time out of it
+    const removableGroups = useMemo(() => {
+        const groups: { key: string, name: string, features: RemovableFeature[] }[] = []
+        const seenInvoiceIds = new Set<string>()
+
+        for (const feature of removableFeatures) {
+            if (feature.invoiceId && seenInvoiceIds.has(feature.invoiceId)) continue
+
+            const groupFeatures = feature.invoiceId
+                ? removableFeatures.filter(other => other.invoiceId === feature.invoiceId)
+                : [feature]
+            if (feature.invoiceId) seenInvoiceIds.add(feature.invoiceId)
+
+            groups.push({
+                key: feature.invoiceId ?? feature.planId,
+                name: groupFeatures.map(item => item.name).join(', '),
+                features: groupFeatures.map(({ planId, name }) => ({ planId, name })),
+            })
+        }
+
+        return groups
+    }, [removableFeatures])
 
     const paidTotalCount = data?.meta?.count ?? 0
     // The Table paginates the combined list, so it needs the combined total, not just the paid rows'
@@ -234,10 +295,10 @@ export const usePaymentHistoryModal = () => {
         },
         {
             title: PlanColumnTitle,
-            dataIndex: 'plan',
+            dataIndex: 'planLabel',
             key: 'plan',
             width: '20%',
-            render: (_, row) => getPlanLabel(row.plan),
+            render: (_, row) => row.planLabel,
         },
         {
             title: PaymentMethodColumnTitle,
@@ -283,7 +344,7 @@ export const usePaymentHistoryModal = () => {
                 )
             },
         },
-    ], [DateColumnTitle, PlanColumnTitle, PaymentMethodColumnTitle, AmountColumnTitle, StatusColumnTitle, DocumentsColumnTitle, InvoiceLabel, DownloadReceiptLabel, intl, getPlanLabel, getCardTypeLabel, renderStatus])
+    ], [DateColumnTitle, PlanColumnTitle, PaymentMethodColumnTitle, AmountColumnTitle, StatusColumnTitle, DocumentsColumnTitle, InvoiceLabel, DownloadReceiptLabel, intl, getCardTypeLabel, renderStatus])
 
     const getRowId = useCallback((row: PaymentRow) => row.id, [])
 
@@ -295,28 +356,29 @@ export const usePaymentHistoryModal = () => {
         const helpUrl = HELP_REQUISITES?.support_bot ? `https://t.me/${HELP_REQUISITES.support_bot}` : null
 
         let removeButton: React.ReactNode = null
-        if (canManageSubscriptions && removableFeatures.length === 1) {
+        if (canManageSubscriptions && removableGroups.length === 1) {
+            const group = removableGroups[0]
             removeButton = (
                 <Button
                     id='subscription-payment-history-remove-button'
                     type='secondary'
-                    onClick={() => setFeaturesToRemove(removableFeatures)}
+                    onClick={() => setFeaturesToRemove(group.features)}
                 >
-                    {intl.formatMessage({ id: 'subscription.paymentHistory.remove.one' }, { name: removableFeatures[0].name })}
+                    {intl.formatMessage({ id: 'subscription.paymentHistory.remove.one' }, { name: group.name })}
                 </Button>
             )
-        } else if (canManageSubscriptions && removableFeatures.length > 1) {
+        } else if (canManageSubscriptions && removableGroups.length > 1) {
             removeButton = (
                 <Dropdown.Button
                     id='subscription-payment-history-remove-button'
                     type='secondary'
                     items={[
-                        ...removableFeatures.map(feature => ({
-                            key: feature.planId,
-                            label: feature.name,
-                            onClick: () => setFeaturesToRemove([feature]),
+                        ...removableGroups.map(group => ({
+                            key: group.key,
+                            label: group.name,
+                            onClick: () => setFeaturesToRemove(group.features),
                         })),
-                        { key: 'all', label: RemoveAllLabel, onClick: () => setFeaturesToRemove(removableFeatures) },
+                        { key: 'all', label: RemoveAllLabel, onClick: () => setFeaturesToRemove(removableFeatures.map(({ planId, name }) => ({ planId, name }))) },
                     ]}
                 >
                     {RemoveManyLabel}
@@ -373,7 +435,7 @@ export const usePaymentHistoryModal = () => {
                 />
             </>
         )
-    }, [hidePaidFeatures, canManageSubscriptions, removableFeatures, intl, RemoveAllLabel, RemoveManyLabel, NeedHelpLabel, activatedData, featuresToRemove, isModalOpen, closeModal, PaymentHistoryTitle, loading, rows, columns, totalCount, getRowId, activeServiceContext, cancelLoading, handleRemoveConfirm])
+    }, [hidePaidFeatures, canManageSubscriptions, removableGroups, removableFeatures, intl, RemoveAllLabel, RemoveManyLabel, NeedHelpLabel, activatedData, featuresToRemove, isModalOpen, closeModal, PaymentHistoryTitle, loading, rows, columns, totalCount, getRowId, activeServiceContext, cancelLoading, handleRemoveConfirm])
 
     return {
         PaymentHistoryModal,

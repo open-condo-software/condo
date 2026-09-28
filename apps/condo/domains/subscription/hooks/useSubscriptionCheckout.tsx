@@ -126,7 +126,7 @@ export const useSubscriptionCheckout = ({
             isTrial: false,
             planName: alert.planNames.join(', '),
             paymentType: 'invoice',
-            includesServicePlan: alert.scope === 'plan',
+            includesServicePlan: alert.scope === 'plan' || alert.scope === 'bundle',
         })
         await refetchSubscriptions()
     }, [requestSubscriptionInvoice, intl, registerSubscriptionBundle, refetchSubscriptions])

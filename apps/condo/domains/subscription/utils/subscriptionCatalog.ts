@@ -190,6 +190,8 @@ type BuildCatalogParams = {
     featureStatuses?: ReadonlyMap<string, FeatureStatus>
     /** Rows that should always float to the top of the table, most important first */
     pinnedCapabilities?: ReadonlyArray<CapabilityKey>
+    /** Every capability any service plan can unlock, so a plan without one still shows it crossed out instead of hiding the row */
+    allPlanCapabilities?: ReadonlyArray<CapabilityKey>
 }
 
 /**
@@ -208,6 +210,7 @@ export const buildCatalog = ({
     capabilityLabels,
     featureStatuses,
     pinnedCapabilities = [],
+    allPlanCapabilities = [],
 }: BuildCatalogParams): ReadonlyArray<CatalogRow> => {
     const planCapabilities = getPlanCapabilities(servicePlan)
     const rows: CatalogRow[] = []
@@ -241,7 +244,7 @@ export const buildCatalog = ({
         })
     }
 
-    for (const capability of planCapabilities) {
+    for (const capability of new Set([...planCapabilities, ...allPlanCapabilities])) {
         if (claimedCapabilities.has(capability)) continue
         const labels = capabilityLabels[capability]
         if (!labels?.label) continue
@@ -254,7 +257,7 @@ export const buildCatalog = ({
             featurePlan: null,
             price: null,
             prices: [],
-            includedInPlan: true,
+            includedInPlan: planCapabilities.includes(capability),
             purchased: false,
             status: null,
             purchasable: false,

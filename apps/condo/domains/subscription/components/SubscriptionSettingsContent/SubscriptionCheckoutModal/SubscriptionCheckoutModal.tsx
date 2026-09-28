@@ -1,4 +1,5 @@
 import dayjs from 'dayjs'
+import Image from 'next/image'
 import React, { useMemo } from 'react'
 
 import { QuestionCircle } from '@open-condo/icons'
@@ -256,6 +257,10 @@ export const SubscriptionCheckoutModal: React.FC<SubscriptionCheckoutModalProps>
                                     }
                                 )}
                             </Typography.Paragraph>
+                        </div>
+                        <div className={styles.upsellGlow} />
+                        <div className={styles.upsellArt}>
+                            <Image src='/mascot/hero.webp' alt='' width={190} height={196} />
                         </div>
                     </div>
                 )}

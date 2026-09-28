@@ -14,6 +14,7 @@ import { SUBSCRIPTION_PAYMENT_BUFFER_DAYS, SUBSCRIPTION_PERIOD, SUBSCRIPTION_PLA
 import {
     buildCatalog,
     getCatalogCounters,
+    getPlanCapabilities,
     OWNED_FEATURE_STATUSES,
     resolveFeatureStatus,
 } from '@condo/domains/subscription/utils/subscriptionCatalog'
@@ -235,6 +236,15 @@ export const useSubscriptionPlansPage = () => {
         [availablePlans, selectedPlanId]
     )
 
+    // Every service plan's capabilities, not just the one on screen - a plan without one still lists it as unavailable
+    const allPlanCapabilities = useMemo(() => {
+        const capabilities = new Set<CapabilityKey>()
+        for (const { plan } of servicePlans) {
+            getPlanCapabilities(plan).forEach(capability => capabilities.add(capability))
+        }
+        return Array.from(capabilities)
+    }, [servicePlans])
+
     const buildPlanRows = useCallback((planInfo: CatalogPlanInfo | null): ReadonlyArray<CatalogRow> => buildCatalog({
         servicePlan: planInfo?.plan ?? null,
         featurePlans,
@@ -243,7 +253,8 @@ export const useSubscriptionPlansPage = () => {
         capabilityLabels,
         featureStatuses: featureStatusByPlanId,
         pinnedCapabilities: PINNED_CAPABILITIES,
-    }), [featurePlans, period, purchasedFeaturePlanIds, capabilityLabels, featureStatusByPlanId])
+        allPlanCapabilities,
+    }), [featurePlans, period, purchasedFeaturePlanIds, capabilityLabels, featureStatusByPlanId, allPlanCapabilities])
 
     // read from every service plan, not only the ones sold for the selected period: a paid plan without a
     // price for that period is still the floor a purchase may only go up from

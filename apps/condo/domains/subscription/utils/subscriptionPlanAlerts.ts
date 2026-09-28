@@ -10,8 +10,8 @@ const DAY_MS = 24 * 60 * 60 * 1000
 
 export type PlanAlertType = 'cardFailed' | 'invoiceExpired' | 'trialExpired' | 'invoicePending' | 'trial'
 
-/** An alert either speaks about the plan itself or about features bought on top of it */
-export type PlanAlertScope = 'plan' | 'features'
+/** An alert speaks about the plan, about features bought on top of it, or - one invoice paid for both - about both at once */
+export type PlanAlertScope = 'plan' | 'features' | 'bundle'
 
 export type PlanAlert = {
     key: string
@@ -34,6 +34,8 @@ export type UnpaidSubscriptionContext = {
     endAt?: string | null
     subscriptionPlan?: { id: string, name?: string | null, planType?: string | null } | null
     subscriptionPlanPricingRule?: { id: string } | null
+    /** Set when this registration paid for a bundle together with other contexts sharing the same invoice */
+    invoice?: { id: string } | null
     frozenPaymentInfo?: { paymentType?: string | null } | null
     /** Set once the organization removed the registration from its subscription, it is not waited for anymore */
     renewalCancelledAt?: string | null
@@ -169,6 +171,38 @@ const buildPlanAlert = (context: UnpaidSubscriptionContext | undefined, now: Dat
     }
 }
 
+/**
+ * One invoice paid for the plan and for the features bought alongside it, so one alert covers both -
+ * naming the features and merging in their price/context ids, but not the plan's own name since the
+ * wording already says "тариф"
+ */
+const buildBundleAlert = (
+    planContext: UnpaidSubscriptionContext,
+    featureContexts: ReadonlyArray<UnpaidSubscriptionContext>,
+    now: Date
+): PlanAlert | null => {
+    const state = resolveUnpaidState(planContext, now)
+    if (!state) return null
+
+    let alert: PlanAlert = {
+        key: `bundle-${state.type}`,
+        scope: 'bundle',
+        planNames: [],
+        priceIds: planContext.subscriptionPlanPricingRule?.id ? [planContext.subscriptionPlanPricingRule.id] : [],
+        contextIds: [planContext.id],
+        ...state,
+    }
+
+    for (const context of featureContexts) {
+        const featureState = resolveUnpaidState(context, now)
+        if (!featureState) continue
+        const priceIds = context.subscriptionPlanPricingRule?.id ? [context.subscriptionPlanPricingRule.id] : []
+        alert = mergeFeatureAlert(alert, context, featureState, priceIds)
+    }
+
+    return alert
+}
+
 const mergeFeatureAlert = (
     known: PlanAlert,
     context: UnpaidSubscriptionContext,
@@ -187,23 +221,26 @@ const mergeFeatureAlert = (
     }
 }
 
-/** One alert per state, naming every feature waiting for that same payment */
+/**
+ * One alert per invoice: features bought together on the same invoice share one alert, but two
+ * different invoices never merge into one even if both are, say, still pending
+ */
 const buildFeatureAlerts = (
-    latestUnpaidByPlanId: ReadonlyMap<string, UnpaidSubscriptionContext>,
+    featureContexts: ReadonlyArray<UnpaidSubscriptionContext>,
     now: Date,
 ): ReadonlyArray<PlanAlert> => {
-    const alertsByType = new Map<PlanAlertType, PlanAlert>()
+    const alertsByGroup = new Map<string, PlanAlert>()
 
-    for (const context of latestUnpaidByPlanId.values()) {
-        if (context.subscriptionPlan?.planType !== 'feature') continue
+    for (const context of featureContexts) {
         const state = resolveUnpaidState(context, now)
         if (!state) continue
 
-        const known = alertsByType.get(state.type)
+        const groupKey = context.invoice?.id ? `invoice-${context.invoice.id}` : `${state.type}-${context.id}`
+        const known = alertsByGroup.get(groupKey)
         const priceIds = context.subscriptionPlanPricingRule?.id ? [context.subscriptionPlanPricingRule.id] : []
 
-        alertsByType.set(state.type, known ? mergeFeatureAlert(known, context, state, priceIds) : {
-            key: `features-${state.type}`,
+        alertsByGroup.set(groupKey, known ? mergeFeatureAlert(known, context, state, priceIds) : {
+            key: `features-${groupKey}`,
             scope: 'features',
             planNames: [context.subscriptionPlan.name ?? ''],
             priceIds,
@@ -212,7 +249,7 @@ const buildFeatureAlerts = (
         })
     }
 
-    return [...alertsByType.values()]
+    return [...alertsByGroup.values()]
 }
 
 /** a trial paid for before it ran out is just a plan now, whatever date the paid period starts on */
@@ -245,9 +282,10 @@ const hasUnpaidTrialToBuy = (
 }
 
 /**
- * Alerts of a plan card, most critical first. The card of the plan warns about its own unpaid invoice or payment;
- * the active plan card also warns about its trial and about features bought on top of it, one alert per state.
- * Feature trials stay in the feature table.
+ * Alerts of a plan card, most critical first. The card of the plan warns about its own unpaid invoice or payment.
+ * Features bought together with it in the same invoice warn on that same card, whether or not it is the active
+ * one - the client paid for that bundle as one thing. Features bought on their own warn on the active plan card
+ * instead, since that is the plan they were added to. Feature trials stay in the feature table.
  */
 export const buildPlanCardAlerts = ({
     planId,
@@ -262,11 +300,38 @@ export const buildPlanCardAlerts = ({
     const alerts: PlanAlert[] = []
     const latestUnpaidByPlanId = getLatestUnpaidByPlanId(unpaidContexts, paidContexts, now)
 
-    const planAlert = buildPlanAlert(latestUnpaidByPlanId.get(planId), now)
-    if (planAlert) alerts.push(planAlert)
+    const planContext = latestUnpaidByPlanId.get(planId)
+
+    // Every invoice with a pending service plan purchase claims the features bought alongside it: those
+    // warn on that plan's own card, whichever plan happens to be active. What is left over - features
+    // bought on their own, in no such invoice - warns on the active plan card instead
+    const pendingServiceInvoiceIds = new Set(
+        [...latestUnpaidByPlanId.values()]
+            .filter(context => context.subscriptionPlan?.planType === 'service' && context.invoice?.id)
+            .map(context => context.invoice.id)
+    )
+    const featureContexts = [...latestUnpaidByPlanId.values()].filter(context => context.subscriptionPlan?.planType === 'feature')
+
+    // The invoice itself never loses a row just because one of its features got a newer registration
+    // elsewhere, so its alert is read off every unpaid context still on it, not only the latest per plan
+    const bundleInvoiceId = planContext?.subscriptionPlan?.planType === 'service' ? planContext.invoice?.id ?? null : null
+    const bundledFeatures = bundleInvoiceId
+        ? unpaidContexts.filter(context => context.subscriptionPlan?.planType === 'feature'
+            && context.invoice?.id === bundleInvoiceId && !context.renewalCancelledAt)
+        : []
+
+    // One invoice paid for both, so it reads as one alert, not two - the plan and its bundled features
+    if (bundledFeatures.length > 0) {
+        const bundleAlert = buildBundleAlert(planContext, bundledFeatures, now)
+        if (bundleAlert) alerts.push(bundleAlert)
+    } else {
+        const planAlert = buildPlanAlert(planContext, now)
+        if (planAlert) alerts.push(planAlert)
+    }
 
     if (isActivePlan) {
-        alerts.push(...buildFeatureAlerts(latestUnpaidByPlanId, now))
+        const unclaimedFeatures = featureContexts.filter(context => !pendingServiceInvoiceIds.has(context.invoice?.id))
+        alerts.push(...buildFeatureAlerts(unclaimedFeatures, now))
 
         const trialAlert = buildTrialAlert(planId, activeServiceContext, isPlanPaid, now)
         if (trialAlert) alerts.push(trialAlert)
