@@ -103,14 +103,6 @@ export const usePaymentHistoryModal = () => {
         return intl.formatMessage({ id: translationKey as any, defaultMessage: upperCaseSystem })
     }, [intl])
 
-    const { data, loading } = useGetOrganizationPaymentHistoryQuery({
-        variables: {
-            organizationId,
-            offset: (currentPageIndex - 1) * PAGE_SIZE,
-            first: PAGE_SIZE,
-        },
-        skip: !organizationId,
-    })
     const { data: unpaidData } = useGetOrganizationUnpaidSubscriptionsQuery({
         variables: { organizationId },
         skip: !organizationId || hidePaidFeatures,
@@ -120,13 +112,41 @@ export const usePaymentHistoryModal = () => {
         skip: !organizationId || hidePaidFeatures,
     })
 
-    const { cancelFeaturePlans, loading: cancelLoading } = useCancelSubscriptionFeatures()
-
     const outstandingPayments = useMemo(() => getOutstandingPayments(
         unpaidData?.unpaidSubscriptions ?? [],
         activatedData?.activatedSubscriptions ?? [],
         new Date(),
     ), [unpaidData, activatedData])
+
+    const unpaidRows = useMemo<PaymentRow[]>(() => outstandingPayments.map(({ context, type, daysLeft }) => ({
+        id: context.id,
+        createdAt: context.createdAt,
+        plan: context.subscriptionPlan,
+        isInvoice: context.frozenPaymentInfo?.paymentType === SUBSCRIPTION_PAYMENT_TYPE_INVOICE,
+        card: context.frozenPaymentInfo?.paymentMethod ?? null,
+        amount: context.subscriptionPlanPricingRule?.price && context.subscriptionPlanPricingRule?.currencyCode
+            ? { value: context.subscriptionPlanPricingRule.price, currencyCode: context.subscriptionPlanPricingRule.currencyCode }
+            : null,
+        unpaid: { type, daysLeft },
+        multiPaymentId: null,
+    })), [outstandingPayments])
+
+    // Unpaid rows are prepended on page 1 only, so paid rows there fill whatever room is left,
+    // and every later page's paid offset shifts back by however many unpaid rows took that room
+    const isFirstPage = currentPageIndex === 1
+    const paidRowsFirst = isFirstPage ? Math.max(0, PAGE_SIZE - unpaidRows.length) : PAGE_SIZE
+    const paidRowsOffset = Math.max(0, (currentPageIndex - 1) * PAGE_SIZE - unpaidRows.length)
+
+    const { data, loading } = useGetOrganizationPaymentHistoryQuery({
+        variables: {
+            organizationId,
+            offset: paidRowsOffset,
+            first: paidRowsFirst,
+        },
+        skip: !organizationId,
+    })
+
+    const { cancelFeaturePlans, loading: cancelLoading } = useCancelSubscriptionFeatures()
 
     const paidRows = useMemo<PaymentRow[]>(() => (data?.paymentHistory ?? []).filter(Boolean).map(record => {
         const rule = record.subscriptionPlanPricingRule
@@ -147,19 +167,6 @@ export const usePaymentHistoryModal = () => {
         }
     }), [data])
 
-    const unpaidRows = useMemo<PaymentRow[]>(() => outstandingPayments.map(({ context, type, daysLeft }) => ({
-        id: context.id,
-        createdAt: context.createdAt,
-        plan: context.subscriptionPlan,
-        isInvoice: context.frozenPaymentInfo?.paymentType === SUBSCRIPTION_PAYMENT_TYPE_INVOICE,
-        card: context.frozenPaymentInfo?.paymentMethod ?? null,
-        amount: context.subscriptionPlanPricingRule?.price && context.subscriptionPlanPricingRule?.currencyCode
-            ? { value: context.subscriptionPlanPricingRule.price, currencyCode: context.subscriptionPlanPricingRule.currencyCode }
-            : null,
-        unpaid: { type, daysLeft },
-        multiPaymentId: null,
-    })), [outstandingPayments])
-
     // What still waits for a payment is what the client came here for, so it leads the first page
     const rows = useMemo(
         () => currentPageIndex === 1 ? [...unpaidRows, ...paidRows] : paidRows,
@@ -171,8 +178,10 @@ export const usePaymentHistoryModal = () => {
         .map(({ context }) => ({ planId: context.subscriptionPlan.id, name: context.subscriptionPlan.name || '' })),
     [outstandingPayments])
 
-    const totalCount = data?.meta?.count ?? 0
-    const hasPaymentHistory = totalCount > 0 || unpaidRows.length > 0
+    const paidTotalCount = data?.meta?.count ?? 0
+    // The Table paginates the combined list, so it needs the combined total, not just the paid rows'
+    const totalCount = paidTotalCount + unpaidRows.length
+    const hasPaymentHistory = totalCount > 0
 
     const openModal = useCallback(() => {
         if (hidePaidFeatures) return

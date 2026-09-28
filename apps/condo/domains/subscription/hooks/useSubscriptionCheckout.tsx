@@ -243,7 +243,7 @@ export const useSubscriptionCheckout = ({
 
     const canTryFree = useMemo(() => {
         if (!isBuying || needsPlanInCart) return false
-        if (!isPlanInCart) return selectedRows.length > 0 && selectedRows.every(canTryRow)
+        if (!isPlanInCart) return selectedRows.length > 0 && selectedRows.every(row => canTryRow(row))
 
         const plan = selectedPlanCard?.planInfo?.plan
         if (!plan || Number(plan.trialDays ?? 0) <= 0) return false

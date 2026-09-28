@@ -33,6 +33,8 @@ import { SubscriptionRemoveModal } from './SubscriptionRemoveModal/SubscriptionR
 import styles from './SubscriptionSettingsContent.module.css'
 
 import type { RowBadge } from './SubscriptionFeatureTable/SubscriptionFeatureTable'
+import type { ServicePlanView } from '@condo/domains/subscription/hooks/useSubscriptionPlansPage'
+import type { SelectionMode } from '@condo/domains/subscription/hooks/useSubscriptionSelection'
 import type { CatalogRow } from '@condo/domains/subscription/utils/subscriptionCatalog'
 import type { PlanPeriod } from '@condo/domains/subscription/utils/subscriptionPricing'
 import type { RadioChangeEvent } from 'antd'
@@ -75,6 +77,157 @@ const buildRowBadge = (row: CatalogRow, intl: IntlShape, planEndAt?: string | nu
         default:
             return null
     }
+}
+
+/** ActionBar takes a plain string only, so the priced message is built separately and passed in as its first element */
+const buildActionBarMessage = (params: {
+    intl: IntlShape
+    period: PlanPeriod
+    isPlanInCart: boolean
+    isBuying: boolean
+    selectedPlanCard: ServicePlanView | null
+    selectedRows: ReadonlyArray<CatalogRow>
+    currencyCode: string | null
+}): React.ReactElement => {
+    const { intl, period, isPlanInCart, isBuying, selectedPlanCard, selectedRows, currencyCode } = params
+
+    const periodNoun = intl.formatMessage({ id: `subscription.planCard.planPrice.${period}.noun` as FormatjsIntl.Message['ids'] })
+    const featuresAmount = selectedRows.reduce((sum, row) => sum + (getAmount(row.price) ?? 0), 0)
+    const featuresFullAmount = selectedRows.reduce((sum, row) => sum + (getDiscount(row.prices, period)?.fullAmount ?? getAmount(row.price) ?? 0), 0)
+
+    const planPart = isPlanInCart && selectedPlanCard ? intl.formatMessage(
+        { id: 'subscription.actionBar.plan' },
+        {
+            planName: selectedPlanCard.planInfo.plan.name,
+            amount: (
+                <PriceText
+                    key='plan-amount'
+                    amount={getAmount(selectedPlanCard.price) ?? 0}
+                    fullAmount={isBuying ? selectedPlanCard.discount?.fullAmount ?? null : null}
+                    currencyCode={currencyCode}
+                    locale={intl.locale}
+                />
+            ),
+            period: periodNoun,
+        }
+    ) : null
+    const featuresPart = selectedRows.length > 0 ? intl.formatMessage(
+        { id: 'subscription.actionBar.features' },
+        {
+            count: selectedRows.length,
+            amount: (
+                <PriceText
+                    key='features-amount'
+                    amount={featuresAmount}
+                    fullAmount={isBuying ? featuresFullAmount : null}
+                    currencyCode={currencyCode}
+                    locale={intl.locale}
+                />
+            ),
+            period: periodNoun,
+        }
+    ) : null
+
+    return (
+        <Typography.Text key='message' strong>
+            {planPart}
+            {planPart && featuresPart && ' + '}
+            {featuresPart}
+        </Typography.Text>
+    )
+}
+
+/** removeButton and cancelButton stand ready under any mode; which of them show up, and alongside what, follows the mode alone */
+const buildActionBarActions = (params: {
+    intl: IntlShape
+    mode: SelectionMode
+    canManageSubscriptions: boolean
+    selectedRows: ReadonlyArray<CatalogRow>
+    isPlanInCart: boolean
+    cartPriceIds: ReadonlyArray<string>
+    needsPlanInCart: boolean
+    canTryFree: boolean
+    activateLoading: boolean
+    currencyCode: string | null
+    openRemove: () => void
+    clearSelection: () => void
+    openPaymentHistoryModal: () => void
+    openCheckout: () => void
+    handleTryFree: () => void
+    RemoveMessage: string
+    CancelMessage: string
+    PaymentHistoryMessage: string
+    CheckoutMessage: string
+}): React.ReactElement[] => {
+    const {
+        intl, mode, canManageSubscriptions, selectedRows, isPlanInCart, cartPriceIds, needsPlanInCart,
+        canTryFree, activateLoading, currencyCode, openRemove, clearSelection, openPaymentHistoryModal,
+        openCheckout, handleTryFree, RemoveMessage, CancelMessage, PaymentHistoryMessage, CheckoutMessage,
+    } = params
+
+    const removeButton = (
+        <Button
+            key='remove'
+            id='subscription-action-bar-remove-button'
+            type='secondary'
+            danger
+            onClick={openRemove}
+            disabled={!canManageSubscriptions}
+        >
+            {RemoveMessage}
+        </Button>
+    )
+
+    // The plan alone is bought or renewed without a way back; picked features can always be unpicked
+    const cancelButton = selectedRows.length > 0 && !isPlanInCart ? [
+        <Button key='cancel' id='subscription-action-bar-cancel-button' type='secondary' onClick={clearSelection}>
+            {CancelMessage}
+        </Button>,
+    ] : []
+
+    if (mode === 'connected') {
+        return [removeButton, ...cancelButton]
+    }
+
+    if (mode === 'paymentExpired') {
+        return [
+            <Button key='history' id='subscription-action-bar-payment-history-button' type='primary' onClick={openPaymentHistoryModal}>
+                {PaymentHistoryMessage}
+            </Button>,
+            removeButton,
+            ...cancelButton,
+        ]
+    }
+
+    const tryFreeButton = canTryFree ? [
+        <Button
+            key='trial'
+            id='subscription-action-bar-trial-button'
+            type='secondary'
+            onClick={handleTryFree}
+            loading={activateLoading}
+            disabled={!canManageSubscriptions}
+        >
+            {intl.formatMessage(
+                { id: 'subscription.planCard.tryFree' },
+                { formattedPrice: formatAmount(0, currencyCode || 'RUB', intl.locale) }
+            )}
+        </Button>,
+    ] : []
+
+    return [
+        <Button
+            key='checkout'
+            id='subscription-action-bar-checkout-button'
+            type='primary'
+            onClick={openCheckout}
+            disabled={!canManageSubscriptions || cartPriceIds.length === 0 || needsPlanInCart}
+        >
+            {CheckoutMessage}
+        </Button>,
+        ...tryFreeButton,
+        ...cancelButton,
+    ]
 }
 
 export const SubscriptionSettingsContent: React.FC = () => {
@@ -195,110 +348,15 @@ export const SubscriptionSettingsContent: React.FC = () => {
     const selectedPlanName = selectedPlanInfo?.plan?.name ?? ''
     const hasSelection = totals.count > 0 && (isPlanInCart || selectedRows.length > 0)
 
-    const periodNoun = intl.formatMessage({ id: `subscription.planCard.planPrice.${period}.noun` as FormatjsIntl.Message['ids'] })
-    const featuresAmount = selectedRows.reduce((sum, row) => sum + (getAmount(row.price) ?? 0), 0)
-    const featuresFullAmount = selectedRows.reduce((sum, row) => sum + (getDiscount(row.prices, period)?.fullAmount ?? getAmount(row.price) ?? 0), 0)
-    const planPart = isPlanInCart && selectedPlanCard ? intl.formatMessage(
-        { id: 'subscription.actionBar.plan' },
-        {
-            planName: selectedPlanCard.planInfo.plan.name,
-            amount: (
-                <PriceText
-                    key='plan-amount'
-                    amount={getAmount(selectedPlanCard.price) ?? 0}
-                    fullAmount={isBuying ? selectedPlanCard.discount?.fullAmount ?? null : null}
-                    currencyCode={totals.currencyCode}
-                    locale={intl.locale}
-                />
-            ),
-            period: periodNoun,
-        }
-    ) : null
-    const featuresPart = selectedRows.length > 0 ? intl.formatMessage(
-        { id: 'subscription.actionBar.features' },
-        {
-            count: selectedRows.length,
-            amount: (
-                <PriceText
-                    key='features-amount'
-                    amount={featuresAmount}
-                    fullAmount={isBuying ? featuresFullAmount : null}
-                    currencyCode={totals.currencyCode}
-                    locale={intl.locale}
-                />
-            ),
-            period: periodNoun,
-        }
-    ) : null
-    // ActionBar takes a plain string only, the priced message goes in as the first element of the bar instead
-    const actionBarMessage = (
-        <Typography.Text key='message' strong>
-            {planPart}
-            {planPart && featuresPart && ' + '}
-            {featuresPart}
-        </Typography.Text>
-    )
-
-    const removeButton = (
-        <Button
-            key='remove'
-            id='subscription-action-bar-remove-button'
-            type='secondary'
-            danger
-            onClick={openRemove}
-            disabled={!canManageSubscriptions}
-        >
-            {RemoveMessage}
-        </Button>
-    )
-
-    // The plan alone is bought or renewed without a way back; picked features can always be unpicked
-    const cancelButton = selectedRows.length > 0 && !isPlanInCart ? [
-        <Button key='cancel' id='subscription-action-bar-cancel-button' type='secondary' onClick={clearSelection}>
-            {CancelMessage}
-        </Button>,
-    ] : []
-
-    let actions: React.ReactElement[]
-    if (mode === 'connected') {
-        actions = [removeButton, ...cancelButton]
-    } else if (mode === 'paymentExpired') {
-        actions = [
-            <Button key='history' id='subscription-action-bar-payment-history-button' type='primary' onClick={openPaymentHistoryModal}>
-                {PaymentHistoryMessage}
-            </Button>,
-            removeButton,
-            ...cancelButton,
-        ]
-    } else {
-        actions = [
-            <Button
-                key='checkout'
-                id='subscription-action-bar-checkout-button'
-                type='primary'
-                onClick={openCheckout}
-                disabled={!canManageSubscriptions || cartPriceIds.length === 0 || needsPlanInCart}
-            >
-                {CheckoutMessage}
-            </Button>,
-            ...(canTryFree ? [
-                <Button
-                    key='trial'
-                    id='subscription-action-bar-trial-button'
-                    type='secondary'
-                    onClick={handleTryFree}
-                    loading={activateLoading}
-                    disabled={!canManageSubscriptions}
-                >
-                    {intl.formatMessage(
-                        { id: 'subscription.planCard.tryFree' },
-                        { formattedPrice: formatAmount(0, totals.currencyCode || 'RUB', intl.locale) }
-                    )}
-                </Button>,
-            ] : []),
-            ...cancelButton,
-        ]
-    }
+    const actionBarMessage = buildActionBarMessage({
+        intl, period, isPlanInCart, isBuying, selectedPlanCard, selectedRows, currencyCode: totals.currencyCode,
+    })
+    const actions = buildActionBarActions({
+        intl, mode, canManageSubscriptions, selectedRows, isPlanInCart, cartPriceIds, needsPlanInCart,
+        canTryFree, activateLoading, currencyCode: totals.currencyCode, openRemove, clearSelection,
+        openPaymentHistoryModal, openCheckout, handleTryFree,
+        RemoveMessage, CancelMessage, PaymentHistoryMessage, CheckoutMessage,
+    })
 
     return (
         <>
@@ -378,6 +436,7 @@ export const SubscriptionSettingsContent: React.FC = () => {
                         onToggleRow={selection.toggleRow}
                         canTryRow={canTryRow}
                         onTryRow={handleTryRow}
+                        activateLoading={activateLoading}
                         getRowBadge={getRowBadge}
                         canManageSubscriptions={canManageSubscriptions}
                         isViewingActivePlan={Boolean(activePlanId) && selectedPlanId === activePlanId}
