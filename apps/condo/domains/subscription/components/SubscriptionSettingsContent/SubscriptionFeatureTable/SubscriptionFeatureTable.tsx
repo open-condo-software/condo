@@ -31,6 +31,8 @@ type SubscriptionFeatureTableProps = {
     /** Set when a row can still be tried for free, which puts a trial button next to its price */
     canTryRow?: (row: CatalogRow) => boolean
     onTryRow?: (row: CatalogRow) => void
+    /** Blocks repeated clicks on the trial button while a registration is already in progress */
+    activateLoading?: boolean
     getRowBadge?: (row: CatalogRow) => RowBadge | null
     canManageSubscriptions: boolean
     /** Whether this table shows the plan the organization is actually on, not one opened just to compare */
@@ -48,6 +50,7 @@ export const SubscriptionFeatureTable: React.FC<SubscriptionFeatureTableProps> =
     onToggleRow,
     canTryRow,
     onTryRow,
+    activateLoading,
     getRowBadge,
     canManageSubscriptions,
     isViewingActivePlan,
@@ -98,7 +101,7 @@ export const SubscriptionFeatureTable: React.FC<SubscriptionFeatureTableProps> =
                         {priceText}
                     </Button>
                     {canTry && (
-                        <Button type='secondary' compact onClick={() => onTryRow(row)}>
+                        <Button type='secondary' compact disabled={disabled} loading={activateLoading} onClick={() => onTryRow(row)}>
                             {TryFreeMessage}
                         </Button>
                     )}
@@ -123,7 +126,7 @@ export const SubscriptionFeatureTable: React.FC<SubscriptionFeatureTableProps> =
                 )}
             </Space>
         )
-    }, [isRowSelected, isRowDisabled, canManageSubscriptions, getRowBadge, canTryRow, onTryRow, onToggleRow, intl, FreeInPlanMessage, AddToCartLabel])
+    }, [isRowSelected, isRowDisabled, canManageSubscriptions, getRowBadge, canTryRow, onTryRow, activateLoading, onToggleRow, intl, FreeInPlanMessage, AddToCartLabel])
 
     const renderSelect = useCallback<RenderTableCell<CatalogRow>>((_, row) => {
         const selected = isRowSelected(row)

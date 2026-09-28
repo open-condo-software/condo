@@ -57,9 +57,12 @@ const resolveEndDate = (paidUntil: string | null, endAtWithoutBuffer: dayjs.Dayj
     return null
 }
 
-const formatEndDate = (date: dayjs.Dayjs | null): string | null => (
-    date ? date.format(date.year() === dayjs().year() ? 'D MMMM' : 'D MMMM YYYY') : null
-)
+const formatEndDate = (date: dayjs.Dayjs | null): string | null => {
+    if (!date) return null
+
+    const format = date.year() === dayjs().year() ? 'D MMMM' : 'D MMMM YYYY'
+    return date.format(format)
+}
 
 const SubscriptionPlanBadge: React.FC<SubscriptionPlanBadgeProps> = ({ isActivePlan, hasTrialExpired }) => {
     const intl = useIntl()
@@ -226,6 +229,8 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({
 
     const handleSelect = useCallback(() => onSelect(plan.id), [onSelect, plan.id])
     const handleKeyDown = useCallback((event: React.KeyboardEvent<HTMLDivElement>) => {
+        // A nested link's own Enter/Space must activate it, not bubble up into selecting the card
+        if (event.target !== event.currentTarget) return
         if (event.key !== 'Enter' && event.key !== ' ') return
         event.preventDefault()
         onSelect(plan.id)
