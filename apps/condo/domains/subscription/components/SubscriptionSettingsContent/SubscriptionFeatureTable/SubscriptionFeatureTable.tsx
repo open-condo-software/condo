@@ -33,6 +33,8 @@ type SubscriptionFeatureTableProps = {
     onTryRow?: (row: CatalogRow) => void
     getRowBadge?: (row: CatalogRow) => RowBadge | null
     canManageSubscriptions: boolean
+    /** Whether this table shows the plan the organization is actually on, not one opened just to compare */
+    isViewingActivePlan: boolean
 }
 
 const getRowId = (row: CatalogRow): string => row.key
@@ -48,6 +50,7 @@ export const SubscriptionFeatureTable: React.FC<SubscriptionFeatureTableProps> =
     onTryRow,
     getRowBadge,
     canManageSubscriptions,
+    isViewingActivePlan,
 }) => {
     const intl = useIntl()
     const FeatureColumn = intl.formatMessage({ id: 'subscription.featureTable.column.feature' })
@@ -144,15 +147,21 @@ export const SubscriptionFeatureTable: React.FC<SubscriptionFeatureTableProps> =
         ) : checkbox
     }, [isRowSelected, isRowDisabled, canManageSubscriptions, onToggleRow, isRowBlockedByMode, IncludedTooltip, MixedStatusesTooltip])
 
-    const renderAvailability = useCallback<RenderTableCell<CatalogRow>>((_, row) => (row.includedInPlan || row.purchased) ? (
-        <Check size='small' color={colors.green[5]} />
-    ) : (
-        <Tooltip title={NotIncludedTooltip}>
-            <span className={styles.checkboxWrapper}>
-                <Close size='small' color={colors.gray[5]} />
-            </span>
-        </Tooltip>
-    ), [NotIncludedTooltip])
+    const renderAvailability = useCallback<RenderTableCell<CatalogRow>>((_, row) => {
+        // On another plan just being compared, only what it actually bundles counts as available
+        const isAvailable = row.includedInPlan
+            || (isViewingActivePlan && (row.purchased || row.status?.type === 'renewalCancelled'))
+
+        return isAvailable ? (
+            <Check size='small' color={colors.green[5]} />
+        ) : (
+            <Tooltip title={NotIncludedTooltip}>
+                <span className={styles.checkboxWrapper}>
+                    <Close size='small' color={colors.gray[5]} />
+                </span>
+            </Tooltip>
+        )
+    }, [NotIncludedTooltip, isViewingActivePlan])
 
     const renderLabel = useCallback<RenderTableCell<CatalogRow, CatalogRow['label']>>((label, row) => (
         <Typography.Text underline={!row.includedInPlan}>{label}</Typography.Text>
@@ -218,25 +227,19 @@ export const SubscriptionFeatureTable: React.FC<SubscriptionFeatureTableProps> =
         rowCount: rows.length,
     }), [rows])
 
-    /**
-     * The kit's Table reads its dataSource through a ref and only refetches on paging, sorting or
-     * filtering, so another plan or period has to ask it for the new rows itself
-     */
-    const tableApiRef = useRef<TableRef['api'] | null>(null)
-    const handleTableReady = useCallback((table: TableRef) => {
-        tableApiRef.current = table.api
-    }, [])
+    // Table reads dataSource through a ref and only refetches on paging/sorting/filtering, so a new plan or period has to trigger it explicitly
+    const tableRef = useRef<TableRef>(null)
 
     useEffect(() => {
-        tableApiRef.current?.refetchData()
+        tableRef.current?.api.refetchData()
     }, [rows])
 
     if (rows.length === 0) return null
 
     return (
         <Table<CatalogRow>
+            ref={tableRef}
             id='subscription-feature-table'
-            onTableReady={handleTableReady}
             dataSource={dataSource}
             columns={columns}
             getRowId={getRowId}

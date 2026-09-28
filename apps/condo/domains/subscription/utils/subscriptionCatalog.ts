@@ -19,6 +19,7 @@ export type CatalogPlan = {
     priority?: number | null
     canBePromoted?: boolean | null
     enabledB2BApps?: unknown
+    enabledB2CApps?: unknown
     [featureFlag: string]: unknown
 }
 
@@ -51,8 +52,8 @@ export type FeatureContext = {
 }
 
 /**
- * The table counts the feature as owned under these statuses. A removed feature keeps working until its
- * paid period ends, but the page already treats it as gone: it can be bought again right away.
+ * The table counts the feature as owned under these statuses. A removed feature keeps working until
+ * its paid period ends, but the page already treats it as gone: it can be bought again right away.
  */
 export const OWNED_FEATURE_STATUSES: ReadonlyArray<FeatureStatusType> = ['connected', 'trial', 'paymentExpired']
 
@@ -171,11 +172,12 @@ export const getPlanCapabilities = (plan: CatalogPlan | null | undefined): Reado
     if (!plan) return []
     const featureFlags = SUBSCRIPTION_PLAN_FEATURES.filter(feature => Boolean(plan[feature]))
 
-    return [...featureFlags, ...asArray(plan.enabledB2BApps)]
+    // same three lists as isPlanSubsetOf on the server
+    return [...featureFlags, ...asArray(plan.enabledB2BApps), ...asArray(plan.enabledB2CApps)]
 }
 
 /** A row is included only when the service plan covers everything the row unlocks */
-const isCoveredBy = (capabilities: ReadonlyArray<CapabilityKey>, planCapabilities: ReadonlyArray<CapabilityKey>): boolean =>
+export const isCoveredBy = (capabilities: ReadonlyArray<CapabilityKey>, planCapabilities: ReadonlyArray<CapabilityKey>): boolean =>
     capabilities.length > 0 && capabilities.every(capability => planCapabilities.includes(capability))
 
 type BuildCatalogParams = {
@@ -220,6 +222,7 @@ export const buildCatalog = ({
         const price = getPriceForPeriod(prices, period)
         const includedInPlan = isCoveredBy(capabilities, planCapabilities)
         const purchased = purchasedFeaturePlanIds.has(plan.id)
+        const status = featureStatuses?.get(plan.id) ?? null
         const fallbackLabel = capabilityLabels[capabilities[0]]
 
         rows.push({
@@ -232,8 +235,9 @@ export const buildCatalog = ({
             prices,
             includedInPlan,
             purchased,
-            status: featureStatuses?.get(plan.id) ?? null,
-            purchasable: !includedInPlan && !purchased && Boolean(price),
+            status,
+            // a cancelled renewal still runs until its paid days are up - not for sale again until then
+            purchasable: !includedInPlan && !purchased && status?.type !== 'renewalCancelled' && Boolean(price),
         })
     }
 

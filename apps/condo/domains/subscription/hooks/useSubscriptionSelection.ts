@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
+import { isCoveredBy } from '@condo/domains/subscription/utils/subscriptionCatalog'
 import { getAmount, getDiscount } from '@condo/domains/subscription/utils/subscriptionPricing'
 
 import type { ServicePlanView } from './useSubscriptionPlansPage'
@@ -97,15 +98,29 @@ export const useSubscriptionSelection = ({
 
     const getRowPrice = (row: CatalogRow) => row.price ?? null
 
+    const selectedRows = useMemo(
+        () => selectedRowKeys.map(key => rowsByKey.get(key)).filter((row): row is CatalogRow => Boolean(row)),
+        [selectedRowKeys, rowsByKey]
+    )
+
+    /** The server refuses a bundle where one feature plan covers another */
+    const isRowOverlapping = useCallback((row: CatalogRow): boolean => selectedRows.some(selected => (
+        selected.key !== row.key && (
+            isCoveredBy(row.capabilities, selected.capabilities)
+            || isCoveredBy(selected.capabilities, row.capabilities)
+        )
+    )), [selectedRows])
+
     /** Included rows are on and frozen; the rest follow the group the first pick established */
     const isRowDisabled = useCallback((row: CatalogRow): boolean => {
         const group = getRowGroup(row)
         if (!group) return true
         // a plan below the paid one is only there to compare: nothing is bought against it
         if (group === 'buy' && (!getRowPrice(row) || selectedPlanCard?.isBelowActive)) return true
+        if (isRowOverlapping(row)) return true
 
         return mode !== 'idle' && mode !== group
-    }, [mode, getRowGroup, selectedPlanCard])
+    }, [mode, getRowGroup, selectedPlanCard, isRowOverlapping])
 
     /** Set when the row is blocked only because the selection already holds features in another state */
     const isRowBlockedByMode = useCallback((row: CatalogRow): boolean => {
@@ -124,11 +139,6 @@ export const useSubscriptionSelection = ({
         setSelectedRowKeys(next)
         setMode(next.length === 0 ? 'idle' : group)
     }, [selectedRowKeys, isRowDisabled, getRowGroup])
-
-    const selectedRows = useMemo(
-        () => selectedRowKeys.map(key => rowsByKey.get(key)).filter((row): row is CatalogRow => Boolean(row)),
-        [selectedRowKeys, rowsByKey]
-    )
 
     /** The plan joins the cart whenever it is on screen and can be bought or bought again */
     const isPlanInCart = isPlanPurchasable && (mode === 'idle' || mode === 'buy')
