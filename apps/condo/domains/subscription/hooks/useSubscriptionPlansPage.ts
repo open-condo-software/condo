@@ -50,6 +50,34 @@ const FEATURE_LABEL_ID_OVERRIDES: Partial<Record<AvailableFeatureType, string>> 
 /** Sales asked for the personal manager to always be the first upsell in the table */
 const PINNED_CAPABILITIES: ReadonlyArray<CapabilityKey> = ['support']
 
+/**
+ * Baseline product capabilities gated by no plan flag or miniapp - every plan lists them as included, none
+ * sell them. "incidents" reuses the menu section's own label - the journal is the same thing either way.
+ * The numbers are sales' fixed reading order for the table, personal manager aside (it stays pinned).
+ */
+const STATIC_ROWS: ReadonlyArray<{ key: string, labelId: string, sortPriority: number }> = [
+    { key: 'incidents', labelId: 'global.section.incidents', sortPriority: 40 },
+    { key: 'employees', labelId: 'subscription.featureTable.static.employees', sortPriority: 60 },
+    { key: 'residents', labelId: 'subscription.featureTable.static.residents', sortPriority: 70 },
+    { key: 'residentApp', labelId: 'subscription.featureTable.static.residentApp', sortPriority: 80 },
+    { key: 'staffApp', labelId: 'subscription.featureTable.static.staffApp', sortPriority: 90 },
+    { key: 'actGenerator', labelId: 'subscription.featureTable.static.actGenerator', sortPriority: 110 },
+    { key: 'ticketBot', labelId: 'subscription.featureTable.static.ticketBot', sortPriority: 120 },
+]
+
+/** Same reading order, for the capability-only rows that have no feature plan of their own to carry a priority */
+const CAPABILITY_SORT_PRIORITY: Record<string, number> = {
+    tickets: 10,
+    meters: 20,
+    payments: 30,
+    properties: 50,
+    ai: 210,
+}
+
+/** "Генератор объявлений" is a capability keyed by its app id, which differs per environment - matched by name */
+const ANNOUNCEMENTS_APP_NAME = 'Генератор объявлений'
+const ANNOUNCEMENTS_SORT_PRIORITY = 100
+
 export type ServicePlanView = {
     planInfo: CatalogPlanInfo
     price: PlanPrice | null
@@ -178,6 +206,20 @@ export const useSubscriptionPlansPage = () => {
         return labels
     }, [intl, b2bAppsData])
 
+    const capabilityPriorities = useMemo<Record<CapabilityKey, number>>(() => {
+        const priorities: Record<CapabilityKey, number> = { ...CAPABILITY_SORT_PRIORITY }
+        const announcementsApp = (b2bAppsData?.b2bApps ?? []).find(app => app?.name === ANNOUNCEMENTS_APP_NAME)
+        if (announcementsApp?.id) priorities[announcementsApp.id] = ANNOUNCEMENTS_SORT_PRIORITY
+        return priorities
+    }, [b2bAppsData])
+
+    const staticRows = useMemo(() => STATIC_ROWS.map(({ key, labelId, sortPriority }) => ({
+        key: `static-${key}`,
+        label: intl.formatMessage({ id: labelId as FormatjsIntl.Message['ids'] }),
+        description: intl.formatMessage({ id: `subscription.featureTable.static.${key}.description` as FormatjsIntl.Message['ids'] }),
+        sortPriority,
+    })), [intl])
+
     const activePlanId = activeServiceContext?.subscriptionPlan?.id ?? null
 
     /**
@@ -254,7 +296,9 @@ export const useSubscriptionPlansPage = () => {
         featureStatuses: featureStatusByPlanId,
         pinnedCapabilities: PINNED_CAPABILITIES,
         allPlanCapabilities,
-    }), [featurePlans, period, purchasedFeaturePlanIds, capabilityLabels, featureStatusByPlanId, allPlanCapabilities])
+        staticRows,
+        capabilityPriorities,
+    }), [featurePlans, period, purchasedFeaturePlanIds, capabilityLabels, featureStatusByPlanId, allPlanCapabilities, staticRows, capabilityPriorities])
 
     // read from every service plan, not only the ones sold for the selected period: a paid plan without a
     // price for that period is still the floor a purchase may only go up from
