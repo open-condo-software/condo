@@ -295,18 +295,13 @@ export const buildCatalog = ({
 }
 
 /**
- * Pinned rows always go first, then what the plan includes, then what was bought separately, then what
- * can still be bought - and within each of those groups, rows keep the fixed reading order sales asked for.
+ * The personal manager is always first, then every row keeps the same fixed reading order regardless of
+ * which plan is on screen - only the checkmark/price in each row changes from plan to plan, never its position.
  */
 export const sortCatalogRows = (
     rows: ReadonlyArray<CatalogRow>,
     pinnedCapabilities: ReadonlyArray<CapabilityKey>
 ): ReadonlyArray<CatalogRow> => {
-    const groupOf = (row: CatalogRow): number => {
-        if (row.includedInPlan) return 0
-        if (row.purchased) return 1
-        return 2
-    }
     const pinnedIndexOf = (row: CatalogRow): number => {
         const index = pinnedCapabilities.findIndex(capability => row.capabilities.includes(capability))
         return index >= 0 ? index : pinnedCapabilities.length
@@ -314,7 +309,6 @@ export const sortCatalogRows = (
 
     return [...rows].sort((left, right) => (
         pinnedIndexOf(left) - pinnedIndexOf(right)
-        || groupOf(left) - groupOf(right)
         || left.sortPriority - right.sortPriority
         || left.label.localeCompare(right.label)
     ))

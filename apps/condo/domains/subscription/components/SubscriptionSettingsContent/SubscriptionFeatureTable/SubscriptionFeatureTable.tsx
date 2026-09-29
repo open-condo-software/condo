@@ -1,3 +1,4 @@
+import getConfig from 'next/config'
 import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 
 import { Check, Close, ShoppingCartPlus } from '@open-condo/icons'
@@ -14,6 +15,8 @@ import styles from './SubscriptionFeatureTable.module.css'
 import type { CatalogRow } from '@condo/domains/subscription/utils/subscriptionCatalog'
 import type { PlanPeriod } from '@condo/domains/subscription/utils/subscriptionPricing'
 
+
+const { publicRuntimeConfig: { subscriptionFeatureHelpLinks = {} } } = getConfig()
 
 export type RowBadge = {
     text: string
@@ -172,9 +175,15 @@ export const SubscriptionFeatureTable: React.FC<SubscriptionFeatureTableProps> =
         )
     }, [NotIncludedTooltip, isViewingActivePlan])
 
-    const renderLabel = useCallback<RenderTableCell<CatalogRow, CatalogRow['label']>>((label, row) => (
-        <Typography.Text underline={!row.includedInPlan}>{label}</Typography.Text>
-    ), [])
+    const renderLabel = useCallback<RenderTableCell<CatalogRow, CatalogRow['label']>>((label, row) => {
+        const helpLink = row.capabilities.map(capability => subscriptionFeatureHelpLinks[capability]).find(Boolean)
+
+        return helpLink ? (
+            <Typography.Link href={helpLink} target='_blank'>{label}</Typography.Link>
+        ) : (
+            <Typography.Text>{label}</Typography.Text>
+        )
+    }, [])
 
     const renderDescription = useCallback<RenderTableCell<CatalogRow, CatalogRow['description']>>((description) => (
         <Typography.Text type='secondary'>{description}</Typography.Text>

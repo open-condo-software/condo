@@ -42,10 +42,21 @@ import type { PlanPeriod, PlanDiscount, PlanPrice } from '@condo/domains/subscri
 
 type ActivatedContext = ReturnType<typeof useGetOrganizationActivatedSubscriptionsQuery>['data']['activatedSubscriptions'][number]
 
-/** Every key is 'subscription.features.<key>', except support: sales calls it the personal manager */
+/**
+ * Every key is 'subscription.features.<key>' by default. A few read differently in the tariff table than
+ * elsewhere in the app (sales calls "support" the personal manager, and the table's own names for tickets/
+ * meters/payments/ai follow the marketing copy, not the in-app section names).
+ */
 const FEATURE_LABEL_ID_OVERRIDES: Partial<Record<AvailableFeatureType, string>> = {
     support: 'subscription.features.personalManager',
+    tickets: 'subscription.featureTable.tickets',
+    meters: 'subscription.featureTable.meters',
+    payments: 'subscription.featureTable.payments',
+    ai: 'subscription.featureTable.ai',
 }
+
+/** Not part of the product's current feature comparison, so never a row even if some plan has the flag set */
+const HIDDEN_FEATURES: ReadonlyArray<AvailableFeatureType> = ['analytics']
 
 /** Sales asked for the personal manager to always be the first upsell in the table */
 const PINNED_CAPABILITIES: ReadonlyArray<CapabilityKey> = ['support']
@@ -191,6 +202,8 @@ export const useSubscriptionPlansPage = () => {
         const labels: Record<CapabilityKey, CapabilityLabel> = {}
 
         for (const featureKey of SUBSCRIPTION_PLAN_FEATURES) {
+            if (HIDDEN_FEATURES.includes(featureKey)) continue
+
             const messageId = FEATURE_LABEL_ID_OVERRIDES[featureKey] ?? `subscription.features.${featureKey}`
             labels[featureKey] = {
                 label: intl.formatMessage({ id: messageId as FormatjsIntl.Message['ids'] }),
