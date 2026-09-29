@@ -16,6 +16,7 @@ import {
 import {
     SUBSCRIPTION_CONTEXT_STATUS,
     SUBSCRIPTION_PAYMENT_BUFFER_DAYS,
+    SUBSCRIPTION_RENEWAL_INVOICE_LEAD_DAYS,
     SUBSCRIPTION_PAYMENT_TYPE_CARD,
     SUBSCRIPTION_PLAN_TYPE_FEATURE,
 } from '@condo/domains/subscription/constants'
@@ -57,9 +58,10 @@ const STORAGE_KEY_BY_KIND: Record<TrackedNotificationKind, string> = {
     error: 'readPaymentErrorMessageAt',
 }
 
-// error resets daily (a still-failing renewal reads as unread again each day); reminder is stored once and kept
+// both reset daily: a reminder shows once a day for each of the last few days before renewal, a still-failing
+// renewal reads as unread again each day too
 const EXPIRES_DAILY: Record<TrackedNotificationKind, boolean> = {
-    reminder: false,
+    reminder: true,
     error: true,
 }
 
@@ -151,6 +153,16 @@ const groupIdOf = (contexts: ReadonlyArray<SubscriptionContextLike>): string =>
 const announcementKey = (kind: NotificationCandidateKind, endAt: string): string =>
     `${kind}:${dayjs(endAt).format('YYYY-MM-DD')}`
 
+/** A reminder shows once a day for each of the last few days before renewal, not just the day before */
+const isReminderDay = (dayUntilEnd: number): boolean =>
+    dayUntilEnd >= 1 && dayUntilEnd <= SUBSCRIPTION_RENEWAL_INVOICE_LEAD_DAYS
+
+/** "Tomorrow" reads naturally for the last day; earlier days spell out how many are left */
+const reminderContentId = (scope: '' | '.features', dayUntilEnd: number): string => {
+    const dayPart = dayUntilEnd === 1 ? '' : '.upcoming'
+    return `notification.UserMessagesList.message.SUBSCRIPTION_PAYMENT_REMINDER${scope}${dayPart}.content`
+}
+
 const groupFeaturesByEndDate = (
     featureContexts: ReadonlyArray<SubscriptionContextLike>,
     kind: NotificationCandidateKind,
@@ -211,15 +223,15 @@ function buildNotificationCandidates (
             })
         }
 
-        if (dayUntilEnd === 1 && price && currencyCode) {
+        if (bindingId && isReminderDay(dayUntilEnd) && price && currencyCode) {
             announcedByPlan.add(announcementKey('reminder', endAt))
             candidates.push({
                 id: `subscription-payment-reminder-${contextId}`,
                 kind: 'reminder',
                 title: intl.formatMessage({ id: 'notification.UserMessagesList.message.SUBSCRIPTION_PAYMENT_REMINDER.title' }),
                 content: intl.formatMessage(
-                    { id: 'notification.UserMessagesList.message.SUBSCRIPTION_PAYMENT_REMINDER.content' },
-                    { planName, price: formatWholeCurrency(intl, Number.parseFloat(price), currencyCode) }
+                    { id: reminderContentId('', dayUntilEnd) as FormatjsIntl.Message['ids'] },
+                    { planName, price: formatWholeCurrency(intl, Number.parseFloat(price), currencyCode), days: dayUntilEnd }
                 ),
             })
         }
@@ -261,21 +273,24 @@ function buildNotificationCandidates (
 
     for (const contexts of groupFeaturesByEndDate(featureContexts, 'reminder', announcedByPlan, context => (
         context.status === SUBSCRIPTION_CONTEXT_STATUS.DONE
+        && Boolean(context.bindingId)
         && Boolean(context.subscriptionPlanPricingRule?.price)
         && Boolean(context.subscriptionPlanPricingRule?.currencyCode)
-        && dayjs(context.endAt).startOf('day').diff(now.startOf('day'), 'day') === 1
+        && isReminderDay(dayjs(context.endAt).startOf('day').diff(now.startOf('day'), 'day'))
     ))) {
         const totalPrice = contexts.reduce((sum, context) => sum + Number.parseFloat(context.subscriptionPlanPricingRule.price), 0)
+        const dayUntilEnd = dayjs(contexts[0].endAt).startOf('day').diff(now.startOf('day'), 'day')
         candidates.push({
             id: `subscription-feature-payment-reminder-${groupIdOf(contexts)}`,
             kind: 'reminder',
             title: intl.formatMessage({ id: 'notification.UserMessagesList.message.SUBSCRIPTION_PAYMENT_REMINDER.title' }),
             content: intl.formatMessage(
-                { id: 'notification.UserMessagesList.message.SUBSCRIPTION_PAYMENT_REMINDER.features.content' },
+                { id: reminderContentId('.features', dayUntilEnd) as FormatjsIntl.Message['ids'] },
                 {
                     features: featureNamesOf(contexts),
                     planName: currentPlanName,
                     price: formatWholeCurrency(intl, totalPrice, contexts[0].subscriptionPlanPricingRule.currencyCode),
+                    days: dayUntilEnd,
                 }
             ),
         })
