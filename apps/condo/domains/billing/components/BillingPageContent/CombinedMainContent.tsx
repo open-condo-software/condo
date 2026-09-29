@@ -5,6 +5,7 @@ import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo } from 'react'
 
+import type { IFrameMetadata } from '@open-condo/miniapp-utils/helpers/iframe'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Radio, Tabs } from '@open-condo/ui'
@@ -30,6 +31,12 @@ const { publicRuntimeConfig: { registryUploadIntegrationId, sppConfig } } = getC
 // TODO(@abshnko): DOMA-13420 remove one integration when we merge them into one
 const accrualsRegistryIntegrationIds = [registryUploadIntegrationId, sppConfig?.BillingIntegrationId]
     .filter(Boolean)
+const REGISTRY_IMPORTER_IFRAME_METADATA: IFrameMetadata = {
+    domainsMapping: [],
+    permissions: {
+        isClipboardWriteAllowed: true,
+    },
+}
 
 type ExtensionTabType = {
     id: string
@@ -45,6 +52,7 @@ type RegistryIframeProps = {
     shortDescription?: string | null
     isB2BApp?: boolean
     appId?: string
+    metadata?: IFrameMetadata
 }
 
 function buildBillingAppFromContext (context: BillingIntegrationOrganizationContext): ExtensionTabType {
@@ -56,14 +64,14 @@ function buildBillingAppFromContext (context: BillingIntegrationOrganizationCont
     }
 }
 
-const IframeTab: React.FC<RegistryIframeProps> = ({ appUrl, shortDescription, isB2BApp, appId }) => {
+const IframeTab: React.FC<RegistryIframeProps> = ({ appUrl, shortDescription, isB2BApp, appId, metadata }) => {
     if (!appUrl) return <EmptyContent />
 
     if (isB2BApp && appId) {
         return <B2BAppBillingTab appId={appId} appUrl={appUrl} shortDescription={shortDescription} />
     }
 
-    return <B2BAppFrame src={appUrl} actions={true} />
+    return <B2BAppFrame src={appUrl} actions={true} metadata={metadata} />
 }
 
 export const CombinedViewSwitch: React.FC<{ activeTab: string, availableTypes: ViewTypes[] }> = ({ activeTab, availableTypes }) => {
@@ -218,6 +226,7 @@ export const CombinedMainContent: React.FC = () => {
                     appId={registryUploadApp?.id}
                     shortDescription={registryUploadApp?.shortDescription}
                     isB2BApp={registryUploadApp?.isB2BApp}
+                    metadata={REGISTRY_IMPORTER_IFRAME_METADATA}
                 />
             )
         }
