@@ -164,6 +164,8 @@ export type CatalogRow = {
     /** Where the organization stands with this feature plan, null when it never had it */
     status: FeatureStatus | null
     purchasable: boolean
+    /** Where the row falls in the fixed reading order the table follows within its group */
+    sortPriority: number
 }
 
 const asArray = (value: unknown): ReadonlyArray<string> => Array.isArray(value) ? value as string[] : []
@@ -192,6 +194,10 @@ type BuildCatalogParams = {
     pinnedCapabilities?: ReadonlyArray<CapabilityKey>
     /** Every capability any service plan can unlock, so a plan without one still shows it crossed out instead of hiding the row */
     allPlanCapabilities?: ReadonlyArray<CapabilityKey>
+    /** Baseline product capabilities gated by no plan flag or miniapp - included on every plan, never sold */
+    staticRows?: ReadonlyArray<{ key: string, label: string, description?: string | null, sortPriority: number }>
+    /** Reading order of a capability-only row that has no feature plan of its own to carry a priority */
+    capabilityPriorities?: Record<CapabilityKey, number>
 }
 
 /**
@@ -211,6 +217,8 @@ export const buildCatalog = ({
     featureStatuses,
     pinnedCapabilities = [],
     allPlanCapabilities = [],
+    staticRows = [],
+    capabilityPriorities = {},
 }: BuildCatalogParams): ReadonlyArray<CatalogRow> => {
     const planCapabilities = getPlanCapabilities(servicePlan)
     const rows: CatalogRow[] = []
@@ -241,6 +249,7 @@ export const buildCatalog = ({
             status,
             // a cancelled renewal still runs until its paid days are up - not for sale again until then
             purchasable: !includedInPlan && !purchased && status?.type !== 'renewalCancelled' && Boolean(price),
+            sortPriority: plan.priority ?? Number.MAX_SAFE_INTEGER,
         })
     }
 
@@ -261,6 +270,24 @@ export const buildCatalog = ({
             purchased: false,
             status: null,
             purchasable: false,
+            sortPriority: capabilityPriorities[capability] ?? Number.MAX_SAFE_INTEGER,
+        })
+    }
+
+    for (const staticRow of staticRows) {
+        rows.push({
+            key: staticRow.key,
+            label: staticRow.label,
+            description: staticRow.description ?? null,
+            capabilities: [],
+            featurePlan: null,
+            price: null,
+            prices: [],
+            includedInPlan: true,
+            purchased: false,
+            status: null,
+            purchasable: false,
+            sortPriority: staticRow.sortPriority,
         })
     }
 
@@ -268,8 +295,8 @@ export const buildCatalog = ({
 }
 
 /**
- * Pinned rows always go first, then what the plan includes, then what was bought separately,
- * then what can still be bought.
+ * Pinned rows always go first, then what the plan includes, then what was bought separately, then what
+ * can still be bought - and within each of those groups, rows keep the fixed reading order sales asked for.
  */
 export const sortCatalogRows = (
     rows: ReadonlyArray<CatalogRow>,
@@ -288,6 +315,7 @@ export const sortCatalogRows = (
     return [...rows].sort((left, right) => (
         pinnedIndexOf(left) - pinnedIndexOf(right)
         || groupOf(left) - groupOf(right)
+        || left.sortPriority - right.sortPriority
         || left.label.localeCompare(right.label)
     ))
 }
