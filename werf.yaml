@@ -127,6 +127,11 @@ git:
     group: app
 
 shell:
+  beforeInstall:
+  - "export DEBIAN_FRONTEND=noninteractive"
+  - "apt update -qq"
+  - "apt install -qq -y libjemalloc2"
+  - "rm -rf /var/lib/apt/lists/*"
   setup:
   - "cd /app"
   - "echo '# Build time .env config!' >> /app/.env"
@@ -145,6 +150,7 @@ shell:
 docker:
   ENV:
     LANG: C.UTF-8
+    LD_PRELOAD: libjemalloc.so.2
 ---
 image: eps
 fromImage: deps
