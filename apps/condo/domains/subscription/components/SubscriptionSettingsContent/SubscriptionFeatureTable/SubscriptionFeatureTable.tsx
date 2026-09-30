@@ -40,6 +40,8 @@ type SubscriptionFeatureTableProps = {
     canManageSubscriptions: boolean
     /** Whether this table shows the plan the organization is actually on, not one opened just to compare */
     isViewingActivePlan: boolean
+    /** Name of the plan currently on screen, spelled out for a capability this plan lacks but a higher one has */
+    planName: string
 }
 
 const getRowId = (row: CatalogRow): string => row.key
@@ -57,6 +59,7 @@ export const SubscriptionFeatureTable: React.FC<SubscriptionFeatureTableProps> =
     getRowBadge,
     canManageSubscriptions,
     isViewingActivePlan,
+    planName,
 }) => {
     const intl = useIntl()
     const FeatureColumn = intl.formatMessage({ id: 'subscription.featureTable.column.feature' })
@@ -71,6 +74,7 @@ export const SubscriptionFeatureTable: React.FC<SubscriptionFeatureTableProps> =
     const MixedStatusesTooltip = intl.formatMessage({ id: 'subscription.featureTable.mixedStatusesTooltip' })
     const AddToCartLabel = intl.formatMessage({ id: 'subscription.featureTable.addToCart' })
     const FreeInPlanMessage = intl.formatMessage({ id: 'subscription.featureTable.freeInPlan' })
+    const NotInPlanMessage = intl.formatMessage({ id: 'subscription.featureTable.notInPlan' }, { planName })
 
     const renderPriceCell = useCallback((row: CatalogRow) => {
         const selected = isRowSelected(row)
@@ -89,7 +93,12 @@ export const SubscriptionFeatureTable: React.FC<SubscriptionFeatureTableProps> =
 
         let priceContent: React.ReactNode
         if (!hasOwnPrice) {
-            priceContent = <Typography.Text type='secondary'>{FreeInPlanMessage}</Typography.Text>
+            // Not sold on its own and not part of this plan either - it only comes bundled with a higher one
+            priceContent = (
+                <Typography.Text type='secondary'>
+                    {row.includedInPlan ? FreeInPlanMessage : NotInPlanMessage}
+                </Typography.Text>
+            )
         } else if (showCartButton) {
             priceContent = (
                 <Space size={8} wrap align='center'>
@@ -135,7 +144,7 @@ export const SubscriptionFeatureTable: React.FC<SubscriptionFeatureTableProps> =
                 )}
             </Space>
         )
-    }, [isRowSelected, isRowDisabled, canManageSubscriptions, getRowBadge, canTryRow, onTryRow, activateLoading, onToggleRow, intl, FreeInPlanMessage, AddToCartLabel])
+    }, [isRowSelected, isRowDisabled, canManageSubscriptions, getRowBadge, canTryRow, onTryRow, activateLoading, onToggleRow, intl, FreeInPlanMessage, NotInPlanMessage, AddToCartLabel])
 
     const renderSelect = useCallback<RenderTableCell<CatalogRow>>((_, row) => {
         const selected = isRowSelected(row)
@@ -179,9 +188,9 @@ export const SubscriptionFeatureTable: React.FC<SubscriptionFeatureTableProps> =
         const helpLink = row.capabilities.map(capability => subscriptionFeatureHelpLinks[capability]).find(Boolean)
 
         return helpLink ? (
-            <Typography.Link href={helpLink} target='_blank'>{label}</Typography.Link>
+            <Typography.Link href={helpLink} target='_blank' size='medium'>{label}</Typography.Link>
         ) : (
-            <Typography.Text>{label}</Typography.Text>
+            <Typography.Text size='medium'>{label}</Typography.Text>
         )
     }, [])
 

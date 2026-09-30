@@ -440,6 +440,7 @@ export const SubscriptionSettingsContent: React.FC = () => {
                         getRowBadge={getRowBadge}
                         canManageSubscriptions={canManageSubscriptions}
                         isViewingActivePlan={Boolean(activePlanId) && selectedPlanId === activePlanId}
+                        planName={selectedPlanName}
                     />
                 </Space>
 
