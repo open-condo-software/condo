@@ -3473,6 +3473,7 @@
   "subscription.featureTable.column.price.year": "Стоимость в год",
   "subscription.featureTable.column.price.month": "Стоимость в месяц",
   "subscription.featureTable.freeInPlan": "Бесплатно в рамках тарифа",
+  "subscription.featureTable.notInPlan": "Недоступно в тарифе «{planName}», но по умолчанию входит в другие тарифы",
   "subscription.featureTable.addToCart": "В корзину",
   "subscription.featureTable.includedTooltip": "Опции, которые входят в тариф по умолчанию, убрать из тарифа нельзя 🙂",
   "subscription.featureTable.notIncludedTooltip": "Не включено в тариф, можно купить",

@@ -3473,6 +3473,7 @@
   "subscription.featureTable.column.price.year": "Price per year",
   "subscription.featureTable.column.price.month": "Price per month",
   "subscription.featureTable.freeInPlan": "Free in the plan",
+  "subscription.featureTable.notInPlan": "Not available in the '{planName}' plan, but included by default in other plans",
   "subscription.featureTable.addToCart": "Add to cart",
   "subscription.featureTable.includedTooltip": "Features included in the plan by default cannot be removed from it 🙂",
   "subscription.featureTable.notIncludedTooltip": "Not included in the plan, can be bought",

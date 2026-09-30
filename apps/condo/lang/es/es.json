@@ -3473,6 +3473,7 @@
   "subscription.featureTable.column.price.year": "Precio por año",
   "subscription.featureTable.column.price.month": "Precio por mes",
   "subscription.featureTable.freeInPlan": "Gratis en el plan",
+  "subscription.featureTable.notInPlan": "No disponible en el plan '{planName}', pero incluido de forma predeterminada en otros planes",
   "subscription.featureTable.addToCart": "Añadir al carrito",
   "subscription.featureTable.includedTooltip": "Las funciones incluidas en el plan por defecto no se pueden quitar 🙂",
   "subscription.featureTable.notIncludedTooltip": "No incluido en el plan, se puede comprar",
