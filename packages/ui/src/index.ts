@@ -57,6 +57,9 @@ export type { SelectProps, OptionsGroupType, OptionsItem, OptionType } from './c
 export { Space } from './components/Space'
 export type { SpaceProps } from './components/Space'
 
+export { Spin } from './components/Spin'
+export type { SpinProps } from './components/Spin'
+
 export { Steps } from './components/Steps'
 export type { StepsProps, StepItem } from './components/Steps'
 
