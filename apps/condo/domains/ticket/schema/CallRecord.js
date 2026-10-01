@@ -70,6 +70,20 @@ const CallRecord = new GQLListSchema('CallRecord', {
             sensitive: true,
         },
     },
+    kmigratorOptions: {
+        indexes: [
+            {
+                type: 'BTreeIndex',
+                fields: ['callerPhone'],
+                name: 'callrecord_callerphone',
+            },
+            {
+                type: 'BTreeIndex',
+                fields: ['destCallerPhone'],
+                name: 'callrecord_destcallerphone',
+            },
+        ],
+    },
     hooks: {
         afterChange: fileMetaAfterChange,
         afterDelete: async ({ existingItem }) => {
