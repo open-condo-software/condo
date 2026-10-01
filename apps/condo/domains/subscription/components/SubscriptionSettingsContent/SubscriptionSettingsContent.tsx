@@ -260,6 +260,7 @@ export const SubscriptionSettingsContent: React.FC = () => {
         activeServiceContext,
         rows,
         counters,
+        capabilityLabels,
         refetchActivatedSubscriptions,
         refetchUnpaidSubscriptions,
     } = useSubscriptionPlansPage()
@@ -373,6 +374,7 @@ export const SubscriptionSettingsContent: React.FC = () => {
                 planEndAt={activeServiceContext?.endAt ?? null}
                 planCards={planCards}
                 currentPlanPriority={Number(selectedPlanInfo?.plan?.priority ?? 0)}
+                capabilityLabels={capabilityLabels}
                 loading={activateLoading}
                 onConfirm={handleCheckoutConfirm}
                 onConfirmUpsell={handleCheckoutUpsell}
@@ -443,11 +445,13 @@ export const SubscriptionSettingsContent: React.FC = () => {
                         planName={selectedPlanName}
                     />
                 </Space>
-
-                {hasSelection && (
-                    <ActionBar actions={[actionBarMessage, ...actions]} />
-                )}
             </Space>
+
+            {hasSelection && (
+                <div style={{ width: '100%' }}>
+                    <ActionBar actions={[actionBarMessage, ...actions]} />
+                </div>
+            )}
         </>
     )
 }

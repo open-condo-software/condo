@@ -14,7 +14,7 @@ import { formatAmount, getAmount, getDiscount } from '@condo/domains/subscriptio
 import styles from './SubscriptionCheckoutModal.module.css'
 
 import type { ServicePlanView } from '@condo/domains/subscription/hooks/useSubscriptionPlansPage'
-import type { CatalogRow } from '@condo/domains/subscription/utils/subscriptionCatalog'
+import type { CapabilityKey, CapabilityLabel, CatalogRow } from '@condo/domains/subscription/utils/subscriptionCatalog'
 import type { PlanPeriod } from '@condo/domains/subscription/utils/subscriptionPricing'
 
 
@@ -33,6 +33,7 @@ type SubscriptionCheckoutModalProps = {
     planEndAt: string | null
     planCards: ReadonlyArray<ServicePlanView>
     currentPlanPriority: number
+    capabilityLabels: Record<CapabilityKey, CapabilityLabel>
     loading: boolean
     onConfirm: () => void
     onConfirmUpsell: (planId: string) => void
@@ -82,6 +83,7 @@ export const SubscriptionCheckoutModal: React.FC<SubscriptionCheckoutModalProps>
     planEndAt,
     planCards,
     currentPlanPriority,
+    capabilityLabels,
     loading,
     onConfirm,
     onConfirmUpsell,
@@ -152,11 +154,12 @@ export const SubscriptionCheckoutModal: React.FC<SubscriptionCheckoutModalProps>
         })
         if (!found || (planCard && found.plan.id === planCard.planInfo.plan.id)) return null
 
-        // how much more the client gets for less money, which is the whole point of the banner
-        const extraCount = getPlanCapabilities(found.plan).length - requiredCapabilities.length
+        // what the client gets on top of the cart for less money, which is the whole point of the banner
+        const extraCapabilities = getPlanCapabilities(found.plan).filter(capability => !requiredCapabilities.includes(capability))
+        const extraNames = extraCapabilities.map(capability => capabilityLabels[capability]?.label).filter(Boolean)
 
-        return { ...found, extraCount: Math.max(0, extraCount) }
-    }, [selectedRows, planCards, total, currentPlanPriority, planCard])
+        return { ...found, extraCount: extraCapabilities.length, extraNames: extraNames.join(', ') }
+    }, [selectedRows, planCards, total, currentPlanPriority, planCard, capabilityLabels])
 
     const footer = upsell ? [
         <Button
@@ -254,6 +257,7 @@ export const SubscriptionCheckoutModal: React.FC<SubscriptionCheckoutModalProps>
                                         planName: upsell.plan.name,
                                         planAmount: formatAmount(upsell.amount, currencyCode, intl.locale),
                                         extraCount: upsell.extraCount,
+                                        extraNames: upsell.extraNames,
                                     }
                                 )}
                             </Typography.Paragraph>

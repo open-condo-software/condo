@@ -82,7 +82,8 @@ const CAPABILITY_SORT_PRIORITY: Record<string, number> = {
     meters: 20,
     payments: 30,
     properties: 50,
-    ai: 210,
+    // never sold on its own, so it reads above every purchasable feature plan, same as tickets/meters/payments/properties
+    ai: 55,
 }
 
 /** "Генератор объявлений" is a capability keyed by its app id, which differs per environment - matched by name */
@@ -386,6 +387,7 @@ export const useSubscriptionPlansPage = () => {
         activeServiceContext,
         rows,
         counters,
+        capabilityLabels,
         featureStatusByPlanId,
         activatedSubscriptions,
         refetchActivatedSubscriptions,

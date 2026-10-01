@@ -11,7 +11,7 @@ import { useRouter } from 'next/router'
 import React, { useMemo, useCallback, useState } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
-import { QuestionCircle } from '@open-condo/icons'
+import { Mail, QuestionCircle, Send } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Button, Dropdown, Modal, Space, Tag, Typography } from '@open-condo/ui'
@@ -34,6 +34,11 @@ const CONDO_RB_DOMAIN = publicRuntimeConfig?.condoRBDomain || ''
 const HELP_REQUISITES = publicRuntimeConfig?.HelpRequisites
 
 const PAGE_SIZE = 12
+
+const HELP_OPTION_WRAPPER_STYLE: React.CSSProperties = {
+    width: '100%', padding: '10px 16px', display: 'flex', gap: '18px',
+    backgroundColor: colors.gray[1], borderRadius: '8px', alignItems: 'center', justifyContent: 'space-between',
+}
 
 type PaymentHistoryRecord = GetOrganizationPaymentHistoryQuery['paymentHistory'][number]
 type PlanLabelSource = Pick<PaymentHistoryRecord['subscriptionPlan'], 'name' | 'planType'> & Partial<Pick<PaymentHistoryRecord['subscriptionPlan'], 'enabledB2BApps' | 'enabledB2CApps'>>
@@ -90,6 +95,7 @@ export const usePaymentHistoryModal = () => {
     const { subscriptionContext: activeServiceContext } = useOrganizationSubscription()
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [featuresToRemove, setFeaturesToRemove] = useState<ReadonlyArray<RemovableFeature>>([])
+    const [isHelpModalOpen, setIsHelpModalOpen] = useState(false)
 
     const organizationId = organization?.id || ''
     const { offset } = useMemo(() => parseQuery(router.query), [router.query])
@@ -105,6 +111,10 @@ export const usePaymentHistoryModal = () => {
     const DownloadReceiptLabel = intl.formatMessage({ id: 'subscription.paymentHistory.downloadReceipt' })
     const InvoiceLabel = intl.formatMessage({ id: 'subscription.paymentHistory.paymentMethod.invoice' })
     const NeedHelpLabel = intl.formatMessage({ id: 'subscription.paymentHistory.needHelp' })
+    const HelpModalTitle = intl.formatMessage({ id: 'subscription.paymentHistory.helpModal.title' })
+    const HelpModalDescription = intl.formatMessage({ id: 'subscription.paymentHistory.helpModal.description' })
+    const HelpModalEmailLabel = intl.formatMessage({ id: 'subscription.paymentHistory.helpModal.email' })
+    const HelpModalBotLabel = intl.formatMessage({ id: 'subscription.paymentHistory.helpModal.bot' })
     const RemoveManyLabel = intl.formatMessage({ id: 'subscription.paymentHistory.remove.many' })
     const RemoveAllLabel = intl.formatMessage({ id: 'subscription.paymentHistory.remove.all' })
 
@@ -353,7 +363,9 @@ export const usePaymentHistoryModal = () => {
     const PaymentHistoryModal = useMemo(() => {
         if (hidePaidFeatures) return null
 
-        const helpUrl = HELP_REQUISITES?.support_bot ? `https://t.me/${HELP_REQUISITES.support_bot}` : null
+        const supportBotName = HELP_REQUISITES?.support_bot ?? null
+        const supportEmail = HELP_REQUISITES?.support_email ?? null
+        const helpUrl = supportBotName ? `https://t.me/${supportBotName}` : null
 
         let removeButton: React.ReactNode = null
         if (canManageSubscriptions && removableGroups.length === 1) {
@@ -389,7 +401,7 @@ export const usePaymentHistoryModal = () => {
         const footer = helpUrl || removeButton ? (
             <Space size={24} direction='horizontal' align='center'>
                 {helpUrl && (
-                    <Typography.Link id='subscription-payment-history-help-link' href={helpUrl} target='_blank'>
+                    <Typography.Link id='subscription-payment-history-help-link' onClick={() => setIsHelpModalOpen(true)}>
                         <Space size={4} direction='horizontal' align='center'>
                             {NeedHelpLabel}
                             <QuestionCircle size='small' />
@@ -433,9 +445,38 @@ export const usePaymentHistoryModal = () => {
                     loading={cancelLoading}
                     onConfirm={handleRemoveConfirm}
                 />
+                {helpUrl && (
+                    <Modal
+                        open={isHelpModalOpen}
+                        onCancel={() => setIsHelpModalOpen(false)}
+                        title={(
+                            <Space size={8} direction='vertical'>
+                                <Typography.Title level={3}>{HelpModalTitle}</Typography.Title>
+                                <Typography.Text size='medium' type='secondary'>{HelpModalDescription}</Typography.Text>
+                            </Space>
+                        )}
+                    >
+                        <Space size={8} direction='vertical' width='100%'>
+                            {supportEmail && (
+                                <a href={`mailto:${supportEmail}`} target='_blank' style={HELP_OPTION_WRAPPER_STYLE} rel='noreferrer'>
+                                    <Space size={16}>
+                                        <Mail size='medium' color={colors.gray[7]} />
+                                        <Typography.Text>{HelpModalEmailLabel} {supportEmail}</Typography.Text>
+                                    </Space>
+                                </a>
+                            )}
+                            <a href={helpUrl} target='_blank' style={HELP_OPTION_WRAPPER_STYLE} rel='noreferrer'>
+                                <Space size={16}>
+                                    <Send size='medium' color={colors.gray[7]} />
+                                    <Typography.Text>{HelpModalBotLabel} @{supportBotName}</Typography.Text>
+                                </Space>
+                            </a>
+                        </Space>
+                    </Modal>
+                )}
             </>
         )
-    }, [hidePaidFeatures, canManageSubscriptions, removableGroups, removableFeatures, intl, RemoveAllLabel, RemoveManyLabel, NeedHelpLabel, activatedData, featuresToRemove, isModalOpen, closeModal, PaymentHistoryTitle, loading, rows, columns, totalCount, getRowId, activeServiceContext, cancelLoading, handleRemoveConfirm])
+    }, [hidePaidFeatures, canManageSubscriptions, removableGroups, removableFeatures, intl, RemoveAllLabel, RemoveManyLabel, NeedHelpLabel, activatedData, featuresToRemove, isModalOpen, closeModal, PaymentHistoryTitle, loading, rows, columns, totalCount, getRowId, activeServiceContext, cancelLoading, handleRemoveConfirm, isHelpModalOpen, HelpModalTitle, HelpModalDescription, HelpModalEmailLabel, HelpModalBotLabel])
 
     return {
         PaymentHistoryModal,
