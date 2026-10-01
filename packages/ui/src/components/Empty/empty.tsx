@@ -1,7 +1,7 @@
 import classNames from 'classnames'
 import React from 'react'
 
-import { Card, Space, Typography } from '@open-condo/ui'
+import { Card, Space, Typography } from '@open-condo/ui/src'
 
 const IMG_SIZE = 200
 
