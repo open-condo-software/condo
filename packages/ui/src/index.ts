@@ -24,6 +24,9 @@ export type { CheckboxProps } from './components/Checkbox'
 export { Dropdown } from './components/Dropdown'
 export type { DropdownProps } from './components/Dropdown'
 
+export { Empty } from './components/Empty'
+export type { EmptyType, EmptyProps } from './components/Empty'
+
 export { Input } from './components/Input'
 export type { 
     InputType, 
