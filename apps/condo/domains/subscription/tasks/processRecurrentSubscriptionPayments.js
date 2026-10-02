@@ -18,7 +18,7 @@ const { INVOICE_STATUS_CANCELED, INVOICE_STATUS_PUBLISHED } = require('@condo/do
 const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
 const {
     SUBSCRIPTION_PAYMENT_BUFFER_DAYS,
-    SUBSCRIPTION_INVOICE_PAYMENT_DAYS,
+    SUBSCRIPTION_RENEWAL_INVOICE_LEAD_DAYS,
     SUBSCRIPTION_CONTEXT_STATUS,
     SUBSCRIPTION_PAYMENT_TYPE_CARD,
     SUBSCRIPTION_PAYMENT_TYPE_INVOICE,
@@ -223,7 +223,7 @@ async function filterNotYetRenewedContexts (bundleContexts) {
  */
 async function issueRenewalInvoices (context) {
     const today = dayjs().format('YYYY-MM-DD')
-    const issueUntil = dayjs().add(SUBSCRIPTION_INVOICE_PAYMENT_DAYS, 'days').format('YYYY-MM-DD')
+    const issueUntil = dayjs().add(SUBSCRIPTION_RENEWAL_INVOICE_LEAD_DAYS, 'days').format('YYYY-MM-DD')
 
     const contexts = await itemsQuery('SubscriptionContext', {
         where: {

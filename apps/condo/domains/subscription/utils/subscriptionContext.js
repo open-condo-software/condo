@@ -71,23 +71,22 @@ function selectBestSubscriptionContext (contexts) {
 }
 
 /**
- * Calculates the start date for a new subscription based on existing contexts.
- * If there are active contexts that end in the future, the new subscription
- * will start from the latest end date. Otherwise, it starts from today.
- * 
+ * Calculates the start date for a new paid subscription. Continues from an existing paid
+ * period's end date (a renewal); a running trial is ignored, so paying activates right away.
+ *
  * @param {Array} existingContexts - Array of existing subscription contexts
  * @returns {Object} - dayjs object representing the start date
  */
 function calculateSubscriptionStartDate (existingContexts) {
     const today = dayjs().startOf('day')
     let startAt = today
-    
+
     if (!existingContexts || existingContexts.length === 0) {
         return startAt
     }
 
     const sortedContexts = existingContexts
-        .filter(ctx => ctx.endAt)
+        .filter(ctx => ctx.endAt && !ctx.isTrial)
         .sort((a, b) => dayjs(b.endAt).diff(dayjs(a.endAt)))
 
     if (sortedContexts.length > 0) {

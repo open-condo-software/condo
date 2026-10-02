@@ -30,12 +30,21 @@ const SUBSCRIPTION_CONTEXT_STATUS_TRANSITIONS = {
 const SUBSCRIPTION_CONTEXT_STATUSES = Object.values(SUBSCRIPTION_CONTEXT_STATUS)
 
 const SUBSCRIPTION_PAYMENT_BUFFER_DAYS = 5
-/** How long an issued invoice waits for the payment. A renewal invoice is issued this many days before the period ends */
+/** How long an issued invoice waits for the payment */
 const SUBSCRIPTION_INVOICE_PAYMENT_DAYS = 5
+/** A renewal invoice is issued this many days before the period ends, not on the last day */
+const SUBSCRIPTION_RENEWAL_INVOICE_LEAD_DAYS = 3
 
 /** Throttles how often sales gets notified about the same organization asking for the same bundle of plans */
-const SUBSCRIPTION_INVOICE_REQUEST_WINDOW_IN_SEC = 60 * 60
+const SUBSCRIPTION_INVOICE_REQUEST_WINDOW_IN_SEC = 10 * 60
 const SUBSCRIPTION_INVOICE_REQUEST_MAX_CALLS_PER_WINDOW = 1
+
+/** Why a subscription webhook is sent: a client's purchase, an automatic renewal, or a client asking again for an issued invoice */
+const SUBSCRIPTION_WEBHOOK_REASON = {
+    PURCHASE: 'purchase',
+    RENEWAL: 'renewal',
+    RESEND: 'resend',
+}
 
 const SUBSCRIPTION_PLAN_TYPE_SERVICE = 'service'
 const SUBSCRIPTION_PLAN_TYPE_FEATURE = 'feature'
@@ -76,8 +85,10 @@ module.exports = {
     SUBSCRIPTION_CONTEXT_STATUSES,
     SUBSCRIPTION_PAYMENT_BUFFER_DAYS,
     SUBSCRIPTION_INVOICE_PAYMENT_DAYS,
+    SUBSCRIPTION_RENEWAL_INVOICE_LEAD_DAYS,
     SUBSCRIPTION_INVOICE_REQUEST_WINDOW_IN_SEC,
     SUBSCRIPTION_INVOICE_REQUEST_MAX_CALLS_PER_WINDOW,
+    SUBSCRIPTION_WEBHOOK_REASON,
     SUBSCRIPTION_CONTEXT_STATUS_TRANSITIONS,
     SUBSCRIPTION_PLAN_TYPE_SERVICE,
     SUBSCRIPTION_PLAN_TYPE_FEATURE,

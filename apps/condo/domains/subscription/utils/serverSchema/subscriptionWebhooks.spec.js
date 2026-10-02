@@ -17,6 +17,8 @@ const { updateTestInvoice } = require('@condo/domains/marketplace/utils/testSche
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
 const {
     SUBSCRIPTION_CONTEXT_STATUS,
+    SUBSCRIPTION_WEBHOOK_REASON,
+    SUBSCRIPTION_PAYMENT_TYPE_INVOICE,
     SUBSCRIPTION_PERIOD,
     SUBSCRIPTION_PLAN_TYPE_FEATURE,
     SUBSCRIPTION_PLAN_TYPE_SERVICE,
@@ -29,11 +31,10 @@ const {
     requestSubscriptionInvoiceByTestClient,
 } = require('@condo/domains/subscription/utils/testSchema')
 
+// every subscription webhook (activated, invoice requested, ...) shares this one url/secret - eventType in the payload tells them apart
 const WEBHOOK_ENV = {
-    SUBSCRIPTION_INVOICE_REQUESTED_WEBHOOK_URL: 'https://invoice-requested.example.com/webhook',
-    SUBSCRIPTION_INVOICE_REQUESTED_WEBHOOK_SECRET: 'invoice-requested-secret',
-    SUBSCRIPTION_ACTIVATED_WEBHOOK_URL: 'https://subscription-activated.example.com/webhook',
-    SUBSCRIPTION_ACTIVATED_WEBHOOK_SECRET: 'subscription-activated-secret',
+    SUBSCRIPTION_WEBHOOK_URL: 'https://subscription-webhook.example.com/webhook',
+    SUBSCRIPTION_WEBHOOK_SECRET: 'subscription-webhook-secret',
 }
 
 describe('subscriptionWebhooks', () => {
@@ -84,9 +85,10 @@ describe('subscriptionWebhooks', () => {
         const contextIds = result.subscriptionContexts.map(({ id }) => id)
 
         const [webhookPayload] = await findWebhookPayloads(WEBHOOK_EVENT_SUBSCRIPTION_INVOICE_REQUESTED, contextIds)
-        expect(webhookPayload.url).toBe(WEBHOOK_ENV.SUBSCRIPTION_INVOICE_REQUESTED_WEBHOOK_URL)
+        expect(webhookPayload.url).toBe(WEBHOOK_ENV.SUBSCRIPTION_WEBHOOK_URL)
 
         const payload = JSON.parse(encryptionManager.decrypt(webhookPayload.payload))
+        expect(payload.eventType).toBe(WEBHOOK_EVENT_SUBSCRIPTION_INVOICE_REQUESTED)
         expect(payload.invoiceId).toBe(result.subscriptionContexts[0].invoice.id)
         expect(payload.organization.id).toBe(organization.id)
         expect(payload.user.id).toBe(admin.user.id)
@@ -96,7 +98,7 @@ describe('subscriptionWebhooks', () => {
         ]))
     })
 
-    test('asking for an invoice again queues the same request marked as repeated', async () => {
+    test('asking for an invoice again queues the same request marked as resend', async () => {
         const [organization] = await registerNewOrganization(admin)
 
         const [result] = await registerSubscriptionContextsByTestClient(admin, {
@@ -114,9 +116,9 @@ describe('subscriptionWebhooks', () => {
         expect(invoiceRequests).toHaveLength(2)
         const payloads = invoiceRequests
             .map(({ payload }) => JSON.parse(encryptionManager.decrypt(payload)))
-            .sort((left, right) => Number(left.isRepeated) - Number(right.isRepeated))
-        expect(payloads[0].isRepeated).toBe(false)
-        expect(payloads[1]).toMatchObject({ isRepeated: true, invoiceId: subscriptionContexts[0].invoice.id })
+            .sort((left, right) => left.reason.localeCompare(right.reason))
+        expect(payloads[0].reason).toBe(SUBSCRIPTION_WEBHOOK_REASON.PURCHASE)
+        expect(payloads[1]).toMatchObject({ reason: SUBSCRIPTION_WEBHOOK_REASON.RESEND, invoiceId: subscriptionContexts[0].invoice.id })
     })
 
     test('registering a bundle to be paid by card queues no invoice request', async () => {
@@ -153,6 +155,7 @@ describe('subscriptionWebhooks', () => {
             const [webhookPayload] = await findWebhookPayloads(WEBHOOK_EVENT_SUBSCRIPTION_ACTIVATED, contextIds)
             const payload = JSON.parse(encryptionManager.decrypt(webhookPayload.payload))
 
+            expect(payload).toMatchObject({ eventType: WEBHOOK_EVENT_SUBSCRIPTION_ACTIVATED, paymentType: SUBSCRIPTION_PAYMENT_TYPE_INVOICE, reason: SUBSCRIPTION_WEBHOOK_REASON.PURCHASE })
             expect(payload.subscriptionContexts.map(({ id }) => id).sort()).toEqual([...contextIds].sort())
             expect(payload.subscriptionContexts).toEqual(expect.arrayContaining([
                 expect.objectContaining({ planName: featurePlan.name, planType: SUBSCRIPTION_PLAN_TYPE_FEATURE, period: SUBSCRIPTION_PERIOD.YEAR }),

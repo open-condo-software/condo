@@ -4,7 +4,7 @@ const dayjs = require('dayjs')
 
 const { setFakeClientMode, makeLoggedInAdminClient, setFeatureFlag } = require('@open-condo/keystone/test.utils')
 
-const { SUBSCRIPTIONS } = require('@condo/domains/common/constants/featureflags')
+const { SUBSCRIPTIONS, SUBSCRIPTION_SUSPEND_EXCLUDED_B2B_APP_IDS } = require('@condo/domains/common/constants/featureflags')
 const { CONTEXT_FINISHED_STATUS, CONTEXT_ERROR_STATUS, CONTEXT_ERROR_REASON_NO_SUBSCRIPTION } = require('@condo/domains/miniapp/constants')
 const { createTestB2BApp, createTestB2BAppContext, B2BAppContext } = require('@condo/domains/miniapp/utils/testSchema')
 const { HOLDING_TYPE, SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
@@ -205,6 +205,56 @@ describe('suspendB2BAppContextsWithoutSubscription', () => {
             const notChangedContext = await B2BAppContext.getOne(admin, { id: b2bAppContext.id })
             expect(notChangedContext.status).toBe(CONTEXT_ERROR_STATUS)
             expect(notChangedContext.errorReason).toBeNull()
+        })
+
+        describe('with an app excluded from suspension', () => {
+            test('keeps context Finished for an excluded app even without a subscription', async () => {
+                const [organization] = await registerNewOrganization(admin, { type: HOLDING_TYPE })
+                const [app] = await createTestB2BApp(admin)
+                await createTestSubscriptionPlan(admin, {
+                    name: faker.commerce.productName(),
+                    organizationType: HOLDING_TYPE,
+                    planType: SUBSCRIPTION_PLAN_TYPE_FEATURE,
+                    enabledB2BApps: [app.id],
+                })
+                const [b2bAppContext] = await createTestB2BAppContext(admin, app, organization, { status: CONTEXT_FINISHED_STATUS })
+
+                setFeatureFlag(SUBSCRIPTION_SUSPEND_EXCLUDED_B2B_APP_IDS, [app.id])
+                try {
+                    await suspendB2BAppContextsWithoutSubscription()
+                } finally {
+                    setFeatureFlag(SUBSCRIPTION_SUSPEND_EXCLUDED_B2B_APP_IDS, [])
+                }
+
+                const notChangedContext = await B2BAppContext.getOne(admin, { id: b2bAppContext.id })
+                expect(notChangedContext.status).toBe(CONTEXT_FINISHED_STATUS)
+            })
+
+            test('moves context back to Finished for an app excluded after it was suspended', async () => {
+                const [organization] = await registerNewOrganization(admin, { type: HOLDING_TYPE })
+                const [app] = await createTestB2BApp(admin)
+                await createTestSubscriptionPlan(admin, {
+                    name: faker.commerce.productName(),
+                    organizationType: HOLDING_TYPE,
+                    planType: SUBSCRIPTION_PLAN_TYPE_FEATURE,
+                    enabledB2BApps: [app.id],
+                })
+                const [b2bAppContext] = await createTestB2BAppContext(admin, app, organization, {
+                    status: CONTEXT_ERROR_STATUS,
+                    errorReason: CONTEXT_ERROR_REASON_NO_SUBSCRIPTION,
+                })
+
+                setFeatureFlag(SUBSCRIPTION_SUSPEND_EXCLUDED_B2B_APP_IDS, [app.id])
+                try {
+                    await suspendB2BAppContextsWithoutSubscription()
+                } finally {
+                    setFeatureFlag(SUBSCRIPTION_SUSPEND_EXCLUDED_B2B_APP_IDS, [])
+                }
+
+                const activatedContext = await B2BAppContext.getOne(admin, { id: b2bAppContext.id })
+                expect(activatedContext.status).toBe(CONTEXT_FINISHED_STATUS)
+                expect(activatedContext.errorReason).toBeNull()
+            })
         })
     })
 
