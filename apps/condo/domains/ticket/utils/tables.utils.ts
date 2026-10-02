@@ -10,6 +10,7 @@ import uniq from 'lodash/uniq'
 
 import { ADDRESS_SEARCH_STOP_WORDS } from '@condo/domains/common/constants'
 import { OMIT_SEARCH_CHARACTERS_REGEXP } from '@condo/domains/common/constants/regexps'
+import { normalizePhone } from '@condo/domains/common/utils/phone'
 import { DataIndexType, FilterType } from '@condo/domains/common/utils/tables.utils'
 import {
     NEW_OR_REOPENED_STATUS_TYPE,
@@ -119,9 +120,24 @@ export const getIsIncomingCallFilter = () => {
     }
 }
 
+const normalizeSearchPhone = (search: string): string => {
+    let phone = search.replace(/[^\d+]/g, '')
+    if (phone.length === 10 && !phone.startsWith('+')) {
+        phone = '+7' + phone
+    } else if (phone.startsWith('8')) {
+        phone = '+7' + phone.substring(1)
+    } else if (!phone.startsWith('+')) {
+        phone = '+' + phone
+    }
+
+    return normalizePhone(phone, true) || search
+}
+
 export const getCallRecordPhoneFilter = () => {
     return function getWhereQuery (search): CallRecordFragmentWhereInput {
-        if (isEmpty(search)) return
+        if (isEmpty(search) || !isString(search)) return
+
+        const phone = normalizeSearchPhone(search)
 
         return {
             callRecord: {
@@ -130,7 +146,7 @@ export const getCallRecordPhoneFilter = () => {
                         AND: [
                             {
                                 isIncomingCall: true,
-                                callerPhone_contains_i: search,
+                                callerPhone: phone,
                             },
                         ],
                     },
@@ -138,7 +154,7 @@ export const getCallRecordPhoneFilter = () => {
                         AND: [
                             {
                                 isIncomingCall: false,
-                                destCallerPhone_contains_i: search,
+                                destCallerPhone: phone,
                             },
                         ],
                     },
