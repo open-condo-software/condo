@@ -121,7 +121,14 @@ export const getIsIncomingCallFilter = () => {
 }
 
 const normalizeSearchPhone = (search: string): string => {
-    const phone = search.replace(/[^\d+]/g, '')
+    let phone = search.replace(/[^\d+]/g, '')
+    if (phone.length === 10 && !phone.startsWith('+')) {
+        phone = '+7' + phone
+    } else if (phone.startsWith('8')) {
+        phone = '+7' + phone.substring(1)
+    } else if (!phone.startsWith('+')) {
+        phone = '+' + phone
+    }
 
     return normalizePhone(phone, true) || search
 }
