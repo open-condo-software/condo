@@ -24,6 +24,9 @@ export type { CheckboxProps } from './components/Checkbox'
 export { Dropdown } from './components/Dropdown'
 export type { DropdownProps } from './components/Dropdown'
 
+export { Empty } from './components/Empty'
+export type { EmptyType, EmptyProps } from './components/Empty'
+
 export { Input } from './components/Input'
 export type { 
     InputType, 
@@ -53,6 +56,9 @@ export type { SelectProps, OptionsGroupType, OptionsItem, OptionType } from './c
 
 export { Space } from './components/Space'
 export type { SpaceProps } from './components/Space'
+
+export { Spin } from './components/Spin'
+export type { SpinProps } from './components/Spin'
 
 export { Steps } from './components/Steps'
 export type { StepsProps, StepItem } from './components/Steps'
