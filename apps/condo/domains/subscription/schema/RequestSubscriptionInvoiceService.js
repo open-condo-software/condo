@@ -7,7 +7,7 @@ const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 
 const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/subscription/access/RequestSubscriptionInvoiceService')
-const { SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PAYMENT_TYPE_INVOICE } = require('@condo/domains/subscription/constants')
+const { SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_WEBHOOK_REASON, SUBSCRIPTION_PAYMENT_TYPE_INVOICE } = require('@condo/domains/subscription/constants')
 const { checkSubscriptionInvoiceRequestLimit } = require('@condo/domains/subscription/utils/serverSchema/subscriptionInvoiceRequestLimit')
 const { queueSubscriptionInvoiceRequestedWebhook } = require('@condo/domains/subscription/utils/serverSchema/subscriptionWebhooks')
 
@@ -94,7 +94,7 @@ const RequestSubscriptionInvoiceService = new GQLCustomSchema('RequestSubscripti
                         invoiceId,
                         subscriptionContexts: invoiceContexts,
                         userId: context.authedItem?.id,
-                        isRepeated: true,
+                        reason: SUBSCRIPTION_WEBHOOK_REASON.RESEND,
                         sender,
                     })
                 }

@@ -20,6 +20,7 @@ const {
     SUBSCRIPTION_CONTEXT_STATUS,
     SUBSCRIPTION_PLAN_TYPE_SERVICE,
     SUBSCRIPTION_PLAN_TYPE_FEATURE,
+    SUBSCRIPTION_WEBHOOK_REASON,
     SUBSCRIPTION_PAYMENT_TYPE_CARD,
     SUBSCRIPTION_PAYMENT_TYPES,
 } = require('@condo/domains/subscription/constants')
@@ -347,6 +348,8 @@ const RegisterSubscriptionContextsService = new GQLCustomSchema('RegisterSubscri
                             invoiceId: invoice.id,
                             subscriptionContexts: await find('SubscriptionContext', { id_in: subscriptionContextIds, deletedAt: null }),
                             userId: context.authedItem?.id,
+                            // only the renewal cron registers without a signed-in user
+                            reason: context.authedItem ? SUBSCRIPTION_WEBHOOK_REASON.PURCHASE : SUBSCRIPTION_WEBHOOK_REASON.RENEWAL,
                             sender,
                         })
                     }

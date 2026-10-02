@@ -51,6 +51,7 @@ const ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID = 'active-banking-subscription-plan-id
 const TICKET_OBSERVERS = 'ticket-observers'
 const AUTO_ASSIGN_ALL_TICKETS = 'auto-assign-all-tickets'
 const DEFAULT_TRIAL_SUBSCRIPTION_PLAN_ID = 'default-trial-subscription-plan-id'
+const SUBSCRIPTION_SUSPEND_EXCLUDED_B2B_APP_IDS = 'subscription-suspend-excluded-b2b-app-ids'
 const SUBSCRIPTION_PAYMENT_MODAL = 'subscription-payment-modal'
 const TWO_FACTOR_SETTING = 'two-factor-setting'
 const NEWS_ITEM_FILES = 'news-item-files'
@@ -116,6 +117,7 @@ module.exports = {
     TICKET_OBSERVERS,
     AUTO_ASSIGN_ALL_TICKETS,
     DEFAULT_TRIAL_SUBSCRIPTION_PLAN_ID,
+    SUBSCRIPTION_SUSPEND_EXCLUDED_B2B_APP_IDS,
     SUBSCRIPTION_PAYMENT_MODAL,
     TWO_FACTOR_SETTING,
     CHAT_WITH_CONDO_BUTTON_CONFIG,

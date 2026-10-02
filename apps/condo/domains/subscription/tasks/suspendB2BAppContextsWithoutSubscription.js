@@ -1,8 +1,10 @@
 const dayjs = require('dayjs')
 
+const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx, find, itemsQuery } = require('@open-condo/keystone/schema')
 
+const { SUBSCRIPTION_SUSPEND_EXCLUDED_B2B_APP_IDS } = require('@condo/domains/common/constants/featureflags')
 const { CONTEXT_FINISHED_STATUS, CONTEXT_ERROR_STATUS, CONTEXT_ERROR_REASON_NO_SUBSCRIPTION } = require('@condo/domains/miniapp/constants')
 const { B2BAppContext } = require('@condo/domains/miniapp/utils/serverSchema')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
@@ -212,15 +214,22 @@ async function activateAppContextsForUngatedApps (context, gatedAppIds) {
  * Only contexts with errorReason "NoSubscription" are activated back, so a context suspended for another reason stays untouched.
  * Contexts are also moved back to Finished right away when subscription with the app becomes active (see SubscriptionContext afterChange);
  * this task is a fallback for cases that hook does not cover, e.g. a subscription plan gaining the app after the subscription is already
- * active, the app being removed from all plans, or the SUBSCRIPTIONS feature flag being turned off
+ * active, the app being removed from all plans, or the SUBSCRIPTIONS feature flag being turned off.
+ * Apps listed in the SUBSCRIPTION_SUSPEND_EXCLUDED_B2B_APP_IDS feature flag are never suspended by this task
+ * (and any context this task previously suspended for one of them is activated back, same as an app dropped from every plan)
  */
 async function suspendB2BAppContextsWithoutSubscription () {
     const { keystone } = getSchemaCtx('B2BAppContext')
     const context = await keystone.createContext({ skipAccessControl: true })
     const now = dayjs()
 
+    const excludedAppIds = await featureToggleManager.getFeatureValue(null, SUBSCRIPTION_SUSPEND_EXCLUDED_B2B_APP_IDS, [])
+
     const plans = await find('SubscriptionPlan', { isHidden: false, deletedAt: null })
     const organizationTypesByAppId = getOrganizationTypesByAppId(plans)
+    for (const appId of excludedAppIds) {
+        organizationTypesByAppId.delete(appId)
+    }
 
     for (const [appId, organizationTypes] of organizationTypesByAppId) {
         const suspendedCount = await suspendAppContexts(context, appId, [...organizationTypes], now)

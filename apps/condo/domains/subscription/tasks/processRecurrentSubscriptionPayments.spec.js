@@ -3,18 +3,22 @@ const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
 const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
+const { WebhookPayload } = require('@open-condo/webhooks/schema/utils/testSchema')
+const { encryptionManager } = require('@open-condo/webhooks/utils/encryption')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { MULTIPAYMENT_PROCESSING_STATUS } = require('@condo/domains/acquiring/constants/payment')
 const { Payment, createTestAcquiringIntegration, createTestAcquiringIntegrationContext, updateTestMultiPayment } = require('@condo/domains/acquiring/utils/testSchema')
+const { WEBHOOK_EVENT_SUBSCRIPTION_INVOICE_REQUESTED } = require('@condo/domains/common/constants/webhooks')
 const { INVOICE_STATUS_CANCELED, INVOICE_STATUS_PUBLISHED, INVOICE_STATUS_PAID, INVOICE_TYPE_B2B } = require('@condo/domains/marketplace/constants')
 const { Invoice, createTestInvoice, updateTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
-const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
+const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const {
     SUBSCRIPTION_CONTEXT_STATUS,
+    SUBSCRIPTION_WEBHOOK_REASON,
     SUBSCRIPTION_PERIOD,
     SUBSCRIPTION_PAYMENT_BUFFER_DAYS,
-    SUBSCRIPTION_INVOICE_PAYMENT_DAYS,
+    SUBSCRIPTION_RENEWAL_INVOICE_LEAD_DAYS,
     SUBSCRIPTION_PAYMENT_TYPE_CARD,
     SUBSCRIPTION_PAYMENT_TYPE_INVOICE,
     SUBSCRIPTION_PLAN_TYPE_FEATURE,
@@ -29,6 +33,7 @@ const {
     registerSubscriptionContextsByTestClient,
     SubscriptionContext,
 } = require('@condo/domains/subscription/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 
 describe('processRecurrentSubscriptionPayments', () => {
@@ -767,10 +772,28 @@ describe('processRecurrentSubscriptionPayments', () => {
 
     describe('renewal invoices', () => {
         let acquiringIntegration
+        const previousWebhookEnv = {}
+        // every subscription webhook shares this one url/secret - eventType in the payload tells them apart
+        const WEBHOOK_ENV = {
+            SUBSCRIPTION_WEBHOOK_URL: 'https://subscription-webhook.example.com/webhook',
+            SUBSCRIPTION_WEBHOOK_SECRET: 'subscription-webhook-secret',
+        }
 
         beforeAll(async () => {
             const [integration] = await createTestAcquiringIntegration(adminClient, { canGroupReceipts: true })
             acquiringIntegration = integration
+
+            for (const [key, value] of Object.entries(WEBHOOK_ENV)) {
+                previousWebhookEnv[key] = process.env[key]
+                process.env[key] = value
+            }
+        })
+
+        afterAll(() => {
+            for (const [key, value] of Object.entries(previousWebhookEnv)) {
+                if (value === undefined) delete process.env[key]
+                else process.env[key] = value
+            }
         })
 
         const createInvoicePaidContext = async (organization, extraAttrs = {}) => {
@@ -814,6 +837,42 @@ describe('processRecurrentSubscriptionPayments', () => {
             })
         })
 
+        test('attaches the organization\'s own manager, not Doma staff, as the user on the auto-issued invoice webhook', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+
+            const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, { canManageSubscriptions: true })
+            const manager = await makeClientWithNewRegisteredAndLoggedInUser()
+            await createTestOrganizationEmployee(adminClient, organization, manager.user, role)
+
+            // the manager registers for real, so the context's createdBy is a genuine client user, not admin/support
+            const [registered] = await registerSubscriptionContextsByTestClient(manager, {
+                organization: { id: organization.id },
+                subscriptionPlanPricingRules: [{ id: pricingRule.id }],
+                paymentType: 'invoice',
+            })
+            const [originalContext] = registered.subscriptionContexts
+
+            // only admin can flip the status directly; this only fakes the period having already run its course
+            await updateTestSubscriptionContext(adminClient, originalContext.id, {
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+                startAt: dayjs().subtract(1, 'month').format('YYYY-MM-DD'),
+                endAt: dayjs().add(SUBSCRIPTION_RENEWAL_INVOICE_LEAD_DAYS, 'days').format('YYYY-MM-DD'),
+            })
+
+            await processRecurrentSubscriptionPayments()
+
+            const renewals = await findRenewals(organization)
+            expect(renewals).toHaveLength(1)
+
+            const [webhookPayload] = await WebhookPayload.getAll(adminClient, {
+                eventType: WEBHOOK_EVENT_SUBSCRIPTION_INVOICE_REQUESTED,
+                itemId_in: [renewals[0].id],
+            })
+            const payload = JSON.parse(encryptionManager.decrypt(webhookPayload.payload))
+            expect(payload.user.id).toBe(manager.user.id)
+            expect(payload.reason).toBe(SUBSCRIPTION_WEBHOOK_REASON.RENEWAL)
+        })
+
         test('issues it only once', async () => {
             const [organization] = await createTestOrganization(adminClient)
             await createInvoicePaidContext(organization)
@@ -826,7 +885,7 @@ describe('processRecurrentSubscriptionPayments', () => {
 
         test('leaves alone the periods that end later, were removed from the subscription or were paid by card', async () => {
             const [organization] = await createTestOrganization(adminClient)
-            await createInvoicePaidContext(organization, { endAt: dayjs().add(SUBSCRIPTION_INVOICE_PAYMENT_DAYS + 1, 'days').format('YYYY-MM-DD') })
+            await createInvoicePaidContext(organization, { endAt: dayjs().add(SUBSCRIPTION_RENEWAL_INVOICE_LEAD_DAYS + 1, 'days').format('YYYY-MM-DD') })
 
             const [removedOrganization] = await createTestOrganization(adminClient)
             const removedContext = await createInvoicePaidContext(removedOrganization)

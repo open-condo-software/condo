@@ -154,6 +154,29 @@ describe('GetAvailableSubscriptionPlansService', () => {
             expect(planIds).not.toContain(hiddenPlan.id)
         })
 
+        test('returns plans sorted by priority ascending', async () => {
+            // Created in reverse order, so the result can't come out sorted just by insertion order
+            const [higherPlan] = await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: MANAGING_COMPANY_TYPE,
+                isHidden: false,
+                priority: 1000,
+            })
+            const [lowerPlan] = await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: MANAGING_COMPANY_TYPE,
+                isHidden: false,
+                priority: -1000,
+            })
+
+            const [result] = await getAvailableSubscriptionPlansByTestClient(admin, organization)
+
+            const priorities = result.plans.map(p => p.plan.priority)
+            expect(priorities).toEqual([...priorities].sort((a, b) => a - b))
+            const planIds = result.plans.map(p => p.plan.id)
+            expect(planIds.indexOf(lowerPlan.id)).toBeLessThan(planIds.indexOf(higherPlan.id))
+        })
+
         test('throws error if organization not found', async () => {
             const fakeOrg = { id: '00000000-0000-0000-0000-000000000000' }
 

@@ -212,6 +212,46 @@ describe('subscriptionContext', () => {
             expect(result.format('YYYY-MM-DD')).toBe(today.format('YYYY-MM-DD'))
         })
 
+        test('returns today when the only existing context is a running trial', async () => {
+            const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [organization] = await registerNewOrganization(userClient, { type: MANAGING_COMPANY_TYPE })
+            const [plan] = await createTestSubscriptionPlan(adminClient)
+
+            const [trialContext] = await createTestSubscriptionContext(adminClient, organization, plan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(4, 'days').format('YYYY-MM-DD'),
+                isTrial: true,
+            })
+
+            const result = calculateSubscriptionStartDate([trialContext])
+            const today = dayjs().startOf('day')
+
+            expect(result.format('YYYY-MM-DD')).toBe(today.format('YYYY-MM-DD'))
+        })
+
+        test('ignores a running trial and continues from a paid context instead', async () => {
+            const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [organization] = await registerNewOrganization(userClient, { type: MANAGING_COMPANY_TYPE })
+            const [plan] = await createTestSubscriptionPlan(adminClient)
+
+            const paidEndAt = dayjs().add(30, 'days').format('YYYY-MM-DD')
+            const [paidContext] = await createTestSubscriptionContext(adminClient, organization, plan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: paidEndAt,
+                isTrial: false,
+            })
+
+            const [trialContext] = await createTestSubscriptionContext(adminClient, organization, plan, {
+                startAt: dayjs().subtract(10, 'days').format('YYYY-MM-DD'),
+                endAt: dayjs().add(90, 'days').format('YYYY-MM-DD'),
+                isTrial: true,
+            })
+
+            const result = calculateSubscriptionStartDate([paidContext, trialContext])
+
+            expect(result.format('YYYY-MM-DD')).toBe(paidEndAt)
+        })
+
         test('returns latest endAt when it is in the future', async () => {
             const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
             const [organization] = await registerNewOrganization(userClient, { type: MANAGING_COMPANY_TYPE })

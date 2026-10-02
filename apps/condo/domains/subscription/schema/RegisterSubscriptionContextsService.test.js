@@ -240,6 +240,26 @@ describe('RegisterSubscriptionContextsService', () => {
             const startAt = dayjs(context.startAt)
             expect(startAt.format('YYYY-MM-DD')).toBe(existingDoneEndDate.format('YYYY-MM-DD'))
         })
+
+        test('starts today when paying for a plan whose trial is still running, not when the trial ends', async () => {
+            const trialEndAt = dayjs().add(4, 'day')
+            await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: trialEndAt.format('YYYY-MM-DD'),
+                status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+                isTrial: true,
+            })
+
+            const [result] = await registerSubscriptionContextsByTestClient(user, {
+                organization: { id: organization.id },
+                subscriptionPlanPricingRules: [{ id: pricingRule.id }],
+                isTrial: false,
+            })
+
+            const context = result.subscriptionContexts[0]
+            expect(dayjs(context.startAt).format('YYYY-MM-DD')).toBe(dayjs().format('YYYY-MM-DD'))
+            expect(dayjs(context.endAt).isAfter(trialEndAt)).toBe(true)
+        })
     })
 
     describe('Validation', () => {
