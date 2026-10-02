@@ -1,0 +1,14 @@
+/* The saving sits right above the discounted price, centered on it */
+.discounted-price {
+  position: relative;
+  display: inline-block;
+}
+
+.discounted-price-badge {
+  position: absolute;
+  bottom: 40px;
+  left: 0;
+  white-space: nowrap;
+  transform: rotate(-15deg);
+  pointer-events: none;
+}
