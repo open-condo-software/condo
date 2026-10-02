@@ -8,6 +8,7 @@ const path = require('path')
 const urlLib = require('url')
 
 const { ApolloClient, ApolloLink, InMemoryCache } = require('@apollo/client')
+const { RetryLink } = require('@apollo/client/link/retry')
 const { faker } = require('@faker-js/faker')
 const { createUploadLink } = require('apollo-upload-client')
 const axiosLib = require('axios')
@@ -44,6 +45,8 @@ const DEFAULT_TEST_ADMIN_IDENTITY = conf.DEFAULT_TEST_ADMIN_IDENTITY
 const DEFAULT_TEST_ADMIN_SECRET = conf.DEFAULT_TEST_ADMIN_SECRET
 const TESTS_TLS_IGNORE_UNAUTHORIZED = conf.TESTS_TLS_IGNORE_UNAUTHORIZED === 'true'
 const TESTS_LOG_REQUEST_RESPONSE = conf.TESTS_LOG_REQUEST_RESPONSE === 'true'
+
+const RETRYABLE_ERROR_CODES = ['ECONNRESET'].map(str => str.toLowerCase())
 
 const SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION = gql`
     mutation authenticateUserWithPhoneAndPassword ($phone: String!, $password: String!) {
@@ -553,6 +556,19 @@ const makeApolloClient = (serverUrl, opts = {}) => {
     const httpsAgentWithUnauthorizedTls = new https.Agent({ rejectUnauthorized: false })
 
     const apolloLinks = []
+
+    // NOTE(YEgorLu): Retry as in apollo-server-client. But lets retry only specific errors, to know if something bad is happening during tests
+    // FE "ECONNRESET" error happens randomly: when CI runs a lot of tests, socket connection eventually will reset 1+ times, and if there are outgoing requests then ECONNRESET will be received.
+    apolloLinks.push(new RetryLink({
+        delay: { initial: 300, max: Infinity, jitter: true },
+        attempts: {
+            max: 5,
+            retryIf: (error, operation) => {
+                return error?.code && RETRYABLE_ERROR_CODES.includes(String(error.code).toLowerCase())
+            },
+        },
+    }))
+
     // Terminating link must be in the end of links chains
     apolloLinks.push(createUploadLink({
         uri: `${serverUrl}${API_PATH}`,
