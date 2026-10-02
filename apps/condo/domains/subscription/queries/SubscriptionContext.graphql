@@ -257,8 +257,10 @@ query getLastFailedPaymentContext($organizationId: ID!, $subscriptionPlanId: ID!
     }
 }
 
-mutation updateSubscriptionContextPaymentMethod($data: UpdateSubscriptionContextPaymentMethodInput!) {
-    result: updateSubscriptionContextPaymentMethod(data: $data) {
-        id
+mutation cancelSubscriptionRenewal($data: CancelSubscriptionRenewalInput!) {
+    result: cancelSubscriptionRenewal(data: $data) {
+        subscriptionContexts {
+            id
+        }
     }
 }

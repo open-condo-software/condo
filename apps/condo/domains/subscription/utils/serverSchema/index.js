@@ -8,8 +8,8 @@ const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codeg
 
 const { ACTIVATE_SUBSCRIPTION_CONTEXT_MUTATION } = require('@condo/domains/subscription/gql')
 const { GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY } = require('@condo/domains/subscription/gql')
-const { REGISTER_SUBSCRIPTION_CONTEXT_MUTATION } = require('@condo/domains/subscription/gql')
-const { UPDATE_SUBSCRIPTION_CONTEXT_PAYMENT_METHOD_MUTATION } = require('@condo/domains/subscription/gql')
+const { REGISTER_SUBSCRIPTION_CONTEXTS_MUTATION } = require('@condo/domains/subscription/gql')
+const { CANCEL_SUBSCRIPTION_RENEWAL_MUTATION } = require('@condo/domains/subscription/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const SubscriptionPlan = generateServerUtils('SubscriptionPlan')
@@ -40,28 +40,28 @@ async function getAvailableSubscriptionPlans (context, organizationId) {
     })
 }
 
-async function registerSubscriptionContext (context, data) {
+async function registerSubscriptionContexts (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
 
     return await execGqlWithoutAccess(context, {
-        query: REGISTER_SUBSCRIPTION_CONTEXT_MUTATION,
+        query: REGISTER_SUBSCRIPTION_CONTEXTS_MUTATION,
         variables: { data: { dv: 1, ...data } },
-        errorMessage: '[error] Unable to registerSubscriptionContext',
+        errorMessage: '[error] Unable to registerSubscriptionContexts',
         dataPath: 'result',
     })
 }
 
-async function updateSubscriptionContextPaymentMethod (context, data) {
+async function cancelSubscriptionRenewal (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
 
     return await execGqlWithoutAccess(context, {
-        query: UPDATE_SUBSCRIPTION_CONTEXT_PAYMENT_METHOD_MUTATION,
+        query: CANCEL_SUBSCRIPTION_RENEWAL_MUTATION,
         variables: { data: { dv: 1, ...data } },
-        errorMessage: '[error] Unable to updateSubscriptionContextPaymentMethod',
+        errorMessage: '[error] Unable to cancelSubscriptionRenewal',
         dataPath: 'result',
     })
 }
@@ -74,7 +74,7 @@ module.exports = {
     SubscriptionContext,
     activateSubscriptionContext,
     getAvailableSubscriptionPlans,
-    registerSubscriptionContext,
-    updateSubscriptionContextPaymentMethod,
+    registerSubscriptionContexts,
+    cancelSubscriptionRenewal,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

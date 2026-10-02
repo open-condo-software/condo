@@ -22,7 +22,7 @@ const { SUBSCRIPTION_PERIOD, SUBSCRIPTION_CONTEXT_STATUS } = require('@condo/dom
 const {
     SubscriptionContext,
     activateSubscriptionContextByTestClient,
-    registerSubscriptionContextByTestClient,
+    registerSubscriptionContextsByTestClient,
     createTestSubscriptionPlan,
     createTestSubscriptionPlanPricingRule,
     createTestSubscriptionContext,
@@ -64,50 +64,50 @@ describe('ActivateSubscriptionContextService', () => {
 
     describe('Access', () => {
         test('admin can call activateSubscriptionContext without access denied error', async () => {
-            const [result] = await registerSubscriptionContextByTestClient(admin, {
+            const [result] = await registerSubscriptionContextsByTestClient(admin, {
                 organization: { id: organization.id },
-                subscriptionPlanPricingRule: { id: pricingRule.id },
+                subscriptionPlanPricingRules: [{ id: pricingRule.id }],
                 isTrial: false,
             })
             
             await expectToThrowGQLError(async () => {
-                await activateSubscriptionContextByTestClient(admin, result.subscriptionContext)
+                await activateSubscriptionContextByTestClient(admin, result.subscriptionContexts[0])
             }, ERRORS.INVOICE_NOT_PAID, 'result')
         })
 
         test('support can call activateSubscriptionContext without access denied error', async () => {
-            const [result] = await registerSubscriptionContextByTestClient(admin, {
+            const [result] = await registerSubscriptionContextsByTestClient(admin, {
                 organization: { id: organization.id },
-                subscriptionPlanPricingRule: { id: pricingRule.id },
+                subscriptionPlanPricingRules: [{ id: pricingRule.id }],
                 isTrial: false,
             })
             
             await expectToThrowGQLError(async () => {
-                await activateSubscriptionContextByTestClient(support, result.subscriptionContext)
+                await activateSubscriptionContextByTestClient(support, result.subscriptionContexts[0])
             }, ERRORS.INVOICE_NOT_PAID, 'result')
         })
 
         test('regular user cannot activate subscription context', async () => {
-            const [result] = await registerSubscriptionContextByTestClient(admin, {
+            const [result] = await registerSubscriptionContextsByTestClient(admin, {
                 organization: { id: organization.id },
-                subscriptionPlanPricingRule: { id: pricingRule.id },
+                subscriptionPlanPricingRules: [{ id: pricingRule.id }],
                 isTrial: false,
             })
 
             await expectToThrowAccessDeniedErrorToResult(async () => {
-                await activateSubscriptionContextByTestClient(user, result.subscriptionContext)
+                await activateSubscriptionContextByTestClient(user, result.subscriptionContexts[0])
             })
         })
 
         test('anonymous cannot activate', async () => {
-            const [result] = await registerSubscriptionContextByTestClient(admin, {
+            const [result] = await registerSubscriptionContextsByTestClient(admin, {
                 organization: { id: organization.id },
-                subscriptionPlanPricingRule: { id: pricingRule.id },
+                subscriptionPlanPricingRules: [{ id: pricingRule.id }],
                 isTrial: false,
             })
 
             await expectToThrowAuthenticationErrorToResult(async () => {
-                await activateSubscriptionContextByTestClient(anonymous, result.subscriptionContext)
+                await activateSubscriptionContextByTestClient(anonymous, result.subscriptionContexts[0])
             })
         })
     })
@@ -121,7 +121,7 @@ describe('ActivateSubscriptionContextService', () => {
             }, ERRORS.SUBSCRIPTION_CONTEXT_NOT_FOUND, 'result')
         })
 
-        test('throws error if subscription context has wrong status', async () => {
+        test('throws error if subscription context is already DONE', async () => {
             const [context] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
                 startAt: dayjs().format('YYYY-MM-DD'),
                 endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
@@ -134,12 +134,40 @@ describe('ActivateSubscriptionContextService', () => {
             }, ERRORS.SUBSCRIPTION_CONTEXT_INVALID_STATUS, 'result')
         })
 
+        test('throws error if subscription context is in ERROR', async () => {
+            const [context] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
+                isTrial: false,
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
+                status: SUBSCRIPTION_CONTEXT_STATUS.ERROR,
+            })
+
+            await expectToThrowGQLError(async () => {
+                await activateSubscriptionContextByTestClient(admin, context)
+            }, ERRORS.SUBSCRIPTION_CONTEXT_INVALID_STATUS, 'result')
+        })
+
+        test('throws error if pricing rule not set', async () => {
+            const [context] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
+                isTrial: false,
+                status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+            })
+
+            await expectToThrowGQLError(async () => {
+                await activateSubscriptionContextByTestClient(admin, context)
+            }, ERRORS.PRICING_RULE_NOT_FOUND, 'result')
+        })
+
         test('throws error if invoice not found', async () => {
             const [context] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
                 startAt: dayjs().format('YYYY-MM-DD'),
                 endAt: dayjs().add(1, 'month').format('YYYY-MM-DD'),
                 isTrial: false,
                 status: SUBSCRIPTION_CONTEXT_STATUS.CREATED,
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
             })
 
             await expectToThrowGQLError(async () => {
@@ -150,13 +178,13 @@ describe('ActivateSubscriptionContextService', () => {
 
     describe('Payment Method Extraction and Freezing', () => {
         test('extracts payment method from multiPayment and freezes payment info when transitioning to DONE', async () => {
-            const [result] = await registerSubscriptionContextByTestClient(admin, {
+            const [result] = await registerSubscriptionContextsByTestClient(admin, {
                 organization: { id: organization.id },
-                subscriptionPlanPricingRule: { id: pricingRule.id },
+                subscriptionPlanPricingRules: [{ id: pricingRule.id }],
                 isTrial: false,
             })
-            const subscriptionContext = result.subscriptionContext
-            const invoice = result.subscriptionContext.invoice
+            const subscriptionContext = result.subscriptionContexts[0]
+            const invoice = result.subscriptionContexts[0].invoice
             
             const [payment] = await Payment.getAll(admin, {
                 invoice: { id: invoice.id },

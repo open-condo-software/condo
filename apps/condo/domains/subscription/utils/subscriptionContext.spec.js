@@ -21,6 +21,7 @@ const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/u
 const {
     selectBestSubscriptionContext,
     calculateSubscriptionStartDate,
+    calculateSubscriptionPeriod,
 } = require('./subscriptionContext')
 
 describe('subscriptionContext', () => {
@@ -323,6 +324,26 @@ describe('subscriptionContext', () => {
             const result = calculateSubscriptionStartDate([context1, context2, context3, context4])
 
             expect(result.format('YYYY-MM-DD')).toBe(futureEndAt)
+        })
+    })
+
+    describe('calculateSubscriptionPeriod', () => {
+        test('starts today and lasts the given number of months when there are no contexts', () => {
+            const today = dayjs().startOf('day')
+
+            expect(calculateSubscriptionPeriod([], 12)).toEqual({
+                startAt: today.format('YYYY-MM-DD'),
+                endAt: today.add(12, 'month').format('YYYY-MM-DD'),
+            })
+        })
+
+        test('continues from the latest end date of existing contexts', () => {
+            const futureEndAt = dayjs().add(20, 'day').format('YYYY-MM-DD')
+
+            expect(calculateSubscriptionPeriod([{ endAt: futureEndAt }], 1)).toEqual({
+                startAt: futureEndAt,
+                endAt: dayjs(futureEndAt).add(1, 'month').format('YYYY-MM-DD'),
+            })
         })
     })
 })

@@ -13,7 +13,7 @@ const {
 } = require('@open-condo/keystone/test.utils')
 const { catchErrorFrom } = require('@open-condo/keystone/test.utils')
 
-const { CONTEXT_STATUSES } = require('@condo/domains/miniapp/constants')
+const { CONTEXT_STATUSES, CONTEXT_ERROR_STATUS, CONTEXT_ERROR_REASON_NO_SUBSCRIPTION } = require('@condo/domains/miniapp/constants')
 const {
     ACCESS_RIGHT_SET_MAX_ITEMS_SCOPED_TYPE,
 } = require('@condo/domains/miniapp/constants')
@@ -245,6 +245,30 @@ describe('B2BAppContext', () => {
                 const [context] = await createTestB2BAppContext(admin, app, organization)
                 expect(context).toBeDefined()
                 expect(context).toHaveProperty('status', status)
+            })
+        })
+        describe('errorReason', () => {
+            test('is null by default', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const [app] = await createTestB2BApp(admin)
+                const [organization] = await registerNewOrganization(admin)
+                const [context] = await createTestB2BAppContext(admin, app, organization)
+                expect(context).toHaveProperty('errorReason', null)
+            })
+            test('can be set to "NoSubscription" alongside Error status', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const [app] = await createTestB2BApp(admin)
+                const [organization] = await registerNewOrganization(admin)
+                const [context] = await createTestB2BAppContext(admin, app, organization, {
+                    status: CONTEXT_ERROR_STATUS,
+                    errorReason: CONTEXT_ERROR_REASON_NO_SUBSCRIPTION,
+                })
+                expect(context).toHaveProperty('errorReason', CONTEXT_ERROR_REASON_NO_SUBSCRIPTION)
+
+                const [updatedContext] = await updateTestB2BAppContext(admin, context.id, {
+                    errorReason: null,
+                })
+                expect(updatedContext).toHaveProperty('errorReason', null)
             })
         })
         test('Organization and app fields cannot be changed', async () => {

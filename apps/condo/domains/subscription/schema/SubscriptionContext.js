@@ -10,15 +10,14 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analyt
 const { GQLListSchema, find, getById } = require('@open-condo/keystone/schema')
 
 const { INVOICE_TYPE_B2B } = require('@condo/domains/marketplace/constants')
-const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
+const { CONTEXT_FINISHED_STATUS, CONTEXT_ERROR_STATUS } = require('@condo/domains/miniapp/constants')
 const { B2BAppContext } = require('@condo/domains/miniapp/utils/serverSchema')
-const { ACTIVATE_SUBSCRIPTION_TYPE } = require('@condo/domains/onboarding/constants/userHelpRequest')
-const { UserHelpRequest } = require('@condo/domains/onboarding/utils/serverSchema')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/subscription/access/SubscriptionContext')
 const { SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_CONTEXT_STATUSES, SUBSCRIPTION_CONTEXT_STATUS_TRANSITIONS, SUBSCRIPTION_PLAN_TYPE_FEATURE, SUBSCRIPTION_PAYMENT_BUFFER_DAYS } = require('@condo/domains/subscription/constants')
 const { isPlanSubsetOf } = require('@condo/domains/subscription/utils/isPlanSubsetOf')
-const { updateSubscriptionContextPaymentMethod } = require('@condo/domains/subscription/utils/serverSchema')
+const { SubscriptionContext: SubscriptionContextServerUtils } = require('@condo/domains/subscription/utils/serverSchema')
+const { deleteUnusedCardTokens } = require('@condo/domains/subscription/utils/serverSchema/deleteUnusedCardTokens')
 
 const ERRORS = {
     END_DATE_MUST_BE_AFTER_START_DATE: {
@@ -68,6 +67,81 @@ const ERRORS = {
     },
 }
 
+/** Finishes B2BAppContext for each app in the plan; a context bought ahead of time (future startAt) is skipped here and picked up later by suspendB2BAppContextsWithoutSubscription */
+async function finishB2BAppContextsForPlan ({ context, updatedItem, isEffectiveNow }) {
+    const plan = await getById('SubscriptionPlan', updatedItem.subscriptionPlan)
+    if (!plan) return
+
+    const enabledApps = Array.isArray(plan.enabledB2BApps) ? plan.enabledB2BApps : []
+    const organizationId = updatedItem.organization
+
+    for (const appId of enabledApps) {
+        const [existing] = await find('B2BAppContext', {
+            app: { id: appId },
+            organization: { id: organizationId },
+            deletedAt: null,
+        })
+
+        if (existing && existing.status === CONTEXT_ERROR_STATUS && isEffectiveNow) {
+            await B2BAppContext.update(context, existing.id, {
+                dv: 1,
+                sender: updatedItem.sender,
+                status: CONTEXT_FINISHED_STATUS,
+                errorReason: null,
+            })
+        } else if (!existing && plan.planType === SUBSCRIPTION_PLAN_TYPE_FEATURE) {
+            await B2BAppContext.create(context, {
+                dv: 1,
+                sender: updatedItem.sender,
+                app: { connect: { id: appId } },
+                organization: { connect: { id: organizationId } },
+                status: CONTEXT_FINISHED_STATUS,
+            })
+        }
+    }
+}
+
+/** Detaches the autopayment card from other active contexts whose plan is fully covered by the newly activated one */
+async function detachAutopaymentForSubsumedPlans ({ context, updatedItem }) {
+    const activatedPlan = await getById('SubscriptionPlan', updatedItem.subscriptionPlan)
+    if (!activatedPlan) return
+
+    const bufferDate = dayjs().subtract(SUBSCRIPTION_PAYMENT_BUFFER_DAYS, 'days').format('YYYY-MM-DD')
+    const autopaymentCandidates = await find('SubscriptionContext', {
+        organization: { id: updatedItem.organization },
+        status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
+        isTrial: false,
+        bindingId_not: null,
+        endAt_gte: bufferDate,
+        deletedAt: null,
+        id_not: updatedItem.id,
+    })
+    const activeContextsWithAutopayment = autopaymentCandidates.filter(
+        otherContext => !updatedItem.invoice || otherContext.invoice !== updatedItem.invoice
+    )
+
+    const contextsToDetachCard = []
+    for (const otherContext of activeContextsWithAutopayment) {
+        const otherPlan = await getById('SubscriptionPlan', otherContext.subscriptionPlan)
+        if (!otherPlan) continue
+        if (!isPlanSubsetOf(otherPlan, activatedPlan)) continue
+
+        contextsToDetachCard.push(otherContext)
+    }
+
+    for (const subscriptionContext of contextsToDetachCard) {
+        await SubscriptionContextServerUtils.update(context, subscriptionContext.id, {
+            dv: 1,
+            sender: updatedItem.sender,
+            bindingId: null,
+        })
+    }
+
+    await deleteUnusedCardTokens({
+        organizationId: updatedItem.organization,
+        bindingIds: [...new Set(contextsToDetachCard.map(subscriptionContext => subscriptionContext.bindingId))],
+    })
+}
 
 const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
     schemaDoc: 'Subscription context linking organization to a subscription plan with calculated pricing. When changing subscription plan, a new context must be created',
@@ -99,7 +173,7 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
             access: {
                 read: true,
                 create: true,
-                update: false,
+                update: userIsAdmin,
             },
         },
 
@@ -110,7 +184,7 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
             access: {
                 read: true,
                 create: true,
-                update: false,
+                update: userIsAdmin,
             },
         },
 
@@ -179,8 +253,19 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
             },
         },
 
+        renewalCancelledAt: {
+            schemaDoc: 'When the organization cancelled renewal of this subscription. The paid period stays active',
+            type: 'DateTimeUtc',
+            isRequired: false,
+            access: {
+                read: true,
+                create: userIsAdmin,
+                update: userIsAdmin,
+            },
+        },
+
         frozenPaymentInfo: {
-            schemaDoc: 'Frozen payment information at the time of subscription context creation. Includes payment method details, invoice information, and pricing rule ID',
+            schemaDoc: 'Frozen payment information at the time of subscription context creation. Includes payment method details, invoice information, pricing rule ID and the payment type chosen at registration (card or invoice)',
             type: 'Json',
             isRequired: false,
             sensitive: true,
@@ -188,10 +273,10 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
                 'type PaymentMethod { bindingId: String!, paymentSystem: String!, cardNumber: String!, expiration: String!, bankName: String!, bankCountryCode: String! }',
                 'type InvoiceRow { name: String, count: String, price: String, toPay: String }',
                 'type FrozenInvoice { id: String, rows: [InvoiceRow], toPay: String, currencyCode: String }',
-                'type FrozenPaymentInfo { paymentMethod: PaymentMethod, invoice: FrozenInvoice, pricingRuleId: String, multiPaymentId: String }',
+                'type FrozenPaymentInfo { paymentMethod: PaymentMethod, invoice: FrozenInvoice, pricingRuleId: String, multiPaymentId: String, paymentType: String }',
             ],
             graphQLReturnType: 'FrozenPaymentInfo',
-            graphQLAdminFragment: '{ paymentMethod { bindingId paymentSystem cardNumber expiration bankName bankCountryCode } invoice { id rows { name count price toPay } toPay currencyCode } pricingRuleId multiPaymentId }',
+            graphQLAdminFragment: '{ paymentMethod { bindingId paymentSystem cardNumber expiration bankName bankCountryCode } invoice { id rows { name count price toPay } toPay currencyCode } pricingRuleId multiPaymentId paymentType }',
             access: {
                 read: true,
                 create: userIsAdmin,
@@ -201,6 +286,14 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
 
     },
     hooks: {
+        resolveInput: async ({ resolvedData }) => {
+            // Attaching a card renews the context again. Detaching one alone is not a cancellation:
+            // renewalCancelledAt is set only when the organization declines renewal via cancelSubscriptionRenewal
+            if (resolvedData.bindingId && !('renewalCancelledAt' in resolvedData)) {
+                resolvedData.renewalCancelledAt = null
+            }
+            return resolvedData
+        },
         validateInput: async ({ resolvedData, existingItem, context, operation }) => {
             const startAt = resolvedData.startAt || existingItem?.startAt
             const endAt = resolvedData.endAt || existingItem?.endAt
@@ -300,82 +393,18 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
                 }
             }
         },
-        afterChange: async ({ operation, existingItem, updatedItem, context }) => {
+        afterChange: async ({ existingItem, updatedItem, context }) => {
             const isBecomingDone = updatedItem.status === SUBSCRIPTION_CONTEXT_STATUS.DONE &&
                 existingItem?.status !== updatedItem.status
-            // Only delete pending requests when a non-trial subscription context is created
-            if (operation === 'create' && !updatedItem.isTrial) {
-                const organizationId = updatedItem.organization
-                
-                // Soft delete all pending UserHelpRequests for this organization with activateSubscription type
-                const pendingRequests = await find('UserHelpRequest', {
-                    organization: { id: organizationId },
-                    type: ACTIVATE_SUBSCRIPTION_TYPE,
-                    deletedAt: null,
-                })
+            if (!isBecomingDone) return
 
-                for (const request of pendingRequests) {
-                    await UserHelpRequest.update(context, request.id, {
-                        dv: 1,
-                        sender: updatedItem.sender,
-                        deletedAt: new Date().toISOString(),
-                    })
-                }
-            }
+            // Only a context whose period has actually started finishes its apps now; one bought ahead of time
+            // (future startAt) is picked up later by suspendB2BAppContextsWithoutSubscription
+            const isEffectiveNow = updatedItem.startAt && !dayjs(updatedItem.startAt).isAfter(dayjs())
+            await finishB2BAppContextsForPlan({ context, updatedItem, isEffectiveNow })
 
-            // Create finished B2BAppContext for each app in a feature plan when context becomes DONE
-            if (isBecomingDone) {
-                const plan = await getById('SubscriptionPlan', updatedItem.subscriptionPlan)
-                if (plan && plan.planType === SUBSCRIPTION_PLAN_TYPE_FEATURE) {
-                    const enabledApps = Array.isArray(plan.enabledB2BApps) ? plan.enabledB2BApps : []
-                    const organizationId = updatedItem.organization
-
-                    for (const appId of enabledApps) {
-                        const [existing] = await find('B2BAppContext', {
-                            app: { id: appId },
-                            organization: { id: organizationId },
-                            deletedAt: null,
-                        })
-
-                        if (!existing) {
-                            await B2BAppContext.create(context, {
-                                dv: 1,
-                                sender: updatedItem.sender,
-                                app: { connect: { id: appId } },
-                                organization: { connect: { id: organizationId } },
-                                status: CONTEXT_FINISHED_STATUS,
-                            })
-                        }
-                    }
-                }
-            }
-
-            if (isBecomingDone && !updatedItem.isTrial) {
-                const activatedPlan = await getById('SubscriptionPlan', updatedItem.subscriptionPlan)
-                if (activatedPlan) {
-                    const bufferDate = dayjs().subtract(SUBSCRIPTION_PAYMENT_BUFFER_DAYS, 'days').format('YYYY-MM-DD')
-                    const activeContextsWithAutopayment = await find('SubscriptionContext', {
-                        organization: { id: updatedItem.organization },
-                        status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
-                        bindingId_not: null,
-                        endAt_gte: bufferDate,
-                        deletedAt: null,
-                        id_not: updatedItem.id,
-                    })
-
-                    for (const otherContext of activeContextsWithAutopayment) {
-                        const otherPlan = await getById('SubscriptionPlan', otherContext.subscriptionPlan)
-                        if (!otherPlan) continue
-
-                        if (!isPlanSubsetOf(otherPlan, activatedPlan)) continue
-
-                        await updateSubscriptionContextPaymentMethod(context, {
-                            sender: updatedItem.sender,
-                            subscriptionContext: { id: otherContext.id },
-                            bindingId: null,
-                        })
-                    }
-                }
+            if (!updatedItem.isTrial) {
+                await detachAutopaymentForSubsumedPlans({ context, updatedItem })
             }
         },
     },
