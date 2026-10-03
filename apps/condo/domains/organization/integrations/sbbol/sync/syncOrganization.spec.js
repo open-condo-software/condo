@@ -7,7 +7,7 @@ const { faker } = require('@faker-js/faker')
 
 const { setFakeClientMode, makeLoggedInAdminClient, DATETIME_RE } = require('@open-condo/keystone/test.utils')
 
-const { OrganizationEmployee: OrganizationEmployeeApi, Organization: OrganizationApi } = require('@condo/domains/organization/utils/serverSchema')
+const { OrganizationEmployee: OrganizationEmployeeApi, Organization: OrganizationApi, OrganizationEmployeeRole: OrganizationEmployeeRoleApi } = require('@condo/domains/organization/utils/serverSchema')
 const { registerNewOrganization, generateTin } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { USER_FIELDS } = require('@condo/domains/user/gql')
@@ -373,6 +373,54 @@ describe('syncOrganization from SBBOL', () => {
             expect(importedUserEmployee.user.id).toEqual(importedUser.id)
             expect(importedUserEmployee.isAccepted).toBeTruthy()
             expect(importedUserEmployee.role.canManageEmployees).toBeTruthy()
+        })
+
+        it('should create new organization when authedUser cannot manage organization', async () => {
+            const { userData, organizationData, dvSenderFields } = MockSbbolResponses.getUserAndOrganizationInfo()
+            const adminContext = await keystone.createContext({ skipAccessControl: true })
+            const context = {
+                keystone,
+                context: adminContext,
+            }
+
+            const authedUserClient = await makeClientWithRegisteredOrganization()
+            const authedUserOrganization = authedUserClient.organization
+            const authedUser = await UserAPI.getOne(adminContext, { id: authedUserClient.user.id }, USER_FIELDS)
+
+            const [dispatcherRole] = await OrganizationEmployeeRoleApi.getAll(adminContext, {
+                organization: { id: authedUserOrganization.id },
+                name: 'employee.role.Dispatcher.name',
+                deletedAt: null,
+            }, 'id', { first: 1 })
+            expect(dispatcherRole).toBeDefined()
+
+            const [authedUserEmployee] = await OrganizationEmployeeApi.getAll(adminContext, {
+                user: { id: authedUser.id },
+                organization: { id: authedUserOrganization.id },
+                deletedAt: null,
+            }, 'id', { first: 1 })
+            expect(authedUserEmployee).toBeDefined()
+
+            await OrganizationEmployeeApi.update(adminContext, authedUserEmployee.id, {
+                role: { connect: { id: dispatcherRole.id } },
+                ...dvSenderFields,
+            })
+
+            organizationData.meta.inn = authedUserOrganization.tin
+
+            const identityId = faker.datatype.uuid()
+            const importedUser = await syncUser({ context, userInfo: userData, identityId })
+            const { organization, employee } = await syncOrganization({
+                context,
+                user: importedUser,
+                userData,
+                authedUser,
+                dvSenderFields,
+                organizationInfo: organizationData,
+            })
+
+            expect(organization.id).not.toEqual(authedUserOrganization.id)
+            expect(employee).toBeDefined()
         })
     })
 })
