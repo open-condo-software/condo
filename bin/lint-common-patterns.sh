@@ -1,4 +1,13 @@
 #!/usr/bin/env bash
+set -e
 
-echo "Check setFakeClientMode: you can't use it inside *.test.js files. But you can use it inside *.spec.js files!"
-! grep --include=\*.test.js -rnw . -e "setFakeClientMode"
+IGNORE_DIRS="--ignore-dir=node_modules --ignore-dir=.git --ignore-dir=dist --ignore-dir=build"
+
+echo "1. Checking for setFakeClientMode in test files..."
+if git grep -nw "setFakeClientMode" -- "*.test.js" $IGNORE_DIRS; then
+    echo "Error: Found setFakeClientMode usage in test files. Use it only in .spec.js files!"
+    exit 1
+fi
+
+echo "All checks passed!"
+exit 0
