@@ -6,10 +6,10 @@ import isNil from 'lodash/isNil'
 import React, { ComponentProps, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Tooltip } from '@open-condo/ui'
 
 import { ChangeHistory } from '@condo/domains/common/components/ChangeHistory'
 import { SafeUserMention } from '@condo/domains/common/components/ChangeHistory/SafeUserMention'
-import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import {
     INCIDENT_STATUS_COLORS,
     INCIDENT_WORK_TYPE_EMERGENCY,
@@ -72,7 +72,7 @@ export const useIncidentChangedFieldMessagesOf: UseIncidentChangedFieldMessagesO
                     <Tooltip
                         title={value}
                         placement='top'
-                        overlayStyle={DETAILS_TOOLTIP_STYLE}
+                        overlayInnerStyle={DETAILS_TOOLTIP_STYLE}
                     >
                         {value.slice(0, MAX_DESCRIPTION_DISPLAY_LENGTH) + '…'}
                     </Tooltip>
@@ -84,7 +84,7 @@ export const useIncidentChangedFieldMessagesOf: UseIncidentChangedFieldMessagesO
                     <Tooltip
                         title={value}
                         placement='top'
-                        overlayStyle={DETAILS_TOOLTIP_STYLE}
+                        overlayInnerStyle={DETAILS_TOOLTIP_STYLE}
                     >
                         {value.slice(0, MAX_DESCRIPTION_DISPLAY_LENGTH) + '…'}
                     </Tooltip>
