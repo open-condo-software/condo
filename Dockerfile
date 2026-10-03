@@ -1,79 +1,104 @@
 # syntax=docker/dockerfile:1.7
+
 ARG REGISTRY=docker.io
+ARG NODE_VERSION=24
+ARG PYTHON_VERSION=3.12
+ARG APP_USER=app
+ARG APP_UID=10001
 
-FROM ${REGISTRY}/python:3.14-slim-bookworm AS python
-FROM ${REGISTRY}/node:24-bookworm-slim AS node
+############################
+# Base image
+############################
+FROM ${REGISTRY}/node:${NODE_VERSION}-bookworm-slim AS base
 
-FROM ${REGISTRY}/buildpack-deps:bookworm AS base
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONUNBUFFERED=1 \
+    NODE_ENV=production
 
-COPY --from=python /usr/local/ /usr/local/
-COPY --from=node /usr/local/ /usr/local/
-COPY --from=node /opt/ /opt/
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+    python3 \
+    python3-pip \
+    python3-venv \
+    ca-certificates \
+    curl \
+    git \
+ && rm -rf /var/lib/apt/lists/*
 
-# Add app user/group! Clean packages and fix links! Check version! And install some extra packages!
-RUN set -ex \
-	&& groupadd -r app --gid=999 \
-	&& useradd --system --create-home --home /app --gid 999 --uid=999 --shell /bin/bash app \
-	&& rm -f /usr/local/bin/docker-entrypoint.sh \
-	&& python --version \
-	&& pip --version \
-	&& node --version \
-	&& yarn --version \
-	&& python3 -m pip install 'psycopg2-binary==2.9.10' && python3 -m pip install 'Django==5.2' \
-    && echo "OK"
+############################
+# Python deps
+############################
+FROM base AS python-deps
 
-# Installer
-FROM base AS installer
+WORKDIR /tmp
+
+COPY requirements.txt .
+
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install --no-cache-dir -r requirements.txt
+
+############################
+# Node deps
+############################
+FROM base AS node-deps
 
 WORKDIR /app
-# Copy pruned monorepo (only package.json + yarn.lock)
-COPY --chown=app:app ./out /app
-# Copy yarn berry
-COPY --chown=app:app ./.yarn /app/.yarn
-COPY --chown=app:app ./.yarnrc.yml /app/.yarnrc.yml
-RUN --mount=type=cache,target=/usr/local/share/.cache/yarn \
-    yarn install --immutable --inline-builds
 
+COPY package.json yarn.lock .yarnrc.yml ./
+COPY .yarn .yarn
+
+RUN --mount=type=cache,target=/usr/local/share/.cache/yarn \
+    yarn install --immutable
+
+############################
 # Builder
-FROM base as builder
-
-ARG TURBO_TEAM
-ARG TURBO_TOKEN
-ARG TURBO_API
-ARG TURBO_REMOTE_ONLY=false
+############################
+FROM base AS builder
 
 WORKDIR /app
-# Copy entire repo
-COPY --chown=app:app . /app
-# Copy previously installed packages
-COPY --from=installer --chown=app:app /app /app
 
-ENV TURBO_TEAM=$TURBO_TEAM
-ENV TURBO_TOKEN=$TURBO_TOKEN
-ENV TURBO_API=$TURBO_API
-ENV TURBO_REMOTE_ONLY=$TURBO_REMOTE_ONLY
+COPY --from=node-deps /app /app
 
-RUN echo "# Build time .env config!" >> /app/.env && \
-	echo "COOKIE_SECRET=undefined" >> /app/.env && \
-	echo "DATABASE_URL=undefined" >> /app/.env && \
-	echo "REDIS_URL=undefined" >> /app/.env && \
-	echo "FILE_FIELD_ADAPTER=local" >> /app/.env && \
-	echo "NEXT_TELEMETRY_DISABLED=1" >> /app/.env && \
-	echo "NODE_ENV=production" >> /app/.env
-
-RUN chmod +x ./bin/run_condo_domain_tests.sh
+COPY . .
 
 RUN --mount=type=cache,target=/usr/local/share/.cache/yarn \
-    --mount=type=cache,target=/app/.turbo \
-    set -ex \
-    && yarn build \
-    && rm -rf /app/out \
-    && rm -rf /app/.env  \
-    && rm -rf /app/.config /app/.cache /app/.docker  \
-    && ls -lah /app/
+    yarn build
 
-# Runtime container
-FROM base
-USER app:app
+############################
+# Runtime (minimal)
+############################
+FROM ${REGISTRY}/node:${NODE_VERSION}-bookworm-slim AS runtime
+
+ARG APP_USER
+ARG APP_UID
+
+ENV NODE_ENV=production \
+    PYTHONUNBUFFERED=1
+
+RUN useradd --system \
+    --uid ${APP_UID} \
+    --create-home \
+    --home-dir /app \
+    ${APP_USER}
+
 WORKDIR /app
-COPY --from=builder --chown=app:app /app /app
+
+COPY --from=builder /app /app
+COPY --from=python-deps /usr/local/lib/python3* /usr/local/lib/
+
+RUN chown -R ${APP_USER}:${APP_USER} /app
+
+USER ${APP_USER}
+
+############################
+# Healthcheck
+############################
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
+ CMD node healthcheck.js || exit 1
+
+############################
+# Start
+############################
+EXPOSE 3000
+
+CMD ["node", "server.js"]
