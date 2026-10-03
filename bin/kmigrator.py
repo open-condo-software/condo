@@ -529,17 +529,90 @@ RUN_KEYSTONE_KNEX_SCRIPT = """
 const entryFile = '__KEYSTONE_ENTRY_PATH__'
 const knexMigrationsDir = '__KNEX_MIGRATION_DIR__'
 const knexMigrationsCode = '__KNEX_MIGRATION_CODE__'
+const kmigratorTargetsFilter = JSON.parse('__KMIGRATOR_TARGETS_JSON__')
+const kmigratorRollbackOnFailureMode = '__KMIGRATOR_ROLLBACK_ON_FAILURE__'
 
 const path = require('path')
-const util = require('util')
 const {keystone} = require(path.resolve(entryFile))
 
-async function runInContext(knex, config) {
-    if (knexMigrationsCode.startsWith('__')) throw new Error('internal config error: no code')
-    const res = await eval("(async () => {" + knexMigrationsCode + "})()")
+const KNEX_MIGRATE_DOWN_CODE = 'return await knex.migrate.down(config)'
+
+function isForwardMigrateCommand (code) {
+    return code.includes('migrate.latest') || code.includes('migrate.up')
+}
+
+async function runKnexCommand (knex, config, code) {
+    const migrationCode = code || knexMigrationsCode
+    if (migrationCode.startsWith('__')) throw new Error('internal config error: no code')
+    return await eval("(async () => {" + migrationCode + "})()")
+}
+
+function logKnexResult (code, res) {
     console.log('')
-    console.log('RUN', JSON.stringify(knexMigrationsCode))
+    console.log('RUN', JSON.stringify(code))
     console.log(' ->', res)
+}
+
+function filterKmigratorAdapters (knexAdapters) {
+    if (!kmigratorTargetsFilter.length) {
+        return knexAdapters
+    }
+
+    const availableDbNames = knexAdapters
+        .map((adapter) => adapter.dbName)
+        .filter((dbName) => Boolean(dbName))
+
+    if (!availableDbNames.length) {
+        console.warn('WARN: KMIGRATOR_TARGETS is set but adapter has no named databases — ignoring filter')
+        return knexAdapters
+    }
+
+    const filtered = knexAdapters.filter((adapter) => (
+        adapter.dbName && kmigratorTargetsFilter.includes(adapter.dbName)
+    ))
+    const missingTargets = kmigratorTargetsFilter.filter((dbName) => !availableDbNames.includes(dbName))
+
+    if (missingTargets.length) {
+        console.error(
+            'ERROR: KMIGRATOR_TARGETS unknown or not writable:',
+            missingTargets.join(', '),
+            'available:',
+            availableDbNames.join(', '),
+        )
+        process.exit(6)
+    }
+
+    if (!filtered.length) {
+        console.error('ERROR: KMIGRATOR_TARGETS matched no kmigrator adapters')
+        process.exit(6)
+    }
+
+    return filtered
+}
+
+async function rollbackCompletedTargets (completed, migrationsConfig) {
+    console.error('kmigrator: rolling back migrations on previously successful targets...')
+
+    for (const { adapter, log } of [...completed].reverse()) {
+        const dbLabel = adapter.dbName || 'default'
+        const migrationsToRollback = Array.isArray(log) ? log.length : 0
+
+        if (!migrationsToRollback) {
+            continue
+        }
+
+        for (let i = 0; i < migrationsToRollback; i++) {
+            try {
+                const res = await runKnexCommand(adapter.knex, migrationsConfig, KNEX_MIGRATE_DOWN_CODE)
+                logKnexResult(KNEX_MIGRATE_DOWN_CODE, res)
+            } catch (rollbackErr) {
+                console.error('ERROR: rollback failed on target "' + dbLabel + '"', rollbackErr)
+                process.exit(2)
+            }
+        }
+
+        console.error('kmigrator: rolled back ' + migrationsToRollback + ' migration(s) on "' + dbLabel + '"')
+    }
 }
 
 (async () => {
@@ -558,12 +631,44 @@ async function runInContext(knex, config) {
         process.exit(4)
     }
 
-    for (let adapter of knexAdapters) {
-        const migrationsConfig = {directory: knexMigrationsDir}
+    knexAdapters = filterKmigratorAdapters(knexAdapters)
+
+    const rollbackOnFailure = kmigratorRollbackOnFailureMode === 'true'
+    const trackRollback = rollbackOnFailure && isForwardMigrateCommand(knexMigrationsCode)
+    const completed = []
+
+    console.log(
+        'kmigrator targets:',
+        knexAdapters.map((adapter) => adapter.dbName || 'default').join(', '),
+    )
+    if (trackRollback) {
+        console.log('kmigrator rollback on failure: enabled')
+    }
+
+    for (const adapter of knexAdapters) {
+        const migrationsConfig = { directory: knexMigrationsDir }
+        const dbLabel = adapter.dbName || 'default'
+
         try {
-            await runInContext(adapter.knex, migrationsConfig)
+            const res = await runKnexCommand(adapter.knex, migrationsConfig)
+            logKnexResult(knexMigrationsCode, res)
+
+            if (trackRollback) {
+                const log = Array.isArray(res) && Array.isArray(res[1]) ? res[1] : []
+                completed.push({ adapter, log })
+            }
         } catch (e) {
-            console.error(e)
+            console.error('ERROR: kmigrator failed on target "' + dbLabel + '"', e)
+
+            if (trackRollback && completed.length) {
+                try {
+                    await rollbackCompletedTargets(completed, migrationsConfig)
+                } catch (rollbackErr) {
+                    console.error(rollbackErr)
+                    process.exit(2)
+                }
+            }
+
             process.exit(1)
         }
     }
@@ -648,6 +753,43 @@ exports.down = async (knex) => {{
 
 class KProblem(Exception):
     pass
+
+
+def _parse_kmigrator_targets_env():
+    """
+    KMIGRATOR_TARGETS — optional comma-separated or JSON list of DATABASE_URL keys
+    (e.g. main,external). Unset or empty: no filter, run on all writable kmigrator targets.
+    """
+    raw = os.environ.get('KMIGRATOR_TARGETS', '').strip()
+    if not raw:
+        return []
+    if raw.startswith('['):
+        try:
+            parsed = json.loads(raw)
+        except ValueError as e:
+            raise KProblem('ERROR: invalid KMIGRATOR_TARGETS JSON: {}'.format(e))
+        if not isinstance(parsed, list):
+            raise KProblem('ERROR: KMIGRATOR_TARGETS JSON value must be an array')
+        return [str(item).strip() for item in parsed if str(item).strip()]
+    return [item.strip() for item in raw.split(',') if item.strip()]
+
+
+def _parse_kmigrator_rollback_on_failure_env():
+    """
+    KMIGRATOR_ROLLBACK_ON_FAILURE — true|false (default false).
+    When true, a failed target rolls back migrate.latest/up on earlier targets.
+    """
+    raw = os.environ.get('KMIGRATOR_ROLLBACK_ON_FAILURE', '').strip().lower()
+    if raw in ('1', 'true', 'yes', 'on'):
+        return 'true'
+    return 'false'
+
+
+def _kmigrator_run_env_ctx():
+    return {
+        '__KMIGRATOR_TARGETS_JSON__': json.dumps(_parse_kmigrator_targets_env()),
+        '__KMIGRATOR_ROLLBACK_ON_FAILURE__': _parse_kmigrator_rollback_on_failure_env(),
+    }
 
 
 def _inject_ctx(data, ctx):
@@ -918,6 +1060,7 @@ def _4_1_makemigrations(ctx, merge=False, check=False, empty=False):
 
 
 def _5_1_run_knex_command(ctx, cmd='latest'):
+    ctx.update(_kmigrator_run_env_ctx())
     ctx['__KNEX_MIGRATION_CODE__'] = 'return await knex.migrate.{}(config)'.format(cmd)
     KNEX_MIGRATE_SCRIPT.write_text(_inject_ctx(RUN_KEYSTONE_KNEX_SCRIPT, ctx), encoding='utf-8')
     log_file = DJANGO_DIR / '..' / 'knex.run.{}.{}.log'.format(time(), cmd)
