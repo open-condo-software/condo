@@ -202,6 +202,8 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({
 
     const [activeAlertIndex, setActiveAlertIndex] = useState(0)
     const alertIndex = Math.min(activeAlertIndex, Math.max(alerts.length - 1, 0))
+    // an alert about options bought on top doesn't change the plan's own status, their rows carry it instead
+    const badgeAlert = alerts[alertIndex]?.scope === 'features' ? null : alerts[alertIndex] ?? null
 
     const activeBankingPlanId = useFlagValue(ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID)
     const hasActiveBanking = organization?.features?.includes(OrganizationFeature.ActiveBanking)
@@ -265,9 +267,9 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({
                 onKeyDown={handleKeyDown}
                 id={`subscription-plan-card-${plan.id}`}
             >
-                {alerts.length > 0 ? (
+                {badgeAlert ? (
                     <span className={styles.badge}>
-                        <PlanAlertBadge alert={alerts[alertIndex]} />
+                        <PlanAlertBadge alert={badgeAlert} />
                     </span>
                 ) : (
                     <SubscriptionPlanBadge
@@ -278,7 +280,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({
                 <Card className={cardClassName} width='100%'>
                     <div className={styles.cardBody}>
                         <div className={styles.cardHead}>
-                            <Typography.Title level={3} ellipsis={false}>
+                            <Typography.Title level={2} ellipsis={false}>
                                 {plan.name} {emoji ?? ''}
                             </Typography.Title>
                             <Typography.Paragraph type='secondary'>

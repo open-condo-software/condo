@@ -397,6 +397,7 @@ export const useSubscriptionPlansPage = () => {
         capabilityLabels,
         featureStatusByPlanId,
         activatedSubscriptions,
+        unpaidSubscriptions: unpaidData?.unpaidSubscriptions ?? [],
         refetchActivatedSubscriptions,
         refetchUnpaidSubscriptions,
     }

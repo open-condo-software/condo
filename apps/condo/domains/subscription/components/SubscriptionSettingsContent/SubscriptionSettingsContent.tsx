@@ -1,5 +1,5 @@
 import dayjs from 'dayjs'
-import React, { useCallback, useRef } from 'react'
+import React, { useCallback, useMemo, useRef } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
@@ -21,6 +21,7 @@ import {
 } from '@condo/domains/subscription/hooks'
 import { usePaymentHistoryModal } from '@condo/domains/subscription/hooks/usePaymentHistoryModal'
 import { isSameDay } from '@condo/domains/subscription/utils/subscriptionCatalog'
+import { getOutstandingPayments } from '@condo/domains/subscription/utils/subscriptionPlanAlerts'
 import { formatAmount, getAmount, getDiscount } from '@condo/domains/subscription/utils/subscriptionPricing'
 
 import { PriceText } from './PriceText/PriceText'
@@ -36,6 +37,7 @@ import type { RowBadge } from './SubscriptionFeatureTable/SubscriptionFeatureTab
 import type { ServicePlanView } from '@condo/domains/subscription/hooks/useSubscriptionPlansPage'
 import type { SelectionMode } from '@condo/domains/subscription/hooks/useSubscriptionSelection'
 import type { CatalogRow } from '@condo/domains/subscription/utils/subscriptionCatalog'
+import type { OutstandingPayment, UnpaidSubscriptionContext } from '@condo/domains/subscription/utils/subscriptionPlanAlerts'
 import type { PlanPeriod } from '@condo/domains/subscription/utils/subscriptionPricing'
 import type { RadioChangeEvent } from 'antd'
 import type { IntlShape } from 'react-intl'
@@ -43,12 +45,35 @@ import type { IntlShape } from 'react-intl'
 
 const PLAN_CARD_EMOJIS = ['🏠', '🏁', '💼', '👑']
 
+type RowPayment = Pick<OutstandingPayment<UnpaidSubscriptionContext>, 'type' | 'daysLeft'>
+
+/** An option waiting for its payment says so in its own row, the plan card keeps the plan's status */
+const buildPaymentBadge = (payment: RowPayment, intl: IntlShape): RowBadge | null => {
+    switch (payment.type) {
+        case 'invoicePending':
+            return {
+                text: intl.formatMessage({ id: 'subscription.planCard.badge.invoicePending' }, { days: payment.daysLeft }),
+                bgColor: colors.orange[5],
+            }
+        case 'invoiceExpired':
+            return { text: intl.formatMessage({ id: 'subscription.planCard.badge.invoiceExpired' }), bgColor: colors.red[5] }
+        case 'cardFailed':
+            return { text: intl.formatMessage({ id: 'subscription.planCard.badge.cardFailed' }), bgColor: colors.red[5] }
+        default:
+            return null
+    }
+}
+
 /**
  * The plan card already carries a trial badge. A feature only gets its own badge in the
  * table when its trial runs on a different schedule than the plan's.
  */
-const buildRowBadge = (row: CatalogRow, intl: IntlShape, planEndAt?: string | null): RowBadge | null => {
-    const status = row.includedInPlan ? null : row.status
+const buildRowBadge = (row: CatalogRow, intl: IntlShape, planEndAt?: string | null, payment?: RowPayment | null): RowBadge | null => {
+    if (row.includedInPlan) return null
+    // an unpaid invoice or charge is what the client has to act on, so it wins over the option's own status
+    if (payment) return buildPaymentBadge(payment, intl)
+
+    const status = row.status
     if (!status) return null
 
     switch (status.type) {
@@ -261,6 +286,8 @@ export const SubscriptionSettingsContent: React.FC = () => {
         rows,
         counters,
         capabilityLabels,
+        activatedSubscriptions,
+        unpaidSubscriptions,
         refetchActivatedSubscriptions,
         refetchUnpaidSubscriptions,
     } = useSubscriptionPlansPage()
@@ -300,9 +327,18 @@ export const SubscriptionSettingsContent: React.FC = () => {
 
     const canManageSubscriptions = Boolean(role?.canManageSubscriptions)
 
+    /** The same unpaid registrations the plan cards warn about, keyed by the option they are for */
+    const paymentByFeaturePlanId = useMemo(() => new Map(
+        getOutstandingPayments(unpaidSubscriptions, activatedSubscriptions.filter(context => !context.isTrial), new Date())
+            .filter(({ context }) => context.subscriptionPlan?.planType === 'feature')
+            .map(({ context, type, daysLeft }) => [context.subscriptionPlan.id, { type, daysLeft }] as const)
+    ), [unpaidSubscriptions, activatedSubscriptions])
+
     const getRowBadge = useCallback(
-        (row: CatalogRow): RowBadge | null => buildRowBadge(row, intl, activeServiceContext?.endAt),
-        [activeServiceContext?.endAt, intl]
+        (row: CatalogRow): RowBadge | null => buildRowBadge(
+            row, intl, activeServiceContext?.endAt, paymentByFeaturePlanId.get(row.featurePlan?.id) ?? null
+        ),
+        [activeServiceContext?.endAt, intl, paymentByFeaturePlanId]
     )
 
     const { totals, mode, selectedRows, isPlanInCart, selectedPlanCard, clearSelection } = selection

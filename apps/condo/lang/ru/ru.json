@@ -3351,7 +3351,7 @@
   "subscription.features.meters": "Сбор показаний",
   "subscription.features.payments": "Размещение квитанций в приложении",
   "subscription.features.pdfReceipts": "PDF-квитанции",
-  "subscription.features.pdfReceipts.description": "Квитанции в формате PDF для печати и отправки жителям",
+  "subscription.features.pdfReceipts.description": "Загрузка электронных квитанций в формате PDF в личный кабинет жителя в Домах",
   "subscription.features.mobileApp": "Мобильное приложение жителя",
   "subscription.features.outages": "Отключения",
   "subscription.features.news": "Отправка новостей жителям",

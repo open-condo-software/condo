@@ -3351,7 +3351,7 @@
   "subscription.features.meters": "Recogida de testimonios",
   "subscription.features.payments": "Colocar recibos en la aplicación",
   "subscription.features.pdfReceipts": "Recibos en PDF",
-  "subscription.features.pdfReceipts.description": "Recibos en PDF para imprimir y enviar a los residentes",
+  "subscription.features.pdfReceipts.description": "Carga de recibos en PDF en la cuenta del residente en Doma",
   "subscription.features.mobileApp": "Aplicación móvil del residente",
   "subscription.features.outages": "Cortes",
   "subscription.features.news": "Enviar noticias a los residentes",

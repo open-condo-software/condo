@@ -3351,7 +3351,7 @@
   "subscription.features.meters": "Collecting readings",
   "subscription.features.payments": "Posting receipts in the app",
   "subscription.features.pdfReceipts": "PDF receipts",
-  "subscription.features.pdfReceipts.description": "PDF receipts to print and send to residents",
+  "subscription.features.pdfReceipts.description": "Upload of PDF receipts to the resident account in Doma",
   "subscription.features.mobileApp": "Resident mobile app",
   "subscription.features.outages": "Outages",
   "subscription.features.news": "Sending news to residents",

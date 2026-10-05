@@ -1,6 +1,6 @@
 import dayjs from 'dayjs'
 
-import { SUBSCRIPTION_PAYMENT_TYPE_CARD, SUBSCRIPTION_PAYMENT_TYPE_INVOICE } from '@condo/domains/subscription/constants'
+import { SUBSCRIPTION_PAYMENT_BUFFER_DAYS, SUBSCRIPTION_PAYMENT_TYPE_CARD, SUBSCRIPTION_PAYMENT_TYPE_INVOICE } from '@condo/domains/subscription/constants'
 
 
 /** How long an issued invoice waits for the payment before a new one has to be issued */
@@ -44,6 +44,7 @@ export type UnpaidSubscriptionContext = {
 export type PaidSubscriptionContext = {
     endAt?: string | null
     subscriptionPlan?: { id: string } | null
+    subscriptionPlanPricingRule?: { id: string } | null
 }
 
 export type TrialSubscriptionContext = {
@@ -252,6 +253,30 @@ const buildFeatureAlerts = (
     return [...alertsByGroup.values()]
 }
 
+/**
+ * The paid period is over, the plan only runs on its grace days, and nothing was issued to renew it. The client
+ * still has to pay, so the card asks for a new invoice for the same price, as if the old one had expired
+ */
+const buildLapsedPlanAlert = (planId: string, paidContexts: ReadonlyArray<PaidSubscriptionContext>, now: Date): PlanAlert | null => {
+    const today = asDay(now)
+    const planContexts = paidContexts.filter(context => context.subscriptionPlan?.id === planId && context.endAt)
+    if (planContexts.some(context => asDay(context.endAt).isAfter(today))) return null
+
+    const lastContext = [...planContexts].sort((left, right) => new Date(right.endAt).getTime() - new Date(left.endAt).getTime())[0]
+    if (!lastContext || !today.isBefore(asDay(lastContext.endAt).add(SUBSCRIPTION_PAYMENT_BUFFER_DAYS, 'day'))) return null
+
+    return {
+        key: 'plan-lapsed',
+        type: 'invoiceExpired',
+        scope: 'plan',
+        planNames: [],
+        daysLeft: 0,
+        deadline: null,
+        priceIds: lastContext.subscriptionPlanPricingRule?.id ? [lastContext.subscriptionPlanPricingRule.id] : [],
+        contextIds: [],
+    }
+}
+
 /** a trial paid for before it ran out is just a plan now, whatever date the paid period starts on */
 const buildTrialAlert = (
     planId: string,
@@ -335,6 +360,10 @@ export const buildPlanCardAlerts = ({
 
         const trialAlert = buildTrialAlert(planId, activeServiceContext, isPlanPaid, now)
         if (trialAlert) alerts.push(trialAlert)
+
+        const hasPlanAlert = alerts.some(alert => alert.scope !== 'features')
+        const lapsedAlert = hasPlanAlert ? null : buildLapsedPlanAlert(planId, paidContexts, now)
+        if (lapsedAlert) alerts.push(lapsedAlert)
     }
 
     // Without a running plan the organization cannot use the platform, so a plan whose trial ran out asks to be paid
