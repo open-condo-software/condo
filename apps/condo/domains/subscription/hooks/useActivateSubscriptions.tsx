@@ -1,11 +1,10 @@
-import { useGetPendingSubscriptionRequestsQuery, useGetOrganizationActivatedSubscriptionsQuery, useRegisterSubscriptionContextsMutation, useCreateUserHelpRequestMutation } from '@app/condo/gql'
-import { UserHelpRequestTypeType, SubscriptionPaymentType } from '@app/condo/schema'
+import { useGetOrganizationActivatedSubscriptionsQuery, useRegisterSubscriptionContextsMutation } from '@app/condo/gql'
+import { SubscriptionPaymentType } from '@app/condo/schema'
 import { notification } from 'antd'
 import getConfig from 'next/config'
 import { useCallback, useState } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
-import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Typography } from '@open-condo/ui'
@@ -15,14 +14,25 @@ import { type PaymentType } from '@condo/domains/subscription/hooks/useSubscript
 
 const { publicRuntimeConfig: { serverUrl } } = getConfig()
 
-interface ActivatePlanParams {
-    priceId: string
+interface ActivateBundleParams {
+    /** Pricing rule ids to buy together; every rule must share the same period */
+    priceIds: ReadonlyArray<string>
     isTrial?: boolean
     planName?: string
     trialDays?: number
-    isCustomPrice?: boolean
     paymentType?: PaymentType
     returnUrl?: string
+    /**
+     * Whether the bundle contains a service plan. Buying a plan is announced as a plan purchase
+     * even when extra features ride along; buying features alone gets its own wording.
+     */
+    includesServicePlan?: boolean
+    /** Set to false when the caller announces the result itself */
+    notify?: boolean
+}
+
+interface ActivatePlanParams extends Omit<ActivateBundleParams, 'priceIds'> {
+    priceId: string
 }
 
 export const useActivateSubscriptions = () => {
@@ -34,11 +44,6 @@ export const useActivateSubscriptions = () => {
 
     const [activateLoading, setActivateLoading] = useState<boolean>(false)
 
-    const { data: pendingRequestsData, loading: pendingRequestsLoading, refetch: refetchPendingRequests } = useGetPendingSubscriptionRequestsQuery({
-        variables: { organizationId: organization?.id },
-        skip: !organization?.id,
-    })
-
     const { data: activatedSubscriptionsData, loading: activatedSubscriptionsLoading, refetch: refetchActivatedSubscriptions } = useGetOrganizationActivatedSubscriptionsQuery({
         variables: {
             organizationId: organization?.id || '',
@@ -47,13 +52,16 @@ export const useActivateSubscriptions = () => {
     })
 
     const [registerSubscriptionContextMutation] = useRegisterSubscriptionContextsMutation()
-    const [createUserHelpRequest] = useCreateUserHelpRequestMutation()
-    const { user } = useAuth()
 
-    const pendingRequests = pendingRequestsData?.pendingRequests || []
     const activatedSubscriptions = activatedSubscriptionsData?.activatedSubscriptions || []
 
-    const showSuccessNotification = useCallback((isTrial: boolean, planName: string, trialDays: number, isCustomPrice: boolean) => {
+    const showSuccessNotification = useCallback((
+        isTrial: boolean,
+        planName: string,
+        trialDays: number,
+        includesServicePlan: boolean,
+        paymentType: PaymentType
+    ) => {
         if (isTrial) {
             notification.success({
                 message: (
@@ -64,14 +72,14 @@ export const useActivateSubscriptions = () => {
                 description: intl.formatMessage({ id: 'subscription.activation.trial.description' }, { planName, days: trialDays }),
                 duration: 5,
             })
-        } else if (isCustomPrice) {
+        } else if (!includesServicePlan && paymentType !== 'invoice') {
             notification.success({
                 message: (
                     <Typography.Text strong size='large'>
-                        {intl.formatMessage({ id: 'subscription.activation.paid.custom.title' }, { planName })}
+                        {intl.formatMessage({ id: 'subscription.activation.features.title' })}
                     </Typography.Text>
                 ),
-                description: intl.formatMessage({ id: 'subscription.activation.paid.custom.description' }),
+                description: intl.formatMessage({ id: 'subscription.activation.features.description' }),
                 duration: 5,
             })
         } else {
@@ -88,62 +96,56 @@ export const useActivateSubscriptions = () => {
     }, [intl])
 
     const refetchData = useCallback(async (isTrial: boolean) => {
-        await refetchPendingRequests()
         if (isTrial) {
             await refetchActivatedSubscriptions()
             if (employee?.id) {
                 await selectEmployee(employee.id)
             }
         }
-    }, [refetchPendingRequests, refetchActivatedSubscriptions, employee?.id, selectEmployee])
+    }, [refetchActivatedSubscriptions, employee?.id, selectEmployee])
 
-    const registerSubscriptionContext = useCallback(async ({ priceId, isTrial = true, planName = '', trialDays = 0, isCustomPrice = false, paymentType = 'card', returnUrl }: ActivatePlanParams) => {
-        if (!organization) return
+    const registerSubscriptionBundle = useCallback(async ({
+        priceIds,
+        isTrial = true,
+        planName = '',
+        trialDays = 0,
+        paymentType = 'card',
+        returnUrl,
+        includesServicePlan = true,
+        notify = true,
+    }: ActivateBundleParams): Promise<boolean> => {
+        if (!organization || priceIds.length === 0) return false
 
         setActivateLoading(true)
         try {
-            if (paymentType === 'userHelpRequest') {
-                await createUserHelpRequest({
-                    variables: {
-                        data: {
-                            dv: 1,
-                            sender: getClientSideSenderInfo(),
-                            type: UserHelpRequestTypeType.ActivateSubscription,
-                            organization: { connect: { id: organization.id } },
-                            subscriptionPlanPricingRule: { connect: { id: priceId } },
-                            phone: user?.phone || '',
-                        },
+            const result = await registerSubscriptionContextMutation({
+                variables: {
+                    data: {
+                        dv: 1,
+                        sender: getClientSideSenderInfo(),
+                        organization: { id: organization.id },
+                        subscriptionPlanPricingRules: priceIds.map(id => ({ id })),
+                        paymentType: paymentType === 'invoice' ? SubscriptionPaymentType.Invoice : SubscriptionPaymentType.Card,
+                        isTrial,
                     },
-                })
-            } else {
-                const result = await registerSubscriptionContextMutation({
-                    variables: {
-                        data: {
-                            dv: 1,
-                            sender: getClientSideSenderInfo(),
-                            organization: { id: organization.id },
-                            subscriptionPlanPricingRules: [{ id: priceId }],
-                            paymentType: SubscriptionPaymentType.Card,
-                            isTrial,
-                        },
-                    },
-                })
+                },
+            })
 
-                if (!isTrial && result.data?.result?.directPaymentUrl) {
-                    let paymentUrl = result.data.result.directPaymentUrl
-                    const finalReturnUrl = returnUrl || `${serverUrl}/settings?tab=subscription`
-                    const returnUrlWithParams = new URL(finalReturnUrl)
-                    returnUrlWithParams.searchParams.append('successPayment', 'true')
-                    const url = new URL(paymentUrl)
-                    url.searchParams.append('returnUrl', returnUrlWithParams.toString())
-                    paymentUrl = url.toString()
-                    window.open(paymentUrl, '_self')
-                    return
-                }
+            if (!isTrial && result.data?.result?.directPaymentUrl) {
+                let paymentUrl = result.data.result.directPaymentUrl
+                const finalReturnUrl = returnUrl || `${serverUrl}/settings?tab=subscription`
+                const returnUrlWithParams = new URL(finalReturnUrl)
+                returnUrlWithParams.searchParams.append('successPayment', 'true')
+                const url = new URL(paymentUrl)
+                url.searchParams.append('returnUrl', returnUrlWithParams.toString())
+                paymentUrl = url.toString()
+                window.open(paymentUrl, '_self')
+                return true
             }
 
             await refetchData(isTrial)
-            showSuccessNotification(isTrial, planName, trialDays, isCustomPrice)
+            if (notify) showSuccessNotification(isTrial, planName, trialDays, includesServicePlan, paymentType)
+            return true
         } catch (error) {
             console.error('Failed to activate subscription:', error)
             notification.error({
@@ -151,17 +153,23 @@ export const useActivateSubscriptions = () => {
                 description: error?.message || ActivationErrorMessage,
                 duration: 5,
             })
+            return false
         } finally {
             setActivateLoading(false)
         }
-    }, [organization, user, registerSubscriptionContextMutation, createUserHelpRequest, refetchData, showSuccessNotification, ActivationErrorTitle, ActivationErrorMessage])
+    }, [organization, registerSubscriptionContextMutation, refetchData, showSuccessNotification, ActivationErrorTitle, ActivationErrorMessage])
+
+    const registerSubscriptionContext = useCallback(
+        ({ priceId, ...rest }: ActivatePlanParams) => registerSubscriptionBundle({ priceIds: [priceId], ...rest }),
+        [registerSubscriptionBundle]
+    )
 
     return {
         registerSubscriptionContext,
+        registerSubscriptionBundle,
         activateLoading,
-        pendingRequests,
         activatedSubscriptions,
-        isLoading: pendingRequestsLoading || activatedSubscriptionsLoading,
+        isLoading: activatedSubscriptionsLoading,
         refetchActivatedSubscriptions,
     }
 }

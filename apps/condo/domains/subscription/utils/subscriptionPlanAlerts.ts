@@ -1,0 +1,380 @@
+import dayjs from 'dayjs'
+
+import { SUBSCRIPTION_PAYMENT_BUFFER_DAYS, SUBSCRIPTION_PAYMENT_TYPE_CARD, SUBSCRIPTION_PAYMENT_TYPE_INVOICE } from '@condo/domains/subscription/constants'
+
+
+/** How long an issued invoice waits for the payment before a new one has to be issued */
+export const INVOICE_PAYMENT_DAYS = 5
+
+const DAY_MS = 24 * 60 * 60 * 1000
+
+export type PlanAlertType = 'cardFailed' | 'invoiceExpired' | 'trialExpired' | 'invoicePending' | 'trial'
+
+/** An alert speaks about the plan, about features bought on top of it, or - one invoice paid for both - about both at once */
+export type PlanAlertScope = 'plan' | 'features' | 'bundle'
+
+export type PlanAlert = {
+    key: string
+    type: PlanAlertType
+    scope: PlanAlertScope
+    planNames: ReadonlyArray<string>
+    daysLeft: number
+    /** Last day an issued invoice can be paid */
+    deadline: string | null
+    /** Pricing rules to issue a new invoice for */
+    priceIds: ReadonlyArray<string>
+    /** Unpaid registrations behind the alert, their invoice can be asked for again */
+    contextIds: ReadonlyArray<string>
+}
+
+export type UnpaidSubscriptionContext = {
+    id: string
+    status?: string | null
+    createdAt?: string | null
+    endAt?: string | null
+    subscriptionPlan?: { id: string, name?: string | null, planType?: string | null } | null
+    subscriptionPlanPricingRule?: { id: string } | null
+    /** Set when this registration paid for a bundle together with other contexts sharing the same invoice */
+    invoice?: { id: string } | null
+    frozenPaymentInfo?: { paymentType?: string | null } | null
+    /** Set once the organization removed the registration from its subscription, it is not waited for anymore */
+    renewalCancelledAt?: string | null
+}
+
+export type PaidSubscriptionContext = {
+    endAt?: string | null
+    subscriptionPlan?: { id: string } | null
+    subscriptionPlanPricingRule?: { id: string } | null
+}
+
+export type TrialSubscriptionContext = {
+    endAt?: string | null
+    subscriptionPlan?: { id?: string | null } | null
+}
+
+export type ServiceSubscriptionContext = {
+    isTrial?: boolean | null
+    endAt?: string | null
+    subscriptionPlan?: { id?: string | null } | null
+}
+
+const SEVERITY: Record<PlanAlertType, number> = {
+    cardFailed: 0,
+    invoiceExpired: 1,
+    trialExpired: 2,
+    invoicePending: 3,
+    trial: 4,
+}
+
+const daysUntil = (date: Date, now: Date): number => Math.max(0, Math.ceil((date.getTime() - now.getTime()) / DAY_MS))
+
+/**
+ * A trial period is stored as a calendar date, so it is measured in whole days in the viewer's timezone.
+ * Measuring it as an instant counts one day too many for everyone east of UTC until UTC catches up.
+ */
+const asDay = (value: string | Date): dayjs.Dayjs => dayjs(value).startOf('day')
+
+/** Abandoned card checkouts stay CREATED too, they are not something to warn about */
+const resolveUnpaidState = (context: UnpaidSubscriptionContext, now: Date): Pick<PlanAlert, 'type' | 'daysLeft' | 'deadline'> | null => {
+    const paymentType = context.frozenPaymentInfo?.paymentType
+
+    if (paymentType === SUBSCRIPTION_PAYMENT_TYPE_INVOICE && context.status === 'CREATED') {
+        const deadline = new Date(new Date(context.createdAt).getTime() + INVOICE_PAYMENT_DAYS * DAY_MS)
+        return deadline > now
+            ? { type: 'invoicePending', daysLeft: daysUntil(deadline, now), deadline: deadline.toISOString() }
+            : { type: 'invoiceExpired', daysLeft: 0, deadline: deadline.toISOString() }
+    }
+
+    if (paymentType === SUBSCRIPTION_PAYMENT_TYPE_CARD && (context.status === 'PENDING' || context.status === 'ERROR')) {
+        return { type: 'cardFailed', daysLeft: 0, deadline: null }
+    }
+
+    return null
+}
+
+/**
+ * The latest unpaid registration of every plan, as long as it still matters: its period has not run out and no
+ * paid context of the same plan already covers it
+ */
+const getLatestUnpaidByPlanId = <T extends UnpaidSubscriptionContext>(
+    unpaidContexts: ReadonlyArray<T>,
+    paidContexts: ReadonlyArray<PaidSubscriptionContext>,
+    now: Date,
+): Map<string, T> => {
+    const latest = new Map<string, T | null>()
+    const sorted = [...unpaidContexts].sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime())
+
+    for (const context of sorted) {
+        const planId = context.subscriptionPlan?.id
+        if (!planId || !context.endAt || !context.createdAt || latest.has(planId) || new Date(context.endAt) <= now) continue
+        // a removed registration still hides older ones of the same plan: they were superseded by it
+        if (context.renewalCancelledAt) {
+            latest.set(planId, null)
+            continue
+        }
+
+        const isCovered = paidContexts.some(paid => (
+            paid.subscriptionPlan?.id === planId && paid.endAt && new Date(paid.endAt) >= new Date(context.endAt)
+        ))
+        if (!isCovered) latest.set(planId, context)
+    }
+
+    return new Map([...latest].filter((entry): entry is [string, T] => Boolean(entry[1])))
+}
+
+export type OutstandingPayment<T extends UnpaidSubscriptionContext> = Pick<PlanAlert, 'type' | 'daysLeft' | 'deadline'> & {
+    context: T
+}
+
+/** Registrations the organization still has to pay for, the same ones the plan cards warn about */
+export const getOutstandingPayments = <T extends UnpaidSubscriptionContext>(
+    unpaidContexts: ReadonlyArray<T>,
+    paidContexts: ReadonlyArray<PaidSubscriptionContext>,
+    now: Date,
+): ReadonlyArray<OutstandingPayment<T>> => {
+    const payments: OutstandingPayment<T>[] = []
+    for (const context of getLatestUnpaidByPlanId(unpaidContexts, paidContexts, now).values()) {
+        const state = resolveUnpaidState(context, now)
+        if (state) payments.push({ context, ...state })
+    }
+
+    return payments
+}
+
+type BuildPlanCardAlertsParams = {
+    planId: string
+    isActivePlan: boolean
+    activeServiceContext: ServiceSubscriptionContext | null
+    unpaidContexts: ReadonlyArray<UnpaidSubscriptionContext>
+    paidContexts: ReadonlyArray<PaidSubscriptionContext>
+    /** Trials the organization ever had, a plan whose trial ran out asks to be paid for */
+    trialContexts?: ReadonlyArray<TrialSubscriptionContext>
+    /** The plan is already paid for, so its trial is nothing to warn about anymore */
+    isPlanPaid?: boolean
+    now: Date
+}
+
+const trialExpiredAlert = (): PlanAlert => ({
+    key: 'plan-trialExpired', type: 'trialExpired', scope: 'plan', planNames: [], daysLeft: 0, deadline: null, priceIds: [], contextIds: [],
+})
+
+const buildPlanAlert = (context: UnpaidSubscriptionContext | undefined, now: Date): PlanAlert | null => {
+    const state = context && resolveUnpaidState(context, now)
+    if (!context || !state) return null
+
+    return {
+        key: `plan-${state.type}`,
+        scope: 'plan',
+        planNames: [context.subscriptionPlan?.name ?? ''],
+        priceIds: context.subscriptionPlanPricingRule?.id ? [context.subscriptionPlanPricingRule.id] : [],
+        contextIds: [context.id],
+        ...state,
+    }
+}
+
+/**
+ * One invoice paid for the plan and for the features bought alongside it, so one alert covers both -
+ * naming the features and merging in their price/context ids, but not the plan's own name since the
+ * wording already says "тариф"
+ */
+const buildBundleAlert = (
+    planContext: UnpaidSubscriptionContext,
+    featureContexts: ReadonlyArray<UnpaidSubscriptionContext>,
+    now: Date
+): PlanAlert | null => {
+    const state = resolveUnpaidState(planContext, now)
+    if (!state) return null
+
+    let alert: PlanAlert = {
+        key: `bundle-${state.type}`,
+        scope: 'bundle',
+        planNames: [],
+        priceIds: planContext.subscriptionPlanPricingRule?.id ? [planContext.subscriptionPlanPricingRule.id] : [],
+        contextIds: [planContext.id],
+        ...state,
+    }
+
+    for (const context of featureContexts) {
+        const featureState = resolveUnpaidState(context, now)
+        if (!featureState) continue
+        const priceIds = context.subscriptionPlanPricingRule?.id ? [context.subscriptionPlanPricingRule.id] : []
+        alert = mergeFeatureAlert(alert, context, featureState, priceIds)
+    }
+
+    return alert
+}
+
+const mergeFeatureAlert = (
+    known: PlanAlert,
+    context: UnpaidSubscriptionContext,
+    state: Pick<PlanAlert, 'type' | 'daysLeft' | 'deadline'>,
+    priceIds: ReadonlyArray<string>,
+): PlanAlert => {
+    // the earliest deadline among the grouped invoices is the one the client has to meet
+    const isEarlier = state.deadline && known.deadline && new Date(state.deadline) < new Date(known.deadline)
+
+    return {
+        ...known,
+        planNames: [...known.planNames, context.subscriptionPlan.name ?? ''],
+        priceIds: [...known.priceIds, ...priceIds],
+        contextIds: [...known.contextIds, context.id],
+        ...(isEarlier && { daysLeft: state.daysLeft, deadline: state.deadline }),
+    }
+}
+
+/**
+ * One alert per invoice: features bought together on the same invoice share one alert, but two
+ * different invoices never merge into one even if both are, say, still pending
+ */
+const buildFeatureAlerts = (
+    featureContexts: ReadonlyArray<UnpaidSubscriptionContext>,
+    now: Date,
+): ReadonlyArray<PlanAlert> => {
+    const alertsByGroup = new Map<string, PlanAlert>()
+
+    for (const context of featureContexts) {
+        const state = resolveUnpaidState(context, now)
+        if (!state) continue
+
+        const groupKey = context.invoice?.id ? `invoice-${context.invoice.id}` : `${state.type}-${context.id}`
+        const known = alertsByGroup.get(groupKey)
+        const priceIds = context.subscriptionPlanPricingRule?.id ? [context.subscriptionPlanPricingRule.id] : []
+
+        alertsByGroup.set(groupKey, known ? mergeFeatureAlert(known, context, state, priceIds) : {
+            key: `features-${groupKey}`,
+            scope: 'features',
+            planNames: [context.subscriptionPlan.name ?? ''],
+            priceIds,
+            contextIds: [context.id],
+            ...state,
+        })
+    }
+
+    return [...alertsByGroup.values()]
+}
+
+/**
+ * The paid period is over, the plan only runs on its grace days, and nothing was issued to renew it. The client
+ * still has to pay, so the card asks for a new invoice for the same price, as if the old one had expired
+ */
+const buildLapsedPlanAlert = (planId: string, paidContexts: ReadonlyArray<PaidSubscriptionContext>, now: Date): PlanAlert | null => {
+    const today = asDay(now)
+    const planContexts = paidContexts.filter(context => context.subscriptionPlan?.id === planId && context.endAt)
+    if (planContexts.some(context => asDay(context.endAt).isAfter(today))) return null
+
+    const lastContext = [...planContexts].sort((left, right) => new Date(right.endAt).getTime() - new Date(left.endAt).getTime())[0]
+    if (!lastContext || !today.isBefore(asDay(lastContext.endAt).add(SUBSCRIPTION_PAYMENT_BUFFER_DAYS, 'day'))) return null
+
+    return {
+        key: 'plan-lapsed',
+        type: 'invoiceExpired',
+        scope: 'plan',
+        planNames: [],
+        daysLeft: 0,
+        deadline: null,
+        priceIds: lastContext.subscriptionPlanPricingRule?.id ? [lastContext.subscriptionPlanPricingRule.id] : [],
+        contextIds: [],
+    }
+}
+
+/** a trial paid for before it ran out is just a plan now, whatever date the paid period starts on */
+const buildTrialAlert = (
+    planId: string,
+    activeServiceContext: ServiceSubscriptionContext | null,
+    isPlanPaid: boolean,
+    now: Date,
+): PlanAlert | null => {
+    if (isPlanPaid || !activeServiceContext?.isTrial) return null
+    if (activeServiceContext.subscriptionPlan?.id !== planId || !activeServiceContext.endAt) return null
+
+    const trialEnd = asDay(activeServiceContext.endAt)
+    const today = asDay(now)
+    if (!trialEnd.isAfter(today)) return trialExpiredAlert()
+
+    return { key: 'plan-trial', type: 'trial', scope: 'plan', planNames: [], daysLeft: trialEnd.diff(today, 'day'), deadline: null, priceIds: [], contextIds: [] }
+}
+
+const hasUnpaidTrialToBuy = (
+    planId: string,
+    trialContexts: ReadonlyArray<TrialSubscriptionContext>,
+    paidContexts: ReadonlyArray<PaidSubscriptionContext>,
+    now: Date,
+): boolean => {
+    const isTrialOver = trialContexts.some(trial => trial.subscriptionPlan?.id === planId && trial.endAt && new Date(trial.endAt) <= now)
+    const isPaid = paidContexts.some(paid => paid.subscriptionPlan?.id === planId && paid.endAt && new Date(paid.endAt) > now)
+
+    return isTrialOver && !isPaid
+}
+
+/**
+ * Alerts of a plan card, most critical first. The card of the plan warns about its own unpaid invoice or payment.
+ * Features bought together with it in the same invoice warn on that same card, whether or not it is the active
+ * one - the client paid for that bundle as one thing. Features bought on their own warn on the active plan card
+ * instead, since that is the plan they were added to. Feature trials stay in the feature table.
+ */
+export const buildPlanCardAlerts = ({
+    planId,
+    isActivePlan,
+    activeServiceContext,
+    unpaidContexts,
+    paidContexts,
+    trialContexts = [],
+    isPlanPaid = false,
+    now,
+}: BuildPlanCardAlertsParams): ReadonlyArray<PlanAlert> => {
+    const alerts: PlanAlert[] = []
+    const latestUnpaidByPlanId = getLatestUnpaidByPlanId(unpaidContexts, paidContexts, now)
+
+    const planContext = latestUnpaidByPlanId.get(planId)
+
+    // Every invoice with a pending service plan purchase claims the features bought alongside it: those
+    // warn on that plan's own card, whichever plan happens to be active. What is left over - features
+    // bought on their own, in no such invoice - warns on the active plan card instead
+    const pendingServiceInvoiceIds = new Set(
+        [...latestUnpaidByPlanId.values()]
+            .filter(context => context.subscriptionPlan?.planType === 'service' && context.invoice?.id)
+            .map(context => context.invoice.id)
+    )
+    const featureContexts = [...latestUnpaidByPlanId.values()].filter(context => context.subscriptionPlan?.planType === 'feature')
+
+    // The invoice itself never loses a row just because one of its features got a newer registration
+    // elsewhere, so its alert is read off every unpaid context still on it, not only the latest per plan
+    const bundleInvoiceId = planContext?.subscriptionPlan?.planType === 'service' ? planContext.invoice?.id ?? null : null
+    const bundledFeatures = bundleInvoiceId
+        ? unpaidContexts.filter(context => context.subscriptionPlan?.planType === 'feature'
+            && context.invoice?.id === bundleInvoiceId && !context.renewalCancelledAt)
+        : []
+
+    // One invoice paid for both, so it reads as one alert, not two - the plan and its bundled features
+    if (bundledFeatures.length > 0) {
+        const bundleAlert = buildBundleAlert(planContext, bundledFeatures, now)
+        if (bundleAlert) alerts.push(bundleAlert)
+    } else {
+        const planAlert = buildPlanAlert(planContext, now)
+        if (planAlert) alerts.push(planAlert)
+    }
+
+    if (isActivePlan) {
+        const unclaimedFeatures = featureContexts.filter(context => !pendingServiceInvoiceIds.has(context.invoice?.id))
+        alerts.push(...buildFeatureAlerts(unclaimedFeatures, now))
+
+        const trialAlert = buildTrialAlert(planId, activeServiceContext, isPlanPaid, now)
+        if (trialAlert) alerts.push(trialAlert)
+
+        const hasPlanAlert = alerts.some(alert => alert.scope !== 'features')
+        const lapsedAlert = hasPlanAlert ? null : buildLapsedPlanAlert(planId, paidContexts, now)
+        if (lapsedAlert) alerts.push(lapsedAlert)
+    }
+
+    // Without a running plan the organization cannot use the platform, so a plan whose trial ran out asks to be paid
+    const hasRunningServicePlan = Boolean(activeServiceContext?.endAt && new Date(activeServiceContext.endAt) > now)
+    const asksToBePaid = !isActivePlan && !hasRunningServicePlan && !isPlanPaid
+        && !alerts.some(alert => alert.scope === 'plan')
+        && hasUnpaidTrialToBuy(planId, trialContexts, paidContexts, now)
+    if (asksToBePaid) alerts.push(trialExpiredAlert())
+
+    return alerts.sort((left, right) => (
+        SEVERITY[left.type] - SEVERITY[right.type]
+        || Number(left.scope === 'features') - Number(right.scope === 'features')
+    ))
+}
