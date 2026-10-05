@@ -2,8 +2,6 @@
   "global.common.answers.yes": "yes",
   "global.common.answers.no": "no",
 
-  "global.common.errors.serverError.message": "Oops, something went wrong",
-
   "global.common.unitName.apartment.full": "apartment",
   "global.common.unitName.commercial.full": "commercial",
   "global.common.unitName.flat.full": "flat",
@@ -15,14 +13,6 @@
   "global.user.type.resident": "resident",
   "global.user.type.staff": "staff",
 
-  "components.user.authContext.errors.authError.description": "An authorization error occurred. Please try again",
-  "components.user.authContext.actions.retry.label": "Retry",
-
-  "components.user.userCard.list.title": "Information about user",
-  "components.user.userCard.list.items.name.label": "User name",
-  "components.user.userCard.list.items.type.label": "User type",
-  "components.user.userCard.list.items.phone.label": "Phone",
-
   "components.organization.organizationCard.list.title": "Information about organization",
   "components.organization.organizationCard.list.items.name.label": "Organization name",
   "components.organization.organizationCard.list.items.role.label": "Role",
@@ -31,5 +21,10 @@
   "components.resident.residentCard.list.items.address.label": "Address",
   "components.resident.residentCard.list.items.unitName.label": "Unit name",
   "components.resident.residentCard.list.items.unitType.label": "Unit type",
-  "components.resident.residentCard.list.items.isVerifiedByManagingCompany.label": "Verified by managing company"
+  "components.resident.residentCard.list.items.isVerifiedByManagingCompany.label": "Verified by managing company",
+
+  "components.user.userCard.list.title": "Information about user",
+  "components.user.userCard.list.items.name.label": "User name",
+  "components.user.userCard.list.items.type.label": "User type",
+  "components.user.userCard.list.items.phone.label": "Phone"
 }

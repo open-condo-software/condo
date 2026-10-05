@@ -6,6 +6,9 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules"]
+  "include": [
+    "../static/next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "exclude": [
+    "../static/node_modules"
+  ]
 }

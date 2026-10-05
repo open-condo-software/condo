@@ -2,8 +2,6 @@
   "global.common.answers.yes": "да",
   "global.common.answers.no": "нет",
 
-  "global.common.errors.serverError.message": "Упс, что-то пошло не так",
-
   "global.common.unitName.apartment.full": "апартаменты",
   "global.common.unitName.commercial.full": "коммерческое помещение",
   "global.common.unitName.flat.full": "квартира",
@@ -15,14 +13,6 @@
   "global.user.type.resident": "житель",
   "global.user.type.staff": "сотрудник",
 
-  "components.user.authContext.errors.authError.description": "Произошла ошибка авторизации. Попробуйте еще раз",
-  "components.user.authContext.actions.retry.label": "Перезагрузить",
-
-  "components.user.userCard.list.title": "Информация о пользователе",
-  "components.user.userCard.list.items.name.label": "Имя пользователя",
-  "components.user.userCard.list.items.type.label": "Тип пользователя",
-  "components.user.userCard.list.items.phone.label": "Телефон",
-
   "components.organization.organizationCard.list.title": "Информация о сотруднике / организации",
   "components.organization.organizationCard.list.items.name.label": "Название организации",
   "components.organization.organizationCard.list.items.role.label": "Роль",
@@ -31,5 +21,10 @@
   "components.resident.residentCard.list.items.address.label": "Адрес дома",
   "components.resident.residentCard.list.items.unitName.label": "Помещение",
   "components.resident.residentCard.list.items.unitType.label": "Тип помещения",
-  "components.resident.residentCard.list.items.isVerifiedByManagingCompany.label": "Верификация УК"
+  "components.resident.residentCard.list.items.isVerifiedByManagingCompany.label": "Верификация УК",
+
+  "components.user.userCard.list.title": "Информация о пользователе",
+  "components.user.userCard.list.items.name.label": "Имя пользователя",
+  "components.user.userCard.list.items.type.label": "Тип пользователя",
+  "components.user.userCard.list.items.phone.label": "Телефон"
 }
