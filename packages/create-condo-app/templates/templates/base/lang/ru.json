@@ -1,0 +1,6 @@
+{
+  "global.common.errors.serverError.message": "Упс, что-то пошло не так",
+
+  "components.user.authContext.errors.authError.description": "Произошла ошибка авторизации. Попробуйте еще раз",
+  "components.user.authContext.actions.retry.label": "Перезагрузить"
+}

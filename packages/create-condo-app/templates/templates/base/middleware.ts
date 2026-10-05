@@ -1,7 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server'
+/**
+ * Middleware to allow all requests from condo through CORS
+ */
 
-// Temporary middleware to allow all requests through CORS
-// TODO: Remove this once proper CORS configuration is in place
+import { NextRequest, NextResponse } from 'next/server'
 
 const CONDO_DOMAIN = process.env.NEXT_PUBLIC_CONDO_DOMAIN || 'https://condo.d.doma.ai'
 
