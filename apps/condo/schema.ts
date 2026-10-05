@@ -32791,6 +32791,7 @@ export type GetAccessTokenByUserIdOutput = {
 
 export type GetAvailableSubscriptionPlansOutput = {
   __typename?: 'GetAvailableSubscriptionPlansOutput';
+  features: Array<SubscriptionFeatureAvailability>;
   plans: Array<Maybe<AvailableSubscriptionPlan>>;
 };
 
@@ -105839,6 +105840,19 @@ export type SubscriptionContextsUpdateInput = {
   data?: InputMaybe<SubscriptionContextUpdateInput>;
   id: Scalars['ID']['input'];
 };
+
+export type SubscriptionFeatureAvailability = {
+  __typename?: 'SubscriptionFeatureAvailability';
+  availability: SubscriptionFeatureAvailabilityType;
+  feature: Scalars['String']['output'];
+};
+
+export enum SubscriptionFeatureAvailabilityType {
+  ByPlan = 'byPlan',
+  Free = 'free',
+  Hidden = 'hidden',
+  RequiresSetup = 'requiresSetup'
+}
 
 export enum SubscriptionPaymentType {
   Card = 'card',

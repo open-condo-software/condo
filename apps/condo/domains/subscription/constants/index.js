@@ -77,6 +77,22 @@ const SUBSCRIPTION_PLAN_FEATURE_FIELDS = {
 
 const SUBSCRIPTION_PLAN_FEATURES = Object.keys(SUBSCRIPTION_PLAN_FEATURE_FIELDS)
 
+/**
+ * How a plan feature is offered to a particular organization. Most features follow the plans (BY_PLAN),
+ * a few depend on what the organization has set up outside of subscriptions
+ */
+const SUBSCRIPTION_FEATURE_AVAILABILITY = {
+    // included in a plan or bought separately
+    BY_PLAN: 'byPlan',
+    // available without any subscription
+    FREE: 'free',
+    // available without any subscription and not offered in the plans at all
+    HIDDEN: 'hidden',
+    // can't be used until the organization sets something up, so it is not sold yet
+    REQUIRES_SETUP: 'requiresSetup',
+}
+const SUBSCRIPTION_FEATURE_AVAILABILITIES = Object.values(SUBSCRIPTION_FEATURE_AVAILABILITY)
+
 module.exports = {
     SUBSCRIPTION_PERIOD,
     SUBSCRIPTION_PERIODS,
@@ -98,4 +114,6 @@ module.exports = {
     SUBSCRIPTION_PAYMENT_TYPES,
     SUBSCRIPTION_PLAN_FEATURE_FIELDS,
     SUBSCRIPTION_PLAN_FEATURES,
+    SUBSCRIPTION_FEATURE_AVAILABILITY,
+    SUBSCRIPTION_FEATURE_AVAILABILITIES,
 }

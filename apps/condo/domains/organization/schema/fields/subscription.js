@@ -6,7 +6,7 @@ const { find } = require('@open-condo/keystone/schema')
 
 const { SUBSCRIPTIONS } = require('@condo/domains/common/constants/featureflags')
 const { SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PAYMENT_BUFFER_DAYS, SUBSCRIPTION_PLAN_TYPE_SERVICE, SUBSCRIPTION_PLAN_FEATURES } = require('@condo/domains/subscription/constants')
-const { canUsePdfReceiptsWithoutSubscription } = require('@condo/domains/subscription/utils/serverSchema/pdfReceiptsAvailability')
+const { getFeatureAvailability, isAvailableWithoutSubscription } = require('@condo/domains/subscription/utils/serverSchema/featureAvailability')
 const { selectBestSubscriptionContext } = require('@condo/domains/subscription/utils/subscriptionContext')
 
 
@@ -314,7 +314,8 @@ const ORGANIZATION_SUBSCRIPTION_FIELD = {
             status: SUBSCRIPTION_CONTEXT_STATUS.DONE,
             deletedAt: null,
         })
-        const hasPdfReceiptsWithoutSubscription = await canUsePdfReceiptsWithoutSubscription(organization.id)
+        const featureAvailability = await getFeatureAvailability(organization)
+        const hasPdfReceiptsWithoutSubscription = isAvailableWithoutSubscription(featureAvailability.pdfReceipts)
         if (allContexts.length === 0) {
             const subscription = await buildSubscriptionResponse(null)
             if (hasPdfReceiptsWithoutSubscription) {
