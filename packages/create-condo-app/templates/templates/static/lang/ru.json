@@ -2,6 +2,8 @@
   "global.common.answers.yes": "да",
   "global.common.answers.no": "нет",
 
+  "global.common.errors.serverError.message": "Упс, что-то пошло не так",
+
   "global.common.unitName.apartment.full": "апартаменты",
   "global.common.unitName.commercial.full": "коммерческое помещение",
   "global.common.unitName.flat.full": "квартира",
@@ -12,6 +14,9 @@
 
   "global.user.type.resident": "житель",
   "global.user.type.staff": "сотрудник",
+
+  "components.user.authContext.errors.authError.description": "Произошла ошибка авторизации. Попробуйте еще раз",
+  "components.user.authContext.actions.retry.label": "Перезагрузить",
 
   "components.user.userCard.list.title": "Информация о пользователе",
   "components.user.userCard.list.items.name.label": "Имя пользователя",

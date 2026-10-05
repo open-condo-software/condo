@@ -1,9 +1,11 @@
 import getConfig from 'next/config'
 import { OidcClient } from 'oidc-client-ts'
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
+import { useIntl } from 'react-intl'
 
 import { useCachePersistor } from '@open-condo/apollo'
 import bridge from '@open-condo/bridge'
+import { Empty, Button, Spin } from '@open-condo/ui'
 
 import { useLaunchParams } from '@/domains/common/components/LaunchParamsContext'
 import { AUTH_TOKEN_KEY, AUTH_TOKEN_ISSUED_AT_KEY, AUTH_TOKEN_EXPIRATION_MARGIN_MS, AUTH_TOKEN_LIFETIME_MS } from '@/domains/user/constants/auth'
@@ -36,16 +38,21 @@ const AuthContext = createContext<AuthContextType>({
 })
 
 export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
+    const intl = useIntl()
+    const AuthErrorMessage = intl.formatMessage({ id: 'global.common.errors.serverError.message' })
+    const AuthErrorDescription = intl.formatMessage({ id: 'components.user.authContext.errors.authError.description' })
+    const RetryButtonLabel = intl.formatMessage({ id: 'components.user.authContext.actions.retry.label' })
+
     const [isOIDCLoading, setIsOIDCLoading] = useState(false)
     const { persistor } = useCachePersistor()
     const { launchParams, loading: launchParamsLoading } = useLaunchParams()
+    const [isError, setIsError] = useState(false)
 
     const { loading: userLoading, data, refetch } = useAuthenticatedUserQuery({
         skip: !persistor,
     })
 
     const signIn = useCallback(async () => {
-        setIsOIDCLoading(true)
         const authRequest = await client.createSigninRequest({
             redirect_uri: new URL(window.location.href).origin,
         })
@@ -57,12 +64,14 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
         const { access_token } = await client.processSigninResponse(response.url)
         window.localStorage.setItem(AUTH_TOKEN_KEY, access_token)
         window.localStorage.setItem(AUTH_TOKEN_ISSUED_AT_KEY, String(Date.now()))
-        setIsOIDCLoading(false)
         void refetch()
     }, [refetch])
 
+    const loading = useMemo(() => {
+        return launchParamsLoading || userLoading || !persistor || isOIDCLoading
+    }, [launchParamsLoading, userLoading, persistor, isOIDCLoading])
+
     const value = useMemo(() => {
-        const loading = launchParamsLoading || userLoading || !persistor || isOIDCLoading
         const fetchedUser = data?.authenticatedUser
         const user = fetchedUser?.id && launchParams?.condoUserId && fetchedUser.id !== launchParams.condoUserId ? null : fetchedUser
 
@@ -70,7 +79,7 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
             loading,
             user,
         }
-    }, [data?.authenticatedUser, isOIDCLoading, launchParams?.condoUserId, launchParamsLoading, persistor, userLoading])
+    }, [data?.authenticatedUser, launchParams?.condoUserId, loading])
 
     useEffect(() => {
         // skip if loading
@@ -91,13 +100,42 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
 
 
         if (isTokenCloseToExpiry || isUserDiffers) {
-            void signIn()
+            setIsOIDCLoading(true)
+            signIn().catch((err) => {
+                console.error(err)
+                setIsError(true)
+            }).finally(() => {
+                setIsOIDCLoading(false)
+            })
         }
     }, [data?.authenticatedUser, launchParams?.condoUserId, launchParamsLoading, signIn, userLoading])
 
+    const content = useMemo(() => {
+        if (isError) {
+            const onRetry = () => {
+                window.location.reload()
+            }
+
+            return (
+                <Empty
+                    image='/mascot/fail.webp'
+                    title={AuthErrorMessage}
+                    description={AuthErrorDescription}
+                    action={<Button type='primary' onClick={onRetry}>{RetryButtonLabel}</Button>}
+                />
+            )
+        }
+
+        if (loading) {
+            return <Spin size='large' block/>
+        }
+
+        return children
+    }, [AuthErrorDescription, AuthErrorMessage, RetryButtonLabel, children, isError, loading])
+
     return (
         <AuthContext.Provider value={value}>
-            {children}
+            {content}
         </AuthContext.Provider>
     )
 }
