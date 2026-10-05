@@ -1,64 +1,52 @@
 const conf = require('@open-condo/config')
-const { getLogger } = require('@open-condo/keystone/logging')
 const { find } = require('@open-condo/keystone/schema')
 
+const { SERVICE_PROVIDER_PROFILE_FEATURE } = require('@condo/domains/organization/constants/features')
+const { SUBSCRIPTION_FEATURE_AVAILABILITY } = require('@condo/domains/subscription/constants')
 const { getOrganizationsSubscriptionMap } = require('@condo/domains/subscription/utils/serverSchema/getOrganizationsSubscriptionMap')
-
-const logger = getLogger()
 
 const PDF_RECEIPTS_FEATURE = 'pdfReceipts'
 
 /**
- * Billing integrations whose pdf receipts are available to residents only with "pdfReceipts" subscription feature.
- * Organizations connected to any other billing integration can use pdf receipts without subscription.
- * Env value is a JSON array of billing integration ids.
- * A configured value that is not valid JSON or not an array is a misconfiguration and must fail loudly,
- * since silently falling back to an empty list would disable the paywall for everyone
+ * Pdf receipts of the registry exchange integration are available to residents only with "pdfReceipts" subscription
+ * feature. Organizations connected to any other billing integration can use pdf receipts without subscription.
  *
- * @returns {string[]}
+ * @returns {string|null}
  */
-function getPdfReceiptsSubscriptionRequiredBillingIntegrationIds () {
-    const rawValue = conf['PDF_RECEIPTS_SUBSCRIPTION_REQUIRED_BILLING_INTEGRATION_IDS']
-    if (!rawValue) return []
-
-    let integrationIds
-    try {
-        integrationIds = JSON.parse(rawValue)
-    } catch (err) {
-        logger.error({ msg: 'invalid PDF_RECEIPTS_SUBSCRIPTION_REQUIRED_BILLING_INTEGRATION_IDS', err })
-        throw new Error('PDF_RECEIPTS_SUBSCRIPTION_REQUIRED_BILLING_INTEGRATION_IDS must be a JSON array of billing integration ids')
-    }
-    if (!Array.isArray(integrationIds)) {
-        throw new TypeError('PDF_RECEIPTS_SUBSCRIPTION_REQUIRED_BILLING_INTEGRATION_IDS must be a JSON array of billing integration ids')
-    }
-    return integrationIds
+function getRegistryUploadIntegrationId () {
+    return conf['REGISTRY_UPLOAD_INTEGRATION_ID'] || null
 }
 
 function isPdfReceiptsSubscriptionRequired (integrationId) {
-    return getPdfReceiptsSubscriptionRequiredBillingIntegrationIds().includes(integrationId)
+    const registryUploadIntegrationId = getRegistryUploadIntegrationId()
+    return Boolean(registryUploadIntegrationId) && integrationId === registryUploadIntegrationId
 }
 
 /**
- * Organization is exempt only when it has at least one billing integration and none of them require the
- * "pdfReceipts" subscription feature. An organization with no billing integrations at all has nothing to be
- * exempt from, so it is not exempt (there is no matching receipt to gate either way).
- * A billing integration that doesn't require subscription must not exempt a subscription-required one
- * connected to the same organization
+ * SPP organizations get pdf receipts as part of their own registry upload, so the feature is not offered to them.
+ * The registry exchange sells pdf receipts by plan, and it does so even when the organization also has another
+ * billing integration. Any other billing gets them for free. Without a billing there is nothing to attach receipts
+ * to, so they are not sold until one is set up
  *
- * @param {string} organizationId
- * @returns {Promise<boolean>}
+ * @param {{ id: string, features?: string[] }} organization
+ * @returns {Promise<string>} one of SUBSCRIPTION_FEATURE_AVAILABILITY
  */
-async function canUsePdfReceiptsWithoutSubscription (organizationId) {
-    const subscriptionRequiredIntegrationIds = getPdfReceiptsSubscriptionRequiredBillingIntegrationIds()
-    if (subscriptionRequiredIntegrationIds.length === 0) return true
+async function getPdfReceiptsAvailability (organization) {
+    if (organization.features?.includes(SERVICE_PROVIDER_PROFILE_FEATURE)) return SUBSCRIPTION_FEATURE_AVAILABILITY.HIDDEN
+
+    const registryUploadIntegrationId = getRegistryUploadIntegrationId()
+    if (!registryUploadIntegrationId) return SUBSCRIPTION_FEATURE_AVAILABILITY.FREE
 
     const integrationContexts = await find('BillingIntegrationOrganizationContext', {
-        organization: { id: organizationId },
+        organization: { id: organization.id },
         deletedAt: null,
     })
-    if (integrationContexts.length === 0) return false
+    if (integrationContexts.length === 0) return SUBSCRIPTION_FEATURE_AVAILABILITY.REQUIRES_SETUP
+    if (integrationContexts.some(({ integration }) => integration === registryUploadIntegrationId)) {
+        return SUBSCRIPTION_FEATURE_AVAILABILITY.BY_PLAN
+    }
 
-    return integrationContexts.every(({ integration }) => !subscriptionRequiredIntegrationIds.includes(integration))
+    return SUBSCRIPTION_FEATURE_AVAILABILITY.FREE
 }
 
 function buildPdfReceiptsRestrictionKey (organizationId, integrationId) {
@@ -89,7 +77,7 @@ async function getOrganizationIdsWithoutPdfReceipts (context, billingContexts) {
 
 module.exports = {
     isPdfReceiptsSubscriptionRequired,
-    canUsePdfReceiptsWithoutSubscription,
+    getPdfReceiptsAvailability,
     getOrganizationIdsWithoutPdfReceipts,
     buildPdfReceiptsRestrictionKey,
 }

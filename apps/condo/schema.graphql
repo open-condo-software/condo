@@ -97109,8 +97109,21 @@ type AvailableSubscriptionPlan {
   prices: [SubscriptionPlanPrice!]!
 }
 
+enum SubscriptionFeatureAvailabilityType {
+  byPlan
+  free
+  hidden
+  requiresSetup
+}
+
+type SubscriptionFeatureAvailability {
+  feature: String!
+  availability: SubscriptionFeatureAvailabilityType!
+}
+
 type GetAvailableSubscriptionPlansOutput {
   plans: [AvailableSubscriptionPlan]!
+  features: [SubscriptionFeatureAvailability!]!
 }
 
 input ActivateSubscriptionContextInput {

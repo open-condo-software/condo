@@ -13,11 +13,26 @@ const {
 } = require('@condo/domains/billing/utils/testSchema')
 const { TestUtils, ResidentTestMixin } = require('@condo/domains/billing/utils/testSchema/testUtils')
 const { SUBSCRIPTIONS } = require('@condo/domains/common/constants/featureflags')
-const { Organization, registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { SUBSCRIPTION_PAYMENT_BUFFER_DAYS } = require('@condo/domains/subscription/constants')
-const { createTestSubscriptionPlan, createTestSubscriptionContext } = require('@condo/domains/subscription/utils/testSchema')
+const { SERVICE_PROVIDER_PROFILE_FEATURE } = require('@condo/domains/organization/constants/features')
+const { Organization, createTestOrganization, registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
+const { SUBSCRIPTION_FEATURE_AVAILABILITY, SUBSCRIPTION_PAYMENT_BUFFER_DAYS } = require('@condo/domains/subscription/constants')
+const {
+    createTestSubscriptionPlan,
+    createTestSubscriptionContext,
+    getAvailableSubscriptionPlansByTestClient,
+} = require('@condo/domains/subscription/utils/testSchema')
 
-const ENV_KEY = 'PDF_RECEIPTS_SUBSCRIPTION_REQUIRED_BILLING_INTEGRATION_IDS'
+const ENV_KEY = 'REGISTRY_UPLOAD_INTEGRATION_ID'
+
+async function withRegistryUploadIntegration (integrationId, callback) {
+    const currentValue = process.env[ENV_KEY]
+    process.env[ENV_KEY] = integrationId
+    try {
+        return await callback()
+    } finally {
+        process.env[ENV_KEY] = currentValue
+    }
+}
 
 async function createReceiptWithFile (utils) {
     const accountNumber = faker.random.alphaNumeric(12)
@@ -68,7 +83,7 @@ describe('pdf receipts subscription', () => {
         await createActivePdfReceiptsSubscription(admin, subscribedUtils.organization)
 
         previousEnvValue = process.env[ENV_KEY]
-        process.env[ENV_KEY] = JSON.stringify([utils.billingIntegration.id, subscribedUtils.billingIntegration.id])
+        process.env[ENV_KEY] = utils.billingIntegration.id
     })
 
     afterAll(() => {
@@ -124,15 +139,67 @@ describe('pdf receipts subscription', () => {
             expect(organization.subscription.pdfReceiptsEndAt).toBeNull()
         })
 
-        test('returns far-future date when no billing integrations require subscription', async () => {
-            process.env[ENV_KEY] = '[]'
-            try {
-                const organization = await Organization.getOne(admin, { id: utils.organization.id })
+        test('returns far-future date when registry upload integration is not configured', async () => {
+            const organization = await withRegistryUploadIntegration('', () => Organization.getOne(admin, { id: utils.organization.id }))
 
-                expect(organization.subscription.pdfReceiptsEndAt).toBe(dayjs().add(100, 'years').format('YYYY-MM-DD'))
-            } finally {
-                process.env[ENV_KEY] = JSON.stringify([utils.billingIntegration.id, subscribedUtils.billingIntegration.id])
-            }
+            expect(organization.subscription.pdfReceiptsEndAt).toBe(dayjs().add(100, 'years').format('YYYY-MM-DD'))
+        })
+    })
+
+    describe('getAvailableSubscriptionPlans.features', () => {
+        async function getPdfReceiptsAvailability (organization) {
+            const [result] = await getAvailableSubscriptionPlansByTestClient(admin, organization)
+            return result.features.find(({ feature }) => feature === 'pdfReceipts')?.availability
+        }
+
+        test('sells pdf receipts by plan to organization connected to registry exchange', async () => {
+            const availability = await getPdfReceiptsAvailability(utils.organization)
+
+            expect(availability).toBe(SUBSCRIPTION_FEATURE_AVAILABILITY.BY_PLAN)
+        })
+
+        test('sells pdf receipts by plan when registry exchange is connected together with another billing', async () => {
+            const [registeredOrganization] = await registerNewOrganization(admin)
+            const [billingIntegration] = await createTestBillingIntegration(admin)
+            await createTestBillingIntegrationOrganizationContext(admin, registeredOrganization, billingIntegration)
+            await createTestBillingIntegrationOrganizationContext(admin, registeredOrganization, utils.billingIntegration)
+
+            const availability = await getPdfReceiptsAvailability(registeredOrganization)
+
+            expect(availability).toBe(SUBSCRIPTION_FEATURE_AVAILABILITY.BY_PLAN)
+        })
+
+        test('gives pdf receipts for free to organization connected to another billing', async () => {
+            const [registeredOrganization] = await registerNewOrganization(admin)
+            const [billingIntegration] = await createTestBillingIntegration(admin)
+            await createTestBillingIntegrationOrganizationContext(admin, registeredOrganization, billingIntegration)
+
+            const availability = await getPdfReceiptsAvailability(registeredOrganization)
+
+            expect(availability).toBe(SUBSCRIPTION_FEATURE_AVAILABILITY.FREE)
+        })
+
+        test('requires billing setup from organization without billing', async () => {
+            const [registeredOrganization] = await registerNewOrganization(admin)
+
+            const availability = await getPdfReceiptsAvailability(registeredOrganization)
+
+            expect(availability).toBe(SUBSCRIPTION_FEATURE_AVAILABILITY.REQUIRES_SETUP)
+        })
+
+        test('hides pdf receipts from SPP organization', async () => {
+            const [sppOrganization] = await createTestOrganization(admin, { features: [SERVICE_PROVIDER_PROFILE_FEATURE] })
+            await createTestBillingIntegrationOrganizationContext(admin, sppOrganization, utils.billingIntegration)
+
+            const availability = await getPdfReceiptsAvailability(sppOrganization)
+
+            expect(availability).toBe(SUBSCRIPTION_FEATURE_AVAILABILITY.HIDDEN)
+        })
+
+        test('gives pdf receipts for free when registry upload integration is not configured', async () => {
+            const availability = await withRegistryUploadIntegration('', () => getPdfReceiptsAvailability(utils.organization))
+
+            expect(availability).toBe(SUBSCRIPTION_FEATURE_AVAILABILITY.FREE)
         })
     })
 
@@ -159,7 +226,10 @@ describe('pdf receipts subscription', () => {
         test('resident gets file with active subscription', async () => {
             const { receiptFile } = await createReceiptWithFile(subscribedUtils)
 
-            const residentReceiptFile = await BillingReceiptFile.getOne(subscribedUtils.clients.resident, { id: receiptFile.id })
+            const residentReceiptFile = await withRegistryUploadIntegration(
+                subscribedUtils.billingIntegration.id,
+                () => BillingReceiptFile.getOne(subscribedUtils.clients.resident, { id: receiptFile.id })
+            )
 
             expect(residentReceiptFile.file).toBeTruthy()
         })
@@ -179,7 +249,10 @@ describe('pdf receipts subscription', () => {
         test('returns file with active subscription', async () => {
             const { receipt } = await createReceiptWithFile(subscribedUtils)
 
-            const residentReceipts = await ResidentBillingReceipt.getAll(subscribedUtils.clients.resident)
+            const residentReceipts = await withRegistryUploadIntegration(
+                subscribedUtils.billingIntegration.id,
+                () => ResidentBillingReceipt.getAll(subscribedUtils.clients.resident)
+            )
             const residentReceipt = residentReceipts.find(({ id }) => id === receipt.id)
 
             expect(residentReceipt.file).toBeTruthy()

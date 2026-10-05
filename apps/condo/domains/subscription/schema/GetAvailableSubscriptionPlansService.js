@@ -6,8 +6,9 @@ const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keys
 const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/subscription/access/GetAvailableSubscriptionPlansService')
-const { SUBSCRIPTION_PERIODS, SUBSCRIPTION_PLAN_TYPES } = require('@condo/domains/subscription/constants')
+const { SUBSCRIPTION_FEATURE_AVAILABILITIES, SUBSCRIPTION_PERIODS, SUBSCRIPTION_PLAN_TYPES } = require('@condo/domains/subscription/constants')
 const { findMatchingPricingRule } = require('@condo/domains/subscription/utils/findMatchingPricingRule')
+const { getFeatureAvailability } = require('@condo/domains/subscription/utils/serverSchema/featureAvailability')
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -39,7 +40,15 @@ const GetAvailableSubscriptionPlansService = new GQLCustomSchema('GetAvailableSu
         },
         {
             access: true,
-            type: 'type GetAvailableSubscriptionPlansOutput { plans: [AvailableSubscriptionPlan]! }',
+            type: `enum SubscriptionFeatureAvailabilityType { ${SUBSCRIPTION_FEATURE_AVAILABILITIES.join(' ')} }`,
+        },
+        {
+            access: true,
+            type: 'type SubscriptionFeatureAvailability { feature: String!, availability: SubscriptionFeatureAvailabilityType! }',
+        },
+        {
+            access: true,
+            type: 'type GetAvailableSubscriptionPlansOutput { plans: [AvailableSubscriptionPlan]!, features: [SubscriptionFeatureAvailability!]! }',
         },
     ],
 
@@ -96,7 +105,11 @@ const GetAvailableSubscriptionPlansService = new GQLCustomSchema('GetAvailableSu
                     result.push({ plan, prices })
                 }
 
-                return { plans: result }
+                const featureAvailability = await getFeatureAvailability(organization)
+                const features = Object.entries(featureAvailability)
+                    .map(([feature, availability]) => ({ feature, availability }))
+
+                return { plans: result, features }
             },
         },
     ],
