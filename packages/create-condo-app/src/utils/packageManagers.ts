@@ -1,6 +1,6 @@
+import { getConfig, PackageManager } from './config'
 import { getMonorepoInfo } from './repos'
 
-import type { PackageManager } from './config'
 
 export function getPackageManager (): PackageManager {
     const { isMonorepo, packageManager } = getMonorepoInfo()
@@ -18,4 +18,9 @@ export function getPackageManager (): PackageManager {
 
     // Final fallback: default to npm
     return 'npm'
+}
+
+export async function install () {
+    const { packageManager, projectPath } = getConfig()
+    console.log(packageManager, projectPath)
 }

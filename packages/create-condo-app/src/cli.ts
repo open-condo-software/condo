@@ -1,3 +1,5 @@
+import { existsSync } from 'fs'
+
 import { Command } from 'commander'
 import Conf from 'conf'
 import { cyan, red, green, bold, blue } from 'picocolors'
@@ -8,10 +10,12 @@ import packageJson from '../package.json'
 import type { InitialReturnValue } from 'prompts'
 
 import { setConfig } from '@/utils/config'
-import { getAvailableTemplates, resolvePackagePath } from '@/utils/fs'
+import { initAppFromTemplate } from '@/utils/createApp'
+import { getAvailableTemplates, isEmptyDir, resolvePackagePath } from '@/utils/fs'
 import { validateNpmName } from '@/utils/npm'
 import { isValidPreferences } from '@/utils/objects'
 import { getPackageManager } from '@/utils/packageManagers'
+import { getMonorepoInfo } from '@/utils/repos'
 
 function onTermination () {
     process.exit(0)
@@ -139,16 +143,23 @@ async function run () {
         process.exit(1)
     }
 
+    if (existsSync(absolutePath) && !isEmptyDir(absolutePath)) {
+        const msg = `Could not create project. Directory "${bold(absolutePath)}" exists and not empty`
+        console.error(red(msg))
+        process.exit(1)
+    }
+
     // Save both app name and project path for utils to reuse
     setConfig({ appName: packageName, projectPath: absolutePath })
 
-    // STEP 2: Resolve package manager
+    // STEP 2: Resolve package manager && metadata
     const packageManager =
         opts.useNpm ? 'npm' :
             opts.useYarn ? 'yarn' :
                 opts.usePnpm ? 'pnpm' :
                     getPackageManager()
-    setConfig({ packageManager })
+    const monorepoInfo = getMonorepoInfo()
+    setConfig({ packageManager, monorepoInfo })
 
     // STEP 3: Resolve choices
     const initialPreferences = (conf.get('preferences') || {})
@@ -206,7 +217,7 @@ async function run () {
     setConfig({ preferences })
 
     // STEP 4: App creation
-    // TODO: do me
+    await initAppFromTemplate()
 }
 
 async function exit (reason: { command?: string }) {
