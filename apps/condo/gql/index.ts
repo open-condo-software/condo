@@ -6041,6 +6041,10 @@ export const GetAvailableServiceSubscriptionPlansDocument = gql`
     organization: $organization
     planType: service
   ) {
+    features {
+      feature
+      availability
+    }
     plans {
       plan {
         id

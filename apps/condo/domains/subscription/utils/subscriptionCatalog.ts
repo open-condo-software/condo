@@ -1,3 +1,4 @@
+import { SubscriptionFeatureAvailabilityType } from '@app/condo/schema'
 import dayjs from 'dayjs'
 
 import { SUBSCRIPTION_PLAN_FEATURES } from '@condo/domains/subscription/constants'
@@ -166,6 +167,8 @@ export type CatalogRow = {
     purchasable: boolean
     /** Where the row falls in the fixed reading order the table follows within its group */
     sortPriority: number
+    /** Feature the organization has to set up before the row can be bought, null when nothing blocks the purchase */
+    requiresSetupFeature: CapabilityKey | null
 }
 
 const asArray = (value: unknown): ReadonlyArray<string> => Array.isArray(value) ? value as string[] : []
@@ -198,6 +201,8 @@ type BuildCatalogParams = {
     staticRows?: ReadonlyArray<{ key: string, label: string, description?: string | null, sortPriority: number }>
     /** Reading order of a capability-only row that has no feature plan of its own to carry a priority */
     capabilityPriorities?: Record<CapabilityKey, number>
+    /** How the server offers features with their own rules to this organization, the rest follow the plans */
+    featureAvailability?: Record<CapabilityKey, SubscriptionFeatureAvailabilityType>
 }
 
 /**
@@ -219,6 +224,7 @@ export const buildCatalog = ({
     allPlanCapabilities = [],
     staticRows = [],
     capabilityPriorities = {},
+    featureAvailability = {},
 }: BuildCatalogParams): ReadonlyArray<CatalogRow> => {
     const planCapabilities = getPlanCapabilities(servicePlan)
     const rows: CatalogRow[] = []
@@ -250,6 +256,7 @@ export const buildCatalog = ({
             // a cancelled renewal still runs until its paid days are up - not for sale again until then
             purchasable: !includedInPlan && !purchased && status?.type !== 'renewalCancelled' && Boolean(price),
             sortPriority: plan.priority ?? Number.MAX_SAFE_INTEGER,
+            requiresSetupFeature: null,
         })
     }
 
@@ -271,6 +278,7 @@ export const buildCatalog = ({
             status: null,
             purchasable: false,
             sortPriority: capabilityPriorities[capability] ?? Number.MAX_SAFE_INTEGER,
+            requiresSetupFeature: null,
         })
     }
 
@@ -288,11 +296,38 @@ export const buildCatalog = ({
             status: null,
             purchasable: false,
             sortPriority: staticRow.sortPriority,
+            requiresSetupFeature: null,
         })
     }
 
-    return sortCatalogRows(rows, pinnedCapabilities)
+    return sortCatalogRows(applyFeatureAvailability(rows, featureAvailability), pinnedCapabilities)
 }
+
+const findRuledCapability = (
+    row: CatalogRow,
+    featureAvailability: Record<CapabilityKey, SubscriptionFeatureAvailabilityType>
+): CapabilityKey | null => row.capabilities.find(capability => featureAvailability[capability]) ?? null
+
+/**
+ * A hidden feature leaves the table, a free one reads as part of every plan, and one that needs setting up first
+ * keeps its price but can't be bought yet. Every other row follows the plans as usual
+ */
+const applyFeatureAvailability = (
+    rows: ReadonlyArray<CatalogRow>,
+    featureAvailability: Record<CapabilityKey, SubscriptionFeatureAvailabilityType>
+): CatalogRow[] => rows
+    .filter(row => featureAvailability[findRuledCapability(row, featureAvailability)] !== SubscriptionFeatureAvailabilityType.Hidden)
+    .map(row => {
+        const capability = findRuledCapability(row, featureAvailability)
+        switch (featureAvailability[capability]) {
+            case SubscriptionFeatureAvailabilityType.Free:
+                return { ...row, includedInPlan: true, purchasable: false }
+            case SubscriptionFeatureAvailabilityType.RequiresSetup:
+                return row.purchasable ? { ...row, requiresSetupFeature: capability } : row
+            default:
+                return row
+        }
+    })
 
 /**
  * The personal manager is always first, then every row keeps the same fixed reading order regardless of

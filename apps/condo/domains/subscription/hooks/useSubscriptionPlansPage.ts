@@ -28,6 +28,7 @@ import {
 
 import { useOrganizationSubscription } from './useOrganizationSubscription'
 
+import type { SubscriptionFeatureAvailabilityType } from '@app/condo/schema'
 import type { AvailableFeatureType } from '@condo/domains/subscription/constants/features'
 import type {
     CapabilityKey,
@@ -301,6 +302,11 @@ export const useSubscriptionPlansPage = () => {
         return Array.from(capabilities)
     }, [servicePlans])
 
+    /** The server decides how features with their own rules are offered to this organization */
+    const featureAvailability = useMemo<Record<CapabilityKey, SubscriptionFeatureAvailabilityType>>(() => Object.fromEntries(
+        (servicePlansData?.result?.features ?? []).map(({ feature, availability }) => [feature, availability])
+    ), [servicePlansData])
+
     const buildPlanRows = useCallback((planInfo: CatalogPlanInfo | null): ReadonlyArray<CatalogRow> => buildCatalog({
         servicePlan: planInfo?.plan ?? null,
         featurePlans,
@@ -312,7 +318,8 @@ export const useSubscriptionPlansPage = () => {
         allPlanCapabilities,
         staticRows,
         capabilityPriorities,
-    }), [featurePlans, period, purchasedFeaturePlanIds, capabilityLabels, featureStatusByPlanId, allPlanCapabilities, staticRows, capabilityPriorities])
+        featureAvailability,
+    }), [featurePlans, period, purchasedFeaturePlanIds, capabilityLabels, featureStatusByPlanId, allPlanCapabilities, staticRows, capabilityPriorities, featureAvailability])
 
     // read from every service plan, not only the ones sold for the selected period: a paid plan without a
     // price for that period is still the floor a purchase may only go up from

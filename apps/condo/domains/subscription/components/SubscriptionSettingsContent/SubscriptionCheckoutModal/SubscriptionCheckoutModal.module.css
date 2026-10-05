@@ -34,7 +34,7 @@
  */
 .upsell {
   position: relative;
-  height: 216px;
+  min-height: 216px;
   padding: 20px 24px;
   overflow: hidden;
   background: #204885;

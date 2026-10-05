@@ -150,7 +150,7 @@ export const usePaymentHistoryModal = () => {
 
     const outstandingPayments = useMemo(() => getOutstandingPayments(
         unpaidData?.unpaidSubscriptions ?? [],
-        activatedData?.activatedSubscriptions ?? [],
+        (activatedData?.activatedSubscriptions ?? []).filter(context => !context.isTrial),
         new Date(),
     ), [unpaidData, activatedData])
 
@@ -412,12 +412,6 @@ export const usePaymentHistoryModal = () => {
             </Space>
         ) : null
 
-        const paidUntil = (activatedData?.activatedSubscriptions ?? [])
-            .filter(context => !context.isTrial && featuresToRemove.some(feature => feature.planId === context.subscriptionPlan?.id))
-            .map(context => context.endAt)
-            .sort()
-            .pop() ?? null
-
         return (
             <>
                 <Modal
@@ -441,7 +435,6 @@ export const usePaymentHistoryModal = () => {
                     onCancel={() => setFeaturesToRemove([])}
                     names={featuresToRemove.map(feature => feature.name)}
                     planName={activeServiceContext?.subscriptionPlan?.name ?? ''}
-                    paidUntil={paidUntil}
                     loading={cancelLoading}
                     onConfirm={handleRemoveConfirm}
                 />
@@ -476,7 +469,7 @@ export const usePaymentHistoryModal = () => {
                 )}
             </>
         )
-    }, [hidePaidFeatures, canManageSubscriptions, removableGroups, removableFeatures, intl, RemoveAllLabel, RemoveManyLabel, NeedHelpLabel, activatedData, featuresToRemove, isModalOpen, closeModal, PaymentHistoryTitle, loading, rows, columns, totalCount, getRowId, activeServiceContext, cancelLoading, handleRemoveConfirm, isHelpModalOpen, HelpModalTitle, HelpModalDescription, HelpModalEmailLabel, HelpModalBotLabel])
+    }, [hidePaidFeatures, canManageSubscriptions, removableGroups, removableFeatures, intl, RemoveAllLabel, RemoveManyLabel, NeedHelpLabel, featuresToRemove, isModalOpen, closeModal, PaymentHistoryTitle, loading, rows, columns, totalCount, getRowId, activeServiceContext, cancelLoading, handleRemoveConfirm, isHelpModalOpen, HelpModalTitle, HelpModalDescription, HelpModalEmailLabel, HelpModalBotLabel])
 
     return {
         PaymentHistoryModal,

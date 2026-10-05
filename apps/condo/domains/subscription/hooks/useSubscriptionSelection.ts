@@ -75,12 +75,22 @@ export const useSubscriptionSelection = ({
         return (selectedPlanCard.planInfo.plan.priority ?? 0) > (paidPriority ?? 0)
     }, [selectedPlanCard, paidPlanId, paidPriority])
 
-    // what is included, purchasable or already owned all change with the plan and the period, so a
-    // cart assembled against the previous one would no longer mean anything
+    // what is included, purchasable or already owned changes with the plan, so a cart assembled
+    // against the previous one would no longer mean anything
     useEffect(() => {
         setSelectedRowKeys([])
         setMode('idle')
-    }, [selectedPlanId, period])
+    }, [selectedPlanId])
+
+    // switching the period only reprices the cart, rows that cannot be bought for the new period drop out
+    useEffect(() => {
+        const keptKeys = selectedRowKeys.filter(key => rows.some(row => row.key === key && row.price))
+        if (keptKeys.length === selectedRowKeys.length) return
+
+        setSelectedRowKeys(keptKeys)
+        if (keptKeys.length === 0) setMode('idle')
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [period, rows])
 
     const rowsByKey = useMemo(() => new Map(rows.map(row => [row.key, row])), [rows])
 
@@ -114,19 +124,24 @@ export const useSubscriptionSelection = ({
     /** Included rows are on and frozen; the rest follow the group the first pick established */
     const isRowDisabled = useCallback((row: CatalogRow): boolean => {
         const group = getRowGroup(row)
-        if (!group) return true
+        if (!group || row.requiresSetupFeature) return true
         // a plan below the paid one is only there to compare: nothing is bought against it
         if (group === 'buy' && (!getRowPrice(row) || selectedPlanCard?.isBelowActive)) return true
         if (isRowOverlapping(row)) return true
+        // a plan in the cart pays for new features only: other rows would silently take the plan out of it
+        if (isPlanPurchasable && mode === 'idle' && group !== 'buy') return true
 
         return mode !== 'idle' && mode !== group
-    }, [mode, getRowGroup, selectedPlanCard, isRowOverlapping])
+    }, [mode, getRowGroup, selectedPlanCard, isRowOverlapping, isPlanPurchasable])
 
     /** Set when the row is blocked only because the selection already holds features in another state */
     const isRowBlockedByMode = useCallback((row: CatalogRow): boolean => {
         const group = getRowGroup(row)
-        return Boolean(group) && mode !== 'idle' && mode !== group
-    }, [mode, getRowGroup])
+        if (!group) return false
+        if (isPlanPurchasable && mode === 'idle' && group !== 'buy') return true
+
+        return mode !== 'idle' && mode !== group
+    }, [mode, getRowGroup, isPlanPurchasable])
 
     const toggleRow = useCallback((row: CatalogRow) => {
         if (isRowDisabled(row)) return

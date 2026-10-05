@@ -384,7 +384,6 @@ export const SubscriptionSettingsContent: React.FC = () => {
                 onCancel={closeRemove}
                 names={selectedRows.map(row => row.label)}
                 planName={selectedPlanName}
-                paidUntil={selectedRows[0]?.status?.endAt ?? null}
                 loading={cancelLoading}
                 onConfirm={handleRemoveConfirm}
             />

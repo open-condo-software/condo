@@ -35,6 +35,10 @@ query getAvailableFeatureSubscriptionPlans($organization: OrganizationWhereUniqu
 
 query getAvailableServiceSubscriptionPlans($organization: OrganizationWhereUniqueInput!) {
     result: getAvailableSubscriptionPlans(organization: $organization, planType: service) {
+        features {
+            feature
+            availability
+        }
         plans {
             plan {
                 id

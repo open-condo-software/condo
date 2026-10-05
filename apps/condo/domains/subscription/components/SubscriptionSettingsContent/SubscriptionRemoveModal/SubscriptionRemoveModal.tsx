@@ -1,4 +1,3 @@
-import dayjs from 'dayjs'
 import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -11,8 +10,6 @@ type SubscriptionRemoveModalProps = {
     /** Names of the features being removed */
     names: ReadonlyArray<string>
     planName: string
-    /** Last day the features stay usable, they are not revoked immediately */
-    paidUntil: string | null
     loading: boolean
     onConfirm: () => void
 }
@@ -22,7 +19,6 @@ export const SubscriptionRemoveModal: React.FC<SubscriptionRemoveModalProps> = (
     onCancel,
     names,
     planName,
-    paidUntil,
     loading,
     onConfirm,
 }) => {
@@ -37,12 +33,10 @@ export const SubscriptionRemoveModal: React.FC<SubscriptionRemoveModalProps> = (
             { count: names.length, names: intl.formatList(names.map(name => `«${name}»`), { type: 'conjunction' }) }
         )
 
-    // Nothing to tell about a period that has already run out: the features are blocked right away
-    const isStillPaid = Boolean(paidUntil && dayjs(paidUntil).isAfter(dayjs()))
-    const info = isStillPaid ? intl.formatMessage(
+    const info = intl.formatMessage(
         { id: isSingle ? 'subscription.remove.info.one' : 'subscription.remove.info' },
-        { date: dayjs(paidUntil).format('D MMMM YYYY'), planName }
-    ) : null
+        { planName }
+    )
 
     return (
         <Modal
@@ -61,7 +55,7 @@ export const SubscriptionRemoveModal: React.FC<SubscriptionRemoveModalProps> = (
                 </Button>
             }
         >
-            {info && <Alert type='info' showIcon description={info} />}
+            <Alert type='info' showIcon description={info} />
         </Modal>
     )
 }

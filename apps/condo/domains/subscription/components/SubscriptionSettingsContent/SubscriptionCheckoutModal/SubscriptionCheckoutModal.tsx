@@ -154,8 +154,11 @@ export const SubscriptionCheckoutModal: React.FC<SubscriptionCheckoutModalProps>
         })
         if (!found || (planCard && found.plan.id === planCard.planInfo.plan.id)) return null
 
-        // what the client gets on top of the cart for less money, which is the whole point of the banner
-        const extraCapabilities = getPlanCapabilities(found.plan).filter(capability => !requiredCapabilities.includes(capability))
+        // what the upsell plan adds over what the client already gets: the plan they are on or buying plus the picked features
+        const basePlan = planCard?.planInfo.plan
+            ?? planCards.find(card => Number(card.planInfo.plan.priority ?? 0) === currentPlanPriority)?.planInfo.plan
+        const ownedCapabilities = [...(basePlan ? getPlanCapabilities(basePlan) : []), ...requiredCapabilities]
+        const extraCapabilities = getPlanCapabilities(found.plan).filter(capability => !ownedCapabilities.includes(capability))
         const extraNames = extraCapabilities.map(capability => capabilityLabels[capability]?.label).filter(Boolean)
 
         return { ...found, extraCount: extraCapabilities.length, extraNames: extraNames.join(', ') }

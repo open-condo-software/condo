@@ -39,11 +39,11 @@ export const SubscriptionPlanSummary: React.FC<SubscriptionPlanSummaryProps> = (
     return (
         <div className={styles.summary}>
             <div>
-                <Typography.Title level={4}>
+                <Typography.Title level={3}>
                     {withAnimatedNumber(includedText, counters.included)}
                 </Typography.Title>
                 {counters.available > 0 && (
-                    <Typography.Title level={4} type='secondary'>
+                    <Typography.Title level={3} type='secondary'>
                         {withAnimatedNumber(availableText, counters.available)}
                     </Typography.Title>
                 )}

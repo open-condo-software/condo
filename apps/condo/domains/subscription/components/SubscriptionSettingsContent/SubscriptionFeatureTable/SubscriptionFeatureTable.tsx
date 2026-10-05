@@ -95,12 +95,12 @@ export const SubscriptionFeatureTable: React.FC<SubscriptionFeatureTableProps> =
         if (!hasOwnPrice) {
             // Not sold on its own and not part of this plan either - it only comes bundled with a higher one
             priceContent = (
-                <Typography.Text type='secondary'>
+                <Typography.Text>
                     {row.includedInPlan ? FreeInPlanMessage : NotInPlanMessage}
                 </Typography.Text>
             )
         } else if (showCartButton) {
-            priceContent = (
+            const cartButtons = (
                 <Space size={8} wrap align='center'>
                     <Button
                         type='primary'
@@ -125,6 +125,12 @@ export const SubscriptionFeatureTable: React.FC<SubscriptionFeatureTableProps> =
                     )}
                 </Space>
             )
+            priceContent = row.requiresSetupFeature ? (
+                <Tooltip title={intl.formatMessage({ id: `subscription.featureTable.${row.requiresSetupFeature}.requiresSetup` as FormatjsIntl.Message['ids'] })}>
+                    {/* disabled buttons swallow pointer events, the wrapper keeps the tooltip */}
+                    <span className={styles.checkboxWrapper}>{cartButtons}</span>
+                </Tooltip>
+            ) : cartButtons
         } else {
             priceContent = <Typography.Text>{priceText}</Typography.Text>
         }
@@ -195,7 +201,7 @@ export const SubscriptionFeatureTable: React.FC<SubscriptionFeatureTableProps> =
     }, [])
 
     const renderDescription = useCallback<RenderTableCell<CatalogRow, CatalogRow['description']>>((description) => (
-        <Typography.Text type='secondary'>{description}</Typography.Text>
+        <Typography.Text>{description}</Typography.Text>
     ), [])
 
     const renderPrice = useCallback<RenderTableCell<CatalogRow>>((_, row) => renderPriceCell(row), [renderPriceCell])
