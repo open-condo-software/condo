@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync, existsSync } from 'fs'
+import { readdirSync, readFileSync, existsSync, statSync } from 'fs'
 import { resolve, join, sep, basename } from 'path'
 
 type PackagePathResult = {
@@ -77,4 +77,8 @@ export function getAvailableTemplates (): Array<TemplateInfo> {
     }
 
     return result
+}
+
+export function isEmptyDir (dirPath: string): boolean {
+    return existsSync(dirPath) && statSync(dirPath).isDirectory() && readdirSync(dirPath).length === 0
 }

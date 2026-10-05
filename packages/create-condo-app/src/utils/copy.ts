@@ -1,6 +1,9 @@
-import { existsSync } from 'fs'
+import { existsSync, readFileSync } from 'fs'
 import fs from 'fs/promises'
 import path from 'path'
+
+import { getConfig } from './config'
+import { resolveTemplatesDir } from './fs'
 
 type MergeRule = {
     pattern: string | Array<string>
@@ -57,4 +60,63 @@ export async function copyDir (options: CopyDirOptions): Promise<void> {
     }
 
     await Promise.all(sourceFiles.map((file) => _copyFile(file)))
+}
+
+export async function copyAppDir (srcPath: string) {
+    const { projectPath, preferences } = getConfig()
+    const ignoredFiles = [
+        '_meta.json',
+    ]
+
+    const gitIgnorePath = path.join(srcPath, '.gitignore')
+
+    if (!preferences.agentsMd) {
+        ignoredFiles.push('AGENTS.md')
+    }
+
+    if (existsSync(gitIgnorePath)) {
+        // TODO: handle glob patterns, next is leaking
+        const ignoredContent = readFileSync(gitIgnorePath, 'utf8')
+        const lines = ignoredContent.split('\n')
+            .map(l => l.trim())
+            .filter(l => l.length && !l.startsWith('#'))
+        if (lines.length) {
+            ignoredFiles.push(...lines)
+        }
+    }
+
+    await copyDir({
+        source: srcPath,
+        target: projectPath,
+        ignoreFiles: ignoredFiles,
+        mergeRules: [
+            {
+                pattern: 'lang/**/*.json',
+                merge: (existingContent, newContent) => {
+                    const existing = JSON.parse(existingContent)
+                    const newContentJson = JSON.parse(newContent)
+                    // TODO: lint translations to keep order
+                    return JSON.stringify({ ...existing, ...newContentJson }, null, 2)
+                },
+            },
+            // TODO: merge agents.md
+        ],
+    })
+}
+
+export async function copyAppTemplate (templateName: string) {
+    const templatesDir = resolveTemplatesDir()
+    const templateRootDir = path.join(templatesDir, 'templates', templateName)
+    const metaFile = path.join(templateRootDir, '_meta.json')
+
+    // If template extends another template, copy that first
+    if (existsSync(metaFile)) {
+        const meta = JSON.parse(await fs.readFile(metaFile, 'utf8'))
+        if (typeof meta?.extends === 'string') {
+            await copyAppTemplate(meta.extends)
+        }
+
+    }
+
+    await copyAppDir(templateRootDir)
 }

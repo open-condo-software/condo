@@ -1,16 +1,26 @@
-import { existsSync } from 'fs'
-import { dirname, resolve } from 'path'
+import { existsSync, readFileSync } from 'fs'
+import { dirname, resolve, join } from 'path'
 
 import { getConfig } from './config'
 
-import type { PackageManager } from './config'
+import type { PackageManager, MonorepoInfo } from './config'
 
 const MAX_SEARCH_DEPTH = 5
 
-type MonorepoInfo = {
-    isMonorepo: boolean
-    packageManager: PackageManager | null
-    root: string
+function isCondoMonorepo (repoRootPath: string): boolean {
+    const pkgJsonPath = join(repoRootPath, 'package.json')
+    const condoPkgJson = join(repoRootPath, 'apps', 'condo', 'package.json')
+    if (!existsSync(pkgJsonPath) || !existsSync(condoPkgJson)) return false
+
+    try {
+        const pkgJson = JSON.parse(readFileSync(pkgJsonPath, 'utf8'))
+        return typeof pkgJson === 'object' &&
+            pkgJson !== null &&
+            typeof pkgJson.repository === 'string'
+            && pkgJson.repository === 'https://github.com/open-condo-software/condo'
+    } catch {
+        return false
+    }
 }
 
 export function getMonorepoInfo (): MonorepoInfo {
@@ -38,7 +48,10 @@ export function getMonorepoInfo (): MonorepoInfo {
 
         // If we found a lock file or workspace config, return info
         if (packageManager || isMonorepo) {
+            const isCondoRepo = isMonorepo ? isCondoMonorepo(currentDir) : false
+
             return {
+                isCondoRepo,
                 isMonorepo,
                 packageManager,
                 root: currentDir,
@@ -48,6 +61,7 @@ export function getMonorepoInfo (): MonorepoInfo {
         // Stop at git root
         if (hasGit) {
             return {
+                isCondoRepo: false,
                 isMonorepo: true,
                 packageManager: null,
                 root: currentDir,
@@ -66,6 +80,7 @@ export function getMonorepoInfo (): MonorepoInfo {
 
     // No lock file or workspace config found
     return {
+        isCondoRepo: false,
         isMonorepo: false,
         packageManager: null,
         root: projectPath,
