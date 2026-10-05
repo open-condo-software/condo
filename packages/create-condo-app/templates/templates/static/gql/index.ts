@@ -23165,6 +23165,7 @@ export type DocumentUpdateInput = {
   meta?: InputMaybe<Scalars['JSON']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['String']['input']>;
+  property?: InputMaybe<PropertyRelateToOneInput>;
   sender?: InputMaybe<SenderFieldInput>;
 };
 
