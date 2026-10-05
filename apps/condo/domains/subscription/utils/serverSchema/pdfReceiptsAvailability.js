@@ -1,6 +1,7 @@
 const conf = require('@open-condo/config')
 const { find } = require('@open-condo/keystone/schema')
 
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 const { SERVICE_PROVIDER_PROFILE_FEATURE } = require('@condo/domains/organization/constants/features')
 const { SUBSCRIPTION_FEATURE_AVAILABILITY } = require('@condo/domains/subscription/constants')
 const { getOrganizationsSubscriptionMap } = require('@condo/domains/subscription/utils/serverSchema/getOrganizationsSubscriptionMap')
@@ -26,7 +27,7 @@ function isPdfReceiptsSubscriptionRequired (integrationId) {
  * SPP organizations get pdf receipts as part of their own registry upload, so the feature is not offered to them.
  * The registry exchange sells pdf receipts by plan, and it does so even when the organization also has another
  * billing integration. Any other billing gets them for free. Without a billing there is nothing to attach receipts
- * to, so they are not sold until one is set up
+ * to, so they are not sold until one is set up. A billing counts only once its connection is finished
  *
  * @param {{ id: string, features?: string[] }} organization
  * @returns {Promise<string>} one of SUBSCRIPTION_FEATURE_AVAILABILITY
@@ -39,6 +40,7 @@ async function getPdfReceiptsAvailability (organization) {
 
     const integrationContexts = await find('BillingIntegrationOrganizationContext', {
         organization: { id: organization.id },
+        status: CONTEXT_FINISHED_STATUS,
         deletedAt: null,
     })
     if (integrationContexts.length === 0) return SUBSCRIPTION_FEATURE_AVAILABILITY.REQUIRES_SETUP
