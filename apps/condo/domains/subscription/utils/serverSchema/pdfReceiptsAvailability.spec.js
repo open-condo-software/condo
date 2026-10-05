@@ -13,6 +13,7 @@ const {
 } = require('@condo/domains/billing/utils/testSchema')
 const { TestUtils, ResidentTestMixin } = require('@condo/domains/billing/utils/testSchema/testUtils')
 const { SUBSCRIPTIONS } = require('@condo/domains/common/constants/featureflags')
+const { CONTEXT_FINISHED_STATUS, CONTEXT_IN_PROGRESS_STATUS } = require('@condo/domains/miniapp/constants')
 const { SERVICE_PROVIDER_PROFILE_FEATURE } = require('@condo/domains/organization/constants/features')
 const { Organization, createTestOrganization, registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { SUBSCRIPTION_FEATURE_AVAILABILITY, SUBSCRIPTION_PAYMENT_BUFFER_DAYS } = require('@condo/domains/subscription/constants')
@@ -44,6 +45,10 @@ async function createReceiptWithFile (utils) {
     await utils.createServiceConsumer(resident, accountNumber)
 
     return { receipt, receiptFile }
+}
+
+async function connectFinishedBilling (admin, organization, integration) {
+    return await createTestBillingIntegrationOrganizationContext(admin, organization, integration, { status: CONTEXT_FINISHED_STATUS })
 }
 
 async function createActivePdfReceiptsSubscription (admin, organization) {
@@ -109,7 +114,7 @@ describe('pdf receipts subscription', () => {
 
         test('returns plan end date for subscribed organization connected to billing integration requiring subscription', async () => {
             const [registeredOrganization] = await registerNewOrganization(admin)
-            await createTestBillingIntegrationOrganizationContext(admin, registeredOrganization, utils.billingIntegration)
+            await connectFinishedBilling(admin, registeredOrganization, utils.billingIntegration)
             const { endAt } = await createActivePdfReceiptsSubscription(admin, registeredOrganization)
 
             const organization = await Organization.getOne(admin, { id: registeredOrganization.id })
@@ -120,7 +125,7 @@ describe('pdf receipts subscription', () => {
         test('returns far-future date for organization connected to another billing integration', async () => {
             const [registeredOrganization] = await registerNewOrganization(admin)
             const [billingIntegration] = await createTestBillingIntegration(admin)
-            await createTestBillingIntegrationOrganizationContext(admin, registeredOrganization, billingIntegration)
+            await connectFinishedBilling(admin, registeredOrganization, billingIntegration)
 
             const organization = await Organization.getOne(admin, { id: registeredOrganization.id })
 
@@ -130,9 +135,9 @@ describe('pdf receipts subscription', () => {
         test('ignores deleted context of another billing integration', async () => {
             const [registeredOrganization] = await registerNewOrganization(admin)
             const [billingIntegration] = await createTestBillingIntegration(admin)
-            const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, registeredOrganization, billingIntegration)
+            const [billingContext] = await connectFinishedBilling(admin, registeredOrganization, billingIntegration)
             await updateTestBillingIntegrationOrganizationContext(admin, billingContext.id, { deletedAt: dayjs().toISOString() })
-            await createTestBillingIntegrationOrganizationContext(admin, registeredOrganization, utils.billingIntegration)
+            await connectFinishedBilling(admin, registeredOrganization, utils.billingIntegration)
 
             const organization = await Organization.getOne(admin, { id: registeredOrganization.id })
 
@@ -161,8 +166,8 @@ describe('pdf receipts subscription', () => {
         test('sells pdf receipts by plan when registry exchange is connected together with another billing', async () => {
             const [registeredOrganization] = await registerNewOrganization(admin)
             const [billingIntegration] = await createTestBillingIntegration(admin)
-            await createTestBillingIntegrationOrganizationContext(admin, registeredOrganization, billingIntegration)
-            await createTestBillingIntegrationOrganizationContext(admin, registeredOrganization, utils.billingIntegration)
+            await connectFinishedBilling(admin, registeredOrganization, billingIntegration)
+            await connectFinishedBilling(admin, registeredOrganization, utils.billingIntegration)
 
             const availability = await getPdfReceiptsAvailability(registeredOrganization)
 
@@ -172,11 +177,20 @@ describe('pdf receipts subscription', () => {
         test('gives pdf receipts for free to organization connected to another billing', async () => {
             const [registeredOrganization] = await registerNewOrganization(admin)
             const [billingIntegration] = await createTestBillingIntegration(admin)
-            await createTestBillingIntegrationOrganizationContext(admin, registeredOrganization, billingIntegration)
+            await connectFinishedBilling(admin, registeredOrganization, billingIntegration)
 
             const availability = await getPdfReceiptsAvailability(registeredOrganization)
 
             expect(availability).toBe(SUBSCRIPTION_FEATURE_AVAILABILITY.FREE)
+        })
+
+        test('requires billing setup from organization whose billing connection is not finished', async () => {
+            const [registeredOrganization] = await registerNewOrganization(admin)
+            await createTestBillingIntegrationOrganizationContext(admin, registeredOrganization, utils.billingIntegration, { status: CONTEXT_IN_PROGRESS_STATUS })
+
+            const availability = await getPdfReceiptsAvailability(registeredOrganization)
+
+            expect(availability).toBe(SUBSCRIPTION_FEATURE_AVAILABILITY.REQUIRES_SETUP)
         })
 
         test('requires billing setup from organization without billing', async () => {
@@ -189,7 +203,7 @@ describe('pdf receipts subscription', () => {
 
         test('hides pdf receipts from SPP organization', async () => {
             const [sppOrganization] = await createTestOrganization(admin, { features: [SERVICE_PROVIDER_PROFILE_FEATURE] })
-            await createTestBillingIntegrationOrganizationContext(admin, sppOrganization, utils.billingIntegration)
+            await connectFinishedBilling(admin, sppOrganization, utils.billingIntegration)
 
             const availability = await getPdfReceiptsAvailability(sppOrganization)
 
