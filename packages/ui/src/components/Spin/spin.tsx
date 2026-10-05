@@ -5,8 +5,8 @@ import React, { useMemo } from 'react'
 const SPIN_CLASS_PREFIX = 'condo-spin'
 
 export type SpinProps = {
-    className: string
-    size: 'large' | 'medium'
+    className?: string
+    size?: 'large' | 'medium'
     block?: boolean
 }
 
