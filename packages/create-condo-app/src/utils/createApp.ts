@@ -36,12 +36,6 @@ export async function initAppFromTemplate () {
         // TODO: change codegen / envs to local
     }
 
-    if (preferences.agentsMd) {
-        console.log(`Initializing files for ${cyan('AI agents')}`)
-        console.log()
-        // TODO: create claude with reference to agents.md
-    }
-
     console.log(`${blue('Installing packages.')} This might take a couple of minutes...`)
     console.log()
     await install()
