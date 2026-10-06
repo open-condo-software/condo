@@ -2,8 +2,11 @@ import { existsSync, readFileSync } from 'fs'
 import fs from 'fs/promises'
 import path from 'path'
 
+import { glob } from 'glob'
+
 import { getConfig } from './config'
 import { resolveTemplatesDir } from './fs'
+import { mergePackageJson, mergeTranslations } from './merge'
 
 type MergeRule = {
     pattern: string | Array<string>
@@ -28,11 +31,9 @@ export async function copyDir (options: CopyDirOptions): Promise<void> {
 
     const ignorePatterns = [...GLOBAL_IGNORED_FILES, ...(ignoreFiles ?? [])]
 
-    const sourceEntitiesList = await fs.readdir(source, { recursive: true, withFileTypes: true })
-    const sourceFiles = sourceEntitiesList
-        .filter(dirent => dirent.isFile())
-        .map(dirent => path.relative(source, path.join(dirent.parentPath, dirent.name)))
-        .filter(file => !ignorePatterns.some(pattern => path.matchesGlob(file, pattern)))
+    // NOTE: glob is used to respect .gitignore patterns
+    const filesToCopy = await glob('**/*', { ignore: ignorePatterns, cwd: source, absolute: true, nodir: true })
+    const sourceFiles = filesToCopy.map((filePath) => path.relative(source, filePath))
 
     async function _copyFile (file: string) {
         const sourcePath = path.join(source, file)
@@ -92,12 +93,11 @@ export async function copyAppDir (srcPath: string) {
         mergeRules: [
             {
                 pattern: 'lang/**/*.json',
-                merge: (existingContent, newContent) => {
-                    const existing = JSON.parse(existingContent)
-                    const newContentJson = JSON.parse(newContent)
-                    // TODO: lint translations to keep order
-                    return JSON.stringify({ ...existing, ...newContentJson }, null, 2)
-                },
+                merge: mergeTranslations,
+            },
+            {
+                pattern: 'package.json',
+                merge: mergePackageJson,
             },
             // TODO: merge agents.md
         ],
