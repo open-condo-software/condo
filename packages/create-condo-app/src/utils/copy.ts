@@ -6,7 +6,7 @@ import { glob } from 'glob'
 
 import { getConfig } from './config'
 import { resolveTemplatesDir } from './fs'
-import { mergePackageJson, mergeTranslations } from './merge'
+import { mergePackageJson, mergeTranslations, mergeAgentsMd } from './merge'
 
 type MergeRule = {
     pattern: string | Array<string>
@@ -99,7 +99,10 @@ export async function copyAppDir (srcPath: string) {
                 pattern: 'package.json',
                 merge: mergePackageJson,
             },
-            // TODO: merge agents.md
+            {
+                pattern: 'AGENTS.md',
+                merge: mergeAgentsMd,
+            },
         ],
     })
 }

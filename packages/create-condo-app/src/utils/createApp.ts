@@ -3,6 +3,7 @@ import path from 'path'
 
 import { cyan, green, blue } from 'picocolors'
 
+import { resolveLocalDependencies, resolveLocalSchema, replaceEnvToConf, replaceLocalCondoAddress } from '@/utils/condo'
 import { getConfig } from '@/utils/config'
 import { copyAppTemplate, copyAppDir } from '@/utils/copy'
 import { resolveTemplatesDir } from '@/utils/fs'
@@ -31,9 +32,10 @@ export async function initAppFromTemplate () {
         console.log(`Condo monorepo detected. Adding ${cyan('condo-specific')} files...`)
         console.log()
         await copyAppDir(path.join(resolveTemplatesDir(), 'examples', 'condo'))
-        // TODO: replace env to conf here
-        // TODO: resolve local dependencies
-        // TODO: change codegen / envs to local
+        await resolveLocalDependencies()
+        await replaceLocalCondoAddress()
+        await resolveLocalSchema()
+        await replaceEnvToConf()
     }
 
     console.log(`${blue('Installing packages.')} This might take a couple of minutes...`)

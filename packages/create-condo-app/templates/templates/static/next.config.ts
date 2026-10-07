@@ -1,6 +1,6 @@
 import { nextCamelCaseCSSModulesTransform } from '@open-condo/miniapp-utils/helpers/webpack'
 
-import { version } from '../base/package.json'
+import { version } from './package.json'
 
 import type { NextConfig } from 'next'
 
