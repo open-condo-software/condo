@@ -54,6 +54,9 @@ async function createOrUpdateAddressWithSource (context, addressServerUtils, add
     // Fallback values are deliberately broad; never use them to relate an address
     // that has a FIAS identity (stead or house).
     const matchingHeuristics = hasFiasIdentity
+        ? heuristics.filter((heuristic) => heuristic.type === HEURISTIC_TYPE_FIAS_ID && heuristic.value)
+        : heuristics
+    const heuristicsToUpsert = hasFiasIdentity
         ? heuristics.filter((heuristic) => heuristic.type !== HEURISTIC_TYPE_FALLBACK)
         : heuristics
 
@@ -94,8 +97,8 @@ async function createOrUpdateAddressWithSource (context, addressServerUtils, add
     }
 
     // Upsert heuristics for the address
-    if (matchingHeuristics.length > 0) {
-        await upsertHeuristics(context, addressItem.id, matchingHeuristics, providerName, dvSender)
+    if (heuristicsToUpsert.length > 0) {
+        await upsertHeuristics(context, addressItem.id, heuristicsToUpsert, providerName, dvSender)
     }
 
     //
