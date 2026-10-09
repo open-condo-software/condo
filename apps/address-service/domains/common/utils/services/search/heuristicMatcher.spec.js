@@ -11,6 +11,7 @@ const { Address: AddressServerUtils, AddressHeuristic: AddressHeuristicServerUti
 const { createTestAddress, createTestAddressHeuristic } = require('@address-service/domains/address/utils/testSchema')
 const { HEURISTIC_TYPE_COORDINATES, HEURISTIC_TYPE_FIAS_ID } = require('@address-service/domains/common/constants/heuristicTypes')
 const { COORDINATE_TOLERANCE } = require('@address-service/domains/common/utils/services/search/heuristicStrategies/CoordinateHeuristicStrategy')
+const { DadataSearchProvider } = require('@address-service/domains/common/utils/services/search/providers/DadataSearchProvider')
 
 const {
     coordinatesMatch,
@@ -164,6 +165,53 @@ describe('heuristicMatcher', () => {
                 { type: HEURISTIC_TYPE_FIAS_ID, value: highValue, reliability: 95 },
             ])
             expect(result).toMatchObject({ matchedHeuristic: { type: HEURISTIC_TYPE_FIAS_ID, value: highValue } })
+        })
+
+        it('keeps distinct steads with shared exact coordinates separate and reuses the same stead ID', async () => {
+            const [firstAddress] = await createTestAddress(adminClient, { key: `fallback:${faker.random.alphaNumeric(12)}` })
+            const firstSteadId = faker.datatype.uuid()
+            const secondSteadId = faker.datatype.uuid()
+            const coordinates = { geo_lat: '55.751244', geo_lon: '37.618423', qc_geo: '0' }
+            const provider = new DadataSearchProvider({ req: { id: 'test-request-id' } })
+
+            await createTestAddressHeuristic(adminClient, firstAddress.id, {
+                type: HEURISTIC_TYPE_FIAS_ID,
+                value: firstSteadId,
+                reliability: 95,
+            })
+
+            const secondSteadHeuristics = provider.extractHeuristics({ data: { stead_fias_id: secondSteadId, ...coordinates } })
+            const secondSteadMatch = await findAddressByHeuristics(secondSteadHeuristics)
+            expect(secondSteadMatch).toBeNull()
+
+            const sameSteadHeuristics = provider.extractHeuristics({ data: { stead_fias_id: firstSteadId, ...coordinates } })
+            const sameSteadMatch = await findAddressByHeuristics(sameSteadHeuristics)
+            expect(sameSteadMatch.addressId).toBe(firstAddress.id)
+        })
+
+        it('preserves coordinate matching for houses and fallback matching for empty stead IDs', async () => {
+            const [address] = await createTestAddress(adminClient, { key: `fallback:${faker.random.alphaNumeric(12)}` })
+            const provider = new DadataSearchProvider({ req: { id: 'test-request-id' } })
+            const coordinate = '55.751244,37.618423'
+            await createTestAddressHeuristic(adminClient, address.id, {
+                type: HEURISTIC_TYPE_COORDINATES,
+                value: coordinate,
+                reliability: 90,
+                latitude: '55.751244',
+                longitude: '37.618423',
+            })
+
+            const houseHeuristics = provider.extractHeuristics({ data: {
+                house_fias_id: faker.datatype.uuid(),
+                geo_lat: '55.751244',
+                geo_lon: '37.618423',
+                qc_geo: '0',
+            } })
+            expect((await findAddressByHeuristics(houseHeuristics)).addressId).toBe(address.id)
+
+            const emptyStead = { data: { stead_fias_id: '', city: 'Moscow', house: '10' } }
+            const fallbackHeuristics = provider.extractHeuristics(emptyStead)
+            expect(fallbackHeuristics[0].type).toBe(HEURISTIC_TYPE_FALLBACK)
         })
     })
 
