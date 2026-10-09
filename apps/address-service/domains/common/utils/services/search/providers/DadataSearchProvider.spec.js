@@ -120,6 +120,24 @@ describe('DadataSearchProvider stead identity', () => {
         }])
     })
 
+    test('does not add a fallback heuristic when a house FIAS ID exists', () => {
+        const provider = new DadataSearchProvider({ req: { id: 'test-request-id' } })
+        const normalized = {
+            data: {
+                house_fias_id: 'house-1',
+                city: 'Moscow',
+                house: '10',
+            },
+        }
+
+        expect(provider.extractHeuristics(normalized)).toEqual([{
+            type: HEURISTIC_TYPE_FIAS_ID,
+            value: 'house-1',
+            reliability: 95,
+            meta: null,
+        }])
+    })
+
     test.each([undefined, null, ''])('keeps fallback behavior for empty stead ID %s', (steadFiasId) => {
         const provider = new DadataSearchProvider({ req: { id: 'test-request-id' } })
         const normalized = { data: { stead_fias_id: steadFiasId, city: 'Moscow', house: '10' } }
