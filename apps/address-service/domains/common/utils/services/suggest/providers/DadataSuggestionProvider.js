@@ -4,7 +4,7 @@ const conf = require('@open-condo/config')
 const { fetch } = require('@open-condo/keystone/fetch')
 const { getKVClient } = require('@open-condo/keystone/kv')
 
-const { BUILDING_ADDRESS_TYPE } = require('@address-service/domains/common/constants/addressTypes')
+const { BUILDING_ADDRESS_TYPE, STEAD_ADDRESS_TYPE } = require('@address-service/domains/common/constants/addressTypes')
 const { VALID_DADATA_BUILDING_TYPES } = require('@address-service/domains/common/constants/common')
 const { HEURISTIC_TYPE_FIAS_ID, HEURISTIC_TYPE_FALLBACK } = require('@address-service/domains/common/constants/heuristicTypes')
 const { DADATA_PROVIDER } = require('@address-service/domains/common/constants/providers')
@@ -417,7 +417,8 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
                     name: DADATA_PROVIDER,
                     rawData: item,
                 },
-                type: VALID_DADATA_BUILDING_TYPES.includes(get(item, ['data', 'house_type_full'])) ? BUILDING_ADDRESS_TYPE : null,
+                type: get(item, ['data', 'stead_fias_id']) ? STEAD_ADDRESS_TYPE :
+                    VALID_DADATA_BUILDING_TYPES.includes(get(item, ['data', 'house_type_full'])) ? BUILDING_ADDRESS_TYPE : null,
             }
         ))
     }
