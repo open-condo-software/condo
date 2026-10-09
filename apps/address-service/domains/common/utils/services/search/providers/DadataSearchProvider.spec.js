@@ -84,3 +84,15 @@ describe('DadataSearchProvider.extractHeuristics', () => {
         expect(heuristics[0].reliability).toBe(10)
     })
 })
+
+describe('DadataSearchProvider.normalize', () => {
+    test('delegates suggestion normalization and returns its result', () => {
+        const provider = new DadataSearchProvider({ req: { id: 'test-request-id' } })
+        const suggestions = [{ value: 'plot address', data: { stead_fias_id: 'stead-id' } }]
+        const normalized = [{ type: 'stead', rawValue: 'plot address' }]
+        provider.suggestionProvider.normalize.mockReturnValue(normalized)
+
+        expect(provider.normalize(suggestions)).toBe(normalized)
+        expect(provider.suggestionProvider.normalize).toHaveBeenCalledWith(suggestions)
+    })
+})
