@@ -11,7 +11,6 @@ const {
     deleteCardBindingByTestClient,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const {
-    makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithResidentUser,
     makeClientWithServiceUser,
 } = require('@condo/domains/user/utils/testSchema')

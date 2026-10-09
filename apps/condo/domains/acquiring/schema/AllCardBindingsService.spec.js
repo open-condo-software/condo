@@ -12,7 +12,7 @@ const {
     createTestAcquiringIntegration,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { TestUtils, AcquiringTestMixin } = require('@condo/domains/billing/utils/testSchema/testUtils')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
 jest.mock('@condo/domains/acquiring/utils/serverSchema/cardsOnlineInteraction', () => ({
     getUserCards: jest.fn(),
@@ -47,7 +47,7 @@ describe('AllCardBindingsService', () => {
 
     beforeAll(async () => {
         adminClient = await makeLoggedInAdminClient()
-        userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+        userClient = await makeClientWithResidentUser()
 
         utils = new TestUtils([AcquiringTestMixin])
         await utils.init()
@@ -76,7 +76,7 @@ describe('AllCardBindingsService', () => {
 
         const [result] = await allCardBindingsByTestClient(userClient, {
             user: {
-                id: faker.datatype.uuid(),
+                id: userClient.user.id,
             },
         })
 
@@ -118,7 +118,7 @@ describe('AllCardBindingsService', () => {
 
         const [result] = await allCardBindingsByTestClient(userClient, {
             user: {
-                id: faker.datatype.uuid(),
+                id: userClient.user.id,
             },
         })
 
@@ -143,7 +143,7 @@ describe('AllCardBindingsService', () => {
 
         const [result] = await allCardBindingsByTestClient(userClient, {
             user: {
-                id: faker.datatype.uuid(),
+                id: userClient.user.id,
             },
         })
 
@@ -180,7 +180,7 @@ describe('AllCardBindingsService', () => {
 
         const [result] = await allCardBindingsByTestClient(userClient, {
             user: {
-                id: faker.datatype.uuid(),
+                id: userClient.user.id,
             },
         })
 
@@ -215,7 +215,7 @@ describe('AllCardBindingsService', () => {
 
         const [result] = await allCardBindingsByTestClient(userClient, {
             user: {
-                id: faker.datatype.uuid(),
+                id: userClient.user.id,
             },
         })
 

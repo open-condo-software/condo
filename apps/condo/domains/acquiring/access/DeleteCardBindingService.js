@@ -15,7 +15,7 @@ async function canDeleteCardBinding ({ args: { data: { user: { id: userId }, car
     }
 
     if (user.type === RESIDENT) {
-        return userId === user.id && cardId
+        return Boolean(userId === user.id && cardId)
     }
 
     return false
