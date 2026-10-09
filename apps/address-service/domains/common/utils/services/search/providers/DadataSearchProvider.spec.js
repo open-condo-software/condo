@@ -86,17 +86,15 @@ describe('DadataSearchProvider.extractHeuristics', () => {
 })
 
 describe('DadataSearchProvider stead identity', () => {
-    test('uses stead FIAS ID as the key and omits shared fallback heuristic', () => {
+    test('uses stead FIAS ID as the key and emits shared fallback heuristic', () => {
         const provider = new DadataSearchProvider({ req: { id: 'test-request-id' } })
         const plotOne = { data: { stead_fias_id: 'plot-1', city: 'Moscow', house: '10' } }
         const plotTwo = { data: { stead_fias_id: 'plot-2', city: 'Moscow', house: '10' } }
 
-        expect(provider.extractHeuristics(plotOne)).toEqual([{
-            type: HEURISTIC_TYPE_FIAS_ID,
-            value: 'plot-1',
-            reliability: 95,
-            meta: null,
-        }])
+        expect(provider.extractHeuristics(plotOne)).toEqual([
+            { type: HEURISTIC_TYPE_FIAS_ID, value: 'plot-1', reliability: 95, meta: null },
+            { type: HEURISTIC_TYPE_FALLBACK, value: 'moscow~10', reliability: 10, meta: null },
+        ])
         expect(provider.generateAddressKey(plotOne)).toBe(`${HEURISTIC_TYPE_FIAS_ID}:plot-1`)
         expect(provider.generateAddressKey(plotTwo)).toBe(`${HEURISTIC_TYPE_FIAS_ID}:plot-2`)
     })
@@ -120,7 +118,7 @@ describe('DadataSearchProvider stead identity', () => {
         }])
     })
 
-    test('does not add a fallback heuristic when a house FIAS ID exists', () => {
+    test('emits fallback heuristic when a house FIAS ID exists', () => {
         const provider = new DadataSearchProvider({ req: { id: 'test-request-id' } })
         const normalized = {
             data: {
@@ -130,12 +128,10 @@ describe('DadataSearchProvider stead identity', () => {
             },
         }
 
-        expect(provider.extractHeuristics(normalized)).toEqual([{
-            type: HEURISTIC_TYPE_FIAS_ID,
-            value: 'house-1',
-            reliability: 95,
-            meta: null,
-        }])
+        expect(provider.extractHeuristics(normalized)).toEqual([
+            { type: HEURISTIC_TYPE_FIAS_ID, value: 'house-1', reliability: 95, meta: null },
+            { type: HEURISTIC_TYPE_FALLBACK, value: 'moscow~10', reliability: 10, meta: null },
+        ])
     })
 
     test.each([undefined, null, ''])('keeps fallback behavior for empty stead ID %s', (steadFiasId) => {
