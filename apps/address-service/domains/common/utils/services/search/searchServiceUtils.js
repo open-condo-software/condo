@@ -2,7 +2,7 @@ const { isEmpty, isObject } = require('lodash')
 
 const { AddressSource } = require('@address-service/domains/address/utils/serverSchema')
 const { HEURISTIC_TYPE_FALLBACK, HEURISTIC_TYPE_FIAS_ID } = require('@address-service/domains/common/constants/heuristicTypes')
-const { PULLENTI_PROVIDER } = require('@address-service/domains/common/constants/providers')
+const { DADATA_PROVIDER, PULLENTI_PROVIDER } = require('@address-service/domains/common/constants/providers')
 const { md5 } = require('@condo/domains/common/utils/crypto')
 
 const { findAddressByHeuristics, upsertHeuristics } = require('./heuristicMatcher')
@@ -50,13 +50,13 @@ async function upsertAddressSource (context, addressSourceServerUtils, dvSender,
 async function createOrUpdateAddressWithSource (context, addressServerUtils, addressSourceServerUtils, addressData, addressSource, dvSender, heuristics = []) {
     const { key, meta } = addressData
     const { helpers = null, provider: { name: providerName } = {}, data: { fias_id } = {} } = meta
-    const hasFiasIdentity = heuristics.some((heuristic) => heuristic.type === HEURISTIC_TYPE_FIAS_ID && heuristic.value)
-    // Fallback values are deliberately broad; never use them to relate an address
-    // that has a FIAS identity (stead or house).
-    const matchingHeuristics = hasFiasIdentity
+    const hasSteadFiasIdentity = providerName === DADATA_PROVIDER && typeof meta?.data?.stead_fias_id === 'string' && meta.data.stead_fias_id.trim().length > 0
+    // Fallback values are deliberately broad; never use them to relate a stead
+    // with an explicit identity to another address.
+    const matchingHeuristics = hasSteadFiasIdentity
         ? heuristics.filter((heuristic) => heuristic.type === HEURISTIC_TYPE_FIAS_ID && heuristic.value)
         : heuristics
-    const heuristicsToUpsert = hasFiasIdentity
+    const heuristicsToUpsert = hasSteadFiasIdentity
         ? heuristics.filter((heuristic) => heuristic.type !== HEURISTIC_TYPE_FALLBACK)
         : heuristics
 
@@ -88,7 +88,7 @@ async function createOrUpdateAddressWithSource (context, addressServerUtils, add
     }
 
     // Fallback: key-based lookup (backward compat with pre-migration data)
-    if (!addressItem && !hasFiasIdentity) {
+    if (!addressItem && !hasSteadFiasIdentity) {
         addressItem = await addressServerUtils.getOne(context, { key, deletedAt: null }, ADDRESS_ITEM_FIELDS)
     }
 
