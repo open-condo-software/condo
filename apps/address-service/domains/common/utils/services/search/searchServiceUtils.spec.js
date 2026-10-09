@@ -241,9 +241,9 @@ describe('Search service utils', () => {
             await createOrUpdateAddressWithSource(context, addressServerUtils, addressSourceServerUtils, addressData, 'repeat', dvSender, firstStead)
 
             expect(findAddressByHeuristics.mock.calls.slice(-3)).toEqual([
-                [[firstStead[0], coordinates]],
-                [[secondStead[0], coordinates]],
-                [[firstStead[0], coordinates]],
+                [[firstStead[0]]],
+                [[secondStead[0]]],
+                [[firstStead[0]]],
             ])
             expect(addressServerUtils.getOne.mock.calls.slice(-3)).not.toContainEqual(
                 [context, { key: addressData.key, deletedAt: null }, expect.any(String)],
