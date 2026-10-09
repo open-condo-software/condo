@@ -216,6 +216,57 @@ describe('Search service utils', () => {
             expect(result).toEqual(existingAddress)
         })
 
+        test('does not match distinct stead FIAS IDs through shared fallback or coordinates', async () => {
+            const fallback = { type: 'fallback', value: 'moscow~10', reliability: 10 }
+            const coordinates = { type: 'coordinates', value: '55.75,37.61', reliability: 50 }
+            const firstStead = [
+                { type: 'fias_id', value: 'stead-1', reliability: 95 },
+                fallback,
+                coordinates,
+            ]
+            const secondStead = [
+                { type: 'fias_id', value: 'stead-2', reliability: 95 },
+                fallback,
+                coordinates,
+            ]
+            const firstAddress = { id: 'first', address: 'first', key: 'fias_id:stead-1', meta: {} }
+            const secondAddress = { id: 'second', address: 'second', key: 'fias_id:stead-2', meta: {} }
+
+            findAddressByHeuristics.mockResolvedValueOnce(null).mockResolvedValueOnce(null).mockResolvedValueOnce({ addressId: 'first' })
+            addressServerUtils.create.mockResolvedValueOnce(firstAddress).mockResolvedValueOnce(secondAddress)
+            addressServerUtils.getOne.mockResolvedValueOnce(null).mockResolvedValueOnce(null).mockResolvedValueOnce(firstAddress)
+
+            await createOrUpdateAddressWithSource(context, addressServerUtils, addressSourceServerUtils, addressData, 'first', dvSender, firstStead)
+            await createOrUpdateAddressWithSource(context, addressServerUtils, addressSourceServerUtils, addressData, 'second', dvSender, secondStead)
+            await createOrUpdateAddressWithSource(context, addressServerUtils, addressSourceServerUtils, addressData, 'repeat', dvSender, firstStead)
+
+            expect(findAddressByHeuristics.mock.calls.slice(-3)).toEqual([
+                [[firstStead[0], coordinates]],
+                [[secondStead[0], coordinates]],
+                [[firstStead[0], coordinates]],
+            ])
+            expect(addressServerUtils.getOne.mock.calls.slice(-3)).not.toContainEqual(
+                [context, { key: addressData.key, deletedAt: null }, expect.any(String)],
+            )
+            expect(upsertHeuristics.mock.calls.slice(-3).map((call) => call[2])).toEqual([
+                [firstStead[0], coordinates],
+                [secondStead[0], coordinates],
+                [firstStead[0], coordinates],
+            ])
+        })
+
+        test('preserves building and empty stead FIAS fallback matching', async () => {
+            const fallback = { type: 'fallback', value: 'moscow~10', reliability: 10 }
+            const building = [fallback]
+            const emptyStead = [{ type: 'fias_id', value: '', reliability: 95 }, fallback]
+
+            await createOrUpdateAddressWithSource(context, addressServerUtils, addressSourceServerUtils, addressData, 'building', dvSender, building)
+            await createOrUpdateAddressWithSource(context, addressServerUtils, addressSourceServerUtils, addressData, 'empty-stead', dvSender, emptyStead)
+
+            expect(findAddressByHeuristics).toHaveBeenNthCalledWith(1, building)
+            expect(findAddressByHeuristics).toHaveBeenNthCalledWith(2, emptyStead)
+        })
+
         test('should fall back to key lookup when heuristics are provided but no match found', async () => {
             const heuristics = [{ type: 'fallback', value: 'test-fallback', reliability: 10 }]
             const existingByKey = { id: 'existing-by-key', address: 'existing by key', key: 'test-key', meta: {} }
