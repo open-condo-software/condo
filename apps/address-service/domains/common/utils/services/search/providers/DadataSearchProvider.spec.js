@@ -101,6 +101,25 @@ describe('DadataSearchProvider stead identity', () => {
         expect(provider.generateAddressKey(plotTwo)).toBe(`${HEURISTIC_TYPE_FIAS_ID}:plot-2`)
     })
 
+    test('does not use exact coordinates to match a stead', () => {
+        const provider = new DadataSearchProvider({ req: { id: 'test-request-id' } })
+        const normalized = {
+            data: {
+                stead_fias_id: 'stead-1',
+                geo_lat: '55.751244',
+                geo_lon: '37.618423',
+                qc_geo: '0',
+            },
+        }
+
+        expect(provider.extractHeuristics(normalized)).toEqual([{
+            type: HEURISTIC_TYPE_FIAS_ID,
+            value: 'stead-1',
+            reliability: 95,
+            meta: null,
+        }])
+    })
+
     test.each([undefined, null, ''])('keeps fallback behavior for empty stead ID %s', (steadFiasId) => {
         const provider = new DadataSearchProvider({ req: { id: 'test-request-id' } })
         const normalized = { data: { stead_fias_id: steadFiasId, city: 'Moscow', house: '10' } }
