@@ -9,7 +9,7 @@ const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keys
 
 const { Address: AddressServerUtils, AddressHeuristic: AddressHeuristicServerUtils } = require('@address-service/domains/address/utils/serverSchema')
 const { createTestAddress, createTestAddressHeuristic } = require('@address-service/domains/address/utils/testSchema')
-const { HEURISTIC_TYPE_COORDINATES, HEURISTIC_TYPE_FIAS_ID } = require('@address-service/domains/common/constants/heuristicTypes')
+const { HEURISTIC_TYPE_COORDINATES, HEURISTIC_TYPE_FALLBACK, HEURISTIC_TYPE_FIAS_ID } = require('@address-service/domains/common/constants/heuristicTypes')
 const { COORDINATE_TOLERANCE } = require('@address-service/domains/common/utils/services/search/heuristicStrategies/CoordinateHeuristicStrategy')
 const { DadataSearchProvider } = require('@address-service/domains/common/utils/services/search/providers/DadataSearchProvider')
 
