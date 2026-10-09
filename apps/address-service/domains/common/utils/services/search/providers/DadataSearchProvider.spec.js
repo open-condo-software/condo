@@ -85,6 +85,35 @@ describe('DadataSearchProvider.extractHeuristics', () => {
     })
 })
 
+describe('DadataSearchProvider stead identity', () => {
+    test('uses stead FIAS ID as the key and omits shared fallback heuristic', () => {
+        const provider = new DadataSearchProvider({ req: { id: 'test-request-id' } })
+        const plotOne = { data: { stead_fias_id: 'plot-1', city: 'Moscow', house: '10' } }
+        const plotTwo = { data: { stead_fias_id: 'plot-2', city: 'Moscow', house: '10' } }
+
+        expect(provider.extractHeuristics(plotOne)).toEqual([{
+            type: HEURISTIC_TYPE_FIAS_ID,
+            value: 'plot-1',
+            reliability: 95,
+            meta: null,
+        }])
+        expect(provider.generateAddressKey(plotOne)).toBe(`${HEURISTIC_TYPE_FIAS_ID}:plot-1`)
+        expect(provider.generateAddressKey(plotTwo)).toBe(`${HEURISTIC_TYPE_FIAS_ID}:plot-2`)
+    })
+
+    test.each([undefined, null, ''])('keeps fallback behavior for empty stead ID %s', (steadFiasId) => {
+        const provider = new DadataSearchProvider({ req: { id: 'test-request-id' } })
+        const normalized = { data: { stead_fias_id: steadFiasId, city: 'Moscow', house: '10' } }
+
+        expect(provider.extractHeuristics(normalized)).toEqual([{
+            type: HEURISTIC_TYPE_FALLBACK,
+            value: provider.generateFallbackKey(normalized),
+            reliability: 10,
+            meta: null,
+        }])
+    })
+})
+
 describe('DadataSearchProvider.normalize', () => {
     test('delegates suggestion normalization and returns its result', () => {
         const provider = new DadataSearchProvider({ req: { id: 'test-request-id' } })

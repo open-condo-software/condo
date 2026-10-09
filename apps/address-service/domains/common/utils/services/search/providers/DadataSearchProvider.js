@@ -59,18 +59,20 @@ class DadataSearchProvider extends AbstractSearchProvider {
 
     /**
      * Extract all possible heuristic identifiers from normalized data.
-     * Dadata provides: fias_id, coordinates, and fallback key.
+     * Dadata provides: house/stead FIAS IDs, coordinates, and fallback key.
      * @param {import('@address-service/domains/common/utils/services/index.js').NormalizedBuilding} normalizedBuilding
      * @returns {Array<{type: string, value: string, reliability: number, meta?: object}>}
      */
     extractHeuristics (normalizedBuilding) {
         const heuristics = []
 
+        const steadFiasId = get(normalizedBuilding, ['data', 'stead_fias_id'])
         const houseFiasId = get(normalizedBuilding, ['data', 'house_fias_id'])
-        if (houseFiasId) {
+        const fiasId = steadFiasId || houseFiasId
+        if (fiasId) {
             heuristics.push({
                 type: HEURISTIC_TYPE_FIAS_ID,
-                value: houseFiasId,
+                value: fiasId,
                 reliability: 95,
                 meta: null,
             })
@@ -88,7 +90,7 @@ class DadataSearchProvider extends AbstractSearchProvider {
             })
         }
 
-        const fallbackKey = this.generateFallbackKey(normalizedBuilding)
+        const fallbackKey = steadFiasId ? null : this.generateFallbackKey(normalizedBuilding)
         if (fallbackKey) {
             heuristics.push({
                 type: HEURISTIC_TYPE_FALLBACK,
