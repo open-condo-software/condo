@@ -91,7 +91,7 @@ class DadataSearchProvider extends AbstractSearchProvider {
             })
         }
 
-        const fallbackKey = fiasId ? null : this.generateFallbackKey(normalizedBuilding)
+        const fallbackKey = this.generateFallbackKey(normalizedBuilding)
         if (fallbackKey) {
             heuristics.push({
                 type: HEURISTIC_TYPE_FALLBACK,
