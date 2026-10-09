@@ -1,8 +1,10 @@
-const { DadataSuggestionProvider } = require('./DadataSuggestionProvider')
 const { BUILDING_ADDRESS_TYPE, STEAD_ADDRESS_TYPE } = require('@address-service/domains/common/constants/addressTypes')
+
+const { DadataSuggestionProvider } = require('./DadataSuggestionProvider')
 
 describe('DadataSuggestionProvider', () => {
     describe('normalize address type', () => {
+        process.env.DADATA_SUGGESTIONS = '{"url":"where is dadata?", "token":"tooooken"}'
         const provider = new DadataSuggestionProvider({ req: { id: 'test-request-id' } })
         const cases = [
             ['stead only', { stead_fias_id: 'stead-id' }, STEAD_ADDRESS_TYPE],
