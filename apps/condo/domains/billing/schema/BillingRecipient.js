@@ -173,11 +173,25 @@ const BillingRecipient = new GQLListSchema('BillingRecipient', {
     },
     kmigratorOptions: {
         constraints: [
+            // NOTE(YEgorLu): Previous constraint before uniqueness was grouped by importId.
+            // To migrate down need to delete / change duplicates (records without "importId" shouldn't be touched).
+            // {
+            //     type: 'models.UniqueConstraint',
+            //     fields: ['context', 'tin', 'iec', 'bic', 'bankAccount'],
+            //     condition: 'Q(deletedAt__isnull=True)',
+            //     name: 'billingRecipient_unique_context_tin_iec_bic_bankAccount',
+            // },
             {
                 type: 'models.UniqueConstraint',
                 fields: ['context', 'tin', 'iec', 'bic', 'bankAccount'],
-                condition: 'Q(deletedAt__isnull=True)',
-                name: 'billingRecipient_unique_context_tin_iec_bic_bankAccount',
+                condition: 'Q(deletedAt__isnull=True) & Q(importId__isnull=True)',
+                name: 'billingRecipient_unique_context_tin_iec_bic_bankAccount_null',
+            },
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['importId', 'bankAccount', 'bic', 'iec', 'tin', 'context'],
+                condition: 'Q(deletedAt__isnull=True) & Q(importId__isnull=False)',
+                name: 'billingRecipient_unique_context_tin_iec_bic_bankAccount_notnull',
             },
         ],
     },
