@@ -122,6 +122,13 @@ describe('Search service utils', () => {
 
         beforeEach(() => {
             jest.clearAllMocks()
+            findAddressByHeuristics.mockReset()
+            upsertHeuristics.mockReset()
+            addressServerUtils.getOne.mockReset().mockResolvedValue(null)
+            addressServerUtils.create.mockReset().mockResolvedValue({ id: 'test-address-id', address: 'test address', key: 'test-key', meta: {} })
+            addressSourceServerUtils.getOne.mockReset().mockResolvedValue(null)
+            addressSourceServerUtils.create.mockReset().mockResolvedValue({ id: 'test-source-id' })
+            addressSourceServerUtils.update.mockReset().mockResolvedValue({ id: 'test-source-id' })
         })
 
         test('should not save to database when provider is PULLENTI_PROVIDER', async () => {
