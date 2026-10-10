@@ -145,6 +145,13 @@ describe('DadataSearchProvider stead identity', () => {
             meta: null,
         }])
     })
+
+    test('uses stead as the fallback address part when house is absent', () => {
+        const provider = new DadataSearchProvider({ req: { id: 'test-request-id' } })
+        const normalized = { data: { city: 'Moscow', stead: 'plot 10' } }
+
+        expect(provider.generateFallbackKey(normalized)).toContain('plot_10')
+    })
 })
 
 describe('DadataSearchProvider.normalize', () => {

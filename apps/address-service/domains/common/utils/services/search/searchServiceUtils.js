@@ -87,8 +87,12 @@ async function createOrUpdateAddressWithSource (context, addressServerUtils, add
         }
     }
 
-    // Fallback: key-based lookup (backward compat with pre-migration data)
-    if (!addressItem && !hasSteadFiasIdentity) {
+    // Fallback: key-based lookup (backward compat with pre-migration data).
+    // A stead may only recover by its own exact FIAS key, never by a shared key.
+    const expectedSteadKey = hasSteadFiasIdentity
+        ? `${HEURISTIC_TYPE_FIAS_ID}:${meta.data.stead_fias_id}`
+        : null
+    if (!addressItem && (!hasSteadFiasIdentity || key === expectedSteadKey)) {
         addressItem = await addressServerUtils.getOne(context, { key, deletedAt: null }, ADDRESS_ITEM_FIELDS)
     }
 

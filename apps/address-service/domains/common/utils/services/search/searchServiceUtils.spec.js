@@ -264,6 +264,39 @@ describe('Search service utils', () => {
             ])
         })
 
+        test('recovers a stead by its exact FIAS key and upserts its FIAS heuristic', async () => {
+            const steadId = 'stead-recovery'
+            const key = `fias_id:${steadId}`
+            const existing = { id: 'stead-address', address: 'existing stead', key, meta: {} }
+            const fiasHeuristic = { type: 'fias_id', value: steadId, reliability: 95 }
+            const dadataStead = {
+                ...addressData,
+                key,
+                meta: { ...addressData.meta, provider: { name: 'dadata' }, data: { stead_fias_id: steadId } },
+            }
+            findAddressByHeuristics.mockResolvedValueOnce(null)
+            addressServerUtils.getOne.mockResolvedValueOnce(existing)
+
+            const result = await createOrUpdateAddressWithSource(
+                context,
+                addressServerUtils,
+                addressSourceServerUtils,
+                dadataStead,
+                'stead',
+                dvSender,
+                [fiasHeuristic],
+            )
+
+            expect(addressServerUtils.getOne).toHaveBeenCalledWith(
+                context,
+                { key, deletedAt: null },
+                expect.any(String),
+            )
+            expect(result).toBe(existing)
+            expect(addressServerUtils.create).not.toHaveBeenCalled()
+            expect(upsertHeuristics).toHaveBeenCalledWith(context, existing.id, [fiasHeuristic], 'dadata', dvSender)
+        })
+
         test('Dadata house FIAS retains coordinate matching', async () => {
             const coordinates = { type: 'coordinates', value: '55.75,37.61', reliability: 50 }
             const existing = { id: 'house-by-coordinate', address: 'existing house', key: 'old-key', meta: {} }
