@@ -13,7 +13,8 @@ const {
 } = require('@open-condo/keystone/test.utils')
 const { makeClient, UUID_RE, DATETIME_RE, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
-const { Meter, PropertyMeter, createTestMeter, createTestPropertyMeter, createTestMeterResource } = require('@condo/domains/meter/utils/testSchema')
+const { COLD_WATER_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')
+const { Meter, MeterResource, PropertyMeter, createTestMeter, createTestPropertyMeter } = require('@condo/domains/meter/utils/testSchema')
 const { SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
 const {
     createTestOrganizationWithAccessToAnotherOrganization,
@@ -268,7 +269,7 @@ describe('Property', () => {
     describe('Soft delete', () => {
         test('also soft deletes associated meters and property meters', async () => {
             const client = await makeClientWithProperty()
-            const [resource] = await createTestMeterResource(admin)
+            const [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID })
             const [meter] = await createTestMeter(admin, client.organization, client.property, resource)
             const [propertyMeter] = await createTestPropertyMeter(admin, client.organization, client.property, resource)
             const [anotherProperty] = await createTestProperty(admin, client.organization)
