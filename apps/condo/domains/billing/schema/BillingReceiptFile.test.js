@@ -18,7 +18,7 @@ const {
     createTestBillingProperty,
     createTestBillingAccount,
     makeServiceUserForIntegration,
-    makeOrganizationIntegrationManager, createTestBillingReceipt,
+    makeOrganizationIntegrationManager, createTestBillingReceipt, updateTestBillingReceipt,
 } = require('@condo/domains/billing/utils/testSchema')
 const {
     createTestContact,
@@ -283,6 +283,51 @@ describe('BillingReceiptFile', () => {
                 const [file] = await createTestBillingReceiptFile(integrationUser, null, context, { importId: receipt.importId })
                 const receiptAfterFileSave = await BillingReceipt.getOne(integrationUser, { id: receipt.id })
                 expect(receiptAfterFileSave.file.id).toEqual(file.id)
+            })
+        })
+
+        describe('BillingReceipt soft deletion', () => {
+            test('soft deletes all active files of the receipt and preserves unrelated and already deleted files', async () => {
+                const [receipt] = await createTestBillingReceipt(integrationUser, context, property, account)
+                const [deletedFile] = await createTestBillingReceiptFile(integrationUser, receipt, context)
+                await BillingReceiptFile.softDelete(integrationUser, deletedFile.id)
+                const previouslyDeletedFile = await BillingReceiptFile.getOne(admin, { id: deletedFile.id, deletedAt_not: null })
+                const [firstFile] = await createTestBillingReceiptFile(integrationUser, receipt, context)
+                const [secondFile] = await createTestBillingReceiptFile(integrationUser, receipt, context)
+                const [unrelatedFile] = await createTestBillingReceiptFile(admin, receiptByAdmin, context)
+
+                await BillingReceipt.softDelete(integrationUser, receipt.id)
+
+                for (const file of [firstFile, secondFile]) {
+                    const deleted = await BillingReceiptFile.getOne(admin, { id: file.id, deletedAt_not: null })
+                    expect(deleted.deletedAt).toMatch(DATETIME_RE)
+                    expect(deleted.v).toEqual(file.v + 1)
+                }
+                expect(await BillingReceiptFile.getAll(admin, { receipt: { id: receipt.id }, deletedAt: null })).toEqual([])
+                const stillDeletedFile = await BillingReceiptFile.getOne(admin, { id: deletedFile.id, deletedAt_not: null })
+                expect(stillDeletedFile.deletedAt).toEqual(previouslyDeletedFile.deletedAt)
+                expect(stillDeletedFile.v).toEqual(previouslyDeletedFile.v)
+                const stillActiveFile = await BillingReceiptFile.getOne(admin, { id: unrelatedFile.id })
+                expect(stillActiveFile.deletedAt).toBeNull()
+                expect(stillActiveFile.v).toEqual(unrelatedFile.v)
+            })
+
+            test('ordinary receipt updates preserve files and restoration does not restore deleted files', async () => {
+                const [receipt] = await createTestBillingReceipt(admin, context, property, account)
+                const [file] = await createTestBillingReceiptFile(admin, receipt, context)
+
+                await updateTestBillingReceipt(admin, receipt.id, { printableNumber: 'updated' })
+
+                const activeFile = await BillingReceiptFile.getOne(admin, { id: file.id })
+                expect(activeFile.deletedAt).toBeNull()
+                expect(activeFile.v).toEqual(file.v)
+
+                await BillingReceipt.softDelete(admin, receipt.id)
+                await updateTestBillingReceipt(admin, receipt.id, { deletedAt: null })
+
+                const deletedFile = await BillingReceiptFile.getOne(admin, { id: file.id, deletedAt_not: null })
+                expect(deletedFile.deletedAt).toMatch(DATETIME_RE)
+                expect(deletedFile.v).toEqual(file.v + 1)
             })
         })
 
