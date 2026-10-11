@@ -1,7 +1,7 @@
-const { isEmpty, isObject } = require('lodash')
+const isEmpty = require('lodash/isEmpty')
+const isObject = require('lodash/isObject')
 
 const { AddressSource } = require('@address-service/domains/address/utils/serverSchema')
-const { PULLENTI_PROVIDER } = require('@address-service/domains/common/constants/providers')
 const { md5 } = require('@condo/domains/common/utils/crypto')
 
 const { findAddressByHeuristics, upsertHeuristics } = require('./heuristicMatcher')
@@ -48,18 +48,7 @@ async function upsertAddressSource (context, addressSourceServerUtils, dvSender,
  */
 async function createOrUpdateAddressWithSource (context, addressServerUtils, addressSourceServerUtils, addressData, addressSource, dvSender, heuristics = []) {
     const { key, meta } = addressData
-    const { helpers = null, provider: { name: providerName } = {}, data: { fias_id } = {} } = meta
-
-    // TODO (DOMA-11991): Remove this condition
-    // Do not save addresses from pullenti provider, because this provider is local and have no costs. Also, the normalizer is not finished yet.
-    // Maybe, normalizer is not needed at all 🤔 and we need to add some settings for providers (free/paid)
-    if (providerName === PULLENTI_PROVIDER) {
-        return {
-            id: `${providerName}:${fias_id || key}`,
-            overrides: null,
-            ...addressData,
-        }
-    }
+    const { helpers = null, provider: { name: providerName } = {} } = meta
 
     //
     // Address: first try heuristic-based matching, then fall back to key lookup
@@ -133,18 +122,11 @@ async function createReturnObject ({
     overridden = {},
     AddressSourceServerUtils = AddressSource,
 }) {
-    // TODO (DOMA-11991): Remove checking for provider
-    const { meta: { provider: { name: providerName } = {} } = {} } = addressModel
-
-    const addressSources = providerName === PULLENTI_PROVIDER
-        ? []
-        : (
-            await AddressSourceServerUtils.getAll(
-                context,
-                { address: { id: addressModel.id } },
-                'source'
-            ) || []
-        )
+    const addressSources = await AddressSourceServerUtils.getAll(
+        context,
+        { address: { id: addressModel.id } },
+        'source'
+    ) || []
 
     const ret = {
         address: addressModel.address,
