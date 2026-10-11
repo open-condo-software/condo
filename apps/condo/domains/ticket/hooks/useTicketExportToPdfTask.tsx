@@ -18,13 +18,12 @@ import { ResolvedIntlConfig } from 'react-intl'
 
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useIntl } from '@open-condo/next/intl'
-import { Button, Modal, Checkbox } from '@open-condo/ui'
+import { Button, Checkbox, Modal, Tooltip } from '@open-condo/ui'
 
 import { ButtonWithDisabledTooltip } from '@condo/domains/common/components/ButtonWithDisabledTooltip'
 import { CommentPreview } from '@condo/domains/common/components/Comments/Comment'
 import { ChevronIcon as ChevronIconBase } from '@condo/domains/common/components/icons/ChevronIcon'
 import { useTaskLauncher } from '@condo/domains/common/components/tasks/TaskLauncher'
-import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { analytics, EventsData } from '@condo/domains/common/utils/analytics'
 import { TicketComment } from '@condo/domains/ticket/utils/clientSchema'
 

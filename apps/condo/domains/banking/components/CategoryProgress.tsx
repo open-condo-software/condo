@@ -4,9 +4,8 @@ import React from 'react'
 
 import { AlertCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Typography, Space } from '@open-condo/ui'
+import { Space, Tooltip, Typography } from '@open-condo/ui'
 
-import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { colors } from '@condo/domains/common/constants/style'
 
 import type { PropertyReportTypes } from './BankCostItemContext'

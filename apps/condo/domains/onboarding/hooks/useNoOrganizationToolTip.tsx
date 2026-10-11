@@ -1,9 +1,8 @@
 import { TooltipPlacement } from 'antd/es/tooltip'
-import React from 'react'
+import React, { useCallback, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-
-import { Tooltip } from '@condo/domains/common/components/Tooltip'
+import { Tooltip } from '@open-condo/ui'
 
 
 export interface INoOrganizationToolTipWrapper {
@@ -19,6 +18,17 @@ interface INoOrganizationToolTipHook {
 export const useNoOrganizationToolTip = (): INoOrganizationToolTipHook => {
     const intl = useIntl()
     const CreateOrgWarning = intl.formatMessage({ id: 'global.warns.createOrganization' })
+    const [isTooltipOpen, setIsTooltipOpen] = useState(false)
+
+    const handleToggleTooltip = useCallback(() => {
+        setIsTooltipOpen((prevState) => !prevState)
+    }, [])
+
+    const handleTooltipOpenChange = useCallback((open: boolean) => {
+        if (!open) {
+            setIsTooltipOpen(false)
+        }
+    }, [])
 
     const wrapElementIntoNoOrganizationToolTip = (params: INoOrganizationToolTipWrapper): JSX.Element => {
         return (
@@ -26,9 +36,12 @@ export const useNoOrganizationToolTip = (): INoOrganizationToolTipHook => {
                 key={params.key}
                 title={CreateOrgWarning}
                 placement={params.placement}
-                trigger='click'
+                open={isTooltipOpen}
+                onOpenChange={handleTooltipOpenChange}
             >
-                {params.element}
+                <span onClick={handleToggleTooltip}>
+                    {params.element}
+                </span>
             </Tooltip>
         )
     }
