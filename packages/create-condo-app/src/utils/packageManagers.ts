@@ -1,5 +1,14 @@
+import { existsSync, readFileSync, writeFileSync } from 'fs'
+import { join } from 'path'
+
 import { getConfig, PackageManager } from './config'
 import { getMonorepoInfo } from './repos'
+
+const NPM_RUN_ALIASES: Record<PackageManager, string> = {
+    yarn: 'yarn',
+    pnpm: 'pnpm',
+    npm: 'npm run',
+}
 
 
 export function getPackageManager (): PackageManager {
@@ -18,6 +27,19 @@ export function getPackageManager (): PackageManager {
 
     // Final fallback: default to npm
     return 'npm'
+}
+
+export function adjustScripts () {
+    const { packageManager, projectPath } = getConfig()
+    if (packageManager === 'npm' || !existsSync(join(projectPath, 'package.json'))) return
+
+    const packageJson = JSON.parse(readFileSync(join(projectPath, 'package.json'), 'utf-8'))
+    if (!packageJson.scripts) return
+
+    const scripts = packageJson.scripts as Record<string, string>
+
+    packageJson.scripts = Object.fromEntries(Object.entries(scripts).map(([scriptName, command]) => [scriptName, command.replace('npm run', NPM_RUN_ALIASES[packageManager])]))
+    writeFileSync(join(projectPath, 'package.json'), JSON.stringify(packageJson, null, 2))
 }
 
 export async function install () {
