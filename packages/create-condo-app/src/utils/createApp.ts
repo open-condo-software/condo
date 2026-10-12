@@ -1,14 +1,21 @@
-import { mkdirSync } from 'fs'
-import path from 'path'
+import { mkdirSync, existsSync } from 'fs'
+import { join } from 'path'
 
-import { cyan, green, blue } from 'picocolors'
+import { cyan, green, blue, yellowBright } from 'picocolors'
 
 import { resolveLocalDependencies, resolveLocalSchema, replaceEnvToConf, replaceLocalCondoAddress } from '@/utils/condo'
 import { getConfig } from '@/utils/config'
 import { copyAppTemplate, copyAppDir } from '@/utils/copy'
 import { resolveTemplatesDir } from '@/utils/fs'
 import { tryGitInit } from '@/utils/git'
-import { adjustScripts, install } from '@/utils/packageManagers'
+import { adjustScripts, install, exec, runScript } from '@/utils/packageManagers'
+
+async function runTypeGen (knownScripts: Array<string>) {
+    await exec('next', ['typegen'])
+    if (knownScripts.includes('maketypes')) {
+        await runScript('maketypes')
+    }
+}
 
 export async function initAppFromTemplate () {
     const { preferences, monorepoInfo, projectPath, appName, packageManager } = getConfig()
@@ -27,30 +34,39 @@ export async function initAppFromTemplate () {
     if (preferences.examples) {
         console.log(`Adding ${cyan('examples')} files...`)
         console.log()
-        await copyAppDir(path.join(resolveTemplatesDir(), 'examples', 'basic'))
+        await copyAppDir(join(resolveTemplatesDir(), 'examples', 'basic'))
     }
     if (monorepoInfo.isCondoRepo) {
         console.log(`Condo monorepo detected. Adding ${cyan('condo-specific')} files...`)
         console.log()
-        await copyAppDir(path.join(resolveTemplatesDir(), 'examples', 'condo'))
+        await copyAppDir(join(resolveTemplatesDir(), 'examples', 'condo'))
         await resolveLocalDependencies()
         await replaceLocalCondoAddress()
         await resolveLocalSchema()
         await replaceEnvToConf()
     }
 
-    if (packageManager !== 'npm') {
+    const hasPackageJson = existsSync(join(projectPath, 'package.json'))
+
+    let scripts: Array<string> = []
+
+    if (hasPackageJson) {
         console.log(`Rewriting scripts to use ${blue(packageManager)}`)
         console.log()
-        adjustScripts()
+        scripts = adjustScripts()
+
+        console.log(`${blue('Installing packages.')} This might take a couple of minutes...`)
+        console.log()
+        await install()
     }
 
-    console.log(`${blue('Installing packages.')} This might take a couple of minutes...`)
+    console.log(`${blue('Generating types.')} This might take a moment...`)
     console.log()
-    await install()
+    await runTypeGen(scripts)
+    console.log()
 
     if (!preferences.git) {
-        console.log('Skipping git initialization')
+        console.log(`${yellowBright('Skipping')} git initialization`)
         console.log()
     } else if (tryGitInit()) {
         console.log('Initialized a git repository')
