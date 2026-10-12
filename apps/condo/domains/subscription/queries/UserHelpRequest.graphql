@@ -1,22 +1,3 @@
-query getPendingSubscriptionRequests($organizationId: ID!) {
-    pendingRequests: allUserHelpRequests(
-        where: {
-            organization: { id: $organizationId }
-            type: activateSubscription
-        }
-        first: 100
-    ) {
-        id
-        subscriptionPlanPricingRule {
-            id
-            subscriptionPlan {
-                id
-            }
-        }
-        createdAt
-    }
-}
-
 query getPendingBankingRequest($organizationId: ID!) {
     pendingBankingRequest: allUserHelpRequests(
         where: {

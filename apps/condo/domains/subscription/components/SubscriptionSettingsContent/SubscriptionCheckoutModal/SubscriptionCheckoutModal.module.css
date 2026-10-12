@@ -1,0 +1,73 @@
+.line {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+.line-top {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  width: 100%;
+}
+
+/* same treatment as the kit's List divider */
+.leader {
+  flex: 1 1 auto;
+  min-width: 16px;
+  border-bottom: 1px solid var(--condo-global-color-gray-3);
+}
+
+.line-note {
+  text-align: right;
+}
+
+.hint {
+  display: inline-flex;
+  align-items: center;
+}
+
+/*
+ * The upsell block is laid out here rather than taken from the kit's Banner, which clips its
+ * subtitle to two lines — this text runs longer. The right column is left free for the artwork.
+ */
+.upsell {
+  position: relative;
+  min-height: 216px;
+  padding: 20px 24px;
+  overflow: hidden;
+  background: #204885;
+  border-radius: var(--condo-global-border-radius-medium);
+}
+
+.upsell-text {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  /* leaves room on the right for the mascot, which sits in the corner rather than in flow */
+  max-width: calc(100% - 210px);
+}
+
+/* The mascot's halo: the kit's green-to-blue brand gradient, blurred into a soft glow behind it */
+.upsell-glow {
+  position: absolute;
+  right: -60px;
+  bottom: -90px;
+  z-index: 0;
+  width: 280px;
+  height: 280px;
+  background: var(--condo-global-color-brand-gradient-7);
+  border-radius: 50%;
+  filter: blur(146px);
+}
+
+.upsell-art {
+  position: absolute;
+  right: -10px;
+  bottom: -30px;
+  z-index: 1;
+}

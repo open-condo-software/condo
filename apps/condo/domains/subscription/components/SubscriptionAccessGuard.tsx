@@ -8,7 +8,7 @@ import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Typography, Button, Tooltip } from '@open-condo/ui'
+import { Typography, Button } from '@open-condo/ui'
 
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { Loader } from '@condo/domains/common/components/Loader'
@@ -82,8 +82,6 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
     const LearnMoreMessage = intl.formatMessage({ id: 'subscription.accessGuard.learnMore' })
     const FeatureGuardTitle = intl.formatMessage({ id: 'subscription.accessGuard.feature.title' })
     const FeaturePayButton = intl.formatMessage({ id: 'subscription.accessGuard.feature.payButton' })
-    const AwaitingPaymentMessage = intl.formatMessage({ id: 'subscription.planCard.requestPending' })
-    const AwaitingPaymentTooltipMessage = intl.formatMessage({ id: 'subscription.planCard.requestPending.tooltip' })
     const UnavailableTitle = intl.formatMessage({ id: 'subscription.accessGuard.unavailable.title' }, { defaultMessage: 'Access denied' })
     const UnavailableDescription = intl.formatMessage({ id: 'subscription.accessGuard.unavailable.description' }, { defaultMessage: 'You do not have access to this service' })
     const { isFeatureAvailable, isB2BAppEnabled, hasSubscription, loading, hasSubscriptionsFeature } = useOrganizationSubscription()
@@ -103,14 +101,10 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
         formattedFeaturePrice,
         forPlanLabel,
         promotedServicePlan,
-        featurePlanId,
         registerFeatureSubscription,
         loading: featureLoading,
     } = useFeatureSubscription(featureName, featureAppId)
-    const { activateLoading, pendingRequests } = useActivateSubscriptions()
-    const hasPendingFeatureRequest = pendingRequests.some(
-        req => req.subscriptionPlanPricingRule?.subscriptionPlan?.id === featurePlanId
-    )
+    const { activateLoading } = useActivateSubscriptions()
     const { PaymentModal, openModal: openPaymentModal } = useSubscriptionPaymentModal({
         registerSubscriptionContext: registerFeatureSubscription,
         activateLoading,
@@ -224,20 +218,9 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
             )
         }
 
-        let primaryButton: React.ReactNode
-        if (!hasFeaturePlan) {
-            primaryButton = <Button id='subscription-access-guard-go-to-plans-button' type='primary' onClick={handleGoToPlans}>{GoToPlansMessage}</Button>
-        } else if (hasPendingFeatureRequest) {
-            primaryButton = (
-                <Tooltip title={AwaitingPaymentTooltipMessage}>
-                    <span>
-                        <Button type='primary' disabled>{AwaitingPaymentMessage}</Button>
-                    </span>
-                </Tooltip>
-            )
-        } else {
-            primaryButton = <Button id='subscription-access-guard-buy-feature-button' type='primary' onClick={openPaymentModal}>{FeaturePayButton}</Button>
-        }
+        const primaryButton: React.ReactNode = !hasFeaturePlan
+            ? <Button id='subscription-access-guard-go-to-plans-button' type='primary' onClick={handleGoToPlans}>{GoToPlansMessage}</Button>
+            : <Button id='subscription-access-guard-buy-feature-button' type='primary' onClick={openPaymentModal}>{FeaturePayButton}</Button>
 
         const featureDescription = (
             <>

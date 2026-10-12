@@ -1,0 +1,15 @@
+.checkbox-wrapper {
+  display: inline-flex;
+}
+
+/* Clicking a status badge picks the row, which brings up the action bar for that status */
+.badge-button {
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.badge-button:disabled {
+  cursor: default;
+}

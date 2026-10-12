@@ -11,6 +11,7 @@ import { analytics } from '@condo/domains/common/utils/analytics'
 import { useActivateSubscriptions } from './useActivateSubscriptions'
 import { useOrganizationSubscription } from './useOrganizationSubscription'
 
+import type { PaymentType } from './useSubscriptionPaymentModal'
 import type { AvailableFeatureType } from '../constants/features'
 
 
@@ -89,7 +90,7 @@ export const useFeatureSubscription = (feature: AvailableFeatureType, b2bAppId?:
         ? `${serverUrl}/miniapps/${b2bAppId}/about`
         : undefined)
 
-    const registerFeatureSubscription = useCallback(async ({ paymentType }: { paymentType: 'card' | 'userHelpRequest' }) => {
+    const registerFeatureSubscription = useCallback(async ({ paymentType }: { paymentType: PaymentType }) => {
         if (!featurePlanFirstPrice?.id) return
         analytics.track('subscription_purchase_click', {
             paymentMethod: paymentType,
@@ -103,7 +104,6 @@ export const useFeatureSubscription = (feature: AvailableFeatureType, b2bAppId?:
             isTrial: false,
             planName: featurePlanInfo?.plan?.name || '',
             trialDays: 0,
-            isCustomPrice: !featurePlanFirstPrice.price,
             paymentType,
             returnUrl,
         })

@@ -8,7 +8,7 @@ import React, { HtmlHTMLAttributes, CSSProperties, useCallback, useMemo, useRef,
 import { ChevronRight } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Typography, Tag, Carousel, Button, Tooltip } from '@open-condo/ui'
+import { Typography, Tag, Carousel, Button } from '@open-condo/ui'
 import type { ButtonProps, CarouselRef } from '@open-condo/ui'
 // TODO(DOMA-4844): Replace with @open-condo/ui/colors
 import { colors } from '@open-condo/ui/colors'
@@ -128,8 +128,6 @@ const TopCard = React.memo<TopCardProps>(({
     const CategoryMessage = intl.formatMessage({ id: `miniapps.categories.${category}.name` as FormatjsIntl.Message['ids'] })
     const UnavailableForTariffMessage = intl.formatMessage({ id: 'miniapps.addDescription.action.unavailableForTariff' })
     const ConnectMessage = intl.formatMessage({ id: 'miniapps.addDescription.action.connect' })
-    const AwaitingPaymentMessage = intl.formatMessage({ id: 'subscription.planCard.requestPending' })
-    const AwaitingPaymentTooltipMessage = intl.formatMessage({ id: 'subscription.planCard.requestPending.tooltip' })
     const userOrganization = useOrganization()
     const canManageB2BApps = get(userOrganization, ['link', 'role', 'canManageB2BApps'], false)
     const { isB2BAppEnabled, hasSubscriptionsFeature } = useOrganizationSubscription()
@@ -142,13 +140,9 @@ const TopCard = React.memo<TopCardProps>(({
         forPlanLabel,
         freeWithPlanLabel,
         aboutPlanLabel,
-        featurePlanId,
         registerFeatureSubscription,
     } = useFeatureSubscription('b2bApp', id)
-    const { activateLoading, pendingRequests } = useActivateSubscriptions()
-    const hasPendingFeatureRequest = pendingRequests.some(
-        req => req.subscriptionPlanPricingRule?.subscriptionPlan?.id === featurePlanId
-    )
+    const { activateLoading } = useActivateSubscriptions()
     const { PaymentModal, openModal: openPaymentModal } = useSubscriptionPaymentModal({
         registerSubscriptionContext: registerFeatureSubscription,
         activateLoading,
@@ -281,38 +275,28 @@ const TopCard = React.memo<TopCardProps>(({
                                         )}
                                     </Space>
                                 )}
-                                {hasPendingFeatureRequest ? (
-                                    <Tooltip title={AwaitingPaymentTooltipMessage}>
-                                        <span style={{ display: 'block', width: '100%' }}>
-                                            <Button type='primary' disabled block>
-                                                {AwaitingPaymentMessage}
-                                            </Button>
-                                        </span>
-                                    </Tooltip>
-                                ) : (
-                                    <Space size={12} direction='horizontal'>
-                                        {hasFeaturePlan ? (
-                                            <Button
-                                                type='primary'
-                                                disabled={!canManageB2BApps}
-                                                onClick={openPaymentModal}
-                                            >
-                                                {ConnectMessage}
-                                            </Button>
-                                        ) : (
-                                            <SubscriptionGuardWithTooltip b2bAppId={id} fallback={
-                                                <span><Button type='primary' disabled>{UnavailableForTariffMessage}</Button></span>
-                                            }>
-                                                <Button {...buttonProps} />
-                                            </SubscriptionGuardWithTooltip>
-                                        )}
-                                        {aboutPlanLabel && (
-                                            <Button type='secondary' onClick={handleGoToSubscriptionSettings}>
-                                                {aboutPlanLabel}
-                                            </Button>
-                                        )}
-                                    </Space>
-                                )}
+                                <Space size={12} direction='horizontal'>
+                                    {hasFeaturePlan ? (
+                                        <Button
+                                            type='primary'
+                                            disabled={!canManageB2BApps}
+                                            onClick={openPaymentModal}
+                                        >
+                                            {ConnectMessage}
+                                        </Button>
+                                    ) : (
+                                        <SubscriptionGuardWithTooltip b2bAppId={id} fallback={
+                                            <span><Button type='primary' disabled>{UnavailableForTariffMessage}</Button></span>
+                                        }>
+                                            <Button {...buttonProps} />
+                                        </SubscriptionGuardWithTooltip>
+                                    )}
+                                    {aboutPlanLabel && (
+                                        <Button type='secondary' onClick={handleGoToSubscriptionSettings}>
+                                            {aboutPlanLabel}
+                                        </Button>
+                                    )}
+                                </Space>
                             </Space>
                         ) : (
                             <SubscriptionGuardWithTooltip b2bAppId={id} fallback={

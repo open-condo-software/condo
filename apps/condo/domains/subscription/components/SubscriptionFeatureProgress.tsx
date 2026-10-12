@@ -12,25 +12,19 @@ import { colors } from '@open-condo/ui/colors'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { UI_HIDE_PAID_FEATURES } from '@condo/domains/common/constants/featureflags'
-import { AVAILABLE_FEATURES, AvailableFeatureType } from '@condo/domains/subscription/constants/features'
+import { SUBSCRIPTION_PLAN_FEATURES } from '@condo/domains/subscription/constants'
+import { AvailableFeatureType } from '@condo/domains/subscription/constants/features'
 import { useOrganizationSubscription, useTrialSubscriptions } from '@condo/domains/subscription/hooks'
 
 import { SubscriptionFeatureModal } from './SubscriptionFeatureModal'
 import styles from './SubscriptionFeatureProgress.module.css'
 
-const EXCLUDED_FROM_CALCULATION_FEATURES: Array<AvailableFeatureType> = ['customization'] as const
-
-const calculateTotalPossibleFeatures = (baseFeatures: Readonly<Array<AvailableFeatureType>>, b2bAppsCount: number): number => {
-    const featuresWithoutExcluded = baseFeatures.filter(feature => !EXCLUDED_FROM_CALCULATION_FEATURES.includes(feature))
-    return featuresWithoutExcluded.length + b2bAppsCount * 0.5
-}
-
-const isFeatureExcludedFromCalculation = (feature: AvailableFeatureType): boolean => {
-    return EXCLUDED_FROM_CALCULATION_FEATURES.includes(feature)
-}
-
 const { publicRuntimeConfig } = getConfig()
 const subscriptionModalConfig = publicRuntimeConfig?.subscriptionProgressModalConfig
+
+/** Capabilities are either plan features or B2B app ids, and each is checked differently */
+const isPlanFeature = (capability: string): capability is AvailableFeatureType =>
+    (SUBSCRIPTION_PLAN_FEATURES as ReadonlyArray<string>).includes(capability)
 
 export const SubscriptionFeatureProgress: React.FC = () => {
     const intl = useIntl()
@@ -38,7 +32,7 @@ export const SubscriptionFeatureProgress: React.FC = () => {
     const hidePaidFeatures = useFlag(UI_HIDE_PAID_FEATURES)
     const TooltipTitle = intl.formatMessage({ id: 'subscription.featureProgress.tooltip' })
     const { organization } = useOrganization()
-    const { isFeatureAvailable, isB2BAppEnabled } = useOrganizationSubscription()
+    const { isFeatureAvailable, isB2BAppEnabled, platformCapabilities } = useOrganizationSubscription()
     const { isCollapsed } = useLayoutContext()
     const { trialSubscriptions } = useTrialSubscriptions()
     const [animatedPercentage, setAnimatedPercentage] = useState(0)
@@ -62,19 +56,16 @@ export const SubscriptionFeatureProgress: React.FC = () => {
         skip: !organization?.id || !hasSubscriptionModalConfig,
     })
 
+    /** The promoted plan above the current one; an organization without a plan is offered it as well */
     const bestPlan = useMemo(() => {
-        const planId = contextData?.subscriptionContext?.subscriptionPlan?.id
+        const currentPlan = contextData?.subscriptionContext?.subscriptionPlan
+        const currentPriority = currentPlan?.priority ?? -1
 
         const availablePlans = plansData?.result?.plans || []
         return availablePlans
-            .filter(p => p.plan.canBePromoted && planId && planId !== p.plan.id)
+            .filter(p => p.plan.canBePromoted && p.plan.id !== currentPlan?.id && (p.plan.priority ?? 0) > currentPriority)
             .sort((a, b) => (b.plan.priority ?? 0) - (a.plan.priority ?? 0))[0]
-    }, [plansData?.result?.plans, contextData?.subscriptionContext?.subscriptionPlan?.id])
-
-    const bestPlanB2BApps = useMemo(() => {
-        if (!bestPlan) return []
-        return bestPlan.plan.enabledB2BApps || []
-    }, [bestPlan])
+    }, [plansData?.result?.plans, contextData?.subscriptionContext?.subscriptionPlan])
 
     const formattedCurrency = useMemo(() => {
         const currencyCode = bestPlan?.prices?.[0]?.currencyCode
@@ -95,27 +86,25 @@ export const SubscriptionFeatureProgress: React.FC = () => {
         ? intl.formatMessage({ id: 'subscription.featureProgress.tryButton.afterTrial' })
         : intl.formatMessage({ id: 'subscription.featureProgress.tryButton' }, { formattedPrice: formattedCurrency })
 
+    /**
+     * Counted against everything the platform sells rather than against one promoted plan, and
+     * read off the same per-feature expiry dates the settings page uses. Features bought
+     * separately therefore push this number up, so the badge cannot claim the client is missing
+     * something the tariff page shows as already connected.
+     */
     const featurePercentage = useMemo(() => {
-        if (!organization || !bestPlan) return 0
-        const baseFeatureCount = AVAILABLE_FEATURES.reduce((count, feature) => {
-            if (isFeatureExcludedFromCalculation(feature)) return count
-            const isCurrentlyAvailable = isFeatureAvailable(feature as AvailableFeatureType)
+        if (!organization || platformCapabilities.length === 0) return 0
 
-            return count + (isCurrentlyAvailable ? 1 : 0)
+        const availableCount = platformCapabilities.reduce((count, capability) => {
+            const isAvailable = isPlanFeature(capability)
+                ? isFeatureAvailable(capability)
+                : isB2BAppEnabled(capability)
+
+            return count + (isAvailable ? 1 : 0)
         }, 0)
 
-        const b2bAppCount = bestPlanB2BApps.reduce((count, appId) => {
-            return count + (isB2BAppEnabled(appId) ? 1 : 0)
-        }, 0)
-
-        const totalAvailable = baseFeatureCount + b2bAppCount * 0.5
-
-        const totalPossible = calculateTotalPossibleFeatures(AVAILABLE_FEATURES, bestPlanB2BApps.length)
-
-        if (totalPossible === 0) return 0
-
-        return Math.round((totalAvailable / totalPossible) * 100)
-    }, [organization, bestPlan, isFeatureAvailable, bestPlanB2BApps, isB2BAppEnabled])
+        return Math.round((availableCount / platformCapabilities.length) * 100)
+    }, [organization, platformCapabilities, isFeatureAvailable, isB2BAppEnabled])
 
     const openModal = useCallback(() => {
         setIsModalOpen(true)
@@ -161,6 +150,11 @@ export const SubscriptionFeatureProgress: React.FC = () => {
 
     const handleClick = () => {
         openModal()
+    }
+
+    // Nothing left to sell once every capability is already available, so the plate has nothing to say
+    if (featurePercentage >= 100) {
+        return null
     }
 
     if (hidePaidFeatures || !bestPlan || !bestPlan?.prices?.[0] || !hasSubscriptionModalConfig) {
