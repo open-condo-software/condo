@@ -7,6 +7,7 @@ import { resolveLocalDependencies, resolveLocalSchema, replaceEnvToConf, replace
 import { getConfig } from '@/utils/config'
 import { copyAppTemplate, copyAppDir } from '@/utils/copy'
 import { resolveTemplatesDir } from '@/utils/fs'
+import { tryGitInit } from '@/utils/git'
 import { install } from '@/utils/packageManagers'
 
 export async function initAppFromTemplate () {
@@ -38,12 +39,19 @@ export async function initAppFromTemplate () {
         await replaceEnvToConf()
     }
 
+    // TODO: rewrite scripts
+
     console.log(`${blue('Installing packages.')} This might take a couple of minutes...`)
     console.log()
     await install()
 
-    // TODO: git init
-    //
+    if (!preferences.git) {
+        console.log('Skipping git initialization')
+        console.log()
+    } else if (tryGitInit()) {
+        console.log('Initialized a git repository')
+        console.log()
+    }
 
     console.log(`${green('Success!')} Created ${appName} at ${projectPath}`)
 }
