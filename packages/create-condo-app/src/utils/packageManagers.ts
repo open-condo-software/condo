@@ -1,6 +1,8 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs'
 import { join } from 'path'
 
+import execa from 'execa'
+
 import { getConfig, PackageManager } from './config'
 import { getMonorepoInfo } from './repos'
 
@@ -10,6 +12,25 @@ const NPM_RUN_ALIASES: Record<PackageManager, string> = {
     npm: 'npm run',
 }
 
+export async function exec (command: string, args?: Array<string>) {
+    const { packageManager, projectPath } = getConfig()
+    const resolvedArgs = args ?? []
+    return await execa(packageManager, ['exec', command, '--', ...resolvedArgs], {
+        cwd: projectPath,
+        stdio: 'inherit',
+        env: { ...process.env },
+    })
+}
+
+export async function runScript (scriptName: string) {
+    const { packageManager, projectPath } = getConfig()
+
+    return await execa(packageManager, ['run', scriptName], {
+        cwd: projectPath,
+        stdio: 'inherit',
+        env: { ...process.env },
+    })
+}
 
 export function getPackageManager (): PackageManager {
     const { isMonorepo, packageManager } = getMonorepoInfo()
@@ -29,20 +50,35 @@ export function getPackageManager (): PackageManager {
     return 'npm'
 }
 
-export function adjustScripts () {
+export function adjustScripts (): Array<string> {
     const { packageManager, projectPath } = getConfig()
-    if (packageManager === 'npm' || !existsSync(join(projectPath, 'package.json'))) return
+    if (!existsSync(join(projectPath, 'package.json'))) return []
 
     const packageJson = JSON.parse(readFileSync(join(projectPath, 'package.json'), 'utf-8'))
-    if (!packageJson.scripts) return
+    if (!packageJson.scripts) return []
 
     const scripts = packageJson.scripts as Record<string, string>
 
     packageJson.scripts = Object.fromEntries(Object.entries(scripts).map(([scriptName, command]) => [scriptName, command.replace('npm run', NPM_RUN_ALIASES[packageManager])]))
     writeFileSync(join(projectPath, 'package.json'), JSON.stringify(packageJson, null, 2))
+
+    return Object.keys(scripts)
 }
 
 export async function install () {
     const { packageManager, projectPath } = getConfig()
-    console.log(packageManager, projectPath)
+    const args = ['install']
+
+    await execa(packageManager, args, {
+        cwd: projectPath,
+        stdio: 'inherit',
+        env: {
+            ...process.env,
+            ADBLOCK: '1',
+            // we set NODE_ENV to development as pnpm skips dev
+            // dependencies when production
+            NODE_ENV: 'development',
+            DISABLE_OPENCOLLECTIVE: '1',
+        },
+    })
 }
