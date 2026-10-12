@@ -37,6 +37,8 @@ type UseSubscriptionSelectionParams = {
     period: PlanPeriod
     /** Features the selected plan already covers, counted into the cart when the plan is bought */
     includedCount: number
+    /** Plan ids with an invoice already issued and still waiting to be paid - buying them again would issue a second one */
+    pendingPlanIds: ReadonlySet<string>
 }
 
 export const useSubscriptionSelection = ({
@@ -47,6 +49,7 @@ export const useSubscriptionSelection = ({
     paidPriority,
     period,
     includedCount,
+    pendingPlanIds,
 }: UseSubscriptionSelectionParams) => {
     const [mode, setMode] = useState<SelectionMode>('idle')
     const [selectedRowKeys, setSelectedRowKeys] = useState<ReadonlyArray<string>>([])
@@ -69,11 +72,12 @@ export const useSubscriptionSelection = ({
      */
     const isPlanPurchasable = useMemo(() => {
         if (!selectedPlanCard?.price) return false
+        if (pendingPlanIds.has(selectedPlanCard.planInfo.plan.id)) return false
         if (!paidPlanId) return true
         if (selectedPlanCard.planInfo.plan.id === paidPlanId) return false
 
         return (selectedPlanCard.planInfo.plan.priority ?? 0) > (paidPriority ?? 0)
-    }, [selectedPlanCard, paidPlanId, paidPriority])
+    }, [selectedPlanCard, paidPlanId, paidPriority, pendingPlanIds])
 
     // what is included, purchasable or already owned changes with the plan, so a cart assembled
     // against the previous one would no longer mean anything
@@ -98,13 +102,14 @@ export const useSubscriptionSelection = ({
 
     const getRowGroup = useCallback((row: CatalogRow): RowGroup | null => {
         if (row.includedInPlan) return null
+        if (row.featurePlan?.id && pendingPlanIds.has(row.featurePlan.id)) return null
         const statusType = row.status?.type
         if (statusType === 'paymentExpired') return 'paymentExpired'
         if (statusType === 'connected') return 'connected'
         if (statusType === 'trial' || row.purchasable) return 'buy'
 
         return null
-    }, [])
+    }, [pendingPlanIds])
 
     const getRowPrice = (row: CatalogRow) => row.price ?? null
 

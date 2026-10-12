@@ -297,6 +297,17 @@ export const SubscriptionSettingsContent: React.FC = () => {
     const { trialSubscriptions } = useTrialSubscriptions()
     const { registerSubscriptionBundle, activateLoading } = useActivateSubscriptions()
 
+    const outstandingPayments = useMemo(() => (
+        getOutstandingPayments(unpaidSubscriptions, activatedSubscriptions.filter(context => !context.isTrial), new Date())
+    ), [unpaidSubscriptions, activatedSubscriptions])
+
+    // an issued invoice still waiting to be paid - buying the same plan again would just issue a second one
+    const pendingPlanIds = useMemo(() => new Set(
+        outstandingPayments
+            .filter(({ type }) => type === 'invoicePending')
+            .map(({ context }) => context.subscriptionPlan.id)
+    ), [outstandingPayments])
+
     const selection = useSubscriptionSelection({
         rows,
         planCards,
@@ -305,6 +316,7 @@ export const SubscriptionSettingsContent: React.FC = () => {
         paidPriority,
         period,
         includedCount: counters.included,
+        pendingPlanIds,
     })
 
     const handleRefetch = useCallback(async () => {
@@ -329,10 +341,10 @@ export const SubscriptionSettingsContent: React.FC = () => {
 
     /** The same unpaid registrations the plan cards warn about, keyed by the option they are for */
     const paymentByFeaturePlanId = useMemo(() => new Map(
-        getOutstandingPayments(unpaidSubscriptions, activatedSubscriptions.filter(context => !context.isTrial), new Date())
+        outstandingPayments
             .filter(({ context }) => context.subscriptionPlan?.planType === 'feature')
             .map(({ context, type, daysLeft }) => [context.subscriptionPlan.id, { type, daysLeft }] as const)
-    ), [unpaidSubscriptions, activatedSubscriptions])
+    ), [outstandingPayments])
 
     const getRowBadge = useCallback(
         (row: CatalogRow): RowBadge | null => buildRowBadge(
