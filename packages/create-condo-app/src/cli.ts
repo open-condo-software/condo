@@ -60,6 +60,7 @@ const program = new Command(packageJson.name)
     .option('--use-yarn', 'Explicitly tell the CLI to bootstrap the application using yarn')
     .option('--use-pnpm', 'Explicitly tell the CLI to bootstrap the application using yarn')
     .option('--agents-md', 'Include AGENTS.md to guide coding agents to write up-to-date Next.js code. (default)')
+    .option('--no-git', 'Do not initialize a git repository')
     .action((name) => {
         // Commander does not implicitly support negated options. When they are used
         // by the user they will be interpreted as the positional argument (name) in
@@ -211,6 +212,10 @@ async function run () {
             inactive: 'No',
         }, { onCancel })
         preferences.agentsMd = agentsMd
+    }
+
+    if (Object.hasOwn(preferences, 'git')) {
+        preferences.git = !opts.noGit
     }
 
     conf.set('preferences', preferences)
