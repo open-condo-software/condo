@@ -2,7 +2,7 @@ import { useGetOrganizationActivatedSubscriptionsQuery, useRegisterSubscriptionC
 import { SubscriptionPaymentType } from '@app/condo/schema'
 import { notification } from 'antd'
 import getConfig from 'next/config'
-import { useCallback, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useIntl } from '@open-condo/next/intl'
@@ -43,6 +43,8 @@ export const useActivateSubscriptions = () => {
     const ActivationErrorMessage = intl.formatMessage({ id: 'subscription.activation.error' })
 
     const [activateLoading, setActivateLoading] = useState<boolean>(false)
+    // a ref, not state: a fast double click fires both handlers before React re-renders the disabled button
+    const isSubmittingRef = useRef(false)
 
     const { data: activatedSubscriptionsData, loading: activatedSubscriptionsLoading, refetch: refetchActivatedSubscriptions } = useGetOrganizationActivatedSubscriptionsQuery({
         variables: {
@@ -114,8 +116,9 @@ export const useActivateSubscriptions = () => {
         includesServicePlan = true,
         notify = true,
     }: ActivateBundleParams): Promise<boolean> => {
-        if (!organization || priceIds.length === 0) return false
+        if (!organization || priceIds.length === 0 || isSubmittingRef.current) return false
 
+        isSubmittingRef.current = true
         setActivateLoading(true)
         try {
             const result = await registerSubscriptionContextMutation({
@@ -155,6 +158,7 @@ export const useActivateSubscriptions = () => {
             })
             return false
         } finally {
+            isSubmittingRef.current = false
             setActivateLoading(false)
         }
     }, [organization, registerSubscriptionContextMutation, refetchData, showSuccessNotification, ActivationErrorTitle, ActivationErrorMessage])
