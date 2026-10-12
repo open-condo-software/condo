@@ -1,6 +1,7 @@
 const { faker } = require('@faker-js/faker')
 
 const { PULLENTI_PROVIDER } = require('@address-service/domains/common/constants/providers')
+const { DadataSearchProvider } = require('@address-service/domains/common/utils/services/search/providers/DadataSearchProvider')
 
 jest.mock('./heuristicMatcher', () => ({
     findAddressByHeuristics: jest.fn(),
@@ -223,48 +224,29 @@ describe('Search service utils', () => {
             expect(result).toEqual(existingAddress)
         })
 
-        test('does not match distinct stead FIAS IDs through shared fallback or coordinates', async () => {
-            const fallback = { type: 'fallback', value: 'moscow~10', reliability: 10 }
-            const coordinates = { type: 'coordinates', value: '55.75,37.61', reliability: 50 }
-            const firstStead = [
-                { type: 'fias_id', value: 'stead-1', reliability: 95 },
-                fallback,
-                coordinates,
-            ]
-            const secondStead = [
-                { type: 'fias_id', value: 'stead-2', reliability: 95 },
-                fallback,
-                coordinates,
-            ]
-            const firstAddress = { id: 'first', address: 'first', key: 'fias_id:stead-1', meta: {} }
-            const secondAddress = { id: 'second', address: 'second', key: 'fias_id:stead-2', meta: {} }
+        test.each(['house_fias_id', 'stead_fias_id'])('matches and upserts all generated heuristics for %s', async (fiasField) => {
+            process.env.DADATA_SUGGESTIONS = '{"url":"https://example.com", "token":"test-token"}'
+            const provider = new DadataSearchProvider({ req: { id: 'test-request-id' } })
+            const meta = {
+                provider: { name: 'dadata' },
+                data: { [fiasField]: 'leaf-id', city: 'Moscow', house: '10', geo_lat: '55.75', geo_lon: '37.61', qc_geo: '0' },
+            }
+            const key = provider.generateAddressKey(meta)
+            const heuristics = provider.extractHeuristics(meta)
+            const existing = { id: 'matched-address', address: 'existing', key, meta }
+            findAddressByHeuristics.mockResolvedValueOnce({ addressId: existing.id })
+            addressServerUtils.getOne.mockResolvedValueOnce(existing)
 
-            findAddressByHeuristics.mockResolvedValueOnce(null).mockResolvedValueOnce(null).mockResolvedValueOnce({ addressId: 'first' })
-            addressServerUtils.create.mockResolvedValueOnce(firstAddress).mockResolvedValueOnce(secondAddress)
-            addressServerUtils.getOne.mockResolvedValueOnce(null).mockResolvedValueOnce(null).mockResolvedValueOnce(firstAddress)
+            const result = await createOrUpdateAddressWithSource(context, addressServerUtils, addressSourceServerUtils, { ...addressData, key, meta }, 'source', dvSender, heuristics)
 
-            const firstSteadData = { ...addressData, meta: { ...addressData.meta, provider: { name: 'dadata' }, data: { stead_fias_id: 'stead-1' } } }
-            const secondSteadData = { ...addressData, meta: { ...addressData.meta, provider: { name: 'dadata' }, data: { stead_fias_id: 'stead-2' } } }
-            await createOrUpdateAddressWithSource(context, addressServerUtils, addressSourceServerUtils, firstSteadData, 'first', dvSender, firstStead)
-            await createOrUpdateAddressWithSource(context, addressServerUtils, addressSourceServerUtils, secondSteadData, 'second', dvSender, secondStead)
-            await createOrUpdateAddressWithSource(context, addressServerUtils, addressSourceServerUtils, firstSteadData, 'repeat', dvSender, firstStead)
-
-            expect(findAddressByHeuristics.mock.calls.slice(-3)).toEqual([
-                [[firstStead[0]]],
-                [[secondStead[0]]],
-                [[firstStead[0]]],
-            ])
-            expect(addressServerUtils.getOne.mock.calls.slice(-3)).not.toContainEqual(
-                [context, { key: addressData.key, deletedAt: null }, expect.any(String)],
-            )
-            expect(upsertHeuristics.mock.calls.slice(-3).map((call) => call[2])).toEqual([
-                [firstStead[0], coordinates],
-                [secondStead[0], coordinates],
-                [firstStead[0], coordinates],
-            ])
+            expect(heuristics.map(({ type }) => type)).toEqual(['fias_id', 'coordinates', 'fallback'])
+            expect(findAddressByHeuristics).toHaveBeenCalledWith(heuristics)
+            expect(upsertHeuristics).toHaveBeenCalledWith(context, existing.id, heuristics, 'dadata', dvSender)
+            expect(result).toBe(existing)
+            expect(addressServerUtils.create).not.toHaveBeenCalled()
         })
 
-        test('recovers a stead by its exact FIAS key and upserts its FIAS heuristic', async () => {
+        test.each(['house_fias_id', 'stead_fias_id'])('recovers %s by its exact FIAS key and upserts its FIAS heuristic', async (fiasField) => {
             const steadId = 'stead-recovery'
             const key = `fias_id:${steadId}`
             const existing = { id: 'stead-address', address: 'existing stead', key, meta: {} }
@@ -272,7 +254,7 @@ describe('Search service utils', () => {
             const dadataStead = {
                 ...addressData,
                 key,
-                meta: { ...addressData.meta, provider: { name: 'dadata' }, data: { stead_fias_id: steadId } },
+                meta: { ...addressData.meta, provider: { name: 'dadata' }, data: { [fiasField]: steadId } },
             }
             findAddressByHeuristics.mockResolvedValueOnce(null)
             addressServerUtils.getOne.mockResolvedValueOnce(existing)
@@ -297,12 +279,16 @@ describe('Search service utils', () => {
             expect(upsertHeuristics).toHaveBeenCalledWith(context, existing.id, [fiasHeuristic], 'dadata', dvSender)
         })
 
-        test('Dadata house FIAS retains coordinate matching', async () => {
+        test.each([
+            { house_fias_id: 'house-id' },
+            { stead_fias_id: 'stead-id' },
+            { house_fias_id: 'house-id', stead_fias_id: 'stead-id' },
+        ])('Dadata leaf FIAS retains coordinate matching for %j', async (data) => {
             const coordinates = { type: 'coordinates', value: '55.75,37.61', reliability: 50 }
             const existing = { id: 'house-by-coordinate', address: 'existing house', key: 'old-key', meta: {} }
             findAddressByHeuristics.mockResolvedValueOnce({ addressId: existing.id })
             addressServerUtils.getOne.mockResolvedValueOnce(existing)
-            const dadataHouse = { ...addressData, meta: { ...addressData.meta, provider: { name: 'dadata' }, data: { house_fias_id: 'house-id' } } }
+            const dadataHouse = { ...addressData, meta: { ...addressData.meta, provider: { name: 'dadata' }, data } }
             const heuristics = [coordinates]
 
             const result = await createOrUpdateAddressWithSource(context, addressServerUtils, addressSourceServerUtils, dadataHouse, 'house', dvSender, heuristics)
@@ -312,18 +298,27 @@ describe('Search service utils', () => {
             expect(addressServerUtils.create).not.toHaveBeenCalled()
         })
 
-        test('Dadata house FIAS retains legacy key lookup', async () => {
-            const existing = { id: 'house-by-key', address: 'existing house', key: addressData.key, meta: {} }
+        test.each([
+            [{ house_fias_id: 'house-id' }, 'test-key', 'house-id'],
+            [{ stead_fias_id: 'stead-id' }, 'test-key', 'stead-id'],
+            [{ house_fias_id: 'house-id', stead_fias_id: 'stead-id' }, 'test-key', 'house-id'],
+            [{ house_fias_id: 'house-id', stead_fias_id: 'stead-id' }, 'fias_id:house-id', 'house-id'],
+        ])('Dadata leaf FIAS retains key lookup for %j and key %s', async (data, key, fiasId) => {
+            const existing = { id: 'house-by-key', address: 'existing house', key, meta: {} }
             addressServerUtils.getOne.mockResolvedValueOnce(existing)
-            const dadataHouse = { ...addressData, meta: { ...addressData.meta, provider: { name: 'dadata' }, data: { house_fias_id: 'house-id' } } }
+            const dadataHouse = { ...addressData, key, meta: { ...addressData.meta, provider: { name: 'dadata' }, data } }
+            const heuristics = [
+                { type: 'fias_id', value: fiasId, reliability: 95 },
+                { type: 'fallback', value: 'moscow~10', reliability: 10 },
+            ]
 
-            const result = await createOrUpdateAddressWithSource(context, addressServerUtils, addressSourceServerUtils, dadataHouse, 'house', dvSender, [
-                { type: 'fias_id', value: 'house-id', reliability: 95 },
-            ])
+            const result = await createOrUpdateAddressWithSource(context, addressServerUtils, addressSourceServerUtils, dadataHouse, 'house', dvSender, heuristics)
 
-            expect(addressServerUtils.getOne).toHaveBeenCalledWith(context, { key: addressData.key, deletedAt: null }, expect.any(String))
+            expect(findAddressByHeuristics).toHaveBeenCalledWith(heuristics)
+            expect(addressServerUtils.getOne).toHaveBeenCalledWith(context, { key, deletedAt: null }, expect.any(String))
             expect(result).toBe(existing)
             expect(addressServerUtils.create).not.toHaveBeenCalled()
+            expect(upsertHeuristics).toHaveBeenCalledWith(context, existing.id, heuristics, 'dadata', dvSender)
         })
 
         test('preserves building and empty stead FIAS fallback matching', async () => {

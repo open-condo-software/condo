@@ -1,8 +1,7 @@
 const { isEmpty, isObject } = require('lodash')
 
 const { AddressSource } = require('@address-service/domains/address/utils/serverSchema')
-const { HEURISTIC_TYPE_FALLBACK, HEURISTIC_TYPE_FIAS_ID } = require('@address-service/domains/common/constants/heuristicTypes')
-const { DADATA_PROVIDER, PULLENTI_PROVIDER } = require('@address-service/domains/common/constants/providers')
+const { PULLENTI_PROVIDER } = require('@address-service/domains/common/constants/providers')
 const { md5 } = require('@condo/domains/common/utils/crypto')
 
 const { findAddressByHeuristics, upsertHeuristics } = require('./heuristicMatcher')
@@ -50,15 +49,6 @@ async function upsertAddressSource (context, addressSourceServerUtils, dvSender,
 async function createOrUpdateAddressWithSource (context, addressServerUtils, addressSourceServerUtils, addressData, addressSource, dvSender, heuristics = []) {
     const { key, meta } = addressData
     const { helpers = null, provider: { name: providerName } = {}, data: { fias_id } = {} } = meta
-    const hasSteadFiasIdentity = providerName === DADATA_PROVIDER && typeof meta?.data?.stead_fias_id === 'string' && meta.data.stead_fias_id.trim().length > 0
-    // Fallback values are deliberately broad; never use them to relate a stead
-    // with an explicit identity to another address.
-    const matchingHeuristics = hasSteadFiasIdentity
-        ? heuristics.filter((heuristic) => heuristic.type === HEURISTIC_TYPE_FIAS_ID && heuristic.value)
-        : heuristics
-    const heuristicsToUpsert = hasSteadFiasIdentity
-        ? heuristics.filter((heuristic) => heuristic.type !== HEURISTIC_TYPE_FALLBACK)
-        : heuristics
 
     // TODO (DOMA-11991): Remove this condition
     // Do not save addresses from pullenti provider, because this provider is local and have no costs. Also, the normalizer is not finished yet.
@@ -76,8 +66,8 @@ async function createOrUpdateAddressWithSource (context, addressServerUtils, add
     //
     let addressItem = null
 
-    if (matchingHeuristics.length > 0) {
-        const heuristicMatch = await findAddressByHeuristics(matchingHeuristics)
+    if (heuristics.length > 0) {
+        const heuristicMatch = await findAddressByHeuristics(heuristics)
         if (heuristicMatch) {
             addressItem = await addressServerUtils.getOne(
                 context,
@@ -88,11 +78,7 @@ async function createOrUpdateAddressWithSource (context, addressServerUtils, add
     }
 
     // Fallback: key-based lookup (backward compat with pre-migration data).
-    // A stead may only recover by its own exact FIAS key, never by a shared key.
-    const expectedSteadKey = hasSteadFiasIdentity
-        ? `${HEURISTIC_TYPE_FIAS_ID}:${meta.data.stead_fias_id}`
-        : null
-    if (!addressItem && (!hasSteadFiasIdentity || key === expectedSteadKey)) {
+    if (!addressItem) {
         addressItem = await addressServerUtils.getOne(context, { key, deletedAt: null }, ADDRESS_ITEM_FIELDS)
     }
 
@@ -101,8 +87,8 @@ async function createOrUpdateAddressWithSource (context, addressServerUtils, add
     }
 
     // Upsert heuristics for the address
-    if (heuristicsToUpsert.length > 0) {
-        await upsertHeuristics(context, addressItem.id, heuristicsToUpsert, providerName, dvSender)
+    if (heuristics.length > 0) {
+        await upsertHeuristics(context, addressItem.id, heuristics, providerName, dvSender)
     }
 
     //

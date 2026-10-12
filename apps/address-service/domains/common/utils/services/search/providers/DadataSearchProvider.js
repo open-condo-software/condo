@@ -81,8 +81,7 @@ class DadataSearchProvider extends AbstractSearchProvider {
 
         const geoLat = get(normalizedBuilding, ['data', 'geo_lat'])
         const geoLon = get(normalizedBuilding, ['data', 'geo_lon'])
-        // Coordinates can be shared by distinct steads; their FIAS ID is their identity.
-        if (!steadFiasId && geoLat != null && geoLon != null && hasExactGeoQuality(normalizedBuilding)) {
+        if (geoLat != null && geoLon != null && hasExactGeoQuality(normalizedBuilding)) {
             const qcGeo = get(normalizedBuilding, ['data', 'qc_geo'])
             heuristics.push({
                 type: HEURISTIC_TYPE_COORDINATES,

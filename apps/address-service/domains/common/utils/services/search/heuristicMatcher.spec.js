@@ -167,11 +167,11 @@ describe('heuristicMatcher', () => {
             expect(result).toMatchObject({ matchedHeuristic: { type: HEURISTIC_TYPE_FIAS_ID, value: highValue } })
         })
 
-        it('keeps distinct steads with shared exact coordinates separate and reuses the same stead ID', async () => {
+        it('matches a known stead FIAS ID and leaves an unknown stead unmatched', async () => {
             const [firstAddress] = await createTestAddress(adminClient, { key: `fallback:${faker.random.alphaNumeric(12)}` })
             const firstSteadId = faker.datatype.uuid()
             const secondSteadId = faker.datatype.uuid()
-            const coordinates = { geo_lat: '55.751244', geo_lon: '37.618423', qc_geo: '0' }
+            const coordinates = { geo_lat: faker.address.latitude(), geo_lon: faker.address.longitude(), qc_geo: '0' }
             const provider = new DadataSearchProvider({ req: { id: 'test-request-id' } })
 
             await createTestAddressHeuristic(adminClient, firstAddress.id, {
@@ -189,25 +189,27 @@ describe('heuristicMatcher', () => {
             expect(sameSteadMatch.addressId).toBe(firstAddress.id)
         })
 
-        it('preserves coordinate matching for houses and fallback matching for empty stead IDs', async () => {
+        it.each(['house_fias_id', 'stead_fias_id'])('preserves coordinate matching for %s and fallback matching for empty stead IDs', async (fiasField) => {
             const [address] = await createTestAddress(adminClient, { key: `fallback:${faker.random.alphaNumeric(12)}` })
             const provider = new DadataSearchProvider({ req: { id: 'test-request-id' } })
-            const coordinate = '55.751244,37.618423'
+            const latitude = faker.address.latitude()
+            const longitude = faker.address.longitude()
+            const coordinate = `${latitude},${longitude}`
             await createTestAddressHeuristic(adminClient, address.id, {
                 type: HEURISTIC_TYPE_COORDINATES,
                 value: coordinate,
                 reliability: 90,
-                latitude: '55.751244',
-                longitude: '37.618423',
+                latitude,
+                longitude,
             })
 
-            const houseHeuristics = provider.extractHeuristics({ data: {
-                house_fias_id: faker.datatype.uuid(),
-                geo_lat: '55.751244',
-                geo_lon: '37.618423',
+            const leafHeuristics = provider.extractHeuristics({ data: {
+                [fiasField]: faker.datatype.uuid(),
+                geo_lat: latitude,
+                geo_lon: longitude,
                 qc_geo: '0',
             } })
-            expect((await findAddressByHeuristics(houseHeuristics)).addressId).toBe(address.id)
+            expect((await findAddressByHeuristics(leafHeuristics)).addressId).toBe(address.id)
 
             const emptyStead = { data: { stead_fias_id: '', city: 'Moscow', house: '10' } }
             const fallbackHeuristics = provider.extractHeuristics(emptyStead)
