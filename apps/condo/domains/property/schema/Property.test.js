@@ -13,6 +13,8 @@ const {
 } = require('@open-condo/keystone/test.utils')
 const { makeClient, UUID_RE, DATETIME_RE, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
+const { COLD_WATER_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')
+const { Meter, MeterResource, PropertyMeter, createTestMeter, createTestPropertyMeter } = require('@condo/domains/meter/utils/testSchema')
 const { SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
 const {
     createTestOrganizationWithAccessToAnotherOrganization,
@@ -262,6 +264,30 @@ describe('Property', () => {
                     await updateTestProperty(clientTo, propertyFrom.id, { deletedAt: dayjs().toISOString() })
                 })
             })
+        })
+    })
+    describe('Soft delete', () => {
+        test('also soft deletes associated meters and property meters', async () => {
+            const client = await makeClientWithProperty()
+            const [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID })
+            const [meter] = await createTestMeter(admin, client.organization, client.property, resource)
+            const [propertyMeter] = await createTestPropertyMeter(admin, client.organization, client.property, resource)
+            const [anotherProperty] = await createTestProperty(admin, client.organization)
+            const [anotherMeter] = await createTestMeter(admin, client.organization, anotherProperty, resource)
+            const [anotherPropertyMeter] = await createTestPropertyMeter(admin, client.organization, anotherProperty, resource)
+
+            await Property.softDelete(admin, client.property.id)
+
+            const deletedMeter = await Meter.getOne(admin, { id: meter.id, deletedAt_not: null })
+            const deletedPropertyMeter = await PropertyMeter.getOne(admin, { id: propertyMeter.id, deletedAt_not: null })
+            const anotherMeterAfterDelete = await Meter.getOne(admin, { id: anotherMeter.id, deletedAt: null })
+            const anotherPropertyMeterAfterDelete = await PropertyMeter.getOne(admin, { id: anotherPropertyMeter.id, deletedAt: null })
+            expect(deletedMeter).toHaveProperty('deletedAt')
+            expect(deletedMeter.deletedAt).not.toBeNull()
+            expect(deletedPropertyMeter).toHaveProperty('deletedAt')
+            expect(deletedPropertyMeter.deletedAt).not.toBeNull()
+            expect(anotherMeterAfterDelete).toHaveProperty('deletedAt', null)
+            expect(anotherPropertyMeterAfterDelete).toHaveProperty('deletedAt', null)
         })
     })
     describe('Bulk requests', () => {
