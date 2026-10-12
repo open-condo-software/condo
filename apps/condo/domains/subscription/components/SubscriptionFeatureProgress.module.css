@@ -17,7 +17,10 @@
 .container:has(.expanded-content) {
   width: calc(100% + 30px);
   min-width: 214px;
-  max-height: 150px;
+
+  /* The cap only exists so the expand/collapse can animate; it has to clear the tallest
+     the block ever gets, or the button underneath the progress bar is cut off */
+  max-height: 240px;
   margin: 0 -15px 24px;
   padding: 10px;
   background: var(--condo-global-color-brand-gradient-1);

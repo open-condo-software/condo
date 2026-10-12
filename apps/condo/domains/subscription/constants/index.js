@@ -30,10 +30,29 @@ const SUBSCRIPTION_CONTEXT_STATUS_TRANSITIONS = {
 const SUBSCRIPTION_CONTEXT_STATUSES = Object.values(SUBSCRIPTION_CONTEXT_STATUS)
 
 const SUBSCRIPTION_PAYMENT_BUFFER_DAYS = 5
+/** How long an issued invoice waits for the payment */
+const SUBSCRIPTION_INVOICE_PAYMENT_DAYS = 5
+/** A renewal invoice is issued this many days before the period ends, not on the last day */
+const SUBSCRIPTION_RENEWAL_INVOICE_LEAD_DAYS = 3
+
+/** Throttles how often sales gets notified about the same organization asking for the same bundle of plans */
+const SUBSCRIPTION_INVOICE_REQUEST_WINDOW_IN_SEC = 10 * 60
+const SUBSCRIPTION_INVOICE_REQUEST_MAX_CALLS_PER_WINDOW = 1
+
+/** Why a subscription webhook is sent: a client's purchase, an automatic renewal, or a client asking again for an issued invoice */
+const SUBSCRIPTION_WEBHOOK_REASON = {
+    PURCHASE: 'purchase',
+    RENEWAL: 'renewal',
+    RESEND: 'resend',
+}
 
 const SUBSCRIPTION_PLAN_TYPE_SERVICE = 'service'
 const SUBSCRIPTION_PLAN_TYPE_FEATURE = 'feature'
 const SUBSCRIPTION_PLAN_TYPES = [SUBSCRIPTION_PLAN_TYPE_SERVICE, SUBSCRIPTION_PLAN_TYPE_FEATURE]
+
+const SUBSCRIPTION_PAYMENT_TYPE_CARD = 'card'
+const SUBSCRIPTION_PAYMENT_TYPE_INVOICE = 'invoice'
+const SUBSCRIPTION_PAYMENT_TYPES = [SUBSCRIPTION_PAYMENT_TYPE_CARD, SUBSCRIPTION_PAYMENT_TYPE_INVOICE]
 
 const planFeatureField = (name) => ({
     schemaDoc: `Whether ${name} feature is included in this plan`,
@@ -53,9 +72,26 @@ const SUBSCRIPTION_PLAN_FEATURE_FIELDS = {
     customization: planFeatureField('customization'),
     properties: planFeatureField('properties'),
     analytics: planFeatureField('analytics'),
+    pdfReceipts: planFeatureField('pdfReceipts'),
 }
 
 const SUBSCRIPTION_PLAN_FEATURES = Object.keys(SUBSCRIPTION_PLAN_FEATURE_FIELDS)
+
+/**
+ * How a plan feature is offered to a particular organization. Most features follow the plans (BY_PLAN),
+ * a few depend on what the organization has set up outside of subscriptions
+ */
+const SUBSCRIPTION_FEATURE_AVAILABILITY = {
+    // included in a plan or bought separately
+    BY_PLAN: 'byPlan',
+    // available without any subscription
+    FREE: 'free',
+    // available without any subscription and not offered in the plans at all
+    HIDDEN: 'hidden',
+    // can't be used until the organization sets something up, so it is not sold yet
+    REQUIRES_SETUP: 'requiresSetup',
+}
+const SUBSCRIPTION_FEATURE_AVAILABILITIES = Object.values(SUBSCRIPTION_FEATURE_AVAILABILITY)
 
 module.exports = {
     SUBSCRIPTION_PERIOD,
@@ -64,10 +100,20 @@ module.exports = {
     SUBSCRIPTION_CONTEXT_STATUS,
     SUBSCRIPTION_CONTEXT_STATUSES,
     SUBSCRIPTION_PAYMENT_BUFFER_DAYS,
+    SUBSCRIPTION_INVOICE_PAYMENT_DAYS,
+    SUBSCRIPTION_RENEWAL_INVOICE_LEAD_DAYS,
+    SUBSCRIPTION_INVOICE_REQUEST_WINDOW_IN_SEC,
+    SUBSCRIPTION_INVOICE_REQUEST_MAX_CALLS_PER_WINDOW,
+    SUBSCRIPTION_WEBHOOK_REASON,
     SUBSCRIPTION_CONTEXT_STATUS_TRANSITIONS,
     SUBSCRIPTION_PLAN_TYPE_SERVICE,
     SUBSCRIPTION_PLAN_TYPE_FEATURE,
     SUBSCRIPTION_PLAN_TYPES,
+    SUBSCRIPTION_PAYMENT_TYPE_CARD,
+    SUBSCRIPTION_PAYMENT_TYPE_INVOICE,
+    SUBSCRIPTION_PAYMENT_TYPES,
     SUBSCRIPTION_PLAN_FEATURE_FIELDS,
     SUBSCRIPTION_PLAN_FEATURES,
+    SUBSCRIPTION_FEATURE_AVAILABILITY,
+    SUBSCRIPTION_FEATURE_AVAILABILITIES,
 }

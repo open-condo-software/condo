@@ -8,6 +8,7 @@ import { useOrganization } from '@open-condo/next/organization'
 
 import { SUBSCRIPTIONS } from '@condo/domains/common/constants/featureflags'
 import { SUBSCRIPTION_PAYMENT_BUFFER_DAYS } from '@condo/domains/subscription/constants'
+import { getPlanCapabilities } from '@condo/domains/subscription/utils/subscriptionCatalog'
 
 import type { GetSubscriptionContextByIdQuery } from '@app/condo/gql/operation.types'
 import type { OrganizationSubscriptionFeatures } from '@app/condo/schema'
@@ -106,6 +107,24 @@ export const useOrganizationSubscription = () => {
         return appsSet
     }, [allPlansData, featurePlansData])
 
+    /**
+     * Everything the platform sells, whether inside a plan or as a separate feature.
+     * This is the denominator the subscription settings page counts against, so anything
+     * measuring "how much of the platform do I have" must use the same set.
+     */
+    const platformCapabilities = useMemo<ReadonlyArray<string>>(() => {
+        const plans = [
+            ...(allPlansData?.result?.plans || []),
+            ...(featurePlansData?.result?.plans || []),
+        ]
+        const capabilities = new Set<string>()
+        plans.forEach(planInfo => {
+            getPlanCapabilities(planInfo?.plan as never).forEach(capability => capabilities.add(capability))
+        })
+
+        return Array.from(capabilities)
+    }, [allPlansData, featurePlansData])
+
     const isB2BAppEnabled = useCallback((appId: string): boolean => {
         if (!hasSubscriptionsFeature) return true
         if (!subscriptionFeatures) return false
@@ -125,6 +144,7 @@ export const useOrganizationSubscription = () => {
         hasSubscription,
         isFeatureAvailable,
         isB2BAppEnabled,
+        platformCapabilities,
         subscriptionContext,
         activeSubscriptionEndAt: subscriptionFeatures?.activeSubscriptionEndAt || null,
         activeSubscriptionEndAtWithoutBuffer,

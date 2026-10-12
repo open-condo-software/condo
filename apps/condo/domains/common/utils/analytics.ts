@@ -137,7 +137,7 @@ export type EventsData = {
     'ai_assistant_reset_history': { aiSessionId: string }
     'ai_suggestions_failure': AiSuggestionsFailureEventData
     'subscription_purchase_click': {
-        paymentMethod: 'card' | 'userHelpRequest'
+        paymentMethod: 'card' | 'invoice'
         planId: string | null
         planName: string | null
         priceAmount: number | null

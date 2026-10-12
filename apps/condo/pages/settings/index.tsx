@@ -66,7 +66,7 @@ const SettingsPage: PageComponentType = () => {
     const canManageMarketSettingRoles = useMemo(() => userOrganization?.role?.canManageMarketSetting || false, [userOrganization])
     const canReadDocuments = useMemo(() => userOrganization?.role?.canReadDocuments || false, [userOrganization])
 
-    const { hasSubscription, hasAvailablePlans, loading: subscriptionsLoading, subscriptionContext, hasSubscriptionsFeature } = useOrganizationSubscription()
+    const { hasSubscription, hasAvailablePlans, loading: subscriptionsLoading, hasSubscriptionsFeature } = useOrganizationSubscription()
     const { useFlag } = useFeatureFlags()
     const hidePaidFeatures = useFlag(UI_HIDE_PAID_FEATURES)
     const organizationDocumentsFeature = useFlag(ORGANIZATION_DOCUMENTS)
@@ -152,8 +152,8 @@ const SettingsPage: PageComponentType = () => {
         <Typography.Title>{PageTitle}</Typography.Title>
     ), [PageTitle])
 
+    // the settings page sells plans and features together, so the latest paid bundle decides what to congratulate on
     useSubscriptionPaymentSuccess({
-        planId: subscriptionContext?.subscriptionPlan?.id || null,
         organizationId: userOrganizationId,
     })
 

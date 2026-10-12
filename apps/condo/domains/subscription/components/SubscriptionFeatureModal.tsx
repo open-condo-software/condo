@@ -76,7 +76,6 @@ export const SubscriptionFeatureModal: React.FC<SubscriptionFeatureModalProps> =
                 isTrial: true,
                 planName,
                 trialDays: plan.plan?.trialDays || 0,
-                isCustomPrice: false,
             })
             onCancel()
         } finally {

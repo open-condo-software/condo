@@ -4608,6 +4608,7 @@ export const GetActiveOrganizationEmployeeDocument = gql`
         supportEndAt
         aiEndAt
         customizationEndAt
+        pdfReceiptsEndAt
         b2bApps {
           id
           endAt
@@ -6133,8 +6134,12 @@ export const GetAvailableFeatureSubscriptionPlansDocument = gql`
       plan {
         id
         name
+        description
+        priority
+        trialDays
         planType
         enabledB2BApps
+        enabledB2CApps
         tickets
         meters
         payments
@@ -6145,6 +6150,7 @@ export const GetAvailableFeatureSubscriptionPlansDocument = gql`
         support
         ai
         customization
+        pdfReceipts
       }
       prices {
         id
@@ -6199,6 +6205,10 @@ export const GetAvailableServiceSubscriptionPlansDocument = gql`
     organization: $organization
     planType: service
   ) {
+    features {
+      feature
+      availability
+    }
     plans {
       plan {
         id
@@ -6222,6 +6232,7 @@ export const GetAvailableServiceSubscriptionPlansDocument = gql`
         enabledB2BApps
         enabledB2CApps
         customization
+        pdfReceipts
       }
       prices {
         id
@@ -6349,10 +6360,10 @@ export function useUpdateOrganizationPaymentMethodsMutation(baseOptions?: Apollo
 export type UpdateOrganizationPaymentMethodsMutationHookResult = ReturnType<typeof useUpdateOrganizationPaymentMethodsMutation>;
 export type UpdateOrganizationPaymentMethodsMutationResult = Apollo.MutationResult<Types.UpdateOrganizationPaymentMethodsMutation>;
 export type UpdateOrganizationPaymentMethodsMutationOptions = Apollo.BaseMutationOptions<Types.UpdateOrganizationPaymentMethodsMutation, Types.UpdateOrganizationPaymentMethodsMutationVariables>;
-export const RegisterSubscriptionContextDocument = gql`
-    mutation registerSubscriptionContext($data: RegisterSubscriptionContextInput!) {
-  result: registerSubscriptionContext(data: $data) {
-    subscriptionContext {
+export const RegisterSubscriptionContextsDocument = gql`
+    mutation registerSubscriptionContexts($data: RegisterSubscriptionContextsInput!) {
+  result: registerSubscriptionContexts(data: $data) {
+    subscriptionContexts {
       id
       startAt
       endAt
@@ -6366,32 +6377,80 @@ export const RegisterSubscriptionContextDocument = gql`
   }
 }
     `;
-export type RegisterSubscriptionContextMutationFn = Apollo.MutationFunction<Types.RegisterSubscriptionContextMutation, Types.RegisterSubscriptionContextMutationVariables>;
+export type RegisterSubscriptionContextsMutationFn = Apollo.MutationFunction<Types.RegisterSubscriptionContextsMutation, Types.RegisterSubscriptionContextsMutationVariables>;
 
 /**
- * __useRegisterSubscriptionContextMutation__
+ * __useRegisterSubscriptionContextsMutation__
  *
- * To run a mutation, you first call `useRegisterSubscriptionContextMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useRegisterSubscriptionContextMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useRegisterSubscriptionContextsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRegisterSubscriptionContextsMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [registerSubscriptionContextMutation, { data, loading, error }] = useRegisterSubscriptionContextMutation({
+ * const [registerSubscriptionContextsMutation, { data, loading, error }] = useRegisterSubscriptionContextsMutation({
  *   variables: {
  *      data: // value for 'data'
  *   },
  * });
  */
-export function useRegisterSubscriptionContextMutation(baseOptions?: Apollo.MutationHookOptions<Types.RegisterSubscriptionContextMutation, Types.RegisterSubscriptionContextMutationVariables>) {
+export function useRegisterSubscriptionContextsMutation(baseOptions?: Apollo.MutationHookOptions<Types.RegisterSubscriptionContextsMutation, Types.RegisterSubscriptionContextsMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<Types.RegisterSubscriptionContextMutation, Types.RegisterSubscriptionContextMutationVariables>(RegisterSubscriptionContextDocument, options);
+        return Apollo.useMutation<Types.RegisterSubscriptionContextsMutation, Types.RegisterSubscriptionContextsMutationVariables>(RegisterSubscriptionContextsDocument, options);
       }
-export type RegisterSubscriptionContextMutationHookResult = ReturnType<typeof useRegisterSubscriptionContextMutation>;
-export type RegisterSubscriptionContextMutationResult = Apollo.MutationResult<Types.RegisterSubscriptionContextMutation>;
-export type RegisterSubscriptionContextMutationOptions = Apollo.BaseMutationOptions<Types.RegisterSubscriptionContextMutation, Types.RegisterSubscriptionContextMutationVariables>;
+export type RegisterSubscriptionContextsMutationHookResult = ReturnType<typeof useRegisterSubscriptionContextsMutation>;
+export type RegisterSubscriptionContextsMutationResult = Apollo.MutationResult<Types.RegisterSubscriptionContextsMutation>;
+export type RegisterSubscriptionContextsMutationOptions = Apollo.BaseMutationOptions<Types.RegisterSubscriptionContextsMutation, Types.RegisterSubscriptionContextsMutationVariables>;
+export const GetSubscriptionB2BAppsDocument = gql`
+    query getSubscriptionB2BApps($ids: [ID!]!) {
+  b2bApps: allB2BApps(
+    where: {id_in: $ids, isPublic: true, isHidden: false, deletedAt: null}
+    first: 100
+  ) {
+    id
+    name
+    shortDescription
+  }
+}
+    `;
+
+/**
+ * __useGetSubscriptionB2BAppsQuery__
+ *
+ * To run a query within a React component, call `useGetSubscriptionB2BAppsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetSubscriptionB2BAppsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetSubscriptionB2BAppsQuery({
+ *   variables: {
+ *      ids: // value for 'ids'
+ *   },
+ * });
+ */
+export function useGetSubscriptionB2BAppsQuery(baseOptions: Apollo.QueryHookOptions<Types.GetSubscriptionB2BAppsQuery, Types.GetSubscriptionB2BAppsQueryVariables> & ({ variables: Types.GetSubscriptionB2BAppsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetSubscriptionB2BAppsQuery, Types.GetSubscriptionB2BAppsQueryVariables>(GetSubscriptionB2BAppsDocument, options);
+      }
+export function useGetSubscriptionB2BAppsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetSubscriptionB2BAppsQuery, Types.GetSubscriptionB2BAppsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetSubscriptionB2BAppsQuery, Types.GetSubscriptionB2BAppsQueryVariables>(GetSubscriptionB2BAppsDocument, options);
+        }
+// @ts-ignore
+export function useGetSubscriptionB2BAppsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<Types.GetSubscriptionB2BAppsQuery, Types.GetSubscriptionB2BAppsQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetSubscriptionB2BAppsQuery, Types.GetSubscriptionB2BAppsQueryVariables>;
+export function useGetSubscriptionB2BAppsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetSubscriptionB2BAppsQuery, Types.GetSubscriptionB2BAppsQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetSubscriptionB2BAppsQuery | undefined, Types.GetSubscriptionB2BAppsQueryVariables>;
+export function useGetSubscriptionB2BAppsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetSubscriptionB2BAppsQuery, Types.GetSubscriptionB2BAppsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetSubscriptionB2BAppsQuery, Types.GetSubscriptionB2BAppsQueryVariables>(GetSubscriptionB2BAppsDocument, options);
+        }
+export type GetSubscriptionB2BAppsQueryHookResult = ReturnType<typeof useGetSubscriptionB2BAppsQuery>;
+export type GetSubscriptionB2BAppsLazyQueryHookResult = ReturnType<typeof useGetSubscriptionB2BAppsLazyQuery>;
+export type GetSubscriptionB2BAppsSuspenseQueryHookResult = ReturnType<typeof useGetSubscriptionB2BAppsSuspenseQuery>;
+export type GetSubscriptionB2BAppsQueryResult = Apollo.QueryResult<Types.GetSubscriptionB2BAppsQuery, Types.GetSubscriptionB2BAppsQueryVariables>;
 export const GetOrganizationActivatedSubscriptionsDocument = gql`
     query getOrganizationActivatedSubscriptions($organizationId: ID!) {
   activatedSubscriptions: allSubscriptionContexts(
@@ -6404,11 +6463,21 @@ export const GetOrganizationActivatedSubscriptionsDocument = gql`
       id
       name
       priority
+      planType
+      trialDays
+    }
+    subscriptionPlanPricingRule {
+      id
+      name
+      period
+      price
+      currencyCode
     }
     isTrial
     startAt
     endAt
     bindingId
+    renewalCancelledAt
     invoice {
       id
       toPay
@@ -6482,6 +6551,7 @@ export const GetOrganizationActiveFeatureSubscriptionContextsDocument = gql`
   ) {
     id
     bindingId
+    renewalCancelledAt
     startAt
     endAt
     isTrial
@@ -6857,16 +6927,23 @@ export const GetOrganizationPaymentHistoryDocument = gql`
       enabledB2BApps
       enabledB2CApps
     }
+    subscriptionPlanPricingRule {
+      id
+      price
+      currencyCode
+    }
     frozenPaymentInfo {
       paymentMethod {
         paymentSystem
         cardNumber
       }
       invoice {
+        id
         toPay
         currencyCode
       }
       multiPaymentId
+      paymentType
     }
   }
   meta: _allSubscriptionContextsMeta(
@@ -6923,6 +7000,13 @@ export const GetLastDoneSubscriptionContextDocument = gql`
   ) {
     id
     createdAt
+    invoice {
+      id
+    }
+    subscriptionPlan {
+      id
+      planType
+    }
   }
 }
     `;
@@ -6963,143 +7047,202 @@ export type GetLastDoneSubscriptionContextQueryHookResult = ReturnType<typeof us
 export type GetLastDoneSubscriptionContextLazyQueryHookResult = ReturnType<typeof useGetLastDoneSubscriptionContextLazyQuery>;
 export type GetLastDoneSubscriptionContextSuspenseQueryHookResult = ReturnType<typeof useGetLastDoneSubscriptionContextSuspenseQuery>;
 export type GetLastDoneSubscriptionContextQueryResult = Apollo.QueryResult<Types.GetLastDoneSubscriptionContextQuery, Types.GetLastDoneSubscriptionContextQueryVariables>;
-export const GetLastFailedPaymentContextDocument = gql`
-    query getLastFailedPaymentContext($organizationId: ID!, $subscriptionPlanId: ID!) {
-  lastFailedContext: allSubscriptionContexts(
-    where: {organization: {id: $organizationId}, subscriptionPlan: {id: $subscriptionPlanId}, bindingId_not: null, status_in: [ERROR, PENDING], isTrial: false}
+export const GetLastDoneOrganizationSubscriptionContextsDocument = gql`
+    query getLastDoneOrganizationSubscriptionContexts($organizationId: ID!) {
+  contexts: allSubscriptionContexts(
+    where: {organization: {id: $organizationId}, bindingId_not: null, status: DONE, isTrial: false}
     sortBy: [createdAt_DESC]
-    first: 1
+    first: 20
   ) {
     id
-    status
-    bindingId
     createdAt
+    invoice {
+      id
+    }
+    subscriptionPlan {
+      id
+      planType
+    }
   }
 }
     `;
 
 /**
- * __useGetLastFailedPaymentContextQuery__
+ * __useGetLastDoneOrganizationSubscriptionContextsQuery__
  *
- * To run a query within a React component, call `useGetLastFailedPaymentContextQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetLastFailedPaymentContextQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetLastDoneOrganizationSubscriptionContextsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetLastDoneOrganizationSubscriptionContextsQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetLastFailedPaymentContextQuery({
+ * const { data, loading, error } = useGetLastDoneOrganizationSubscriptionContextsQuery({
  *   variables: {
  *      organizationId: // value for 'organizationId'
- *      subscriptionPlanId: // value for 'subscriptionPlanId'
  *   },
  * });
  */
-export function useGetLastFailedPaymentContextQuery(baseOptions: Apollo.QueryHookOptions<Types.GetLastFailedPaymentContextQuery, Types.GetLastFailedPaymentContextQueryVariables> & ({ variables: Types.GetLastFailedPaymentContextQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+export function useGetLastDoneOrganizationSubscriptionContextsQuery(baseOptions: Apollo.QueryHookOptions<Types.GetLastDoneOrganizationSubscriptionContextsQuery, Types.GetLastDoneOrganizationSubscriptionContextsQueryVariables> & ({ variables: Types.GetLastDoneOrganizationSubscriptionContextsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<Types.GetLastFailedPaymentContextQuery, Types.GetLastFailedPaymentContextQueryVariables>(GetLastFailedPaymentContextDocument, options);
+        return Apollo.useQuery<Types.GetLastDoneOrganizationSubscriptionContextsQuery, Types.GetLastDoneOrganizationSubscriptionContextsQueryVariables>(GetLastDoneOrganizationSubscriptionContextsDocument, options);
       }
-export function useGetLastFailedPaymentContextLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetLastFailedPaymentContextQuery, Types.GetLastFailedPaymentContextQueryVariables>) {
+export function useGetLastDoneOrganizationSubscriptionContextsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetLastDoneOrganizationSubscriptionContextsQuery, Types.GetLastDoneOrganizationSubscriptionContextsQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<Types.GetLastFailedPaymentContextQuery, Types.GetLastFailedPaymentContextQueryVariables>(GetLastFailedPaymentContextDocument, options);
+          return Apollo.useLazyQuery<Types.GetLastDoneOrganizationSubscriptionContextsQuery, Types.GetLastDoneOrganizationSubscriptionContextsQueryVariables>(GetLastDoneOrganizationSubscriptionContextsDocument, options);
         }
 // @ts-ignore
-export function useGetLastFailedPaymentContextSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<Types.GetLastFailedPaymentContextQuery, Types.GetLastFailedPaymentContextQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetLastFailedPaymentContextQuery, Types.GetLastFailedPaymentContextQueryVariables>;
-export function useGetLastFailedPaymentContextSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetLastFailedPaymentContextQuery, Types.GetLastFailedPaymentContextQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetLastFailedPaymentContextQuery | undefined, Types.GetLastFailedPaymentContextQueryVariables>;
-export function useGetLastFailedPaymentContextSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetLastFailedPaymentContextQuery, Types.GetLastFailedPaymentContextQueryVariables>) {
+export function useGetLastDoneOrganizationSubscriptionContextsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<Types.GetLastDoneOrganizationSubscriptionContextsQuery, Types.GetLastDoneOrganizationSubscriptionContextsQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetLastDoneOrganizationSubscriptionContextsQuery, Types.GetLastDoneOrganizationSubscriptionContextsQueryVariables>;
+export function useGetLastDoneOrganizationSubscriptionContextsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetLastDoneOrganizationSubscriptionContextsQuery, Types.GetLastDoneOrganizationSubscriptionContextsQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetLastDoneOrganizationSubscriptionContextsQuery | undefined, Types.GetLastDoneOrganizationSubscriptionContextsQueryVariables>;
+export function useGetLastDoneOrganizationSubscriptionContextsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetLastDoneOrganizationSubscriptionContextsQuery, Types.GetLastDoneOrganizationSubscriptionContextsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<Types.GetLastFailedPaymentContextQuery, Types.GetLastFailedPaymentContextQueryVariables>(GetLastFailedPaymentContextDocument, options);
+          return Apollo.useSuspenseQuery<Types.GetLastDoneOrganizationSubscriptionContextsQuery, Types.GetLastDoneOrganizationSubscriptionContextsQueryVariables>(GetLastDoneOrganizationSubscriptionContextsDocument, options);
         }
-export type GetLastFailedPaymentContextQueryHookResult = ReturnType<typeof useGetLastFailedPaymentContextQuery>;
-export type GetLastFailedPaymentContextLazyQueryHookResult = ReturnType<typeof useGetLastFailedPaymentContextLazyQuery>;
-export type GetLastFailedPaymentContextSuspenseQueryHookResult = ReturnType<typeof useGetLastFailedPaymentContextSuspenseQuery>;
-export type GetLastFailedPaymentContextQueryResult = Apollo.QueryResult<Types.GetLastFailedPaymentContextQuery, Types.GetLastFailedPaymentContextQueryVariables>;
-export const UpdateSubscriptionContextPaymentMethodDocument = gql`
-    mutation updateSubscriptionContextPaymentMethod($data: UpdateSubscriptionContextPaymentMethodInput!) {
-  result: updateSubscriptionContextPaymentMethod(data: $data) {
+export type GetLastDoneOrganizationSubscriptionContextsQueryHookResult = ReturnType<typeof useGetLastDoneOrganizationSubscriptionContextsQuery>;
+export type GetLastDoneOrganizationSubscriptionContextsLazyQueryHookResult = ReturnType<typeof useGetLastDoneOrganizationSubscriptionContextsLazyQuery>;
+export type GetLastDoneOrganizationSubscriptionContextsSuspenseQueryHookResult = ReturnType<typeof useGetLastDoneOrganizationSubscriptionContextsSuspenseQuery>;
+export type GetLastDoneOrganizationSubscriptionContextsQueryResult = Apollo.QueryResult<Types.GetLastDoneOrganizationSubscriptionContextsQuery, Types.GetLastDoneOrganizationSubscriptionContextsQueryVariables>;
+export const GetOrganizationUnpaidSubscriptionsDocument = gql`
+    query getOrganizationUnpaidSubscriptions($organizationId: ID!) {
+  unpaidSubscriptions: allSubscriptionContexts(
+    where: {organization: {id: $organizationId}, status_in: [CREATED, PENDING, ERROR], isTrial: false}
+    sortBy: [createdAt_DESC]
+    first: 100
+  ) {
     id
+    subscriptionPlan {
+      id
+      name
+      planType
+    }
+    subscriptionPlanPricingRule {
+      id
+      price
+      currencyCode
+    }
+    status
+    createdAt
+    endAt
+    renewalCancelledAt
+    invoice {
+      id
+    }
+    frozenPaymentInfo {
+      paymentMethod {
+        paymentSystem
+        cardNumber
+      }
+      paymentType
+    }
   }
 }
     `;
-export type UpdateSubscriptionContextPaymentMethodMutationFn = Apollo.MutationFunction<Types.UpdateSubscriptionContextPaymentMethodMutation, Types.UpdateSubscriptionContextPaymentMethodMutationVariables>;
 
 /**
- * __useUpdateSubscriptionContextPaymentMethodMutation__
+ * __useGetOrganizationUnpaidSubscriptionsQuery__
  *
- * To run a mutation, you first call `useUpdateSubscriptionContextPaymentMethodMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateSubscriptionContextPaymentMethodMutation` returns a tuple that includes:
+ * To run a query within a React component, call `useGetOrganizationUnpaidSubscriptionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOrganizationUnpaidSubscriptionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetOrganizationUnpaidSubscriptionsQuery({
+ *   variables: {
+ *      organizationId: // value for 'organizationId'
+ *   },
+ * });
+ */
+export function useGetOrganizationUnpaidSubscriptionsQuery(baseOptions: Apollo.QueryHookOptions<Types.GetOrganizationUnpaidSubscriptionsQuery, Types.GetOrganizationUnpaidSubscriptionsQueryVariables> & ({ variables: Types.GetOrganizationUnpaidSubscriptionsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetOrganizationUnpaidSubscriptionsQuery, Types.GetOrganizationUnpaidSubscriptionsQueryVariables>(GetOrganizationUnpaidSubscriptionsDocument, options);
+      }
+export function useGetOrganizationUnpaidSubscriptionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetOrganizationUnpaidSubscriptionsQuery, Types.GetOrganizationUnpaidSubscriptionsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetOrganizationUnpaidSubscriptionsQuery, Types.GetOrganizationUnpaidSubscriptionsQueryVariables>(GetOrganizationUnpaidSubscriptionsDocument, options);
+        }
+// @ts-ignore
+export function useGetOrganizationUnpaidSubscriptionsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<Types.GetOrganizationUnpaidSubscriptionsQuery, Types.GetOrganizationUnpaidSubscriptionsQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetOrganizationUnpaidSubscriptionsQuery, Types.GetOrganizationUnpaidSubscriptionsQueryVariables>;
+export function useGetOrganizationUnpaidSubscriptionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetOrganizationUnpaidSubscriptionsQuery, Types.GetOrganizationUnpaidSubscriptionsQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetOrganizationUnpaidSubscriptionsQuery | undefined, Types.GetOrganizationUnpaidSubscriptionsQueryVariables>;
+export function useGetOrganizationUnpaidSubscriptionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetOrganizationUnpaidSubscriptionsQuery, Types.GetOrganizationUnpaidSubscriptionsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetOrganizationUnpaidSubscriptionsQuery, Types.GetOrganizationUnpaidSubscriptionsQueryVariables>(GetOrganizationUnpaidSubscriptionsDocument, options);
+        }
+export type GetOrganizationUnpaidSubscriptionsQueryHookResult = ReturnType<typeof useGetOrganizationUnpaidSubscriptionsQuery>;
+export type GetOrganizationUnpaidSubscriptionsLazyQueryHookResult = ReturnType<typeof useGetOrganizationUnpaidSubscriptionsLazyQuery>;
+export type GetOrganizationUnpaidSubscriptionsSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationUnpaidSubscriptionsSuspenseQuery>;
+export type GetOrganizationUnpaidSubscriptionsQueryResult = Apollo.QueryResult<Types.GetOrganizationUnpaidSubscriptionsQuery, Types.GetOrganizationUnpaidSubscriptionsQueryVariables>;
+export const CancelSubscriptionRenewalDocument = gql`
+    mutation cancelSubscriptionRenewal($data: CancelSubscriptionRenewalInput!) {
+  result: cancelSubscriptionRenewal(data: $data) {
+    subscriptionContexts {
+      id
+    }
+  }
+}
+    `;
+export type CancelSubscriptionRenewalMutationFn = Apollo.MutationFunction<Types.CancelSubscriptionRenewalMutation, Types.CancelSubscriptionRenewalMutationVariables>;
+
+/**
+ * __useCancelSubscriptionRenewalMutation__
+ *
+ * To run a mutation, you first call `useCancelSubscriptionRenewalMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCancelSubscriptionRenewalMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [updateSubscriptionContextPaymentMethodMutation, { data, loading, error }] = useUpdateSubscriptionContextPaymentMethodMutation({
+ * const [cancelSubscriptionRenewalMutation, { data, loading, error }] = useCancelSubscriptionRenewalMutation({
  *   variables: {
  *      data: // value for 'data'
  *   },
  * });
  */
-export function useUpdateSubscriptionContextPaymentMethodMutation(baseOptions?: Apollo.MutationHookOptions<Types.UpdateSubscriptionContextPaymentMethodMutation, Types.UpdateSubscriptionContextPaymentMethodMutationVariables>) {
+export function useCancelSubscriptionRenewalMutation(baseOptions?: Apollo.MutationHookOptions<Types.CancelSubscriptionRenewalMutation, Types.CancelSubscriptionRenewalMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<Types.UpdateSubscriptionContextPaymentMethodMutation, Types.UpdateSubscriptionContextPaymentMethodMutationVariables>(UpdateSubscriptionContextPaymentMethodDocument, options);
+        return Apollo.useMutation<Types.CancelSubscriptionRenewalMutation, Types.CancelSubscriptionRenewalMutationVariables>(CancelSubscriptionRenewalDocument, options);
       }
-export type UpdateSubscriptionContextPaymentMethodMutationHookResult = ReturnType<typeof useUpdateSubscriptionContextPaymentMethodMutation>;
-export type UpdateSubscriptionContextPaymentMethodMutationResult = Apollo.MutationResult<Types.UpdateSubscriptionContextPaymentMethodMutation>;
-export type UpdateSubscriptionContextPaymentMethodMutationOptions = Apollo.BaseMutationOptions<Types.UpdateSubscriptionContextPaymentMethodMutation, Types.UpdateSubscriptionContextPaymentMethodMutationVariables>;
-export const GetPendingSubscriptionRequestsDocument = gql`
-    query getPendingSubscriptionRequests($organizationId: ID!) {
-  pendingRequests: allUserHelpRequests(
-    where: {organization: {id: $organizationId}, type: activateSubscription}
-    first: 100
-  ) {
-    id
-    subscriptionPlanPricingRule {
+export type CancelSubscriptionRenewalMutationHookResult = ReturnType<typeof useCancelSubscriptionRenewalMutation>;
+export type CancelSubscriptionRenewalMutationResult = Apollo.MutationResult<Types.CancelSubscriptionRenewalMutation>;
+export type CancelSubscriptionRenewalMutationOptions = Apollo.BaseMutationOptions<Types.CancelSubscriptionRenewalMutation, Types.CancelSubscriptionRenewalMutationVariables>;
+export const RequestSubscriptionInvoiceDocument = gql`
+    mutation requestSubscriptionInvoice($data: RequestSubscriptionInvoiceInput!) {
+  result: requestSubscriptionInvoice(data: $data) {
+    subscriptionContexts {
       id
-      subscriptionPlan {
-        id
-      }
     }
-    createdAt
   }
 }
     `;
+export type RequestSubscriptionInvoiceMutationFn = Apollo.MutationFunction<Types.RequestSubscriptionInvoiceMutation, Types.RequestSubscriptionInvoiceMutationVariables>;
 
 /**
- * __useGetPendingSubscriptionRequestsQuery__
+ * __useRequestSubscriptionInvoiceMutation__
  *
- * To run a query within a React component, call `useGetPendingSubscriptionRequestsQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetPendingSubscriptionRequestsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
+ * To run a mutation, you first call `useRequestSubscriptionInvoiceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRequestSubscriptionInvoiceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
  *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const { data, loading, error } = useGetPendingSubscriptionRequestsQuery({
+ * const [requestSubscriptionInvoiceMutation, { data, loading, error }] = useRequestSubscriptionInvoiceMutation({
  *   variables: {
- *      organizationId: // value for 'organizationId'
+ *      data: // value for 'data'
  *   },
  * });
  */
-export function useGetPendingSubscriptionRequestsQuery(baseOptions: Apollo.QueryHookOptions<Types.GetPendingSubscriptionRequestsQuery, Types.GetPendingSubscriptionRequestsQueryVariables> & ({ variables: Types.GetPendingSubscriptionRequestsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+export function useRequestSubscriptionInvoiceMutation(baseOptions?: Apollo.MutationHookOptions<Types.RequestSubscriptionInvoiceMutation, Types.RequestSubscriptionInvoiceMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<Types.GetPendingSubscriptionRequestsQuery, Types.GetPendingSubscriptionRequestsQueryVariables>(GetPendingSubscriptionRequestsDocument, options);
+        return Apollo.useMutation<Types.RequestSubscriptionInvoiceMutation, Types.RequestSubscriptionInvoiceMutationVariables>(RequestSubscriptionInvoiceDocument, options);
       }
-export function useGetPendingSubscriptionRequestsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetPendingSubscriptionRequestsQuery, Types.GetPendingSubscriptionRequestsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<Types.GetPendingSubscriptionRequestsQuery, Types.GetPendingSubscriptionRequestsQueryVariables>(GetPendingSubscriptionRequestsDocument, options);
-        }
-// @ts-ignore
-export function useGetPendingSubscriptionRequestsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<Types.GetPendingSubscriptionRequestsQuery, Types.GetPendingSubscriptionRequestsQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetPendingSubscriptionRequestsQuery, Types.GetPendingSubscriptionRequestsQueryVariables>;
-export function useGetPendingSubscriptionRequestsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetPendingSubscriptionRequestsQuery, Types.GetPendingSubscriptionRequestsQueryVariables>): Apollo.UseSuspenseQueryResult<Types.GetPendingSubscriptionRequestsQuery | undefined, Types.GetPendingSubscriptionRequestsQueryVariables>;
-export function useGetPendingSubscriptionRequestsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetPendingSubscriptionRequestsQuery, Types.GetPendingSubscriptionRequestsQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<Types.GetPendingSubscriptionRequestsQuery, Types.GetPendingSubscriptionRequestsQueryVariables>(GetPendingSubscriptionRequestsDocument, options);
-        }
-export type GetPendingSubscriptionRequestsQueryHookResult = ReturnType<typeof useGetPendingSubscriptionRequestsQuery>;
-export type GetPendingSubscriptionRequestsLazyQueryHookResult = ReturnType<typeof useGetPendingSubscriptionRequestsLazyQuery>;
-export type GetPendingSubscriptionRequestsSuspenseQueryHookResult = ReturnType<typeof useGetPendingSubscriptionRequestsSuspenseQuery>;
-export type GetPendingSubscriptionRequestsQueryResult = Apollo.QueryResult<Types.GetPendingSubscriptionRequestsQuery, Types.GetPendingSubscriptionRequestsQueryVariables>;
+export type RequestSubscriptionInvoiceMutationHookResult = ReturnType<typeof useRequestSubscriptionInvoiceMutation>;
+export type RequestSubscriptionInvoiceMutationResult = Apollo.MutationResult<Types.RequestSubscriptionInvoiceMutation>;
+export type RequestSubscriptionInvoiceMutationOptions = Apollo.BaseMutationOptions<Types.RequestSubscriptionInvoiceMutation, Types.RequestSubscriptionInvoiceMutationVariables>;
 export const GetPendingBankingRequestDocument = gql`
     query getPendingBankingRequest($organizationId: ID!) {
   pendingBankingRequest: allUserHelpRequests(
