@@ -239,8 +239,9 @@ async function issueRenewalInvoices (context) {
         },
         sortBy: ['endAt_ASC'],
     })
-    // a card payment without a saved card cannot renew by itself either, but the organization chose the card, not an invoice
-    const paidByInvoice = contexts.filter(subscriptionContext => subscriptionContext.frozenPaymentInfo?.paymentType !== SUBSCRIPTION_PAYMENT_TYPE_CARD)
+    // Only what the organization actually chose to pay by invoice is renewed this way: a card payment without a saved
+    // card cannot renew by itself either, and a context registered before paymentType existed never chose an invoice
+    const paidByInvoice = contexts.filter(subscriptionContext => subscriptionContext.frozenPaymentInfo?.paymentType === SUBSCRIPTION_PAYMENT_TYPE_INVOICE)
 
     const renewalBundles = groupContextsIntoRenewalBundles(paidByInvoice)
     logger.info({ msg: 'found subscription contexts to issue renewal invoices for', count: paidByInvoice.length, bundleCount: renewalBundles.length, data: { today, issueUntil } })
