@@ -253,7 +253,9 @@ export const SubscriptionCheckoutModal: React.FC<SubscriptionCheckoutModalProps>
                             </Typography.Title>
                             <Typography.Paragraph type='inverted' size='medium'>
                                 {intl.formatMessage(
-                                    { id: 'subscription.checkout.upsell.description' },
+                                    // the upsell plan can cost less for exactly the same scope as the current plan plus the cart -
+                                    // "0 more options" would read as nonsense, so that case gets its own wording
+                                    { id: upsell.extraCount > 0 ? 'subscription.checkout.upsell.description' : 'subscription.checkout.upsell.description.sameScope' },
                                     {
                                         count: selectedRows.length,
                                         amount: formatAmount(featuresAmount, currencyCode, intl.locale),

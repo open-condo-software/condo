@@ -3504,6 +3504,7 @@
   "subscription.checkout.buy": "Buy",
   "subscription.checkout.upsell.title": "Get the «{planName}» plan for {amount}",
   "subscription.checkout.upsell.description": "You have already added {count, plural, one {# option} other {# options}} for {amount}. Switching to the «{planName}» plan includes {extraCount, plural, one {# more feature} other {# more features}} for that money ({extraNames}).",
+  "subscription.checkout.upsell.description.sameScope": "You have already added {count, plural, one {# option} other {# options}} for {amount}. You can get the exact same thing with the «{planName}» plan for {planAmount}.",
   "subscription.checkout.upsell.buyFeatures": "Buy only {count, plural, one {# feature} other {# features}}",
   "subscription.checkout.upsell.buyPlan": "Get «{planName}»",
   "subscription.remove.title": "Remove {count, plural, one {# feature} other {# features}} from the subscription: {names}?",

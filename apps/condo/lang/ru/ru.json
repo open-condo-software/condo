@@ -3504,6 +3504,7 @@
   "subscription.checkout.buy": "Купить",
   "subscription.checkout.upsell.title": "Подключите тариф «{planName}» за {amount}",
   "subscription.checkout.upsell.description": "Вы уже добавили {count, plural, one {# опцию} few {# опции} many {# опций} other {# опций}} за {amount}. А можно перейти на тариф «{planName}» за {planAmount}, и в эту сумму войдет еще {extraCount, plural, one {# опция} few {# опции} many {# опций} other {# опций}} ({extraNames}).",
+  "subscription.checkout.upsell.description.sameScope": "Вы уже добавили {count, plural, one {# опцию} few {# опции} many {# опций} other {# опций}} за {amount}. А можно получить ровно то же самое в тарифе «{planName}» за {planAmount}.",
   "subscription.checkout.upsell.buyFeatures": "Купить только {count, plural, one {# опцию} few {# опции} many {# опций} other {# опций}}",
   "subscription.checkout.upsell.buyPlan": "Подключить «{planName}»",
   "subscription.remove.title": "Хотите убрать из подписки {count, plural, one {# опцию} few {# опции} many {# опций} other {# опций}}: {names}?",
