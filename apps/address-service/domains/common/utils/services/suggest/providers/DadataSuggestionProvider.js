@@ -314,8 +314,15 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
         // I wanna decrease a dependency from possible data changes got from dadata
         // So, transform data field-by-field
         // Yes, at the beginning it will be 1-to-1 copying
-        return data.map((item) => (
-            {
+        return data.map((item) => {
+            let type = null
+            if (get(item, ['data', 'stead_fias_id'])) {
+                type = STEAD_ADDRESS_TYPE
+            } else if (VALID_DADATA_BUILDING_TYPES.includes(get(item, ['data', 'house_type_full']))) {
+                type = BUILDING_ADDRESS_TYPE
+            }
+
+            return {
                 value: get(item, 'value'),
                 unrestricted_value: get(item, 'unrestricted_value'),
                 rawValue: get(item, 'value'),
@@ -417,10 +424,9 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
                     name: DADATA_PROVIDER,
                     rawData: item,
                 },
-                type: get(item, ['data', 'stead_fias_id']) ? STEAD_ADDRESS_TYPE :
-                    VALID_DADATA_BUILDING_TYPES.includes(get(item, ['data', 'house_type_full'])) ? BUILDING_ADDRESS_TYPE : null,
+                type,
             }
-        ))
+        })
     }
 
     /**
