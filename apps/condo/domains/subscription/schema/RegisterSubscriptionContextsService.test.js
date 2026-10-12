@@ -683,14 +683,15 @@ describe('RegisterSubscriptionContextsService', () => {
             })
             expect(cardResult.subscriptionContexts).toHaveLength(2)
 
-            // ...and so does a different bundle
+            // ...and so does a different bundle - this one brings its own service plan too, a feature alone
+            // needs an active service subscription first, which this organization does not have yet
             const [otherBundleResult] = await registerSubscriptionContextsByTestClient(user, {
                 organization: { id: org.id },
-                subscriptionPlanPricingRules: [{ id: featureSupportRule.id }],
+                subscriptionPlanPricingRules: [{ id: serviceBundleRule.id }, { id: featureSupportRule.id }],
                 paymentType: 'invoice',
                 isTrial: false,
             })
-            expect(otherBundleResult.subscriptionContexts).toHaveLength(1)
+            expect(otherBundleResult.subscriptionContexts).toHaveLength(2)
         })
     })
 })

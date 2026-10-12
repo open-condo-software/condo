@@ -300,8 +300,10 @@ const RegisterSubscriptionContextsService = new GQLCustomSchema('RegisterSubscri
                     throw new GQLError(ERRORS.PAYMENT_RECIPIENT_NOT_CONFIGURED, context)
                 }
 
-                // A repeated invoice request is exactly what floods sales, so it's throttled before any invoice gets created
-                if (!isCard) {
+                // A repeated invoice request is exactly what floods sales, so it's throttled before any invoice gets created.
+                // Only a person can spam it: the renewal cron runs without an authed user and issues one invoice per period
+                // anyway, so it must not share the budget a client's own registration has just spent
+                if (!isCard && context.authedItem) {
                     await checkSubscriptionInvoiceRequestLimit(context, 'register', organization.id, planIds)
                 }
 
