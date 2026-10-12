@@ -66,9 +66,10 @@ class DadataSearchProvider extends AbstractSearchProvider {
     extractHeuristics (normalizedBuilding) {
         const heuristics = []
 
-        const steadFiasId = get(normalizedBuilding, ['data', 'stead_fias_id'])
         const houseFiasId = get(normalizedBuilding, ['data', 'house_fias_id'])
-        const fiasId = steadFiasId || houseFiasId
+        const steadFiasId = get(normalizedBuilding, ['data', 'stead_fias_id'])
+
+        const fiasId = houseFiasId || steadFiasId
         if (fiasId) {
             heuristics.push({
                 type: HEURISTIC_TYPE_FIAS_ID,
