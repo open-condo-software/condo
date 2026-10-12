@@ -14,8 +14,8 @@ const {
     createTestAcquiringIntegration, 
     createTestAcquiringIntegrationContext,
 } = require('@condo/domains/acquiring/utils/testSchema')
-const { createTestRecipient, createTestBillingIntegration, BillingIntegration } = require('@condo/domains/billing/utils/testSchema')
 const { DEFAULT_BILLING_INTEGRATION_GROUP } = require('@condo/domains/billing/constants/constants')
+const { createTestRecipient, createTestBillingIntegration, BillingIntegration } = require('@condo/domains/billing/utils/testSchema')
 const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
 const { Organization, registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PAYMENT_TYPE_CARD } = require('@condo/domains/subscription/constants')
@@ -155,7 +155,7 @@ async function getAvailableSubscriptionPlansByTestClient (client, organization) 
     return [data.result, {}]
 }
 
-async function registerSubscriptionContextsByTestClient(client, extraAttrs = {}) {
+async function registerSubscriptionContextsByTestClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
