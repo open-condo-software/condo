@@ -21,8 +21,7 @@ export function extractA2UIMessages (answer: string): ParsedA2UIAnswer {
     A2UI_BLOCK_REGEX.lastIndex = 0
     while ((match = A2UI_BLOCK_REGEX.exec(answer)) !== null) {
         const jsonlBlock = match[1].trim()
-        const normalized = jsonlBlock.replace(/\\n/g, '\n')
-        const lines = normalized.split('\n').map(l => l.trim()).filter(Boolean)
+        const lines = jsonlBlock.split('\n').map(l => l.trim()).filter(Boolean)
         for (const line of lines) {
             try {
                 const parsed = JSON.parse(line) as A2uiMessage

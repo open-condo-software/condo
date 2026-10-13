@@ -90,6 +90,11 @@
   line-height: 1.6;
 }
 
-.assistant-markdown * {
-  margin-bottom: var(--condo-global-spacing-8) !important;
+.assistant-markdown ul,
+.assistant-markdown ol {
+  margin-bottom: 1em !important;
+}
+
+.assistant-markdown p {
+  margin-bottom: 1em !important;
 }
