@@ -34,7 +34,7 @@
   },
   "devDependencies": {
     "@open-condo/tsconfig": "workspace:^",
-    "@types/prompts": "^2.4.9",
+    "@types/prompts": "2.4.9",
     "commander": "14.0.1",
     "conf": "15.1.0",
     "execa": "^5",
@@ -43,6 +43,6 @@
     "prompts": "2.4.2",
     "tsup": "^8.3.6",
     "typescript": "^5.8.3",
-    "yaml": "^2.9.1"
+    "yaml": "2.9.1"
   }
 }

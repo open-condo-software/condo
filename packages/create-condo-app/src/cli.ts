@@ -2,13 +2,14 @@ import { existsSync } from 'fs'
 
 import { Command } from 'commander'
 import Conf from 'conf'
-import { cyan, red, green, bold, blue } from 'picocolors'
+import { cyan, red, green, bold, blue, yellow } from 'picocolors'
 import prompts from 'prompts'
 
 import packageJson from '../package.json'
 
 import type { InitialReturnValue } from 'prompts'
 
+import { getConfig, PackageManager } from '@/utils/config'
 import { setConfig } from '@/utils/config'
 import { initAppFromTemplate } from '@/utils/createApp'
 import { getAvailableTemplates, isEmptyDir, resolvePackagePath } from '@/utils/fs'
@@ -16,6 +17,7 @@ import { validateNpmName } from '@/utils/npm'
 import { isValidPreferences } from '@/utils/objects'
 import { getPackageManager } from '@/utils/packageManagers'
 import { getMonorepoInfo } from '@/utils/repos'
+import { checkForUpdates } from '@/utils/updates'
 
 function onTermination () {
     process.exit(0)
@@ -23,6 +25,8 @@ function onTermination () {
 
 process.on('SIGINT', onTermination)
 process.on('SIGTERM', onTermination)
+
+const update = checkForUpdates({ name: '@open-condo/ui', version: packageJson.version }).catch(() => null)
 
 const onPromptState = (state: {
     value: InitialReturnValue
@@ -73,7 +77,7 @@ const program = new Command(packageJson.name)
 
 
 async function run () {
-    const conf = new Conf({ projectName: 'create-condo-app' })
+    const conf = new Conf({ projectName: packageJson.name })
 
     const parsedCommand = program.parse(process.argv)
     const opts = parsedCommand.opts()
@@ -225,6 +229,30 @@ async function run () {
     await initAppFromTemplate()
 }
 
+async function notifyUpdate () {
+    const { packageManager } = getConfig()
+    const pkgName = packageJson.name
+    const command: Record<PackageManager, string> = {
+        npm: `npm install -g ${pkgName}`,
+        yarn: `yarn global add ${pkgName}`,
+        pnpm: `pnpm install -g ${pkgName}`,
+    }
+
+    try {
+        if ((await update)?.latest) {
+            console.log(
+                yellow(bold(`A new version of \`${pkgName}\` is available!`)) +
+                '\n' +
+                'You can update by running: ' +
+                cyan(command[packageManager]) +
+                '\n'
+            )
+        }
+    } catch {
+        // No empty
+    }
+}
+
 async function exit (reason: { command?: string }) {
     console.log()
     console.log('Aborting installation.')
@@ -237,8 +265,7 @@ async function exit (reason: { command?: string }) {
         )
     }
     console.log()
-    // TODO: ADD THIS
-    // await notifyUpdate()
+    await notifyUpdate()
     process.exit(1)
 }
 
