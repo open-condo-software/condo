@@ -10,13 +10,13 @@ const {
 const { ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE } = require('@condo/domains/acquiring/constants/integration')
 const { 
     allCardBindingsByTestClient, 
-    createTestAcquiringIntegration, 
+    createTestAcquiringIntegration,
+    createTestAcquiringIntegrationAccessRight,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const {
     makeClientWithResidentUser,
     makeClientWithServiceUser,
 } = require('@condo/domains/user/utils/testSchema')
-const {createTestAcquiringIntegrationAccessRight} = require("../utils/testSchema");
 
 
 describe('AllCardBindingsService', () => {
