@@ -7043,6 +7043,7 @@ export enum B2BAppIconType {
   Settings = 'Settings',
   Share = 'Share',
   Sheet = 'Sheet',
+  ShoppingCartPlus = 'ShoppingCartPlus',
   Slash = 'Slash',
   SmartHome = 'SmartHome',
   Smartphone = 'Smartphone',

@@ -74396,6 +74396,7 @@ enum B2BAppIconType {
   Settings
   Share
   Sheet
+  ShoppingCartPlus
   Slash
   SmartHome
   Smartphone
