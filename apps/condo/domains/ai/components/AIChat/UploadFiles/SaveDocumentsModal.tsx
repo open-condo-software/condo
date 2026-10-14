@@ -8,6 +8,7 @@ import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEf
 import { buildMeta, upload as uploadFiles } from '@open-condo/files'
 import { QuestionCircle } from '@open-condo/icons'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils'
+import { useApolloClient } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -39,6 +40,7 @@ const SaveDocumentsModal: React.FC<any> = ({ setModalState, modalState, fileList
     const NoSaveMessage = intl.formatMessage({ id: 'aiChat.SaveDocumentsModal.cancel.noSave' })
     const BackMessage = intl.formatMessage({ id: 'aiChat.SaveDocumentsModal.cancel.back' })
 
+    const client = useApolloClient()
     const { user } = useAuth()
     const { organization, role } = useOrganization()
     const organizationId = organization?.id || null
@@ -191,6 +193,11 @@ const SaveDocumentsModal: React.FC<any> = ({ setModalState, modalState, fileList
                         })))
                     }
                 }
+            }
+
+            if (isSaveFiles) {
+                client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allDocuments' })
+                client.cache.gc()
             }
 
             closeModal()
