@@ -29,6 +29,7 @@ query getDocumentsForTable ($where: DocumentWhereInput, $first: Int, $skip: Int,
             originalFilename
             filename
             mimetype
+            size
         }
     }
 
