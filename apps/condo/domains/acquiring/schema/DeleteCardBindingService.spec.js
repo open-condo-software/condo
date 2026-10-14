@@ -7,9 +7,7 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { deleteUserCard } = require('@condo/domains/acquiring/utils/serverSchema/cardsOnlineInteraction')
-const {
-    deleteCardBindingByTestClient,
-} = require('@condo/domains/acquiring/utils/testSchema')
+const { deleteCardBindingByTestClient } = require('@condo/domains/acquiring/utils/testSchema')
 const { TestUtils, AcquiringTestMixin } = require('@condo/domains/billing/utils/testSchema/testUtils')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
@@ -18,16 +16,11 @@ jest.mock('@condo/domains/acquiring/utils/serverSchema/cardsOnlineInteraction', 
 }))
 
 describe('DeleteCardBindingService', () => {
-    let adminClient
-    let userClient
     let utils
 
     setFakeClientMode(index)
 
     beforeAll(async () => {
-        adminClient = await makeLoggedInAdminClient()
-        userClient = await makeClientWithNewRegisteredAndLoggedInUser()
-
         utils = new TestUtils([AcquiringTestMixin])
         await utils.init()
 

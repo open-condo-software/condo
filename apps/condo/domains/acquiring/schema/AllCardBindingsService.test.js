@@ -7,13 +7,17 @@ const {
     expectToThrowAccessDeniedErrorToResult,
 } = require('@open-condo/keystone/test.utils')
 
-const {
-    allCardBindingsByTestClient,
+const { ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE } = require('@condo/domains/acquiring/constants/integration')
+const { 
+    allCardBindingsByTestClient, 
+    createTestAcquiringIntegration, 
 } = require('@condo/domains/acquiring/utils/testSchema')
 const {
     makeClientWithResidentUser,
     makeClientWithServiceUser,
 } = require('@condo/domains/user/utils/testSchema')
+const {createTestAcquiringIntegrationAccessRight} = require("../utils/testSchema");
+
 
 describe('AllCardBindingsService', () => {
     test('admin: can execute for any cards', async () => {
@@ -47,9 +51,12 @@ describe('AllCardBindingsService', () => {
     })
 
     test('service: can execute for any cards', async () => {
-        const client = await makeClientWithServiceUser()
+        const adminUser = await makeLoggedInAdminClient()
+        const serviceUser = await makeClientWithServiceUser()
+        const [acquiringIntegration] = await createTestAcquiringIntegration(adminUser, { type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE })
+        await createTestAcquiringIntegrationAccessRight(adminUser, acquiringIntegration, serviceUser.user)
 
-        const [result] = await allCardBindingsByTestClient(client, {
+        const [result] = await allCardBindingsByTestClient(serviceUser, {
             user: { id: faker.datatype.uuid() },
         })
 

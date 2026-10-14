@@ -7,9 +7,9 @@ const {
     expectToThrowAccessDeniedErrorToResult,
 } = require('@open-condo/keystone/test.utils')
 
-const {
-    deleteCardBindingByTestClient,
-} = require('@condo/domains/acquiring/utils/testSchema')
+const { ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE } = require('@condo/domains/acquiring/constants/integration')
+const { deleteCardBindingByTestClient } = require('@condo/domains/acquiring/utils/testSchema')
+const { createTestAcquiringIntegration, createTestAcquiringIntegrationAccessRight } = require('@condo/domains/acquiring/utils/testSchema')
 const {
     makeClientWithResidentUser,
     makeClientWithServiceUser,
@@ -56,11 +56,14 @@ describe('DeleteCardBindingService', () => {
     })
 
     test('service: can execute for own card', async () => {
-        const client = await makeClientWithServiceUser()
+        const adminUser = await makeLoggedInAdminClient()
+        const serviceUser = await makeClientWithServiceUser()
+        const [acquiringIntegration] = await createTestAcquiringIntegration(adminUser, { type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE })
+        await createTestAcquiringIntegrationAccessRight(adminUser, acquiringIntegration, serviceUser.user)
 
-        const [result] = await deleteCardBindingByTestClient(client, {
+        const [result] = await deleteCardBindingByTestClient(serviceUser, {
             user: {
-                id: client.user.id,
+                id: serviceUser.user.id,
             },
             cardId: faker.datatype.uuid(),
         })
