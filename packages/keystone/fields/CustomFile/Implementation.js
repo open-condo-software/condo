@@ -101,6 +101,7 @@ class CustomFile extends FileWithUTF8Name.implementation {
               filename: String
               originalFilename: String
               mimetype: String
+              size: String
               encoding: String
               publicUrl: String
               meta: JSON
@@ -196,6 +197,7 @@ class CustomFile extends FileWithUTF8Name.implementation {
             return {
                 originalFilename: input.originalFilename || '',
                 mimetype: fileMeta.mimetype || '',
+                size: fileMeta.size || null,
                 id: fileMeta.id || null,
             }
         }
@@ -309,6 +311,7 @@ class CustomFile extends FileWithUTF8Name.implementation {
             filename: string;
             originalFilename: string;
             mimetype: string;
+            size: string;
             encoding: string;
             meta: Record<string, any>
             _meta: Record<string, any>
