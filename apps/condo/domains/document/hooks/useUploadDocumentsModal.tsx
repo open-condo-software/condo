@@ -9,6 +9,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { buildMeta, upload as uploadFiles } from '@open-condo/files'
 import { Paperclip } from '@open-condo/icons'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
+import { useApolloClient } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Modal, Typography, Space } from '@open-condo/ui'
@@ -59,6 +60,8 @@ const UploadDocumentsModal = ({
     const CancelModalTitle = intl.formatMessage({ id: 'documents.uploadDocumentsModal.cancel.title' })
     const CancelModalMessage = intl.formatMessage({ id: 'documents.uploadDocumentsModal.cancel.message' })
     const DontSaveMessage = intl.formatMessage({ id: 'documents.uploadDocumentsModal.cancel.dontSave' })
+
+    const client = useApolloClient()
 
     const [fileList, setFileList] = useState<UploadFile[]>([])
     const [formSubmitting, setFormSubmitting] = useState<boolean>(false)
@@ -156,6 +159,9 @@ const UploadDocumentsModal = ({
                     return file
                 }))
             }
+
+            client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allDocuments' })
+            client.cache.gc()
 
             setFileList([])
             uploadForm.resetFields()
