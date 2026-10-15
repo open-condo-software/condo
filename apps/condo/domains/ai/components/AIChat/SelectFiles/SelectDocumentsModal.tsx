@@ -238,7 +238,7 @@ const DocumentsTableContent: React.FC<any> = ({ setSelectedDocuments, attachment
 
                             if (!mimetype) return false
                             if (!attachments.mimeTypes.includes(mimetype)) return false
-                            if (!!sizeAsString && sizeInBytes > attachments.maxFileSizeBytes) return false
+                            if (!!sizeAsString && (!Number.isFinite(sizeInBytes) || sizeInBytes > attachments.maxFileSizeBytes)) return false
 
                             return true
                         },
