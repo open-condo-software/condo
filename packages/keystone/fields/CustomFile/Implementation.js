@@ -311,7 +311,7 @@ class CustomFile extends FileWithUTF8Name.implementation {
             filename: string;
             originalFilename: string;
             mimetype: string;
-            size: string;
+            size?: string | null;
             encoding: string;
             meta: Record<string, any>
             _meta: Record<string, any>
