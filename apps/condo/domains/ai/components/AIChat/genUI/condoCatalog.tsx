@@ -7,6 +7,8 @@ import { z } from 'zod'
 import { Button, Card, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
+import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
+
 import type { EChartsOption } from 'echarts-for-react'
 
 export const CONDO_CATALOG_ID = 'https://condo.open-condo.software/a2ui/v1/catalog.json'
@@ -95,24 +97,10 @@ const RowRenderer: React.FC<RendererProps> = ({ component, surface }) => {
     )
 }
 
-function safeHref (value: string): string | null {
-    const href = value.trim()
-    if (!href) return null
-    if (href.startsWith('/') && !href.startsWith('//')) return href
-
-    try {
-        const url = new URL(href)
-        if (url.protocol === 'http:' || url.protocol === 'https:') return href
-    } catch {
-        return null
-    }
-
-    return null
-}
-
 const ButtonRenderer: React.FC<RendererProps> = ({ component, surface }) => {
     const text = resolveValue(component.properties.text, surface.dataModel)
-    const href = safeHref(resolveValue(component.properties.href, surface.dataModel))
+    const rawHref = resolveValue(component.properties.href, surface.dataModel).trim()
+    const href = rawHref && isSafeUrl(rawHref) ? rawHref : ''
 
     if (!text || !href) return null
 
