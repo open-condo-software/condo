@@ -76,7 +76,6 @@ export const AIChat: React.FC<AIChatProps> = ({
     inputAutoSize,
 }) => {
     const intl = useIntl()
-    const loadingLabel = intl.formatMessage({ id: 'ai.chat.loading' })
     const welcomeMessage = intl.formatMessage({ id: 'ai.chat.welcome' })
     const errorMessage = intl.formatMessage({ id: 'ai.chat.error' })
     const failedToGetResponseMessage = intl.formatMessage({ id: 'ai.chat.failedToGetResponse' })
@@ -134,7 +133,7 @@ export const AIChat: React.FC<AIChatProps> = ({
     })
 
     // Stream partial answers into the last 'sending' assistant message.
-    // Empty chunks are ignored so loadingLabel stays visible until real content arrives.
+    // Empty chunks are ignored so the thinking status stays visible until real content arrives.
     useEffect(() => {
         if (!loading) return
 
@@ -481,7 +480,7 @@ export const AIChat: React.FC<AIChatProps> = ({
     ) => {
         const assistantMessage: Message = {
             id: uuidV4(),
-            content: { text: loadingLabel },
+            content: { text: '' },
             role: 'assistant',
             timestamp: new Date(),
             status: 'sending',
@@ -516,7 +515,7 @@ export const AIChat: React.FC<AIChatProps> = ({
                 })
             }
         })()
-    }, [user, organization, execute, finalizeAssistantMessage, changeMessage, errorMessage, loadingLabel, selectedSkills])
+    }, [user, organization, execute, finalizeAssistantMessage, changeMessage, errorMessage, selectedSkills])
 
     const handleSendMessage = useCallback(async () => {
         const overrideInput = initialMessageOverrideRef.current
@@ -644,7 +643,10 @@ export const AIChat: React.FC<AIChatProps> = ({
 
         const userMessage: Message = {
             id: uuidV4(),
-            content: { text: suggestedText },
+            content: {
+                text: suggestedText,
+                ...(selectedSkillNames?.length ? { skillNames: selectedSkillNames } : {}),
+            },
             role: 'user',
             timestamp: new Date(),
             status: 'sent',
@@ -652,7 +654,7 @@ export const AIChat: React.FC<AIChatProps> = ({
         }
 
         await startUserTurn(userMessage)
-    }, [loading, user, canExecuteAIFlow, messages, startUserTurn])
+    }, [loading, user, canExecuteAIFlow, messages, selectedSkillNames, startUserTurn])
 
     const handleComposerKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if (e.key !== 'Enter' || e.shiftKey) return
