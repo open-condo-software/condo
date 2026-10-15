@@ -440,6 +440,7 @@ const User = new GQLListSchema('User', {
         delete: false,
         auth: true,
     },
+    escapeSearch: true,
 })
 
 module.exports = {
