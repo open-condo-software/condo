@@ -6,9 +6,9 @@ const CATALOG_ID = 'https://condo.open-condo.software/a2ui/v1/catalog.json'
 const CATALOG_COMPONENTS = [
     {
         name: 'Text',
-        description: 'Displays text.',
+        description: 'Displays text. Use \\n inside text for a line break.',
         props: [
-            { name: 'text', type: 'DynamicString', description: 'Text content', required: true },
+            { name: 'text', type: 'DynamicString', description: 'Text content. \\n starts a new line', required: true },
             { name: 'variant', type: 'DynamicString', description: 'Text style variant', enum: ['h1', 'h2', 'h3', 'caption'] },
         ],
     },
@@ -24,6 +24,22 @@ const CATALOG_COMPONENTS = [
         description: 'A vertical layout container. Children stack vertically and fill full width.',
         props: [
             { name: 'children', type: 'ChildList', description: 'Child component IDs', required: true },
+        ],
+    },
+    {
+        name: 'Card',
+        description: 'A bordered card from the UI kit. Children stack vertically inside the card body.',
+        props: [
+            { name: 'children', type: 'ChildList', description: 'Child component IDs', required: true },
+            { name: 'title', type: 'DynamicString', description: 'Card header text' },
+        ],
+    },
+    {
+        name: 'Button',
+        description: 'A full-width button that opens a page in a new tab. Put it last inside a Card so it sits at the bottom.',
+        props: [
+            { name: 'text', type: 'DynamicString', description: 'Button label', required: true },
+            { name: 'href', type: 'DynamicString', description: 'Page address, for example /incident/{id}', required: true },
         ],
     },
     {
@@ -65,7 +81,7 @@ Output A2UI messages as JSONL inside <a2ui>...</a2ui> tags. Each line is one A2U
 
 ## Component Structure
 Each component in the "components" array is a JSON object with:
-- "component" (string, required) — the component type name (e.g. "Text", "Row", "Col", "Chart")
+- "component" (string, required) — the component type name (e.g. "Text", "Row", "Col", "Card", "Button", "Chart")
 - "id" (string, required) — unique identifier for this component
 - All other props from the component definition above
 

@@ -4,7 +4,7 @@ import React from 'react'
 import { z } from 'zod'
 
 
-import { Typography } from '@open-condo/ui'
+import { Button, Card, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import type { EChartsOption } from 'echarts-for-react'
@@ -68,12 +68,13 @@ interface RendererProps {
 const TextRenderer: React.FC<RendererProps> = ({ component, surface }) => {
     const text = resolveValue(component.properties.text, surface.dataModel)
     const variant = resolveValue(component.properties.variant, surface.dataModel)
+    const content = <span style={{ whiteSpace: 'pre-line' }}>{text}</span>
 
-    if (variant === 'h1') return <Typography.Title level={1}>{text}</Typography.Title>
-    if (variant === 'h2') return <Typography.Title level={2}>{text}</Typography.Title>
-    if (variant === 'h3') return <Typography.Title level={3}>{text}</Typography.Title>
-    if (variant === 'caption') return <Typography.Text size='small' type='secondary'>{text}</Typography.Text>
-    return <Typography.Text>{text}</Typography.Text>
+    if (variant === 'h1') return <Typography.Title level={1}>{content}</Typography.Title>
+    if (variant === 'h2') return <Typography.Title level={2}>{content}</Typography.Title>
+    if (variant === 'h3') return <Typography.Title level={3}>{content}</Typography.Title>
+    if (variant === 'caption') return <Typography.Text size='small' type='secondary'>{content}</Typography.Text>
+    return <Typography.Text>{content}</Typography.Text>
 }
 
 // Row — horizontal flex, children fill space proportionally to weight (grid-like)
@@ -90,6 +91,53 @@ const RowRenderer: React.FC<RendererProps> = ({ component, surface }) => {
                     </div>
                 )
             })}
+        </div>
+    )
+}
+
+function safeHref (value: string): string | null {
+    const href = value.trim()
+    if (!href) return null
+    if (href.startsWith('/') && !href.startsWith('//')) return href
+
+    try {
+        const url = new URL(href)
+        if (url.protocol === 'http:' || url.protocol === 'https:') return href
+    } catch {
+        return null
+    }
+
+    return null
+}
+
+const ButtonRenderer: React.FC<RendererProps> = ({ component, surface }) => {
+    const text = resolveValue(component.properties.text, surface.dataModel)
+    const href = safeHref(resolveValue(component.properties.href, surface.dataModel))
+
+    if (!text || !href) return null
+
+    return (
+        <Button type='secondary' href={href} target='_blank' rel='noopener noreferrer' block>
+            {text}
+        </Button>
+    )
+}
+
+const CardRenderer: React.FC<RendererProps> = ({ component, surface }) => {
+    const title = resolveValue(component.properties.title, surface.dataModel)
+    const children = resolveChildren(component, surface)
+
+    return (
+        <div style={{ width: '100%', maxWidth: 550 }}>
+            <Card title={title || undefined} width='100%'>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%' }}>
+                    {children.map(child => (
+                        <div key={child.id} style={{ width: '100%' }}>
+                            <ComponentRenderer component={child} surface={surface} />
+                        </div>
+                    ))}
+                </div>
+            </Card>
         </div>
     )
 }
@@ -148,6 +196,8 @@ const RENDERERS: Record<string, React.FC<RendererProps>> = {
     Text: TextRenderer,
     Row: RowRenderer,
     Col: ColRenderer,
+    Card: CardRenderer,
+    Button: ButtonRenderer,
     Chart: ChartRenderer,
 }
 
