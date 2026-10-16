@@ -78,6 +78,8 @@ const { createTestProperty } = require('@condo/domains/property/utils/testSchema
 const { createTestResident, createTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { DELETE_CARD_BINDING_MUTATION } = require('@condo/domains/acquiring/gql')
+const { ALL_CARD_BINDINGS_QUERY } = require("@condo/domains/acquiring/gql");
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateGQLTestUtils(AcquiringIntegrationGQL)
@@ -658,6 +660,22 @@ async function registerExternalPaymentsByTestClient (client, extraAttrs = {}) {
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+
+async function allCardBindingsByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+
+    const { data, errors } = await client.query(ALL_CARD_BINDINGS_QUERY, { data: extraAttrs })
+    throwIfError(data, errors, { query: ALL_CARD_BINDINGS_QUERY, variables: { data: extraAttrs } })
+    return [data.result, extraAttrs]
+}
+
+async function deleteCardBindingByTestClient(client, attrs = {}) {
+    if (!client) throw new Error('no client')
+
+    const { data, errors } = await client.mutate(DELETE_CARD_BINDING_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 // Utils used to generate a bunch of entities for working with MultiPayments
@@ -964,5 +982,7 @@ module.exports = {
     WebhookPayload, createTestWebhookPayload, updateTestWebhookPayload,
     PaymentStatusChangeWebhookUrl, createTestPaymentStatusChangeWebhookUrl, updateTestPaymentStatusChangeWebhookUrl,
     registerExternalPaymentsByTestClient,
+    allCardBindingsByTestClient,
+    deleteCardBindingByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
