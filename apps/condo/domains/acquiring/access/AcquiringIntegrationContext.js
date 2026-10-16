@@ -101,10 +101,10 @@ async function canManageStatusField ({ authentication: { item: user }, existingI
         ? originalInput?.integration?.connect?.id
         : existingItem?.integration
 
-    // if (user.type === SERVICE) {
-    //     if (!integrationId) return false
-    //     return await checkAcquiringIntegrationAccessRights(user.id, [integrationId])
-    // }
+    if (user.type === SERVICE) {
+        if (!integrationId) return false
+        return await checkAcquiringIntegrationAccessRights(user.id, [integrationId])
+    }
 
     // Service provider org employee should not be able to finish connecting by itself
     if ('status' in originalInput && originalInput.status === CONTEXT_FINISHED_STATUS) {

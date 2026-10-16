@@ -699,6 +699,20 @@ describe('AcquiringIntegrationContext', () => {
                     })
                 })
             })
+
+            test('Service user can change status to finished', async () => {
+                const [org2] = await registerNewOrganization(serviceUser);
+                [context] = await createTestAcquiringIntegrationContext(serviceUser, org2, integration, {
+                    status: CONTEXT_IN_PROGRESS_STATUS,
+                })
+                expect(context).toHaveProperty(['organization', 'id'], org2.id)
+                expect(context).toHaveProperty(['integration', 'id'], integration.id)
+
+                const [updated] = await updateTestAcquiringIntegrationContext(serviceUser, context.id, {
+                    status: CONTEXT_FINISHED_STATUS,
+                })
+                expect(updated).toHaveProperty('status', CONTEXT_FINISHED_STATUS)
+            })
         })
     })
     describe('Life cases', () => {
