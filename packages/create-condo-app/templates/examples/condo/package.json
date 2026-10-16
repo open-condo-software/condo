@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "prepare": "node ./bin/prepare.js"
+  },
+  "devDependencies": {
+    "@open-condo/cli": "workspace:^",
+    "@open-condo/config": "workspace:^"
+  }
+}
