@@ -32004,6 +32004,7 @@ export type File = {
   originalFilename?: Maybe<Scalars['String']['output']>;
   path?: Maybe<Scalars['String']['output']>;
   publicUrl?: Maybe<Scalars['String']['output']>;
+  size?: Maybe<Scalars['String']['output']>;
 };
 
 export type FileAttachment = {
@@ -32371,6 +32372,7 @@ export type FileRecordMeta = {
   originalFilename?: Maybe<Scalars['String']['output']>;
   path?: Maybe<Scalars['String']['output']>;
   recordId?: Maybe<Scalars['ID']['output']>;
+  size?: Maybe<Scalars['String']['output']>;
 };
 
 export type FileRecordMetaUser = {

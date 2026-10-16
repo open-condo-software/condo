@@ -2391,6 +2391,7 @@ export const GetDocumentsForTableDocument = gql`
       originalFilename
       filename
       mimetype
+      size
     }
   }
   meta: _allDocumentsMeta(where: $where) {
