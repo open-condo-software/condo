@@ -12,8 +12,7 @@ export function middleware (request: NextRequest): NextResponse {
     // Allow all requests to pass through with CORS headers
     response.headers.set('Access-Control-Allow-Origin', CONDO_DOMAIN)
     response.headers.set('Access-Control-Allow-Credentials', 'true')
-    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD')
-    response.headers.set('Access-Control-Allow-Headers', '*')
+    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, HEAD')
 
     return response
 }
