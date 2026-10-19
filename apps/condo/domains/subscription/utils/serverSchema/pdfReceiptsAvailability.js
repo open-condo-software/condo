@@ -33,6 +33,10 @@ function isPdfReceiptsSubscriptionRequired (integrationId) {
  * @returns {Promise<string>} one of SUBSCRIPTION_FEATURE_AVAILABILITY
  */
 async function getPdfReceiptsAvailability (organization) {
+    // TODO(DOMA-13655): pdf receipts are not sold yet - remove this return to bring back the paywall and the plan table row
+    return SUBSCRIPTION_FEATURE_AVAILABILITY.HIDDEN
+
+    // eslint-disable-next-line no-unreachable
     if (organization.features?.includes(SERVICE_PROVIDER_PROFILE_FEATURE)) return SUBSCRIPTION_FEATURE_AVAILABILITY.HIDDEN
 
     const registryUploadIntegrationId = getRegistryUploadIntegrationId()
