@@ -1,4 +1,5 @@
 import { ApolloProvider } from '@apollo/client'
+import NextApp from 'next/app'
 import Head from 'next/head'
 
 import { CachePersistorContext } from '@open-condo/apollo'
@@ -10,7 +11,7 @@ import { useApollo } from '@/domains/common/utils/apollo'
 import { withTranslations } from '@/domains/common/utils/i18n'
 import { AuthProvider } from '@/domains/user/components/AuthContext'
 
-import type { AppType } from 'next/app'
+import type { AppType, AppContext } from 'next/app'
 
 import '@open-condo/ui/dist/styles.min.css'
 import '@/styles/globals.css'
@@ -46,7 +47,9 @@ const App: AppType<PageProps> =  ({ Component, pageProps }) => {
     )
 }
 
-App.getInitialProps = async () => ({})
+App.getInitialProps = async (ctx: AppContext) => {
+    return await NextApp.getInitialProps(ctx)
+}
 
 export default withTranslations(App)
 

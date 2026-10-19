@@ -15,7 +15,7 @@ export const IntlProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
             setIsParamsSynced(true)
             const { selectedLocale: newSelectedLocale } = translationsHelper.selectSupportedLocale([
                 parseLocaleString(launchParams.condoLocale),
-                ...window.navigator.languages.map(parseLocaleString),
+                ...window.navigator.languages.map((lang) => parseLocaleString(lang)),
             ])
             switchLocale(newSelectedLocale)
         }

@@ -7,8 +7,7 @@ import { getTracingMiddleware } from '@open-condo/miniapp-utils/helpers/apollo'
 
 import { AUTH_TOKEN_KEY } from '@/domains/user/constants/auth'
 
-import type { ApolloClient, NormalizedCacheObject } from '@apollo/client'
-import type { DefaultContext, RequestHandler } from '@apollo/client'
+import type { ApolloClient, NormalizedCacheObject, DefaultContext, RequestHandler } from '@apollo/client'
 
 const { publicRuntimeConfig: { condoDomain, revision } } = getConfig()
 

@@ -38,7 +38,7 @@ export const ResidentCard: React.FC = () => {
         { label: VerifiedLabel, value: VerifiedValueText },
     ], [AddressLabel, UnitNameLabel, UnitTypeLabel, UnitTypeValueText, VerifiedLabel, VerifiedValueText, data?.resident?.address, data?.resident?.unitName])
 
-    if (launchParams?.condoContextEntity !== 'Organization' || !launchParams.condoContextEntityId) {
+    if (launchParams?.condoContextEntity !== 'Resident' || !launchParams.condoContextEntityId) {
         return null
     }
 

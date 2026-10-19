@@ -12,14 +12,12 @@ export default function Home () {
     const { user } = useAuth()
 
     return (
-        <>
-            <div
-                className={styles.cardsContainer}
-            >
-                <UserCard/>
-                {user?.type === UserTypeType.Staff && <OrganizationCard/>}
-                {user?.type === UserTypeType.Resident && <ResidentCard/>}
-            </div>
-        </>
+        <div
+            className={styles.cardsContainer}
+        >
+            <UserCard/>
+            {user?.type === UserTypeType.Staff && <OrganizationCard/>}
+            {user?.type === UserTypeType.Resident && <ResidentCard/>}
+        </div>
     )
 }
