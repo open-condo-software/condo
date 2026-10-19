@@ -48,9 +48,15 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
     const { launchParams, loading: launchParamsLoading } = useLaunchParams()
     const [isError, setIsError] = useState(false)
 
-    const { loading: userLoading, data, refetch } = useAuthenticatedUserQuery({
+    const { loading: userLoading, data, refetch, error } = useAuthenticatedUserQuery({
         skip: !persistor,
     })
+
+    useEffect(() => {
+        if (error) {
+            setIsError(true)
+        }
+    }, [error])
 
     const signIn = useCallback(async () => {
         const authRequest = await client.createSigninRequest({
