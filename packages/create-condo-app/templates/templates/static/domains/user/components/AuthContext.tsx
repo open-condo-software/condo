@@ -8,7 +8,7 @@ import bridge from '@open-condo/bridge'
 import { Empty, Button, Spin } from '@open-condo/ui'
 
 import { useLaunchParams } from '@/domains/common/components/LaunchParamsContext'
-import { AUTH_TOKEN_KEY, AUTH_TOKEN_ISSUED_AT_KEY, AUTH_TOKEN_EXPIRATION_MARGIN_MS, AUTH_TOKEN_LIFETIME_MS } from '@/domains/user/constants/auth'
+import { AUTH_TOKEN_KEY, AUTH_TOKEN_EXPIRES_AT_KEY, AUTH_TOKEN_EXPIRATION_MARGIN_MS, AUTH_TOKEN_LIFETIME_MS } from '@/domains/user/constants/auth'
 
 import type { AuthenticatedUserQuery } from '@/gql'
 
@@ -61,9 +61,15 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
         if (response.status !== 200) {
             throw new Error('Failed to authenticate via Condo Bridge')
         }
-        const { access_token } = await client.processSigninResponse(response.url)
+        const { access_token, expires_at } = await client.processSigninResponse(response.url)
+
+        const expiresAtInMs = typeof expires_at === 'number'
+            // NOTE: convert seconds to milliseconds and take max 24 hrs
+            ? Math.min(expires_at * 1000, Date.now() + AUTH_TOKEN_LIFETIME_MS)
+            : Date.now() + AUTH_TOKEN_LIFETIME_MS
+
         window.localStorage.setItem(AUTH_TOKEN_KEY, access_token)
-        window.localStorage.setItem(AUTH_TOKEN_ISSUED_AT_KEY, String(Date.now()))
+        window.localStorage.setItem(AUTH_TOKEN_EXPIRES_AT_KEY, expiresAtInMs)
         void refetch()
     }, [refetch])
 
@@ -88,11 +94,11 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
         }
 
         // if auth token is close to expiry, refresh
-        const authTokenIssuedAt = window.localStorage.getItem(AUTH_TOKEN_ISSUED_AT_KEY)
+        const authTokenExpiresAt = window.localStorage.getItem(AUTH_TOKEN_EXPIRES_AT_KEY)
         const isTokenCloseToExpiry =
-            !authTokenIssuedAt ||
-            Number.isNaN(Number(authTokenIssuedAt)) ||
-            (Number(authTokenIssuedAt) + AUTH_TOKEN_LIFETIME_MS - Date.now()) < AUTH_TOKEN_EXPIRATION_MARGIN_MS
+            !authTokenExpiresAt ||
+            Number.isNaN(Number(authTokenExpiresAt)) ||
+            (Number(authTokenExpiresAt) - Date.now()) < AUTH_TOKEN_EXPIRATION_MARGIN_MS
 
         const isUserDiffers =
             !data?.authenticatedUser ||

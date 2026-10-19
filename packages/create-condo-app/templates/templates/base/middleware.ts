@@ -17,3 +17,7 @@ export function middleware (request: NextRequest): NextResponse {
 
     return response
 }
+
+export const config = {
+    runtime: 'nodejs',
+}
