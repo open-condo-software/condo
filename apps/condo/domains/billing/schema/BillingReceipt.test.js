@@ -890,6 +890,19 @@ describe('BillingReceipt', () => {
                     expect(receipt).toHaveProperty(['recipient', 'tin'], recipient.tin)
                     expect(receipt).toHaveProperty(['receiver', 'id'], recipient.id)
                 })
+                test('Should return categorized services distribution', async () => {
+                    const [receipt] = await createTestBillingReceipt(admin, context, property, account, {
+                        services: [{ name: 'Unmatched service', toPay: '1.25' }],
+                        toPay: '1.25',
+                    })
+
+                    expect(receipt.servicesDistribution).toEqual([{
+                        categoryName: expect.any(String),
+                        amount: '1.25',
+                        color: '#999999',
+                    }])
+                })
+
                 test('Should validate that services add up to the total sum (toPay)', async () => {
                     const [receipt] = await createTestBillingReceipt(admin, context, property, account, {
                         services: generateServicesData(1, '9000'), toPay: '9000.00',

@@ -816,6 +816,7 @@
   "billing.category.internet.name": "Internet",
   "billing.category.internet.name.declined": "internet",
   "billing.category.membership_fee.name": "Membership fee",
+  "billing.category.other.name": "Other",
   "billing.category.parking.name": "Parking",
   "billing.category.parking.name.declined": "parking",
   "billing.category.radio.name": "Radio",

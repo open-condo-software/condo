@@ -21,6 +21,7 @@ const {
     BILLING_RECEIPT_RECIPIENT_FIELD_NAME,
     BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME,
     BILLING_RECEIPT_SERVICES_FIELD,
+    BILLING_RECEIPT_SERVICE_DISTRIBUTION_FIELD_NAME,
 } = require('@condo/domains/billing/constants/constants')
 const { BILLING_RECEIPT_COMMON_FIELDS } = require('@condo/domains/billing/gql')
 const { removeKeysFromObjectDeep } = require('@condo/domains/billing/utils/gqlWhereInput.utils')
@@ -33,7 +34,8 @@ const Adapter = new FileAdapter(BILLING_RECEIPT_FILE_FOLDER_NAME)
 
 const BILLING_RECEIPT_FIELDS = BILLING_RECEIPT_COMMON_FIELDS + ' file { id ' +
     'sensitiveDataFile { id filename originalFilename publicUrl mimetype } ' +
-    'publicDataFile { id filename originalFilename publicUrl mimetype } controlSum } isPayable'
+    'publicDataFile { id filename originalFilename publicUrl mimetype } controlSum } isPayable ' +
+    'servicesDistribution { categoryName amount color }'
 
 const ALL_RESIDENT_BILLING_RECEIPTS_FIELDS = {
     id: 'ID',
@@ -89,7 +91,7 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
         },
         {
             access: true,
-            type: `type ResidentBillingReceiptOutput { dv: String!, recipient: ${BILLING_RECEIPT_RECIPIENT_FIELD_NAME}!, id: ID!, period: String!, toPay: String!, paid: String!, explicitFee: String!, printableNumber: String, toPayDetails: ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME}, services: ${BILLING_RECEIPT_SERVICES_FIELD}, serviceConsumer: ServiceConsumer! currencyCode: String! category: BillingCategory! isPayable: Boolean! file: ResidentBillingReceiptFile updatedAt: String }`,
+            type: `type ResidentBillingReceiptOutput { dv: String!, recipient: ${BILLING_RECEIPT_RECIPIENT_FIELD_NAME}!, id: ID!, period: String!, toPay: String!, paid: String!, explicitFee: String!, printableNumber: String, toPayDetails: ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME}, services: ${BILLING_RECEIPT_SERVICES_FIELD}, servicesDistribution: [${BILLING_RECEIPT_SERVICE_DISTRIBUTION_FIELD_NAME}!]!, serviceConsumer: ServiceConsumer! currencyCode: String! category: BillingCategory! isPayable: Boolean! file: ResidentBillingReceiptFile updatedAt: String }`,
         },
     ],
 
@@ -191,6 +193,7 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                         toPay: receipt.toPay,
                         toPayDetails: receipt.toPayDetails,
                         services: receipt.services,
+                        servicesDistribution: receipt.servicesDistribution,
                         printableNumber: receipt.printableNumber,
                         serviceConsumer: serviceConsumers.find(({ accountNumber, organization }) =>
                             get(receipt, ['account', 'number']) === accountNumber &&

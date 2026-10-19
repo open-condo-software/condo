@@ -816,6 +816,7 @@
   "billing.category.internet.name": "Интернет",
   "billing.category.internet.name.declined": "интернет",
   "billing.category.membership_fee.name": "Взносы",
+  "billing.category.other.name": "Другое",
   "billing.category.parking.name": "Паркинг",
   "billing.category.parking.name.declined": "паркинг",
   "billing.category.radio.name": "Радио",
