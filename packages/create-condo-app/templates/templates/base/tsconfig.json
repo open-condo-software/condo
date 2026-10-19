@@ -7,8 +7,12 @@
     }
   },
   "include": [
-    "../static/next-env.d.ts", "**/*.ts", "**/*.tsx"],
+    "next-env.d.ts",
+    ".next/types/**/*.ts",
+    "**/*.ts",
+    "**/*.tsx"
+  ],
   "exclude": [
-    "../static/node_modules"
+    "node_modules"
   ]
 }
