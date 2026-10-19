@@ -40,16 +40,17 @@ const BillingCategory = generateGqlQueries('BillingCategory', BILLING_CATEGORY_F
 const BILLING_RECEIPT_TO_PAY_DETAILS_FIELDS = 'charge formula balance recalculation privilege penalty paid'
 const BILLING_RECEIPT_SERVICE_TO_PAY_DETAILS_FIELDS = `toPayDetails { ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELDS} volume tariff measure }`
 const BILLING_RECEIPT_SERVICE_FIELDS = `services { id name toPay ${BILLING_RECEIPT_SERVICE_TO_PAY_DETAILS_FIELDS} }`
+const BILLING_RECEIPT_SERVICES_DISTRIBUTION_FIELDS = 'servicesDistribution { categoryName amount color }'
 const BILLING_RECEIPT_RECIPIENT_FIELDS = 'recipient { name tin iec bic bankAccount }'
 const BILLING_RECEIPT_COMMON_FIELDS = `context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} importId property { id address addressKey } account { id number unitType unitName fullName property { address } ownerType globalId isClosed } period toPay printableNumber toPayDetails { ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELDS} } ${BILLING_RECEIPT_SERVICE_FIELDS} charge formula balance recalculation privilege penalty paid receiver { id tin iec bic bankAccount isApproved } ${BILLING_RECEIPT_RECIPIENT_FIELDS} ${COMMON_FIELDS} category ${BILLING_CATEGORY_FIELDS} invalidServicesError`
 const AMOUNT_DISTRIBUTION_SUBFIELDS = `recipient { ${Object.keys(RECIPIENT_FIELDS_DEFINITION).join(' ')} } amount order vor isFeePayer overpaymentPart`
-const BILLING_RECEIPT_FIELDS = `{ ${BILLING_RECEIPT_COMMON_FIELDS} file { id file { id filename originalFilename publicUrl mimetype } controlSum } acquiringIntegrationId acquiringHostUrl canGroupReceipts currencyCode balanceUpdatedAt isPayable paymentStatusChangeWebhookUrl paymentStatusChangeWebhookSecret }`
-const BILLING_RECEIPT_ADMIN_FIELDS = `{ ${BILLING_RECEIPT_COMMON_FIELDS} file { id sensitiveDataFile { id filename originalFilename publicUrl mimetype } publicDataFile { id filename originalFilename publicUrl mimetype } controlSum } isPayable }`
+const BILLING_RECEIPT_FIELDS = `{ ${BILLING_RECEIPT_COMMON_FIELDS} file { id file { id filename originalFilename publicUrl mimetype } controlSum } acquiringIntegrationId acquiringHostUrl canGroupReceipts currencyCode balanceUpdatedAt isPayable paymentStatusChangeWebhookUrl paymentStatusChangeWebhookSecret ${BILLING_RECEIPT_SERVICES_DISTRIBUTION_FIELDS} }`
+const BILLING_RECEIPT_ADMIN_FIELDS = `{ ${BILLING_RECEIPT_COMMON_FIELDS} file { id sensitiveDataFile { id filename originalFilename publicUrl mimetype } publicDataFile { id filename originalFilename publicUrl mimetype } controlSum } isPayable ${BILLING_RECEIPT_SERVICES_DISTRIBUTION_FIELDS} }`
 
 const BillingReceipt = generateGqlQueries('BillingReceipt', BILLING_RECEIPT_FIELDS)
 const BillingReceiptAdmin = generateGqlQueries('BillingReceipt', BILLING_RECEIPT_ADMIN_FIELDS)
 
-const RESIDENT_BILLING_RECEIPTS_FIELDS = `{ id ${BILLING_RECEIPT_RECIPIENT_FIELDS} period toPay paid explicitFee toPayDetails { ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELDS} } ${BILLING_RECEIPT_SERVICE_FIELDS} printableNumber serviceConsumer { id paymentCategory } currencyCode category { id name } isPayable file { file { id originalFilename publicUrl mimetype } controlSum } updatedAt }`
+const RESIDENT_BILLING_RECEIPTS_FIELDS = `{ id ${BILLING_RECEIPT_RECIPIENT_FIELDS} period toPay paid explicitFee toPayDetails { ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELDS} } ${BILLING_RECEIPT_SERVICE_FIELDS} ${BILLING_RECEIPT_SERVICES_DISTRIBUTION_FIELDS} printableNumber serviceConsumer { id paymentCategory } currencyCode category { id name } isPayable file { file { id originalFilename publicUrl mimetype } controlSum } updatedAt }`
 const ResidentBillingReceipt = generateGqlQueries('ResidentBillingReceipt', RESIDENT_BILLING_RECEIPTS_FIELDS)
 
 const RESIDENT_BILLING_VIRTUAL_RECEIPTS_FIELDS = `{ id ${BILLING_RECEIPT_RECIPIENT_FIELDS} period toPay explicitFee paid ${BILLING_RECEIPT_SERVICE_FIELDS} printableNumber serviceConsumer { id paymentCategory } currencyCode category { id name } isPayable }`

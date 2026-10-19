@@ -5,6 +5,7 @@ const { faker  } = require('@faker-js/faker/locale/ru')
 const Big = require('big.js')
 const dayjs = require('dayjs')
 
+const { getKVClient } = require('@open-condo/keystone/kv')
 const {
     catchErrorFrom, expectToThrowAuthenticationErrorToResult, expectToThrowAccessDeniedErrorToResult,
 } = require('@open-condo/keystone/test.utils')
@@ -25,6 +26,7 @@ const {
     TestUtils,
     BillingTestMixin,
 } = require('@condo/domains/billing/utils/testSchema/testUtils')
+const { getStatisticsKeys } = require('@condo/domains/billing/utils/uncategorizedServicesStatistics')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 
 
@@ -151,6 +153,55 @@ describe('RegisterBillingReceiptsService', () => {
                     expect.objectContaining({ id: expect.anything() }),
                 ])
             })
+        })
+    })
+
+    describe('Uncategorized services statistics', () => {
+        test('records statistics for created receipts but not updated receipts', async () => {
+            const period = dayjs().add(10, 'year').format('YYYY-MM-01')
+            const [year, month] = period.split('-').map(Number)
+            const serviceName = `Uncategorized ${faker.datatype.uuid()}`
+            const mismatchedServiceName = `Uncategorized ${faker.datatype.uuid()}`
+            const statsKey = getStatisticsKeys(period)
+            const kv = getKVClient()
+            const receiptInput = utils.createJSONReceipt({
+                year,
+                month,
+                toPay: '10',
+                services: [{ name: serviceName, toPay: '10' }],
+            })
+            const mismatchedReceiptInput = utils.createJSONReceipt({
+                year,
+                month,
+                toPay: '20',
+                services: [{ name: mismatchedServiceName, toPay: '10' }],
+            })
+
+            try {
+                const [[createdReceipt, mismatchedReceipt]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                    context: { id: utils.billingContext.id },
+                    receipts: [receiptInput, mismatchedReceiptInput],
+                })
+
+                expect(createdReceipt.v).toBe(1)
+                expect(mismatchedReceipt.v).toBe(1)
+                expect(await kv.hget(statsKey, serviceName)).toBe('1')
+                expect(await kv.hget(statsKey, mismatchedServiceName)).toBeNull()
+
+                const [[updatedReceipt]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                    context: { id: utils.billingContext.id },
+                    receipts: [{
+                        ...receiptInput,
+                        toPay: '11',
+                        services: [{ name: serviceName, toPay: '11' }],
+                    }],
+                })
+
+                expect(updatedReceipt.v).toBe(2)
+                expect(await kv.hget(statsKey, serviceName)).toBe('1')
+            } finally {
+                await kv.hdel(statsKey, serviceName, mismatchedServiceName)
+            }
         })
     })
 

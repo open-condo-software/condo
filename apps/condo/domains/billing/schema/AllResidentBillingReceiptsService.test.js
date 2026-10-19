@@ -216,6 +216,11 @@ describe('AllResidentBillingReceiptsService', () => {
             const residentBillingReceipts = await ResidentBillingReceipt.getAll(utils.clients.resident)
             const receipt = residentBillingReceipts.find(({ id }) => id === newReceiptId)
             expect(receipt.services).toEqual(services)
+            expect(receipt.servicesDistribution).toEqual([{
+                categoryName: expect.any(String),
+                amount: services.reduce((total, service) => Big(total).plus(service.toPay), Big(0)).toFixed(2),
+                color: expect.any(String),
+            }])
             expect(receipt.raw).toBeUndefined()
             expect(receipt).toMatchObject({
                 id: expect.any(String),
@@ -232,6 +237,11 @@ describe('AllResidentBillingReceiptsService', () => {
                     id: expect.any(String),
                 },
                 services: expect.any(Array),
+                servicesDistribution: [{
+                    categoryName: expect.any(String),
+                    amount: services.reduce((total, service) => Big(total).plus(service.toPay), Big(0)).toFixed(2),
+                    color: expect.any(String),
+                }],
                 currencyCode: expect.any(String),
                 category: { id: expect.any(String), name: expect.any(String) },
                 isPayable: expect.any(Boolean),

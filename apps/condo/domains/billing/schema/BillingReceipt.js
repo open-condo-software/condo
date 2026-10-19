@@ -29,6 +29,7 @@ const { MONEY_AMOUNT_FIELD } = require('@condo/domains/common/schema/fields')
 const { AMOUNT_DISTRIBUTION_FIELD } = require('./fields/AmountDistribution')
 const { RECIPIENT_FIELD } = require('./fields/BillingReceipt/Recipient')
 const { SERVICES_FIELD } = require('./fields/BillingReceipt/Services')
+const { SERVICES_DISTRIBUTION_FIELD } = require('./fields/BillingReceipt/ServicesDistribution')
 const { TO_PAY_DETAILS_FIELD } = require('./fields/BillingReceipt/ToPayDetailsField')
 const { RAW_DATA_FIELD, PERIOD_FIELD } = require('./fields/common')
 const { INTEGRATION_CONTEXT_FIELD, BILLING_PROPERTY_FIELD, BILLING_ACCOUNT_FIELD } = require('./fields/relations')
@@ -177,6 +178,8 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
         toPayDetails: TO_PAY_DETAILS_FIELD,
 
         services: SERVICES_FIELD,
+
+        servicesDistribution: SERVICES_DISTRIBUTION_FIELD,
 
         // TODO(abshnko): DOMA-7656 remove this field! we already have `receiver` field! And we can save this date in raw/meta field
         recipient: {
