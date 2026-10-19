@@ -18,11 +18,12 @@ import {
     useSubscriptionSelection,
     useCancelSubscriptionFeatures,
     useSubscriptionCheckout,
+    useIndividualPriceRequest,
 } from '@condo/domains/subscription/hooks'
 import { usePaymentHistoryModal } from '@condo/domains/subscription/hooks/usePaymentHistoryModal'
 import { isSameDay } from '@condo/domains/subscription/utils/subscriptionCatalog'
 import { getOutstandingPayments } from '@condo/domains/subscription/utils/subscriptionPlanAlerts'
-import { formatAmount, getAmount, getDiscount } from '@condo/domains/subscription/utils/subscriptionPricing'
+import { formatAmount, getAmount, getDiscount, isIndividualPrice } from '@condo/domains/subscription/utils/subscriptionPricing'
 
 import { PriceText } from './PriceText/PriceText'
 import { PromoBanner } from './PromoBanner/PromoBanner'
@@ -121,7 +122,7 @@ const buildActionBarMessage = (params: {
     const featuresFullAmount = selectedRows.reduce((sum, row) => sum + (getDiscount(row.prices, period)?.fullAmount ?? getAmount(row.price) ?? 0), 0)
 
     const planPart = isPlanInCart && selectedPlanCard ? intl.formatMessage(
-        { id: 'subscription.actionBar.plan' },
+        { id: isIndividualPrice(selectedPlanCard.price) ? 'subscription.actionBar.planOnly' : 'subscription.actionBar.plan' },
         {
             planName: selectedPlanCard.planInfo.plan.name,
             amount: (
@@ -179,6 +180,7 @@ const buildActionBarActions = (params: {
     openPaymentHistoryModal: () => void
     openCheckout: () => void
     handleTryFree: () => void
+    individualRequest: { isPending: boolean, loading: boolean, onClick: () => void } | null
     RemoveMessage: string
     CancelMessage: string
     PaymentHistoryMessage: string
@@ -187,7 +189,7 @@ const buildActionBarActions = (params: {
     const {
         intl, mode, canManageSubscriptions, selectedRows, isPlanInCart, cartPriceIds, needsPlanInCart,
         canTryFree, activateLoading, currencyCode, openRemove, clearSelection, openPaymentHistoryModal,
-        openCheckout, handleTryFree, RemoveMessage, CancelMessage, PaymentHistoryMessage, CheckoutMessage,
+        openCheckout, handleTryFree, individualRequest, RemoveMessage, CancelMessage, PaymentHistoryMessage, CheckoutMessage,
     } = params
 
     const removeButton = (
@@ -239,6 +241,23 @@ const buildActionBarActions = (params: {
             )}
         </Button>,
     ] : []
+
+    if (individualRequest) {
+        return [
+            <Button
+                key='request'
+                id='subscription-action-bar-request-button'
+                type='primary'
+                onClick={individualRequest.onClick}
+                loading={individualRequest.loading}
+                disabled={!canManageSubscriptions || individualRequest.isPending}
+            >
+                {intl.formatMessage({ id: individualRequest.isPending ? 'subscription.planCard.requestPending' : 'subscription.planCard.submitRequest' })}
+            </Button>,
+            ...tryFreeButton,
+            ...cancelButton,
+        ]
+    }
 
     return [
         <Button
@@ -391,6 +410,9 @@ export const SubscriptionSettingsContent: React.FC = () => {
         cancelFeaturePlans,
     })
 
+    const { requestIndividualPrice, requestedPlanIds, loading: requestLoading } = useIndividualPriceRequest()
+    const individualPlan = isPlanInCart && isIndividualPrice(selectedPlanCard?.price) ? selectedPlanCard : null
+
     if (hidePaidFeatures) return null
     if (loading) return <Loader />
 
@@ -404,6 +426,11 @@ export const SubscriptionSettingsContent: React.FC = () => {
         intl, mode, canManageSubscriptions, selectedRows, isPlanInCart, cartPriceIds, needsPlanInCart,
         canTryFree, activateLoading, currencyCode: totals.currencyCode, openRemove, clearSelection,
         openPaymentHistoryModal, openCheckout, handleTryFree,
+        individualRequest: individualPlan && {
+            isPending: requestedPlanIds.has(individualPlan.planInfo.plan.id),
+            loading: requestLoading,
+            onClick: () => requestIndividualPrice(individualPlan.price.id, individualPlan.planInfo.plan.name),
+        },
         RemoveMessage, CancelMessage, PaymentHistoryMessage, CheckoutMessage,
     })
 
