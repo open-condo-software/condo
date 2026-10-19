@@ -159,15 +159,20 @@ module.exports = function createConfiguration (context, conf) {
         ttl: {
             //todo(AleX83Xpert): back to one hour after DOMA-3165 finished
             AccessToken: (ctx, token, client) => {
+                // Default access token TTL is 1 hour
+                // Authorization code flow + backend = 1 year for backward compatibility
+
                 // Implicit flow gets 1 day TTL
                 // Authorization code flow gets 1 year TTL
                 // gty property contains the grant type (implicit, authorization_code, etc.)
                 const grantType = get(token, 'gty', '')
-                if (grantType.includes('implicit')) {
-                    return 1 * 24 * 60 * 60 // 1 day in seconds
+                const tokenEndpointAuthMethod = get(client, 'tokenEndpointAuthMethod', '')
+
+                if (grantType === 'authorization_code' && tokenEndpointAuthMethod === 'client_secret_basic') {
+                    return 1 * 60 * 60 * 24 * 365 // 1 year in seconds
                 }
 
-                return 1 * 60 * 60 * 24 * 365 // 1 year in seconds
+                return 1 * 24 * 60 * 60 // 1 day in seconds
             },
             AuthorizationCode: 10 * 60, // 10 minutes in seconds
             IdToken: 1 * 60 * 60, // 1 hour in seconds
