@@ -256,6 +256,7 @@ async function exit (reason: { command?: string }) {
     if (reason.command) {
         console.log(`  ${cyan(reason.command)} has failed.`)
     } else {
+        // nosemgrep: javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring
         console.log(
             red('Unexpected error. Please report it as a bug:') + '\n',
             reason

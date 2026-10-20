@@ -18,6 +18,8 @@ type TemplateInfo = {
  */
 export function resolvePackagePath (packageNameOrPath: string): PackagePathResult {
     // Resolve to absolute path first (handles Windows backslashes and relative paths)
+    // NOTE: expected traversal
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
     const resolvedPath = resolve(packageNameOrPath)
     
     // Split on OS separator only (after resolve, all separators are OS-specific)
@@ -34,6 +36,8 @@ export function resolvePackagePath (packageNameOrPath: string): PackagePathResul
         return {
             packageName,
             // NOTE: omitting scope from path (/some/dir/@app/name -> /some/dir/name)
+            // NOTE: controlled traversal
+            // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
             absolutePath: join(resolvedPath, '../..', name),
         }
     }

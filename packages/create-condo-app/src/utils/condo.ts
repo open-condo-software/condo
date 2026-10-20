@@ -112,6 +112,8 @@ async function replaceEnvToConfInFile (filePath: string) {
 
 export async function replaceEnvToConf () {
     const { projectPath } = getConfig()
+    // NOTE: controlled paths
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
     return Promise.all(FILES_TO_ENV_REPLACE.map(filePath => replaceEnvToConfInFile(join(projectPath, filePath))))
 }
 
@@ -125,5 +127,7 @@ async function replaceLocalCondoAddressInFile (filePath: string) {
 
 export async function replaceLocalCondoAddress () {
     const { projectPath } = getConfig()
+    // NOTE: controlled paths
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
     return Promise.all(FILES_TO_ENV_REPLACE.map(filePath => replaceLocalCondoAddressInFile(join(projectPath, filePath))))
 }

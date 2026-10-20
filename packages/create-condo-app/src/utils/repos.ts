@@ -8,7 +8,10 @@ import type { PackageManager, MonorepoInfo } from './config'
 const MAX_SEARCH_DEPTH = 5
 
 function isCondoMonorepo (repoRootPath: string): boolean {
+    // NOTE: controlled traversal
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
     const pkgJsonPath = join(repoRootPath, 'package.json')
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
     const condoPkgJson = join(repoRootPath, 'apps', 'condo', 'package.json')
     if (!existsSync(pkgJsonPath) || !existsSync(condoPkgJson)) return false
 

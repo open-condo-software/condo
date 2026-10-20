@@ -41,7 +41,11 @@ export async function copyDir (options: CopyDirOptions): Promise<void> {
     const sourceFiles = filesToCopy.map((filePath) => path.relative(source, filePath))
 
     async function _copyFile (file: string) {
+        // NOTE: controlled usage
+        // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
         const sourcePath = path.join(source, file)
+        // NOTE: controlled usage
+        // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
         const targetPath = path.join(target, file)
 
         if (existsSync(targetPath)) {
@@ -75,6 +79,8 @@ export async function copyAppDir (srcPath: string, ignoredPatterns?: Array<strin
         '_meta.json',
     ]
 
+    // NOTE: controlled usage
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
     const gitIgnorePath = path.join(srcPath, '.gitignore')
 
     if (!preferences.agentsMd) {
@@ -132,7 +138,11 @@ export async function copyAppDir (srcPath: string, ignoredPatterns?: Array<strin
 
 export async function copyAppTemplate (templateName: string): Promise<CopyAppDirResult> {
     const templatesDir = resolveTemplatesDir()
+    // NOTE: controlled paths
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
     const templateRootDir = path.join(templatesDir, 'templates', templateName)
+    // NOTE: controlled paths
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
     const metaFile = path.join(templateRootDir, '_meta.json')
 
     let ignoredPatterns: Array<string> = []
