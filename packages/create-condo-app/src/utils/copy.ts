@@ -21,6 +21,10 @@ type CopyDirOptions = {
     mergeRules?: Array<MergeRule>
 }
 
+type CopyAppDirResult = {
+    ignoredPatterns: Array<string>
+}
+
 const GLOBAL_IGNORED_FILES = [
     '**/node_modules/**',
     '**/.DS_Store',
@@ -33,7 +37,7 @@ export async function copyDir (options: CopyDirOptions): Promise<void> {
     const ignorePatterns = [...GLOBAL_IGNORED_FILES, ...(ignoreFiles ?? [])]
 
     // NOTE: glob is used to respect .gitignore patterns
-    const filesToCopy = await glob('**/*', { ignore: ignorePatterns, cwd: source, absolute: true, nodir: true })
+    const filesToCopy = await glob('**/*', { ignore: ignorePatterns, cwd: source, absolute: true, nodir: true, dot: true })
     const sourceFiles = filesToCopy.map((filePath) => path.relative(source, filePath))
 
     async function _copyFile (file: string) {
@@ -64,9 +68,10 @@ export async function copyDir (options: CopyDirOptions): Promise<void> {
     await Promise.all(sourceFiles.map((file) => _copyFile(file)))
 }
 
-export async function copyAppDir (srcPath: string) {
+export async function copyAppDir (srcPath: string, ignoredPatterns?: Array<string>): Promise<CopyAppDirResult> {
     const { projectPath, preferences } = getConfig()
     const ignoredFiles = [
+        ...(ignoredPatterns ?? []),
         '_meta.json',
     ]
 
@@ -81,15 +86,29 @@ export async function copyAppDir (srcPath: string) {
         const lines = ignoredContent.split('\n')
             .map(l => l.trim())
             .filter(l => l.length && !l.startsWith('#'))
+            .reduce((result, ptr) => {
+                const trimSlashStart = ptr.startsWith('/') ? ptr.slice(1) : ptr
+                const trimSlashEnd = trimSlashStart.endsWith('/') ? trimSlashStart.slice(0, -1) : trimSlashStart
+
+                // We don't know whether a pattern points to a directory or a file and we need files.
+                // Therefore, include both `pattern` and `pattern/**` for every pattern in the array.
+                // SRC: https://github.com/EE/gitignore-to-glob/blob/master/lib/gitignore-to-glob.js
+                result.push(trimSlashEnd)
+                result.push(`${trimSlashEnd}/**`)
+
+                return result
+            }, [] as Array<string>)
         if (lines.length) {
             ignoredFiles.push(...lines)
         }
     }
 
+    const uniquePatterns = [...new Set(ignoredFiles)]
+
     await copyDir({
         source: srcPath,
         target: projectPath,
-        ignoreFiles: ignoredFiles,
+        ignoreFiles: uniquePatterns,
         mergeRules: [
             {
                 pattern: 'lang/**/*.json',
@@ -105,21 +124,27 @@ export async function copyAppDir (srcPath: string) {
             },
         ],
     })
+
+    return {
+        ignoredPatterns: uniquePatterns,
+    }
 }
 
-export async function copyAppTemplate (templateName: string) {
+export async function copyAppTemplate (templateName: string): Promise<CopyAppDirResult> {
     const templatesDir = resolveTemplatesDir()
     const templateRootDir = path.join(templatesDir, 'templates', templateName)
     const metaFile = path.join(templateRootDir, '_meta.json')
+
+    let ignoredPatterns: Array<string> = []
 
     // If template extends another template, copy that first
     if (existsSync(metaFile)) {
         const meta = JSON.parse(await fs.readFile(metaFile, 'utf8'))
         if (typeof meta?.extends === 'string') {
-            await copyAppTemplate(meta.extends)
+            ({ ignoredPatterns } = await copyAppTemplate(meta.extends))
         }
 
     }
 
-    await copyAppDir(templateRootDir)
+    return await copyAppDir(templateRootDir, ignoredPatterns)
 }

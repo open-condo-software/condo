@@ -76,7 +76,7 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
 
         window.localStorage.setItem(AUTH_TOKEN_KEY, access_token)
         window.localStorage.setItem(AUTH_TOKEN_EXPIRES_AT_KEY, expiresAtInMs)
-        void refetch()
+        await refetch()
     }, [refetch])
 
     const loading = useMemo(() => {

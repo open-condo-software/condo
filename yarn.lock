@@ -19136,6 +19136,7 @@ __metadata:
     conf: "npm:15.1.0"
     execa: "npm:^5"
     glob: "npm:^11.0.1"
+    minimatch: "npm:^10.2.2"
     picocolors: "npm:1.1.1"
     prompts: "npm:2.4.2"
     tsup: "npm:^8.3.6"

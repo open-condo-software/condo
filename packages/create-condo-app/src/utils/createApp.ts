@@ -1,4 +1,5 @@
 import { mkdirSync, existsSync } from 'fs'
+import { writeFile, readFile } from 'fs/promises'
 import { join } from 'path'
 
 import { cyan, green, blue, yellowBright } from 'picocolors'
@@ -17,6 +18,16 @@ async function runTypeGen (knownScripts: Array<string>) {
     }
 }
 
+async function setAppName () {
+    const { projectPath, appName } = getConfig()
+    const packageJsonPath = join(projectPath, 'package.json')
+    if (existsSync(packageJsonPath)) {
+        const packageJson = JSON.parse(await readFile(packageJsonPath, 'utf8'))
+        packageJson.name = appName
+        await writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2))
+    }
+}
+
 export async function initAppFromTemplate () {
     const { preferences, monorepoInfo, projectPath, appName, packageManager } = getConfig()
 
@@ -31,6 +42,8 @@ export async function initAppFromTemplate () {
     console.log(`Copying ${cyan(templateName)} template. This might take a moment...`)
     console.log()
     await copyAppTemplate(templateName)
+    await setAppName()
+
     if (preferences.examples) {
         console.log(`Adding ${cyan('examples')} files...`)
         console.log()
