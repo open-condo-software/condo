@@ -59,7 +59,7 @@ export function adjustScripts (): Array<string> {
 
     const scripts = packageJson.scripts as Record<string, string>
 
-    packageJson.scripts = Object.fromEntries(Object.entries(scripts).map(([scriptName, command]) => [scriptName, command.replace('npm run', NPM_RUN_ALIASES[packageManager])]))
+    packageJson.scripts = Object.fromEntries(Object.entries(scripts).map(([scriptName, command]) => [scriptName, command.replaceAll('npm run', NPM_RUN_ALIASES[packageManager])]))
     writeFileSync(join(projectPath, 'package.json'), JSON.stringify(packageJson, null, 2))
 
     return Object.keys(scripts)

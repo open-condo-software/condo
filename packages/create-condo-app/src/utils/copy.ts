@@ -3,6 +3,7 @@ import fs from 'fs/promises'
 import path from 'path'
 
 import { glob } from 'glob'
+import { minimatch } from 'minimatch'
 
 import { getConfig } from './config'
 import { resolveTemplatesDir } from './fs'
@@ -42,7 +43,7 @@ export async function copyDir (options: CopyDirOptions): Promise<void> {
         if (existsSync(targetPath)) {
             const mergeRule = mergeRules?.find(rule => {
                 const patterns = Array.isArray(rule.pattern) ? rule.pattern : [rule.pattern]
-                return patterns.some(pattern => path.matchesGlob(file, pattern))
+                return patterns.some(pattern => minimatch(file, pattern))
             })
 
             if (mergeRule) {
@@ -76,7 +77,6 @@ export async function copyAppDir (srcPath: string) {
     }
 
     if (existsSync(gitIgnorePath)) {
-        // TODO: handle glob patterns, next is leaking
         const ignoredContent = readFileSync(gitIgnorePath, 'utf8')
         const lines = ignoredContent.split('\n')
             .map(l => l.trim())

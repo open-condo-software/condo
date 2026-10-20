@@ -65,7 +65,10 @@ function parseGroupedTranslations (content: string, existingGroups: Array<Transl
                 groups.push(currentGroup)
             }
         }
-        currentGroup.keys.push(key)
+
+        if (!currentGroup.keys.includes(key)) {
+            currentGroup.keys.push(key)
+        }
     }
 
     if (currentGroup && currentGroup.keys.length > 0) {
@@ -102,7 +105,7 @@ export function mergeTranslations (existingContent: string, newContent: string):
             const key = activeGroup.keys[j]
             const value = allTranslations[key]
             const isLastLine = (j === activeGroup.keys.length - 1)
-            const lineContent = `  "${key}": "${value}"`
+            const lineContent = `  "${key}": ${JSON.stringify(value)}`
             const lineEnd = isLastLine && isLastGroup
                 ? ''
                 : (isLastLine ? ',\n' : ',')

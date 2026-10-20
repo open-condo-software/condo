@@ -22,7 +22,7 @@ async function _resolveCondoLocalAddress () {
 
     const children = await readdir(join(monorepoInfo.root, 'apps'), { withFileTypes: true })
     const apps = children.filter(child => child.isDirectory() && child.name !== 'node_modules').map(child => child.name)
-    const idx = apps.findIndex(app => app === 'condo')
+    const idx = apps.indexOf('condo')
     if (idx === -1) return 'http://localhost:3000'
 
     return `https://condo.app.localhost:${idx + 8000 + 1}`

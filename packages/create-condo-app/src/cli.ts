@@ -9,8 +9,7 @@ import packageJson from '../package.json'
 
 import type { InitialReturnValue } from 'prompts'
 
-import { getConfig, PackageManager } from '@/utils/config'
-import { setConfig } from '@/utils/config'
+import { setConfig, getConfig, PackageManager } from '@/utils/config'
 import { initAppFromTemplate } from '@/utils/createApp'
 import { getAvailableTemplates, isEmptyDir, resolvePackagePath } from '@/utils/fs'
 import { validateNpmName } from '@/utils/npm'
@@ -26,7 +25,7 @@ function onTermination () {
 process.on('SIGINT', onTermination)
 process.on('SIGTERM', onTermination)
 
-const update = checkForUpdates({ name: '@open-condo/ui', version: packageJson.version }).catch(() => null)
+const update = checkForUpdates({ name: packageJson.name, version: packageJson.version }).catch(() => null)
 
 const onPromptState = (state: {
     value: InitialReturnValue
@@ -218,9 +217,7 @@ async function run () {
         preferences.agentsMd = agentsMd
     }
 
-    if (Object.hasOwn(preferences, 'git')) {
-        preferences.git = !opts.noGit
-    }
+    preferences.git = !opts.noGit
 
     conf.set('preferences', preferences)
     setConfig({ preferences })
@@ -269,4 +266,4 @@ async function exit (reason: { command?: string }) {
     process.exit(1)
 }
 
-run().catch(exit)
+run().then(notifyUpdate).catch(exit)

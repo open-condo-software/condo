@@ -96,6 +96,7 @@ async function getMostRecent ({ full }: { full: string }) {
         headers: {
             accept: 'application/vnd.npm.install-v1+json; q=1.0, application/json; q=0.8, */*',
         },
+        signal: AbortSignal.timeout(3_000),
     })
 
     if (!response.ok) {

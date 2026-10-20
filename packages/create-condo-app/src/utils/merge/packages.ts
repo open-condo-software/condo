@@ -1,6 +1,6 @@
 function mergeDependencies (existingDeps?: Record<string, string>, newDeps?: Record<string, string>): Record<string, string> {
     const keys = new Set([...Object.keys(existingDeps || {}), ...Object.keys(newDeps || {})])
-    const sortedKeys = Array.from(keys).toSorted()
+    const sortedKeys = Array.from(keys).toSorted((a, b) => a.localeCompare(b))
     return sortedKeys.reduce((acc, key) => {
         acc[key] = (newDeps?.[key] ?? existingDeps?.[key]) as string
         return acc
