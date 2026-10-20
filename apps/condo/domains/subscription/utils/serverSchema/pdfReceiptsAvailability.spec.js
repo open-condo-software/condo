@@ -16,7 +16,7 @@ const { SUBSCRIPTIONS } = require('@condo/domains/common/constants/featureflags'
 const { CONTEXT_FINISHED_STATUS, CONTEXT_IN_PROGRESS_STATUS } = require('@condo/domains/miniapp/constants')
 const { SERVICE_PROVIDER_PROFILE_FEATURE } = require('@condo/domains/organization/constants/features')
 const { Organization, createTestOrganization, registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { SUBSCRIPTION_FEATURE_AVAILABILITY, SUBSCRIPTION_PAYMENT_BUFFER_DAYS } = require('@condo/domains/subscription/constants')
+const { SUBSCRIPTION_FEATURE_AVAILABILITY } = require('@condo/domains/subscription/constants')
 const {
     createTestSubscriptionPlan,
     createTestSubscriptionContext,
@@ -98,28 +98,28 @@ describe('pdf receipts subscription', () => {
     })
 
     describe('Organization.subscription.pdfReceiptsEndAt', () => {
-        test('returns null for organization connected to billing integration requiring subscription', async () => {
+        test('returns far-future date for organization connected to billing integration requiring subscription', async () => {
             const organization = await Organization.getOne(admin, { id: utils.organization.id })
 
-            expect(organization.subscription.pdfReceiptsEndAt).toBeNull()
+            expect(organization.subscription.pdfReceiptsEndAt).toBe(dayjs().add(100, 'years').format('YYYY-MM-DD'))
         })
 
-        test('returns null for organization without billing integrations', async () => {
+        test('returns far-future date for organization without billing integrations', async () => {
             const [registeredOrganization] = await registerNewOrganization(admin)
 
             const organization = await Organization.getOne(admin, { id: registeredOrganization.id })
 
-            expect(organization.subscription.pdfReceiptsEndAt).toBeNull()
+            expect(organization.subscription.pdfReceiptsEndAt).toBe(dayjs().add(100, 'years').format('YYYY-MM-DD'))
         })
 
-        test('returns plan end date for subscribed organization connected to billing integration requiring subscription', async () => {
+        test('returns far-future date for subscribed organization connected to billing integration requiring subscription', async () => {
             const [registeredOrganization] = await registerNewOrganization(admin)
             await connectFinishedBilling(admin, registeredOrganization, utils.billingIntegration)
-            const { endAt } = await createActivePdfReceiptsSubscription(admin, registeredOrganization)
+            await createActivePdfReceiptsSubscription(admin, registeredOrganization)
 
             const organization = await Organization.getOne(admin, { id: registeredOrganization.id })
 
-            expect(organization.subscription.pdfReceiptsEndAt).toBe(dayjs(endAt).add(SUBSCRIPTION_PAYMENT_BUFFER_DAYS, 'days').format('YYYY-MM-DD'))
+            expect(organization.subscription.pdfReceiptsEndAt).toBe(dayjs().add(100, 'years').format('YYYY-MM-DD'))
         })
 
         test('returns far-future date for organization connected to another billing integration', async () => {
@@ -141,7 +141,7 @@ describe('pdf receipts subscription', () => {
 
             const organization = await Organization.getOne(admin, { id: registeredOrganization.id })
 
-            expect(organization.subscription.pdfReceiptsEndAt).toBeNull()
+            expect(organization.subscription.pdfReceiptsEndAt).toBe(dayjs().add(100, 'years').format('YYYY-MM-DD'))
         })
 
         test('returns far-future date when registry upload integration is not configured', async () => {
@@ -157,13 +157,13 @@ describe('pdf receipts subscription', () => {
             return result.features.find(({ feature }) => feature === 'pdfReceipts')?.availability
         }
 
-        test('sells pdf receipts by plan to organization connected to registry exchange', async () => {
+        test('hides pdf receipts from organization connected to registry exchange', async () => {
             const availability = await getPdfReceiptsAvailability(utils.organization)
 
-            expect(availability).toBe(SUBSCRIPTION_FEATURE_AVAILABILITY.BY_PLAN)
+            expect(availability).toBe(SUBSCRIPTION_FEATURE_AVAILABILITY.HIDDEN)
         })
 
-        test('sells pdf receipts by plan when registry exchange is connected together with another billing', async () => {
+        test('hides pdf receipts when registry exchange is connected together with another billing', async () => {
             const [registeredOrganization] = await registerNewOrganization(admin)
             const [billingIntegration] = await createTestBillingIntegration(admin)
             await connectFinishedBilling(admin, registeredOrganization, billingIntegration)
@@ -171,34 +171,34 @@ describe('pdf receipts subscription', () => {
 
             const availability = await getPdfReceiptsAvailability(registeredOrganization)
 
-            expect(availability).toBe(SUBSCRIPTION_FEATURE_AVAILABILITY.BY_PLAN)
+            expect(availability).toBe(SUBSCRIPTION_FEATURE_AVAILABILITY.HIDDEN)
         })
 
-        test('gives pdf receipts for free to organization connected to another billing', async () => {
+        test('hides pdf receipts from organization connected to another billing', async () => {
             const [registeredOrganization] = await registerNewOrganization(admin)
             const [billingIntegration] = await createTestBillingIntegration(admin)
             await connectFinishedBilling(admin, registeredOrganization, billingIntegration)
 
             const availability = await getPdfReceiptsAvailability(registeredOrganization)
 
-            expect(availability).toBe(SUBSCRIPTION_FEATURE_AVAILABILITY.FREE)
+            expect(availability).toBe(SUBSCRIPTION_FEATURE_AVAILABILITY.HIDDEN)
         })
 
-        test('requires billing setup from organization whose billing connection is not finished', async () => {
+        test('hides pdf receipts from organization whose billing connection is not finished', async () => {
             const [registeredOrganization] = await registerNewOrganization(admin)
             await createTestBillingIntegrationOrganizationContext(admin, registeredOrganization, utils.billingIntegration, { status: CONTEXT_IN_PROGRESS_STATUS })
 
             const availability = await getPdfReceiptsAvailability(registeredOrganization)
 
-            expect(availability).toBe(SUBSCRIPTION_FEATURE_AVAILABILITY.REQUIRES_SETUP)
+            expect(availability).toBe(SUBSCRIPTION_FEATURE_AVAILABILITY.HIDDEN)
         })
 
-        test('requires billing setup from organization without billing', async () => {
+        test('hides pdf receipts from organization without billing', async () => {
             const [registeredOrganization] = await registerNewOrganization(admin)
 
             const availability = await getPdfReceiptsAvailability(registeredOrganization)
 
-            expect(availability).toBe(SUBSCRIPTION_FEATURE_AVAILABILITY.REQUIRES_SETUP)
+            expect(availability).toBe(SUBSCRIPTION_FEATURE_AVAILABILITY.HIDDEN)
         })
 
         test('hides pdf receipts from SPP organization', async () => {
@@ -210,21 +210,21 @@ describe('pdf receipts subscription', () => {
             expect(availability).toBe(SUBSCRIPTION_FEATURE_AVAILABILITY.HIDDEN)
         })
 
-        test('gives pdf receipts for free when registry upload integration is not configured', async () => {
+        test('hides pdf receipts when registry upload integration is not configured', async () => {
             const availability = await withRegistryUploadIntegration('', () => getPdfReceiptsAvailability(utils.organization))
 
-            expect(availability).toBe(SUBSCRIPTION_FEATURE_AVAILABILITY.FREE)
+            expect(availability).toBe(SUBSCRIPTION_FEATURE_AVAILABILITY.HIDDEN)
         })
     })
 
     describe('BillingReceiptFile.file', () => {
-        test('resident does not get file without subscription', async () => {
+        test('resident gets file without subscription', async () => {
             const { receiptFile } = await createReceiptWithFile(utils)
 
             const residentReceiptFile = await BillingReceiptFile.getOne(utils.clients.resident, { id: receiptFile.id })
 
             expect(residentReceiptFile).toBeDefined()
-            expect(residentReceiptFile.file).toBeNull()
+            expect(residentReceiptFile.file).toBeTruthy()
         })
 
         test('employee and admin get file without subscription', async () => {
@@ -250,14 +250,14 @@ describe('pdf receipts subscription', () => {
     })
 
     describe('allResidentBillingReceipts', () => {
-        test('returns empty file without subscription', async () => {
+        test('returns file without subscription', async () => {
             const { receipt } = await createReceiptWithFile(utils)
 
             const residentReceipts = await ResidentBillingReceipt.getAll(utils.clients.resident)
             const residentReceipt = residentReceipts.find(({ id }) => id === receipt.id)
 
             expect(residentReceipt).toBeDefined()
-            expect(residentReceipt.file).toBeNull()
+            expect(residentReceipt.file).toBeTruthy()
         })
 
         test('returns file with active subscription', async () => {

@@ -25,8 +25,11 @@ export type PlanDiscount = {
 export const getPriceForPeriod = (prices: ReadonlyArray<PlanPrice>, period: PlanPeriod): PlanPrice | null =>
     prices?.find(price => price?.period === period) ?? null
 
+export const isIndividualPrice = (price?: PlanPrice | null): boolean =>
+    Boolean(price) && (price.price === null || price.price === undefined)
+
 export const getAmount = (price?: PlanPrice | null): number | null =>
-    price ? Math.floor(Number(price.price)) : null
+    price && !isIndividualPrice(price) ? Math.floor(Number(price.price)) : null
 
 export const formatAmount = (amount: number | null | undefined, currencyCode: string | null | undefined, locale: string): string => {
     if (amount === null || amount === undefined || Number.isNaN(amount)) return ''

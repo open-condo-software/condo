@@ -14,7 +14,7 @@ import { ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID } from '@condo/domains/common/const
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 import { useLinkedCardsModal } from '@condo/domains/subscription/hooks/useLinkedCardsModal'
 import { usePaymentHistoryModal } from '@condo/domains/subscription/hooks/usePaymentHistoryModal'
-import { formatAmount } from '@condo/domains/subscription/utils/subscriptionPricing'
+import { formatAmount, isIndividualPrice } from '@condo/domains/subscription/utils/subscriptionPricing'
 
 import styles from './SubscriptionPlanCard.module.css'
 
@@ -150,6 +150,10 @@ const SubscriptionPlanPrice: React.FC<SubscriptionPlanPriceProps> = ({
                 {`✅ ${FreeForPartnerMessage}`}
             </Typography.Text>
         )
+    }
+
+    if (isIndividualPrice(price)) {
+        return <Typography.Title level={3}>{price.name}</Typography.Title>
     }
 
     return (

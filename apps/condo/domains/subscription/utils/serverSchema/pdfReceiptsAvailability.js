@@ -33,6 +33,10 @@ function isPdfReceiptsSubscriptionRequired (integrationId) {
  * @returns {Promise<string>} one of SUBSCRIPTION_FEATURE_AVAILABILITY
  */
 async function getPdfReceiptsAvailability (organization) {
+    // TODO(DOMA-13655): for now, pdf receipts are not in subscriptions. Return logic back when we will decide to add this feature in subscriptions 
+    return SUBSCRIPTION_FEATURE_AVAILABILITY.HIDDEN
+
+    // eslint-disable-next-line no-unreachable
     if (organization.features?.includes(SERVICE_PROVIDER_PROFILE_FEATURE)) return SUBSCRIPTION_FEATURE_AVAILABILITY.HIDDEN
 
     const registryUploadIntegrationId = getRegistryUploadIntegrationId()
