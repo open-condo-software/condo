@@ -8,7 +8,7 @@ const { faker } = require('@faker-js/faker')
 const { setFakeClientMode, expectToThrowGQLErrorToResult, makeClient, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
 const { sendDTMFToB2CAppByTestClient, createTestB2CApp, makeStartCallRequest, createTestB2CAppProperty, createTestB2CAppAccessRightSet, createTestB2CAppAccessRight, createTestAppMessageSetting, prepareVoIPUser } = require('@condo/domains/miniapp/utils/testSchema')
-const { MAX_CALL_ID_LENGTH, buildCallStatusJWTToken, parseCallStatusJWTToken } = require('@condo/domains/miniapp/utils/voip')
+const { buildCallStatusToken, generateCallStatusId } = require('@condo/domains/miniapp/utils/voip')
 const { VOIP_INCOMING_CALL_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
@@ -17,11 +17,11 @@ const { ERRORS } = require('./SendDTMFToB2CAppService')
 
 
 /**
- * @param {Parameters<typeof buildCallStatusJWTToken>[0]} data 
+ * @param {Parameters<typeof buildCallStatusToken>[0]} id
  * @returns 
  */
-function buildQueryPayload (data) {
-    const token = buildCallStatusJWTToken(data)
+function buildQueryPayload (id) {
+    const token = buildCallStatusToken(id)
     if (!token) throw new Error('Invalid token data, check "buildQueryPayload"')
     return { token }
 }
@@ -55,37 +55,18 @@ describe('SendDTMFToB2CAppService spec', () => {
     })
 
     describe('Validation', () => {
-        describe('should throw error if callId is invalid', () => {
-            let b2cApp
-            let property
-            let organization
-
-            beforeAll(async () => {
-                const [testB2CApp] = await createTestB2CApp(admin)
-                b2cApp = testB2CApp
-
-                const { organization: testOrganization, property: testProperty } = await makeClientWithResidentAccessAndProperty()
-                property = testProperty
-                organization = testOrganization
-            })
-
+        describe('should throw error if token is invalid', () => {
             const TEST_CASES = [
-                { name: 'empty', callId: '' },
-                { name: 'invalid character 1', callId: '\u0000' },
-                { name: 'invalid character 2', callId: '±' },
-                { name: `exceeds maximum length of ${MAX_CALL_ID_LENGTH}`, callId: '1'.repeat(MAX_CALL_ID_LENGTH + 1) },
+                { name: 'empty', token: '' },
+                { name: 'invalid character', token: '\u0000' },
+                { name: 'unsigned ID', token: generateCallStatusId() },
+                { name: 'too long', token: '1'.repeat(1000) },
             ]
 
-            test.each(TEST_CASES)('$name', async ({ callId }) => {
+            test.each(TEST_CASES)('$name', async ({ token }) => {
                 await expectToThrowGQLErrorToResult(async () => {
-                    await sendDTMFToB2CAppByTestClient(await makeClient(), buildQueryPayload({
-                        addressKey: property.addressKey,
-                        organizationId: organization.id,
-                        b2cAppId: b2cApp.id,
-                        callId,
-                        callStatusToken: faker.random.alphaNumeric(8),
-                    }))
-                }, ERRORS.INVALID_CALL_ID)
+                    await sendDTMFToB2CAppByTestClient(await makeClient(), { token, data: { dtmfCode: '#' } })
+                }, ERRORS.TOKEN_INVALID)
             })
         })
     })
@@ -100,21 +81,30 @@ describe('SendDTMFToB2CAppService spec', () => {
         const ERROR_CASES = [
             {
                 name: 'throws error if call not found',
-                updateJWTToken: (jwtTokenParsed) => ({ ...jwtTokenParsed, callId: faker.random.alphaNumeric(8) }),
+                updateToken: () => buildQueryPayload(generateCallStatusId()).token,
                 expected: ERRORS.CALL_NOT_FOUND,
+            },
+            {
+                name: 'throws TOKEN_INVALID if token ID is tampered with',
+                updateToken: token => `${token[0] === 'A' ? 'B' : 'A'}${token.slice(1)}`,
+                expected: ERRORS.TOKEN_INVALID,
+            },
+            {
+                name: 'throws TOKEN_INVALID if token signature is tampered with',
+                updateToken: token => {
+                    const [id, signature] = token.split('.')
+                    return `${id}.${signature[0] === 'A' ? 'B' : 'A'}${signature.slice(1)}`
+                },
+                expected: ERRORS.TOKEN_INVALID,
             },
         ]
 
-        test.each(ERROR_CASES)('$name', async ({ updateJWTToken, expected }) => {
+        test.each(ERROR_CASES)('$name', async ({ updateToken, expected }) => {
             const client = await makeClient()
-            console.error('PROPERTY 1', property)
-            const { callStatusJWTToken } = await makeStartCallRequest({ admin, serviceUserClient: serviceUser, b2cAppId: b2cApp.id, resident: receiver.resident, property })
-
-            const callStatusJWTTokenParsed = parseCallStatusJWTToken(callStatusJWTToken)
-            const callStatusJWTTokenFinal = updateJWTToken ? updateJWTToken(callStatusJWTTokenParsed) : callStatusJWTTokenParsed
+            const { callStatusToken } = await makeStartCallRequest({ admin, serviceUserClient: serviceUser, b2cAppId: b2cApp.id, resident: receiver.resident, property })
         
             const attrs = {
-                token: buildCallStatusJWTToken(callStatusJWTTokenFinal),
+                token: updateToken(callStatusToken),
                 data: {
                     dtmfCode: faker.random.alphaNumeric(4),
                 },

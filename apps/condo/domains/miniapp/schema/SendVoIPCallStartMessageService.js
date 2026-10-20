@@ -27,7 +27,7 @@ const {
     getVoIPDeviceB2CAppContext,
     getVoIPDeviceData,
 } = require('@condo/domains/miniapp/utils/sendVoIPCallMessage')
-const { setCallStatus, generateCallStatusToken, isCallIdValid, MAX_CALL_META_LENGTH, isCallMetaValid, buildCallStatusJWTToken, isIceServersAddressesValid, ALLOWED_ICE_SERVER_ADDRESS_PROTOCOLS } = require('@condo/domains/miniapp/utils/voip')
+const { setCallStatus, generateCallStatusId, isCallIdValid, MAX_CALL_META_LENGTH, isCallMetaValid, buildCallStatusToken, isIceServersAddressesValid, ALLOWED_ICE_SERVER_ADDRESS_PROTOCOLS } = require('@condo/domains/miniapp/utils/voip')
 const { VOIP_INCOMING_CALL_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { UNIT_TYPES } = require('@condo/domains/property/constants/common')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
@@ -301,15 +301,15 @@ const SendVoIPCallStartMessageService = new GQLCustomSchema('SendVoIPCallStartMe
                     const voipDeviceB2CAppContext = await getVoIPDeviceB2CAppContext({ context, propertyId: property.id, callerDeviceId: callData.callerDeviceId })
                     const voipDeviceData = await getVoIPDeviceData({ context, propertyId: property.id, callerDeviceId: callData.callerDeviceId })
                 
-                    const callStatusToken = generateCallStatusToken()
+                    const id = generateCallStatusId()
                     const callStatusIdentityParams = {
                         b2cAppId, 
                         callId: callData.callId, 
-                        callStatusToken,
+                        id,
                         organizationId: organization.id,
                         addressKey: property.addressKey,
                     }
-                    const callStatusJwtToken = buildCallStatusJWTToken(callStatusIdentityParams)
+                    const callStatusToken = buildCallStatusToken(id)
 
                     // 4) Send messages
                     /** @type {Array<Promise<{status, id, isDuplicateMessage}>>} */
@@ -319,7 +319,7 @@ const SendVoIPCallStartMessageService = new GQLCustomSchema('SendVoIPCallStartMe
                                 voipMessageType: VOIP_INCOMING_CALL_MESSAGE_TYPE,
                                 context, resident, contact, user, property, customVoIPValues: customVoIPValuesByContactId[contact.id],
                                 dv, sender, callData, b2cApp: { id: b2cAppId, name: b2cAppName },
-                                callStatusJwtToken, hasSendDTMFUrl, 
+                                callStatusToken, hasSendDTMFUrl,
                                 voipDeviceB2CAppContext, voipDeviceData,
                             })
                         })

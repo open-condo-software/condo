@@ -15,10 +15,15 @@ const DV_SENDER_SCHEMA = z.strictObject({
     sender: z.strictObject({ dv: z.number(), fingerprint: z.string() }),
 })
 
+const DEFAULT_INPUT = { dv: 1, sender: { dv: 1, fingerprint: 'voip-rest' } }
+
 const HANDLERS_CONFIG = [
     {
         path: GET_VOIP_CALL_STATUS_URL_PATH,
         method: 'get',
+        queryToData: (req) => z.strictObject({ t: z.string() }).transform(({ t }) => ({
+            ...DEFAULT_INPUT, token: t,
+        })).safeParse(req.query).data,
         dataSchema: z.strictObject({
             token: z.string(),
             ...DV_SENDER_SCHEMA.shape,
@@ -28,6 +33,9 @@ const HANDLERS_CONFIG = [
     {
         path: SEND_DTMF_TO_B2C_APP_URL_PATH,
         method: 'post',
+        queryToData: (req) => z.strictObject({ t: z.string(), c: z.string() }).transform(({ t, c }) => ({
+            ...DEFAULT_INPUT, token: t, data: { dtmfCode: c },
+        })).safeParse(req.query).data,
         dataSchema: z.strictObject({
             token: z.string(),
             data: z.strictObject({ dtmfCode: z.string() }),
@@ -58,15 +66,16 @@ function formatZodSafeParseError (error) {
 
 /**
  * @param {import('zod').ZodType} dataSchema 
+ * @param {(req: import('express').Request) => object | undefined} [queryToData]
  * @returns 
  */
-function withParsedData (dataSchema) {
+function withParsedData (dataSchema, queryToData) {
     return function (req, res, next) {
         let data
         const bodyIsEmpty = !req.body || typeof req.body !== 'object' || !Object.keys(req.body).length
         if (req.method === 'GET' || bodyIsEmpty) {
             try {
-                data = JSON.parse(req.query.data)
+                data = queryToData?.(req) ?? JSON.parse(req.query.data)
             } catch (err) {
                 throw new GQLError({
                     ...ERRORS.INVALID_PARAMETERS,
@@ -129,7 +138,7 @@ class VoIPMiddleware {
             app[handler.method](
                 handler.path,
                 this.withKeystoneContext,
-                withParsedData(handler.dataSchema),
+                withParsedData(handler.dataSchema, handler.queryToData),
                 callService(handler.callServiceFn),
             )
         }
