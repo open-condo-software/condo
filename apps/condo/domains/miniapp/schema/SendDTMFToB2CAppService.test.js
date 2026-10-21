@@ -83,7 +83,7 @@ describe('SendDTMFToB2CAppService', () => {
             },
         })
         const [msg] = await Message.getAll(admin, { user: { id: actor.user.id }, type: VOIP_INCOMING_CALL_MESSAGE_TYPE, deletedAt: null }, { sortBy: ['createdAt_DESC'] })
-        const callStatusToken = new URL(msg.meta.data.getVoIPCallStatusUrl).searchParams.get('t')
+        const callStatusToken = new URL(msg.meta.data.getVoIPCallStatusUrl).searchParams.get('data.token')
         return { callId, callStatusToken, propertyId: property.id, organizationId: organization.id, msg, dtmfCommand }
     }
 
@@ -256,13 +256,13 @@ describe('SendDTMFToB2CAppService', () => {
             expect(lastIntercomRequest).toBeNull()
         })
 
-        describe('falls back to JSON data', () => {
-            test.each(['', 't=a', 't=a&c=x&c=y'])('falls back to JSON data for query %p', async query => {
+        describe('accepts JSON data', () => {
+            test.each([{}, { dv: 1, sender: { dv: 1, fingerprint: 'json-dtmf' } }])('accepts JSON metadata %p', async metadata => {
                 const { callId, callStatusToken } = await makeStartCallRequest()
                 const { serverUrl } = await makeClient()
 
-                const url = new URL(`${serverUrl}${SEND_DTMF_TO_B2C_APP_URL_PATH}?${query}`)
-                url.searchParams.set('data', JSON.stringify({ dv: 1, sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) }, token: callStatusToken, data: { dtmfCode: '#' } }))
+                const url = new URL(`${serverUrl}${SEND_DTMF_TO_B2C_APP_URL_PATH}`)
+                url.searchParams.set('data', JSON.stringify({ ...metadata, token: callStatusToken, data: { dtmfCode: '#' } }))
 
                 const result = await fetch(url.toString(), { method: 'POST' })
                 expect(result.status).toBe(200)
@@ -276,8 +276,8 @@ describe('SendDTMFToB2CAppService', () => {
                 const { callId, callStatusToken } = await makeStartCallRequest()
                 const { serverUrl } = await makeClient()
                 const url = new URL(`${serverUrl}${SEND_DTMF_TO_B2C_APP_URL_PATH}`)
-                url.searchParams.set('t', callStatusToken)
-                url.searchParams.set('c', dtmfCode)
+                url.searchParams.set('data.token', callStatusToken)
+                url.searchParams.set('data.data.dtmfCode', dtmfCode)
 
                 const response = await fetch(url, { method: 'POST' })
 
@@ -291,7 +291,7 @@ describe('SendDTMFToB2CAppService', () => {
             test('preserves JSON body precedence over query parameters', async () => {
                 const { callId, callStatusToken } = await makeStartCallRequest()
                 const { serverUrl } = await makeClient()
-                const response = await fetch(`${serverUrl}${SEND_DTMF_TO_B2C_APP_URL_PATH}?t=ignored&c=ignored`, {
+                const response = await fetch(`${serverUrl}${SEND_DTMF_TO_B2C_APP_URL_PATH}?data.token=ignored&data.data.dtmfCode=ignored`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -311,7 +311,13 @@ describe('SendDTMFToB2CAppService', () => {
         })
 
         describe('rejects malformed query', () => {
-            test.each(['t=a', 't=a&c=x&c=y', 'data=%7B%7D'])('rejects malformed query %p', async query => {
+            test.each([
+                't=a&c=x', 'data.token=a', 'data.token=a&data.dtmfCode=x',
+                'data.token=a&data.data.dtmfCode=x&data.data.dtmfCode=y',
+                'data.token=a&data.data.dtmfCode[x]=y', 'data.token=a&data.data.dtmfCode=x&unknown=y',
+                'data=%7B%7D', 'data=invalid', 'data=null', 'data=[]',
+                'data=%7B%7D&data.token=a', 'data=%7B%7D&t=a',
+            ])('rejects malformed query %p', async query => {
                 const { serverUrl } = await makeClient()
                 const response = await fetch(`${serverUrl}${SEND_DTMF_TO_B2C_APP_URL_PATH}?${query}`, { method: 'POST' })
 
@@ -319,6 +325,91 @@ describe('SendDTMFToB2CAppService', () => {
                 expect(await response.json()).toEqual({
                     errors: [expect.objectContaining({ extensions: expect.objectContaining({ type: 'INVALID_PARAMETERS' }) })],
                 })
+                expect(lastIntercomRequest).toBeNull()
+            })
+        })
+
+        describe('metadata headers for all input sources', () => {
+            let call
+            let serverUrl
+            const sender = { dv: 1, fingerprint: 'header-dtmf' }
+            const headers = { 'X-Dv': '1', 'X-Sender': JSON.stringify(sender) }
+
+            beforeAll(async () => {
+                call = await makeStartCallRequest()
+                serverUrl = (await makeClient()).serverUrl
+            })
+
+            async function sendRequest ({ format, headers: requestHeaders, metadata = {} }) {
+                const url = new URL(`${serverUrl}${SEND_DTMF_TO_B2C_APP_URL_PATH}`)
+                const data = { token: call.callStatusToken, data: { dtmfCode: '#' }, ...metadata }
+                const options = { method: 'POST', headers: requestHeaders }
+                if (format === 'flat') {
+                    url.searchParams.set('data.token', call.callStatusToken)
+                    url.searchParams.set('data.data.dtmfCode', '#')
+                } else if (format === 'json') {
+                    url.searchParams.set('data', JSON.stringify(data))
+                } else {
+                    options.headers = { ...requestHeaders, 'Content-Type': 'application/json' }
+                    options.body = JSON.stringify({ data })
+                }
+                return fetch(url, options)
+            }
+
+            test.each([
+                { name: 'flat query headers', format: 'flat', headers },
+                { name: 'JSON query overrides headers', format: 'json', headers: { 'X-Dv': '2', 'X-Sender': '{"dv":2,"fingerprint":""}' }, metadata: { dv: 1, sender } },
+                { name: 'JSON body overrides headers', format: 'body', headers: { 'X-Dv': '2', 'X-Sender': '{"dv":2,"fingerprint":""}' }, metadata: { dv: 1, sender } },
+                { name: 'JSON query ignores malformed unused headers', format: 'json', headers: { 'X-Dv': 'invalid', 'X-Sender': 'invalid' }, metadata: { dv: 1, sender } },
+                { name: 'JSON body ignores malformed unused headers', format: 'body', headers: { 'X-Dv': 'invalid', 'X-Sender': 'invalid' }, metadata: { dv: 1, sender } },
+                { name: 'JSON body defaults', format: 'body' },
+                { name: 'JSON body metadata fallback', format: 'body', metadata: { dv: 1, sender } },
+                { name: 'X-Dv fills missing body dv', format: 'body', headers: { 'X-Dv': '1' }, metadata: { sender } },
+                { name: 'X-Sender fills missing body sender', format: 'body', headers: { 'X-Sender': JSON.stringify(sender) }, metadata: { dv: 1 } },
+                { name: 'body dv ignores only its malformed header', format: 'body', headers: { 'X-Dv': 'invalid', 'X-Sender': JSON.stringify(sender) }, metadata: { dv: 1 } },
+                { name: 'body sender ignores only its malformed header', format: 'body', headers: { 'X-Dv': '1', 'X-Sender': 'invalid' }, metadata: { sender } },
+                { name: 'case-insensitive body headers', format: 'body', headers: { 'x-dV': '1', 'x-sENDER': JSON.stringify(sender) } },
+                { name: 'long tracing identifier is independent', format: 'flat', headers: { ...headers, 'X-Remote-Client': 'a'.repeat(100) } },
+            ])('$name', async request => {
+                const response = await sendRequest(request)
+
+                expect(response.status).toBe(200)
+                expect(await response.json()).toEqual({ status: 'OK' })
+                expect(lastIntercomRequest).toEqual({ callId: call.callId, dtmfCode: '#' })
+            })
+
+            test.each(['flat', 'json', 'body'])('rejects malformed headers for %s without forwarding DTMF', async format => {
+                const response = await sendRequest({
+                    format,
+                    headers: { ...headers, 'X-Sender': 'invalid' },
+                    metadata: { dv: 1 },
+                })
+
+                expect(response.status).toBe(400)
+                expect(await response.json()).toEqual({
+                    errors: [expect.objectContaining({ extensions: expect.objectContaining({ type: 'INVALID_PARAMETERS' }) })],
+                })
+                expect(lastIntercomRequest).toBeNull()
+            })
+
+            test.each(['json', 'body'])('rejects invalid explicit metadata for %s despite valid headers', async format => {
+                const response = await sendRequest({ format, headers, metadata: { dv: null, sender } })
+
+                expect(response.status).toBe(400)
+                expect(await response.json()).toEqual({
+                    errors: [expect.objectContaining({ extensions: expect.objectContaining({ type: 'INVALID_PARAMETERS' }) })],
+                })
+                expect(lastIntercomRequest).toBeNull()
+            })
+
+            test.each([null, [], 1, 'text'])('rejects non-object body data %p', async data => {
+                const response = await fetch(`${serverUrl}${SEND_DTMF_TO_B2C_APP_URL_PATH}`, {
+                    method: 'POST',
+                    headers: { ...headers, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ data }),
+                })
+
+                expect(response.status).toBe(400)
                 expect(lastIntercomRequest).toBeNull()
             })
         })

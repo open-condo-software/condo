@@ -56,13 +56,13 @@ describe('Compact VoIP push URLs', () => {
         const statusUrl = new URL(data.getVoIPCallStatusUrl)
         expect(statusUrl.origin).toBe(new URL(conf.SERVER_URL).origin)
         expect(statusUrl.pathname).toBe('/api/voip/getVoIPCallStatus')
-        expect([...statusUrl.searchParams]).toEqual([['t', args.callStatusToken]])
+        expect([...statusUrl.searchParams]).toEqual([['data.token', args.callStatusToken]])
         const panels = JSON.parse(data.voipPanels)
         for (const panel of panels) {
             const url = new URL(panel.sendDTMFUrl)
             expect(url.origin).toBe(new URL(conf.SERVER_URL).origin)
             expect(url.pathname).toBe('/api/voip/sendDTMFToB2CApp')
-            expect([...url.searchParams]).toEqual([['t', args.callStatusToken], ['c', panel.dtmfCommand]])
+            expect([...url.searchParams]).toEqual([['data.token', args.callStatusToken], ['data.data.dtmfCode', panel.dtmfCommand]])
         }
         expect(data.getVoIPCallStatusTimeout).toEqual(expect.any(String))
         expect(data.sendDTMFTimeout).toEqual(expect.any(String))

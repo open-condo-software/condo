@@ -72,6 +72,8 @@ describe('VoIP call tokens and state', () => {
         const [id, signature] = token.split('.')
         const changedId = `${id[0] === 'A' ? 'B' : 'A'}${id.slice(1)}`
         const changedSignature = `${signature[0] === 'A' ? 'B' : 'A'}${signature.slice(1)}`
+        // non-real test secret for test file
+        // nosemgrep: javascript.lang.security.audit.hardcoded-hmac-key.hardcoded-hmac-key
         const otherSignature = createHmac('sha256', 'another-secret')
             .update(`voip-call:v1:${id}`).digest().subarray(0, 16).toString('base64url')
 

@@ -99,7 +99,7 @@ class RejectCallError extends Error {
 function getGetVoIPCallStatusUrl ({ callStatusToken }) {
     if (!callStatusToken) return null
     const url = new URL(`${SERVER_URL}${GET_VOIP_CALL_STATUS_URL_PATH}`)
-    url.searchParams.set('t', callStatusToken)
+    url.searchParams.set('data.token', callStatusToken)
     return url.toString()
 }
 
@@ -110,8 +110,8 @@ function getGetVoIPCallStatusTimeout () {
 function getSendDTMFUrl ({ callStatusToken, dtmfCode }) {
     if (!callStatusToken) return null
     const baseSendDTMFUrl = new URL(`${SERVER_URL}${SEND_DTMF_TO_B2C_APP_URL_PATH}`)
-    baseSendDTMFUrl.searchParams.set('t', callStatusToken)
-    baseSendDTMFUrl.searchParams.set('c', dtmfCode)
+    baseSendDTMFUrl.searchParams.set('data.token', callStatusToken)
+    baseSendDTMFUrl.searchParams.set('data.data.dtmfCode', dtmfCode)
     return baseSendDTMFUrl.toString()
 }
 

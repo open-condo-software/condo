@@ -1045,7 +1045,7 @@ async function makeStartCallRequest ({ admin, serviceUserClient, b2cAppId, type 
         },
     })
     const [msg] = await Message.getAll(admin, { user: { id: resident.user.id || resident.user }, type: VOIP_INCOMING_CALL_MESSAGE_TYPE, deletedAt: null }, { sortBy: ['createdAt_DESC'] })
-    const callStatusToken = new URL(msg.meta.data.getVoIPCallStatusUrl).searchParams.get('t')
+    const callStatusToken = new URL(msg.meta.data.getVoIPCallStatusUrl).searchParams.get('data.token')
     return { callId, callStatusToken, msg, dtmfCommand, result }
 }
 

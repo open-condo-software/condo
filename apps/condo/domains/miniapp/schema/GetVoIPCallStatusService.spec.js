@@ -119,7 +119,7 @@ describe('GetVoIPCallStatusService spec', () => {
                 },
             })
             const [msg] = await Message.getAll(admin, { type: VOIP_INCOMING_CALL_MESSAGE_TYPE, user: { id: user.id } }, { sortBy: ['createdAt_DESC'], first: 1 })
-            expect(new URL(msg.meta.data.getVoIPCallStatusUrl).searchParams.get('t')).toHaveLength(45)
+            expect(new URL(msg.meta.data.getVoIPCallStatusUrl).searchParams.get('data.token')).toHaveLength(45)
         
             const wrongCallId = faker.random.alphaNumeric(8)
             const missingCallPayload = buildQueryPayload(generateCallStatusId())
@@ -150,7 +150,7 @@ describe('GetVoIPCallStatusService spec', () => {
             })
         
             const [msg] = await Message.getAll(admin, { type: VOIP_INCOMING_CALL_MESSAGE_TYPE, user: { id: user.id } }, { sortBy: ['createdAt_DESC'], first: 1 })
-            const callStatusToken = new URL(msg.meta.data.getVoIPCallStatusUrl).searchParams.get('t')
+            const callStatusToken = new URL(msg.meta.data.getVoIPCallStatusUrl).searchParams.get('data.token')
             const [id, signature] = callStatusToken.split('.')
             const tamper = value => `${value[0] === 'A' ? 'B' : 'A'}${value.slice(1)}`
             const wrongCallStatusToken = part === 'id' ? `${tamper(id)}.${signature}` : `${id}.${tamper(signature)}`

@@ -21,9 +21,9 @@ const HANDLERS_CONFIG = [
     {
         path: GET_VOIP_CALL_STATUS_URL_PATH,
         method: 'get',
-        queryToData: (req) => z.strictObject({ t: z.string() }).transform(({ t }) => ({
-            ...DEFAULT_INPUT, token: t,
-        })).safeParse(req.query).data,
+        queryToData: (req) => z.strictObject({ 'data.token': z.string() }).transform(({ 'data.token': token }) => ({
+            token,
+        })).parse(req.query),
         dataSchema: z.strictObject({
             token: z.string(),
             ...DV_SENDER_SCHEMA.shape,
@@ -33,9 +33,9 @@ const HANDLERS_CONFIG = [
     {
         path: SEND_DTMF_TO_B2C_APP_URL_PATH,
         method: 'post',
-        queryToData: (req) => z.strictObject({ t: z.string(), c: z.string() }).transform(({ t, c }) => ({
-            ...DEFAULT_INPUT, token: t, data: { dtmfCode: c },
-        })).safeParse(req.query).data,
+        queryToData: (req) => z.strictObject({ 'data.token': z.string(), 'data.data.dtmfCode': z.string() }).transform(({ 'data.token': token, 'data.data.dtmfCode': dtmfCode }) => ({
+            token, data: { dtmfCode },
+        })).parse(req.query),
         dataSchema: z.strictObject({
             token: z.string(),
             data: z.strictObject({ dtmfCode: z.string() }),
@@ -64,6 +64,18 @@ function formatZodSafeParseError (error) {
     }))
 }
 
+function getDv (req, data) {
+    if (Object.hasOwn(data, 'dv')) return data.dv
+    const header = req.get('X-Dv')
+    return header === undefined ? DEFAULT_INPUT.dv : JSON.parse(header)
+}
+
+function getSender (req, data) {
+    if (Object.hasOwn(data, 'sender')) return data.sender
+    const header = req.get('X-Sender')
+    return header === undefined ? DEFAULT_INPUT.sender : JSON.parse(header)
+}
+
 /**
  * @param {import('zod').ZodType} dataSchema 
  * @param {(req: import('express').Request) => object | undefined} [queryToData]
@@ -73,17 +85,24 @@ function withParsedData (dataSchema, queryToData) {
     return function (req, res, next) {
         let data
         const bodyIsEmpty = !req.body || typeof req.body !== 'object' || !Object.keys(req.body).length
-        if (req.method === 'GET' || bodyIsEmpty) {
-            try {
-                data = queryToData?.(req) ?? JSON.parse(req.query.data)
-            } catch (err) {
-                throw new GQLError({
-                    ...ERRORS.INVALID_PARAMETERS,
-                    messageInterpolation: { jsonError: JSON.stringify({ errors: [err.message] }) },
-                }, req.keystoneContext)
+        try {
+            if (req.method === 'GET' || bodyIsEmpty) {
+                data = Object.hasOwn(req.query, 'data')
+                    ? JSON.parse(z.strictObject({ data: z.string() }).parse(req.query).data)
+                    : queryToData?.(req)
+            } else {
+                data = req.body?.data
             }
-        } else {
-            data = req.body?.data
+            data = {
+                ...z.record(z.string(), z.unknown()).parse(data),
+                dv: getDv(req, data),
+                sender: getSender(req, data),
+            }
+        } catch (err) {
+            throw new GQLError({
+                ...ERRORS.INVALID_PARAMETERS,
+                messageInterpolation: { jsonError: JSON.stringify({ errors: err instanceof z.ZodError ? formatZodSafeParseError(err) : [err.message] }) },
+            }, req.keystoneContext)
         }
 
         const { success, data: parsedData, error } = dataSchema.safeParse(data)

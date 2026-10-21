@@ -540,7 +540,7 @@ describe('SendVoIPCallStartMessageService', () => {
                 expect(result.erroredMessagesCount).toBe(0)
 
                 const [msg] = await Message.getAll(admin, { type: VOIP_INCOMING_CALL_MESSAGE_TYPE, user: { id: preparedUsers[0].user.id } }, { sortBy: ['createdAt_DESC'], first: 1 })
-                expect(new URL(msg.meta.data.getVoIPCallStatusUrl).searchParams.get('t')).toHaveLength(45)
+                expect(new URL(msg.meta.data.getVoIPCallStatusUrl).searchParams.get('data.token')).toHaveLength(45)
                 const cache = await getCallStatus({ organizationId: organization.id, addressKey: property.addressKey, b2cAppId: b2cApp.id, callId })
                 expect(cache).not.toBe(null)
                 expect(cache.status).toBe(CALL_STATUS_STARTED)
