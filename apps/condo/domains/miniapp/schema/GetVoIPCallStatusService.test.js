@@ -282,7 +282,8 @@ describe('GetVoIPCallStatusService', () => {
             let callStatusToken
             let serverUrl
             const sender = { dv: 1, fingerprint: 'header-status' }
-            const headers = { 'X-Dv': '1', 'X-Sender': JSON.stringify(sender) }
+            const remoteClient = '31935ae4-5a69-4c15-b91b-376dc72c1d49-app.client'
+            const headers = { 'X-Remote-Client': remoteClient }
 
             beforeAll(async () => {
                 const { resident } = await prepareVoIPUser({ admin, organization, property, unitName: faker.random.alphaNumeric(8) })
@@ -292,26 +293,28 @@ describe('GetVoIPCallStatusService', () => {
             })
 
             test.each([
-                { name: 'flat query with headers', headers },
-                { name: 'flat query without headers' },
+                { name: 'flat query with UUID-prefixed remote client', headers },
+                { name: 'flat query without remote client' },
                 { name: 'JSON query without metadata', data: {} },
-                { name: 'JSON query metadata fallback', data: { dv: 1, sender } },
-                { name: 'JSON query overrides conflicting headers', headers: { 'X-Dv': '2', 'X-Sender': '{"dv":2,"fingerprint":""}' }, data: { dv: 1, sender } },
-                { name: 'JSON query ignores malformed unused headers', headers: { 'X-Dv': 'invalid', 'X-Sender': 'invalid' }, data: { dv: 1, sender } },
-                { name: 'case-insensitive header names', headers: { 'x-dV': '1', 'x-sENDER': JSON.stringify(sender) } },
-                { name: 'only X-Dv fills missing JSON dv', headers: { 'X-Dv': '1' }, data: { sender } },
-                { name: 'only X-Sender fills missing JSON sender', headers: { 'X-Sender': JSON.stringify(sender) }, data: { dv: 1 } },
-                { name: 'JSON dv ignores its malformed header independently', headers: { 'X-Dv': 'invalid', 'X-Sender': JSON.stringify(sender) }, data: { dv: 1 } },
-                { name: 'JSON sender ignores its malformed header independently', headers: { 'X-Dv': '1', 'X-Sender': 'invalid' }, data: { sender } },
-                { name: 'only X-Dv retains default sender', headers: { 'X-Dv': '1' } },
-                { name: 'only X-Sender retains default dv', headers: { 'X-Sender': JSON.stringify(sender) } },
-                { name: 'long tracing identifier is not a sender', headers: { 'X-Remote-Client': 'a'.repeat(100) } },
+                { name: 'explicit JSON query metadata', data: { dv: 1, sender } },
+                { name: 'JSON query overrides remote client', headers, data: { dv: 1, sender } },
+                { name: 'JSON sender ignores invalid remote client', headers: { 'X-Remote-Client': 'bad client' }, data: { sender } },
+                { name: 'case-insensitive remote-client header', headers: { 'x-rEMOTE-cLIENT': remoteClient } },
+                { name: 'JSON dv with header-derived sender', headers, data: { dv: 1 } },
+                { name: 'obsolete metadata headers are ignored', headers: { ...headers, 'X-Dv': 'invalid', 'X-Sender': 'invalid' } },
+                { name: 'obsolete version header cannot override numeric default', headers: { ...headers, 'X-Dv': '2' } },
+                { name: 'ordinary remote client', headers: { 'X-Remote-Client': 'ordinary-client' } },
+                { name: 'long remote client is truncated', headers: { 'X-Remote-Client': 'a'.repeat(100) } },
+                { name: 'empty remote client uses default', headers: { 'X-Remote-Client': '' } },
+                { name: 'short remote client uses default', headers: { 'X-Remote-Client': 'abcd' } },
+                { name: 'invalid remote client uses default', headers: { 'X-Remote-Client': 'bad client' } },
+                { name: 'UUID prefix ignores invalid suffix characters', headers: { 'X-Remote-Client': `${remoteClient} invalid suffix` } },
             ])('$name', async ({ headers: requestHeaders, data }) => {
                 const url = new URL(`${serverUrl}${GET_VOIP_CALL_STATUS_URL_PATH}`)
                 if (data === undefined) url.searchParams.set('data.token', callStatusToken)
                 else url.searchParams.set('data', JSON.stringify({ ...data, token: callStatusToken }))
 
-                const response = await fetch(url, { headers: requestHeaders })
+                const response = await fetch(url, { headers: requestHeaders, skipTracingHeaders: true })
 
                 expect(response.status).toBe(200)
                 expect(await response.json()).toEqual({ status: CALL_STATUS_STARTED })
@@ -330,34 +333,19 @@ describe('GetVoIPCallStatusService', () => {
             })
 
             test.each([
-                { name: 'empty X-Dv', headers: { 'X-Dv': '' } },
-                { name: 'non-JSON X-Dv', headers: { 'X-Dv': 'invalid' } },
-                { name: 'string X-Dv', headers: { 'X-Dv': '"1"' } },
-                { name: 'boolean X-Dv', headers: { 'X-Dv': 'true' } },
-                { name: 'array X-Dv', headers: { 'X-Dv': '[1]' } },
-                { name: 'null X-Dv', headers: { 'X-Dv': 'null' } },
-                { name: 'unsupported X-Dv', headers: { 'X-Dv': '2' }, type: ERRORS.DV_VERSION_MISMATCH.type },
-                { name: 'empty X-Sender', headers: { 'X-Sender': '' } },
-                { name: 'non-JSON X-Sender', headers: { 'X-Sender': 'invalid' } },
-                { name: 'string X-Sender', headers: { 'X-Sender': '"fingerprint"' } },
-                { name: 'array X-Sender', headers: { 'X-Sender': '[]' } },
-                { name: 'null X-Sender', headers: { 'X-Sender': 'null' } },
-                { name: 'incomplete X-Sender', headers: { 'X-Sender': '{"fingerprint":"valid-id"}' } },
-                { name: 'short fingerprint', headers: { 'X-Sender': '{"dv":1,"fingerprint":"a"}' }, type: ERRORS.WRONG_SENDER_FORMAT.type },
-                { name: 'long fingerprint', headers: { 'X-Sender': JSON.stringify({ dv: 1, fingerprint: 'a'.repeat(43) }) }, type: ERRORS.WRONG_SENDER_FORMAT.type },
-                { name: 'invalid sender version', headers: { 'X-Sender': '{"dv":2,"fingerprint":"valid-id"}' }, type: ERRORS.WRONG_SENDER_FORMAT.type },
-                { name: 'JSON sender is not masked by X-Dv', headers: { 'X-Dv': '1' }, data: { sender: { dv: 2, fingerprint: 'valid-id' } }, type: ERRORS.WRONG_SENDER_FORMAT.type },
-                { name: 'JSON dv is not masked by X-Sender', headers: { 'X-Sender': JSON.stringify(sender) }, data: { dv: 2 }, type: ERRORS.DV_VERSION_MISMATCH.type },
-                { name: 'null JSON dv', data: { dv: null } },
-                { name: 'null JSON sender', data: { sender: null } },
-                { name: 'unsupported JSON dv despite valid headers', headers, data: { dv: 2 }, type: ERRORS.DV_VERSION_MISMATCH.type },
-                { name: 'null JSON dv despite valid headers', headers, data: { dv: null } },
-                { name: 'invalid JSON sender despite valid headers', headers, data: { sender: { dv: 2, fingerprint: 'valid-id' } }, type: ERRORS.WRONG_SENDER_FORMAT.type },
-                { name: 'null JSON sender despite valid headers', headers, data: { sender: null } },
-            ])('rejects $name without falling back', async ({ headers: requestHeaders, data = {}, type = 'INVALID_PARAMETERS' }) => {
+                { name: 'unsupported explicit dv', data: { dv: 2 }, type: ERRORS.DV_VERSION_MISMATCH.type },
+                { name: 'null explicit dv', data: { dv: null } },
+                { name: 'string explicit dv', data: { dv: '1' } },
+                { name: 'null explicit sender', data: { sender: null } },
+                { name: 'incomplete explicit sender', data: { sender: {} } },
+                { name: 'short explicit fingerprint', data: { sender: { dv: 1, fingerprint: 'a' } }, type: ERRORS.WRONG_SENDER_FORMAT.type },
+                { name: 'long explicit fingerprint', data: { sender: { dv: 1, fingerprint: 'a'.repeat(43) } }, type: ERRORS.WRONG_SENDER_FORMAT.type },
+                { name: 'invalid explicit fingerprint characters', data: { sender: { dv: 1, fingerprint: 'bad client' } }, type: ERRORS.WRONG_SENDER_FORMAT.type },
+                { name: 'invalid explicit sender version', data: { sender: { dv: 2, fingerprint: 'valid-id' } }, type: ERRORS.WRONG_SENDER_FORMAT.type },
+            ])('rejects $name without falling back', async ({ data, type = 'INVALID_PARAMETERS' }) => {
                 const url = new URL(`${serverUrl}${GET_VOIP_CALL_STATUS_URL_PATH}`)
                 url.searchParams.set('data', JSON.stringify({ ...data, token: callStatusToken }))
-                const response = await fetch(url, { headers: requestHeaders })
+                const response = await fetch(url, { headers, skipTracingHeaders: true })
 
                 expect(response.status).toBe(400)
                 expect(await response.json()).toEqual({

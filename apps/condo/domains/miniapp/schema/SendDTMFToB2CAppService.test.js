@@ -333,7 +333,8 @@ describe('SendDTMFToB2CAppService', () => {
             let call
             let serverUrl
             const sender = { dv: 1, fingerprint: 'header-dtmf' }
-            const headers = { 'X-Dv': '1', 'X-Sender': JSON.stringify(sender) }
+            const remoteClient = '31935ae4-5a69-4c15-b91b-376dc72c1d49-app.client'
+            const headers = { 'X-Remote-Client': remoteClient }
 
             beforeAll(async () => {
                 call = await makeStartCallRequest()
@@ -343,7 +344,7 @@ describe('SendDTMFToB2CAppService', () => {
             async function sendRequest ({ format, headers: requestHeaders, metadata = {} }) {
                 const url = new URL(`${serverUrl}${SEND_DTMF_TO_B2C_APP_URL_PATH}`)
                 const data = { token: call.callStatusToken, data: { dtmfCode: '#' }, ...metadata }
-                const options = { method: 'POST', headers: requestHeaders }
+                const options = { method: 'POST', headers: requestHeaders, skipTracingHeaders: true }
                 if (format === 'flat') {
                     url.searchParams.set('data.token', call.callStatusToken)
                     url.searchParams.set('data.data.dtmfCode', '#')
@@ -357,19 +358,18 @@ describe('SendDTMFToB2CAppService', () => {
             }
 
             test.each([
-                { name: 'flat query headers', format: 'flat', headers },
-                { name: 'JSON query overrides headers', format: 'json', headers: { 'X-Dv': '2', 'X-Sender': '{"dv":2,"fingerprint":""}' }, metadata: { dv: 1, sender } },
-                { name: 'JSON body overrides headers', format: 'body', headers: { 'X-Dv': '2', 'X-Sender': '{"dv":2,"fingerprint":""}' }, metadata: { dv: 1, sender } },
-                { name: 'JSON query ignores malformed unused headers', format: 'json', headers: { 'X-Dv': 'invalid', 'X-Sender': 'invalid' }, metadata: { dv: 1, sender } },
-                { name: 'JSON body ignores malformed unused headers', format: 'body', headers: { 'X-Dv': 'invalid', 'X-Sender': 'invalid' }, metadata: { dv: 1, sender } },
+                { name: 'flat query with UUID-prefixed remote client', format: 'flat', headers },
+                { name: 'JSON query explicit metadata', format: 'json', headers, metadata: { dv: 1, sender } },
+                { name: 'JSON body explicit metadata', format: 'body', headers, metadata: { dv: 1, sender } },
+                { name: 'JSON query sender overrides invalid remote client', format: 'json', headers: { 'X-Remote-Client': 'bad client' }, metadata: { sender } },
+                { name: 'JSON body sender overrides invalid remote client', format: 'body', headers: { 'X-Remote-Client': 'bad client' }, metadata: { sender } },
+                { name: 'flat query without remote client', format: 'flat' },
+                { name: 'JSON query defaults', format: 'json' },
                 { name: 'JSON body defaults', format: 'body' },
-                { name: 'JSON body metadata fallback', format: 'body', metadata: { dv: 1, sender } },
-                { name: 'X-Dv fills missing body dv', format: 'body', headers: { 'X-Dv': '1' }, metadata: { sender } },
-                { name: 'X-Sender fills missing body sender', format: 'body', headers: { 'X-Sender': JSON.stringify(sender) }, metadata: { dv: 1 } },
-                { name: 'body dv ignores only its malformed header', format: 'body', headers: { 'X-Dv': 'invalid', 'X-Sender': JSON.stringify(sender) }, metadata: { dv: 1 } },
-                { name: 'body sender ignores only its malformed header', format: 'body', headers: { 'X-Dv': '1', 'X-Sender': 'invalid' }, metadata: { sender } },
-                { name: 'case-insensitive body headers', format: 'body', headers: { 'x-dV': '1', 'x-sENDER': JSON.stringify(sender) } },
-                { name: 'long tracing identifier is independent', format: 'flat', headers: { ...headers, 'X-Remote-Client': 'a'.repeat(100) } },
+                { name: 'body dv with derived sender', format: 'body', headers, metadata: { dv: 1 } },
+                { name: 'body sender with default dv', format: 'body', metadata: { sender } },
+                { name: 'case-insensitive remote-client header', format: 'body', headers: { 'x-rEMOTE-cLIENT': remoteClient } },
+                { name: 'long remote client is truncated', format: 'flat', headers: { 'X-Remote-Client': 'a'.repeat(100) } },
             ])('$name', async request => {
                 const response = await sendRequest(request)
 
@@ -378,22 +378,34 @@ describe('SendDTMFToB2CAppService', () => {
                 expect(lastIntercomRequest).toEqual({ callId: call.callId, dtmfCode: '#' })
             })
 
-            test.each(['flat', 'json', 'body'])('rejects malformed headers for %s without forwarding DTMF', async format => {
+            test.each(['flat', 'json', 'body'])('ignores obsolete metadata headers for %s', async format => {
                 const response = await sendRequest({
                     format,
-                    headers: { ...headers, 'X-Sender': 'invalid' },
-                    metadata: { dv: 1 },
+                    headers: { ...headers, 'X-Sender': 'invalid', 'X-Dv': '2' },
                 })
 
-                expect(response.status).toBe(400)
-                expect(await response.json()).toEqual({
-                    errors: [expect.objectContaining({ extensions: expect.objectContaining({ type: 'INVALID_PARAMETERS' }) })],
-                })
-                expect(lastIntercomRequest).toBeNull()
+                expect(response.status).toBe(200)
+                expect(await response.json()).toEqual({ status: 'OK' })
+                expect(lastIntercomRequest).toEqual({ callId: call.callId, dtmfCode: '#' })
             })
 
-            test.each(['json', 'body'])('rejects invalid explicit metadata for %s despite valid headers', async format => {
-                const response = await sendRequest({ format, headers, metadata: { dv: null, sender } })
+            describe.each(['flat', 'json', 'body'])('default sender for %s', format => {
+                test.each(['', 'abcd', 'bad client'])('uses default for invalid remote client %p', async remoteClient => {
+                    const response = await sendRequest({ format, headers: { 'X-Remote-Client': remoteClient } })
+
+                    expect(response.status).toBe(200)
+                    expect(await response.json()).toEqual({ status: 'OK' })
+                    expect(lastIntercomRequest).toEqual({ callId: call.callId, dtmfCode: '#' })
+                })
+            })
+
+            test.each([
+                { format: 'json', metadata: { dv: null, sender } },
+                { format: 'body', metadata: { dv: null, sender } },
+                { format: 'json', metadata: { sender: null } },
+                { format: 'body', metadata: { sender: null } },
+            ])('rejects invalid explicit $format metadata $metadata despite remote client', async ({ format, metadata }) => {
+                const response = await sendRequest({ format, headers, metadata })
 
                 expect(response.status).toBe(400)
                 expect(await response.json()).toEqual({

@@ -5,6 +5,7 @@ const { GQLError, GQLInternalErrorTypes: { SUB_GQL_ERROR }, GQLErrorCode: { BAD_
 const { expressErrorHandler } = require('@open-condo/keystone/utils/errors/expressErrorHandler')
 
 const { getVoIPCallStatus, sendDTMFToB2CApp } = require('@condo/domains/miniapp/utils/serverSchema') 
+const { getDv, getSender } = require('@condo/domains/miniapp/utils/voipRequestMetadata')
 
 const GET_VOIP_CALL_STATUS_URL_PATH = '/api/voip/getVoIPCallStatus'
 const SEND_DTMF_TO_B2C_APP_URL_PATH = '/api/voip/sendDTMFToB2CApp'
@@ -14,8 +15,6 @@ const DV_SENDER_SCHEMA = z.strictObject({
     dv: z.number(),
     sender: z.strictObject({ dv: z.number(), fingerprint: z.string() }),
 })
-
-const DEFAULT_INPUT = { dv: 1, sender: { dv: 1, fingerprint: 'voip-rest' } }
 
 const HANDLERS_CONFIG = [
     {
@@ -64,18 +63,6 @@ function formatZodSafeParseError (error) {
     }))
 }
 
-function getDv (req, data) {
-    if (Object.hasOwn(data, 'dv')) return data.dv
-    const header = req.get('X-Dv')
-    return header === undefined ? DEFAULT_INPUT.dv : JSON.parse(header)
-}
-
-function getSender (req, data) {
-    if (Object.hasOwn(data, 'sender')) return data.sender
-    const header = req.get('X-Sender')
-    return header === undefined ? DEFAULT_INPUT.sender : JSON.parse(header)
-}
-
 /**
  * @param {import('zod').ZodType} dataSchema 
  * @param {(req: import('express').Request) => object | undefined} [queryToData]
@@ -95,7 +82,7 @@ function withParsedData (dataSchema, queryToData) {
             }
             data = {
                 ...z.record(z.string(), z.unknown()).parse(data),
-                dv: getDv(req, data),
+                dv: getDv(data),
                 sender: getSender(req, data),
             }
         } catch (err) {
