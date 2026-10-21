@@ -1,0 +1,160 @@
+import { existsSync, readFileSync } from 'fs'
+import fs from 'fs/promises'
+import path from 'path'
+
+import { glob } from 'glob'
+import { minimatch } from 'minimatch'
+
+import { getConfig } from './config'
+import { resolveTemplatesDir } from './fs'
+import { mergePackageJson, mergeTranslations, mergeAgentsMd } from './merge'
+
+type MergeRule = {
+    pattern: string | Array<string>
+    merge: (existingContent: string, newContent: string) => string
+}
+
+type CopyDirOptions = {
+    source: string
+    target: string
+    ignoreFiles?: Array<string>
+    mergeRules?: Array<MergeRule>
+}
+
+type CopyAppDirResult = {
+    ignoredPatterns: Array<string>
+}
+
+const GLOBAL_IGNORED_FILES = [
+    '**/node_modules/**',
+    '**/.DS_Store',
+]
+
+
+export async function copyDir (options: CopyDirOptions): Promise<void> {
+    const { source, target, mergeRules, ignoreFiles } = options
+
+    const ignorePatterns = [...GLOBAL_IGNORED_FILES, ...(ignoreFiles ?? [])]
+
+    // NOTE: glob is used to respect .gitignore patterns
+    const filesToCopy = await glob('**/*', { ignore: ignorePatterns, cwd: source, absolute: true, nodir: true, dot: true })
+    const sourceFiles = filesToCopy.map((filePath) => path.relative(source, filePath))
+
+    async function _copyFile (file: string) {
+        // NOTE: controlled usage
+        // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+        const sourcePath = path.join(source, file)
+        // NOTE: controlled usage
+        // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+        const targetPath = path.join(target, file)
+
+        if (existsSync(targetPath)) {
+            const mergeRule = mergeRules?.find(rule => {
+                const patterns = Array.isArray(rule.pattern) ? rule.pattern : [rule.pattern]
+                return patterns.some(pattern => minimatch(file, pattern))
+            })
+
+            if (mergeRule) {
+                const [existingContent, newContent] = await Promise.all([
+                    fs.readFile(targetPath, 'utf8'),
+                    fs.readFile(sourcePath, 'utf8'),
+                ])
+                const mergedContent = mergeRule.merge(existingContent, newContent)
+
+                return fs.writeFile(targetPath, mergedContent, { encoding: 'utf8' })
+            }
+        }
+
+        await fs.mkdir(path.dirname(targetPath), { recursive: true })
+        return fs.copyFile(sourcePath, targetPath)
+    }
+
+    await Promise.all(sourceFiles.map((file) => _copyFile(file)))
+}
+
+export async function copyAppDir (srcPath: string, ignoredPatterns?: Array<string>): Promise<CopyAppDirResult> {
+    const { projectPath, preferences } = getConfig()
+    const ignoredFiles = [
+        ...(ignoredPatterns ?? []),
+        '_meta.json',
+    ]
+
+    // NOTE: controlled usage
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+    const gitIgnorePath = path.join(srcPath, '.gitignore')
+
+    if (!preferences.agentsMd) {
+        ignoredFiles.push('AGENTS.md')
+    }
+
+    if (existsSync(gitIgnorePath)) {
+        const ignoredContent = readFileSync(gitIgnorePath, 'utf8')
+        const lines = ignoredContent.split('\n')
+            .map(l => l.trim())
+            .filter(l => l.length && !l.startsWith('#'))
+            .reduce((result, ptr) => {
+                const trimSlashStart = ptr.startsWith('/') ? ptr.slice(1) : ptr
+                const trimSlashEnd = trimSlashStart.endsWith('/') ? trimSlashStart.slice(0, -1) : trimSlashStart
+
+                // We don't know whether a pattern points to a directory or a file and we need files.
+                // Therefore, include both `pattern` and `pattern/**` for every pattern in the array.
+                // SRC: https://github.com/EE/gitignore-to-glob/blob/master/lib/gitignore-to-glob.js
+                result.push(trimSlashEnd)
+                result.push(`${trimSlashEnd}/**`)
+
+                return result
+            }, [] as Array<string>)
+        if (lines.length) {
+            ignoredFiles.push(...lines)
+        }
+    }
+
+    const uniquePatterns = [...new Set(ignoredFiles)]
+
+    await copyDir({
+        source: srcPath,
+        target: projectPath,
+        ignoreFiles: uniquePatterns,
+        mergeRules: [
+            {
+                pattern: 'lang/**/*.json',
+                merge: mergeTranslations,
+            },
+            {
+                pattern: 'package.json',
+                merge: mergePackageJson,
+            },
+            {
+                pattern: 'AGENTS.md',
+                merge: mergeAgentsMd,
+            },
+        ],
+    })
+
+    return {
+        ignoredPatterns: uniquePatterns,
+    }
+}
+
+export async function copyAppTemplate (templateName: string): Promise<CopyAppDirResult> {
+    const templatesDir = resolveTemplatesDir()
+    // NOTE: controlled paths
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+    const templateRootDir = path.join(templatesDir, 'templates', templateName)
+    // NOTE: controlled paths
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+    const metaFile = path.join(templateRootDir, '_meta.json')
+
+    let ignoredPatterns: Array<string> = []
+
+    // If template extends another template, copy that first
+    if (existsSync(metaFile)) {
+        const meta = JSON.parse(await fs.readFile(metaFile, 'utf8'))
+        if (typeof meta?.extends === 'string') {
+            ({ ignoredPatterns } = await copyAppTemplate(meta.extends))
+        }
+
+    }
+
+    return await copyAppDir(templateRootDir, ignoredPatterns)
+}
