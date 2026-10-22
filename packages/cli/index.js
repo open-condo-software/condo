@@ -444,7 +444,7 @@ async function registerMiniapp ({
     if (appType) {
         command += ` -t ${appType}`
     }
-    console.log(command)
+
     await safeExec(command)
 
     return { clientSecret }
