@@ -21,7 +21,6 @@ const { generateUUIDv4 } = require('@open-condo/miniapp-utils')
 const { detectMimeTypeFromFile } = require('./detectMimeType')
 const { ERRORS } = require('./errors')
 const DEFAULT_USER_HOUR_QUOTA = 100
-const MAX_HTTP_ERROR_BODY_LENGTH = 8 * 1024
 const fileMetaSymbol = Symbol.for('fileMeta')
 const logger = getLogger('file-utils')
 
@@ -60,28 +59,14 @@ function getResponseHeader (response, name) {
 }
 
 async function createHttpResponseError (operation, response) {
-    const rawBody = await response.text()
-    const body = rawBody.length > MAX_HTTP_ERROR_BODY_LENGTH
-        ? `${rawBody.slice(0, MAX_HTTP_ERROR_BODY_LENGTH)}…[truncated]`
-        : rawBody
     const contentType = getResponseHeader(response, 'content-type')
-    let responseBody = body
-    if (contentType?.includes('application/json')) {
-        try {
-            responseBody = JSON.parse(body)
-        } catch (_error) {
-            // Keep the bounded raw response body for malformed JSON error pages.
-        }
-    }
-
-    const error = new Error(`${operation} failed: ${response.status} ${typeof responseBody === 'string' ? responseBody : JSON.stringify(responseBody)}`)
+    const error = new Error(`${operation} failed: ${response.status}${contentType ? ` (${contentType})` : ''}`)
     error.name = 'FileServerHttpError'
     error.status = response.status
     error.statusCode = response.status
     error.response = {
         contentType,
-        body: responseBody,
-        requestId: getResponseHeader(response, 'x-request-id') || getResponseHeader(response, 'x-sp-crid'),
+        requestId: getResponseHeader(response, 'x-request-id'),
         retryAfter: getResponseHeader(response, 'retry-after'),
     }
     return error
