@@ -67,7 +67,10 @@ async function main () {
             await OidcClient.update(context, existingClient.id, {
                 dv: 1,
                 sender: { dv: 1, fingerprint: 'bin-create-miniapp' },
-                ...oidcOptions,
+                payload: {
+                    ...existingClient.payload,
+                    ...oidcOptions,
+                },
             })
         }
     } else if (!existingClient) {

@@ -419,6 +419,25 @@ async function registerAppProxy (appName, proxyName) {
     return { proxySecret, proxyId: proxyName }
 }
 
+async function registerMiniapp ({
+    name,
+    type = undefined,
+}) {
+    const clientSecret = getRandomString(32)
+    const appPayload = { name }
+    const oidcPayload = {
+        client_secret: clientSecret,
+    }
+    let command = `yarn workspace @app/condo node ./bin/create-miniapp.js -a '${JSON.stringify(appPayload)}' -o '${JSON.stringify(oidcPayload)}'`
+    if (type) {
+        command += ` -t ${type}`
+    }
+    console.log(command)
+    await safeExec(command)
+
+    return { clientSecret }
+}
+
 module.exports = {
     getRandomString,
     safeExec,
@@ -439,4 +458,5 @@ module.exports = {
     fillAppEnvWithDefaultValues,
     fillGlobalEnvWithDefaultValues,
     registerAppProxy,
+    registerMiniapp,
 }
