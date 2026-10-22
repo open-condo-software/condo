@@ -1005,6 +1005,17 @@ describe('NewsItems', () => {
             expect(newsItem.body).toEqual(attrs.body)
         })
 
+        test('should create news if assets exclusion is detected within a URL in title or body', async () => {
+            const assetUrl = 'https://assets.doma.ai/files/47033cbf8c2b992932630b1e62e7ba0f.pdf'
+            const [newsItem, attrs] = await createTestNewsItem(adminClient, dummyO10n, {
+                title: assetUrl,
+                body: `Документ: ${assetUrl}`,
+            })
+
+            expect(newsItem.title).toEqual(attrs.title)
+            expect(newsItem.body).toEqual(attrs.body)
+        })
+
         test('must throw an error if send date points to the past', async () => {
             await expectToThrowGQLError(
                 async () => await createTestNewsItem(adminClient, dummyO10n, {
