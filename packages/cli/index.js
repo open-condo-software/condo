@@ -419,6 +419,37 @@ async function registerAppProxy (appName, proxyName) {
     return { proxySecret, proxyId: proxyName }
 }
 
+/**
+ * Register a new miniapp in condo
+ * @param {string} name - app name
+ * @param {'B2B' | 'B2C'} [appType]
+ * @param {'code' | 'pkce'} oidcFlow
+ * @returns {Promise<{clientSecret}>}
+ */
+async function registerMiniapp ({
+    name,
+    appType = undefined,
+    oidcFlow = 'code',
+}) {
+    const clientSecret = getRandomString(32)
+    const appPayload = { name }
+    const oidcPayload = {
+        client_secret: clientSecret,
+    }
+    if (oidcFlow === 'pkce') {
+        oidcPayload.token_endpoint_auth_method = 'none'
+    }
+
+    let command = `yarn workspace @app/condo node ./bin/create-miniapp.js -a '${JSON.stringify(appPayload)}' -o '${JSON.stringify(oidcPayload)}'`
+    if (appType) {
+        command += ` -t ${appType}`
+    }
+
+    await safeExec(command)
+
+    return { clientSecret }
+}
+
 module.exports = {
     getRandomString,
     safeExec,
@@ -439,4 +470,5 @@ module.exports = {
     fillAppEnvWithDefaultValues,
     fillGlobalEnvWithDefaultValues,
     registerAppProxy,
+    registerMiniapp,
 }

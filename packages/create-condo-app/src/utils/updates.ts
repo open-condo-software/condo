@@ -2,6 +2,8 @@ import Conf from 'conf'
 
 import packageJson from '../../package.json'
 
+import { getNameDetails } from '@/utils/npm'
+
 type PkgInfo = {
     name: string
     version: string
@@ -28,11 +30,7 @@ type UpdateInfo = {
     fromCache: boolean
 }
 
-type PkgNameInfo = {
-    full: string
-    name: string
-    scope: string | null
-}
+
 
 type UpdateCheckOptions = {
     // distTag: string
@@ -48,29 +46,9 @@ function compareVersions (a: string, b: string){
     return a.localeCompare(b, 'en-US', { numeric: true })
 }
 
-function encode (value: string) {
-    return encodeURIComponent(value).replace(/^%40/, '@')
-}
 
-function getNameDetails (pkgName: string): PkgNameInfo {
-    const spec: PkgNameInfo = {
-        full: encode(pkgName),
-        name: '',
-        scope: null,
-    }
 
-    if (pkgName.includes('/')) {
-        const parts = pkgName.split('/')
 
-        spec.scope = parts[0]
-        spec.name = parts[1]
-    } else {
-        spec.scope = null
-        spec.name = pkgName
-    }
-
-    return spec
-}
 
 function evaluateCache (checkTime: number, ttlMs: number): EvaluateCacheResult {
     const conf = new Conf({ projectName: packageJson.name })

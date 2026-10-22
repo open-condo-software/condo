@@ -12,7 +12,7 @@ import type { InitialReturnValue } from 'prompts'
 import { setConfig, getConfig, PackageManager } from '@/utils/config'
 import { initAppFromTemplate } from '@/utils/createApp'
 import { getAvailableTemplates, isEmptyDir, resolvePackagePath } from '@/utils/fs'
-import { validateNpmName } from '@/utils/npm'
+import { getNameDetails, validateNpmName } from '@/utils/npm'
 import { isValidPreferences } from '@/utils/objects'
 import { getPackageManager } from '@/utils/packageManagers'
 import { getMonorepoInfo } from '@/utils/repos'
@@ -221,6 +221,12 @@ async function run () {
 
     conf.set('preferences', preferences)
     setConfig({ preferences })
+
+    // NOTE: just internal a quality of life adjustment, so that we don't have to manually type the scope when in condo
+    const { scope } = getNameDetails(packageName)
+    if (!scope && monorepoInfo.isCondoRepo) {
+        setConfig({ appName: `@app/${packageName}` })
+    }
 
     // STEP 4: App creation
     await initAppFromTemplate()

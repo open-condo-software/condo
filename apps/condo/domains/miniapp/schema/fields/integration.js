@@ -3,7 +3,7 @@ const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { find } = require('@open-condo/keystone/schema')
 
 const { DEFAULT_MENU_CATEGORY, ALL_MENU_CATEGORIES } = require('@condo/domains/common/constants/menuCategories')
-const { CONTEXT_STATUSES, CONTEXT_IN_PROGRESS_STATUS, B2B_APPS_LABELS } = require('@condo/domains/miniapp/constants')
+const { CONTEXT_STATUSES, CONTEXT_FINISHED_STATUS, B2B_APPS_LABELS } = require('@condo/domains/miniapp/constants')
 
 const APPS_FILE_ADAPTER = new FileAdapter('apps')
 
@@ -82,7 +82,7 @@ const CONTEXT_DEFAULT_STATUS_FIELD = {
     type: 'Select',
     dataType: 'string',
     options: CONTEXT_STATUSES,
-    defaultValue: CONTEXT_IN_PROGRESS_STATUS,
+    defaultValue: CONTEXT_FINISHED_STATUS,
 }
 
 const DISPLAY_PRIORITY_FIELD = {
