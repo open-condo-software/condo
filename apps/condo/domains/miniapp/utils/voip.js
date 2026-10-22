@@ -1,17 +1,14 @@
-const { timingSafeEqual } = require('crypto')
+const { createHmac, randomBytes, timingSafeEqual } = require('crypto')
 
-const jwt = require('jsonwebtoken')
 const { z } = require('zod')
 
 const conf = require('@open-condo/config')
 const { getKVClient } = require('@open-condo/keystone/kv')
-const { getLogger } = require('@open-condo/keystone/logging')
 const { generateUUIDv4 } = require('@open-condo/miniapp-utils/helpers/uuid')
 
 const { CALL_STATUSES, CALL_STATUS_TTL_IN_SECONDS } = require('@condo/domains/miniapp/constants')
 const KEY_PREFIX = 'voipCallStatus'
 const kv = getKVClient(KEY_PREFIX)
-const logger = getLogger()
 
 const MIN_CALL_ID_LENGTH = 1
 const MAX_CALL_ID_LENGTH = 300
@@ -26,38 +23,20 @@ const ALLOWED_ICE_SERVER_ADDRESS_SEARCH_PARAMS = { 'transport': ['tcp'] }
 const MAX_CALL_META_LENGTH = 1000
 
 const CALL_ID_NOT_ALLOWED_CHARACTERS_REGEX = /[^a-zA-Z0-9\\/.,?_^&$\-+*@~]/
+const CALL_STATUS_ID_SCHEMA = z.string().regex(/^[A-Za-z0-9_-]{21}[AQgw]$/)
 
 const CALL_STATUS_SCHEMA = z.object({
-    status: z.union(Object.values(CALL_STATUSES).map(v => z.literal(v))),
-    startingMessagesIdsByUserIds: z.record(z.string(), z.string()),
-    callMeta: z.nullish(z.object()),
-    callStatusToken: z.string(),
-})
-
-const DEFAULT_JWT_PAYLOAD_SCHEMA = z.strictObject({
-    iss: z.optional(z.string()),
-    sub: z.optional(z.string()),
-    aud: z.optional(z.union([z.string(), z.array(z.string())])),
-    exp: z.optional(z.number()),
-    nbf: z.optional(z.number()),
-    iat: z.optional(z.number()),
-    jti: z.optional(z.string()),
-})
-
-const JWT_PAYLOAD_DATA_SCHEMA = z.strictObject({
+    id: CALL_STATUS_ID_SCHEMA,
     organizationId: z.uuid(),
     b2cAppId: z.uuid(),
     addressKey: z.uuid(),
-    callId: z.string(),
-    callStatusToken: z.string(),
+    callId: z.string().refine(isCallIdValid),
+    status: z.union(Object.values(CALL_STATUSES).map(v => z.literal(v))),
+    startingMessagesIdsByUserIds: z.record(z.string(), z.string()),
+    callMeta: z.unknown().optional().refine(isCallMetaValid),
 })
 
-const JWT_PAYLOAD_SCHEMA = z.strictObject({ 
-    ...DEFAULT_JWT_PAYLOAD_SCHEMA.shape, 
-    ...JWT_PAYLOAD_DATA_SCHEMA.shape,
-}).transform(data => 
-    z.object(JWT_PAYLOAD_DATA_SCHEMA.shape).safeParse(data)?.data ?? null // NOTE(YEgorLu): to clear jwt specific fields and normal type hint
-)
+const CALL_STATUS_TOKEN_SCHEMA = z.string().regex(/^[A-Za-z0-9_-]{21}[AQgw]\.[A-Za-z0-9_-]{21}[AQgw]$/)
 
 function isCallIdValid (callId) {
     return typeof callId === 'string'
@@ -109,49 +88,51 @@ function isIceServersAddressesValid (iceServers) {
 }
 
 function buildKey (b2cAppId, organizationId, addressKey, callId) {
-    return [KEY_PREFIX, b2cAppId, organizationId, addressKey, Buffer.from(callId).toString('base64')].join(':')
+    return [KEY_PREFIX, 'identity', b2cAppId, organizationId, addressKey, Buffer.from(callId).toString('base64url')].join(':')
 }
 
-function generateCallStatusToken () {
-    return generateUUIDv4()
+function buildStateKey (id) {
+    return `${KEY_PREFIX}:id:${id}`
+}
+
+function generateCallStatusId () {
+    return randomBytes(16).toString('base64url')
+}
+
+function getCallStatusSignature (id) {
+    return createHmac('sha256', VOIP_CALL_STATUS_JWT_SECRET)
+        .update(`voip-call:v1:${id}`)
+        .digest()
+        .subarray(0, 16)
 }
 
 /**
- * @param {z.infer<typeof JWT_PAYLOAD_SCHEMA>} data 
+ * @param {string} id
  * @returns 
  */
-function buildCallStatusJWTToken (data) {
-    try {
-        const verifiedData = JWT_PAYLOAD_SCHEMA.parse(data)
-        return jwt.sign(
-            verifiedData,
-            VOIP_CALL_STATUS_JWT_SECRET,
-            { expiresIn: '1h' },
-        )
-    } catch (err) {
-        logger.error({ msg: 'buildJWTToken error', err })
-        return null
-    }
+function buildCallStatusToken (id) {
+    if (!CALL_STATUS_ID_SCHEMA.safeParse(id).success) return null
+    return `${id}.${getCallStatusSignature(id).toString('base64url')}`
 }
 
-function parseCallStatusJWTToken (jwtToken) {
-    try {
-        const jwtPayload = jwt.verify(jwtToken, VOIP_CALL_STATUS_JWT_SECRET)
-        return JWT_PAYLOAD_SCHEMA.parse(jwtPayload)
-    } catch (err) {
-        logger.error({ msg: 'parseJWTToken error', err })
-        return null
-    }
+function parseCallStatusToken (token) {
+    if (!CALL_STATUS_TOKEN_SCHEMA.safeParse(token).success) return null
+    const [id, signature] = token.split('.')
+    return timingSafeEqual(Buffer.from(signature, 'base64url'), getCallStatusSignature(id)) ? id : null
 }
 
 // NOTE(YEgorLu): startingMessagesIdsByUserIds present for older mobile apps compatibility, as they use this to cancel calls.
 //                Will be removed someday in the future. Should be okay to save it only for few minutes
-async function setCallStatus ({ callStatusToken, b2cAppId, organizationId, addressKey, callId, status, startingMessagesIdsByUserIds, callMeta }) {
-    if (!callStatusToken || !isCallIdValid(callId)) return false
+async function setCallStatus ({ id, b2cAppId, organizationId, addressKey, callId, status, startingMessagesIdsByUserIds, callMeta }) {
     if (!isCallMetaValid(callMeta)) callMeta = null
+    const parsed = CALL_STATUS_SCHEMA.safeParse({
+        id, b2cAppId, organizationId, addressKey, callId, status, startingMessagesIdsByUserIds, callMeta,
+    })
+    if (!parsed.success) return false
+    await kv.set(buildStateKey(id), JSON.stringify(parsed.data), 'EX', CALL_STATUS_TTL_IN_SECONDS)
     return kv.set(
         buildKey(b2cAppId, organizationId, addressKey, callId),
-        JSON.stringify({ status, startingMessagesIdsByUserIds, callMeta, callStatusToken }),
+        id,
         'EX',
         CALL_STATUS_TTL_IN_SECONDS,
     )
@@ -159,41 +140,38 @@ async function setCallStatus ({ callStatusToken, b2cAppId, organizationId, addre
 
 async function getCallStatus ({ b2cAppId, organizationId, addressKey, callId }) {
     if (!isCallIdValid(callId)) return null
-    const res = await kv.get(buildKey(b2cAppId, organizationId, addressKey, callId))
+    const id = await kv.get(buildKey(b2cAppId, organizationId, addressKey, callId))
+    const data = await getCallStatusById(id)
+    if (!data || data.b2cAppId !== b2cAppId || data.organizationId !== organizationId || data.addressKey !== addressKey || data.callId !== callId) return null
+    return data
+}
+
+async function getCallStatusById (id) {
+    if (!CALL_STATUS_ID_SCHEMA.safeParse(id).success) return null
+    const res = await kv.get(buildStateKey(id))
     if (!res) return null
     try {
         const parsedJSON = JSON.parse(res)
         const { success, data } = CALL_STATUS_SCHEMA.safeParse(parsedJSON)
 
-        if (!success) return null
-        return data
+        if (!success || data.id !== id) return null
+        return data // NOTE(YEgorLu): to clear fields outside the call status schema and normal type hint
     } catch {
         return null
     }
 }
 
-function isCallStatusTokenEqual ({ callStatusToken, callStatus }) {
-    if (!callStatus?.callStatusToken || !callStatusToken) return false
-    
-    const outerTokenBuffer = Buffer.from(callStatusToken)
-    const innerTokenBuffer = Buffer.from(callStatus.callStatusToken)
-
-    if (outerTokenBuffer.length !== innerTokenBuffer.length) return false
-
-    return timingSafeEqual(outerTokenBuffer, innerTokenBuffer)
-}
-
 module.exports = {
     isCallIdValid,
     isCallMetaValid,
-    isCallStatusTokenEqual,
 
     setCallStatus,
     getCallStatus,
+    getCallStatusById,
 
-    generateCallStatusToken,
-    buildCallStatusJWTToken,
-    parseCallStatusJWTToken,
+    generateCallStatusId,
+    buildCallStatusToken,
+    parseCallStatusToken,
 
     isIceServersAddressesValid,
 

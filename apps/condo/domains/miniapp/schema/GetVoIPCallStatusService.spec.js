@@ -33,7 +33,7 @@ const {
     getVoIPCallStatusByTestClient,
     prepareVoIPUser,
 } = require('@condo/domains/miniapp/utils/testSchema')
-const { getCallStatus, MAX_CALL_ID_LENGTH, isCallStatusTokenEqual, buildCallStatusJWTToken, parseCallStatusJWTToken } = require('@condo/domains/miniapp/utils/voip')
+const { getCallStatus, buildCallStatusToken, generateCallStatusId, parseCallStatusToken } = require('@condo/domains/miniapp/utils/voip')
 const { VOIP_INCOMING_CALL_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { Message } = require('@condo/domains/notification/utils/testSchema')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
@@ -44,11 +44,11 @@ const { ERRORS } = require('./GetVoIPCallStatusService')
 
 
 /**
- * @param {Parameters<typeof buildCallStatusJWTToken>[0]} data 
+ * @param {Parameters<typeof buildCallStatusToken>[0]} id
  * @returns 
  */
-function buildQueryPayload (data) {
-    const token = buildCallStatusJWTToken(data)
+function buildQueryPayload (id) {
+    const token = buildCallStatusToken(id)
     if (!token) throw new Error('Invalid token data, check "buildQueryPayload"')
     return { token }
 }
@@ -65,37 +65,18 @@ describe('GetVoIPCallStatusService spec', () => {
 
     describe('Validation', () => {
 
-        describe('should throw error if callId is invalid', () => {
-            let b2cApp
-            let property
-            let organization
-
-            beforeAll(async () => {
-                const [testB2CApp] = await createTestB2CApp(admin)
-                b2cApp = testB2CApp
-
-                const { organization: testOrganization, property: testProperty } = await makeClientWithResidentAccessAndProperty()
-                property = testProperty
-                organization = testOrganization
-            })
-
+        describe('should throw error if token is invalid', () => {
             const TEST_CASES = [
-                { name: 'empty', callId: '' },
-                { name: 'invalid character 1', callId: '\u0000' },
-                { name: 'invalid character 2', callId: '±' },
-                { name: `exceeds maximum length of ${MAX_CALL_ID_LENGTH}`, callId: '1'.repeat(MAX_CALL_ID_LENGTH + 1) },
+                { name: 'empty', token: '' },
+                { name: 'invalid character', token: '\u0000' },
+                { name: 'unsigned ID', token: generateCallStatusId() },
+                { name: 'too long', token: '1'.repeat(1000) },
             ]
 
-            test.each(TEST_CASES)('$name', async ({ callId }) => {
+            test.each(TEST_CASES)('$name', async ({ token }) => {
                 await expectToThrowGQLErrorToResult(async () => {
-                    await getVoIPCallStatusByTestClient(await makeClient(), buildQueryPayload({
-                        addressKey: property.addressKey,
-                        organizationId: organization.id,
-                        b2cAppId: b2cApp.id,
-                        callId,
-                        callStatusToken: faker.random.alphaNumeric(8),
-                    }))
-                }, ERRORS.INVALID_CALL_ID)
+                    await getVoIPCallStatusByTestClient(await makeClient(), { token })
+                }, ERRORS.TOKEN_INVALID)
             })
         })
 
@@ -138,24 +119,21 @@ describe('GetVoIPCallStatusService spec', () => {
                 },
             })
             const [msg] = await Message.getAll(admin, { type: VOIP_INCOMING_CALL_MESSAGE_TYPE, user: { id: user.id } }, { sortBy: ['createdAt_DESC'], first: 1 })
-            const callStatusJwtToken = JSON.parse(new URL(msg.meta.data.getVoIPCallStatusUrl).searchParams.get('data')).token
+            expect(new URL(msg.meta.data.getVoIPCallStatusUrl).searchParams.get('data.token')).toHaveLength(45)
         
             const wrongCallId = faker.random.alphaNumeric(8)
-            const parsedToken = parseCallStatusJWTToken(callStatusJwtToken)
-            const wrongCallIdJwtToken = buildCallStatusJWTToken({ ...parsedToken, callId: wrongCallId })
+            const missingCallPayload = buildQueryPayload(generateCallStatusId())
         
         
             await expectToThrowGQLErrorToResult(async () => {
-                await getVoIPCallStatusByTestClient(await makeClient(), {
-                    token: wrongCallIdJwtToken,
-                })
+                await getVoIPCallStatusByTestClient(await makeClient(), missingCallPayload)
             }, ERRORS.CALL_NOT_FOUND) 
         
             const callStatus = await getCallStatus({ b2cAppId: b2cApp.id, organizationId: organization.id, addressKey: property.addressKey, callId: wrongCallId })
             expect(callStatus).toBeNull()
         })
         
-        test(`Throws ${CALL_NOT_FOUND_ERROR} if call was found but token does not match`, async () => {
+        test.each(['id', 'signature'])('Throws TOKEN_INVALID if token %s is tampered with', async part => {
             const unitName = faker.random.alphaNumeric(8)
             const unitType = FLAT_UNIT_TYPE
             const callId = faker.random.alphaNumeric(8)
@@ -172,22 +150,20 @@ describe('GetVoIPCallStatusService spec', () => {
             })
         
             const [msg] = await Message.getAll(admin, { type: VOIP_INCOMING_CALL_MESSAGE_TYPE, user: { id: user.id } }, { sortBy: ['createdAt_DESC'], first: 1 })
-            const callStatusJwtToken = JSON.parse(new URL(msg.meta.data.getVoIPCallStatusUrl).searchParams.get('data')).token
-        
-            const wrongCallStatusToken = faker.random.alphaNumeric(8)
-        
-            const parsedToken = parseCallStatusJWTToken(callStatusJwtToken)
-            const wrongCallStatusTokenJwtToken = buildCallStatusJWTToken({ ...parsedToken, callStatusToken: wrongCallStatusToken })
+            const callStatusToken = new URL(msg.meta.data.getVoIPCallStatusUrl).searchParams.get('data.token')
+            const [id, signature] = callStatusToken.split('.')
+            const tamper = value => `${value[0] === 'A' ? 'B' : 'A'}${value.slice(1)}`
+            const wrongCallStatusToken = part === 'id' ? `${tamper(id)}.${signature}` : `${id}.${tamper(signature)}`
         
             await expectToThrowGQLErrorToResult(async () => {
                 await getVoIPCallStatusByTestClient(await makeClient(), {
-                    token: wrongCallStatusTokenJwtToken,
+                    token: wrongCallStatusToken,
                 })
-            }, ERRORS.CALL_NOT_FOUND)
+            }, ERRORS.TOKEN_INVALID)
         
             const callStatus = await getCallStatus({ b2cAppId: b2cApp.id, organizationId: organization.id, addressKey: property.addressKey, callId })
             expect(callStatus).not.toBeNull()
-            expect(isCallStatusTokenEqual({ callStatus, callStatusToken: wrongCallStatusToken })).toBe(false)
+            expect(parseCallStatusToken(wrongCallStatusToken)).toBeNull()
         })
 
     })

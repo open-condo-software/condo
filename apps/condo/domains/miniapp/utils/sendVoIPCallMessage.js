@@ -69,6 +69,12 @@ const GLOBAL_SEND_VOIP_MESSAGE_CALLS_WINDOW_SEC_BY_APP_ID = JSON.parse(conf.GLOB
 const MAX_UNIT_NAME_LANEGTH = 100
 
 const COMMON_VOIP_ERRORS = {
+    TOKEN_INVALID: {
+        variable: ['data', 'token'],
+        code: BAD_USER_INPUT,
+        type: 'TOKEN_INVALID',
+        message: 'Call token has an invalid format or signature',
+    },
     INVALID_CALL_ID: {
         variable: ['data', 'callId'],
         type: INVALID_CALL_ID_ERROR,
@@ -90,11 +96,10 @@ class RejectCallError extends Error {
     }
 }
 
-function getGetVoIPCallStatusUrl ({ dv, sender, callStatusJwtToken }) {
-    if (typeof dv !== 'number' || !sender || !callStatusJwtToken) return null
+function getGetVoIPCallStatusUrl ({ callStatusToken }) {
+    if (!callStatusToken) return null
     const url = new URL(`${SERVER_URL}${GET_VOIP_CALL_STATUS_URL_PATH}`)
-    const queryData = JSON.stringify({ dv, sender, token: callStatusJwtToken })
-    url.searchParams.set('data', queryData)
+    url.searchParams.set('data.token', callStatusToken)
     return url.toString()
 }
 
@@ -102,10 +107,11 @@ function getGetVoIPCallStatusTimeout () {
     return dayjs().add(CALL_STATUS_TTL_IN_SECONDS, 'second').toISOString()
 }
 
-function getSendDTMFUrl ({ dv, sender, callStatusJwtToken, dtmfCode }) {
-    if (typeof dv !== 'number' || !sender || !callStatusJwtToken) return null
+function getSendDTMFUrl ({ callStatusToken, dtmfCode }) {
+    if (!callStatusToken) return null
     const baseSendDTMFUrl = new URL(`${SERVER_URL}${SEND_DTMF_TO_B2C_APP_URL_PATH}`)
-    baseSendDTMFUrl.searchParams.set('data', JSON.stringify({ dv, sender, token: callStatusJwtToken, data: { dtmfCode } }))
+    baseSendDTMFUrl.searchParams.set('data.token', callStatusToken)
+    baseSendDTMFUrl.searchParams.set('data.data.dtmfCode', dtmfCode)
     return baseSendDTMFUrl.toString()
 }
 
@@ -153,10 +159,9 @@ function prepareVoIPCallStartMessageData ({
     b2cApp: { id: b2cAppId, name: b2cAppName },
     resident, contact,
     property,
-    callStatusJwtToken,
+    callStatusToken,
     customVoIPValues = {},
     hasSendDTMFUrl,
-    sender,
     voipDeviceB2CAppContext,
     voipDeviceData,
 }) {
@@ -167,10 +172,10 @@ function prepareVoIPCallStartMessageData ({
         residentId: resident.id,
         callId: callData.callId,
         address: resident.address,
-        callStatusJwtToken,
+        callStatusToken,
     }
 
-    const getVoIPCallStatusUrl = getGetVoIPCallStatusUrl({ dv: 1, sender, callStatusJwtToken })
+    const getVoIPCallStatusUrl = getGetVoIPCallStatusUrl({ callStatusToken })
     const getVoIPCallStatusTimeout = getGetVoIPCallStatusTimeout()
     if (getVoIPCallStatusUrl && getVoIPCallStatusTimeout) {
         preparedDataArgs = {
@@ -213,10 +218,10 @@ function prepareVoIPCallStartMessageData ({
             codec: callData.nativeCallData.codec,
             ...omit(customVoIPValues, 'voipType'),
         }
-        if (hasSendDTMFUrl && callStatusJwtToken && !customVoIPValues?.voipPanels) {
+        if (hasSendDTMFUrl && callStatusToken && !customVoIPValues?.voipPanels) {
             preparedDataArgs.voipPanels = preparedDataArgs.voipPanels.map(panel => {
                 if (!panel.dtmfCommand) return panel
-                const sendDTMFUrl = getSendDTMFUrl({ dv: 1, sender, callStatusJwtToken, dtmfCode: panel.dtmfCommand })
+                const sendDTMFUrl = getSendDTMFUrl({ callStatusToken, dtmfCode: panel.dtmfCommand })
                 if (!sendDTMFUrl) return panel
                 return { ...panel, sendDTMFUrl }
             })
@@ -308,7 +313,7 @@ function prepareVoIPCallCancelMessageData ({
  *  nativeCallData,
  *  b2cAppCallData,
  * },
- * callStatusJwtToken,
+ * callStatusToken,
  * customVoIPValues,
  * resident,
  * contact,

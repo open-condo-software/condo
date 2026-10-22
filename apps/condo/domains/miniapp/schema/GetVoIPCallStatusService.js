@@ -8,7 +8,7 @@ const { COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/miniapp/access/GetVoIPCallStatusService')
 const { CALL_STATUSES } = require('@condo/domains/miniapp/constants')
 const { COMMON_VOIP_ERRORS } = require('@condo/domains/miniapp/utils/sendVoIPCallMessage')
-const { getCallStatus, isCallStatusTokenEqual, isCallIdValid, parseCallStatusJWTToken } = require('@condo/domains/miniapp/utils/voip')
+const { getCallStatusById, parseCallStatusToken } = require('@condo/domains/miniapp/utils/voip')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
 
@@ -29,10 +29,9 @@ const ERRORS = {
         ...COMMON_ERRORS.WRONG_SENDER_FORMAT,
         query: SERVICE_NAME,
     },
-    INVALID_CALL_ID: {
-        ...COMMON_VOIP_ERRORS.INVALID_CALL_ID,
+    TOKEN_INVALID: {
+        ...COMMON_VOIP_ERRORS.TOKEN_INVALID,
         query: SERVICE_NAME,
-        variable: ['data', 'token'],
     },
     CALL_NOT_FOUND: {
         ...COMMON_VOIP_ERRORS.CALL_NOT_FOUND,
@@ -41,11 +40,9 @@ const ERRORS = {
     },
 }
 
-async function checkLimitsByCall (context, { addressKey, app, callId }) {
-    const searchKey = `${app.id}-${addressKey}-${callId}`
-
+async function checkLimitsByCall (context, id) {
     await redisGuard.checkCustomLimitCounters(
-        `${SERVICE_NAME}-${searchKey}`,
+        `${SERVICE_NAME}-${id}`,
         GET_VOIP_CALL_STATUS_LIMIT_BY_CALL_WINDOW_DURATION_IN_SECONDS,
         GET_VOIP_CALL_STATUS_LIMIT_BY_CALL_MAX_REQUESTS_PER_WINDOW,
         context,
@@ -110,23 +107,15 @@ const GetVoIPCallStatusService = new GQLCustomSchema('GetVoIPCallStatusService',
 
                 await checkLimitsByIp(context)
 
-                const tokenData = parseCallStatusJWTToken(token)
-                if (!tokenData) {
-                    throw new GQLError(ERRORS.CALL_NOT_FOUND, context)
+                const id = parseCallStatusToken(token)
+                if (!id) {
+                    throw new GQLError(ERRORS.TOKEN_INVALID, context)
                 }
 
-                if (!isCallIdValid(tokenData.callId)) {
-                    throw new GQLError(ERRORS.INVALID_CALL_ID, context)
-                }
+                await checkLimitsByCall(context, id)
 
-                await checkLimitsByCall(context, { addressKey: tokenData.addressKey, app: { id: tokenData.b2cAppId }, callId: tokenData.callId })                
-                
-                const callStatus = await getCallStatus(tokenData)
+                const callStatus = await getCallStatusById(id)
                 if (!callStatus) {
-                    throw new GQLError(ERRORS.CALL_NOT_FOUND, context)
-                }
-
-                if (!isCallStatusTokenEqual({ callStatus, callStatusToken: tokenData.callStatusToken })) {
                     throw new GQLError(ERRORS.CALL_NOT_FOUND, context)
                 }
 

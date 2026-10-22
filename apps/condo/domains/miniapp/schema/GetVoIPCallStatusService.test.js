@@ -18,9 +18,11 @@ const {
     createTestB2CAppAccessRightSet,
     createTestAppMessageSetting,
     getVoIPCallStatusByTestClient,
+    makeStartCallRequest,
     sendVoIPCallCancelMessageByTestClient,
     prepareVoIPUser,
 } = require('@condo/domains/miniapp/utils/testSchema')
+const { GET_VOIP_CALL_STATUS_URL_PATH } = require('@condo/domains/miniapp/VoIPMiddleware')
 const {
     VOIP_INCOMING_CALL_MESSAGE_TYPE,
     CANCELED_CALL_MESSAGE_PUSH_TYPE,
@@ -31,6 +33,8 @@ const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/prop
 const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithServiceUser,
 } = require('@condo/domains/user/utils/testSchema')
+
+const { ERRORS } = require('./GetVoIPCallStatusService')
 
 const SERVER_URL = conf.SERVER_URL
 
@@ -47,7 +51,7 @@ describe('GetVoIPCallStatusService', () => {
         let organization
         let serviceUser
         let callId
-        let callStatusJwtToken
+        let callStatusToken
 
         beforeAll(async () => {
             const [testB2CApp] = await createTestB2CApp(admin)
@@ -75,7 +79,7 @@ describe('GetVoIPCallStatusService', () => {
                 },
             })
             const [msg] = await Message.getAll(admin, { type: VOIP_INCOMING_CALL_MESSAGE_TYPE, user: { id: user.id } }, { first: 1, sortBy: ['createdAt_DESC'] })
-            callStatusJwtToken = JSON.parse(new URL(msg.meta.data.getVoIPCallStatusUrl).searchParams.get('data')).token
+            callStatusToken = new URL(msg.meta.data.getVoIPCallStatusUrl).searchParams.get('data.token')
         })
 
         const TEST_CASES = [
@@ -87,7 +91,7 @@ describe('GetVoIPCallStatusService', () => {
 
         test.each(TEST_CASES)('$name', async ({ getClient }) => {
             const client = await getClient()
-            const [result] = await getVoIPCallStatusByTestClient(client, { token: callStatusJwtToken })
+            const [result] = await getVoIPCallStatusByTestClient(client, { token: callStatusToken })
             expect(result).toHaveProperty('status', CALL_STATUS_STARTED)
         })
     })
@@ -128,10 +132,10 @@ describe('GetVoIPCallStatusService', () => {
                 },
             })
             const [msg] = await Message.getAll(admin, { type: VOIP_INCOMING_CALL_MESSAGE_TYPE, user: { id: user.id } }, { sortBy: ['createdAt_DESC'], first: 1 })
-            const callStatusJwtToken = JSON.parse(new URL(msg.meta.data.getVoIPCallStatusUrl).searchParams.get('data')).token
+            const callStatusToken = new URL(msg.meta.data.getVoIPCallStatusUrl).searchParams.get('data.token')
 
             const [{ status }] = await getVoIPCallStatusByTestClient(await makeClient(), {
-                token: callStatusJwtToken,
+                token: callStatusToken,
             })
             expect(status).toEqual(CALL_STATUS_STARTED)
         })
@@ -152,7 +156,7 @@ describe('GetVoIPCallStatusService', () => {
                 },
             })
             const [msg] = await Message.getAll(admin, { type: VOIP_INCOMING_CALL_MESSAGE_TYPE, user: { id: user.id } }, { sortBy: ['createdAt_DESC'], first: 1 })
-            const callStatusJwtToken = JSON.parse(new URL(msg.meta.data.getVoIPCallStatusUrl).searchParams.get('data')).token
+            const callStatusToken = new URL(msg.meta.data.getVoIPCallStatusUrl).searchParams.get('data.token')
             await sendVoIPCallCancelMessageByTestClient(serviceUser, {
                 app: { id: b2cApp.id },
                 addressKey: property.addressKey,
@@ -165,7 +169,7 @@ describe('GetVoIPCallStatusService', () => {
             })
 
             const [{ status }] = await getVoIPCallStatusByTestClient(await makeClient(), {
-                token: callStatusJwtToken,
+                token: callStatusToken,
             })
             expect(status).toEqual(CALL_STATUS_ENDED)
         })
@@ -187,7 +191,7 @@ describe('GetVoIPCallStatusService', () => {
                 },
             })
             const [msg] = await Message.getAll(admin, { type: VOIP_INCOMING_CALL_MESSAGE_TYPE, user: { id: user.id } }, { sortBy: ['createdAt_DESC'], first: 1 })
-            const callStatusJwtToken = JSON.parse(new URL(msg.meta.data.getVoIPCallStatusUrl).searchParams.get('data')).token
+            const callStatusToken = new URL(msg.meta.data.getVoIPCallStatusUrl).searchParams.get('data.token')
 
             await sendVoIPCallCancelMessageByTestClient(serviceUser, {
                 app: { id: b2cApp.id },
@@ -201,7 +205,7 @@ describe('GetVoIPCallStatusService', () => {
             })
 
             const [{ status }] = await getVoIPCallStatusByTestClient(await makeClient(), {
-                token: callStatusJwtToken,
+                token: callStatusToken,
             })
             expect(status).toEqual(CALL_STATUS_ANSWERED)
         })
@@ -231,6 +235,123 @@ describe('GetVoIPCallStatusService', () => {
             const [accessRightSet] = await createTestB2CAppAccessRightSet(admin, b2cApp, { canExecuteSendVoIPCallStartMessage: true, canExecuteSendVoIPCallCancelMessage: true })
             await createTestB2CAppAccessRight(admin, serviceUser.user, b2cApp, { accessRightSet: { connect: { id: accessRightSet.id } } })
             await createTestAppMessageSetting(admin, { b2cApp, numberOfNotificationInWindow: 1000, type: VOIP_INCOMING_CALL_MESSAGE_TYPE })
+        })
+
+        describe('accepts JSON data', () => {
+            test.each([{}, { dv: 1, sender: { dv: 1, fingerprint: 'json-status' } }])('accepts JSON metadata %p', async metadata => {
+                const { resident } = await prepareVoIPUser({ admin, organization, property, unitName: faker.random.alphaNumeric(8) })
+                const { callStatusToken } = await makeStartCallRequest({
+                    admin,
+                    serviceUserClient: serviceUser,
+                    b2cAppId: b2cApp.id,
+                    resident,
+                })
+                const { serverUrl } = await makeClient()
+                const url = new URL(`${serverUrl}${GET_VOIP_CALL_STATUS_URL_PATH}`)
+                url.searchParams.set('data', JSON.stringify({
+                    ...metadata,
+                    token: callStatusToken,
+                }))
+
+                const response = await fetch(url)
+
+                expect(response.status).toBe(200)
+                expect(await response.json()).toEqual({ status: CALL_STATUS_STARTED })
+            })
+        })
+
+        describe('rejects malformed query', () => {
+            test.each([
+                '', 't=a', 't=a&t=b', 'data.token=a&data.token=b', 'data.token[x]=a',
+                'data.token=a&unexpected=b', 'data.token=a&data.__proto__.polluted=true',
+                'data.token=a&data.constructor.prototype.polluted=true',
+                'data=invalid', 'data=%7B%7D', 'data=null', 'data=[]', 'data=%22text%22',
+                'data=%7B%7D&data.token=a', 'data=%7B%7D&t=a', 'data=%7B%7D&data=%7B%7D',
+            ])('rejects malformed query %p', async query => {
+                const { serverUrl } = await makeClient()
+                const response = await fetch(`${serverUrl}${GET_VOIP_CALL_STATUS_URL_PATH}?${query}`)
+
+                expect(response.status).toBe(400)
+                expect(await response.json()).toEqual({
+                    errors: [expect.objectContaining({ extensions: expect.objectContaining({ type: 'INVALID_PARAMETERS' }) })],
+                })
+            })
+        })
+
+        describe('metadata headers', () => {
+            let callStatusToken
+            let serverUrl
+            const sender = { dv: 1, fingerprint: 'header-status' }
+            const remoteClient = '31935ae4-5a69-4c15-b91b-376dc72c1d49-app.client'
+            const headers = { 'X-Remote-Client': remoteClient }
+
+            beforeAll(async () => {
+                const { resident } = await prepareVoIPUser({ admin, organization, property, unitName: faker.random.alphaNumeric(8) })
+                const call = await makeStartCallRequest({ admin, serviceUserClient: serviceUser, b2cAppId: b2cApp.id, resident })
+                callStatusToken = call.callStatusToken
+                serverUrl = (await makeClient()).serverUrl
+            })
+
+            test.each([
+                { name: 'flat query with UUID-prefixed remote client', headers },
+                { name: 'flat query without remote client' },
+                { name: 'JSON query without metadata', data: {} },
+                { name: 'explicit JSON query metadata', data: { dv: 1, sender } },
+                { name: 'JSON query overrides remote client', headers, data: { dv: 1, sender } },
+                { name: 'JSON sender ignores invalid remote client', headers: { 'X-Remote-Client': 'bad client' }, data: { sender } },
+                { name: 'case-insensitive remote-client header', headers: { 'x-rEMOTE-cLIENT': remoteClient } },
+                { name: 'JSON dv with header-derived sender', headers, data: { dv: 1 } },
+                { name: 'obsolete metadata headers are ignored', headers: { ...headers, 'X-Dv': 'invalid', 'X-Sender': 'invalid' } },
+                { name: 'obsolete version header cannot override numeric default', headers: { ...headers, 'X-Dv': '2' } },
+                { name: 'ordinary remote client', headers: { 'X-Remote-Client': 'ordinary-client' } },
+                { name: 'long remote client is truncated', headers: { 'X-Remote-Client': 'a'.repeat(100) } },
+                { name: 'empty remote client uses default', headers: { 'X-Remote-Client': '' } },
+                { name: 'short remote client uses default', headers: { 'X-Remote-Client': 'abcd' } },
+                { name: 'invalid remote client uses default', headers: { 'X-Remote-Client': 'bad client' } },
+                { name: 'UUID prefix ignores invalid suffix characters', headers: { 'X-Remote-Client': `${remoteClient} invalid suffix` } },
+            ])('$name', async ({ headers: requestHeaders, data }) => {
+                const url = new URL(`${serverUrl}${GET_VOIP_CALL_STATUS_URL_PATH}`)
+                if (data === undefined) url.searchParams.set('data.token', callStatusToken)
+                else url.searchParams.set('data', JSON.stringify({ ...data, token: callStatusToken }))
+
+                const response = await fetch(url, { headers: requestHeaders, skipTracingHeaders: true })
+
+                expect(response.status).toBe(200)
+                expect(await response.json()).toEqual({ status: CALL_STATUS_STARTED })
+            })
+
+            test.each(['data.token', 't', 'unknown'])('rejects JSON query mixed with %s', async key => {
+                const url = new URL(`${serverUrl}${GET_VOIP_CALL_STATUS_URL_PATH}`)
+                url.searchParams.set('data', JSON.stringify({ token: callStatusToken }))
+                url.searchParams.set(key, callStatusToken)
+                const response = await fetch(url)
+
+                expect(response.status).toBe(400)
+                expect(await response.json()).toEqual({
+                    errors: [expect.objectContaining({ extensions: expect.objectContaining({ type: 'INVALID_PARAMETERS' }) })],
+                })
+            })
+
+            test.each([
+                { name: 'unsupported explicit dv', data: { dv: 2 }, type: ERRORS.DV_VERSION_MISMATCH.type },
+                { name: 'null explicit dv', data: { dv: null } },
+                { name: 'string explicit dv', data: { dv: '1' } },
+                { name: 'null explicit sender', data: { sender: null } },
+                { name: 'incomplete explicit sender', data: { sender: {} } },
+                { name: 'short explicit fingerprint', data: { sender: { dv: 1, fingerprint: 'a' } }, type: ERRORS.WRONG_SENDER_FORMAT.type },
+                { name: 'long explicit fingerprint', data: { sender: { dv: 1, fingerprint: 'a'.repeat(43) } }, type: ERRORS.WRONG_SENDER_FORMAT.type },
+                { name: 'invalid explicit fingerprint characters', data: { sender: { dv: 1, fingerprint: 'bad client' } }, type: ERRORS.WRONG_SENDER_FORMAT.type },
+                { name: 'invalid explicit sender version', data: { sender: { dv: 2, fingerprint: 'valid-id' } }, type: ERRORS.WRONG_SENDER_FORMAT.type },
+            ])('rejects $name without falling back', async ({ data, type = 'INVALID_PARAMETERS' }) => {
+                const url = new URL(`${serverUrl}${GET_VOIP_CALL_STATUS_URL_PATH}`)
+                url.searchParams.set('data', JSON.stringify({ ...data, token: callStatusToken }))
+                const response = await fetch(url, { headers, skipTracingHeaders: true })
+
+                expect(response.status).toBe(400)
+                expect(await response.json()).toEqual({
+                    errors: [expect.objectContaining({ extensions: expect.objectContaining({ type }) })],
+                })
+            })
         })
 
         test('Receives url and timeout in start and end pushes', async () => {

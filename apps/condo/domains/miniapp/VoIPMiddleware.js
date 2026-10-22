@@ -5,6 +5,7 @@ const { GQLError, GQLInternalErrorTypes: { SUB_GQL_ERROR }, GQLErrorCode: { BAD_
 const { expressErrorHandler } = require('@open-condo/keystone/utils/errors/expressErrorHandler')
 
 const { getVoIPCallStatus, sendDTMFToB2CApp } = require('@condo/domains/miniapp/utils/serverSchema') 
+const { getDv, getSender } = require('@condo/domains/miniapp/utils/voipRequestMetadata')
 
 const GET_VOIP_CALL_STATUS_URL_PATH = '/api/voip/getVoIPCallStatus'
 const SEND_DTMF_TO_B2C_APP_URL_PATH = '/api/voip/sendDTMFToB2CApp'
@@ -19,6 +20,9 @@ const HANDLERS_CONFIG = [
     {
         path: GET_VOIP_CALL_STATUS_URL_PATH,
         method: 'get',
+        queryToData: (req) => z.strictObject({ 'data.token': z.string() }).transform(({ 'data.token': token }) => ({
+            token,
+        })).parse(req.query),
         dataSchema: z.strictObject({
             token: z.string(),
             ...DV_SENDER_SCHEMA.shape,
@@ -28,6 +32,9 @@ const HANDLERS_CONFIG = [
     {
         path: SEND_DTMF_TO_B2C_APP_URL_PATH,
         method: 'post',
+        queryToData: (req) => z.strictObject({ 'data.token': z.string(), 'data.data.dtmfCode': z.string() }).transform(({ 'data.token': token, 'data.data.dtmfCode': dtmfCode }) => ({
+            token, data: { dtmfCode },
+        })).parse(req.query),
         dataSchema: z.strictObject({
             token: z.string(),
             data: z.strictObject({ dtmfCode: z.string() }),
@@ -58,23 +65,31 @@ function formatZodSafeParseError (error) {
 
 /**
  * @param {import('zod').ZodType} dataSchema 
+ * @param {(req: import('express').Request) => object | undefined} [queryToData]
  * @returns 
  */
-function withParsedData (dataSchema) {
+function withParsedData (dataSchema, queryToData) {
     return function (req, res, next) {
         let data
         const bodyIsEmpty = !req.body || typeof req.body !== 'object' || !Object.keys(req.body).length
-        if (req.method === 'GET' || bodyIsEmpty) {
-            try {
-                data = JSON.parse(req.query.data)
-            } catch (err) {
-                throw new GQLError({
-                    ...ERRORS.INVALID_PARAMETERS,
-                    messageInterpolation: { jsonError: JSON.stringify({ errors: [err.message] }) },
-                }, req.keystoneContext)
+        try {
+            if (req.method === 'GET' || bodyIsEmpty) {
+                data = Object.hasOwn(req.query, 'data')
+                    ? JSON.parse(z.strictObject({ data: z.string() }).parse(req.query).data)
+                    : queryToData?.(req)
+            } else {
+                data = req.body?.data
             }
-        } else {
-            data = req.body?.data
+            data = {
+                ...z.record(z.string(), z.unknown()).parse(data),
+                dv: getDv(data),
+                sender: getSender(req, data),
+            }
+        } catch (err) {
+            throw new GQLError({
+                ...ERRORS.INVALID_PARAMETERS,
+                messageInterpolation: { jsonError: JSON.stringify({ errors: err instanceof z.ZodError ? formatZodSafeParseError(err) : [err.message] }) },
+            }, req.keystoneContext)
         }
 
         const { success, data: parsedData, error } = dataSchema.safeParse(data)
@@ -129,7 +144,7 @@ class VoIPMiddleware {
             app[handler.method](
                 handler.path,
                 this.withKeystoneContext,
-                withParsedData(handler.dataSchema),
+                withParsedData(handler.dataSchema, handler.queryToData),
                 callService(handler.callServiceFn),
             )
         }
