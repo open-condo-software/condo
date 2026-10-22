@@ -82340,8 +82340,8 @@ export type Query = {
    *
    * `{
    *   "code": "BAD_USER_INPUT",
-   *   "type": "INVALID_CALL_ID",
-   *   "message": "\"callId\" contains invalid characters or does not have length between 1 and 300"
+   *   "type": "TOKEN_INVALID",
+   *   "message": "Call token has an invalid format or signature"
    * }`
    *
    * `{
