@@ -22,7 +22,7 @@ const APP_SCHEMA = z.object({
 }).catchall(z.unknown())
 const OIDC_SCHEMA = z.record(z.string(), z.unknown())
 const DEFAULT_OIDC_PAYLOAD = {
-    grant_types: ['authorization_code'],
+    grant_types: ['implicit', 'authorization_code', 'refresh_token'],
     response_types: CONDO_SUPPORTED_RESPONSE_TYPES,
     token_endpoint_auth_method: 'client_secret_basic',
     // NOTE: to allow OIDC working on localhost without https

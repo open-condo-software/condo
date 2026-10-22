@@ -21,3 +21,5 @@ export function validateNpmName (name: string): ValidateNpmNameResult {
         ],
     }
 }
+
+export { getNameDetails } from './packageNames'
