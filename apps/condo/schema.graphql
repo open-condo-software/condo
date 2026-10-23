@@ -482,6 +482,7 @@ type File {
   filename: String
   originalFilename: String
   mimetype: String
+  size: String
   encoding: String
   publicUrl: String
   meta: JSON
@@ -95240,6 +95241,7 @@ type FileRecordUserMeta {
 
 type FileRecordMeta {
   id: ID!
+  size: String
   fileAdapter: String!
   recordId: ID
   path: String
