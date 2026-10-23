@@ -487,21 +487,61 @@ describe('BillingRecipient', () => {
     })
 
     describe('Constraints', () => {
-        test('can\'t create same BillingRecipient', async () => {
-            const admin = await makeLoggedInAdminClient()
 
-            const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+        describe('unique constraints by requisites', () => {
 
-            const [obj] = await createTestBillingRecipient(admin, context)
+            const importIdA = faker.datatype.uuid()
+            const duplicateCases = [
+                {
+                    title: 'importId_A + importId_B = duplicate bank details allowed',
+                    importIds: [faker.datatype.uuid(), faker.datatype.uuid()],
+                    canCreateDuplicate: true,
+                },
+                {
+                    title: 'importId=null + importId_C = duplicate bank details allowed',
+                    importIds: [null, faker.datatype.uuid()],
+                    canCreateDuplicate: true,
+                },
+                {
+                    title: 'importId=null + importId=null = duplicate bank details not allowed',
+                    importIds: [null, null],
+                    canCreateDuplicate: false,
+                },
+                {
+                    title: 'importId_D + importId_D = duplicate bank details not allowed',
+                    importIds: [importIdA, importIdA],
+                    canCreateDuplicate: false,
+                },
+            ]
 
-            await expectToThrowUniqueConstraintViolationError(async () => {
-                await createTestBillingRecipient(admin, context, {
-                    tin: obj.tin,
-                    iec: obj.iec,
-                    bic: obj.bic,
-                    bankAccount: obj.bankAccount,
+            test.each(duplicateCases)('$title', async ({ importIds, canCreateDuplicate }) => {
+                const [firstImportId, secondImportId] = importIds
+                const constraintName = importIds.filter(Boolean).length === 1
+                    ? null 
+                    : importIds.filter(Boolean).length === 2 
+                        ? 'billingRecipient_unique_context_tin_iec_bic_bankAccount_notnull'
+                        : 'billingRecipient_unique_context_tin_iec_bic_bankAccount_null'
+                if (!canCreateDuplicate && !constraintName) {
+                    throw new Error('Can not determine constraint, check test arguments')
+                }
+                const admin = await makeLoggedInAdminClient()
+                const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+                const [firstRecipient] = await createTestBillingRecipient(admin, context, { importId: firstImportId })
+                const createDuplicate = () => createTestBillingRecipient(admin, context, {
+                    importId: secondImportId,
+                    tin: firstRecipient.tin,
+                    iec: firstRecipient.iec,
+                    bic: firstRecipient.bic,
+                    bankAccount: firstRecipient.bankAccount,
                 })
-            }, 'billingRecipient_unique_context_tin_iec_bic_bankAccount')
+
+                if (canCreateDuplicate) {
+                    const [secondRecipient] = await createDuplicate()
+                    expect(secondRecipient.id).not.toEqual(firstRecipient.id)
+                } else {
+                    await expectToThrowUniqueConstraintViolationError(createDuplicate, constraintName)
+                }
+            })
         })
 
         test('can create - delete - create new BillingRecipient', async () => {
@@ -514,6 +554,7 @@ describe('BillingRecipient', () => {
             const [updatedObj] = await updateTestBillingRecipient(admin, obj.id, { deletedAt: 'True' })
 
             const [objNew] = await createTestBillingRecipient(admin, context, {
+                importId: obj.importId,
                 tin: obj.tin,
                 iec: obj.iec,
                 bic: obj.bic,
