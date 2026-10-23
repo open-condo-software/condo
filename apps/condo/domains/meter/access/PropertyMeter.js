@@ -9,15 +9,26 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { find } = require('@open-condo/keystone/schema')
 
 const {
+    canReadObjectsAsB2BAppServiceUser,
+    canManageObjectsAsB2BAppServiceUser,
+} = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
+const {
     checkPermissionsInEmployedOrRelatedOrganizations,
     getEmployedOrRelatedOrganizationsByPermissions,
 } = require('@condo/domains/organization/utils/accessSchema')
+const { SERVICE } = require('@condo/domains/user/constants/common')
 
-async function canReadPropertyMeters ({ authentication: { item: user }, context }) {
+async function canReadPropertyMeters (args) {
+    const { authentication: { item: user }, context } = args
+
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isSupport || user.isAdmin) return {}
+
+    if (user.type === SERVICE) {
+        return await canReadObjectsAsB2BAppServiceUser(args)
+    }
 
     const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadMeters')
 
@@ -28,10 +39,16 @@ async function canReadPropertyMeters ({ authentication: { item: user }, context 
     }
 }
 
-async function canManagePropertyMeters ({ authentication: { item: user }, originalInput, operation, itemId, itemIds, context }) {
+async function canManagePropertyMeters (args) {
+    const { authentication: { item: user }, originalInput, operation, itemId, itemIds, context } = args
+
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isSupport || user.isAdmin) return true
+
+    if (user.type === SERVICE) {
+        return await canManageObjectsAsB2BAppServiceUser(args)
+    }
 
     const isBulkRequest = Array.isArray(originalInput)
     let organizationIds

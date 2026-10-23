@@ -80478,6 +80478,10 @@ type B2BAppAccessRightSetHistoryRecord {
   canManageMeterReadings: Boolean
   canReadMeterReportingPeriods: Boolean
   canManageMeterReportingPeriods: Boolean
+  canReadPropertyMeters: Boolean
+  canManagePropertyMeters: Boolean
+  canReadPropertyMeterReadings: Boolean
+  canManagePropertyMeterReadings: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
   canReadOrganizationEmployees: Boolean
@@ -80624,6 +80628,14 @@ input B2BAppAccessRightSetHistoryRecordWhereInput {
   canReadMeterReportingPeriods_not: Boolean
   canManageMeterReportingPeriods: Boolean
   canManageMeterReportingPeriods_not: Boolean
+  canReadPropertyMeters: Boolean
+  canReadPropertyMeters_not: Boolean
+  canManagePropertyMeters: Boolean
+  canManagePropertyMeters_not: Boolean
+  canReadPropertyMeterReadings: Boolean
+  canReadPropertyMeterReadings_not: Boolean
+  canManagePropertyMeterReadings: Boolean
+  canManagePropertyMeterReadings_not: Boolean
   canReadOrganizations: Boolean
   canReadOrganizations_not: Boolean
   canManageOrganizations: Boolean
@@ -80871,6 +80883,14 @@ enum SortB2BAppAccessRightSetHistoryRecordsBy {
   canReadMeterReportingPeriods_DESC
   canManageMeterReportingPeriods_ASC
   canManageMeterReportingPeriods_DESC
+  canReadPropertyMeters_ASC
+  canReadPropertyMeters_DESC
+  canManagePropertyMeters_ASC
+  canManagePropertyMeters_DESC
+  canReadPropertyMeterReadings_ASC
+  canReadPropertyMeterReadings_DESC
+  canManagePropertyMeterReadings_ASC
+  canManagePropertyMeterReadings_DESC
   canReadOrganizations_ASC
   canReadOrganizations_DESC
   canManageOrganizations_ASC
@@ -80997,6 +81017,10 @@ input B2BAppAccessRightSetHistoryRecordUpdateInput {
   canManageMeterReadings: Boolean
   canReadMeterReportingPeriods: Boolean
   canManageMeterReportingPeriods: Boolean
+  canReadPropertyMeters: Boolean
+  canManagePropertyMeters: Boolean
+  canReadPropertyMeterReadings: Boolean
+  canManagePropertyMeterReadings: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
   canReadOrganizationEmployees: Boolean
@@ -81084,6 +81108,10 @@ input B2BAppAccessRightSetHistoryRecordCreateInput {
   canManageMeterReadings: Boolean
   canReadMeterReportingPeriods: Boolean
   canManageMeterReportingPeriods: Boolean
+  canReadPropertyMeters: Boolean
+  canManagePropertyMeters: Boolean
+  canReadPropertyMeterReadings: Boolean
+  canManagePropertyMeterReadings: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
   canReadOrganizationEmployees: Boolean
@@ -81212,6 +81240,10 @@ type B2BAppAccessRightSet {
   canManageMeterReadings: Boolean
   canReadMeterReportingPeriods: Boolean
   canManageMeterReportingPeriods: Boolean
+  canReadPropertyMeters: Boolean
+  canManagePropertyMeters: Boolean
+  canReadPropertyMeterReadings: Boolean
+  canManagePropertyMeterReadings: Boolean
   canReadOrganizations: Boolean
 
   """ Currently, this field is read-only. You cannot get manage access for the specified schema. 
@@ -81369,6 +81401,14 @@ input B2BAppAccessRightSetWhereInput {
   canReadMeterReportingPeriods_not: Boolean
   canManageMeterReportingPeriods: Boolean
   canManageMeterReportingPeriods_not: Boolean
+  canReadPropertyMeters: Boolean
+  canReadPropertyMeters_not: Boolean
+  canManagePropertyMeters: Boolean
+  canManagePropertyMeters_not: Boolean
+  canReadPropertyMeterReadings: Boolean
+  canReadPropertyMeterReadings_not: Boolean
+  canManagePropertyMeterReadings: Boolean
+  canManagePropertyMeterReadings_not: Boolean
   canReadOrganizations: Boolean
   canReadOrganizations_not: Boolean
   canManageOrganizations: Boolean
@@ -81598,6 +81638,14 @@ enum SortB2BAppAccessRightSetsBy {
   canReadMeterReportingPeriods_DESC
   canManageMeterReportingPeriods_ASC
   canManageMeterReportingPeriods_DESC
+  canReadPropertyMeters_ASC
+  canReadPropertyMeters_DESC
+  canManagePropertyMeters_ASC
+  canManagePropertyMeters_DESC
+  canReadPropertyMeterReadings_ASC
+  canReadPropertyMeterReadings_DESC
+  canManagePropertyMeterReadings_ASC
+  canManagePropertyMeterReadings_DESC
   canReadOrganizations_ASC
   canReadOrganizations_DESC
   canManageOrganizations_ASC
@@ -81724,6 +81772,10 @@ input B2BAppAccessRightSetUpdateInput {
   canManageMeterReadings: Boolean
   canReadMeterReportingPeriods: Boolean
   canManageMeterReportingPeriods: Boolean
+  canReadPropertyMeters: Boolean
+  canManagePropertyMeters: Boolean
+  canReadPropertyMeterReadings: Boolean
+  canManagePropertyMeterReadings: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
   canReadOrganizationEmployees: Boolean
@@ -81808,6 +81860,10 @@ input B2BAppAccessRightSetCreateInput {
   canManageMeterReadings: Boolean
   canReadMeterReportingPeriods: Boolean
   canManageMeterReportingPeriods: Boolean
+  canReadPropertyMeters: Boolean
+  canManagePropertyMeters: Boolean
+  canReadPropertyMeterReadings: Boolean
+  canManagePropertyMeterReadings: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
   canReadOrganizationEmployees: Boolean

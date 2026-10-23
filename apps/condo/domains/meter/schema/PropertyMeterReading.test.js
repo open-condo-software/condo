@@ -15,10 +15,11 @@ const { i18n } = require('@open-condo/locales/loader')
 const { COLD_WATER_METER_RESOURCE_ID, CALL_METER_READING_SOURCE_ID } = require('@condo/domains/meter/constants/constants')
 const { PropertyMeterReading, createTestPropertyMeterReading, updateTestPropertyMeterReading, createTestPropertyMeter } = require('@condo/domains/meter/utils/testSchema')
 const { MeterResource, MeterReadingSource } = require('@condo/domains/meter/utils/testSchema')
+const { createTestB2BApp, createTestB2BAppContext, createTestB2BAppAccessRightSet, createTestB2BAppAccessRight } = require('@condo/domains/miniapp/utils/testSchema')
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('PropertyMeterReading', () => {
     let admin, resource, source
@@ -29,6 +30,49 @@ describe('PropertyMeterReading', () => {
     })
     describe('CRUD tests', () => {
         describe('create', () => {
+            test('service user with "canManagePropertyMeterReadings" access right can create and update', async () => {
+                const serviceClient = await makeClientWithServiceUser()
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization, { map: buildingMapJson })
+                const [meter] = await createTestPropertyMeter(admin, organization, property, resource, {})
+                const [app] = await createTestB2BApp(admin)
+                await createTestB2BAppContext(admin, app, organization, { status: 'Finished' })
+                const [accessRightSet] = await createTestB2BAppAccessRightSet(admin, app, {
+                    canManagePropertyMeterReadings: true,
+                    canReadOrganizations: true,
+                    canReadProperties: true,
+                    canReadPropertyMeters: true,
+                    canReadPropertyMeterReadings: true,
+                })
+                await createTestB2BAppAccessRight(admin, serviceClient.user, app, accessRightSet)
+
+                const [reading] = await createTestPropertyMeterReading(serviceClient, meter, source)
+                expect(reading.id).toMatch(UUID_RE)
+
+                const [updatedReading, attrs] = await updateTestPropertyMeterReading(serviceClient, reading.id, {
+                    value1: '123.0000',
+                })
+                expect(updatedReading.value1).toBe(attrs.value1)
+            })
+
+            test('service user without "canManagePropertyMeterReadings" access right cannot create or update', async () => {
+                const serviceClient = await makeClientWithServiceUser()
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization, { map: buildingMapJson })
+                const [meter] = await createTestPropertyMeter(admin, organization, property, resource, {})
+                const [app] = await createTestB2BApp(admin)
+                await createTestB2BAppContext(admin, app, organization, { status: 'Finished' })
+                const [reading] = await createTestPropertyMeterReading(admin, meter, source)
+                await createTestB2BAppAccessRight(admin, serviceClient.user, app)
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestPropertyMeterReading(serviceClient, meter, source)
+                })
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestPropertyMeterReading(serviceClient, reading.id, { value1: '123' })
+                })
+            })
+
             test('admin can', async () => {
                 const [organization] = await createTestOrganization(admin)
                 const [property] = await createTestProperty(admin, organization, { map: buildingMapJson })

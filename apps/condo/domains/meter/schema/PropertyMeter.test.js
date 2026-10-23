@@ -14,11 +14,13 @@ const {
 const { COLD_WATER_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')
 const { PropertyMeter, createTestPropertyMeter, updateTestPropertyMeter, updateTestPropertyMeters, createTestPropertyMeters } = require('@condo/domains/meter/utils/testSchema')
 const { MeterResource } = require('@condo/domains/meter/utils/testSchema')
+const { createTestB2BApp, createTestB2BAppContext, createTestB2BAppAccessRightSet, createTestB2BAppAccessRight } = require('@condo/domains/miniapp/utils/testSchema')
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
+    makeClientWithServiceUser,
     makeClientWithSupportUser,
 } = require('@condo/domains/user/utils/testSchema')
 
@@ -55,6 +57,46 @@ describe('PropertyMeter', () => {
     })
     describe('CRUD tests', () => {
         describe('create', () => {
+            test('service user with "canManagePropertyMeters" access right can create and update', async () => {
+                const serviceClient = await makeClientWithServiceUser()
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization, { map: buildingMapJson })
+                const [app] = await createTestB2BApp(admin)
+                await createTestB2BAppContext(admin, app, organization, { status: 'Finished' })
+                const [accessRightSet] = await createTestB2BAppAccessRightSet(admin, app, {
+                    canManagePropertyMeters: true,
+                    canReadOrganizations: true,
+                    canReadProperties: true,
+                    canReadPropertyMeters: true,
+                })
+                await createTestB2BAppAccessRight(admin, serviceClient.user, app, accessRightSet)
+
+                const [meter] = await createTestPropertyMeter(serviceClient, organization, property, resource, {})
+                expect(meter.id).toMatch(UUID_RE)
+
+                const [updatedMeter, attrs] = await updateTestPropertyMeter(serviceClient, meter.id, {
+                    number: 'updated-number',
+                })
+                expect(updatedMeter.number).toBe(attrs.number)
+            })
+
+            test('service user without "canManagePropertyMeters" access right cannot create or update', async () => {
+                const serviceClient = await makeClientWithServiceUser()
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization, { map: buildingMapJson })
+                const [app] = await createTestB2BApp(admin)
+                await createTestB2BAppContext(admin, app, organization, { status: 'Finished' })
+                const [meter] = await createTestPropertyMeter(admin, organization, property, resource, {})
+                await createTestB2BAppAccessRight(admin, serviceClient.user, app)
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestPropertyMeter(serviceClient, organization, property, resource, {})
+                })
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestPropertyMeter(serviceClient, meter.id, { number: 'updated-number' })
+                })
+            })
+
             test('employee with "canManageMeters" role: can create Meter', async () => {
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
 
