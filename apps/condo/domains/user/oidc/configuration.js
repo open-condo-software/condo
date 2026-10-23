@@ -168,7 +168,8 @@ module.exports = function createConfiguration (context, conf) {
                 const grantType = get(token, 'gty', '')
                 const tokenEndpointAuthMethod = get(client, 'tokenEndpointAuthMethod', '')
 
-                if (grantType === 'authorization_code' && tokenEndpointAuthMethod === 'client_secret_basic') {
+                // NOTE: grantType is a space-separated list of grant types
+                if (grantType.includes('authorization_code') && tokenEndpointAuthMethod === 'client_secret_basic') {
                     return 1 * 60 * 60 * 24 * 365 // 1 year in seconds
                 }
 
