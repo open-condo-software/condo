@@ -54,11 +54,10 @@ export default function handler (req: NextApiRequest, res: NextApiResponse): Pro
         const targetUrl = new URL(getPosthogEndpoint(posthogApiHost, requestedPath))
         targetUrl.search = requestedUrl.search
 
+        res.on('close', () => resolve())
+
         proxy.web(req, res, { target: targetUrl.toString(), changeOrigin: true }, (err) => {
-            if (err) {
-                return reject(err)
-            }
-            return resolve()
+            reject(err)
         })
     })
 }
