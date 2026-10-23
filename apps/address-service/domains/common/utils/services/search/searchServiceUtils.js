@@ -77,7 +77,7 @@ async function createOrUpdateAddressWithSource (context, addressServerUtils, add
         }
     }
 
-    // Fallback: key-based lookup (backward compat with pre-migration data)
+    // Fallback: key-based lookup (backward compat with pre-migration data).
     if (!addressItem) {
         addressItem = await addressServerUtils.getOne(context, { key, deletedAt: null }, ADDRESS_ITEM_FIELDS)
     }
