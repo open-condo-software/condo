@@ -7,7 +7,13 @@ const conf = require('@open-condo/config')
 const { fetch } = require('@open-condo/keystone/fetch')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
-const { parseAndValidateFileMetaSignature, validateFileUploadSignature, processFileUpload, processFileAttach } = require('./utils')
+const {
+    createHttpResponseError,
+    parseAndValidateFileMetaSignature,
+    validateFileUploadSignature,
+    processFileUpload,
+    processFileAttach,
+} = require('./utils')
 
 
 function getClientSecret (fileClientId) {
@@ -167,11 +173,11 @@ async function uploadFilesFromServer ({
         body: form,
     })
 
-    const json = await res.json()
     if (!res.ok) {
-        throw new Error(`uploadFilesFromServer failed: ${res.status} ${JSON.stringify(json)}`)
+        throw await createHttpResponseError('uploadFilesFromServer', res)
     }
 
+    const json = await res.json()
     return json.data.files
 }
 
@@ -310,6 +316,4 @@ module.exports = {
     attachFileFromServer,
     shareFileFromServer,
 }
-
-
 

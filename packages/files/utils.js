@@ -54,6 +54,24 @@ function validateAndParseFileConfig (config) {
     return data
 }
 
+function getResponseHeader (response, name) {
+    return response.headers?.get?.(name) || null
+}
+
+async function createHttpResponseError (operation, response) {
+    const contentType = getResponseHeader(response, 'content-type')
+    const error = new Error(`${operation} failed: ${response.status}${contentType ? ` (${contentType})` : ''}`)
+    error.name = 'FileServerHttpError'
+    error.status = response.status
+    error.statusCode = response.status
+    error.response = {
+        contentType,
+        requestId: getResponseHeader(response, 'x-request-id'),
+        retryAfter: getResponseHeader(response, 'retry-after'),
+    }
+    return error
+}
+
 // ---------------------- utilities ----------------------
 const FINGERPRINT_RE = /^[a-zA-Z0-9!#$%()*+-;=,:[\]/.?@^_`~]{5,42}$/
 
@@ -682,6 +700,7 @@ module.exports = {
     validateAndParseFileConfig,
 
     // helpers
+    createHttpResponseError,
     parseAndValidateMeta,
     parseAndValidateFileMetaSignature,
     validateFileUploadSignature,
