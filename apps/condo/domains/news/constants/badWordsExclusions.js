@@ -7,6 +7,7 @@ const BAD_WORDS_EXCLUSIONS = [
     'чебоксар*',
     'учеб*',
     'крендель',
+    'assets',
 ]
 
 const BAD_WORDS_EXCLUSIONS_CONFIG = {
