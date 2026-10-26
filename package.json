@@ -136,6 +136,8 @@
     "undici": "7.28.0",
     "posthog-js/dompurify": "3.4.11",
     "proxy-addr@^2.0.7": "2.0.8",
-    "proxy-addr@~2.0.7": "2.0.8"
+    "proxy-addr@~2.0.7": "2.0.8",
+    "shell-quote@^1.7.3": "1.12.0",
+    "shell-quote@^1.8.1": "1.12.0"
   }
 }
