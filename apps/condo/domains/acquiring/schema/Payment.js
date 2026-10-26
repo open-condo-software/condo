@@ -50,6 +50,7 @@ const {
     POSITIVE_MONEY_AMOUNT_FIELD,
     NON_NEGATIVE_MONEY_FIELD,
     IMPORT_ID_FIELD,
+    UNIT_TYPE_FIELD,
 } = require('@condo/domains/common/schema/fields')
 const { getCurrencyDecimalPlaces } = require('@condo/domains/common/utils/currencies')
 const { INVOICE_STATUS_PUBLISHED, INVOICE_STATUS_PAID } = require('@condo/domains/marketplace/constants')
@@ -298,6 +299,27 @@ const Payment = new GQLListSchema('Payment', {
 
         rawAddress: {
             schemaDoc: 'Non-normalized address that was imported from the organization',
+            type: 'Text',
+            isRequired: false,
+        },
+
+        addressKey: {
+            schemaDoc: 'Address key that identifies which resident made the payment. Used for anonymous invoice payments via mobile app',
+            type: 'Text',
+            isRequired: false,
+        },
+
+        unitType: {
+            ...UNIT_TYPE_FIELD,
+            schemaDoc: 'Type of unit, such as parking lot or flat. Used together with unitName to identify which resident made the payment',
+            // Allow to set unitType to null
+            knexOptions: { isNotNullable: false },
+            kmigratorOptions: { null: true },
+            defaultValue: null,
+        },
+
+        unitName: {
+            schemaDoc: 'Property unit name. Used together with unitType to identify which resident made the payment for anonymous invoice payments via mobile app',
             type: 'Text',
             isRequired: false,
         },

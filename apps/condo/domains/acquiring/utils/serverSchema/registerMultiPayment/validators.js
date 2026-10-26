@@ -168,6 +168,24 @@ function validateNoRecurrentPaymentContextForInvoiceMode (recurrentPaymentContex
     }
 }
 
+function validateInvoiceAddressFields (invoices, context) {
+    for (const invoice of invoices) {
+        const hasAddressKey = !!invoice.addressKey
+        const hasUnitType = !!invoice.unitType
+        const hasUnitName = !!invoice.unitName
+
+        // unitType and unitName must be passed together (both present or both absent)
+        if (hasUnitType !== hasUnitName) {
+            throw new GQLError(ERRORS.INVOICE_ADDRESS_FIELDS_MISMATCH, context)
+        }
+
+        // unitType and unitName are only allowed when addressKey is present
+        if (hasAddressKey === false && (hasUnitType || hasUnitName)) {
+            throw new GQLError(ERRORS.INVOICE_ADDRESS_FIELDS_MISMATCH, context)
+        }
+    }
+}
+
 function validateAllPaymentAmountsPositive (paymentCreateInputs, context) {
     const negativePayments = paymentCreateInputs.filter(payment => Big(payment.amount).lte(0))
     if (negativePayments.length > 0) {
@@ -224,6 +242,7 @@ module.exports = {
     validateNoDuplicateReceipts,
     validateNoDuplicateServiceConsumers,
     validateNoRecurrentPaymentContextForInvoiceMode,
+    validateInvoiceAddressFields,
     validateReceiptBelongsToServiceConsumer,
     validateReceiptsHavePositiveToPay,
     validateSingleAcquiringIntegration,
