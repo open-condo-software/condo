@@ -6,7 +6,7 @@ on:
       - main
 
   # NOTE: change pull_request_target to pull_request if you want to change the CI in your branch
-  pull_request_target:
+  pull_request:
     types:
       - opened
       - reopened
@@ -98,6 +98,12 @@ jobs:
           registry: ${{ secrets.DOCKER_REGISTRY }}
           username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
           password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
+      - name: Login to self-hosted registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}
+          username: ${{ secrets.SELF_HOSTED_CR_USERNAME }}
+          password: ${{ secrets.SELF_HOSTED_CR_PASSWORD }}
       - name: Checkout code
         uses: actions/checkout@v4
         with:
@@ -126,9 +132,11 @@ jobs:
           context: .
           file: Dockerfile
           push: true
-          tags: ${{ env.DOCKER_IMAGE_FULL }}
+          tags: |
+            ${{ env.DOCKER_IMAGE_FULL }}
+            ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE }}
           build-args: |
-            REGISTRY=${{ secrets.DOCKER_REGISTRY }}/doma/utils
+            REGISTRY=${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}/doma/utils
             TURBO_TEAM=condo-ci
             TURBO_REMOTE_ONLY=true
             TURBO_TOKEN=${{ secrets.TURBO_TOKEN }}
