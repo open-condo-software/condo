@@ -46,7 +46,7 @@ jobs:
     needs: authorize
     runs-on: build-runners
     outputs:
-      DOCKER_IMAGE: ${{ env.DOCKER_IMAGE }}
+      image_tag: ${{ github.event.pull_request.head.sha || github.sha }}
     steps:
       - name: Prepare runner
         run: |
@@ -492,7 +492,7 @@ jobs:
       shard_index: ${{ matrix.shard_index }}
       shard_total: ${{ fromJSON(needs.generate-condo-test-shards.outputs.total) }}
       runs-on: test-runners
-      image_name: ${{ needs.build-image.outputs.DOCKER_IMAGE }}
+      image_tag: ${{ needs.build-image.outputs.image_tag }}
     secrets: inherit
 
   run-dev-portal-api-tests:
