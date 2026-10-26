@@ -485,6 +485,7 @@ jobs:
     strategy:
       # TODO: remove this back
       fail-fast: false
+      max-parallel: 5
       matrix:
         shard_index: ${{ fromJSON(needs.generate-condo-test-shards.outputs.ids) }}
     uses: ./.github/workflows/_nodejs.condo.core.tests.yml
