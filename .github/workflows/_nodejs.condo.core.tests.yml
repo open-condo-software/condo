@@ -83,6 +83,7 @@ jobs:
       - name: run dbs
         env:
           REGISTRY: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}/doma/utils/
+          COMPOSE_PARALLEL_LIMIT: 1
         run: |
           docker-compose --profile dbs up -d
           docker-compose up -d --wait nats
