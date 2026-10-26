@@ -90,6 +90,7 @@ export const AddressSuggestionsSearchInput: React.FC<AddressSearchInputProps> = 
                         text: suggestion.value,
                         value: suggestion.rawValue,
                         isHouse: suggestion.type === 'building' || validHouseTypes.includes(suggestion.data.house_type_full),
+                        isStead: suggestion.type === 'stead',
                     }
                 })
             } catch (e) {
