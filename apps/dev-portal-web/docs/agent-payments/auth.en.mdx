@@ -23,6 +23,12 @@ cURL can build the header for you with `--user`. Configure these environment var
 | `AGENT_USERNAME` | Agent username issued during onboarding |
 | `AGENT_PASSWORD` | Agent password issued during onboarding |
 
+> **Warning:** Do not type a literal password into a shell command, including a variable assignment: it can be
+> saved in shell history. Populate `AGENT_PASSWORD` through a hidden prompt or your secret manager instead.
+> For manual requests, you can omit `:${AGENT_PASSWORD}` from `--user` and let cURL prompt for the password.
+> Using a variable keeps the literal password out of command history, but does not protect it from process-argument
+> inspection or shell tracing. Do not enable tracing when using credentials.
+
 The examples throughout this section use these variables. Replace example payment and merchant values with
 those agreed during onboarding. Keep credentials in your server's secret configuration, not in source control,
 browser code, URLs, or logs. Never send your password or `Authorization` header to support.
