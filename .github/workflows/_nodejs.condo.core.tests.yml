@@ -28,7 +28,7 @@ jobs:
         run: |
           sudo apt update && sudo apt install -y git
 
-      - name: Wait for dind to be ready1
+      - name: Wait for dind to be ready
         run: |
           set -euo pipefail
           cert_dir=/certs/client
@@ -62,30 +62,6 @@ jobs:
             sleep 1
           done
 
-      - name: Wait until the registry accepts a connection
-        env:
-          REGISTRY: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}
-        run: |
-          set -euo pipefail
-          url="https://${REGISTRY}/v2/"
-          ok=0
-          for attempt in $(seq 1 40); do
-            code="$(curl -sS -o /dev/null -w "%{http_code}" --connect-timeout 5 --max-time 15 "$url" || true)"
-            echo "attempt ${attempt}: HTTP ${code:-000}"
-            if [[ "$code" == "401" || "$code" == "200" ]]; then
-              ok=$((ok + 1))
-              if (( ok >= 2 )); then
-                echo "Registry connection succeeded"
-                exit 0
-              fi
-            else
-              ok=0
-            fi
-            sleep 10
-          done
-          echo "Registry did not accept a connection" >&2
-          exit 1
-
       - name: Login to registry
         uses: docker/login-action@v3
         with:
@@ -103,27 +79,6 @@ jobs:
       - name: prepare env for dbs
         run: |
           cp .env.example .env
-
-      - name: upload dbs images
-        env:
-          REGISTRY: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}/doma/utils/
-        run: |
-          images=(
-            "${REGISTRY}postgres:16.8"
-            "${REGISTRY}redis:6.2"
-            "${REGISTRY}nats:2.12-alpine"
-            "${REGISTRY}alpine:latest"
-            "${REGISTRY}valkey/valkey:8.0.2"
-            ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}/condo/condo-image:${{ inputs.image_tag }}
-          )
-          for image in "${images[@]}"; do
-            for attempt in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20; do
-              docker pull "$image" && break
-              echo "pull failed: $image (attempt ${attempt})"
-              [[ "$attempt" -eq 6 ]] && exit 1
-              sleep $((attempt * 5))
-            done
-          done  
 
       - name: run dbs
         env:

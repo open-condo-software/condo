@@ -92,7 +92,7 @@ jobs:
             sleep 1
           done
 
-      - name: Login to self-hosted registry1123
+      - name: Login to self-hosted registry
         uses: docker/login-action@v3
         with:
           registry: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}
