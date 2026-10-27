@@ -104,7 +104,7 @@ jobs:
         run: |
           cp .env.example .env
 
-      - name: run dbs
+      - name: upload dbs images
         env:
           REGISTRY: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}/doma/utils/
         run: |
@@ -114,6 +114,7 @@ jobs:
             "${REGISTRY}nats:2.12-alpine"
             "${REGISTRY}alpine:latest"
             "${REGISTRY}valkey/valkey:8.0.2"
+            ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}/condo/condo-image:${{ inputs.image_tag }}
           )
           for image in "${images[@]}"; do
             for attempt in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20; do
