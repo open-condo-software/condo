@@ -7,7 +7,7 @@ on:
       shard_total:
         required: true
         type: number
-      image_name:
+      image_tag:
         required: true
         type: string
       runs-on:
@@ -65,9 +65,9 @@ jobs:
       - name: Login to registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ secrets.DOCKER_REGISTRY }}
-          username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
-          password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
+          registry: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}
+          username: ${{ secrets.SELF_HOSTED_CR_USERNAME }}
+          password: ${{ secrets.SELF_HOSTED_CR_PASSWORD }}
 
       - name: checkout code
         uses: actions/checkout@v4
@@ -82,7 +82,7 @@ jobs:
 
       - name: run dbs
         env:
-          REGISTRY: ${{ secrets.DOCKER_REGISTRY }}/doma/utils/
+          REGISTRY: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}/doma/utils/
         run: |
           docker-compose --profile dbs up -d
           docker-compose up -d --wait nats
@@ -97,7 +97,7 @@ jobs:
           -e PROMETHEUS_PASSWORD=$PROMETHEUS_PASSWORD \
           -e GH_REF_NAME=$GH_REF_NAME \
           -v ./test_logs:/app/test_logs --network="host" \
-          ${{ secrets.DOCKER_REGISTRY }}/${{ inputs.image_name }} \
+          ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}/condo/condo-image:${{ inputs.image_tag }} \
           bash -c "./bin/run_condo_domain_tests.sh -s ${{ inputs.shard_index }} -t ${{ inputs.shard_total }}"
         env:
           PROMETHEUS_RW_SERVER_URL: ${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }}
