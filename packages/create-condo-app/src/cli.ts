@@ -171,12 +171,13 @@ async function run () {
     const availableTemplates = getAvailableTemplates()
 
     if (availableTemplates.length > 1) {
+        const initialIndex = availableTemplates.findIndex(t => t.id === preferences.template)
         const { selectedTemplate } = await prompts({
             onState: onPromptState,
             type: 'select',
             name: 'selectedTemplate',
             message: 'Which template would you like to use?',
-            initial: preferences.template,
+            initial: initialIndex >= 0 ? initialIndex : 0,
             choices: availableTemplates.map(t => ({
                 title: t.name,
                 value: t.id,
