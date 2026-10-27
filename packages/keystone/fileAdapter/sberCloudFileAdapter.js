@@ -188,7 +188,7 @@ class SberCloudFileAdapter {
         return null
     }
 
-    _uploadStream ({ stream, fileData, key, mimetype, meta }) {
+    _uploadStream ({ stream, fileData, key, mimetype, meta, contentLength }) {
         return new Promise((resolve, reject) => {
             let finished = false
 
@@ -219,14 +219,20 @@ class SberCloudFileAdapter {
             })
 
             const uploadParams = this.uploadParams({ ...fileData, meta })
+            const contentLengthHeader = Number(contentLength)
+            const putObjectParams = {
+                Body: stream,
+                ContentType: mimetype,
+                Bucket: this.bucket,
+                Key: key,
+                ...uploadParams,
+            }
+            if (Number.isSafeInteger(contentLengthHeader) && contentLengthHeader >= 0) {
+                putObjectParams.ContentLength = contentLengthHeader
+            }
+
             this.s3.putObject(
-                {
-                    Body: stream,
-                    ContentType: mimetype,
-                    Bucket: this.bucket,
-                    Key: key,
-                    ...uploadParams,
-                },
+                putObjectParams,
                 (error, data) => {
                     if (error) return fail(error)
 
@@ -239,7 +245,7 @@ class SberCloudFileAdapter {
         })
     }
 
-    save ({ stream, filename, id, mimetype, encoding, meta = {} }) {
+    save ({ stream, filename, id, mimetype, encoding, size, meta = {} }) {
         // TODO(dkovyazin): DOMA-7965 Look into redefining fileName inside fileadapter
         const fileData = {
             id,
@@ -257,11 +263,11 @@ class SberCloudFileAdapter {
                         return { ...fileData, _meta: existedMeta }
                     }
 
-                    return this._uploadStream({ stream, fileData, key, mimetype, meta })
+                    return this._uploadStream({ stream, fileData, key, mimetype, meta, contentLength: size })
                 })
         }
 
-        return this._uploadStream({ stream, fileData, key, mimetype, meta })
+        return this._uploadStream({ stream, fileData, key, mimetype, meta, contentLength: size })
     }
 
     delete (file, options = {}) {

@@ -378,6 +378,7 @@ async function processFileUpload ({ keystone, appClients, files, meta, userId, i
                 filename: file.filename,
                 mimetype: file.mimetype,
                 encoding: file.encoding,
+                size: file.size,
                 id: generateUUIDv4(),
                 fileAdapter: FileAdapter.type(),
                 meta,
