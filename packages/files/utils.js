@@ -1,4 +1,5 @@
- const path = require('path')
+const fs = require('fs')
+const path = require('path')
 
 const { formidable } = require('formidable')
 const jwt = require('jsonwebtoken')
@@ -401,7 +402,7 @@ async function processFileUpload ({ keystone, appClients, files, meta, userId, i
                     ...data,
                     originalFilename: files[index].filename,
                     mimetype: files[index].mimetype,
-                    size: String(files[index].size ?? 0),
+                    size: String(files[index].size),
                     encoding: files[index].encoding,
                     fileAdapter: FileAdapter.type(),
                     meta,
@@ -411,7 +412,7 @@ async function processFileUpload ({ keystone, appClients, files, meta, userId, i
                 user: { connect: { id: userId } },
                 ...(organizationId && { organization: { connect: { id: organizationId } } }),
                 fileAdapter: FileAdapter.type(),
-                fileSize: String(files[index].size ?? 0),
+                fileSize: String(files[index].size),
                 fileMimeType: files[index].mimetype,
             },
         })),

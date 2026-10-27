@@ -129,7 +129,7 @@ async function uploadFilesFromServer ({
                 filename: file.filename,
                 mimetype: file.mimetype,
                 encoding: file.encoding || 'binary',
-                size: file.size ?? (file.buffer ? file.buffer.length : undefined),
+                size: file.size ?? (file.buffer ? file.buffer.length : 0),
             }
         })
 

@@ -1,5 +1,4 @@
 const fs = require('fs')
-const { pipeline } = require('stream/promises')
 
 const { stringify } = require('csv-stringify')
 const dayjs = require('dayjs')
@@ -193,9 +192,9 @@ const exportRecordsAsCsvFile = async ({ context, loadRecordsBatch, convertRecord
     const columns = _getHeadersTranslations(registry, task.locale)
     const columnKeys = Object.keys(columns)
     const stringifier = stringify({ header: true, columns, delimiter: CSV_DELIMITER })
-    const writePipeline = pipeline(stringifier, writeStream)
+    stringifier.pipe(writeStream)
 
-    const recordsProcessing = processRecords({
+    await processRecords({
         context,
         loadRecordsBatch,
         processRecordsBatch: async (batch) => {
@@ -205,12 +204,9 @@ const exportRecordsAsCsvFile = async ({ context, loadRecordsBatch, convertRecord
             })
         },
         baseAttrs, taskServerUtils, totalRecordsCount, taskId,
-    }).then(() => stringifier.end()).catch((error) => {
-        stringifier.destroy(error)
-        throw error
     })
 
-    await Promise.all([recordsProcessing, writePipeline])
+    writeStream.close()
 
     const stream = fs.createReadStream(filename, { encoding: 'utf8' })
     const { size } = fs.statSync(filename)

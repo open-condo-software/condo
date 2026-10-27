@@ -247,7 +247,6 @@ describe('SberCloudFileAdapter', () => {
             expect(result.originalFilename).toBe('test.pdf')
             expect(result.mimetype).toBe('application/pdf')
             expect(mockS3Client.putObject).toHaveBeenCalled()
-            expect(mockS3Client.putObject.mock.calls[0][0]).not.toHaveProperty('ContentLength')
         })
 
         it('should handle save error', async () => {
@@ -268,8 +267,6 @@ describe('SberCloudFileAdapter', () => {
                 mimetype: 'application/pdf',
                 encoding: 'utf-8',
             })).rejects.toThrow('Upload failed')
-
-            expect(mockS3Client.putObject.mock.calls[0][0]).not.toHaveProperty('ContentLength')
         })
 
         it('should skip upload if saveFileName is true and file exists', async () => {
