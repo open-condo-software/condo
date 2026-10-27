@@ -107,7 +107,26 @@ jobs:
       - name: run dbs
         env:
           REGISTRY: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}/doma/utils/
-          COMPOSE_PARALLEL_LIMIT: 1
+        run: |
+          images=(
+            "${REGISTRY}postgres:16.8"
+            "${REGISTRY}redis:6.2"
+            "${REGISTRY}nats:2.12-alpine"
+            "${REGISTRY}alpine:latest"
+            "${REGISTRY}valkey/valkey:8.0.2"
+          )
+          for image in "${images[@]}"; do
+            for attempt in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20; do
+              docker pull "$image" && break
+              echo "pull failed: $image (attempt ${attempt})"
+              [[ "$attempt" -eq 6 ]] && exit 1
+              sleep $((attempt * 5))
+            done
+          done  
+
+      - name: run dbs
+        env:
+          REGISTRY: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}/doma/utils/
         run: |
           docker-compose --profile dbs up -d
           docker-compose up -d --wait nats
