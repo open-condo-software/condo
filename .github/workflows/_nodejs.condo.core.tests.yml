@@ -28,7 +28,7 @@ jobs:
         run: |
           sudo apt update && sudo apt install -y git
 
-      - name: Wait for dind to be ready
+      - name: Wait for dind to be ready1
         run: |
           set -euo pipefail
           cert_dir=/certs/client
