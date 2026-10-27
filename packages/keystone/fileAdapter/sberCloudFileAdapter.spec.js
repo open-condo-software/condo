@@ -241,16 +241,13 @@ describe('SberCloudFileAdapter', () => {
             const result = await adapter.save({
                 stream,
                 ...fileData,
-                size: Buffer.byteLength('test data'),
             })
 
             expect(result.id).toBe(fileData.id)
             expect(result.originalFilename).toBe('test.pdf')
             expect(result.mimetype).toBe('application/pdf')
-            expect(mockS3Client.putObject).toHaveBeenCalledWith(
-                expect.objectContaining({ ContentLength: Buffer.byteLength('test data') }),
-                expect.any(Function),
-            )
+            expect(mockS3Client.putObject).toHaveBeenCalled()
+            expect(mockS3Client.putObject.mock.calls[0][0]).not.toHaveProperty('ContentLength')
         })
 
         it('should handle save error', async () => {
