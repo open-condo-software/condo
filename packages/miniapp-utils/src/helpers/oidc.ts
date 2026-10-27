@@ -8,8 +8,8 @@ import type { IncomingMessage, ServerResponse } from 'http'
 import type { Client, UserinfoResponse } from 'openid-client'
 
 type Session = Record<string, unknown> & {
-    save: () => Promise<void>
-    destroy: () => Promise<void>
+    save: () => void | Promise<void>
+    destroy: () => void | Promise<void>
 }
 
 type SessionGetter = (req: IncomingMessage, res: ServerResponse) => Promise<Session>
