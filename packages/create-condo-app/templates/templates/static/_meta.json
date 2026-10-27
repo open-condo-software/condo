@@ -1,5 +1,8 @@
 {
   "extends": "base",
   "name": "Static app",
-  "description": "A frontend-only template for simple apps using PKCE OIDC flow with Condo itself as a backend and storage"
+  "description": "A frontend-only template for simple apps using PKCE OIDC flow with Condo itself as a backend and storage",
+  "examples": [
+    "gql"
+  ]
 }
