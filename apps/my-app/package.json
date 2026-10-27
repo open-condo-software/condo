@@ -1,0 +1,39 @@
+{
+  "name": "@app/my-app",
+  "version": "0.0.0-development",
+  "private": true,
+  "scripts": {
+    "dev": "next dev & yarn types:watch",
+    "build": "next build",
+    "start": "next start",
+    "maketypes": "graphql-codegen --config codegen.ts",
+    "types:watch": "yarn maketypes -- --watch",
+    "prepare": "node ./bin/prepare.js"
+  },
+  "dependencies": {
+    "@apollo/client": "catalog:",
+    "@open-condo/apollo": "workspace:^",
+    "@open-condo/bridge": "workspace:^",
+    "@open-condo/icons": "workspace:^",
+    "@open-condo/miniapp-utils": "workspace:^",
+    "@open-condo/ui": "workspace:^",
+    "next": "catalog:",
+    "oidc-client-ts": "^3.5.0",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "react-intl": "catalog:"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "catalog:",
+    "@graphql-codegen/typescript": "^5.0.9",
+    "@graphql-codegen/typescript-operations": "^5.0.9",
+    "@graphql-codegen/typescript-react-apollo": "^4.4.1",
+    "@open-condo/cli": "workspace:^",
+    "@open-condo/config": "workspace:^",
+    "@open-condo/tsconfig": "workspace:^",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "typescript": "catalog:"
+  }
+}
