@@ -73,7 +73,12 @@ function getAdapter (databaseUrl) {
 
 function getCookieOptions (conf) {
     return {
-        sameSite: HTTPS_REGEXP.test(conf.SERVER_URL) && conf.NODE_ENV === 'production' ? 'None' : 'Lax',
+        // NOTE(SavelevMatthew): Use 'Lax' to prevent CSRF from third-party sites, allowing requests only from condo domain itself
+        // We have existing 'None' cookies, so we'll destroy these sessions manually later after 2 steps:
+        // 1. Track lastActivity in session
+        // 2. Update cookie values to Lax on new requests
+        // This way we can remove all sessions which are inactive for X months later
+        sameSite: 'Lax',
         // NOTE(pahaz): Apollo server client doesn't work with secure=true! Need to research why
         secure: HTTPS_REGEXP.test(conf.SERVER_URL) && conf.NODE_ENV === 'production',
         httpOnly: conf.DISABLE_HTTP_ONLY_COOKIE !== 'true',
