@@ -134,7 +134,7 @@ const RegisterSubscriptionContextsService = new GQLCustomSchema('RegisterSubscri
         },
         {
             access: true,
-            type: 'type RegisterSubscriptionContextsOutput { subscriptionContexts: [SubscriptionContext!]!, directPaymentUrl: String, multiPayment: MultiPayment }',
+            type: 'type RegisterSubscriptionContextsOutput { subscriptionContexts: [SubscriptionContext!]!, directPaymentUrl: String, multiPayment: MultiPayment, invoice: Invoice }',
         },
     ],
 
@@ -262,7 +262,7 @@ const RegisterSubscriptionContextsService = new GQLCustomSchema('RegisterSubscri
                     }
 
                     const subscriptionContexts = await find('SubscriptionContext', { id_in: subscriptionContextIds, deletedAt: null })
-                    return { subscriptionContexts, directPaymentUrl: null, multiPayment: null }
+                    return { subscriptionContexts, directPaymentUrl: null, multiPayment: null, invoice: null }
                 }
 
                 const isCard = paymentType === SUBSCRIPTION_PAYMENT_TYPE_CARD
@@ -387,7 +387,10 @@ const RegisterSubscriptionContextsService = new GQLCustomSchema('RegisterSubscri
                 const subscriptionContexts = await find('SubscriptionContext', { id_in: subscriptionContextIds, deletedAt: null })
                 logger.info({ msg: 'Registered subscription bundle', data: { organizationId: organization.id, invoiceId: invoice.id, contextCount: subscriptionContexts.length, multiPaymentId: multiPayment?.id || null } })
 
-                return { subscriptionContexts, directPaymentUrl, multiPayment }
+                const actualInvoice = await getById('Invoice', invoice.id)
+                const invoiceToReturn = !actualInvoice.deletedAt ? actualInvoice : null
+
+                return { subscriptionContexts, directPaymentUrl, multiPayment, invoice: invoiceToReturn }
             },
         },
     ],

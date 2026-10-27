@@ -33,7 +33,7 @@ const GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY = gql`
 
 const REGISTER_SUBSCRIPTION_CONTEXTS_MUTATION = gql`
     mutation registerSubscriptionContexts ($data: RegisterSubscriptionContextsInput!) {
-        result: registerSubscriptionContexts(data: $data) { subscriptionContexts { id organization { id } subscriptionPlan { id } subscriptionPlanPricingRule { id } invoice { id toPay currencyCode rows { name count toPay } } startAt endAt isTrial status } directPaymentUrl multiPayment { id } }
+        result: registerSubscriptionContexts(data: $data) { subscriptionContexts { id organization { id } subscriptionPlan { id } subscriptionPlanPricingRule { id } invoice { id toPay currencyCode rows { name count toPay } } startAt endAt isTrial status } directPaymentUrl multiPayment { id } invoice { id status } }
     }
 `
 

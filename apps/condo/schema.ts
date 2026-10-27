@@ -91672,6 +91672,7 @@ export type RegisterSubscriptionContextsInput = {
 export type RegisterSubscriptionContextsOutput = {
   __typename?: 'RegisterSubscriptionContextsOutput';
   directPaymentUrl?: Maybe<Scalars['String']['output']>;
+  invoice?: Maybe<Invoice>;
   multiPayment?: Maybe<MultiPayment>;
   subscriptionContexts: Array<SubscriptionContext>;
 };

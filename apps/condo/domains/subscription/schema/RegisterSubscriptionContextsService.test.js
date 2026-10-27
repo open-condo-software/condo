@@ -9,6 +9,7 @@ const { makeLoggedInAdminClient, makeClient, expectToThrowGQLError, setFeatureFl
 const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult } = require('@open-condo/keystone/test.utils')
 
 const { SUBSCRIPTIONS } = require('@condo/domains/common/constants/featureflags')
+const { INVOICE_STATUS_PUBLISHED } = require('@condo/domains/marketplace/constants')
 const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { SUBSCRIPTION_PERIOD, SUBSCRIPTION_CONTEXT_STATUS, SUBSCRIPTION_PLAN_TYPE_FEATURE, SUBSCRIPTION_PLAN_TYPE_SERVICE } = require('@condo/domains/subscription/constants')
@@ -132,6 +133,7 @@ describe('RegisterSubscriptionContextsService', () => {
 
             expect(result.directPaymentUrl).toBeNull()
             expect(result.multiPayment).toBeNull()
+            expect(result.invoice).toBeNull()
         })
 
         test('throws error if trial is not available (trialDays = 0)', async () => {
@@ -174,7 +176,7 @@ describe('RegisterSubscriptionContextsService', () => {
     })
 
     describe('Paid Subscription', () => {
-        test('creates subscription context with status CREATED, multiPayment, and directPaymentUrl', async () => {
+        test('creates subscription context with status CREATED, multiPayment, directPaymentUrl and invoice', async () => {
             const [result] = await registerSubscriptionContextsByTestClient(user, {
                 organization: { id: organization.id },
                 subscriptionPlanPricingRules: [{ id: pricingRule.id }],
@@ -190,6 +192,8 @@ describe('RegisterSubscriptionContextsService', () => {
             expect(result.subscriptionContexts[0].subscriptionPlanPricingRule.id).toBe(pricingRule.id)
             expect(result.multiPayment).not.toBeNull()
             expect(typeof result.directPaymentUrl).toBe('string')
+            expect(result.invoice).not.toBeNull()
+            expect(result.invoice.status).toBe(INVOICE_STATUS_PUBLISHED)
 
             const [context] = await SubscriptionContext.getAll(admin, { id: result.subscriptionContexts[0].id })
             expect(context.frozenPaymentInfo.paymentType).toBe('card')

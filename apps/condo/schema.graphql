@@ -97314,6 +97314,7 @@ type RegisterSubscriptionContextsOutput {
   subscriptionContexts: [SubscriptionContext!]!
   directPaymentUrl: String
   multiPayment: MultiPayment
+  invoice: Invoice
 }
 
 input CancelSubscriptionRenewalInput {
