@@ -1,5 +1,5 @@
 {
-  "extends": "base",
+  "extends": "oidc",
   "name": "TRPC-backend app",
   "description": "Template with OIDC code flow and tRPC for accessing both Condo API and your custom backend (useful for BFF)"
 }
