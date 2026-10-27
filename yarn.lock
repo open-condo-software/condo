@@ -10020,7 +10020,7 @@ __metadata:
     remark-gfm: "npm:^1"
     rimraf: "npm:^6.0.1"
     source-map-loader: "npm:^4.0.1"
-    storybook: "npm:9.1.20"
+    storybook: "npm:9.1.21"
     style-dictionary: "npm:^3.9.2"
     style-loader: "npm:^3.3.1"
     token-transformer: "npm:^0.0.27"
@@ -39077,9 +39077,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"storybook@npm:9.1.20":
-  version: 9.1.20
-  resolution: "storybook@npm:9.1.20"
+"storybook@npm:9.1.21":
+  version: 9.1.21
+  resolution: "storybook@npm:9.1.21"
   dependencies:
     "@storybook/global": "npm:^5.0.0"
     "@testing-library/jest-dom": "npm:^6.6.3"
@@ -39100,7 +39100,7 @@ __metadata:
       optional: true
   bin:
     storybook: ./bin/index.cjs
-  checksum: 10/e09f29cd5fd0a635df10298b650143e4145feb63e8b217b71a20eae6162112decf3a3715655aec5fa57c9ed08c86886944c9b93551f041b9b60e151b343d1f7c
+  checksum: 10/90475ce5c62df774aa8f7165fca697a09e36967003a512804fb9443bfc3dbad95a01bd5e6f115a83a325dc02e8941212f751ec0b57e342098aeb8a1361a37fa6
   languageName: node
   linkType: hard
 
