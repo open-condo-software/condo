@@ -1,0 +1,63 @@
+All endpoints require **HTTP Basic Authentication** with agent credentials on every request.
+
+## Prerequisites
+
+Contact support to obtain:
+
+- An agent account with a username and password.
+- Merchant usernames assigned to your agent.
+- Access to the required [environment](/docs/agent-payments/about).
+
+Your agent username and `merchantUserName` are different values. Authenticate with the **agent** username
+and password; use the assigned `merchantUserName` in the payment creation body. You do not need a merchant password.
+
+## Authorization header
+
+Send `Authorization: Basic ` followed by the Base64 encoding of the UTF-8 string `username:password`.
+
+cURL can build the header for you with `--user`. Configure these environment variables on your server:
+
+| Variable | Value |
+| --- | --- |
+| `RB_API_BASE_URL` | `https://rb.d.doma.ai` for development or `https://rb.doma.ai` for production |
+| `AGENT_USERNAME` | Agent username issued during onboarding |
+| `AGENT_PASSWORD` | Agent password issued during onboarding |
+
+The examples throughout this section use these variables. Replace example payment and merchant values with
+those agreed during onboarding. Keep credentials in your server's secret configuration, not in source control,
+browser code, URLs, or logs. Never send your password or `Authorization` header to support.
+
+## Request example
+
+After [creating a payment](/docs/agent-payments/create), replace the example UUID with its returned `id`:
+
+```bash
+curl --request GET \
+    --url "${RB_API_BASE_URL%/}/api/agent-payments/d325725f-6c73-4dab-910f-88e3274b66d7" \
+    --user "${AGENT_USERNAME}:${AGENT_PASSWORD}" \
+    --header 'Accept: application/json'
+```
+
+## Authentication errors
+
+Missing or malformed credentials, an incorrect password, and an unknown, disabled, or deleted agent all return
+**HTTP 401** with `extensions.code: UNAUTHENTICATED` and `extensions.type: AUTHORIZATION_REQUIRED`.
+The response deliberately does not distinguish these cases.
+
+```json
+{
+    "errors": [
+        {
+            "message": "Agent authentication required",
+            "extensions": {
+                "code": "UNAUTHENTICATED",
+                "type": "AUTHORIZATION_REQUIRED"
+            }
+        }
+    ]
+}
+```
+
+Errors from all endpoints use this `errors` array format. Check the HTTP status and `extensions.code` for
+classification, and `extensions.type` for the specific cause. Do not depend on the exact `message` text.
+Responses can contain additional error/request identifiers; retain them for troubleshooting.

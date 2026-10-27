@@ -1,0 +1,87 @@
+`GET /api/agent-payments/{id}`
+
+Returns the current state of a payment created by the authenticated agent.
+
+## Authentication
+
+Use the same [agent Basic Authentication](/docs/agent-payments/auth) as for payment creation.
+
+## Path parameters
+
+| Parameter | Type/format | Required | Description |
+| --- | --- | --- | --- |
+| `id` | String, UUID | Yes | `id` from the [create payment response](/docs/agent-payments/create), not `orderId` or `agentOrderId`. |
+
+## Request example
+
+Configure the [authentication environment variables](/docs/agent-payments/auth) and replace the example UUID
+with your payment's `id`:
+
+```bash
+curl --request GET \
+    --url "${RB_API_BASE_URL%/}/api/agent-payments/d325725f-6c73-4dab-910f-88e3274b66d7" \
+    --user "${AGENT_USERNAME}:${AGENT_PASSWORD}" \
+    --header 'Accept: application/json'
+```
+
+## Response
+
+A successful query returns **HTTP 200** with a JSON object, without a `data` wrapper:
+
+| Field | Type/format | Description |
+| --- | --- | --- |
+| `id` | String, UUID | Payment identifier. |
+| `agentOrderId` | String | Your order reference supplied at creation. |
+| `status` | String, enum | Current payment state; see below. |
+| `amount` | Decimal string | Recipient amount in rubles, excluding fees. |
+| `modifiedAmount` | Decimal string | Total customer charge in rubles, including fees. |
+
+```json
+{
+    "id": "d325725f-6c73-4dab-910f-88e3274b66d7",
+    "agentOrderId": "order-2026-001",
+    "status": "WITHDRAWN",
+    "amount": "100.00",
+    "modifiedAmount": "101.78"
+}
+```
+
+`paymentUrl` and acquiring `orderId` are not returned. Save them from the creation response.
+
+## Payment statuses
+
+| Status | Meaning | Integration action |
+| --- | --- | --- |
+| `PENDING` | Customer payment is not yet confirmed. Includes registration in progress or an uncertain registration result. | Continue checking the existing payment. |
+| `WITHDRAWN` | Acquiring confirmed the customer payment; full bank distribution is not yet confirmed. | Treat customer payment as confirmed; continue checking for distribution. |
+| `DISTRIBUTED` | The bank confirmed all expected recipient and fee allocations. | Distribution is complete; stop polling. |
+| `FAILED` | Registration was explicitly rejected or acquiring reported a terminal unsuccessful, reversed, or refunded outcome before a payment log was linked. | Stop polling and contact support to determine further action. |
+
+The successful path is `PENDING → WITHDRAWN → DISTRIBUTED`.
+The unsuccessful path is `PENDING → FAILED`.
+A distribution error leaves an already paid payment `WITHDRAWN` for retry; it is not an unpaid payment.
+
+> **Warning:** `FAILED` does not guarantee that no money was debited: acquiring may have reversed or refunded
+> the payment. `DISTRIBUTED` confirms distribution, but does not describe later refunds.
+> Contact support for refund or cancellation questions; these operations are not available through this API.
+
+## Polling and delayed updates
+
+Statuses update asynchronously through acquiring notifications or an background check.
+
+A customer redirect, a successful creation response, or the existence of a payment link is not proof of payment.
+Do not create a new payment just because the status is delayed.
+If a payment stays `PENDING` or `WITHDRAWN` unexpectedly, contact support with its `id` and your order reference.
+
+## Error codes
+
+Errors use the [shared error format](/docs/agent-payments/auth).
+
+| HTTP | `extensions.code` | `extensions.type` | Cause and action |
+| --- | --- | --- | --- |
+| 401 | `UNAUTHENTICATED` | `AUTHORIZATION_REQUIRED` | Check agent credentials and whether the agent is enabled. |
+| 404 | `NOT_FOUND` | `PAYMENT_NOT_FOUND` | Malformed, unknown, deleted, or another agent's payment ID. Check `id`, credentials, and environment. |
+| 500 | `INTERNAL_ERROR` | `PAYMENT_QUERY_FAILED` | Status lookup failed. Retry GET later. |
+| 500 | `INTERNAL_ERROR` | `INTERNAL_SERVER_ERROR` | Unexpected service error. Retry GET later; contact support if it persists. |
+
+A failed status query does not change the payment status. Retry GET later rather than repeating POST.
