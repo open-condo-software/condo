@@ -1,15 +1,11 @@
-import { ApolloProvider } from '@apollo/client'
 import NextApp from 'next/app'
 import Head from 'next/head'
-
-import { CachePersistorContext } from '@open-condo/apollo'
 
 import { DynamicAppResizer } from '@/domains/common/components/DynamicAppResizer'
 import { IntlProvider } from '@/domains/common/components/IntlProvider'
 import { LaunchParamsProvider } from '@/domains/common/components/LaunchParamsContext'
-import { useApollo } from '@/domains/common/utils/apollo'
 import { withTranslations } from '@/domains/common/utils/i18n'
-import { AuthProvider } from '@/domains/user/components/AuthContext'
+// import { AuthProvider } from '@/domains/user/components/AuthContext'
 
 import type { AppType, AppContext } from 'next/app'
 
@@ -20,8 +16,6 @@ import '@/styles/globals.css'
 type PageProps = Record<string, unknown>
 
 const App: AppType<PageProps> =  ({ Component, pageProps }) => {
-    const { client, cachePersistor } = useApollo(pageProps)
-
     return (
         <>
             <Head>
@@ -30,19 +24,15 @@ const App: AppType<PageProps> =  ({ Component, pageProps }) => {
                 <meta name='viewport' content='width=device-width, initial-scale=1' />
                 <link rel='icon' href='/favicon.ico' />
             </Head>
-            <ApolloProvider client={client}>
-                <CachePersistorContext.Provider value={{ persistor: cachePersistor }}>
-                    <LaunchParamsProvider>
-                        <IntlProvider>
-                            <AuthProvider>
-                                <DynamicAppResizer>
-                                    <Component {...pageProps} />
-                                </DynamicAppResizer>
-                            </AuthProvider>
-                        </IntlProvider>
-                    </LaunchParamsProvider>
-                </CachePersistorContext.Provider>
-            </ApolloProvider>
+            <LaunchParamsProvider>
+                <IntlProvider>
+                    {/*<AuthProvider>*/}
+                    <DynamicAppResizer>
+                        <Component {...pageProps} />
+                    </DynamicAppResizer>
+                    {/*</AuthProvider>*/}
+                </IntlProvider>
+            </LaunchParamsProvider>
         </>
     )
 }
