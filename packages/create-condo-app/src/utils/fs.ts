@@ -6,10 +6,17 @@ type PackagePathResult = {
     absolutePath: string
 }
 
+type GetAvailableTemplatesOptions = {
+    showHidden?: boolean
+}
+
 type TemplateInfo = {
     id: string
     name: string
     description?: string
+    extends?: string
+    hidden?: boolean
+    examples?: Array<string>
 }
 
 /**
@@ -59,7 +66,8 @@ export function resolveTemplatesDir () {
     return __dirname
 }
 
-export function getAvailableTemplates (): Array<TemplateInfo> {
+export function getAvailableTemplates (opts?: GetAvailableTemplatesOptions): Array<TemplateInfo> {
+    const { showHidden } = opts ?? {}
     const templatesDir = join(resolveTemplatesDir(), 'templates')
     const appTemplates = readdirSync(templatesDir, { withFileTypes: true })
         .filter(d => d.isDirectory())
@@ -71,12 +79,15 @@ export function getAvailableTemplates (): Array<TemplateInfo> {
         const metaPath = join(templatesDir, templateName, '_meta.json')
         if (!existsSync(metaPath)) continue
         const meta = JSON.parse(readFileSync(metaPath, 'utf-8'))
-        if (meta.hidden) continue
+        if (meta.hidden && !showHidden) continue
 
         result.push({
             id: templateName,
             name: meta.name ?? templateName,
             description: meta.description ?? null,
+            extends: meta.extends ?? null,
+            hidden: meta.hidden ?? false,
+            examples: meta.examples ?? null,
         })
     }
 

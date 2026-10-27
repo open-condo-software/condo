@@ -189,9 +189,12 @@ async function run () {
         preferences.template = availableTemplates[0].id
     }
 
+    const selectedTemplate = availableTemplates.find(t => t.id === preferences.template)
+    const templateHasExamples = (selectedTemplate?.examples?.length ?? 0 > 0)
+
     if (typeof opts.empty === 'boolean') {
         preferences.examples = !opts.empty
-    } else {
+    } else if (templateHasExamples) {
         const { examples } = await prompts({
             type: 'toggle',
             name: 'examples',
@@ -201,6 +204,8 @@ async function run () {
             inactive: 'No',
         }, { onCancel })
         preferences.examples = examples
+    } else {
+        preferences.examples ??= true
     }
 
     if (typeof opts.agentsMd === 'boolean') {

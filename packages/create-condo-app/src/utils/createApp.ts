@@ -7,7 +7,7 @@ import { cyan, green, blue, yellowBright } from 'picocolors'
 import { resolveLocalDependencies, resolveLocalSchema, replaceEnvToConf, replaceLocalCondoAddress } from '@/utils/condo'
 import { getConfig } from '@/utils/config'
 import { copyAppTemplate, copyAppDir } from '@/utils/copy'
-import { resolveTemplatesDir } from '@/utils/fs'
+import { getAvailableTemplates, resolveTemplatesDir } from '@/utils/fs'
 import { tryGitInit } from '@/utils/git'
 import { adjustScripts, install, exec, runScript } from '@/utils/packageManagers'
 
@@ -16,6 +16,25 @@ async function runTypeGen (knownScripts: Array<string>) {
     if (knownScripts.includes('maketypes')) {
         await runScript('maketypes')
     }
+}
+
+function getExamplesByTemplate (templateName: string) {
+    const templates = getAvailableTemplates({ showHidden: true })
+    const examples: Array<string> = []
+    let currentTemplate = templates.find(template => template.id === templateName)
+    while (currentTemplate) {
+        if (currentTemplate.examples?.length) {
+            const newExamples = currentTemplate.examples.filter(e => !examples.includes(e))
+            examples.push(...newExamples.toReversed())
+        }
+
+        const baseTemplateName = currentTemplate.extends
+        currentTemplate = typeof baseTemplateName === 'string'
+            ? templates.find(template => template.id === baseTemplateName)
+            : undefined
+    }
+
+    return examples.toReversed()
 }
 
 async function setAppName () {
@@ -45,9 +64,14 @@ export async function initAppFromTemplate () {
     await setAppName()
 
     if (preferences.examples) {
-        console.log(`Adding ${cyan('examples')} files...`)
-        console.log()
-        await copyAppDir(join(resolveTemplatesDir(), 'examples', 'basic'))
+        const examples = getExamplesByTemplate(templateName)
+        if (examples.length) {
+            console.log(`Adding ${cyan('examples')} files...`)
+            console.log()
+            for (const example of examples) {
+                await copyAppDir(join(resolveTemplatesDir(), 'examples', example))
+            }
+        }
     }
     if (monorepoInfo.isCondoRepo) {
         console.log(`Condo monorepo detected. Adding ${cyan('condo-specific')} files...`)
