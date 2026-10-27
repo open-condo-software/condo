@@ -17,6 +17,7 @@
     "@open-condo/icons": "workspace:^",
     "@open-condo/miniapp-utils": "workspace:^",
     "@open-condo/ui": "workspace:^",
+    "iron-session": "^8.0.4",
     "next": "catalog:",
     "oidc-client-ts": "^3.5.0",
     "react": "catalog:",
