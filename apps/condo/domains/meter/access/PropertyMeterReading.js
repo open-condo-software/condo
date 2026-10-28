@@ -39,6 +39,38 @@ async function canReadPropertyMeterReadings (args) {
     }
 }
 
+async function getOrganizationForNewMeterReading (originalInput) {
+    const meterId = get(originalInput, ['meter', 'connect', 'id'], null)
+    if (!meterId) return null
+
+    const meter = await getById('PropertyMeter', meterId)
+    return get(meter, 'organization', null)
+}
+
+async function getOrganizationForMeterReadingUpdate (itemId) {
+    const meterReading = await getByCondition('PropertyMeterReading', {
+        id: itemId,
+        deletedAt: null,
+    })
+    if (!meterReading) return null
+
+    return get(meterReading, 'organization')
+}
+
+async function getOrganizationsForBulkMeterReadingUpdate (itemIds) {
+    if (!itemIds || !Array.isArray(itemIds)) return null
+    if (itemIds.length !== uniq(itemIds).length) return null
+
+    const meterReadings = await find('PropertyMeterReading', {
+        id_in: itemIds,
+        deletedAt: null,
+    })
+    if (meterReadings.length !== itemIds.length) return null
+
+    const organizationIds = uniq(meterReadings.map(reading => get(reading, 'organization')))
+    return organizationIds.length === 1 ? organizationIds : null
+}
+
 async function canManagePropertyMeterReadings (args) {
     const { authentication: { item: user }, context, itemId, itemIds, originalInput, operation } = args
 
@@ -50,48 +82,21 @@ async function canManagePropertyMeterReadings (args) {
         return await canManageObjectsAsB2BAppServiceUser(args)
     }
 
-    const isBulkRequest = Array.isArray(originalInput)
-
     if (operation === 'create') {
-        const meterId = get(originalInput, ['meter', 'connect', 'id'], null)
-        if (!meterId) return false
-
-        const meter = await getById('PropertyMeter', meterId)
-        const meterOrganization = get(meter, 'organization', null)
-
+        const meterOrganization = await getOrganizationForNewMeterReading(originalInput)
         if (!meterOrganization) return false
 
         return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, meterOrganization, 'canManageMeterReadings')
     }
 
-
     if (operation === 'update') {
-        if (isBulkRequest) {
-            if (!itemIds || !Array.isArray(itemIds)) return false
-            if (itemIds.length !== uniq(itemIds).length) return false
+        const organizationIds = Array.isArray(originalInput)
+            ? await getOrganizationsForBulkMeterReadingUpdate(itemIds)
+            : await getOrganizationForMeterReadingUpdate(itemId)
 
-            const meterReadings = await find('PropertyMeterReading', {
-                id_in: itemIds,
-                deletedAt: null,
-            })
-            if (meterReadings.length !== itemIds.length) return false
+        if (!organizationIds || (Array.isArray(organizationIds) && organizationIds.length !== 1)) return false
 
-            const organizationIds = uniq(meterReadings.map(reading => get(reading, 'organization')))
-            if (organizationIds.length !== 1) return false
-
-            return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationIds, 'canManageMeterReadings')
-        } else {
-            const meterReading = await getByCondition('PropertyMeterReading', {
-                id: itemId,
-                deletedAt: null,
-            })
-            if (!meterReading) return false
-    
-            const meterReadingOrganization = get(meterReading, 'organization')
-            if (!meterReadingOrganization) return false
-
-            return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, meterReadingOrganization, 'canManageMeterReadings')
-        }
+        return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationIds, 'canManageMeterReadings')
     }
 
     return false

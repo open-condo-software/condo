@@ -39,6 +39,83 @@ async function canReadPropertyMeters (args) {
     }
 }
 
+function getCreateData (originalInput, isBulkRequest) {
+    if (isBulkRequest) {
+        const organizationIds = originalInput.map(el => get(el, ['data', 'organization', 'connect', 'id']))
+
+        if (organizationIds.filter(Boolean).length !== originalInput.length) return null
+
+        const propertyAssignments = originalInput
+            .map(input => ({
+                propertyId: get(input, ['data', 'property', 'connect', 'id']),
+                organizationId: get(input, ['data', 'organization', 'connect', 'id']),
+            }))
+            .filter(({ propertyId }) => Boolean(propertyId))
+
+        return {
+            organizationIds: uniq(organizationIds),
+            propertyAssignments,
+        }
+    }
+
+    const organizationId = get(originalInput, ['organization', 'connect', 'id'])
+    if (!organizationId) return null
+
+    const propertyId = get(originalInput, ['property', 'connect', 'id'])
+    return {
+        organizationIds: [organizationId],
+        propertyAssignments: propertyId ? [{ propertyId, organizationId }] : [],
+    }
+}
+
+async function getUpdateData (itemIds, itemId, originalInput, isBulkRequest) {
+    const ids = itemIds || [itemId]
+    if (ids.length !== uniq(ids).length) return null
+
+    const items = await find('PropertyMeter', {
+        id_in: ids,
+        deletedAt: null,
+    })
+    if (items.length !== ids.length || items.some(item => !item.organization)) return null
+
+    const propertyAssignments = getUpdatePropertyAssignments(originalInput, items, isBulkRequest)
+
+    return {
+        organizationIds: uniq(items.map(item => item.organization)),
+        propertyAssignments,
+    }
+}
+
+function getUpdatePropertyAssignments (originalInput, items, isBulkRequest) {
+    if (isBulkRequest) {
+        return originalInput
+            .map(({ id, data }) => ({
+                propertyId: get(data, ['property', 'connect', 'id']),
+                organizationId: items.find(meter => meter.id === id)?.organization,
+            }))
+            .filter(({ propertyId }) => Boolean(propertyId))
+    }
+
+    const propertyId = originalInput?.property?.connect?.id
+    return propertyId ? [{ propertyId, organizationId: items[0]?.organization }] : []
+}
+
+async function doPropertiesBelongToMeterOrganizations (propertyAssignments) {
+    if (propertyAssignments.length === 0) return true
+
+    const properties = await find('Property', {
+        id_in: propertyAssignments.map(({ propertyId }) => propertyId),
+        deletedAt: null,
+    })
+
+    return properties.every(property => {
+        const meterOrganizationId = propertyAssignments
+            .find(({ propertyId }) => propertyId === property.id)?.organizationId
+
+        return property.organization === meterOrganizationId
+    })
+}
+
 async function canManagePropertyMeters (args) {
     const { authentication: { item: user }, originalInput, operation, itemId, itemIds, context } = args
 
@@ -51,95 +128,21 @@ async function canManagePropertyMeters (args) {
     }
 
     const isBulkRequest = Array.isArray(originalInput)
-    let organizationIds
-    const meterOrganizationToPropertyObjects = []
-
+    let accessData
     if (operation === 'create') {
-        if (isBulkRequest) {
-            organizationIds = originalInput.map(el => get(el, ['data', 'organization', 'connect', 'id']))
-
-            if (organizationIds.filter(Boolean).length !== originalInput.length) return false
-            organizationIds = uniq(organizationIds)
-
-            for (const input of originalInput) {
-                const propertyId = get(input, ['data', 'property', 'connect', 'id'])
-
-                if (propertyId) {
-                    const organizationId = get(input, ['data', 'organization', 'connect', 'id'])
-                    meterOrganizationToPropertyObjects.push({
-                        propertyId,
-                        organizationId,
-                    })
-                }
-            }
-        } else {
-            const organizationId = get(originalInput, ['organization', 'connect', 'id'])
-            if (!organizationId) return false
-            organizationIds = [organizationId]
-
-            const propertyId = get(originalInput, ['property', 'connect', 'id'])
-            if (propertyId) {
-                meterOrganizationToPropertyObjects.push({
-                    propertyId,
-                    organizationId,
-                })
-            }
-        }
+        accessData = getCreateData(originalInput, isBulkRequest)
     } else if (operation === 'update') {
-        const ids = itemIds || [itemId]
-        if (ids.length !== uniq(ids).length) return false
-
-        const items = await find('PropertyMeter', {
-            id_in: ids,
-            deletedAt: null,
-        })
-        if (items.length !== ids.length || items.some(item => !item.organization)) return false
-        organizationIds = uniq(items.map(item => item.organization))
-
-        if (isBulkRequest) {
-            for (const { id, data } of originalInput) {
-                const propertyId = get(data, ['property', 'connect', 'id'])
-                const meterOrganizationId = items.find(meter => meter.id === id)?.organization
-
-                if (propertyId) {
-                    meterOrganizationToPropertyObjects.push({
-                        propertyId,
-                        organizationId: meterOrganizationId,
-                    })
-                }
-            }
-        } else {
-            const propertyId = originalInput?.property?.connect?.id
-            const organizationId = items[0]?.organization
-
-            if (propertyId) {
-                meterOrganizationToPropertyObjects.push({
-                    propertyId,
-                    organizationId,
-                })
-            }
-        }
+        accessData = await getUpdateData(itemIds, itemId, originalInput, isBulkRequest)
+    }
+    if (operation === 'create' || operation === 'update') {
+        if (!accessData) return false
     }
 
-    // Check that property organization same as meter organization
-    if (meterOrganizationToPropertyObjects.length > 0) {
-        const propertyIds = meterOrganizationToPropertyObjects.map(({ propertyId }) => propertyId)
-        const properties = await find('Property', {
-            id_in: propertyIds,
-            deletedAt: null,
-        })
-
-        for (const property of properties) {
-            const meterOrganizationId = meterOrganizationToPropertyObjects
-                .find(({ propertyId }) => propertyId === property.id)?.organizationId
-
-            if (property.organization !== meterOrganizationId) {
-                return false
-            }
-        }
+    if (accessData && !await doPropertiesBelongToMeterOrganizations(accessData.propertyAssignments)) {
+        return false
     }
 
-    return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationIds, 'canManageMeters')
+    return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, accessData?.organizationIds, 'canManageMeters')
 }
 
 /*
