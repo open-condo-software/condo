@@ -111,11 +111,11 @@ module.exports = function createConfiguration (context, conf) {
         cookies: {
             keys: cookieKeys,
             short: {
-                sameSite: 'Lax',
+                sameSite: HTTPS_REGEXP.test(conf.SERVER_URL) ? 'None' : 'Lax',
                 secure: HTTPS_REGEXP.test(conf.SERVER_URL),
             },
             long: {
-                sameSite: 'Lax',
+                sameSite: HTTPS_REGEXP.test(conf.SERVER_URL) ? 'None' : 'Lax',
                 secure: HTTPS_REGEXP.test(conf.SERVER_URL),
             },
         },
