@@ -411,7 +411,7 @@ jobs:
 
   run-address-service-tests:
     name: Address-Service Tests
-    runs-on: ubuntu-22.04
+    runs-on: test-runners
     needs:
       - authorize
       - build-image
@@ -497,7 +497,7 @@ jobs:
 
   run-dev-portal-api-tests:
     name: Dev Portal API Tests
-    runs-on: ubuntu-22.04
+    runs-on: test-runners
     needs:
       - authorize
       - build-image
@@ -566,7 +566,7 @@ jobs:
 
   run-eps-tests:
     name: EPS Tests
-    runs-on: ubuntu-22.04
+    runs-on: test-runners
     needs:
       - authorize
       - build-image
@@ -618,7 +618,7 @@ jobs:
 
   run-meter-importer-tests:
     name: Meter-importer Tests
-    runs-on: ubuntu-22.04
+    runs-on: test-runners
     needs:
       - authorize
       - build-image
@@ -670,7 +670,7 @@ jobs:
 
   run-pos-integration-tests:
     name: Pos-integration Tests
-    runs-on: ubuntu-22.04
+    runs-on: test-runners
     needs:
       - authorize
       - build-image
@@ -722,7 +722,7 @@ jobs:
 
   run-accruals-gateway-tests:
     name: Accruals-gateway Tests
-    runs-on: ubuntu-22.04
+    runs-on: test-runners
     needs:
       - authorize
       - build-image
@@ -774,7 +774,7 @@ jobs:
 
   run-external-api-tests:
     name: External API Tests
-    runs-on: ubuntu-22.04
+    runs-on: test-runners
     needs:
       - authorize
       - build-image
@@ -876,7 +876,7 @@ jobs:
 
   run-rb-tests:
     name: RB Tests
-    runs-on: ubuntu-22.04
+    runs-on: test-runners
     needs:
       - authorize
       - build-image
@@ -928,7 +928,7 @@ jobs:
 
   run-registry-tests:
     name: Registry-importer Tests
-    runs-on: ubuntu-22.04
+    runs-on: test-runners
     needs:
       - authorize
       - build-image
@@ -1012,7 +1012,7 @@ jobs:
 
   run-ecom-gateway-tests:
     name: ecom-gateway Tests
-    runs-on: ubuntu-22.04
+    runs-on: test-runners
     needs:
       - authorize
       - build-image
