@@ -315,6 +315,8 @@ export type B2BAppAccessRightSetCreateInput = {
   canManageNewsItemScopes?: InputMaybe<Scalars['Boolean']['input']>;
   canManageNewsItems?: InputMaybe<Scalars['Boolean']['input']>;
   canManageProperties?: InputMaybe<Scalars['Boolean']['input']>;
+  canManagePropertyMeterReadings?: InputMaybe<Scalars['Boolean']['input']>;
+  canManagePropertyMeters?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTicketCommentFiles?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTicketComments?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTicketFiles?: InputMaybe<Scalars['Boolean']['input']>;
@@ -341,6 +343,8 @@ export type B2BAppAccessRightSetCreateInput = {
   canReadOrganizations?: InputMaybe<Scalars['Boolean']['input']>;
   canReadPayments?: InputMaybe<Scalars['Boolean']['input']>;
   canReadProperties?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadPropertyMeterReadings?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadPropertyMeters?: InputMaybe<Scalars['Boolean']['input']>;
   canReadTicketCommentFiles?: InputMaybe<Scalars['Boolean']['input']>;
   canReadTicketComments?: InputMaybe<Scalars['Boolean']['input']>;
   canReadTicketFiles?: InputMaybe<Scalars['Boolean']['input']>;
@@ -385,6 +389,8 @@ export type B2BAppAccessRightSetHistoryRecordCreateInput = {
   canManageNewsItemScopes?: InputMaybe<Scalars['Boolean']['input']>;
   canManageNewsItems?: InputMaybe<Scalars['Boolean']['input']>;
   canManageProperties?: InputMaybe<Scalars['Boolean']['input']>;
+  canManagePropertyMeterReadings?: InputMaybe<Scalars['Boolean']['input']>;
+  canManagePropertyMeters?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTicketCommentFiles?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTicketComments?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTicketFiles?: InputMaybe<Scalars['Boolean']['input']>;
@@ -411,6 +417,8 @@ export type B2BAppAccessRightSetHistoryRecordCreateInput = {
   canReadOrganizations?: InputMaybe<Scalars['Boolean']['input']>;
   canReadPayments?: InputMaybe<Scalars['Boolean']['input']>;
   canReadProperties?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadPropertyMeterReadings?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadPropertyMeters?: InputMaybe<Scalars['Boolean']['input']>;
   canReadTicketCommentFiles?: InputMaybe<Scalars['Boolean']['input']>;
   canReadTicketComments?: InputMaybe<Scalars['Boolean']['input']>;
   canReadTicketFiles?: InputMaybe<Scalars['Boolean']['input']>;
@@ -464,6 +472,8 @@ export type B2BAppAccessRightSetHistoryRecordUpdateInput = {
   canManageNewsItemScopes?: InputMaybe<Scalars['Boolean']['input']>;
   canManageNewsItems?: InputMaybe<Scalars['Boolean']['input']>;
   canManageProperties?: InputMaybe<Scalars['Boolean']['input']>;
+  canManagePropertyMeterReadings?: InputMaybe<Scalars['Boolean']['input']>;
+  canManagePropertyMeters?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTicketCommentFiles?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTicketComments?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTicketFiles?: InputMaybe<Scalars['Boolean']['input']>;
@@ -490,6 +500,8 @@ export type B2BAppAccessRightSetHistoryRecordUpdateInput = {
   canReadOrganizations?: InputMaybe<Scalars['Boolean']['input']>;
   canReadPayments?: InputMaybe<Scalars['Boolean']['input']>;
   canReadProperties?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadPropertyMeterReadings?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadPropertyMeters?: InputMaybe<Scalars['Boolean']['input']>;
   canReadTicketCommentFiles?: InputMaybe<Scalars['Boolean']['input']>;
   canReadTicketComments?: InputMaybe<Scalars['Boolean']['input']>;
   canReadTicketFiles?: InputMaybe<Scalars['Boolean']['input']>;
@@ -564,6 +576,10 @@ export type B2BAppAccessRightSetHistoryRecordWhereInput = {
   canManageNewsItems_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageProperties?: InputMaybe<Scalars['Boolean']['input']>;
   canManageProperties_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManagePropertyMeterReadings?: InputMaybe<Scalars['Boolean']['input']>;
+  canManagePropertyMeterReadings_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManagePropertyMeters?: InputMaybe<Scalars['Boolean']['input']>;
+  canManagePropertyMeters_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTicketCommentFiles?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTicketCommentFiles_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTicketComments?: InputMaybe<Scalars['Boolean']['input']>;
@@ -616,6 +632,10 @@ export type B2BAppAccessRightSetHistoryRecordWhereInput = {
   canReadPayments_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadProperties?: InputMaybe<Scalars['Boolean']['input']>;
   canReadProperties_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadPropertyMeterReadings?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadPropertyMeterReadings_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadPropertyMeters?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadPropertyMeters_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadTicketCommentFiles?: InputMaybe<Scalars['Boolean']['input']>;
   canReadTicketCommentFiles_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadTicketComments?: InputMaybe<Scalars['Boolean']['input']>;
@@ -824,6 +844,8 @@ export type B2BAppAccessRightSetUpdateInput = {
   canManageNewsItemScopes?: InputMaybe<Scalars['Boolean']['input']>;
   canManageNewsItems?: InputMaybe<Scalars['Boolean']['input']>;
   canManageProperties?: InputMaybe<Scalars['Boolean']['input']>;
+  canManagePropertyMeterReadings?: InputMaybe<Scalars['Boolean']['input']>;
+  canManagePropertyMeters?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTicketCommentFiles?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTicketComments?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTicketFiles?: InputMaybe<Scalars['Boolean']['input']>;
@@ -850,6 +872,8 @@ export type B2BAppAccessRightSetUpdateInput = {
   canReadOrganizations?: InputMaybe<Scalars['Boolean']['input']>;
   canReadPayments?: InputMaybe<Scalars['Boolean']['input']>;
   canReadProperties?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadPropertyMeterReadings?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadPropertyMeters?: InputMaybe<Scalars['Boolean']['input']>;
   canReadTicketCommentFiles?: InputMaybe<Scalars['Boolean']['input']>;
   canReadTicketComments?: InputMaybe<Scalars['Boolean']['input']>;
   canReadTicketFiles?: InputMaybe<Scalars['Boolean']['input']>;
@@ -919,6 +943,10 @@ export type B2BAppAccessRightSetWhereInput = {
   canManageNewsItems_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageProperties?: InputMaybe<Scalars['Boolean']['input']>;
   canManageProperties_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManagePropertyMeterReadings?: InputMaybe<Scalars['Boolean']['input']>;
+  canManagePropertyMeterReadings_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canManagePropertyMeters?: InputMaybe<Scalars['Boolean']['input']>;
+  canManagePropertyMeters_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTicketCommentFiles?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTicketCommentFiles_not?: InputMaybe<Scalars['Boolean']['input']>;
   canManageTicketComments?: InputMaybe<Scalars['Boolean']['input']>;
@@ -971,6 +999,10 @@ export type B2BAppAccessRightSetWhereInput = {
   canReadPayments_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadProperties?: InputMaybe<Scalars['Boolean']['input']>;
   canReadProperties_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadPropertyMeterReadings?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadPropertyMeterReadings_not?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadPropertyMeters?: InputMaybe<Scalars['Boolean']['input']>;
+  canReadPropertyMeters_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadTicketCommentFiles?: InputMaybe<Scalars['Boolean']['input']>;
   canReadTicketCommentFiles_not?: InputMaybe<Scalars['Boolean']['input']>;
   canReadTicketComments?: InputMaybe<Scalars['Boolean']['input']>;
@@ -5183,6 +5215,10 @@ export enum SortB2BAppAccessRightSetHistoryRecordsBy {
   CanManageNewsItemsDesc = 'canManageNewsItems_DESC',
   CanManagePropertiesAsc = 'canManageProperties_ASC',
   CanManagePropertiesDesc = 'canManageProperties_DESC',
+  CanManagePropertyMeterReadingsAsc = 'canManagePropertyMeterReadings_ASC',
+  CanManagePropertyMeterReadingsDesc = 'canManagePropertyMeterReadings_DESC',
+  CanManagePropertyMetersAsc = 'canManagePropertyMeters_ASC',
+  CanManagePropertyMetersDesc = 'canManagePropertyMeters_DESC',
   CanManageTicketCommentFilesAsc = 'canManageTicketCommentFiles_ASC',
   CanManageTicketCommentFilesDesc = 'canManageTicketCommentFiles_DESC',
   CanManageTicketCommentsAsc = 'canManageTicketComments_ASC',
@@ -5235,6 +5271,10 @@ export enum SortB2BAppAccessRightSetHistoryRecordsBy {
   CanReadPaymentsDesc = 'canReadPayments_DESC',
   CanReadPropertiesAsc = 'canReadProperties_ASC',
   CanReadPropertiesDesc = 'canReadProperties_DESC',
+  CanReadPropertyMeterReadingsAsc = 'canReadPropertyMeterReadings_ASC',
+  CanReadPropertyMeterReadingsDesc = 'canReadPropertyMeterReadings_DESC',
+  CanReadPropertyMetersAsc = 'canReadPropertyMeters_ASC',
+  CanReadPropertyMetersDesc = 'canReadPropertyMeters_DESC',
   CanReadTicketCommentFilesAsc = 'canReadTicketCommentFiles_ASC',
   CanReadTicketCommentFilesDesc = 'canReadTicketCommentFiles_DESC',
   CanReadTicketCommentsAsc = 'canReadTicketComments_ASC',
@@ -5318,6 +5358,10 @@ export enum SortB2BAppAccessRightSetsBy {
   CanManageNewsItemsDesc = 'canManageNewsItems_DESC',
   CanManagePropertiesAsc = 'canManageProperties_ASC',
   CanManagePropertiesDesc = 'canManageProperties_DESC',
+  CanManagePropertyMeterReadingsAsc = 'canManagePropertyMeterReadings_ASC',
+  CanManagePropertyMeterReadingsDesc = 'canManagePropertyMeterReadings_DESC',
+  CanManagePropertyMetersAsc = 'canManagePropertyMeters_ASC',
+  CanManagePropertyMetersDesc = 'canManagePropertyMeters_DESC',
   CanManageTicketCommentFilesAsc = 'canManageTicketCommentFiles_ASC',
   CanManageTicketCommentFilesDesc = 'canManageTicketCommentFiles_DESC',
   CanManageTicketCommentsAsc = 'canManageTicketComments_ASC',
@@ -5370,6 +5414,10 @@ export enum SortB2BAppAccessRightSetsBy {
   CanReadPaymentsDesc = 'canReadPayments_DESC',
   CanReadPropertiesAsc = 'canReadProperties_ASC',
   CanReadPropertiesDesc = 'canReadProperties_DESC',
+  CanReadPropertyMeterReadingsAsc = 'canReadPropertyMeterReadings_ASC',
+  CanReadPropertyMeterReadingsDesc = 'canReadPropertyMeterReadings_DESC',
+  CanReadPropertyMetersAsc = 'canReadPropertyMeters_ASC',
+  CanReadPropertyMetersDesc = 'canReadPropertyMeters_DESC',
   CanReadTicketCommentFilesAsc = 'canReadTicketCommentFiles_ASC',
   CanReadTicketCommentFilesDesc = 'canReadTicketCommentFiles_DESC',
   CanReadTicketCommentsAsc = 'canReadTicketComments_ASC',
@@ -7938,21 +7986,21 @@ export type AllB2BAppAccessRightsQueryVariables = Exact<{
 
 export type AllB2BAppAccessRightsQuery = { __typename?: 'Query', rights?: Array<{ __typename?: 'B2BAppAccessRight', condoUserEmail?: string | null } | null> | null };
 
-export type B2BAppAccessRightSetPermissionsFragment = { __typename?: 'B2BAppAccessRightSet', canReadOrganizations?: boolean | null, canReadOrganizationEmployees?: boolean | null, canReadOrganizationEmployeeRoles?: boolean | null, canReadProperties?: boolean | null, canManageProperties?: boolean | null, canReadContacts?: boolean | null, canManageContacts?: boolean | null, canReadTickets?: boolean | null, canManageTickets?: boolean | null, canReadTicketFiles?: boolean | null, canManageTicketFiles?: boolean | null, canReadTicketComments?: boolean | null, canManageTicketComments?: boolean | null, canReadTicketCommentFiles?: boolean | null, canManageTicketCommentFiles?: boolean | null, canReadCallRecords?: boolean | null, canManageCallRecords?: boolean | null, canReadMeters?: boolean | null, canManageMeters?: boolean | null, canReadMeterReadings?: boolean | null, canManageMeterReadings?: boolean | null, canReadMeterReportingPeriods?: boolean | null, canManageMeterReportingPeriods?: boolean | null, canReadInvoices?: boolean | null, canManageInvoices?: boolean | null, canReadPayments?: boolean | null, canReadCustomValues?: boolean | null, canManageCustomValues?: boolean | null, canReadBillingReceipts?: boolean | null, canReadBillingReceiptFiles?: boolean | null };
+export type B2BAppAccessRightSetPermissionsFragment = { __typename?: 'B2BAppAccessRightSet', canReadOrganizations?: boolean | null, canReadOrganizationEmployees?: boolean | null, canReadOrganizationEmployeeRoles?: boolean | null, canReadProperties?: boolean | null, canManageProperties?: boolean | null, canReadContacts?: boolean | null, canManageContacts?: boolean | null, canReadTickets?: boolean | null, canManageTickets?: boolean | null, canReadTicketFiles?: boolean | null, canManageTicketFiles?: boolean | null, canReadTicketComments?: boolean | null, canManageTicketComments?: boolean | null, canReadTicketCommentFiles?: boolean | null, canManageTicketCommentFiles?: boolean | null, canReadCallRecords?: boolean | null, canManageCallRecords?: boolean | null, canReadMeters?: boolean | null, canManageMeters?: boolean | null, canReadMeterReadings?: boolean | null, canManageMeterReadings?: boolean | null, canReadMeterReportingPeriods?: boolean | null, canManageMeterReportingPeriods?: boolean | null, canReadPropertyMeters?: boolean | null, canManagePropertyMeters?: boolean | null, canReadPropertyMeterReadings?: boolean | null, canManagePropertyMeterReadings?: boolean | null, canReadInvoices?: boolean | null, canManageInvoices?: boolean | null, canReadPayments?: boolean | null, canReadCustomValues?: boolean | null, canManageCustomValues?: boolean | null, canReadBillingReceipts?: boolean | null, canReadBillingReceiptFiles?: boolean | null };
 
 export type GetB2BAppAccessRightSetsForAppQueryVariables = Exact<{
   appId: Scalars['ID']['input'];
 }>;
 
 
-export type GetB2BAppAccessRightSetsForAppQuery = { __typename?: 'Query', rightSets?: Array<{ __typename?: 'B2BAppAccessRightSet', id: string, status?: B2BAppAccessRightSetStatusType | null, environment?: AppEnvironment | null, canReadOrganizations?: boolean | null, canReadOrganizationEmployees?: boolean | null, canReadOrganizationEmployeeRoles?: boolean | null, canReadProperties?: boolean | null, canManageProperties?: boolean | null, canReadContacts?: boolean | null, canManageContacts?: boolean | null, canReadTickets?: boolean | null, canManageTickets?: boolean | null, canReadTicketFiles?: boolean | null, canManageTicketFiles?: boolean | null, canReadTicketComments?: boolean | null, canManageTicketComments?: boolean | null, canReadTicketCommentFiles?: boolean | null, canManageTicketCommentFiles?: boolean | null, canReadCallRecords?: boolean | null, canManageCallRecords?: boolean | null, canReadMeters?: boolean | null, canManageMeters?: boolean | null, canReadMeterReadings?: boolean | null, canManageMeterReadings?: boolean | null, canReadMeterReportingPeriods?: boolean | null, canManageMeterReportingPeriods?: boolean | null, canReadInvoices?: boolean | null, canManageInvoices?: boolean | null, canReadPayments?: boolean | null, canReadCustomValues?: boolean | null, canManageCustomValues?: boolean | null, canReadBillingReceipts?: boolean | null, canReadBillingReceiptFiles?: boolean | null, diff?: { __typename?: 'AppAccessRightSetDiff', added: Array<string>, removed: Array<string> } | null } | null> | null };
+export type GetB2BAppAccessRightSetsForAppQuery = { __typename?: 'Query', rightSets?: Array<{ __typename?: 'B2BAppAccessRightSet', id: string, status?: B2BAppAccessRightSetStatusType | null, environment?: AppEnvironment | null, canReadOrganizations?: boolean | null, canReadOrganizationEmployees?: boolean | null, canReadOrganizationEmployeeRoles?: boolean | null, canReadProperties?: boolean | null, canManageProperties?: boolean | null, canReadContacts?: boolean | null, canManageContacts?: boolean | null, canReadTickets?: boolean | null, canManageTickets?: boolean | null, canReadTicketFiles?: boolean | null, canManageTicketFiles?: boolean | null, canReadTicketComments?: boolean | null, canManageTicketComments?: boolean | null, canReadTicketCommentFiles?: boolean | null, canManageTicketCommentFiles?: boolean | null, canReadCallRecords?: boolean | null, canManageCallRecords?: boolean | null, canReadMeters?: boolean | null, canManageMeters?: boolean | null, canReadMeterReadings?: boolean | null, canManageMeterReadings?: boolean | null, canReadMeterReportingPeriods?: boolean | null, canManageMeterReportingPeriods?: boolean | null, canReadPropertyMeters?: boolean | null, canManagePropertyMeters?: boolean | null, canReadPropertyMeterReadings?: boolean | null, canManagePropertyMeterReadings?: boolean | null, canReadInvoices?: boolean | null, canManageInvoices?: boolean | null, canReadPayments?: boolean | null, canReadCustomValues?: boolean | null, canManageCustomValues?: boolean | null, canReadBillingReceipts?: boolean | null, canReadBillingReceiptFiles?: boolean | null, diff?: { __typename?: 'AppAccessRightSetDiff', added: Array<string>, removed: Array<string> } | null } | null> | null };
 
 export type CreateB2BAppAccessRightSetMutationVariables = Exact<{
   data: B2BAppAccessRightSetCreateInput;
 }>;
 
 
-export type CreateB2BAppAccessRightSetMutation = { __typename?: 'Mutation', rightSet?: { __typename?: 'B2BAppAccessRightSet', id: string, status?: B2BAppAccessRightSetStatusType | null, environment?: AppEnvironment | null, canReadOrganizations?: boolean | null, canReadOrganizationEmployees?: boolean | null, canReadOrganizationEmployeeRoles?: boolean | null, canReadProperties?: boolean | null, canManageProperties?: boolean | null, canReadContacts?: boolean | null, canManageContacts?: boolean | null, canReadTickets?: boolean | null, canManageTickets?: boolean | null, canReadTicketFiles?: boolean | null, canManageTicketFiles?: boolean | null, canReadTicketComments?: boolean | null, canManageTicketComments?: boolean | null, canReadTicketCommentFiles?: boolean | null, canManageTicketCommentFiles?: boolean | null, canReadCallRecords?: boolean | null, canManageCallRecords?: boolean | null, canReadMeters?: boolean | null, canManageMeters?: boolean | null, canReadMeterReadings?: boolean | null, canManageMeterReadings?: boolean | null, canReadMeterReportingPeriods?: boolean | null, canManageMeterReportingPeriods?: boolean | null, canReadInvoices?: boolean | null, canManageInvoices?: boolean | null, canReadPayments?: boolean | null, canReadCustomValues?: boolean | null, canManageCustomValues?: boolean | null, canReadBillingReceipts?: boolean | null, canReadBillingReceiptFiles?: boolean | null } | null };
+export type CreateB2BAppAccessRightSetMutation = { __typename?: 'Mutation', rightSet?: { __typename?: 'B2BAppAccessRightSet', id: string, status?: B2BAppAccessRightSetStatusType | null, environment?: AppEnvironment | null, canReadOrganizations?: boolean | null, canReadOrganizationEmployees?: boolean | null, canReadOrganizationEmployeeRoles?: boolean | null, canReadProperties?: boolean | null, canManageProperties?: boolean | null, canReadContacts?: boolean | null, canManageContacts?: boolean | null, canReadTickets?: boolean | null, canManageTickets?: boolean | null, canReadTicketFiles?: boolean | null, canManageTicketFiles?: boolean | null, canReadTicketComments?: boolean | null, canManageTicketComments?: boolean | null, canReadTicketCommentFiles?: boolean | null, canManageTicketCommentFiles?: boolean | null, canReadCallRecords?: boolean | null, canManageCallRecords?: boolean | null, canReadMeters?: boolean | null, canManageMeters?: boolean | null, canReadMeterReadings?: boolean | null, canManageMeterReadings?: boolean | null, canReadMeterReportingPeriods?: boolean | null, canManageMeterReportingPeriods?: boolean | null, canReadPropertyMeters?: boolean | null, canManagePropertyMeters?: boolean | null, canReadPropertyMeterReadings?: boolean | null, canManagePropertyMeterReadings?: boolean | null, canReadInvoices?: boolean | null, canManageInvoices?: boolean | null, canReadPayments?: boolean | null, canReadCustomValues?: boolean | null, canManageCustomValues?: boolean | null, canReadBillingReceipts?: boolean | null, canReadBillingReceiptFiles?: boolean | null } | null };
 
 export type AllB2BAppContextsQueryVariables = Exact<{
   data: AllB2BAppContextsInput;
@@ -8257,6 +8305,10 @@ export const B2BAppAccessRightSetPermissionsFragmentDoc = gql`
   canManageMeterReadings
   canReadMeterReportingPeriods
   canManageMeterReportingPeriods
+  canReadPropertyMeters
+  canManagePropertyMeters
+  canReadPropertyMeterReadings
+  canManagePropertyMeterReadings
   canReadInvoices
   canManageInvoices
   canReadPayments

@@ -57,6 +57,10 @@ export const GROUPED_PERMISSIONS: GroupedPermissions = {
         'canManageMeterReadings',
         'canReadMeterReportingPeriods',
         'canManageMeterReportingPeriods',
+        'canReadPropertyMeters',
+        'canManagePropertyMeters',
+        'canReadPropertyMeterReadings',
+        'canManagePropertyMeterReadings',
     ],
     payment: [
         'canReadInvoices',
