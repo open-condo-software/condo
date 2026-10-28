@@ -104,12 +104,11 @@ async function doPropertiesBelongToMeterOrganizations (propertyAssignments) {
         id_in: propertyAssignments.map(({ propertyId }) => propertyId),
         deletedAt: null,
     })
+    const propertiesById = new Map(properties.map(property => [property.id, property]))
 
-    return properties.every(property => {
-        const meterOrganizationId = propertyAssignments
-            .find(({ propertyId }) => propertyId === property.id)?.organizationId
-
-        return property.organization === meterOrganizationId
+    return propertyAssignments.every(({ propertyId, organizationId }) => {
+        const property = propertiesById.get(propertyId)
+        return !property || property.organization === organizationId
     })
 }
 

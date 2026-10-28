@@ -510,6 +510,48 @@ describe('PropertyMeter', () => {
             })
         })
 
+        test('Can not create or update duplicate property assignments across organizations', async () => {
+            const [otherOrganization] = await createTestOrganization(admin)
+            const [otherRole] = await createTestOrganizationEmployeeRole(admin, otherOrganization, {
+                canReadMeters: true,
+                canManageMeters: true,
+                canManageProperties: true,
+            })
+            await createTestOrganizationEmployee(admin, otherOrganization, employeeClient.user, otherRole)
+            const [otherProperty] = await createTestProperty(employeeClient, otherOrganization)
+
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                await createTestPropertyMeters(employeeClient, [
+                    {
+                        organization: { connect: { id: organization.id } },
+                        property: { connect: { id: property1.id } },
+                        resource: { connect: { id: resource.id } },
+                    },
+                    {
+                        organization: { connect: { id: otherOrganization.id } },
+                        property: { connect: { id: property1.id } },
+                        resource: { connect: { id: resource.id } },
+                    },
+                ])
+            })
+
+            const [firstMeter] = await createTestPropertyMeter(employeeClient, organization, property1, resource, {})
+            const [secondMeter] = await createTestPropertyMeter(employeeClient, otherOrganization, otherProperty, resource, {})
+
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                await updateTestPropertyMeters(employeeClient, [
+                    {
+                        id: firstMeter.id,
+                        data: { property: { connect: { id: property1.id } } },
+                    },
+                    {
+                        id: secondMeter.id,
+                        data: { property: { connect: { id: property1.id } } },
+                    },
+                ])
+            })
+        })
+
         test('Can update for organization where user is employee', async () => {
             const createdMeters = await createTestPropertyMeters(employeeClient, [
                 {
