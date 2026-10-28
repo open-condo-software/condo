@@ -208,7 +208,7 @@ const exportRecordsAsCsvFile = async ({ context, loadRecordsBatch, convertRecord
 
     writeStream.close()
 
-    const stream = fs.createReadStream(filename, { encoding: 'utf8' })
+    const stream = fs.createReadStream(filename)
     const { size } = fs.statSync(filename)
     const file = await uploadExportFile({
         context,
