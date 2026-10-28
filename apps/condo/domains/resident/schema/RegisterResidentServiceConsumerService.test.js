@@ -12,6 +12,7 @@ const {
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { addAcquiringIntegrationAndContext } = require('@condo/domains/acquiring/utils/testSchema')
+const { CONTEXT_IN_PROGRESS_STATUS } = require('@condo/domains/billing/constants/constants')
 const {
     createTestBillingProperty,
     createTestBillingAccount,
@@ -350,7 +351,12 @@ describe('RegisterResidentServiceConsumers', () => {
         })
 
         it('throw error when try createServiceConsumer with BillingIntegrationOrganizationContext not in finished status', async () => {
-            const { organization, context } = await makeContextWithOrganizationAndIntegrationAsAdmin({}, {}, {}, true)
+            const { organization, context } = await makeContextWithOrganizationAndIntegrationAsAdmin(
+                {},
+                {},
+                { status: CONTEXT_IN_PROGRESS_STATUS },
+                true,
+            )
             const [property] = await createTestProperty(adminClient, organization)
             const [billingProperty] = await createTestBillingProperty(adminClient, context, {
                 address: property.address,
@@ -364,7 +370,7 @@ describe('RegisterResidentServiceConsumers', () => {
                 unitName: billingAccount.unitName,
             })
 
-            expect(context).not.toEqual(CONTEXT_FINISHED_STATUS)
+            expect(context.status).toEqual(CONTEXT_IN_PROGRESS_STATUS)
 
             await expectToThrowGQLError(async () => {
                 await registerResidentServiceConsumersByTestClient(residentClient, {
