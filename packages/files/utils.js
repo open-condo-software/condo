@@ -173,6 +173,7 @@ const FileMetaSignatureSchema = z.object({
     id: z.string(),
     recordId: z.uuid(),
     path: z.string().nullable(),
+    size: z.string().nullable(),
     filename: z.string(),
     originalFilename: z.string(),
     mimetype: z.string(),
@@ -197,7 +198,7 @@ const FileMetaSignatureSchema = z.object({
 const FileUploadMetaSchema = z.object({
     id: z.uuid(),
     mimetype: z.string().min(1),
-    size: z.string(),
+    size: z.string().nullable(),
     dv: z.literal(1),
     sender: z.object({
         dv: z.literal(1),
