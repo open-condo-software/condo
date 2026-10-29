@@ -321,9 +321,14 @@
   /* No overlay header in Cowork — page header sits in normal flow above. */
   --ai-chat-header-height: 0;
 
-  /* 24px breathing room above the first message;
-     the bottom gap is controlled separately by --ai-chat-input-bottom-gap. */
+  /* 24px breathing room above the first message.
+     Do not add the overlay header here: this page header is in normal flow.
+     The bottom gap stays --ai-chat-input-bottom-gap, and short threads sit on it. */
   --ai-chat-chrome-gap: var(--condo-global-spacing-24);
+  --ai-chat-messages-padding-top: var(--ai-chat-chrome-gap);
+  --ai-chat-messages-justify: safe flex-end;
+  --ai-chat-pin-to-bottom: 1;
+  --ai-chat-active-turn-min-height: 0;
 
   /* Extra space below the last message, before the input. */
   --ai-chat-input-bottom-gap: 64px;

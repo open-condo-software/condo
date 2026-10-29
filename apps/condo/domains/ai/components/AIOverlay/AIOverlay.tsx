@@ -21,7 +21,7 @@ type AIOverlayProps = {
     onClose: () => void
 }
 
-const MIN_OVERLAY_WIDTH = 300
+const MIN_OVERLAY_WIDTH = 320
 const MAX_OVERLAY_WIDTH = 1200
 const CLOSE_THRESHOLD = MIN_OVERLAY_WIDTH / 2
 const EMPTY_AI_SESSION_ID = ''

@@ -2,16 +2,42 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--condo-global-spacing-8);
+  align-items: flex-start;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   margin-top: var(--condo-global-spacing-16);
 }
 
 .suggestion-item {
-  display: inline-flex;
+  display: flex;
+  min-width: 0;
+  max-width: 100%;
   animation: suggestion-fade-in var(--condo-global-transition-duration-default) ease-in-out both;
 }
 
+.suggestion-item :global(.condo-btn.condo-btn-medium),
+.suggestion-item :global(.condo-btn.condo-btn-large) {
+  width: max-content;
+  max-width: 100%;
+  height: auto;
+  min-height: var(--condo-global-spacing-32);
+  padding-top: var(--condo-global-spacing-8);
+  padding-bottom: var(--condo-global-spacing-8);
+  line-height: 1.4;
+  white-space: normal;
+}
+
+.suggestion-item :global(.condo-btn-text) {
+  line-height: 1.4;
+  white-space: normal;
+  text-align: start;
+  overflow-wrap: break-word;
+}
+
 .tooltip-wrap {
-  display: inline-block;
+  display: flex;
+  min-width: 0;
   max-width: 100%;
 }
 

@@ -18,12 +18,14 @@
   display: flex;
   flex-direction: column;
   gap: var(--condo-global-spacing-32);
+  justify-content: var(--ai-chat-messages-justify, flex-start);
   width: 100%;
   min-width: 0;
   padding:
     calc(var(--ai-chat-header-height, 0) + var(--ai-chat-chrome-gap, var(--condo-global-spacing-12)))
     var(--ai-chat-padding-x, var(--condo-global-spacing-24))
     calc(var(--ai-chat-input-height, 5rem) + var(--ai-chat-input-bottom-gap, var(--condo-global-spacing-12)));
+  overflow-x: clip;
   overflow-y: auto;
   background: var(--ai-chat-bg, transparent);
   inset: 0;
@@ -31,19 +33,32 @@
   -ms-overflow-style: none;
 }
 
-/* Override comment-body global styles */
+/* comment-body sets its own padding and a 350px min-width.
+   Top inset is per surface. Bottom clearance is the ::after spacer:
+   padding-bottom on a flex scroller is not part of the scroll height. */
 .messages-container:global(.comment-body) {
   min-width: 0;
   max-width: none;
-  padding:
-    var(--condo-global-spacing-16)
-    var(--ai-chat-padding-x, var(--condo-global-spacing-24))
-    calc(var(--ai-chat-input-height, 5rem) + var(--ai-chat-input-bottom-gap, var(--condo-global-spacing-12)));
+  padding-top:
+    var(
+      --ai-chat-messages-padding-top,
+      calc(var(--ai-chat-header-height, 0) + var(--ai-chat-chrome-gap, var(--condo-global-spacing-16)))
+    );
+  padding-bottom: 0;
+}
+
+.messages-container::after {
+  flex: 0 0 auto;
+  width: 100%;
+  height: calc(var(--ai-chat-input-height, 5rem) + var(--ai-chat-input-bottom-gap, var(--condo-global-spacing-12)));
+  content: "";
 }
 
 /* Without this, long flex children shrink and clip inside the scroller. */
 .messages-container > * {
   flex-shrink: 0;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .messages-container::-webkit-scrollbar {
@@ -138,6 +153,7 @@
   align-items: center;
   justify-content: flex-start;
   width: 100%;
+  min-width: 0;
 }
 
 .assistant-message-actions {
@@ -164,7 +180,7 @@
 
 .turn[data-active="true"] {
   box-sizing: border-box;
-  min-height: var(--ai-chat-scrollport-height, 100%);
+  min-height: var(--ai-chat-active-turn-min-height, var(--ai-chat-scrollport-height, 100%));
 }
 
 .turn:last-child {
@@ -173,8 +189,10 @@
 
 .assistant-a2ui {
   width: 100%;
-  max-width: 1200px;
+  min-width: 0;
+  max-width: 100%;
   margin: 0 auto;
+  overflow-x: hidden;
 }
 
 .assistant-markdown {
