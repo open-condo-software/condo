@@ -30,6 +30,11 @@ import { extractA2UIMessages } from './genUI'
 import type { Message } from '@condo/domains/ai/utils/aiChatStorage'
 
 const WELCOME_UI_MESSAGE_ID = 'welcome-ui-message'
+const STICK_TO_BOTTOM_DISTANCE = 48
+
+const messagesPinToBottom = (container: HTMLElement) => {
+    return getComputedStyle(container).getPropertyValue('--ai-chat-pin-to-bottom').trim() === '1'
+}
 
 const AI_FLOW_TIMEOUT_MS = 6 * 60 * 1000
 
@@ -117,6 +122,7 @@ export const AIChat: React.FC<AIChatProps> = ({
     const inputRef = useRef<any>(null)
     const pendingScrollToMessageIdRef = useRef<string | null>(null)
     const shouldScrollActiveTurnRef = useRef(false)
+    const stickToBottomRef = useRef(true)
     const initialLoadDoneRef = useRef(false)
     const initialMessageSentRef = useRef(false)
     const initialMessageOverrideRef = useRef<string | null>(null)
@@ -374,15 +380,19 @@ export const AIChat: React.FC<AIChatProps> = ({
         const contentHeight = messageElements.reduce((total, element, index) => {
             return total + element.offsetHeight + (index > 0 ? gap : 0)
         }, 0)
-        const visibleHeight = Math.max(0, container.clientHeight - padTop - padBottom)
+        // ::after is the clearance above the input. Padding no longer includes it,
+        // so the visible area must shrink by that spacer or the clamp stops short of the end.
+        const endSpacer = Number.parseFloat(getComputedStyle(container, '::after').height) || 0
+        const visibleHeight = Math.max(0, container.clientHeight - padTop - padBottom - endSpacer)
         const contentOverflow = Math.max(0, contentHeight - visibleHeight)
+        const contentMax = pinScrollTop + contentOverflow
 
-        return pinScrollTop + contentOverflow
+        return Math.min(Math.max(0, container.scrollHeight - container.clientHeight), contentMax)
     }, [activeTurnUserMessageId, getMessagesPadding, getTurnPinScrollTop])
 
     const clampActiveTurnScroll = useCallback(() => {
         const container = messagesContainerRef.current
-        if (!container || !activeTurnUserMessageId) return
+        if (!container || !activeTurnUserMessageId || messagesPinToBottom(container)) return
 
         const maxScrollTop = getActiveTurnMaxScrollTop()
         if (container.scrollTop > maxScrollTop + 1) {
@@ -409,6 +419,12 @@ export const AIChat: React.FC<AIChatProps> = ({
         if (!activeTurnUserMessageId || !shouldScrollActiveTurnRef.current) return
 
         shouldScrollActiveTurnRef.current = false
+        const container = messagesContainerRef.current
+        if (container && messagesPinToBottom(container)) {
+            stickToBottomRef.current = true
+            container.scrollTop = container.scrollHeight
+            return
+        }
         scrollTurnToTop(activeTurnUserMessageId)
         clampActiveTurnScroll()
     }, [activeTurnUserMessageId, clampActiveTurnScroll, scrollTurnToTop])
@@ -417,15 +433,43 @@ export const AIChat: React.FC<AIChatProps> = ({
         if (!activeTurnUserMessageId) return
 
         const container = messagesContainerRef.current
+        if (!container) return
+
+        if (messagesPinToBottom(container)) {
+            const onScroll = () => {
+                const distance = container.scrollHeight - container.scrollTop - container.clientHeight
+                stickToBottomRef.current = distance < STICK_TO_BOTTOM_DISTANCE
+            }
+            if (stickToBottomRef.current) {
+                container.scrollTop = container.scrollHeight
+            }
+            container.addEventListener('scroll', onScroll, { passive: true })
+            return () => container.removeEventListener('scroll', onScroll)
+        }
+
         const onScroll = () => {
             clampActiveTurnScroll()
         }
 
-        container?.addEventListener('scroll', onScroll, { passive: true })
+        container.addEventListener('scroll', onScroll, { passive: true })
         clampActiveTurnScroll()
 
-        return () => container?.removeEventListener('scroll', onScroll)
+        return () => container.removeEventListener('scroll', onScroll)
     }, [activeTurnUserMessageId, clampActiveTurnScroll, messages])
+
+    useEffect(() => {
+        const container = messagesContainerRef.current
+        if (!container) return
+
+        const onScroll = () => {
+            if (!messagesPinToBottom(container)) return
+            const distance = container.scrollHeight - container.scrollTop - container.clientHeight
+            stickToBottomRef.current = distance < STICK_TO_BOTTOM_DISTANCE
+        }
+
+        container.addEventListener('scroll', onScroll, { passive: true })
+        return () => container.removeEventListener('scroll', onScroll)
+    }, [])
 
     useEffect(() => {
         setTimeout(() => {
@@ -438,6 +482,12 @@ export const AIChat: React.FC<AIChatProps> = ({
             const { padTop, padBottom } = getMessagesPadding(container)
             const visibleHeight = Math.max(0, container.clientHeight - padTop - padBottom)
             container.style.setProperty('--ai-chat-scrollport-height', `${visibleHeight}px`)
+            if (messagesPinToBottom(container)) {
+                if (stickToBottomRef.current) {
+                    container.scrollTop = container.scrollHeight
+                }
+                return
+            }
             clampActiveTurnScroll()
         }
 

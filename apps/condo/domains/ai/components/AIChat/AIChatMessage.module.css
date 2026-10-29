@@ -1,6 +1,7 @@
 .message-wrapper {
   display: flex;
   width: 100%;
+  min-width: 0;
   max-width: 100%;
 }
 
@@ -64,6 +65,13 @@
 .assistant-message {
   display: flex;
   justify-content: flex-start;
+  min-width: 0;
+}
+
+.assistant-body {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .assistant-message-container {
@@ -73,6 +81,7 @@
   align-items: flex-start;
   justify-content: flex-start;
   width: 100%;
+  min-width: 0;
   max-width: var(--ai-chat-content-max-width, 100%);
   margin-inline: var(--ai-chat-content-margin-inline, 0);
 }
@@ -80,6 +89,19 @@
 .assistant-message-actions {
   display: flex;
   gap: var(--condo-global-spacing-4);
+}
+
+.assistant-a2ui {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.assistant-a2ui :global(.echarts-for-react),
+.assistant-a2ui :global(svg),
+.assistant-a2ui :global(canvas) {
+  max-width: 100%;
 }
 
 .assistant-markdown {
