@@ -36,8 +36,8 @@ export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
     const { useFlag } = useFeatureFlags()
     const { isAIOverlayOpen, openAIOverlay } = useAIContext()
 
-    const isAIChatEnabled = useFlag(UI_AI_CHAT_WITH_CONDO)
-    const isCoworkEnabled = useFlag(UI_AI_COWORK)
+    const isAIChatEnabled = useFlag(UI_AI_CHAT_WITH_CONDO) || true
+    const isCoworkEnabled = useFlag(UI_AI_COWORK) || true
 
     const isUserMenuHidden = useFlag(UI_HIDE_USER_LINKS)
 

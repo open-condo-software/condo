@@ -105,7 +105,7 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
         loading: featureLoading,
     } = useFeatureSubscription(featureName, featureAppId)
     const { activateLoading } = useActivateSubscriptions()
-    const { PaymentModal, openModal: openPaymentModal } = useSubscriptionPaymentModal({
+    const { PaymentModal, InvoiceModal, openModal: openPaymentModal } = useSubscriptionPaymentModal({
         registerSubscriptionContext: registerFeatureSubscription,
         activateLoading,
     })
@@ -237,6 +237,7 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
         return (
             <>
                 {!hidePaidFeatures && PaymentModal}
+                {!hidePaidFeatures && InvoiceModal}
                 {!hidePaidFeatures && <SubscriptionTrialEndedModal />}
                 <Head>
                     <title>{pageTitle}</title>

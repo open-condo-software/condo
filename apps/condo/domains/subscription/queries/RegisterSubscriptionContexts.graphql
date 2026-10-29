@@ -11,5 +11,8 @@ mutation registerSubscriptionContexts($data: RegisterSubscriptionContextsInput!)
         multiPayment {
             id
         }
+        invoice {
+            id
+        }
     }
 }

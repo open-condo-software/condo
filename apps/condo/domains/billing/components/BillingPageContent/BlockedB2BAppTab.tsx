@@ -48,7 +48,7 @@ export const BlockedB2BAppTab: React.FC<BlockedB2BAppTabProps> = ({ appId, short
 
     const { activateLoading } = useActivateSubscriptions()
 
-    const { PaymentModal, openModal } = useSubscriptionPaymentModal({
+    const { PaymentModal, InvoiceModal, openModal } = useSubscriptionPaymentModal({
         registerSubscriptionContext: registerFeatureSubscription,
         activateLoading,
     })
@@ -101,6 +101,7 @@ export const BlockedB2BAppTab: React.FC<BlockedB2BAppTabProps> = ({ appId, short
     return (
         <>
             {PaymentModal}
+            {InvoiceModal}
             <SubscriptionBlockedContent
                 title={hasFeaturePlan ? FeatureGuardTitle : GuardTitle}
                 description={description}

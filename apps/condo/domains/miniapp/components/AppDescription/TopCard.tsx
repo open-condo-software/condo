@@ -143,7 +143,7 @@ const TopCard = React.memo<TopCardProps>(({
         registerFeatureSubscription,
     } = useFeatureSubscription('b2bApp', id)
     const { activateLoading } = useActivateSubscriptions()
-    const { PaymentModal, openModal: openPaymentModal } = useSubscriptionPaymentModal({
+    const { PaymentModal, InvoiceModal, openModal: openPaymentModal } = useSubscriptionPaymentModal({
         registerSubscriptionContext: registerFeatureSubscription,
         activateLoading,
     })
@@ -357,6 +357,7 @@ const TopCard = React.memo<TopCardProps>(({
                 )}
             </Col>
             {PaymentModal}
+            {InvoiceModal}
         </Row>
     )
 })

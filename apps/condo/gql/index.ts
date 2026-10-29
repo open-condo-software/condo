@@ -6378,6 +6378,9 @@ export const RegisterSubscriptionContextsDocument = gql`
     multiPayment {
       id
     }
+    invoice {
+      id
+    }
   }
 }
     `;

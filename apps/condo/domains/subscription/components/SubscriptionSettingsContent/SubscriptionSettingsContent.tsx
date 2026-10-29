@@ -385,6 +385,7 @@ export const SubscriptionSettingsContent: React.FC = () => {
         handleCheckoutConfirm,
         handleCheckoutUpsell,
         PaymentModal,
+        InvoiceModal,
         isRemoveOpen,
         openRemove,
         closeRemove,
@@ -437,6 +438,7 @@ export const SubscriptionSettingsContent: React.FC = () => {
     return (
         <>
             {PaymentModal}
+            {InvoiceModal}
             {PaymentHistoryModal}
             <SubscriptionCheckoutModal
                 open={isCheckoutOpen}

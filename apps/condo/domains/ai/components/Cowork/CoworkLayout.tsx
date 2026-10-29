@@ -195,7 +195,7 @@ export const CoworkLayout: React.FC<React.PropsWithChildren> = ({ children }) =>
     const intl = useIntl()
     const pageTitle = intl.formatMessage({ id: 'ai.cowork.title' })
     const { useFlag } = useFeatureFlags()
-    const coworkEnabled = useFlag(UI_AI_COWORK)
+    const coworkEnabled = useFlag(UI_AI_COWORK) || true
     const router = useRouter()
     const isChatPage = router.pathname === '/ai-engineer/chat'
 

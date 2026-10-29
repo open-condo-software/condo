@@ -1,4 +1,4 @@
-import { useGetOrganizationActivatedSubscriptionsQuery, useRegisterSubscriptionContextsMutation } from '@app/condo/gql'
+import { useGetOrganizationActivatedSubscriptionsQuery, useRegisterSubscriptionContextsMutation, RegisterSubscriptionContextsMutationResult } from '@app/condo/gql'
 import { SubscriptionPaymentType } from '@app/condo/schema'
 import { notification } from 'antd'
 import getConfig from 'next/config'
@@ -115,8 +115,8 @@ export const useActivateSubscriptions = () => {
         returnUrl,
         includesServicePlan = true,
         notify = true,
-    }: ActivateBundleParams): Promise<boolean> => {
-        if (!organization || priceIds.length === 0 || isSubmittingRef.current) return false
+    }: ActivateBundleParams): Promise<{ isSuccessfully: boolean, result: RegisterSubscriptionContextsMutationResult['data']['result'] | null }> => {
+        if (!organization || priceIds.length === 0 || isSubmittingRef.current) return { isSuccessfully: false, result: null }
 
         isSubmittingRef.current = true
         setActivateLoading(true)
@@ -143,12 +143,12 @@ export const useActivateSubscriptions = () => {
                 url.searchParams.append('returnUrl', returnUrlWithParams.toString())
                 paymentUrl = url.toString()
                 window.open(paymentUrl, '_self')
-                return true
+                return { isSuccessfully: true, result: result.data.result }
             }
 
             await refetchData(isTrial)
             if (notify) showSuccessNotification(isTrial, planName, trialDays, includesServicePlan, paymentType)
-            return true
+            return { isSuccessfully: true, result: result.data.result }
         } catch (error) {
             console.error('Failed to activate subscription:', error)
             notification.error({
@@ -156,7 +156,7 @@ export const useActivateSubscriptions = () => {
                 description: error?.message || ActivationErrorMessage,
                 duration: 5,
             })
-            return false
+            return { isSuccessfully: false, result: null }
         } finally {
             isSubmittingRef.current = false
             setActivateLoading(false)

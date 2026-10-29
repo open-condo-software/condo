@@ -85,7 +85,7 @@ export const useSubscriptionCheckout = ({
         const priceIds = upsellPriceIds.length > 0 ? upsellPriceIds : cartPriceIds
         if (priceIds.length === 0) return
 
-        await registerSubscriptionBundle({
+        const { result } = await registerSubscriptionBundle({
             priceIds,
             isTrial: false,
             planName: selectedPlanCard?.planInfo?.plan?.name ?? '',
@@ -96,6 +96,8 @@ export const useSubscriptionCheckout = ({
         clearSelection()
         setUpsellPlanId(null)
         await refetchSubscriptions()
+
+        return { invoice: result.invoice }
     }, [upsellPriceIds, cartPriceIds, registerSubscriptionBundle, selectedPlanCard, isPlanInCart, clearSelection, refetchSubscriptions])
 
     const [requestSubscriptionInvoice] = useRequestSubscriptionInvoiceMutation()
@@ -131,7 +133,7 @@ export const useSubscriptionCheckout = ({
         await refetchSubscriptions()
     }, [requestSubscriptionInvoice, intl, registerSubscriptionBundle, refetchSubscriptions])
 
-    const { PaymentModal, openModal: openPaymentModal } = useSubscriptionPaymentModal({
+    const { PaymentModal, InvoiceModal, openModal: openPaymentModal } = useSubscriptionPaymentModal({
         registerSubscriptionContext: purchase,
         activateLoading,
     })
@@ -204,7 +206,7 @@ export const useSubscriptionCheckout = ({
             ? Number(selectedPlanCard?.planInfo?.plan?.trialDays ?? 0)
             : Math.min(...selectedRows.map(row => Number(row.featurePlan?.trialDays ?? 0)))
 
-        const isRegistered = await registerSubscriptionBundle({
+        const { isSuccessfully: isRegistered } = await registerSubscriptionBundle({
             priceIds: cartPriceIds,
             isTrial: true,
             planName: isPlanInCart
@@ -230,7 +232,7 @@ export const useSubscriptionCheckout = ({
     const handleTryRow = useCallback(async (row: CatalogRow) => {
         if (!row.price?.id) return
 
-        const isRegistered = await registerSubscriptionBundle({
+        const { isSuccessfully: isRegistered } = await registerSubscriptionBundle({
             priceIds: [row.price.id],
             isTrial: true,
             planName: row.label,
@@ -260,6 +262,7 @@ export const useSubscriptionCheckout = ({
         handleCheckoutConfirm,
         handleCheckoutUpsell,
         PaymentModal,
+        InvoiceModal,
         isRemoveOpen,
         openRemove,
         closeRemove,
