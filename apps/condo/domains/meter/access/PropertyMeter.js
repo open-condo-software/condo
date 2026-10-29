@@ -119,10 +119,6 @@ async function canManagePropertyMeters (args) {
     if (user.deletedAt) return false
     if (user.isSupport || user.isAdmin) return true
 
-    if (user.type === SERVICE) {
-        return await canManageObjectsAsB2BAppServiceUser(args)
-    }
-
     const isBulkRequest = Array.isArray(originalInput)
     let accessData
     if (operation === 'create') {
@@ -136,6 +132,10 @@ async function canManagePropertyMeters (args) {
 
     if (accessData && !await doPropertiesBelongToMeterOrganizations(accessData.propertyAssignments)) {
         return false
+    }
+
+    if (user.type === SERVICE) {
+        return await canManageObjectsAsB2BAppServiceUser(args)
     }
 
     return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, accessData?.organizationIds, 'canManageMeters')

@@ -61,6 +61,8 @@ describe('PropertyMeter', () => {
                 const serviceClient = await makeClientWithServiceUser()
                 const [organization] = await createTestOrganization(admin)
                 const [property] = await createTestProperty(admin, organization, { map: buildingMapJson })
+                const [otherOrganization] = await createTestOrganization(admin)
+                const [otherProperty] = await createTestProperty(admin, otherOrganization, { map: buildingMapJson })
                 const [app] = await createTestB2BApp(admin)
                 await createTestB2BAppContext(admin, app, organization, { status: 'Finished' })
                 const [accessRightSet] = await createTestB2BAppAccessRightSet(admin, app, {
@@ -78,6 +80,15 @@ describe('PropertyMeter', () => {
                     number: 'updated-number',
                 })
                 expect(updatedMeter.number).toBe(attrs.number)
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestPropertyMeter(serviceClient, organization, otherProperty, resource, {})
+                })
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestPropertyMeter(serviceClient, meter.id, {
+                        property: { connect: { id: otherProperty.id } },
+                    })
+                })
             })
 
             test('service user without "canManagePropertyMeters" access right cannot create or update', async () => {
