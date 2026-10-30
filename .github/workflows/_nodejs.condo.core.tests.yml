@@ -80,6 +80,47 @@ jobs:
         run: |
           cp .env.example .env
 
+      - name: Pull images
+        env:
+          REGISTRY: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}/doma/utils/
+          TEST_IMAGE: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}/condo/condo-image:${{ inputs.image_tag }}
+          PULL_ATTEMPTS: 5
+          PULL_TIMEOUT_SECONDS: 180
+          PULL_RETRY_SLEEP_SECONDS: 20
+        run: |
+          set -euo pipefail
+
+          pull_image() {
+            local image="$1"
+            local attempt=1
+
+            while true; do
+              echo "Pulling ${image} (attempt ${attempt}/${PULL_ATTEMPTS})"
+              if timeout "${PULL_TIMEOUT_SECONDS}" docker pull "$image"; then
+                return 0
+              fi
+              if (( attempt >= PULL_ATTEMPTS )); then
+                echo "Failed to pull ${image} after ${PULL_ATTEMPTS} attempts" >&2
+                return 1
+              fi
+              echo "Pull failed for ${image}, retrying in ${PULL_RETRY_SLEEP_SECONDS}s" >&2
+              sleep "${PULL_RETRY_SLEEP_SECONDS}"
+              attempt=$((attempt + 1))
+            done
+          }
+
+          images=()
+          while IFS= read -r image; do
+            if [[ -n "$image" ]]; then
+              images+=("$image")
+            fi
+          done < <(docker-compose --profile dbs config --images | awk '!seen[$0]++')
+          images+=("$TEST_IMAGE")
+
+          for image in "${images[@]}"; do
+            pull_image "$image"
+          done
+
       - name: run dbs
         env:
           REGISTRY: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}/doma/utils/
