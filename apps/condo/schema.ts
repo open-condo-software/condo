@@ -26280,6 +26280,7 @@ export type CardToken = {
   acquiringIntegrationIds: Array<Scalars['String']['output']>;
   bankCountryCode?: Maybe<Scalars['String']['output']>;
   bankName?: Maybe<Scalars['String']['output']>;
+  bindingId: Scalars['String']['output'];
   cardNumber: Scalars['String']['output'];
   createdAt: Scalars['String']['output'];
   expiration: Scalars['String']['output'];
