@@ -12,6 +12,7 @@ import {
     signInAsUser,
     createTicket,
     resetOrganization,
+    getXTargetHeaders,
 } from './utils'
 
 
@@ -115,7 +116,9 @@ export function teardown (data) {
 }
 
 export function healthcheck () {
-    const appHealthcheck = http.get(__ENV.BASE_URL + '/server-health?checks=postgres,redis')
+    const appHealthcheck = http.get(__ENV.BASE_URL + '/server-health?checks=postgres,redis', {
+        headers: getXTargetHeaders(),
+    })
 
     check(appHealthcheck, {
         'healthcheck should return 200': (res) => res.status === 200,
@@ -173,7 +176,9 @@ export function createTickets (data) {
 }
 
 export async function checkFrontend (data) {
-    const context = await browser.newContext()
+    const context = await browser.newContext({
+        extraHTTPHeaders: getXTargetHeaders(),
+    })
     const page = await context.newPage()
 
     const organizationForCheckFrontend = setupOrganizationForCheckFrontend()
