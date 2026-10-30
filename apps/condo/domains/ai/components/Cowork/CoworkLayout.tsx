@@ -1,3 +1,4 @@
+import Head from 'next/head'
 import Router, { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
@@ -191,6 +192,8 @@ const Logo: React.FC = () => {
 
 
 export const CoworkLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
+    const intl = useIntl()
+    const pageTitle = intl.formatMessage({ id: 'ai.cowork.title' })
     const { useFlag } = useFeatureFlags()
     const coworkEnabled = useFlag(UI_AI_COWORK)
     const router = useRouter()
@@ -204,6 +207,9 @@ export const CoworkLayout: React.FC<React.PropsWithChildren> = ({ children }) =>
 
     return (
         <AiAssistantsChatStorageProvider>
+            <Head>
+                <title>{pageTitle}</title>
+            </Head>
             <BaseLayout
                 className={isChatPage ? styles['cowork-layout'] : undefined}
                 TopMenuItems={CoworkTopMenuItems}

@@ -1,15 +1,15 @@
 import { Catalog, type ComponentApi, type ComponentModel, type DataModel, type SurfaceModel } from '@a2ui/web_core/v0_9'
 import dynamic from 'next/dynamic'
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { z } from 'zod'
 
 
 import { Button, Card, Typography } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/colors'
 
 import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 
-import type { EChartsOption } from 'echarts-for-react'
+import styles from './condoCatalog.module.css'
+import { fitChartOption, parseChartOption } from './fitChartOption'
 
 export const CONDO_CATALOG_ID = 'https://condo.open-condo.software/a2ui/v1/catalog.json'
 
@@ -70,7 +70,7 @@ interface RendererProps {
 const TextRenderer: React.FC<RendererProps> = ({ component, surface }) => {
     const text = resolveValue(component.properties.text, surface.dataModel)
     const variant = resolveValue(component.properties.variant, surface.dataModel)
-    const content = <span style={{ whiteSpace: 'pre-line' }}>{text}</span>
+    const content = <span className={styles.text}>{text}</span>
 
     if (variant === 'h1') return <Typography.Title level={1}>{content}</Typography.Title>
     if (variant === 'h2') return <Typography.Title level={2}>{content}</Typography.Title>
@@ -79,16 +79,19 @@ const TextRenderer: React.FC<RendererProps> = ({ component, surface }) => {
     return <Typography.Text>{content}</Typography.Text>
 }
 
+// Below this basis a row child wraps onto the next line, so two charts stack in a 320px panel.
+const ROW_ITEM_FLEX_BASIS = '16rem'
+
 // Row — horizontal flex, children fill space proportionally to weight (grid-like)
 const RowRenderer: React.FC<RendererProps> = ({ component, surface }) => {
     const children = resolveChildren(component, surface)
     return (
-        <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 12, width: '100%' }}>
+        <div className={styles.row}>
             {children.map(child => {
                 const rawWeight = child.properties.weight
                 const weight = typeof rawWeight === 'number' && rawWeight > 0 && Number.isFinite(rawWeight) ? rawWeight : 1
                 return (
-                    <div key={child.id} style={{ flex: weight, minWidth: 0 }}>
+                    <div key={child.id} className={styles.rowItem} style={{ flex: `${weight} 1 ${ROW_ITEM_FLEX_BASIS}` }}>
                         <ComponentRenderer component={child} surface={surface} />
                     </div>
                 )
@@ -116,11 +119,11 @@ const CardRenderer: React.FC<RendererProps> = ({ component, surface }) => {
     const children = resolveChildren(component, surface)
 
     return (
-        <div style={{ width: '100%', maxWidth: 550 }}>
+        <div className={styles.card}>
             <Card title={title || undefined} width='100%'>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%' }}>
+                <div className={styles.stack}>
                     {children.map(child => (
-                        <div key={child.id} style={{ width: '100%' }}>
+                        <div key={child.id} className={styles.stackItem}>
                             <ComponentRenderer component={child} surface={surface} />
                         </div>
                     ))}
@@ -134,9 +137,9 @@ const CardRenderer: React.FC<RendererProps> = ({ component, surface }) => {
 const ColRenderer: React.FC<RendererProps> = ({ component, surface }) => {
     const children = resolveChildren(component, surface)
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%' }}>
+        <div className={styles.stack}>
             {children.map(child => (
-                <div key={child.id} style={{ width: '100%' }}>
+                <div key={child.id} className={styles.stackItem}>
                     <ComponentRenderer component={child} surface={surface} />
                 </div>
             ))}
@@ -149,20 +152,40 @@ const ReactECharts = dynamic(
     { ssr: false, loading: () => null },
 )
 
-const CHART_COLOR_SET = [
-    colors.blue['7'],
-    colors.teal['5'],
-    colors.green['7'],
-    colors.blue['5'],
-    colors.green['5'],
-    colors.cyan['5'],
-    colors.cyan['3'],
-    colors.purple['5'],
-]
+const DEFAULT_CHART_HEIGHT = 300
+
+function contentBoxWidth (element: HTMLElement): number {
+    const style = getComputedStyle(element)
+    const padding = (Number.parseFloat(style.paddingLeft) || 0) + (Number.parseFloat(style.paddingRight) || 0)
+    return Math.max(0, element.clientWidth - padding)
+}
 
 const ChartRenderer: React.FC<RendererProps> = ({ component, surface }) => {
-    const option = resolveObject(component.properties.option, surface.dataModel) as unknown as EChartsOption | null
+    const option = parseChartOption(resolveObject(component.properties.option, surface.dataModel))
     const height = resolveValue(component.properties.height, surface.dataModel)
+    const hostRef = useRef<HTMLDivElement>(null)
+    const chartRef = useRef<{ resize: (opts?: { width?: number, height?: number }) => void } | null>(null)
+    const [hostWidth, setHostWidth] = useState(0)
+
+    const hasOption = Boolean(option)
+
+    useEffect(() => {
+        const node = hostRef.current
+        if (!node) return
+
+        const observer = new ResizeObserver(() => {
+            const width = Math.floor(contentBoxWidth(node))
+            setHostWidth(prev => prev === width ? prev : width)
+            chartRef.current?.resize({ width })
+        })
+        observer.observe(node)
+        return () => observer.disconnect()
+    }, [hasOption])
+
+    useEffect(() => {
+        if (!hostWidth) return
+        chartRef.current?.resize({ width: hostWidth })
+    }, [hostWidth])
 
     if (!option) {
         return (
@@ -172,10 +195,26 @@ const ChartRenderer: React.FC<RendererProps> = ({ component, surface }) => {
         )
     }
 
-    const optionWithColors: EChartsOption = { color: CHART_COLOR_SET, ...option }
-    const style: React.CSSProperties = { height: height ? `${height}px` : '300px' }
+    const fitted = fitChartOption(option, hostWidth, Number(height) || DEFAULT_CHART_HEIGHT)
+    const style: React.CSSProperties = {
+        width: hostWidth ? hostWidth : '100%',
+        maxWidth: '100%',
+        height: fitted.height,
+    }
 
-    return <ReactECharts option={optionWithColors} opts={{ renderer: 'svg' }} style={style} notMerge />
+    return (
+        <div ref={hostRef} className={styles.chartHost}>
+            <ReactECharts
+                option={fitted.option}
+                opts={{ renderer: 'svg' }}
+                style={style}
+                notMerge
+                onChartReady={(instance) => {
+                    chartRef.current = instance
+                }}
+            />
+        </div>
+    )
 }
 
 // --- Renderer registry ---

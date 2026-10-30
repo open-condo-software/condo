@@ -24,7 +24,13 @@ export function extractA2UIMessages (answer: string): ParsedA2UIAnswer {
         const lines = jsonlBlock.split('\n').map(l => l.trim()).filter(Boolean)
         for (const line of lines) {
             try {
-                const parsed = JSON.parse(line) as A2uiMessage
+                let parsed: A2uiMessage
+                try {
+                    parsed = JSON.parse(line) as A2uiMessage
+                } catch (parseError) {
+                    if (!line.includes('\\"')) throw parseError
+                    parsed = JSON.parse(line.replace(/\\"/g, '"')) as A2uiMessage
+                }
                 if (parsed && typeof parsed === 'object') {
                     const knownKey = Object.keys(parsed).find(k => A2UI_MESSAGE_KEYS.has(k))
                     if (knownKey && parsed[knownKey] != null) {

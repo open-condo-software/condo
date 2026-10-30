@@ -20,12 +20,15 @@ export const useAIContext = () => {
     return context
 }
 
+export const AI_OVERLAY_MIN_WIDTH = 320
+
 export const AIProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const storage = new LocalStorageManager<number>()
     
     const [isAIOverlayOpen, setIsAIOverlayOpen] = useState(false)
     const [aiOverlayWidth, setAIOverlayWidthState] = useState(() => {
-        return storage.getItem('ai-assistant-overlay-width') || 300
+        const storedWidth = storage.getItem('ai-assistant-overlay-width')
+        return Math.max(AI_OVERLAY_MIN_WIDTH, storedWidth || AI_OVERLAY_MIN_WIDTH)
     })
 
     const setAIOverlayWidth = (width: number) => {

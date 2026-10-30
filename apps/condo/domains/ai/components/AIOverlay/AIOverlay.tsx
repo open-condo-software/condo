@@ -14,16 +14,15 @@ import { analytics } from '@condo/domains/common/utils/analytics'
 import styles from './AIOverlay.module.css'
 
 import { AIChat } from '../AIChat'
-import { useAIContext } from '../AIContext'
+import { AI_OVERLAY_MIN_WIDTH, useAIContext } from '../AIContext'
 
 type AIOverlayProps = {
     open: boolean
     onClose: () => void
 }
 
-const MIN_OVERLAY_WIDTH = 300
 const MAX_OVERLAY_WIDTH = 1200
-const CLOSE_THRESHOLD = MIN_OVERLAY_WIDTH / 2
+const CLOSE_THRESHOLD = AI_OVERLAY_MIN_WIDTH / 2
 const EMPTY_AI_SESSION_ID = ''
 
 export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
@@ -92,9 +91,9 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
             dragDirectionRef.current = currentDirection
             setDragDirection(currentDirection)
 
-            const clampedWidth = Math.max(MIN_OVERLAY_WIDTH, Math.min(MAX_OVERLAY_WIDTH, newWidth))
+            const clampedWidth = Math.max(AI_OVERLAY_MIN_WIDTH, Math.min(MAX_OVERLAY_WIDTH, newWidth))
 
-            setIsAtMinWidth(clampedWidth <= MIN_OVERLAY_WIDTH)
+            setIsAtMinWidth(clampedWidth <= AI_OVERLAY_MIN_WIDTH)
             setIsAtMaxWidth(clampedWidth >= MAX_OVERLAY_WIDTH)
 
             if (newWidth < CLOSE_THRESHOLD && dragDirectionRef.current === 'right' && currentDirection === 'right') {
