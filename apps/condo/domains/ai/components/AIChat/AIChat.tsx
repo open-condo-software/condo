@@ -1,6 +1,7 @@
 import { useCheckDocumentExistenceQuery } from '@app/condo/gql'
 import { Document as DocumentType } from '@app/condo/schema'
 import { Popover } from 'antd'
+import classnames from 'classnames'
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState, useMemo } from 'react'
 import { v4 as uuidV4 } from 'uuid'
 
@@ -32,10 +33,6 @@ import type { Message } from '@condo/domains/ai/utils/aiChatStorage'
 const WELCOME_UI_MESSAGE_ID = 'welcome-ui-message'
 const STICK_TO_BOTTOM_DISTANCE = 48
 
-const messagesPinToBottom = (container: HTMLElement) => {
-    return getComputedStyle(container).getPropertyValue('--ai-chat-pin-to-bottom').trim() === '1'
-}
-
 const AI_FLOW_TIMEOUT_MS = 6 * 60 * 1000
 
 type ExecuteAIMessageOptions = {
@@ -51,6 +48,10 @@ type ExecuteAIMessageOptions = {
 
 type AISkillRef = { id: string, name?: string, displayName?: string }
 
+// pinTurnToTop: a new turn starts under the header and the reply grows below it.
+// stickToBottom: the thread sits on the input and follows new content while the user is at the end.
+export type AIChatScrollMode = 'pinTurnToTop' | 'stickToBottom'
+
 type AIChatProps = {
     aiSessionId: string
     initialMessage?: string
@@ -64,6 +65,7 @@ type AIChatProps = {
     initialInputValue?: string
     onInputChange?: (value: string) => void
     inputAutoSize?: { minRows: number, maxRows: number }
+    scrollMode?: AIChatScrollMode
 }
 
 export const AIChat: React.FC<AIChatProps> = ({
@@ -79,7 +81,9 @@ export const AIChat: React.FC<AIChatProps> = ({
     initialInputValue,
     onInputChange,
     inputAutoSize,
+    scrollMode = 'pinTurnToTop',
 }) => {
+    const stickToBottom = scrollMode === 'stickToBottom'
     const intl = useIntl()
     const welcomeMessage = intl.formatMessage({ id: 'ai.chat.welcome' })
     const errorMessage = intl.formatMessage({ id: 'ai.chat.error' })
@@ -392,13 +396,13 @@ export const AIChat: React.FC<AIChatProps> = ({
 
     const clampActiveTurnScroll = useCallback(() => {
         const container = messagesContainerRef.current
-        if (!container || !activeTurnUserMessageId || messagesPinToBottom(container)) return
+        if (!container || !activeTurnUserMessageId || stickToBottom) return
 
         const maxScrollTop = getActiveTurnMaxScrollTop()
         if (container.scrollTop > maxScrollTop + 1) {
             container.scrollTop = maxScrollTop
         }
-    }, [activeTurnUserMessageId, getActiveTurnMaxScrollTop])
+    }, [activeTurnUserMessageId, getActiveTurnMaxScrollTop, stickToBottom])
 
     useLayoutEffect(() => {
         const messageId = pendingScrollToMessageIdRef.current
@@ -420,14 +424,14 @@ export const AIChat: React.FC<AIChatProps> = ({
 
         shouldScrollActiveTurnRef.current = false
         const container = messagesContainerRef.current
-        if (container && messagesPinToBottom(container)) {
+        if (container && stickToBottom) {
             stickToBottomRef.current = true
             container.scrollTop = container.scrollHeight
             return
         }
         scrollTurnToTop(activeTurnUserMessageId)
         clampActiveTurnScroll()
-    }, [activeTurnUserMessageId, clampActiveTurnScroll, scrollTurnToTop])
+    }, [activeTurnUserMessageId, clampActiveTurnScroll, scrollTurnToTop, stickToBottom])
 
     useEffect(() => {
         if (!activeTurnUserMessageId) return
@@ -435,16 +439,11 @@ export const AIChat: React.FC<AIChatProps> = ({
         const container = messagesContainerRef.current
         if (!container) return
 
-        if (messagesPinToBottom(container)) {
-            const onScroll = () => {
-                const distance = container.scrollHeight - container.scrollTop - container.clientHeight
-                stickToBottomRef.current = distance < STICK_TO_BOTTOM_DISTANCE
-            }
+        if (stickToBottom) {
             if (stickToBottomRef.current) {
                 container.scrollTop = container.scrollHeight
             }
-            container.addEventListener('scroll', onScroll, { passive: true })
-            return () => container.removeEventListener('scroll', onScroll)
+            return
         }
 
         const onScroll = () => {
@@ -455,21 +454,20 @@ export const AIChat: React.FC<AIChatProps> = ({
         clampActiveTurnScroll()
 
         return () => container.removeEventListener('scroll', onScroll)
-    }, [activeTurnUserMessageId, clampActiveTurnScroll, messages])
+    }, [activeTurnUserMessageId, clampActiveTurnScroll, messages, stickToBottom])
 
     useEffect(() => {
         const container = messagesContainerRef.current
-        if (!container) return
+        if (!container || !stickToBottom) return
 
         const onScroll = () => {
-            if (!messagesPinToBottom(container)) return
             const distance = container.scrollHeight - container.scrollTop - container.clientHeight
             stickToBottomRef.current = distance < STICK_TO_BOTTOM_DISTANCE
         }
 
         container.addEventListener('scroll', onScroll, { passive: true })
         return () => container.removeEventListener('scroll', onScroll)
-    }, [])
+    }, [stickToBottom])
 
     useEffect(() => {
         setTimeout(() => {
@@ -482,7 +480,7 @@ export const AIChat: React.FC<AIChatProps> = ({
             const { padTop, padBottom } = getMessagesPadding(container)
             const visibleHeight = Math.max(0, container.clientHeight - padTop - padBottom)
             container.style.setProperty('--ai-chat-scrollport-height', `${visibleHeight}px`)
-            if (messagesPinToBottom(container)) {
+            if (stickToBottom) {
                 if (stickToBottomRef.current) {
                     container.scrollTop = container.scrollHeight
                 }
@@ -522,7 +520,7 @@ export const AIChat: React.FC<AIChatProps> = ({
             messagesObserver.disconnect()
             inputObserver.disconnect()
         }
-    }, [clampActiveTurnScroll, getMessagesPadding])
+    }, [clampActiveTurnScroll, getMessagesPadding, stickToBottom])
 
     const startUserTurn = useCallback((
         userMessage: Message,
@@ -783,7 +781,10 @@ export const AIChat: React.FC<AIChatProps> = ({
 
     return (
         <div ref={chatContainerRef} className={styles.chatContainer}>
-            <div ref={messagesContainerRef} className={styles.messagesContainer}>
+            <div
+                ref={messagesContainerRef}
+                className={classnames(styles.messagesContainer, { [styles.stickToBottom]: stickToBottom })}
+            >
                 {showWelcomeMessage && welcomeDisplayMessage && (
                     <AIChatMessage
                         message={welcomeDisplayMessage}
