@@ -87,6 +87,11 @@ const B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS = {
         },
         MeterReportingPeriod: {},
 
+        PropertyMeter: {},
+        PropertyMeterReading: {
+            pathToOrganizationId: ['meter', 'organization', 'id'],
+        },
+
         // Organization domain
         Organization: {
             pathToOrganizationId: ['id'],

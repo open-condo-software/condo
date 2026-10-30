@@ -26,6 +26,10 @@ fragment B2BAppAccessRightSetPermissions on B2BAppAccessRightSet {
     canManageMeterReadings
     canReadMeterReportingPeriods
     canManageMeterReportingPeriods
+    canReadPropertyMeters
+    canManagePropertyMeters
+    canReadPropertyMeterReadings
+    canManagePropertyMeterReadings
 
     canReadInvoices
     canManageInvoices
