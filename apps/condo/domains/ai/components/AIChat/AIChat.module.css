@@ -29,10 +29,6 @@
   -ms-overflow-style: none;
 }
 
-.stick-to-bottom {
-  justify-content: safe flex-end;
-}
-
 .messages-container::after {
   flex: 0 0 auto;
   width: 100%;
@@ -58,7 +54,7 @@
 }
 
 /* Room for the reply to grow under a turn pinned to the top. */
-.messages-container:not(.stick-to-bottom) .turn[data-active="true"] {
+.messages-container .turn[data-active="true"] {
   box-sizing: border-box;
   min-height: var(--ai-chat-scrollport-height, 100%);
 }
