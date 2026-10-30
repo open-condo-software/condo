@@ -110,6 +110,7 @@ export const AIChatInput: React.FC<AIChatInputProps> = ({
                                 label: (
                                     <SelectFiles
                                         key='ai-chat-attachment-upload-trigger-2'
+                                        attachments={attachments}
                                         onSelect={(selectedFiles) => {
                                             setAttachedFiles(prevFiles => [...prevFiles, ...selectedFiles])
                                         }}

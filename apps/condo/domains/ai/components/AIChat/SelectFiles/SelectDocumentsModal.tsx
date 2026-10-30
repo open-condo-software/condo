@@ -82,7 +82,7 @@ const useDocumentsTableColumns: UseDocumentsTableColumns = () => {
     ], [renderDetails, renderName, detailsMessage, fileMessage])
 }
 
-const DocumentsTableContent: React.FC<any> = ({ setSelectedDocuments }) => {
+const DocumentsTableContent: React.FC<any> = ({ setSelectedDocuments, attachments }) => {
     const intl = useIntl()
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const organizationMessage = intl.formatMessage({ id: 'documents.SelectDocumentsModal.organization' })
@@ -231,6 +231,17 @@ const DocumentsTableContent: React.FC<any> = ({ setSelectedDocuments }) => {
                     columnLabels={menuLabels}
                     rowSelectionOptions={{
                         enableRowSelection: true,
+                        isRowSelectable: (row) => {
+                            const mimetype = row?.file?.mimetype
+                            const sizeAsString = row?.file?.size
+                            const sizeInBytes = Number(sizeAsString)
+
+                            if (!mimetype) return false
+                            if (!attachments.mimeTypes.includes(mimetype)) return false
+                            if (!!sizeAsString && (!Number.isFinite(sizeInBytes) || sizeInBytes > attachments.maxFileSizeBytes)) return false
+
+                            return true
+                        },
                         onRowSelectionChange: (rowSelectionState) => {
                             const selectedDocuments =
                                 rowSelectionState
@@ -247,7 +258,7 @@ const DocumentsTableContent: React.FC<any> = ({ setSelectedDocuments }) => {
     )
 }
 
-export const SelectDocumentsModal: React.FC<any> = ({ open, setOpen, onSelect }) => {
+export const SelectDocumentsModal: React.FC<any> = ({ open, setOpen, onSelect, attachments }) => {
     const [selectedDocuments, setSelectedDocuments] = useState<string[]>([])
     const cancelModal = useCallback(() => {
         setOpen(false)
@@ -278,6 +289,7 @@ export const SelectDocumentsModal: React.FC<any> = ({ open, setOpen, onSelect })
             )}
         >
             <DocumentsTableContent
+                attachments={attachments}
                 setSelectedDocuments={setSelectedDocuments}
             />
         </Modal>

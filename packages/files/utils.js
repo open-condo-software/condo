@@ -173,6 +173,7 @@ const FileMetaSignatureSchema = z.object({
     id: z.string(),
     recordId: z.uuid(),
     path: z.string().nullable(),
+    size: z.string().nullable(),
     filename: z.string(),
     originalFilename: z.string(),
     mimetype: z.string(),
@@ -197,6 +198,7 @@ const FileMetaSignatureSchema = z.object({
 const FileUploadMetaSchema = z.object({
     id: z.uuid(),
     mimetype: z.string().min(1),
+    size: z.string().nullable(),
     dv: z.literal(1),
     sender: z.object({
         dv: z.literal(1),
@@ -421,7 +423,7 @@ async function processFileUpload ({ keystone, appClients, files, meta, userId, i
     const fileRecords = await FileRecord.updateMany(context,
         createdFiles.map(e => ({
             id: e.id, data: { fileMeta: { ...e.fileMeta, recordId: e.id }, dv: meta.dv, sender: meta.sender },
-        })), `id fileMeta { originalFilename meta ${FILE_RECORD_USER_META} }`)
+        })), `id fileSize fileMeta { size originalFilename meta ${FILE_RECORD_USER_META} }`)
 
     let result = []
     if (!inlineAttach) {
@@ -429,7 +431,7 @@ async function processFileUpload ({ keystone, appClients, files, meta, userId, i
         result = fileRecords.map((file, index) => ({
             id: file.id,
             signature: jwt.sign(
-                { id: file.id, mimetype: files[index].mimetype, ...file.fileMeta.meta },
+                { id: file.id, mimetype: files[index].mimetype, size: String(files[index].size), ...file.fileMeta.meta },
                 appClient.secret,
                 { expiresIn: '5m', algorithm: 'HS256' }
             ),
@@ -460,12 +462,12 @@ async function processFileUpload ({ keystone, appClients, files, meta, userId, i
                 dv: inlineAttach.dv,
                 sender: inlineAttach.sender,
                 attachments: { attachments: resultAttachments },
-            }, `id fileMeta ${FILE_RECORD_PUBLIC_META_FIELDS}`)
+            }, `id fileSize fileMeta ${FILE_RECORD_PUBLIC_META_FIELDS}`)
 
             return {
                 id: updated.id,
                 signature: jwt.sign(
-                    { id: updated.id, mimetype: files[index].mimetype, ...fileMeta.meta },
+                    { id: updated.id, mimetype: files[index].mimetype, size: String(files[index].size), ...fileMeta.meta },
                     appClient.secret,
                     { expiresIn: '5m', algorithm: 'HS256' }
                 ),
@@ -572,7 +574,7 @@ function fileShareHandler ({ keystone, appClients }) {
                 file: {
                     id: sharedFile.id,
                     signature: jwt.sign(
-                        { id: sharedFile.id, mimetype: fileRecord.fileMimeType, ...sharedFile.fileMeta.meta },
+                        { id: sharedFile.id, mimetype: fileRecord.fileMimeType, size: fileRecord.fileSize, ...sharedFile.fileMeta.meta },
                         appClient.secret,
                         { expiresIn: '5m', algorithm: 'HS256' }
                     ),

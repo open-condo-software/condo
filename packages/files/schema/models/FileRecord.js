@@ -3,8 +3,8 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema, GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const FILE_RECORD_USER_META = '{ dv sender { dv fingerprint } user { id } fileClientId modelNames sourceFileClientId }'
-const FILE_RECORD_META_FIELDS = `{ id fileAdapter recordId path filename originalFilename mimetype encoding meta ${FILE_RECORD_USER_META} }`
-const FILE_RECORD_PUBLIC_META_FIELDS = `{ id recordId path filename originalFilename mimetype encoding meta ${FILE_RECORD_USER_META} }`
+const FILE_RECORD_META_FIELDS = `{ id fileAdapter size recordId path filename originalFilename mimetype encoding meta ${FILE_RECORD_USER_META} }`
+const FILE_RECORD_PUBLIC_META_FIELDS = `{ id size recordId path filename originalFilename mimetype encoding meta ${FILE_RECORD_USER_META} }`
 const FILE_RECORD_ATTACHMENTS = '{ attachments { id modelName fileClientId user { id } } }'
 
 
@@ -30,7 +30,7 @@ const FileRecord = new GQLListSchema('FileRecord', {
                 'type FileRecordMetaUser { id: ID! }',
                 'type FileSender { dv: Int!, fingerprint: String! }',
                 'type FileRecordUserMeta { dv: Int!, sender: FileSender!, user: FileRecordMetaUser!, fileClientId: String!, modelNames: [String!]!, sourceFileClientId: String }',
-                'type FileRecordMeta { id: ID!, fileAdapter: String!, recordId: ID, path: String, filename: String!, originalFilename: String, mimetype: String!, encoding: String!, meta: FileRecordUserMeta! }',
+                'type FileRecordMeta { id: ID!, size: String fileAdapter: String!, recordId: ID, path: String, filename: String!, originalFilename: String, mimetype: String!, encoding: String!, meta: FileRecordUserMeta! }',
             ],
         },
         user: {

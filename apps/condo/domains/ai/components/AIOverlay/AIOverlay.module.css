@@ -84,4 +84,5 @@
   flex-direction: column;
   height: 100%;
   min-height: 0;
+  padding-top: var(--ai-chat-header-height);
 }
