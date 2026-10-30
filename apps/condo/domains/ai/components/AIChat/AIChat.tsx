@@ -506,7 +506,7 @@ export const AIChat: React.FC<AIChatProps> = ({
 
         const syncInputHeight = () => {
             chatContainer.style.setProperty('--ai-chat-input-height', `${inputContainer.offsetHeight}px`)
-            // Wait for padding from --ai-chat-input-height to apply before measuring scrollport
+            // Wait for the ::after spacer from --ai-chat-input-height to apply before measuring scrollport
             requestAnimationFrame(() => {
                 if (messagesContainerRef.current) {
                     syncScrollportHeight(messagesContainerRef.current)
@@ -783,8 +783,7 @@ export const AIChat: React.FC<AIChatProps> = ({
 
     return (
         <div ref={chatContainerRef} className={styles.chatContainer}>
-            <div ref={messagesContainerRef}
-                className={`${styles.messagesContainer} comment-body`}>
+            <div ref={messagesContainerRef} className={styles.messagesContainer}>
                 {showWelcomeMessage && welcomeDisplayMessage && (
                     <AIChatMessage
                         message={welcomeDisplayMessage}
