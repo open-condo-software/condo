@@ -20,7 +20,7 @@ export const useAIContext = () => {
     return context
 }
 
-const AI_OVERLAY_MIN_WIDTH = 320
+export const AI_OVERLAY_MIN_WIDTH = 320
 
 export const AIProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const storage = new LocalStorageManager<number>()
