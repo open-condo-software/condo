@@ -6,6 +6,9 @@ import { buildFakeAddressAndMeta } from '../../domains/property/utils/testSchema
 const BASE_API_URL = __ENV.BASE_URL + '/admin/api'
 const AUTH_REQS = { email: __ENV.AUTH_EMAIL, password: __ENV.AUTH_PASSWORD }
 const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'k6-load-test' } }
+const X_TARGET = __ENV.X_TARGET || ''
+
+const getXTargetHeaders = () => (X_TARGET ? { 'X-Target': X_TARGET } : {})
 
 const setupCondoAuth = () => {
     const payload = {
@@ -14,7 +17,12 @@ const setupCondoAuth = () => {
         query: `mutation {authenticateUserWithPassword(email: "${AUTH_REQS.email}" password: "${AUTH_REQS.password}") {token}}`,
     }
 
-    const response = http.post(BASE_API_URL, JSON.stringify(payload), { headers: { 'Content-Type': 'application/json' } })
+    const response = http.post(BASE_API_URL, JSON.stringify(payload), {
+        headers: {
+            ...getXTargetHeaders(),
+            'Content-Type': 'application/json',
+        },
+    })
     const token = response.json('data.authenticateUserWithPassword.token')
 
     return {
@@ -26,6 +34,7 @@ const setupCondoAuth = () => {
 const sendAuthorizedRequest = (data, payload, extraHeaders = {}) => {
     return http.post(BASE_API_URL, JSON.stringify(payload), {
         headers: {
+            ...getXTargetHeaders(),
             ...extraHeaders,
             'Authorization': `Bearer ${data.token}`,
             'Content-Type': 'application/json',
@@ -302,6 +311,7 @@ export {
     registerBillingReceiptFile,
     signInAsUser,
     resetOrganization,
+    getXTargetHeaders,
     BASE_API_URL,
     areReceiptsCreated,
 }
