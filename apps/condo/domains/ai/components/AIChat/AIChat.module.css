@@ -15,7 +15,6 @@
   display: flex;
   flex-direction: column;
   gap: var(--condo-global-spacing-32);
-  justify-content: var(--ai-chat-messages-justify, flex-start);
   width: 100%;
   min-width: 0;
   padding:
@@ -28,6 +27,10 @@
   inset: 0;
   scrollbar-width: none;
   -ms-overflow-style: none;
+}
+
+.stick-to-bottom {
+  justify-content: safe flex-end;
 }
 
 .messages-container::after {
@@ -54,7 +57,8 @@
   gap: var(--condo-global-spacing-32);
 }
 
-.turn[data-active="true"] {
+/* Room for the reply to grow under a turn pinned to the top. */
+.messages-container:not(.stick-to-bottom) .turn[data-active="true"] {
   box-sizing: border-box;
-  min-height: var(--ai-chat-active-turn-min-height, var(--ai-chat-scrollport-height, 100%));
+  min-height: var(--ai-chat-scrollport-height, 100%);
 }
