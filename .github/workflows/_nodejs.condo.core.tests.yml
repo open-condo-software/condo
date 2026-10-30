@@ -85,7 +85,6 @@ jobs:
           REGISTRY: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}/doma/utils/
           TEST_IMAGE: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}/condo/condo-image:${{ inputs.image_tag }}
           PULL_ATTEMPTS: 5
-          PULL_TIMEOUT_SECONDS: 180
           PULL_RETRY_SLEEP_SECONDS: 20
         run: |
           set -euo pipefail
@@ -96,7 +95,7 @@ jobs:
 
             while true; do
               echo "Pulling ${image} (attempt ${attempt}/${PULL_ATTEMPTS})"
-              if timeout "${PULL_TIMEOUT_SECONDS}" docker pull "$image"; then
+              if docker pull "$image"; then
                 return 0
               fi
               if (( attempt >= PULL_ATTEMPTS )); then
