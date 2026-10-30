@@ -1,4 +1,4 @@
-import { useUpdateUserMutation, useChangeTwoFactorAuthenticationMutation } from '@app/condo/gql'
+import { useUpdateUserMutation, useChangeTwoFactorAuthenticationMutation, useResetUserMutation } from '@app/condo/gql'
 import { UserHelpRequestTypeType } from '@app/condo/schema'
 import { Col, Row, Switch } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
@@ -17,6 +17,7 @@ import { useOrganization } from '@open-condo/next/organization'
 import { Button, Modal, Select, Tooltip, Typography } from '@open-condo/ui'
 
 import { SERVICE_PROVIDER_PROFILE, TWO_FACTOR_SETTING } from '@condo/domains/common/constants/featureflags'
+import { useBroadcastChannel } from '@condo/domains/common/hooks/useBroadcastChannel'
 import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
 import { UserHelpRequest } from '@condo/domains/onboarding/utils/clientSchema'
 
@@ -26,6 +27,8 @@ import styles from './UserSettingsContent.module.css'
 const ROW_GUTTER_BIG: [Gutter, Gutter] = [0, 60]
 const ROW_GUTTER_MID: [Gutter, Gutter] = [0, 40]
 const ROW_GUTTER_SMALL: [Gutter, Gutter] = [0, 24]
+
+const SIGN_OUT_BROADCAST_CHANNEL = 'signOut'
 
 const {
     publicRuntimeConfig: {
@@ -63,12 +66,18 @@ export const UserSettingsContent: React.FC = () => {
     const InternationalCompanyName = intl.formatMessage({ id: 'CompanyName.international' })
     const NotVerifiedEmailTooltipMessage = intl.formatMessage({ id: 'pages.condo.profile.2FA.tooltip.notVerifiedEmail' }, { companyName: InternationalCompanyName })
     const NotVerifiedPhoneTooltipMessage = intl.formatMessage({ id: 'pages.condo.profile.2FA.tooltip.notVerifiedPhone' })
+    const DeleteProfileTitle = intl.formatMessage({ id: 'pages.condo.profile.deleteProfile' })
+    const DeleteProfilePasswordTitle = intl.formatMessage({ id: 'component.SudoTokenProvider.modal.password.title.deleteProfile' })
+    const DeleteProfileConfirmTitle = intl.formatMessage({ id: 'pages.condo.profile.deleteProfile.confirm.title' })
+    const DeleteProfileConfirmMessage = intl.formatMessage({ id: 'pages.condo.profile.deleteProfile.confirm.message' })
+    const YesMessage = intl.formatMessage({ id: 'Yes' })
+    const NoMessage = intl.formatMessage({ id: 'No' })
 
     const RuTitle = intl.formatMessage({ id: 'language.russian.withFlag' })
     const EnTitle = intl.formatMessage({ id: 'language.english-us.withFlag' })
     const EsTitle = intl.formatMessage({ id: 'language.spanish-es.withFlag' })
 
-    const { user, refetch } = useAuth()
+    const { user, refetch, signOut } = useAuth()
 
     const EmptyFactorsTooltipMessage = useMemo(() => {
         if (!user?.email || !user?.phone) {
@@ -97,10 +106,18 @@ export const UserSettingsContent: React.FC = () => {
     const [is2FAEnabled, setIs2FAEnabled] = useState<boolean>(false)
     const [disableSPPConfirmModalShown, setDisableSPPConfirmModalShown] = useState<boolean>(false)
     const [isSendingDisableSPPRequest, setIsSendingDisableSPPRequest] = useState<boolean>(false)
+    const [deleteProfileConfirmModalShown, setDeleteProfileConfirmModalShown] = useState<boolean>(false)
+    const [isDeletingProfile, setIsDeletingProfile] = useState<boolean>(false)
     const sppBillingId = sppConfig?.BillingIntegrationId || null
     const { organization } = useOrganization()
 
     const { getSudoTokenWithModal, clearSudoToken } = useSudoToken()
+
+    const { sendMessageToBroadcastChannel: sendSignOutToBroadcast } = useBroadcastChannel(
+        SIGN_OUT_BROADCAST_CHANNEL,
+        () => {},
+        { sendInCurrentTab: false }
+    )
 
     const { useFlag } = useFeatureFlags()
     const isSPPOrg = useFlag(SERVICE_PROVIDER_PROFILE)
@@ -143,6 +160,17 @@ export const UserSettingsContent: React.FC = () => {
 
     const [updateUser] = useUpdateUserMutation()
     const [changeTwoFactorAuthentication] = useChangeTwoFactorAuthenticationMutation({
+        onError: (error) => {
+            const isExpiredToken = error?.graphQLErrors?.some((gqlError) => gqlError.extensions?.type === 'TOKEN_NOT_FOUND')
+            if (isExpiredToken) {
+                // NOTE: Case with a getting a new sudo token.
+                // This is processed in "action handler"
+            } else {
+                errorHandler(error)
+            }
+        },
+    })
+    const [resetUserMutation] = useResetUserMutation({
         onError: (error) => {
             const isExpiredToken = error?.graphQLErrors?.some((gqlError) => gqlError.extensions?.type === 'TOKEN_NOT_FOUND')
             if (isExpiredToken) {
@@ -254,6 +282,80 @@ export const UserSettingsContent: React.FC = () => {
             throw e
         }
     }, [refetch, changeTwoFactorAuthentication, user?.id, user?.phone, user?.email, user?.isEmailVerified, user?.isTwoFactorAuthenticationEnabled, clearSudoToken, getSudoTokenWithModal])
+
+    const deleteProfile = useCallback(async () => {
+        if (!user?.id) return
+
+        const userIdentifier = (user?.email && user?.isEmailVerified)
+            ? ({ email: user?.email })
+            : ({ phone: user?.phone })
+
+        const getSudoTokenAndResetUser = async () => {
+            const sudoToken = await getSudoTokenWithModal(userIdentifier, {
+                passwordTitle: DeleteProfilePasswordTitle,
+                passwordDescription: '',
+            })
+
+            const res = await resetUserMutation({
+                variables: {
+                    data: {
+                        dv: 1,
+                        sender: getClientSideSenderInfo(),
+                        user: { id: user?.id },
+                        token: sudoToken,
+                    },
+                },
+            })
+
+            return res
+        }
+
+        const res = await getSudoTokenAndResetUser()
+
+        if (res.errors || res?.data?.result?.status !== 'ok') {
+            // @ts-ignore
+            const isExpiredSudoToken = res?.errors?.graphQLErrors?.some((gqlError) => gqlError?.extensions?.type === 'TOKEN_NOT_FOUND')
+            if (isExpiredSudoToken) {
+                clearSudoToken()
+                const res2 = await getSudoTokenAndResetUser()
+                if (res2?.errors?.length) {
+                    throw new Error('Cannot delete profile')
+                }
+            } else {
+                throw new Error('Cannot delete profile')
+            }
+        }
+
+        sendSignOutToBroadcast()
+        await signOut()
+    }, [user?.id, user?.phone, user?.email, user?.isEmailVerified, getSudoTokenWithModal, resetUserMutation, DeleteProfilePasswordTitle, clearSudoToken, sendSignOutToBroadcast, signOut])
+
+    const handleDeleteProfileClick = useCallback(async () => {
+        try {
+            await getSudoTokenWithModal(
+                (user?.email && user?.isEmailVerified) ? ({ email: user?.email }) : ({ phone: user?.phone }),
+                {
+                    passwordTitle: DeleteProfilePasswordTitle,
+                    passwordDescription: '',
+                }
+            )
+            setDeleteProfileConfirmModalShown(true)
+        } catch (e) {
+            // user cancelled sudo token modal
+        }
+    }, [getSudoTokenWithModal, user?.email, user?.isEmailVerified, user?.phone, DeleteProfilePasswordTitle])
+
+    const handleConfirmDeleteProfile = useCallback(async () => {
+        try {
+            setIsDeletingProfile(true)
+            await deleteProfile()
+            setDeleteProfileConfirmModalShown(false)
+        } catch (e) {
+            console.error('Failed to delete profile')
+        } finally {
+            setIsDeletingProfile(false)
+        }
+    }, [deleteProfile])
 
     const handleGlobalHintsChange: SwitchChangeEventHandler = useCallback(async (checked) => {
         setShowGlobalHints(checked)
@@ -487,6 +589,54 @@ export const UserSettingsContent: React.FC = () => {
                                     </Col>
                                 )
                             }
+
+                            <Col span={24}>
+                                <Row gutter={ROW_GUTTER_MID} align='middle'>
+                                    <Col>
+                                        <Button
+                                            type='secondary'
+                                            size='medium'
+                                            danger
+                                            id='delete-profile'
+                                            onClick={handleDeleteProfileClick}
+                                        >
+                                            {DeleteProfileTitle}
+                                        </Button>
+                                    </Col>
+                                </Row>
+                            </Col>
+                            <Modal
+                                open={deleteProfileConfirmModalShown}
+                                onCancel={() => setDeleteProfileConfirmModalShown(false)}
+                                title={DeleteProfileConfirmTitle}
+                                footer={[
+                                    <Button
+                                        key='yes'
+                                        type='primary'
+                                        size='large'
+                                        danger
+                                        id='delete-profile-confirm'
+                                        onClick={handleConfirmDeleteProfile}
+                                        loading={isDeletingProfile}
+                                        disabled={isDeletingProfile}
+                                    >
+                                        {YesMessage}
+                                    </Button>,
+                                    <Button
+                                        key='no'
+                                        type='secondary'
+                                        size='large'
+                                        onClick={() => setDeleteProfileConfirmModalShown(false)}
+                                        disabled={isDeletingProfile}
+                                    >
+                                        {NoMessage}
+                                    </Button>,
+                                ]}
+                            >
+                                <Typography.Paragraph type='secondary'>
+                                    {DeleteProfileConfirmMessage}
+                                </Typography.Paragraph>
+                            </Modal>
                         </Row>
                     </Col>
                 </Row>
