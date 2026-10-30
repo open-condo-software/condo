@@ -528,7 +528,6 @@ const CoworkPage: PageComponentType = () => {
                             initialInputValue={aiChatInitialInput}
                             onInputChange={handleAIChatInputChange}
                             inputAutoSize={{ minRows: 2, maxRows: 6 }}
-                            scrollMode='stickToBottom'
                         />
                     </div>
                 )}

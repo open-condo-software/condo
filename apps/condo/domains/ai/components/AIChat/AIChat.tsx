@@ -1,7 +1,6 @@
 import { useCheckDocumentExistenceQuery } from '@app/condo/gql'
 import { Document as DocumentType } from '@app/condo/schema'
 import { Popover } from 'antd'
-import classnames from 'classnames'
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState, useMemo } from 'react'
 import { v4 as uuidV4 } from 'uuid'
 
@@ -31,7 +30,9 @@ import { extractA2UIMessages } from './genUI'
 import type { Message } from '@condo/domains/ai/utils/aiChatStorage'
 
 const WELCOME_UI_MESSAGE_ID = 'welcome-ui-message'
-const STICK_TO_BOTTOM_DISTANCE = 48
+// A loaded thread stays at its end until the reader moves. A few pixels of slack
+// cover the spacer settling after the input is measured.
+const END_VIEW_SLACK = 48
 
 const AI_FLOW_TIMEOUT_MS = 6 * 60 * 1000
 
@@ -48,10 +49,6 @@ type ExecuteAIMessageOptions = {
 
 type AISkillRef = { id: string, name?: string, displayName?: string }
 
-// pinTurnToTop: a new turn starts under the header and the reply grows below it.
-// stickToBottom: the thread sits on the input and follows new content while the user is at the end.
-export type AIChatScrollMode = 'pinTurnToTop' | 'stickToBottom'
-
 type AIChatProps = {
     aiSessionId: string
     initialMessage?: string
@@ -65,7 +62,6 @@ type AIChatProps = {
     initialInputValue?: string
     onInputChange?: (value: string) => void
     inputAutoSize?: { minRows: number, maxRows: number }
-    scrollMode?: AIChatScrollMode
 }
 
 export const AIChat: React.FC<AIChatProps> = ({
@@ -81,9 +77,7 @@ export const AIChat: React.FC<AIChatProps> = ({
     initialInputValue,
     onInputChange,
     inputAutoSize,
-    scrollMode = 'pinTurnToTop',
 }) => {
-    const stickToBottom = scrollMode === 'stickToBottom'
     const intl = useIntl()
     const welcomeMessage = intl.formatMessage({ id: 'ai.chat.welcome' })
     const errorMessage = intl.formatMessage({ id: 'ai.chat.error' })
@@ -126,7 +120,10 @@ export const AIChat: React.FC<AIChatProps> = ({
     const inputRef = useRef<any>(null)
     const pendingScrollToMessageIdRef = useRef<string | null>(null)
     const shouldScrollActiveTurnRef = useRef(false)
-    const stickToBottomRef = useRef(true)
+    // True while a loaded thread should stay on its last line. A sent turn turns it off.
+    const keepEndInViewRef = useRef(true)
+    // Setting scrollTop fires scroll. That event is ours, not the reader leaving the end.
+    const ignoreEndScrollRef = useRef(false)
     const initialLoadDoneRef = useRef(false)
     const initialMessageSentRef = useRef(false)
     const initialMessageOverrideRef = useRef<string | null>(null)
@@ -228,6 +225,7 @@ export const AIChat: React.FC<AIChatProps> = ({
     // Load messages from localStorage when aiSessionId changes
     useEffect(() => {
         initialLoadDoneRef.current = false
+        keepEndInViewRef.current = true
 
         const historyWithDates = getChatHistory(aiSessionId)
 
@@ -244,7 +242,8 @@ export const AIChat: React.FC<AIChatProps> = ({
         // Wait for history messages to commit to the DOM before scrolling to bottom
         requestAnimationFrame(() => {
             const container = messagesContainerRef.current
-            if (container) {
+            if (container && keepEndInViewRef.current) {
+                ignoreEndScrollRef.current = true
                 container.scrollTop = container.scrollHeight
             }
         })
@@ -396,13 +395,13 @@ export const AIChat: React.FC<AIChatProps> = ({
 
     const clampActiveTurnScroll = useCallback(() => {
         const container = messagesContainerRef.current
-        if (!container || !activeTurnUserMessageId || stickToBottom) return
+        if (!container || !activeTurnUserMessageId) return
 
         const maxScrollTop = getActiveTurnMaxScrollTop()
         if (container.scrollTop > maxScrollTop + 1) {
             container.scrollTop = maxScrollTop
         }
-    }, [activeTurnUserMessageId, getActiveTurnMaxScrollTop, stickToBottom])
+    }, [activeTurnUserMessageId, getActiveTurnMaxScrollTop])
 
     useLayoutEffect(() => {
         const messageId = pendingScrollToMessageIdRef.current
@@ -423,28 +422,16 @@ export const AIChat: React.FC<AIChatProps> = ({
         if (!activeTurnUserMessageId || !shouldScrollActiveTurnRef.current) return
 
         shouldScrollActiveTurnRef.current = false
-        const container = messagesContainerRef.current
-        if (container && stickToBottom) {
-            stickToBottomRef.current = true
-            container.scrollTop = container.scrollHeight
-            return
-        }
+        keepEndInViewRef.current = false
         scrollTurnToTop(activeTurnUserMessageId)
         clampActiveTurnScroll()
-    }, [activeTurnUserMessageId, clampActiveTurnScroll, scrollTurnToTop, stickToBottom])
+    }, [activeTurnUserMessageId, clampActiveTurnScroll, scrollTurnToTop])
 
     useEffect(() => {
         if (!activeTurnUserMessageId) return
 
         const container = messagesContainerRef.current
         if (!container) return
-
-        if (stickToBottom) {
-            if (stickToBottomRef.current) {
-                container.scrollTop = container.scrollHeight
-            }
-            return
-        }
 
         const onScroll = () => {
             clampActiveTurnScroll()
@@ -454,20 +441,24 @@ export const AIChat: React.FC<AIChatProps> = ({
         clampActiveTurnScroll()
 
         return () => container.removeEventListener('scroll', onScroll)
-    }, [activeTurnUserMessageId, clampActiveTurnScroll, messages, stickToBottom])
+    }, [activeTurnUserMessageId, clampActiveTurnScroll, messages])
 
     useEffect(() => {
         const container = messagesContainerRef.current
-        if (!container || !stickToBottom) return
+        if (!container || activeTurnUserMessageId) return
 
         const onScroll = () => {
+            if (ignoreEndScrollRef.current) {
+                ignoreEndScrollRef.current = false
+                return
+            }
             const distance = container.scrollHeight - container.scrollTop - container.clientHeight
-            stickToBottomRef.current = distance < STICK_TO_BOTTOM_DISTANCE
+            keepEndInViewRef.current = distance < END_VIEW_SLACK
         }
 
         container.addEventListener('scroll', onScroll, { passive: true })
         return () => container.removeEventListener('scroll', onScroll)
-    }, [stickToBottom])
+    }, [activeTurnUserMessageId])
 
     useEffect(() => {
         setTimeout(() => {
@@ -480,8 +471,9 @@ export const AIChat: React.FC<AIChatProps> = ({
             const { padTop, padBottom } = getMessagesPadding(container)
             const visibleHeight = Math.max(0, container.clientHeight - padTop - padBottom)
             container.style.setProperty('--ai-chat-scrollport-height', `${visibleHeight}px`)
-            if (stickToBottom) {
-                if (stickToBottomRef.current) {
+            if (!activeTurnUserMessageId) {
+                if (keepEndInViewRef.current) {
+                    ignoreEndScrollRef.current = true
                     container.scrollTop = container.scrollHeight
                 }
                 return
@@ -494,12 +486,25 @@ export const AIChat: React.FC<AIChatProps> = ({
 
         syncScrollportHeight(messagesContainer)
         const messagesObserver = new ResizeObserver(() => syncScrollportHeight(messagesContainer))
-        messagesObserver.observe(messagesContainer)
+        // The scroller's own box does not change when a message or a chart grows.
+        // Watch the rows, and watch again when a row is added.
+        const observeRows = () => {
+            messagesObserver.observe(messagesContainer)
+            messagesContainer.querySelectorAll(':scope > *').forEach((row) => {
+                messagesObserver.observe(row)
+            })
+        }
+        observeRows()
+        const rowChanges = new MutationObserver(observeRows)
+        rowChanges.observe(messagesContainer, { childList: true, subtree: true })
 
         const chatContainer = chatContainerRef.current
         const inputContainer = inputContainerRef.current
         if (!chatContainer || !inputContainer) {
-            return () => messagesObserver.disconnect()
+            return () => {
+                rowChanges.disconnect()
+                messagesObserver.disconnect()
+            }
         }
 
         const syncInputHeight = () => {
@@ -517,10 +522,11 @@ export const AIChat: React.FC<AIChatProps> = ({
         inputObserver.observe(inputContainer)
 
         return () => {
+            rowChanges.disconnect()
             messagesObserver.disconnect()
             inputObserver.disconnect()
         }
-    }, [clampActiveTurnScroll, getMessagesPadding, stickToBottom])
+    }, [activeTurnUserMessageId, clampActiveTurnScroll, getMessagesPadding])
 
     const startUserTurn = useCallback((
         userMessage: Message,
@@ -783,7 +789,7 @@ export const AIChat: React.FC<AIChatProps> = ({
         <div ref={chatContainerRef} className={styles.chatContainer}>
             <div
                 ref={messagesContainerRef}
-                className={classnames(styles.messagesContainer, { [styles.stickToBottom]: stickToBottom })}
+                className={styles.messagesContainer}
             >
                 {showWelcomeMessage && welcomeDisplayMessage && (
                     <AIChatMessage
