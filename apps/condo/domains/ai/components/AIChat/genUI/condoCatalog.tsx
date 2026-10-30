@@ -160,19 +160,6 @@ function contentBoxWidth (element: HTMLElement): number {
     return Math.max(0, element.clientWidth - padding)
 }
 
-// The chart canvas keeps its last pixel width, so the host itself stops shrinking.
-// Measure the narrowest ancestor instead: that is the panel.
-function constrainingWidth (node: HTMLElement): number {
-    let width = contentBoxWidth(node)
-    let current = node.parentElement
-    while (current && current !== document.body) {
-        const next = contentBoxWidth(current)
-        if (next > 0) width = Math.min(width, next)
-        current = current.parentElement
-    }
-    return Math.floor(width)
-}
-
 const ChartRenderer: React.FC<RendererProps> = ({ component, surface }) => {
     const option = parseChartOption(resolveObject(component.properties.option, surface.dataModel))
     const height = resolveValue(component.properties.height, surface.dataModel)
@@ -187,16 +174,11 @@ const ChartRenderer: React.FC<RendererProps> = ({ component, surface }) => {
         if (!node) return
 
         const observer = new ResizeObserver(() => {
-            const width = constrainingWidth(node)
+            const width = Math.floor(contentBoxWidth(node))
             setHostWidth(prev => prev === width ? prev : width)
             chartRef.current?.resize({ width })
         })
         observer.observe(node)
-        let current = node.parentElement
-        while (current && current !== document.body) {
-            observer.observe(current)
-            current = current.parentElement
-        }
         return () => observer.disconnect()
     }, [hasOption])
 
