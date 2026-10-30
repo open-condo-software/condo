@@ -1,0 +1,155 @@
+`POST /api/agent-payments`
+
+Creates an acquiring order and returns a link where the customer can pay.
+
+## Authentication
+
+Use [agent Basic Authentication](/docs/agent-payments/auth).
+
+## Body parameters
+
+Send `Content-Type: application/json`. The JSON body limit is **32 KB**.
+Unknown fields are rejected at the top level and inside `recipient` and `reportData`.
+
+| Field | Type/format | Required | Description |
+| --- | --- | --- | --- |
+| `merchantUserName` | String, 1–2000 characters | Yes | Assigned merchant username, not the agent login. |
+| `agentOrderId` | String, 1–2000 characters | Yes | Order reference in your system. |
+| `amount` | Positive decimal string | Yes | Recipient amount in rubles, excluding fees. At most two decimal places. |
+| `recipient` | Object | Yes | Recipient identity and bank details; see below. |
+| `purpose` | String, 1–2000 characters | Yes | Payment purpose for the recipient. |
+| `successUrl` | Absolute URL, 1–2000 characters | Yes | Customer return address after successful payment. |
+| `failureUrl` | Absolute URL, 1–2000 characters | Yes | Customer return address after unsuccessful payment. |
+| `billingAccount` | String, 1–255 characters | No | Personal account number. |
+| `reportData` | Object or `null` | No | Optional payer reporting data; see below. |
+
+### Recipient
+
+| Field | Type/format | Required | Description |
+| --- | --- | --- | --- |
+| `name` | String, 1–2000 characters | Yes | Recipient name. |
+| `tin` | String, 10 or 12 digits | Yes | Recipient TIN. |
+| `bic` | String, 9 digits | Yes | Recipient bank BIC. |
+| `bankAccount` | String, 20 digits | Yes | Recipient bank account. |
+| `territoryCode` | String, 8 digits | No | Recipient territory code. |
+| `iec` | String, 1–2000 characters | No | Recipient tax registration reason code (KPP). |
+| `bankName` | String, 1–2000 characters | No | Recipient bank name. |
+| `offsettingAccount` | String, 1–2000 characters | No | Bank correspondent account. |
+
+Pass identifiers and account numbers as **strings** to preserve leading zeros.
+Supplied strings must be non-empty and have no surrounding whitespace.
+
+### Reporting data
+
+| Field | Type/format | Required | Description |
+| --- | --- | --- | --- |
+| `payerName` | String, 1–2000 characters | No | Payer's full name or organization name. |
+| `address` | String, 1–2000 characters | No | Payer's address. |
+| `period` | String, `YYYY-MM` | No | Billing period; month must be `01`–`12`, for example `2026-10`. |
+
+### Return URLs
+
+Use absolute URLs. HTTP(S) URLs and custom-scheme deep links such as `myapp://payments/success` are supported.
+Relative URLs, surrounding whitespace, malformed URL encoding, and URLs containing `javascript:` (including
+encoded forms) are rejected. Accepted URLs are passed unchanged to acquiring, which may impose further requirements.
+
+> **Warning:** Return URLs redirect the customer; they are not server callbacks and do not confirm payment.
+
+## Request example
+
+The examples are illustrative. Use credentials, a merchant, and recipient details agreed during onboarding.
+Save this body as `agent-payment.json`:
+
+```json
+{
+    "merchantUserName": "agent-merchant",
+    "agentOrderId": "order-2026-001",
+    "amount": "100.00",
+    "recipient": {
+        "name": "Example recipient",
+        "tin": "9731062087",
+        "bic": "046577674",
+        "bankAccount": "40702810516540077181",
+        "territoryCode": "12345678"
+    },
+    "purpose": "Services for order order-2026-001",
+    "billingAccount": "000123",
+    "reportData": {
+        "payerName": "Example payer",
+        "address": "Example reporting address",
+        "period": "2026-10"
+    },
+    "successUrl": "https://agent.example/payments/success",
+    "failureUrl": "https://agent.example/payments/failure"
+}
+```
+
+With the [authentication environment variables](/docs/agent-payments/auth) configured, run:
+
+```bash
+curl --request POST \
+    --url "${RB_API_BASE_URL%/}/api/agent-payments" \
+    --user "${AGENT_USERNAME}:${AGENT_PASSWORD}" \
+    --header 'Content-Type: application/json' \
+    --header 'Accept: application/json' \
+    --data-binary @agent-payment.json
+```
+
+## Response
+
+Successful registration returns **HTTP 201** with a JSON object:
+
+| Field | Type/format | Description |
+| --- | --- | --- |
+| `id` | String, UUID | Payment identifier for status queries. |
+| `orderId` | String | Acquiring order identifier. |
+| `paymentUrl` | String, URL | Customer payment link. |
+| `amount` | Decimal string | Original recipient amount in rubles. |
+| `modifiedAmount` | Decimal string | Total customer charge in rubles, including fees. |
+
+```json
+{
+    "id": "d325725f-6c73-4dab-910f-88e3274b66d7",
+    "orderId": "7a0eb568-4d20-4a2a-8d20-b7e79201e05d",
+    "paymentUrl": "https://acquiring.example/payment/demo-order",
+    "amount": "100.00",
+    "modifiedAmount": "101.78"
+}
+```
+
+Save this response together with your `agentOrderId` **before** directing the customer to `paymentUrl`.
+The status endpoint does not return the payment link.
+
+## Amounts and fees
+
+Send rubles as a positive decimal string, for example `"100.00"` or `"0.01"`.
+
+The service adds the merchant's configured surcharge; do not calculate and add fees to `amount` yourself.
+In the illustrative response, the recipient amount is 100 rubles and the customer pays 101.78 rubles.
+Actual fees depend on the merchant's configured rates, which are fixed for the payment at registration.
+
+## Error codes
+
+Errors use the [shared error format](/docs/agent-payments/auth).
+
+| HTTP | `extensions.code` | `extensions.type` | Cause and action |
+| --- | --- | --- | --- |
+| 400 | `BAD_USER_INPUT` | `INVALID_AGENT_PAYMENT_REQUEST` | Invalid fields or bank details. Correct the request. |
+| 400 | `BAD_USER_INPUT` | `INVALID_REQUEST_BODY` | Invalid JSON or unsupported body format/encoding. Check the body and `Content-Type`. |
+| 401 | `UNAUTHENTICATED` | `AUTHORIZATION_REQUIRED` | Check agent credentials and whether the agent is enabled. |
+| 413 | `PAYLOAD_TOO_LARGE` | `INVALID_REQUEST_BODY` | Body exceeds 32 KB. Reduce the request size. |
+| 500 | `INTERNAL_ERROR` | `REGISTRATION_FAILED` | Registration, merchant configuration, or acquiring failure. Do not automatically retry. |
+| 500 | `INTERNAL_ERROR` | `INTERNAL_SERVER_ERROR` | Unexpected service error. Do not automatically retry; contact support. |
+
+## Retries and uncertain results
+
+> **Warning:** POST is **not idempotent**. Repeating a request with the same `agentOrderId` can create another
+> acquiring order and another payment attempt.
+
+After successful creation, reuse the saved payment link and query the existing payment's status.
+A timeout, network failure, HTTP 500, or gateway response outside the JSON error format does not prove that
+registration failed. Do not automatically repeat POST.
+
+If you know the payment `id`, query its status. Otherwise contact support with `merchantUserName`,
+`agentOrderId`, amount, request time, and available error/request identifiers. There is no lookup by `agentOrderId`.
+Do not include credentials. A new payment does not cancel a previous attempt.

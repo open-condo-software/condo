@@ -1,0 +1,30 @@
+**Payments Gateway** lets you create payment links and track customer payments and the distribution of funds.
+The service calculates fees and arranges transfers to the recipient using the provided bank details.
+
+## API endpoints
+
+Use the base URL for your environment:
+
+| Environment | Base URL |
+| --- | --- |
+| Production | `https://rb.doma.ai` |
+| Development | `https://rb.d.doma.ai` |
+
+## General workflow
+
+1. Obtain agent credentials, assigned merchant usernames, and fee rates.
+2. Configure [server-to-server authentication](/docs/agent-payments/auth).
+3. [Create a payment](/docs/agent-payments/create) with the recipient's bank details and the amount in rubles.
+4. Save the response together with your `agentOrderId`, then direct the customer to `paymentUrl`.
+5. [Check the payment status](/docs/agent-payments/status) using the returned `id`.
+
+## Amounts and fees
+
+All API amounts are **decimal ruble strings**. For example: '123.45'.
+Do not add fees yourself.
+
+## Reports
+
+After bank-confirmed distribution, the service emails CSV reports to the address agreed during onboarding.
+Reports can arrive in batches and may be delivered more than once; deduplicate rows by the report record's `id`.
+The report email is configured during onboarding.
