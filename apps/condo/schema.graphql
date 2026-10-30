@@ -95987,6 +95987,7 @@ input ResetUserInput {
   sender: SenderFieldInput!
   user: UserWhereUniqueInput!
   saveName: Boolean
+  token: String
 }
 
 type ResetUserOutput {

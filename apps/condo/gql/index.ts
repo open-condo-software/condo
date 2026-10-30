@@ -11375,6 +11375,39 @@ export function useResendConfirmPhoneActionSmsMutation(baseOptions?: Apollo.Muta
 export type ResendConfirmPhoneActionSmsMutationHookResult = ReturnType<typeof useResendConfirmPhoneActionSmsMutation>;
 export type ResendConfirmPhoneActionSmsMutationResult = Apollo.MutationResult<Types.ResendConfirmPhoneActionSmsMutation>;
 export type ResendConfirmPhoneActionSmsMutationOptions = Apollo.BaseMutationOptions<Types.ResendConfirmPhoneActionSmsMutation, Types.ResendConfirmPhoneActionSmsMutationVariables>;
+export const ResetUserDocument = gql`
+    mutation resetUser($data: ResetUserInput!) {
+  result: resetUser(data: $data) {
+    status
+  }
+}
+    `;
+export type ResetUserMutationFn = Apollo.MutationFunction<Types.ResetUserMutation, Types.ResetUserMutationVariables>;
+
+/**
+ * __useResetUserMutation__
+ *
+ * To run a mutation, you first call `useResetUserMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useResetUserMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [resetUserMutation, { data, loading, error }] = useResetUserMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useResetUserMutation(baseOptions?: Apollo.MutationHookOptions<Types.ResetUserMutation, Types.ResetUserMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.ResetUserMutation, Types.ResetUserMutationVariables>(ResetUserDocument, options);
+      }
+export type ResetUserMutationHookResult = ReturnType<typeof useResetUserMutation>;
+export type ResetUserMutationResult = Apollo.MutationResult<Types.ResetUserMutation>;
+export type ResetUserMutationOptions = Apollo.BaseMutationOptions<Types.ResetUserMutation, Types.ResetUserMutationVariables>;
 export const StartConfirmEmailActionDocument = gql`
     mutation startConfirmEmailAction($data: StartConfirmEmailActionInput!) {
   result: startConfirmEmailAction(data: $data) {

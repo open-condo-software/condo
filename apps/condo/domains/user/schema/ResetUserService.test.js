@@ -25,10 +25,32 @@ const {
     resetUserByTestClient,
     makeClientWithSupportUser,
     UserAdmin, UserExternalIdentity,
+    generateSudoTokenByTestClient,
+    UserSudoToken,
 } = require('@condo/domains/user/utils/testSchema')
+const { generateToken, TOKEN_TYPES } = require('@condo/domains/user/utils/tokens')
 
 const { SBER_ID_IDP_TYPE } = require('../constants/identityProviders')
 const { createTestUserExternalIdentity } = require('../utils/testSchema')
+
+
+function getCaptcha () {
+    return faker.random.alphaNumeric(32)
+}
+
+async function generateSudoTokenForClient (client) {
+    const [sudoToken] = await generateSudoTokenByTestClient(client, {
+        captcha: getCaptcha(),
+        user: { phone: client.userAttrs.phone, userType: client.user.type },
+        authFactors: { password: client.userAttrs.password },
+    })
+    return sudoToken
+}
+
+async function resetUserByTestClientWithSudoToken (client, payload = {}) {
+    const sudoToken = await generateSudoTokenForClient(client)
+    return resetUserByTestClient(client, { ...payload, token: sudoToken.token })
+}
 
 describe('ResetUserService', () => {
     let support
@@ -130,7 +152,7 @@ describe('ResetUserService', () => {
             user: { id: client.user.id },
         }
 
-        await resetUserByTestClient(client, payload)
+        await resetUserByTestClientWithSudoToken(client, payload)
 
         // We use admin context here, since support does not have access to email and phone fields
         const [resetUser] = await UserAdmin.getAll(admin, { id: client.user.id })
@@ -162,7 +184,7 @@ describe('ResetUserService', () => {
             user: { id: client.user.id },
         }
 
-        await resetUserByTestClient(client, payload)
+        await resetUserByTestClientWithSudoToken(client, payload)
 
         // We use admin context here, since support does not have access to email and phone fields
         const [resetUser] = await UserAdmin.getAll(admin, { id: client.user.id })
@@ -200,7 +222,7 @@ describe('ResetUserService', () => {
             user: { id: client.user.id },
         }
 
-        await resetUserByTestClient(client, payload)
+        await resetUserByTestClientWithSudoToken(client, payload)
 
         // We use admin context here, since support does not have access to email and phone fields
         const [resetUser] = await UserAdmin.getAll(admin, { id: client.user.id })
@@ -250,7 +272,7 @@ describe('ResetUserService', () => {
             user: { id: client.user.id },
         }
 
-        await resetUserByTestClient(client, payload)
+        await resetUserByTestClientWithSudoToken(client, payload)
 
         // We use admin context here, since support does not have access to email and phone fields
         const [resetUser] = await UserAdmin.getAll(admin, { id: client.user.id })
@@ -289,7 +311,7 @@ describe('ResetUserService', () => {
             user: { id: client.user.id },
         }
 
-        await resetUserByTestClient(client, payload)
+        await resetUserByTestClientWithSudoToken(client, payload)
 
         // We use admin context here, since support does not have access to email and phone fields
         const [resetUser] = await UserAdmin.getAll(admin, { id: client.user.id })
@@ -436,5 +458,91 @@ describe('ResetUserService', () => {
             expect.objectContaining({ id: processedEmployeeRequest2.id }),
             expect.objectContaining({ id: employeeRequest2.id }),
         ]))
+    })
+
+    test('user cannot reset their account without sudo token', async () => {
+        const client = await makeClientWithNewRegisteredAndLoggedInUser()
+        const payload = {
+            user: { id: client.user.id },
+        }
+
+        await expectToThrowGQLErrorToResult(
+            async () => await resetUserByTestClient(client, payload),
+            {
+                mutation: 'resetUser',
+                variable: ['data', 'token'],
+                code: 'BAD_USER_INPUT',
+                type: 'INVALID_TOKEN',
+            },
+        )
+    })
+
+    test('user cannot reset their account with non-sudo token', async () => {
+        const client = await makeClientWithNewRegisteredAndLoggedInUser()
+        const payload = {
+            user: { id: client.user.id },
+            token: generateToken(TOKEN_TYPES.CONFIRM_PHONE),
+        }
+
+        await expectToThrowGQLErrorToResult(
+            async () => await resetUserByTestClient(client, payload),
+            {
+                mutation: 'resetUser',
+                variable: ['data', 'token'],
+                code: 'BAD_USER_INPUT',
+                type: 'UNSUPPORTED_TOKEN',
+            },
+        )
+    })
+
+    test('user cannot reset their account with not existing sudo token', async () => {
+        const client = await makeClientWithNewRegisteredAndLoggedInUser()
+        const payload = {
+            user: { id: client.user.id },
+            token: generateToken(TOKEN_TYPES.SUDO),
+        }
+
+        await expectToThrowGQLErrorToResult(
+            async () => await resetUserByTestClient(client, payload),
+            {
+                mutation: 'resetUser',
+                variable: ['data', 'token'],
+                code: 'BAD_USER_INPUT',
+                type: 'TOKEN_NOT_FOUND',
+            },
+        )
+    })
+
+    test('user cannot reset their account with sudo token of another user', async () => {
+        const client = await makeClientWithNewRegisteredAndLoggedInUser()
+        const anotherClient = await makeClientWithNewRegisteredAndLoggedInUser()
+        const sudoToken = await generateSudoTokenForClient(anotherClient)
+
+        const payload = {
+            user: { id: client.user.id },
+            token: sudoToken.token,
+        }
+
+        await expectToThrowGQLErrorToResult(
+            async () => await resetUserByTestClient(client, payload),
+            {
+                mutation: 'resetUser',
+                code: 'BAD_USER_INPUT',
+                type: 'OPERATION_FAILED',
+            },
+        )
+    })
+
+    test('sudo token is marked as used after self reset', async () => {
+        const client = await makeClientWithNewRegisteredAndLoggedInUser()
+        const sudoToken = await generateSudoTokenForClient(client)
+
+        await resetUserByTestClient(client, {
+            user: { id: client.user.id },
+            token: sudoToken.token,
+        })
+
+        const usedSudoToken = await UserSudoToken.getOne(admin, { token: sudoToken.token })
+        expect(usedSudoToken.remainingUses).toBe(0)
     })
 })

@@ -1700,6 +1700,13 @@ export type ResendConfirmPhoneActionSmsMutationVariables = Types.Exact<{
 
 export type ResendConfirmPhoneActionSmsMutation = { __typename?: 'Mutation', result?: { __typename?: 'ResendConfirmPhoneActionSmsOutput', status: string } | null };
 
+export type ResetUserMutationVariables = Types.Exact<{
+  data: Types.ResetUserInput;
+}>;
+
+
+export type ResetUserMutation = { __typename?: 'Mutation', result?: { __typename?: 'ResetUserOutput', status: string } | null };
+
 export type StartConfirmEmailActionMutationVariables = Types.Exact<{
   data: Types.StartConfirmEmailActionInput;
 }>;

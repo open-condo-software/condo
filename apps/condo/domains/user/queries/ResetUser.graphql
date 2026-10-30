@@ -1,0 +1,3 @@
+mutation resetUser($data: ResetUserInput!) {
+    result: resetUser(data: $data) { status }
+}
