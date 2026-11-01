@@ -56,10 +56,14 @@ async function deleteUserCard (url, userId, cardId, acquiringIntegrationId) {
             }),
         })
 
-        // Delete is intentionally broadcast to every app; a card missing from
-        // one app has already been deleted there and is an idempotent success.
         if (response.status === 404) {
-            return true
+            const body = await response.json().catch(() => null)
+            const errorMessage = body?.error?.message || body?.error || body?.message
+            const cardNotFoundMessage = 'Requested card not found for provided clientId'
+
+            if (body?.code === 'CARD_NOT_FOUND' || errorMessage === cardNotFoundMessage) {
+                return true
+            }
         }
 
         if (!response.ok) {
