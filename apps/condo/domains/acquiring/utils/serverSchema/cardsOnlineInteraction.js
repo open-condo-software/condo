@@ -56,16 +56,6 @@ async function deleteUserCard (url, userId, cardId, acquiringIntegrationId) {
             }),
         })
 
-        if (response.status === 404) {
-            const body = await response.json().catch(() => null)
-            const errorMessage = body?.error?.message || body?.error || body?.message
-            const cardNotFoundMessage = 'Requested card not found for provided clientId'
-
-            if (body?.code === 'CARD_NOT_FOUND' || errorMessage === cardNotFoundMessage) {
-                return true
-            }
-        }
-
         if (!response.ok) {
             throw new Error(`HTTP ${response.status} ${response.statusText}`)
         }
