@@ -11,14 +11,14 @@ import { NextRouter, useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
-import { Download, Search } from '@open-condo/icons'
+import { Download } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button, Checkbox, Space } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/colors'
 
 import { PaymentsFileDetailsModal } from '@condo/domains/acquiring/components/payments/PaymentsFileDetailsModal'
 import { PaymentsSummary } from '@condo/domains/acquiring/components/payments/PaymentsSummary'
+import { PaymentsTableFilterBar } from '@condo/domains/acquiring/components/payments/PaymentsTableFilterBar'
 import useDownloadPaymentsFiles from '@condo/domains/acquiring/hooks/useDownloadPaymentsFiles'
 import { usePaymentsFilesTableColumns } from '@condo/domains/acquiring/hooks/usePaymentsFilesTableColumns'
 import { usePaymentsFilesTableFilters } from '@condo/domains/acquiring/hooks/usePaymentsFilesTableFilters'
@@ -26,10 +26,6 @@ import usePaymentsSum from '@condo/domains/acquiring/hooks/usePaymentsSum'
 import { PaymentsFilterTemplate } from '@condo/domains/acquiring/utils/clientSchema'
 import { getInitialSelectedRegistryKeys, IPaymentsFilesFilters } from '@condo/domains/acquiring/utils/helpers'
 import { useBillingAndAcquiringContexts } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
-import Input from '@condo/domains/common/components/antd/Input'
-import { BillingTableFiltersContainer } from '@condo/domains/common/components/BillingTableFiltersContainer'
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { getMoneyRender } from '@condo/domains/common/components/Table/Renders'
 import { useDateRangeSearch } from '@condo/domains/common/hooks/useDateRangeSearch'
@@ -49,7 +45,6 @@ const DEFAULT_DATE_RANGE: [Dayjs, Dayjs] = [dayjs().subtract(1, 'week'), dayjs()
 const DEBOUNCE_TIMEOUT = 400
 
 const ROW_GUTTER: [Gutter, Gutter] = [0, 24]
-const TAP_BAR_ROW_GUTTER: [Gutter, Gutter] = [8, 20]
 const BOTTOM_PADDING_LIKE_ACTION_BAR: CSSProperties = { paddingBottom: '104px' }
 
 const { publicRuntimeConfig: { defaultCurrencyCode } } = getConfig()
@@ -70,7 +65,6 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
     const { acquiringContexts, billingContexts } = useBillingAndAcquiringContexts()
     const { persistor } = useCachePersistor()
 
-    const { breakpoints } = useLayoutContext()
     const router = useRouter()
     const userOrganization = useOrganization()
     const organizationId = userOrganization?.organization?.id ?? ''
@@ -260,36 +254,15 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
     return (
         <Row gutter={ROW_GUTTER} align='middle' justify='center'>
             <Col span={24}>
-                <BillingTableFiltersContainer>
-                    <Row gutter={TAP_BAR_ROW_GUTTER} justify={breakpoints.DESKTOP_SMALL ? 'end' : 'start'} align='middle'>
-                        <Col flex={breakpoints.DESKTOP_SMALL ? 'auto' : '100%'}>
-                            <Input
-                                placeholder={SearchPlaceholder}
-                                value={search}
-                                onChange={(e) => {
-                                    handleSearchChange(e.target.value)
-                                }}
-                                allowClear
-                                suffix={<Search size='medium' color={colors.gray[7]} />}
-                            />
-                        </Col>
-                        <Col flex={breakpoints.DESKTOP_SMALL ? 'none' : '100%'}>
-                            <DateRangePicker
-                                value={dateRange || dateFallback}
-                                onChange={handleDateChange}
-                                placeholder={[StartDateMessage, EndDateMessage]}
-                            />
-                        </Col>
-                        {appliedFiltersCount > 0 && (
-                            <Col flex={breakpoints.DESKTOP_SMALL ? 'none' : '100%'} onClick={onReset}>
-                                <ResetFiltersModalButton />
-                            </Col>
-                        )}
-                        <Col flex={breakpoints.DESKTOP_SMALL ? 'none' : '100%'}>
-                            <OpenFiltersButton showLabel={false} />
-                        </Col>
-                    </Row>
-                </BillingTableFiltersContainer>
+                <PaymentsTableFilterBar
+                    search={{ value: search, placeholder: SearchPlaceholder, onChange: handleSearchChange }}
+                    datePickerProps={{
+                        value: dateRange || dateFallback,
+                        onChange: handleDateChange,
+                        placeholder: [StartDateMessage, EndDateMessage],
+                    }}
+                    modalFilters={{ count: appliedFiltersCount, onReset, resetButton: <ResetFiltersModalButton />, openButton: <OpenFiltersButton showLabel={false} /> }}
+                />
             </Col>
 
 

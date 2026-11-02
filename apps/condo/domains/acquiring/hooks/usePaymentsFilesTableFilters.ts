@@ -22,6 +22,12 @@ export const paymentPeriodFilter = (search: QueryArgType): PaymentsFileWhereInpu
     const rangeStart = dayjs(search[0])
     const rangeEnd = dayjs(search[1])
     if (!rangeStart.isValid() || !rangeEnd.isValid()) return
+    if (rangeStart.isAfter(rangeEnd)) {
+        return {
+            paymentPeriodStartDate_gt: rangeStart.format('YYYY-MM-DD'),
+            paymentPeriodStartDate_lt: rangeEnd.format('YYYY-MM-DD'),
+        }
+    }
 
     return {
         AND: [

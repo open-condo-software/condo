@@ -76830,7 +76830,7 @@ export type PaymentsSumInput = {
 
 export type PaymentsSumOutput = {
   __typename?: 'PaymentsSumOutput';
-  paymentsCount: Scalars['Int']['output'];
+  paymentsCount: Scalars['String']['output'];
   sum: Scalars['String']['output'];
 };
 

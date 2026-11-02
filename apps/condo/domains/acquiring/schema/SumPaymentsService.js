@@ -45,7 +45,7 @@ const SumPaymentsService = new GQLCustomSchema('SumPaymentsService', {
         },
         {
             access: true,
-            type: 'type PaymentsSumOutput { sum: String!, paymentsCount: Int! }',
+            type: 'type PaymentsSumOutput { sum: String!, paymentsCount: String! }',
         },
     ],
 
@@ -87,11 +87,11 @@ const SumPaymentsService = new GQLCustomSchema('SumPaymentsService', {
                 })
                 const idObjects = await paymentLoader.load()
                 const aggregateFields = paymentsFilesWhere
-                    ? 'SUM(amount) as "amountSum", SUM("paymentsCount") as "paymentsCount"'
-                    : 'SUM(amount) as "amountSum", COUNT(*) as "paymentsCount"'
+                    ? 'SUM(amount) as "amountSum", SUM("paymentsCount")::text as "paymentsCount"'
+                    : 'SUM(amount) as "amountSum", COUNT(*)::text as "paymentsCount"'
                 const aggregate = await paymentLoader.loadAggregate(aggregateFields, idObjects.map(({ id }) => id))
                 const sum = Big(aggregate.amountSum || 0).toFixed(8)
-                const paymentsCount = Number(aggregate.paymentsCount || 0)
+                const paymentsCount = String(aggregate.paymentsCount || 0)
 
                 return {
                     sum,

@@ -15,6 +15,13 @@ describe('paymentPeriodFilter', () => {
         expect(paymentPeriodFilter(['invalid', '2026-10-19'])).toBeUndefined()
         expect(paymentPeriodFilter(['2026-10-17'])).toBeUndefined()
     })
+
+    it('should match no payment registries for a reversed range', () => {
+        expect(paymentPeriodFilter(['2026-10-19', '2026-10-17'])).toStrictEqual({
+            paymentPeriodStartDate_gt: '2026-10-19',
+            paymentPeriodStartDate_lt: '2026-10-17',
+        })
+    })
 })
 
 describe('paymentOrderNumbersFilter', () => {

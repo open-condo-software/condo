@@ -88,17 +88,17 @@ describe('SumPaymentsService', () => {
                 const { sum, paymentsCount } = await sumPaymentsByTestClient(admin, { paymentsFilesWhere })
 
                 expect(String(sum)).toEqual('0.00000000')
-                expect(paymentsCount).toEqual(0)
+                expect(paymentsCount).toEqual('0')
             })
 
-            test('payments count', async () => {
+            test('payments count above GraphQL Int limit', async () => {
                 const [context] = await createTestAcquiringIntegrationContext(admin, organization, integration)
-                await createTestPaymentsFile(admin, context, { paymentsCount: 3 })
-                await createTestPaymentsFile(admin, context, { paymentsCount: 7 })
+                await createTestPaymentsFile(admin, context, { paymentsCount: 2147483647 })
+                await createTestPaymentsFile(admin, context, { paymentsCount: 1 })
                 const paymentsFilesWhere = { context: { id: context.id } }
                 const { paymentsCount } = await sumPaymentsByTestClient(admin, { paymentsFilesWhere })
 
-                expect(paymentsCount).toEqual(10)
+                expect(paymentsCount).toEqual('2147483648')
             })
         })
 

@@ -97401,7 +97401,7 @@ input PaymentsSumInput {
 
 type PaymentsSumOutput {
   sum: String!
-  paymentsCount: Int!
+  paymentsCount: String!
 }
 
 input CreatePaymentByLinkInput {
