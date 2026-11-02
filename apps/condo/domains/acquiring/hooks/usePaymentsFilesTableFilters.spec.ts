@@ -1,4 +1,4 @@
-import { paymentPeriodFilter } from './usePaymentsFilesTableFilters'
+import { paymentOrderNumbersFilter, paymentPeriodFilter } from './usePaymentsFilesTableFilters'
 
 
 describe('paymentPeriodFilter', () => {
@@ -14,5 +14,13 @@ describe('paymentPeriodFilter', () => {
     it('should be undefined for an invalid range', () => {
         expect(paymentPeriodFilter(['invalid', '2026-10-19'])).toBeUndefined()
         expect(paymentPeriodFilter(['2026-10-17'])).toBeUndefined()
+    })
+})
+
+describe('paymentOrderNumbersFilter', () => {
+    it('should filter by multiple payment order numbers', () => {
+        expect(paymentOrderNumbersFilter(['123', '456'])).toStrictEqual({
+            paymentOrder_in: ['123', '456'],
+        })
     })
 })

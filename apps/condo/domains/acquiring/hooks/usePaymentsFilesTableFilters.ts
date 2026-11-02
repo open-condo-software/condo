@@ -30,7 +30,7 @@ export const paymentPeriodFilter = (search: QueryArgType): PaymentsFileWhereInpu
         ],
     }
 }
-const registryNumberFilter = getFilter('number', 'array', 'number', 'in')
+export const paymentOrderNumbersFilter = getFilter('paymentOrder', 'array', 'string', 'in')
 const acquiringContextFilter = getFilter(['context', 'id'], 'array', 'string', 'in')
 const statusFilter = getFilter('status', 'array', 'string', 'in')
 const paymentOrderFilter = getStringContainsFilter('paymentOrder')
@@ -43,8 +43,8 @@ export function usePaymentsFilesTableFilters ( organizationId: string ): Filters
     const EndDateMessage = intl.formatMessage({ id: 'pages.condo.meter.EndDate' })
     const FormationDateMessage = intl.formatMessage({ id: 'accrualsAndPayments.payments.type.registry.filters.formationDate' })
     const PaymentPeriodMessage = intl.formatMessage({ id: 'accrualsAndPayments.payments.type.registry.filters.paymentPeriod' })
-    const RegistryNumberMessage = intl.formatMessage({ id: 'accrualsAndPayments.payments.type.registry.filters.registryNumber' })
-    const RegistryNumberPlaceholder = intl.formatMessage({ id: 'accrualsAndPayments.payments.type.registry.filters.registryNumber.placeholder' })
+    const PaymentOrderMessage = intl.formatMessage({ id: 'accrualsAndPayments.payments.type.registry.filters.paymentOrder' })
+    const PaymentOrderPlaceholder = intl.formatMessage({ id: 'accrualsAndPayments.payments.type.registry.filters.paymentOrder.placeholder' })
     const TypeMessage = intl.formatMessage({ id: 'pages.condo.payments.type' })
     const EnterTypeMessage = intl.formatMessage({ id: 'pages.condo.payments.enterType' })
     const StatusTitle = intl.formatMessage({ id: 'Status' })
@@ -92,16 +92,16 @@ export function usePaymentsFilesTableFilters ( organizationId: string ): Filters
                 },
             },
             {
-                keyword: 'number',
-                filters: [registryNumberFilter],
+                keyword: 'paymentOrder',
+                filters: [paymentOrderNumbersFilter],
                 component: {
                     type: ComponentType.TagsSelect,
                     props: {
-                        placeholder: RegistryNumberPlaceholder,
+                        placeholder: PaymentOrderPlaceholder,
                         tokenSeparators: [',', ' '],
                     },
                     modalFilterComponentWrapper: {
-                        label: RegistryNumberMessage,
+                        label: PaymentOrderMessage,
                         size: FilterComponentSize.Medium,
                     },
                 },
@@ -142,6 +142,6 @@ export function usePaymentsFilesTableFilters ( organizationId: string ): Filters
                 },
             },
         ]
-    }, [StartDateMessage, EndDateMessage, FormationDateMessage, PaymentPeriodMessage, RegistryNumberMessage, RegistryNumberPlaceholder, statusOptions, EnterStatusMessage, StatusTitle, organizationId, EnterTypeMessage, TypeMessage])
+    }, [StartDateMessage, EndDateMessage, FormationDateMessage, PaymentPeriodMessage, PaymentOrderMessage, PaymentOrderPlaceholder, statusOptions, EnterStatusMessage, StatusTitle, organizationId, EnterTypeMessage, TypeMessage])
 
 }

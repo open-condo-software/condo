@@ -23,10 +23,9 @@ export const getInitialSelectedRegistryKeys = (router: NextRouter) => {
 }
 
 
-export interface IPaymentsFilesFilters extends Pick<PaymentsFile, 'loadedAt' | 'paymentOrder'> {
+export interface IPaymentsFilesFilters extends Pick<PaymentsFile, 'loadedAt'> {
     search?: string
     loadedAt?: string
     paymentPeriod?: Array<string>
-    number?: Array<string>
-    paymentOrder?: string
+    paymentOrder?: Array<string>
 }

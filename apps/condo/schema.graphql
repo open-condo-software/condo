@@ -66628,7 +66628,7 @@ type PaymentsFilter {
   transferDate: [String]
   loadedAt: [String]
   paymentPeriod: [String]
-  number: [String]
+  paymentOrder: [String]
   accountNumber: String
   address: [String]
   type: [String]
@@ -66642,7 +66642,7 @@ input PaymentsFilterInput {
   transferDate: [String]
   loadedAt: [String]
   paymentPeriod: [String]
-  number: [String]
+  paymentOrder: [String]
   accountNumber: String
   address: [String]
   type: [String]

@@ -11,7 +11,7 @@ const PaymentsFilterFields = {
     transferDate: '[String]',
     loadedAt: '[String]',
     paymentPeriod: '[String]',
-    number: '[String]',
+    paymentOrder: '[String]',
     accountNumber: 'String',
     address: '[String]',
     type: '[String]',

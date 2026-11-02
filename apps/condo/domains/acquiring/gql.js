@@ -41,7 +41,7 @@ const REGISTER_MULTI_PAYMENT_MUTATION = gql`
     }
 `
 
-const PAYMENTS_FILTER_FIELDS = '{ advancedAt depositedDate transferDate loadedAt paymentPeriod number accountNumber address type order status }'
+const PAYMENTS_FILTER_FIELDS = '{ advancedAt depositedDate transferDate loadedAt paymentPeriod paymentOrder accountNumber address type order status }'
 const PAYMENTS_FILTER_TEMPLATE_FIELDS = `{ name employee { id } fields ${PAYMENTS_FILTER_FIELDS} ${COMMON_FIELDS} }`
 const PaymentsFilterTemplate = generateGqlQueries('PaymentsFilterTemplate', PAYMENTS_FILTER_TEMPLATE_FIELDS)
 
