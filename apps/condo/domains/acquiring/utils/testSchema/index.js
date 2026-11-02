@@ -46,7 +46,11 @@ const {
     REGISTER_MULTI_PAYMENT_FOR_VIRTUAL_RECEIPT_MUTATION,
     GENERATE_PAYMENT_LINK_QUERY,
 } = require('@condo/domains/acquiring/gql')
-const { PaymentsFilterTemplate: PaymentsFilterTemplateGQL, SUM_PAYMENTS_QUERY } = require('@condo/domains/acquiring/gql')
+const {
+    PaymentsFilterTemplate: PaymentsFilterTemplateGQL,
+    SUM_PAYMENTS_QUERY,
+    SUM_PAYMENTS_FILES_QUERY,
+} = require('@condo/domains/acquiring/gql')
 const { RecurrentPaymentContext: RecurrentPaymentContextGQL } = require('@condo/domains/acquiring/gql')
 const { RecurrentPayment: RecurrentPaymentGQL } = require('@condo/domains/acquiring/gql')
 const { PAYMENT_BY_LINK_MUTATION } = require('@condo/domains/acquiring/gql')
@@ -462,8 +466,9 @@ async function generatePaymentLinkByTestClient (client, receipt, receiptData, ac
 async function sumPaymentsByTestClient (client, args = {}) {
     if (!client) throw new Error('no client')
 
-    const { data, errors } = await client.query(SUM_PAYMENTS_QUERY, { data: args })
-    throwIfError(data, errors, { query: SUM_PAYMENTS_QUERY, variables: { data: args } })
+    const query = args.paymentsFilesWhere ? SUM_PAYMENTS_FILES_QUERY : SUM_PAYMENTS_QUERY
+    const { data, errors } = await client.query(query, { data: args })
+    throwIfError(data, errors, { query, variables: { data: args } })
     return data.result
 }
 async function createTestRecurrentPaymentContext (client, extraAttrs = {}) {

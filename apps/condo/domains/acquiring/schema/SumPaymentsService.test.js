@@ -85,9 +85,20 @@ describe('SumPaymentsService', () => {
             test('zero', async () => {
                 const [context] = await createTestAcquiringIntegrationContext(admin, organization, integration)
                 const paymentsFilesWhere = { context: { id: context.id } }
-                const { sum } = await sumPaymentsByTestClient(admin, { paymentsFilesWhere })
+                const { sum, paymentsCount } = await sumPaymentsByTestClient(admin, { paymentsFilesWhere })
 
                 expect(String(sum)).toEqual('0.00000000')
+                expect(paymentsCount).toEqual(0)
+            })
+
+            test('payments count', async () => {
+                const [context] = await createTestAcquiringIntegrationContext(admin, organization, integration)
+                await createTestPaymentsFile(admin, context, { paymentsCount: 3 })
+                await createTestPaymentsFile(admin, context, { paymentsCount: 7 })
+                const paymentsFilesWhere = { context: { id: context.id } }
+                const { paymentsCount } = await sumPaymentsByTestClient(admin, { paymentsFilesWhere })
+
+                expect(paymentsCount).toEqual(10)
             })
         })
 

@@ -14,7 +14,10 @@ query getPaymentsFiles ($where: PaymentsFileWhereInput!, $sortBy: [SortPaymentsF
             publicUrl
             mimetype
         }
-        context { id }
+        context {
+            id
+            integration { name }
+        }
         bankAccount
         paymentPeriodStartDate
         paymentPeriodEndDay

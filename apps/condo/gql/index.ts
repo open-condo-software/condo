@@ -207,6 +207,9 @@ export const GetPaymentsFilesDocument = gql`
     }
     context {
       id
+      integration {
+        name
+      }
     }
     bankAccount
     paymentPeriodStartDate
