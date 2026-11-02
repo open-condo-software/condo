@@ -1,4 +1,5 @@
 const admin = require('firebase-admin')
+const cloneDeep = require('lodash/cloneDeep')
 const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
 const isObject = require('lodash/isObject')
@@ -153,7 +154,7 @@ class FirebaseAdapter {
      * @returns {*}
      */
     static injectFakeResults (result, fakeNotifications, appIds = {}) {
-        const mixed = !isObject(result) || isEmpty(result) ? FirebaseAdapter.getEmptyResult() : JSON.parse(JSON.stringify(result))
+        const mixed = !isObject(result) || isEmpty(result) ? FirebaseAdapter.getEmptyResult() : cloneDeep(result)
 
         fakeNotifications.forEach(({ token }) => {
             if (token.startsWith(PUSH_FAKE_TOKEN_SUCCESS)) {

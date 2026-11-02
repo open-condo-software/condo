@@ -1,3 +1,4 @@
+const cloneDeep = require('lodash/cloneDeep')
 const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
 const isNull = require('lodash/isNull')
@@ -133,7 +134,7 @@ class AppleAdapter {
      * @returns {*}
      */
     static injectFakeResults (result, fakeNotifications, appIds = {}) {
-        const mixed = !isObject(result) || isEmpty(result) ? AppleAdapter.getEmptyResult() : JSON.parse(JSON.stringify(result))
+        const mixed = !isObject(result) || isEmpty(result) ? AppleAdapter.getEmptyResult() : cloneDeep(result)
 
         fakeNotifications.forEach(({ token }) => {
             if (token.startsWith(PUSH_FAKE_TOKEN_SUCCESS)) {

@@ -178,7 +178,7 @@ class HCMAdapter {
      * @returns {*}
      */
     static injectFakeResults (result, fakeNotifications, appIds = {}) {
-        const mixed = !isObject(result) || isEmpty(result) ? HCMAdapter.getEmptyResult() : JSON.parse(JSON.stringify(result))
+        const mixed = !isObject(result) || isEmpty(result) ? HCMAdapter.getEmptyResult() : cloneDeep(result)
 
         fakeNotifications.forEach(({ token }) => {
             const appType = HCMAdapter.getAppType(appIds, token)
