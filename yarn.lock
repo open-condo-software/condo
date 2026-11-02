@@ -1778,6 +1778,7 @@ __metadata:
   resolution: "@app/resident-app@workspace:apps/resident-app"
   dependencies:
     "@ant-design/cssinjs": "npm:^1.24.0"
+    "@ant-design/icons": "npm:6.0.0"
     "@apollo/client": "catalog:"
     "@graphql-codegen/cli": "catalog:"
     "@graphql-codegen/typescript": "npm:^5.0.9"
