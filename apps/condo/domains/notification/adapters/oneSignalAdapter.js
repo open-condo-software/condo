@@ -1,3 +1,4 @@
+const cloneDeep = require('lodash/cloneDeep')
 const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
 const isObject = require('lodash/isObject')
@@ -130,7 +131,7 @@ class OneSignalAdapter {
      * @returns {*}
      */
     static injectFakeResults (result, fakeNotifications, appIds = {}) {
-        const mixed = !isObject(result) || isEmpty(result) ? OneSignalAdapter.getEmptyResult() : JSON.parse(JSON.stringify(result))
+        const mixed = !isObject(result) || isEmpty(result) ? OneSignalAdapter.getEmptyResult() : cloneDeep(result)
 
         fakeNotifications.forEach(({ token }) => {
             if (token.startsWith(PUSH_FAKE_TOKEN_SUCCESS)) {

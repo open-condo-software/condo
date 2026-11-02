@@ -5,6 +5,19 @@ jest.mock('@open-condo/config', () => {
     const actual = jest.requireActual('@open-condo/config')
     const mockedValues = {
         TESTS_FAKE_WORKER_MODE: true,
+        ONESIGNAL_CONFIG_JSON: JSON.stringify({
+            'test-push-error-metadata': {
+                providerAppId: '00000000-0000-4000-8000-000000000001',
+                apiKey: 'unused-test-api-key',
+            },
+        }),
+        REDSTORE_CONFIG_JSON: JSON.stringify({
+            'test-push-error-metadata': {
+                project_id: 'test-project',
+                service_token: 'unused-test-token',
+                url: 'http://localhost:4006',
+            },
+        }),
         PUSH_ADAPTER_SETTINGS: JSON.stringify({
             encryption: {
                 'test-encrypted-app-with-invalid-version': 'non-existent-encryption-version',
@@ -48,6 +61,7 @@ const PUSH_NOTIFICATION_APP_GROUPS_SETTINGS = {
 
 const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
+const OneSignal = require('@onesignal/node-onesignal')
 const dayjs = require('dayjs')
 
 const conf = require('@open-condo/config')
@@ -60,6 +74,7 @@ const { FirebaseAdapter } = require('@condo/domains/notification/adapters/fireba
 const { PUSH_SUCCESS_CODE, PUSH_PARTIAL_SUCCESS_CODE, ALL_TOKENS_ARE_INVALID_CODE } = require('@condo/domains/notification/adapters/hcm/constants')
 const { HCMAdapter } = require('@condo/domains/notification/adapters/hcmAdapter')
 const { OneSignalAdapter } = require('@condo/domains/notification/adapters/oneSignalAdapter')
+const { RedStoreNotificationSender } = require('@condo/domains/notification/adapters/redStore/redStoreNotificationSender')
 const { RedStoreAdapter } = require('@condo/domains/notification/adapters/redStoreAdapter')
 const {
     BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE,
@@ -78,6 +93,7 @@ const {
     APP_MASTER_ID_ANDROID,
     MESSAGE_SENT_STATUS,
     MESSAGE_ERROR_STATUS,
+    VOIP_INCOMING_CALL_MESSAGE_TYPE,
     PUSH_TRANSPORT, DEVICE_PLATFORM_TYPES, PUSH_TRANSPORT_TYPES, PUSH_TRANSPORT_WEBHOOK,
     REMOTE_CLIENT_GROUP_UNGROUPED,
     PUSH_FAKE_TOKEN_FAIL,
@@ -139,6 +155,80 @@ describe('push transport', () => {
 
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
+    })
+
+    describe('push error metadata', () => {
+        afterEach(() => {
+            jest.restoreAllMocks()
+        })
+
+        test.each([
+            { transport: PUSH_TRANSPORT_ONESIGNAL, isVoIP: false },
+            { transport: PUSH_TRANSPORT_ONESIGNAL, isVoIP: true },
+            { transport: PUSH_TRANSPORT_REDSTORE, isVoIP: false },
+        ])('persists formatted $transport errors in Message.processingMeta (VoIP: $isVoIP)', async ({ transport, isVoIP }) => {
+            const error = new Error('m'.repeat(101))
+            error.stack = 's'.repeat(101)
+            error.code = 'c'.repeat(101)
+            const sendSpy = transport === PUSH_TRANSPORT_ONESIGNAL
+                ? jest.spyOn(OneSignal.DefaultApi.prototype, 'createNotification').mockRejectedValue(error)
+                : jest.spyOn(RedStoreNotificationSender.prototype, 'sendPush').mockRejectedValue(error)
+            const residentUser = await makeClientWithResidentUser()
+            const token = faker.datatype.uuid()
+            const [remoteClient] = await syncRemoteClientByTestClient(residentUser, getRandomTokenData({
+                appId: 'test-push-error-metadata',
+                devicePlatform: DEVICE_PLATFORM_ANDROID,
+                pushToken: token,
+                pushTransport: transport,
+                pushTokenVoIP: token,
+                pushTransportVoIP: transport,
+                pushType: PUSH_TYPE_DEFAULT,
+                pushTypeVoIP: PUSH_TYPE_SILENT_DATA,
+            }))
+            const remoteClientPushToken = await RemoteClientPushToken.getOne(admin, { remoteClient: { id: remoteClient.id } })
+            const [sentMessage] = await sendMessageByTestClient(admin, {
+                to: { user: { id: residentUser.user.id } },
+                type: isVoIP ? VOIP_INCOMING_CALL_MESSAGE_TYPE : CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
+                meta: {
+                    dv: 1,
+                    title: 'Test title',
+                    body: 'Test body',
+                    data: {
+                        B2CAppId: faker.datatype.uuid(),
+                        B2CAppName: 'Test app',
+                        residentId: residentUser.user.id,
+                        callId: faker.datatype.uuid(),
+                        address: 'Test address',
+                    },
+                },
+            })
+
+            await waitFor(async () => {
+                const message = await Message.getOne(admin, { id: sentMessage.id })
+                expect(message.status).toBe(MESSAGE_ERROR_STATUS)
+                expect(Boolean(message.processingMeta.isVoIP)).toBe(isVoIP)
+                const transportMeta = message.processingMeta.transportsMeta.find(meta => meta.transport === PUSH_TRANSPORT)
+                expect(transportMeta.status).toBe(MESSAGE_ERROR_STATUS)
+                expect(transportMeta.deliveryMetadata).toMatchObject({ successCount: 0, failureCount: 1 })
+                expect(transportMeta.deliveryMetadata.responses).toHaveLength(1)
+                expect(transportMeta.deliveryMetadata.responses[0]).toMatchObject({
+                    pushToken: token,
+                    transport,
+                })
+                expect(transportMeta.deliveryMetadata.responses[0].error).toEqual({
+                    code: `${'c'.repeat(97)}...`,
+                    message: `${'m'.repeat(97)}...`,
+                    stack: `${'s'.repeat(97)}...`,
+                })
+            })
+
+            expect(sendSpy).toHaveBeenCalledTimes(1)
+            const savedToken = await RemoteClientPushToken.getOne(admin, { id: remoteClientPushToken.id })
+            expect(savedToken).toMatchObject({ id: remoteClientPushToken.id, deletedAt: null })
+            expect(error.code).toHaveLength(101)
+            expect(error.message).toHaveLength(101)
+            expect(error.stack).toHaveLength(101)
+        })
     })
 
     describe('getTokens selection (multiple tokens & transportPriorityByAppId)', () => {
@@ -2015,4 +2105,3 @@ describe('push transport', () => {
 
     })
 })
-
