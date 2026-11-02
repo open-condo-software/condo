@@ -1,3 +1,4 @@
+const cloneDeep = require('lodash/cloneDeep')
 const isEmpty = require('lodash/isEmpty')
 const isNull = require('lodash/isNull')
 const isObject = require('lodash/isObject')
@@ -91,7 +92,7 @@ class RedStoreAdapter {
     }
 
     static injectFakeResults (result, fakeNotifications, appIds = {}) {
-        const mixed = !isObject(result) || isEmpty(result) ? RedStoreAdapter.getEmptyResult() : JSON.parse(JSON.stringify(result))
+        const mixed = !isObject(result) || isEmpty(result) ? RedStoreAdapter.getEmptyResult() : cloneDeep(result)
 
         fakeNotifications.forEach(({ token }) => {
             if (token.startsWith(PUSH_FAKE_TOKEN_SUCCESS)) {

@@ -30,6 +30,7 @@ const { renderTemplate } = require('@condo/domains/notification/templates')
 const { RemoteClient, RemoteClientPushToken } = require('@condo/domains/notification/utils/serverSchema')
 const { getPreferredPushTypeByMessageType } = require('@condo/domains/notification/utils/serverSchema/helpers')
 const { encryptPushData } = require('@condo/domains/notification/utils/serverSchema/push/encryption')
+const { formatPushResultErrors } = require('@condo/domains/notification/utils/serverSchema/push/formatPushResultErrors')
 const { getTokens, groupIntoParallelGroupsWithSequentialBatches } = require('@condo/domains/notification/utils/serverSchema/push/helpers')
 
 const logger = getLogger()
@@ -238,7 +239,7 @@ async function sendMessageToTransports ({ recipients, isVoIP }) {
         }
 
         /** @type {[boolean, object, string]} */
-        const sendNotificationResult = [isOk, result, transportType]
+        const sendNotificationResult = [isOk, formatPushResultErrors(result), transportType]
         return sendNotificationResult
     }))
 
