@@ -25,15 +25,16 @@ async function deleteCardBinding (userId, cardId) {
         )
     )
 
-    for (const result of results) {
-        if (result.status === 'fulfilled') {
-            continue
-        }
+    const failedResults = results.filter((result) => result.status === 'rejected' || result.value !== true)
 
+    if (failedResults.length > 0) {
+        const error = new Error(`Failed to delete card binding from ${failedResults.length} acquiring integration(s)`)
         logger.error({
             msg: 'failed to delete card binding',
-            err: result.reason,
+            err: error,
+            data: { failedCount: failedResults.length, acquiringIntegrationCount: acquiringIntegrations.length },
         })
+        throw error
     }
 }
 

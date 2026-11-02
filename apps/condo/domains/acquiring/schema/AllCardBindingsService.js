@@ -25,6 +25,7 @@ const AllCardBindingsService = new GQLCustomSchema('AllCardBindingsService', {
             type: `
                 type CardToken {
                     id: String!
+                    bindingId: String!
                     acquiringIntegrationIds: [String!]!
                     cardNumber: String!
                     paymentSystem: String!

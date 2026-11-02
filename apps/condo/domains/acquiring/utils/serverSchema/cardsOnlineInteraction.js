@@ -6,8 +6,8 @@ const logger = getLogger()
 async function getUserCards (url, userId, acquiringIntegrationId) {
     try {
         const response = await fetch(url, {
-            maxRetries: 5,
-            timeoutBetweenRequests: 1000,
+            maxRetries: 1,
+            abortRequestTimeout: 3000,
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -43,8 +43,9 @@ async function getUserCards (url, userId, acquiringIntegrationId) {
 async function deleteUserCard (url, userId, cardId, acquiringIntegrationId) {
     try {
         const response = await fetch(url, {
-            maxRetries: 5,
-            timeoutBetweenRequests: 1000,
+            maxRetries: 2,
+            abortRequestTimeout: 5000,
+            timeoutBetweenRequests: 500,
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

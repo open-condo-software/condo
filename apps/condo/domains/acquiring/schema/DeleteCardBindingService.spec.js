@@ -36,7 +36,7 @@ describe('DeleteCardBindingService', () => {
         const userId = faker.datatype.uuid()
         const cardId = faker.datatype.uuid()
 
-        deleteUserCard.mockResolvedValue()
+        deleteUserCard.mockResolvedValue(true)
 
         await deleteCardBindingByTestClient(client, {
             user: {
