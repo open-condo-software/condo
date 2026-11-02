@@ -8,6 +8,7 @@ function wrapError (error, wrappedErrors) {
     return wrappedErrors.get(error)
 }
 
+// NOTE(YEgorLu): Wrap errors centrally after token validation, preserving provider errors for cleanup and formatting them for JSON persistence/logging.
 function formatPushResultErrors (result) {
     const wrappedErrors = new Map()
 

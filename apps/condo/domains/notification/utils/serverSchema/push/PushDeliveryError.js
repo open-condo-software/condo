@@ -9,6 +9,7 @@ function truncate (value) {
     return `${value.slice(0, MAX_ERROR_FIELD_LENGTH - 3)}...`
 }
 
+// NOTE(YEgorLu): Native Error serializes as {}; keep full diagnostics in memory and bound JSON fields unless the provider defines toJSON.
 class PushDeliveryError extends Error {
     constructor (error) {
         const originalError = error ?? new Error()

@@ -131,6 +131,7 @@ class OneSignalAdapter {
      * @returns {*}
      */
     static injectFakeResults (result, fakeNotifications, appIds = {}) {
+        // NOTE(YEgorLu): Unlike JSON copying, cloneDeep preserves nested Error references for later formatting in the push transport.
         const mixed = !isObject(result) || isEmpty(result) ? OneSignalAdapter.getEmptyResult() : cloneDeep(result)
 
         fakeNotifications.forEach(({ token }) => {
