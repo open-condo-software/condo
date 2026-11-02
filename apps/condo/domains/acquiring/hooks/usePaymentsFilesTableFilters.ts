@@ -51,8 +51,8 @@ export function usePaymentsFilesTableFilters ( organizationId: string ): Filters
     const PaymentPeriodMessage = intl.formatMessage({ id: 'accrualsAndPayments.payments.type.registry.filters.paymentPeriod' })
     const PaymentOrderMessage = intl.formatMessage({ id: 'accrualsAndPayments.payments.type.registry.filters.paymentOrder' })
     const PaymentOrderPlaceholder = intl.formatMessage({ id: 'accrualsAndPayments.payments.type.registry.filters.paymentOrder.placeholder' })
-    const TypeMessage = intl.formatMessage({ id: 'pages.condo.payments.type' })
-    const EnterTypeMessage = intl.formatMessage({ id: 'pages.condo.payments.enterType' })
+    const SourceMessage = intl.formatMessage({ id: 'field.Source' })
+    const EnterSourceMessage = intl.formatMessage({ id: 'pages.condo.payments.enterSource' })
     const StatusTitle = intl.formatMessage({ id: 'Status' })
     const EnterStatusMessage = intl.formatMessage({ id: 'pages.condo.payments.enterStatus' })
 
@@ -138,16 +138,16 @@ export function usePaymentsFilesTableFilters ( organizationId: string ): Filters
                         search: searchAcquiringIntegration(organizationId),
                         mode: 'multiple',
                         showArrow: true,
-                        placeholder: EnterTypeMessage,
+                        placeholder: EnterSourceMessage,
                         infinityScroll: true,
                     },
                     modalFilterComponentWrapper: {
-                        label: TypeMessage,
+                        label: SourceMessage,
                         size: FilterComponentSize.Medium,
                     },
                 },
             },
         ]
-    }, [StartDateMessage, EndDateMessage, FormationDateMessage, PaymentPeriodMessage, PaymentOrderMessage, PaymentOrderPlaceholder, statusOptions, EnterStatusMessage, StatusTitle, organizationId, EnterTypeMessage, TypeMessage])
+    }, [StartDateMessage, EndDateMessage, FormationDateMessage, PaymentPeriodMessage, PaymentOrderMessage, PaymentOrderPlaceholder, statusOptions, EnterStatusMessage, StatusTitle, organizationId, EnterSourceMessage, SourceMessage])
 
 }

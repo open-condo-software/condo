@@ -42,7 +42,7 @@ import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/
 
 const { publicRuntimeConfig: { defaultCurrencyCode } } = getConfig()
 
-const SORTABLE_PROPERTIES = ['advancedAt', 'amount']
+const SORTABLE_PROPERTIES = ['advancedAt', 'depositedDate', 'amount']
 const PAYMENTS_DEFAULT_SORT_BY = ['advancedAt_DESC']
 const DEFAULT_DATE_RANGE: [Dayjs, Dayjs] = [dayjs().subtract(1, 'week'), dayjs()]
 
