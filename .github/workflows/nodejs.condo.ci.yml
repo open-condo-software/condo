@@ -59,11 +59,10 @@ jobs:
 
       - name: Wait for dind to be ready
         run: |
-        
           set -euo pipefail
           cert_dir=/certs/client
           deadline=$((SECONDS + 120))
-      
+
           echo "Waiting for Docker TLS certs in ${cert_dir}"
           while true; do
             if [[ -f "${cert_dir}/ca.pem" && -f "${cert_dir}/cert.pem" && -f "${cert_dir}/key.pem" ]]; then
@@ -77,7 +76,7 @@ jobs:
             fi
             sleep 1
           done
-      
+
           echo "Waiting for Docker daemon to accept connections"
           while true; do
             if docker info >/dev/null 2>&1; then
@@ -91,7 +90,6 @@ jobs:
             fi
             sleep 1
           done
-
       - name: Login to self-hosted registry
         uses: docker/login-action@v3
         with:
@@ -418,6 +416,40 @@ jobs:
       - detect-changes
     if: ${{ needs.detect-changes.outputs.address-service == 'true' || needs.detect-changes.outputs.force-all == 'true' }}
     steps:
+      - name: Wait for dind to be ready
+        run: |
+          set -euo pipefail
+          cert_dir=/certs/client
+          deadline=$((SECONDS + 120))
+
+          echo "Waiting for Docker TLS certs in ${cert_dir}"
+          while true; do
+            if [[ -f "${cert_dir}/ca.pem" && -f "${cert_dir}/cert.pem" && -f "${cert_dir}/key.pem" ]]; then
+              echo "TLS certs are present"
+              break
+            fi
+            if (( SECONDS >= deadline )); then
+              echo "Timed out waiting for Docker TLS certs in ${cert_dir}" >&2
+              ls -la "${cert_dir}" >&2 || true
+              exit 1
+            fi
+            sleep 1
+          done
+
+          echo "Waiting for Docker daemon to accept connections"
+          while true; do
+            if docker info >/dev/null 2>&1; then
+              docker info
+              exit 0
+            fi
+            if (( SECONDS >= deadline )); then
+              echo "Timed out waiting for Docker daemon" >&2
+              docker info >&2 || true
+              exit 1
+            fi
+            sleep 1
+          done
+
       - name: Login to self-hosted registry
         uses: docker/login-action@v3
         with:
@@ -504,6 +536,40 @@ jobs:
       - detect-changes
     if: ${{ needs.detect-changes.outputs.dev-portal-api == 'true' || needs.detect-changes.outputs.force-all == 'true' }}
     steps:
+      - name: Wait for dind to be ready
+        run: |
+          set -euo pipefail
+          cert_dir=/certs/client
+          deadline=$((SECONDS + 120))
+
+          echo "Waiting for Docker TLS certs in ${cert_dir}"
+          while true; do
+            if [[ -f "${cert_dir}/ca.pem" && -f "${cert_dir}/cert.pem" && -f "${cert_dir}/key.pem" ]]; then
+              echo "TLS certs are present"
+              break
+            fi
+            if (( SECONDS >= deadline )); then
+              echo "Timed out waiting for Docker TLS certs in ${cert_dir}" >&2
+              ls -la "${cert_dir}" >&2 || true
+              exit 1
+            fi
+            sleep 1
+          done
+
+          echo "Waiting for Docker daemon to accept connections"
+          while true; do
+            if docker info >/dev/null 2>&1; then
+              docker info
+              exit 0
+            fi
+            if (( SECONDS >= deadline )); then
+              echo "Timed out waiting for Docker daemon" >&2
+              docker info >&2 || true
+              exit 1
+            fi
+            sleep 1
+          done
+
       - name: Login to self-hosted registry
         uses: docker/login-action@v3
         with:
@@ -573,6 +639,40 @@ jobs:
       - detect-changes
     if: ${{ needs.detect-changes.outputs.eps == 'true' || needs.detect-changes.outputs.force-all == 'true' }}
     steps:
+      - name: Wait for dind to be ready
+        run: |
+          set -euo pipefail
+          cert_dir=/certs/client
+          deadline=$((SECONDS + 120))
+
+          echo "Waiting for Docker TLS certs in ${cert_dir}"
+          while true; do
+            if [[ -f "${cert_dir}/ca.pem" && -f "${cert_dir}/cert.pem" && -f "${cert_dir}/key.pem" ]]; then
+              echo "TLS certs are present"
+              break
+            fi
+            if (( SECONDS >= deadline )); then
+              echo "Timed out waiting for Docker TLS certs in ${cert_dir}" >&2
+              ls -la "${cert_dir}" >&2 || true
+              exit 1
+            fi
+            sleep 1
+          done
+
+          echo "Waiting for Docker daemon to accept connections"
+          while true; do
+            if docker info >/dev/null 2>&1; then
+              docker info
+              exit 0
+            fi
+            if (( SECONDS >= deadline )); then
+              echo "Timed out waiting for Docker daemon" >&2
+              docker info >&2 || true
+              exit 1
+            fi
+            sleep 1
+          done
+
       - name: Login to self-hosted registry
         uses: docker/login-action@v3
         with:
@@ -625,6 +725,40 @@ jobs:
       - detect-changes
     if: ${{ needs.detect-changes.outputs.meter-importer == 'true' || needs.detect-changes.outputs.force-all == 'true' }}
     steps:
+      - name: Wait for dind to be ready
+        run: |
+          set -euo pipefail
+          cert_dir=/certs/client
+          deadline=$((SECONDS + 120))
+
+          echo "Waiting for Docker TLS certs in ${cert_dir}"
+          while true; do
+            if [[ -f "${cert_dir}/ca.pem" && -f "${cert_dir}/cert.pem" && -f "${cert_dir}/key.pem" ]]; then
+              echo "TLS certs are present"
+              break
+            fi
+            if (( SECONDS >= deadline )); then
+              echo "Timed out waiting for Docker TLS certs in ${cert_dir}" >&2
+              ls -la "${cert_dir}" >&2 || true
+              exit 1
+            fi
+            sleep 1
+          done
+
+          echo "Waiting for Docker daemon to accept connections"
+          while true; do
+            if docker info >/dev/null 2>&1; then
+              docker info
+              exit 0
+            fi
+            if (( SECONDS >= deadline )); then
+              echo "Timed out waiting for Docker daemon" >&2
+              docker info >&2 || true
+              exit 1
+            fi
+            sleep 1
+          done
+
       - name: Login to self-hosted registry
         uses: docker/login-action@v3
         with:
@@ -677,6 +811,40 @@ jobs:
       - detect-changes
     if: ${{ needs.detect-changes.outputs.pos-integration == 'true' || needs.detect-changes.outputs.force-all == 'true' }}
     steps:
+      - name: Wait for dind to be ready
+        run: |
+          set -euo pipefail
+          cert_dir=/certs/client
+          deadline=$((SECONDS + 120))
+
+          echo "Waiting for Docker TLS certs in ${cert_dir}"
+          while true; do
+            if [[ -f "${cert_dir}/ca.pem" && -f "${cert_dir}/cert.pem" && -f "${cert_dir}/key.pem" ]]; then
+              echo "TLS certs are present"
+              break
+            fi
+            if (( SECONDS >= deadline )); then
+              echo "Timed out waiting for Docker TLS certs in ${cert_dir}" >&2
+              ls -la "${cert_dir}" >&2 || true
+              exit 1
+            fi
+            sleep 1
+          done
+
+          echo "Waiting for Docker daemon to accept connections"
+          while true; do
+            if docker info >/dev/null 2>&1; then
+              docker info
+              exit 0
+            fi
+            if (( SECONDS >= deadline )); then
+              echo "Timed out waiting for Docker daemon" >&2
+              docker info >&2 || true
+              exit 1
+            fi
+            sleep 1
+          done
+
       - name: Login to self-hosted registry
         uses: docker/login-action@v3
         with:
@@ -729,6 +897,40 @@ jobs:
       - detect-changes
     if: ${{ needs.detect-changes.outputs.accruals-gateway == 'true' || needs.detect-changes.outputs.force-all == 'true' }}
     steps:
+      - name: Wait for dind to be ready
+        run: |
+          set -euo pipefail
+          cert_dir=/certs/client
+          deadline=$((SECONDS + 120))
+
+          echo "Waiting for Docker TLS certs in ${cert_dir}"
+          while true; do
+            if [[ -f "${cert_dir}/ca.pem" && -f "${cert_dir}/cert.pem" && -f "${cert_dir}/key.pem" ]]; then
+              echo "TLS certs are present"
+              break
+            fi
+            if (( SECONDS >= deadline )); then
+              echo "Timed out waiting for Docker TLS certs in ${cert_dir}" >&2
+              ls -la "${cert_dir}" >&2 || true
+              exit 1
+            fi
+            sleep 1
+          done
+
+          echo "Waiting for Docker daemon to accept connections"
+          while true; do
+            if docker info >/dev/null 2>&1; then
+              docker info
+              exit 0
+            fi
+            if (( SECONDS >= deadline )); then
+              echo "Timed out waiting for Docker daemon" >&2
+              docker info >&2 || true
+              exit 1
+            fi
+            sleep 1
+          done
+
       - name: Login to self-hosted registry
         uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef
         with:
@@ -781,6 +983,40 @@ jobs:
       - detect-changes
     if: ${{ needs.detect-changes.outputs.external-api == 'true' || needs.detect-changes.outputs.force-all == 'true' }}
     steps:
+      - name: Wait for dind to be ready
+        run: |
+          set -euo pipefail
+          cert_dir=/certs/client
+          deadline=$((SECONDS + 120))
+
+          echo "Waiting for Docker TLS certs in ${cert_dir}"
+          while true; do
+            if [[ -f "${cert_dir}/ca.pem" && -f "${cert_dir}/cert.pem" && -f "${cert_dir}/key.pem" ]]; then
+              echo "TLS certs are present"
+              break
+            fi
+            if (( SECONDS >= deadline )); then
+              echo "Timed out waiting for Docker TLS certs in ${cert_dir}" >&2
+              ls -la "${cert_dir}" >&2 || true
+              exit 1
+            fi
+            sleep 1
+          done
+
+          echo "Waiting for Docker daemon to accept connections"
+          while true; do
+            if docker info >/dev/null 2>&1; then
+              docker info
+              exit 0
+            fi
+            if (( SECONDS >= deadline )); then
+              echo "Timed out waiting for Docker daemon" >&2
+              docker info >&2 || true
+              exit 1
+            fi
+            sleep 1
+          done
+
       - name: Login to self-hosted registry
         uses: docker/login-action@v3
         with:
@@ -883,6 +1119,40 @@ jobs:
       - detect-changes
     if: ${{ needs.detect-changes.outputs.rb == 'true' || needs.detect-changes.outputs.force-all == 'true' }}
     steps:
+      - name: Wait for dind to be ready
+        run: |
+          set -euo pipefail
+          cert_dir=/certs/client
+          deadline=$((SECONDS + 120))
+
+          echo "Waiting for Docker TLS certs in ${cert_dir}"
+          while true; do
+            if [[ -f "${cert_dir}/ca.pem" && -f "${cert_dir}/cert.pem" && -f "${cert_dir}/key.pem" ]]; then
+              echo "TLS certs are present"
+              break
+            fi
+            if (( SECONDS >= deadline )); then
+              echo "Timed out waiting for Docker TLS certs in ${cert_dir}" >&2
+              ls -la "${cert_dir}" >&2 || true
+              exit 1
+            fi
+            sleep 1
+          done
+
+          echo "Waiting for Docker daemon to accept connections"
+          while true; do
+            if docker info >/dev/null 2>&1; then
+              docker info
+              exit 0
+            fi
+            if (( SECONDS >= deadline )); then
+              echo "Timed out waiting for Docker daemon" >&2
+              docker info >&2 || true
+              exit 1
+            fi
+            sleep 1
+          done
+
       - name: Login to self-hosted registry
         uses: docker/login-action@v3
         with:
@@ -935,6 +1205,40 @@ jobs:
       - detect-changes
     if: ${{ needs.detect-changes.outputs.registry-importer == 'true' || needs.detect-changes.outputs.force-all == 'true' }}
     steps:
+      - name: Wait for dind to be ready
+        run: |
+          set -euo pipefail
+          cert_dir=/certs/client
+          deadline=$((SECONDS + 120))
+
+          echo "Waiting for Docker TLS certs in ${cert_dir}"
+          while true; do
+            if [[ -f "${cert_dir}/ca.pem" && -f "${cert_dir}/cert.pem" && -f "${cert_dir}/key.pem" ]]; then
+              echo "TLS certs are present"
+              break
+            fi
+            if (( SECONDS >= deadline )); then
+              echo "Timed out waiting for Docker TLS certs in ${cert_dir}" >&2
+              ls -la "${cert_dir}" >&2 || true
+              exit 1
+            fi
+            sleep 1
+          done
+
+          echo "Waiting for Docker daemon to accept connections"
+          while true; do
+            if docker info >/dev/null 2>&1; then
+              docker info
+              exit 0
+            fi
+            if (( SECONDS >= deadline )); then
+              echo "Timed out waiting for Docker daemon" >&2
+              docker info >&2 || true
+              exit 1
+            fi
+            sleep 1
+          done
+
       - name: Login to self-hosted registry
         uses: docker/login-action@v3
         with:
@@ -1019,6 +1323,40 @@ jobs:
       - detect-changes
     if: ${{ needs.detect-changes.outputs.ecom-gateway == 'true' || needs.detect-changes.outputs.force-all == 'true' }}
     steps:
+      - name: Wait for dind to be ready
+        run: |
+          set -euo pipefail
+          cert_dir=/certs/client
+          deadline=$((SECONDS + 120))
+
+          echo "Waiting for Docker TLS certs in ${cert_dir}"
+          while true; do
+            if [[ -f "${cert_dir}/ca.pem" && -f "${cert_dir}/cert.pem" && -f "${cert_dir}/key.pem" ]]; then
+              echo "TLS certs are present"
+              break
+            fi
+            if (( SECONDS >= deadline )); then
+              echo "Timed out waiting for Docker TLS certs in ${cert_dir}" >&2
+              ls -la "${cert_dir}" >&2 || true
+              exit 1
+            fi
+            sleep 1
+          done
+
+          echo "Waiting for Docker daemon to accept connections"
+          while true; do
+            if docker info >/dev/null 2>&1; then
+              docker info
+              exit 0
+            fi
+            if (( SECONDS >= deadline )); then
+              echo "Timed out waiting for Docker daemon" >&2
+              docker info >&2 || true
+              exit 1
+            fi
+            sleep 1
+          done
+
       - name: Login to self-hosted registry
         uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9
         with:

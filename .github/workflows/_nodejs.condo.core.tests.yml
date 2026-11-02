@@ -33,7 +33,7 @@ jobs:
           set -euo pipefail
           cert_dir=/certs/client
           deadline=$((SECONDS + 120))
-      
+
           echo "Waiting for Docker TLS certs in ${cert_dir}"
           while true; do
             if [[ -f "${cert_dir}/ca.pem" && -f "${cert_dir}/cert.pem" && -f "${cert_dir}/key.pem" ]]; then
@@ -47,7 +47,7 @@ jobs:
             fi
             sleep 1
           done
-      
+
           echo "Waiting for Docker daemon to accept connections"
           while true; do
             if docker info >/dev/null 2>&1; then
