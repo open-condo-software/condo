@@ -5,3 +5,8 @@ config:
     allowEnvVariables:
       - PULL_USER
       - PULL_PERSONAL_ACCESS_KEY
+  secrets:
+    allowEnvVariables:
+      - NPM_REGISTRY_URL
+      - NPM_REGISTRY_TOKEN
+      - PIP_INDEX_URL

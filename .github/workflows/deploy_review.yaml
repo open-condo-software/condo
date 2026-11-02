@@ -13,6 +13,9 @@ jobs:
       PULL_USER: ${{ secrets.PULL_USER }}
       PULL_PERSONAL_ACCESS_KEY: ${{ secrets.PULL_PERSONAL_ACCESS_KEY }}
       KUBE_CONFIG_BASE64_DATA: ${{ secrets.TEST_CLUSTER_KUBE_CONFIG_BASE64_DATA }}
+      NPM_REGISTRY_URL: ${{ secrets.NPM_REGISTRY_URL }}
+      NPM_REGISTRY_TOKEN: ${{ secrets.NPM_REGISTRY_TOKEN }}
+      PIP_INDEX_URL: ${{ secrets.PIP_INDEX_URL }}
     steps:
 
       - name: Echo review namespaces

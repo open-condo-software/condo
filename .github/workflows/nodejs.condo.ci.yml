@@ -27,6 +27,13 @@ env:
   REDIS_IMAGE_FULL: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}/doma/utils/redis:6.2
   REF: ${{ github.event.pull_request.head.sha || github.ref }}
   REDIS_RUN_COMMAND: docker run -p="127.0.0.1:6379:6379" -d ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}/doma/utils/redis:6.2 --databases 64
+  YARN_NPM_REGISTRY_SERVER: ${{ secrets.NPM_REGISTRY_URL || 'https://registry.yarnpkg.com' }}
+  YARN_NPM_AUTH_TOKEN: ${{ secrets.NPM_REGISTRY_URL != '' && secrets.NPM_REGISTRY_TOKEN || '' }}
+  YARN_NPM_ALWAYS_AUTH: ${{ secrets.NPM_REGISTRY_URL != '' && secrets.NPM_REGISTRY_TOKEN != '' }}
+  NPM_CONFIG_REGISTRY: ${{ secrets.NPM_REGISTRY_URL || 'https://registry.npmjs.org' }}
+  NPM_CONFIG__AUTHTOKEN: ${{ secrets.NPM_REGISTRY_URL != '' && secrets.NPM_REGISTRY_TOKEN || '' }}
+  NPM_CONFIG_ALWAYS_AUTH: ${{ secrets.NPM_REGISTRY_URL != '' && secrets.NPM_REGISTRY_TOKEN != '' }}
+  PIP_INDEX_URL: ${{ secrets.PIP_INDEX_URL || 'https://pypi.org/simple' }}
 
 jobs:
   authorize:
@@ -131,6 +138,10 @@ jobs:
             TURBO_REMOTE_ONLY=true
             TURBO_TOKEN=${{ secrets.TURBO_TOKEN }}
             TURBO_API=${{ secrets.TURBO_API }}
+          secrets: |
+            npm_registry_url=${{ secrets.NPM_REGISTRY_URL }}
+            npm_registry_token=${{ secrets.NPM_REGISTRY_TOKEN }}
+            pip_index_url=${{ secrets.PIP_INDEX_URL }}
           provenance: false
           cache-from: ${{ env.DOCKER_CACHE_FROM }}
           cache-to: ${{ env.DOCKER_CACHE_TO }}

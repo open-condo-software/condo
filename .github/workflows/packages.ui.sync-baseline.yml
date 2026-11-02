@@ -7,6 +7,14 @@ on:
     paths:
       - 'packages/ui/src/**'
 
+env:
+  YARN_NPM_REGISTRY_SERVER: ${{ secrets.NPM_REGISTRY_URL || 'https://registry.yarnpkg.com' }}
+  YARN_NPM_AUTH_TOKEN: ${{ secrets.NPM_REGISTRY_URL != '' && secrets.NPM_REGISTRY_TOKEN || '' }}
+  YARN_NPM_ALWAYS_AUTH: ${{ secrets.NPM_REGISTRY_URL != '' && secrets.NPM_REGISTRY_TOKEN != '' }}
+  NPM_CONFIG_REGISTRY: ${{ secrets.NPM_REGISTRY_URL || 'https://registry.npmjs.org' }}
+  NPM_CONFIG__AUTHTOKEN: ${{ secrets.NPM_REGISTRY_URL != '' && secrets.NPM_REGISTRY_TOKEN || '' }}
+  NPM_CONFIG_ALWAYS_AUTH: ${{ secrets.NPM_REGISTRY_URL != '' && secrets.NPM_REGISTRY_TOKEN != '' }}
+
 jobs:
   chromatic:
     runs-on: ubuntu-22.04

@@ -10,6 +10,12 @@ on:
     branches:
       - main
 
+env:
+  YARN_NPM_REGISTRY_SERVER: ${{ secrets.NPM_REGISTRY_URL || 'https://registry.yarnpkg.com' }}
+  YARN_NPM_AUTH_TOKEN: ${{ secrets.NPM_REGISTRY_URL != '' && secrets.NPM_REGISTRY_TOKEN || '' }}
+  YARN_NPM_ALWAYS_AUTH: ${{ secrets.NPM_REGISTRY_URL != '' && secrets.NPM_REGISTRY_TOKEN != '' }}
+  YARN_NPM_PUBLISH_REGISTRY: https://registry.yarnpkg.com
+
 jobs:
   release:
     runs-on: ubuntu-22.04

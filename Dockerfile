@@ -11,7 +11,8 @@ COPY --from=node /usr/local/ /usr/local/
 COPY --from=node /opt/ /opt/
 
 # Add app user/group! Clean packages and fix links! Check version! And install some extra packages!
-RUN set -ex \
+RUN --mount=type=secret,id=pip_index_url,required=false \
+	set -ex \
 	&& groupadd -r app --gid=999 \
 	&& useradd --system --create-home --home /app --gid 999 --uid=999 --shell /bin/bash app \
 	&& rm -f /usr/local/bin/docker-entrypoint.sh \
@@ -19,6 +20,8 @@ RUN set -ex \
 	&& pip --version \
 	&& node --version \
 	&& yarn --version \
+	&& pip_index_url="$(cat /run/secrets/pip_index_url 2>/dev/null || true)" \
+	&& export PIP_INDEX_URL="${pip_index_url:-https://pypi.org/simple}" \
 	&& python3 -m pip install 'psycopg2-binary==2.9.10' && python3 -m pip install 'Django==5.2' \
     && echo "OK"
 
@@ -32,7 +35,17 @@ COPY --chown=app:app ./out /app
 COPY --chown=app:app ./.yarn /app/.yarn
 COPY --chown=app:app ./.yarnrc.yml /app/.yarnrc.yml
 RUN --mount=type=cache,target=/usr/local/share/.cache/yarn \
-    yarn install --immutable --inline-builds
+    --mount=type=secret,id=npm_registry_url,required=false \
+    --mount=type=secret,id=npm_registry_token,required=false \
+    set -ex \
+    && npm_registry_url="$(cat /run/secrets/npm_registry_url 2>/dev/null || true)" \
+    && npm_registry_token="$(cat /run/secrets/npm_registry_token 2>/dev/null || true)" \
+    && export YARN_NPM_REGISTRY_SERVER="${npm_registry_url:-https://registry.yarnpkg.com}" \
+    && if [ -n "$npm_registry_url" ] && [ -n "$npm_registry_token" ]; then \
+         export YARN_NPM_AUTH_TOKEN="$npm_registry_token"; \
+         export YARN_NPM_ALWAYS_AUTH=true; \
+       fi \
+    && yarn install --immutable --inline-builds
 
 # Builder
 FROM base as builder

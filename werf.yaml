@@ -4,6 +4,10 @@ configVersion: 1
 image: base
 from: ubuntu:22.04
 fromCacheVersion: "1"
+secrets:
+  - env: NPM_REGISTRY_URL
+  - env: NPM_REGISTRY_TOKEN
+  - env: PIP_INDEX_URL
 shell:
   beforeInstall:
   - "export DEBIAN_FRONTEND=noninteractive"
@@ -19,8 +23,19 @@ shell:
       make
       nodejs
       python3-pip"
-  - "pip3 install Django==5.2 psycopg2-binary==2.9.10"
-  - "npm install --global yarn"
+  - |
+    pip_index_url="$(cat /run/secrets/PIP_INDEX_URL 2>/dev/null || true)"
+    export PIP_INDEX_URL="${pip_index_url:-https://pypi.org/simple}"
+    pip3 install Django==5.2 psycopg2-binary==2.9.10
+  - |
+    npm_registry_url="$(cat /run/secrets/NPM_REGISTRY_URL 2>/dev/null || true)"
+    npm_registry_token="$(cat /run/secrets/NPM_REGISTRY_TOKEN 2>/dev/null || true)"
+    export NPM_CONFIG_REGISTRY="${npm_registry_url:-https://registry.npmjs.org}"
+    if [ -n "$npm_registry_url" ] && [ -n "$npm_registry_token" ]; then
+      export NPM_CONFIG__AUTHTOKEN="$npm_registry_token"
+      export NPM_CONFIG_ALWAYS_AUTH=true
+    fi
+    npm install --global yarn
 
 docker:
   ENV:
@@ -32,6 +47,9 @@ docker:
 image: deps
 fromImage: base
 fromCacheVersion: "1"
+secrets:
+  - env: NPM_REGISTRY_URL
+  - env: NPM_REGISTRY_TOKEN
 git:
   - add: /
     to: /app
@@ -51,9 +69,20 @@ git:
 shell:
   install:
     - "cd /app"
-    - npm install -g turbo
-    - "yarn --version && node -v"
-    - "yarn install --immutable"
+    - |
+      npm_registry_url="$(cat /run/secrets/NPM_REGISTRY_URL 2>/dev/null || true)"
+      npm_registry_token="$(cat /run/secrets/NPM_REGISTRY_TOKEN 2>/dev/null || true)"
+      export NPM_CONFIG_REGISTRY="${npm_registry_url:-https://registry.npmjs.org}"
+      export YARN_NPM_REGISTRY_SERVER="${npm_registry_url:-https://registry.yarnpkg.com}"
+      if [ -n "$npm_registry_url" ] && [ -n "$npm_registry_token" ]; then
+        export NPM_CONFIG__AUTHTOKEN="$npm_registry_token"
+        export NPM_CONFIG_ALWAYS_AUTH=true
+        export YARN_NPM_AUTH_TOKEN="$npm_registry_token"
+        export YARN_NPM_ALWAYS_AUTH=true
+      fi
+      npm install -g turbo
+      yarn --version && node -v
+      yarn install --immutable
 docker:
   ENV:
     YARN_ENABLE_GLOBAL_CACHE: "true"
@@ -447,6 +476,8 @@ docker:
 image: classifiers_api
 fromImage: python-base
 fromCacheVersion: "5"
+secrets:
+  - env: PIP_INDEX_URL
 git:
   - add: /
     to: /app
@@ -461,7 +492,10 @@ git:
 shell:
   install:
   - "cd /app/apps/classifiers-api"
-  - "pip install -r requirements.txt"
+  - |
+    pip_index_url="$(cat /run/secrets/PIP_INDEX_URL 2>/dev/null || true)"
+    export PIP_INDEX_URL="${pip_index_url:-https://pypi.org/simple}"
+    pip install -r requirements.txt
   - "python bin/download_nltk_data.py --data-dir /app/apps/classifiers-api/nltk_data"
   - "chown -R app:app /app/apps/classifiers-api/nltk_data"
 
