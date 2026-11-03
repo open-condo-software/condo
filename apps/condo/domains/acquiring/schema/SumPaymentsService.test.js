@@ -61,6 +61,15 @@ describe('SumPaymentsService', () => {
 
                 expect(String(sum)).toEqual(Big(0).toFixed(8))
             })
+            test('payments count', async () => {
+                const [paymentsOrganization] = await createTestOrganization(admin)
+                await createTestPayment(admin, paymentsOrganization)
+                await createTestPayment(admin, paymentsOrganization)
+                const paymentsWhere = { organization: { id: paymentsOrganization.id } }
+                const { paymentsCount } = await sumPaymentsByTestClient(admin, { paymentsWhere })
+
+                expect(paymentsCount).toEqual('2')
+            })
         })
 
         describe('paymentsFiles', () => {

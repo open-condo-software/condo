@@ -162,7 +162,8 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
 
     const onReset = useCallback(() => {
         setFiltersAreReset(true)
-    }, [])
+        handleResetSearch()
+    }, [handleResetSearch])
 
     const {
         MultipleFiltersModal,
@@ -172,7 +173,7 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
     } = useMultipleFiltersModal({
         filterMetas: queryMetas,
         filtersSchemaGql: PaymentsFilterTemplate,
-        onReset: handleResetSearch,
+        onReset,
         extraQueryParameters: { tab: 'payments', type: 'list' },
     })
 
@@ -225,7 +226,7 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
                 <PaymentsTableFilterBar
                     search={{ value: search, placeholder: SearchPlaceholder, onChange: handleSearchChange }}
                     datePickerProps={{ value: dateRange || dateFallback, onChange: handleDateChange, placeholder: [StartDateMessage, EndDateMessage] }}
-                    modalFilters={{ count: appliedFiltersCount, onReset, resetButton: <ResetFiltersModalButton />, openButton: <OpenFiltersButton showLabel={false} /> }}
+                    modalFilters={{ count: appliedFiltersCount, resetButton: <ResetFiltersModalButton />, openButton: <OpenFiltersButton showLabel={false} /> }}
                 />
 
 

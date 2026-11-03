@@ -24,7 +24,6 @@ type PaymentsTableFilterBarProps = {
     datePickerProps: DatePickerProps
     modalFilters: {
         count: number
-        onReset: () => void
         resetButton: React.ReactNode
         openButton: React.ReactNode
     }
@@ -55,7 +54,7 @@ export const PaymentsTableFilterBar: React.FC<PaymentsTableFilterBarProps> = ({
                         <DateRangePicker {...datePickerProps} />
                     </Col>
                     {modalFilters.count > 0 && (
-                        <Col flex={desktopColumnFlex} onClick={modalFilters.onReset}>
+                        <Col flex={desktopColumnFlex}>
                             {modalFilters.resetButton}
                         </Col>
                     )}

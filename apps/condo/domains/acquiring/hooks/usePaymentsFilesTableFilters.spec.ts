@@ -14,6 +14,7 @@ describe('paymentPeriodFilter', () => {
     it('should be undefined for an invalid range', () => {
         expect(paymentPeriodFilter(['invalid', '2026-10-19'])).toBeUndefined()
         expect(paymentPeriodFilter(['2026-10-17'])).toBeUndefined()
+        expect(paymentPeriodFilter(['2026-02-30', '2026-03-05'])).toBeUndefined()
     })
 
     it('should match no payment registries for a reversed range', () => {

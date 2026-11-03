@@ -131,7 +131,8 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
 
     const onReset = useCallback(() => {
         setFiltersAreReset(true)
-    }, [])
+        handleResetSearch()
+    }, [handleResetSearch])
 
     const {
         MultipleFiltersModal,
@@ -141,7 +142,7 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
     } = useMultipleFiltersModal({
         filterMetas: queryMetas,
         filtersSchemaGql: PaymentsFilterTemplate,
-        onReset: handleResetSearch,
+        onReset,
         extraQueryParameters: { tab: 'payments', type: 'registry' },
     })
 
@@ -256,7 +257,7 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
             <PaymentsTableFilterBar
                 search={{ value: search, placeholder: SearchPlaceholder, onChange: handleSearchChange }}
                 datePickerProps={{ value: dateRange || dateFallback, onChange: handleDateChange, placeholder: [StartDateMessage, EndDateMessage] }}
-                modalFilters={{ count: appliedFiltersCount, onReset, resetButton: <ResetFiltersModalButton />, openButton: <OpenFiltersButton showLabel={false} /> }}
+                modalFilters={{ count: appliedFiltersCount, resetButton: <ResetFiltersModalButton />, openButton: <OpenFiltersButton showLabel={false} /> }}
             />
 
 

@@ -9,6 +9,7 @@ const { faker } = require('@faker-js/faker')
 const Big = require('big.js')
 const dayjs = require('dayjs')
 const get = require('lodash/get')
+const { gql } = require('graphql-tag')
 
 
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
@@ -48,8 +49,6 @@ const {
 } = require('@condo/domains/acquiring/gql')
 const {
     PaymentsFilterTemplate: PaymentsFilterTemplateGQL,
-    SUM_PAYMENTS_QUERY,
-    SUM_PAYMENTS_FILES_QUERY,
 } = require('@condo/domains/acquiring/gql')
 const { RecurrentPaymentContext: RecurrentPaymentContextGQL } = require('@condo/domains/acquiring/gql')
 const { RecurrentPayment: RecurrentPaymentGQL } = require('@condo/domains/acquiring/gql')
@@ -463,12 +462,17 @@ async function generatePaymentLinkByTestClient (client, receipt, receiptData, ac
     return [data.result, attrs]
 }
 
+const SUM_PAYMENTS_WITH_COUNT_QUERY = gql`
+    query _allPaymentsSumWithCount ($data: PaymentsSumInput!) {
+        result: _allPaymentsSum(data: $data) { sum paymentsCount }
+    }
+`
+
 async function sumPaymentsByTestClient (client, args = {}) {
     if (!client) throw new Error('no client')
 
-    const query = args.paymentsFilesWhere ? SUM_PAYMENTS_FILES_QUERY : SUM_PAYMENTS_QUERY
-    const { data, errors } = await client.query(query, { data: args })
-    throwIfError(data, errors, { query, variables: { data: args } })
+    const { data, errors } = await client.query(SUM_PAYMENTS_WITH_COUNT_QUERY, { data: args })
+    throwIfError(data, errors, { query: SUM_PAYMENTS_WITH_COUNT_QUERY, variables: { data: args } })
     return data.result
 }
 async function createTestRecurrentPaymentContext (client, extraAttrs = {}) {

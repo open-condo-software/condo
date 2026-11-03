@@ -16,12 +16,30 @@ import { getDayRangeFilter, getFilter, getStringContainsFilter, QueryArgType } f
 
 
 const loadedAtFilter = getDayRangeFilter('loadedAt')
+const CALENDAR_DAY_PREFIX_REGEXP = /^(\d{4})-(\d{2})-(\d{2})(?:T|$)/
+
+const parseCalendarDay = (value: string): dayjs.Dayjs | undefined => {
+    const match = value.match(CALENDAR_DAY_PREFIX_REGEXP)
+    if (!match) return
+
+    const [, year, month, day] = match
+    const calendarDate = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)))
+    if (
+        calendarDate.getUTCFullYear() !== Number(year)
+        || calendarDate.getUTCMonth() !== Number(month) - 1
+        || calendarDate.getUTCDate() !== Number(day)
+    ) return
+
+    const parsedDate = dayjs(value)
+    return parsedDate.isValid() ? parsedDate : undefined
+}
+
 export const paymentPeriodFilter = (search: QueryArgType): PaymentsFileWhereInput | undefined => {
     if (!Array.isArray(search) || search.length !== 2) return
 
-    const rangeStart = dayjs(search[0])
-    const rangeEnd = dayjs(search[1])
-    if (!rangeStart.isValid() || !rangeEnd.isValid()) return
+    const rangeStart = parseCalendarDay(search[0])
+    const rangeEnd = parseCalendarDay(search[1])
+    if (!rangeStart || !rangeEnd) return
     if (rangeStart.isAfter(rangeEnd)) {
         return {
             paymentPeriodStartDate_gt: rangeStart.format('YYYY-MM-DD'),
