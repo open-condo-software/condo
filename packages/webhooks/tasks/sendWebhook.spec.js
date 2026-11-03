@@ -174,6 +174,33 @@ const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer
             await softDeleteTestWebhookSubscription(actors.admin, subscription.id)
             await softDeleteTestWebhook(actors.admin, hook.id)
         })
+        it('Must reset syncedAmount if nothing was sent after an interrupted run', async () => {
+            const [hook] = await createTestWebhook(actors.admin, actors.admin.user)
+            // NOTE: interrupted run has already delivered the only matching object
+            const [subscription] = await createTestWebhookSubscription(actors.admin, hook, {
+                syncedAt: dayjs(firstUser.createdAt).subtract(10, 'millisecond'),
+                syncedAmount: 1,
+                url: STABLE_URL,
+                filters: { id: firstUser.id },
+            })
+            const callsBefore = STABLE_CALLS.length
+
+            await sendWebhook.delay.fn(subscription.id)
+
+            const updated = await WebhookSubscription.getOne(actors.admin, { id: subscription.id })
+            expect(STABLE_CALLS).toHaveLength(callsBefore)
+            expect(updated).toHaveProperty('syncedAmount', 0)
+            expect(dayjs(updated.syncedAt).isAfter(dayjs(subscription.syncedAt))).toEqual(true)
+
+            await sendWebhook.delay.fn(subscription.id)
+
+            const updatedAgain = await WebhookSubscription.getOne(actors.admin, { id: subscription.id })
+            expect(STABLE_CALLS).toHaveLength(callsBefore)
+            expect(dayjs(updatedAgain.syncedAt).isSame(dayjs(updated.syncedAt))).toEqual(true)
+
+            await softDeleteTestWebhookSubscription(actors.admin, subscription.id)
+            await softDeleteTestWebhook(actors.admin, hook.id)
+        })
     })
 }
 

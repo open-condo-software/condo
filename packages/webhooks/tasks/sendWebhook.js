@@ -105,6 +105,7 @@ async function sendWebhook (subscriptionId) {
 
             // If not succeed - log and finish task
             if (!lastSendSuccess) {
+                logger.warn({ msg: 'webhook pack was not delivered', url, entityId: subscriptionId, entity: 'WebhookSubscription', status: response.status, data: { totalLoaded, failuresCount } })
                 const noFailureIncrementInterval = dayjs().subtract(1, 'hour')
                 const lastUpdate = dayjs(lastSubscriptionUpdate)
                 // NOTE: If no failures before or > 1 hour since last failure passed -> increment failuresCount
@@ -125,7 +126,11 @@ async function sendWebhook (subscriptionId) {
             } else {
                 totalLoaded += lastLoaded
                 // NOTE: objs are sorted by updatedAt. Reads go to an async replica, so "now" would skip objects not replicated yet
-                lastSyncTime = objs[objs.length - 1]?.updatedAt || dayjs().toISOString()
+                lastSyncTime = objs[objs.length - 1]?.updatedAt
+                if (!lastSyncTime) {
+                    logger.warn({ msg: 'no updatedAt in subscription fields, syncedAt falls back to now', entityId: subscriptionId, entity: 'WebhookSubscription', data: { model, fields } })
+                    lastSyncTime = dayjs().toISOString()
+                }
             }
 
             // Step 3: Update subscription state if full batch received. Else condition will lead to final update
@@ -136,6 +141,12 @@ async function sendWebhook (subscriptionId) {
                     sender: { dv: 1, fingerprint: 'sendWebhook' },
                 })
             }
+        }
+
+        // NOTE: offset left by an interrupted run - reset it, so it can not drift
+        if (!lastSyncTime && syncedAmount > 0) {
+            logger.warn({ msg: 'syncedAmount left by an interrupted run, syncedAt is reset to now', entityId: subscriptionId, entity: 'WebhookSubscription', count: syncedAmount, data: { syncedAt } })
+            lastSyncTime = dayjs().toISOString()
         }
 
         // NOTE: nothing was sent - keep syncedAt, so objects not replicated yet are picked up by the next run
