@@ -1,0 +1,6 @@
+{
+  "about": "About payments gateway",
+  "auth": "Authentication",
+  "create": "Create payment",
+  "status": "Get payment status"
+}
