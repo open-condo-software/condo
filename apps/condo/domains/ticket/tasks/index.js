@@ -1,5 +1,7 @@
 const { createTask } = require('@open-condo/keystone/tasks')
 
+const { queueUnassignedTicketWebhook } = require('@condo/domains/ticket/utils/serverSchema/unassignedTicketWebhook')
+
 const { closeCompletedTicketsCron: closeCompletedTickets } = require('./closeCompletedTickets')
 const { exportIncidents } = require('./exportIncidents')
 const { exportTickets } = require('./exportTickets')
@@ -20,4 +22,5 @@ module.exports = {
     sendTicketCreatedNotifications,
     sendTicketChangedNotifications: createTask('sendTicketChangedNotifications', sendTicketChangedNotifications),
     generateTicketDocument,
+    sendUnassignedTicketWebhook: createTask('sendUnassignedTicketWebhook', queueUnassignedTicketWebhook),
 }

@@ -59,7 +59,7 @@ const { QUALITY_CONTROL_VALUES } = require('@condo/domains/ticket/constants/qual
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { QUALITY_CONTROL_ADDITIONAL_OPTIONS_FIELD } = require('@condo/domains/ticket/schema/fields/QualityControlAdditionalOptions')
 const { FEEDBACK_ADDITIONAL_OPTIONS_FIELD } = require('@condo/domains/ticket/schema/fields/TicketFeedbackAdditionalOptions')
-const { sendTicketChangedNotifications } = require('@condo/domains/ticket/tasks')
+const { sendTicketChangedNotifications, sendUnassignedTicketWebhook } = require('@condo/domains/ticket/tasks')
 const {
     calculateTicketOrder, calculateReopenedCounter,
     setSectionAndFloorFieldsByDataFromPropertyMap, setClientNamePhoneEmailFieldsByDataFromUser,
@@ -76,6 +76,7 @@ const {
     ticketChangeDisplayNameResolversForSingleRelations,
     relatedManyToManyResolvers,
 } = require('@condo/domains/ticket/utils/serverSchema/TicketChange')
+const { isUnassignedResidentTicket } = require('@condo/domains/ticket/utils/serverSchema/unassignedTicketWebhook')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { USER_TYPES } = require('@condo/domains/user/constants/common')
 const { canDirectlyManageSchemaObjects } = require('@condo/domains/user/utils/directAccess')
@@ -989,6 +990,11 @@ const Ticket = new GQLListSchema('Ticket', {
             const isBulkOperation = Array.isArray(get(context, ['req', 'body', 'variables', 'data'], null))
             if (!isBulkOperation) {
                 await sendTicketChangedNotifications.delay({ ticketId: updatedItem.id, existingItem, operation })
+            }
+
+            const hasBecomeUnassigned = isUnassignedResidentTicket(updatedItem) && (operation === 'create' || !isUnassignedResidentTicket(existingItem))
+            if (conf['TICKET_WEBHOOK_URL'] && hasBecomeUnassigned) {
+                await sendUnassignedTicketWebhook.delay(updatedItem.id)
             }
         },
     },
