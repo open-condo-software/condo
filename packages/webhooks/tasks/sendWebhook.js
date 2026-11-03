@@ -143,7 +143,10 @@ async function sendWebhook (subscriptionId) {
             }
         }
 
-        // NOTE: offset left by an interrupted run - reset it, so it can not drift
+        // NOTE: syncedAmount is reset by the model hook only when syncedAt is updated, and empty runs below keep syncedAt.
+        //     So syncedAmount left by an interrupted run (a full pack delivered, then a failure before the final update)
+        //     would stay until something is sent again, and every run would skip that many objects even if they have shifted.
+        //     Reset it the old way (syncedAt = now)
         if (!lastSyncTime && syncedAmount > 0) {
             logger.warn({ msg: 'syncedAmount left by an interrupted run, syncedAt is reset to now', entityId: subscriptionId, entity: 'WebhookSubscription', count: syncedAmount, data: { syncedAt } })
             lastSyncTime = dayjs().toISOString()
