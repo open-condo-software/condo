@@ -10,5 +10,6 @@
   "ui": "Condo UI",
   "bridge": "Condo Bridge",
   "api": "Condo API",
-  "accruals-hub": "Accruals hub"
+  "accruals-hub": "Accruals hub",
+  "agent-payments": "Payments gateway"
 }
