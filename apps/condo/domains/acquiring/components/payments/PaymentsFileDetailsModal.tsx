@@ -1,4 +1,4 @@
-import { PaymentsFile as PaymentsFileType } from '@app/condo/schema'
+import { GetPaymentsFilesQuery } from '@app/condo/gql'
 import { Col, Row } from 'antd'
 import dayjs from 'dayjs'
 import React, { useCallback, useMemo } from 'react'
@@ -11,6 +11,8 @@ import { colors } from '@open-condo/ui/colors'
 import { PAYMENTS_FILE_NEW_STATUS } from '@condo/domains/acquiring/constants/constants'
 
 const CONTENT_SIZE = 40
+
+type PaymentsFileType = NonNullable<NonNullable<GetPaymentsFilesQuery['paymentsFiles']>[number]>
 
 const formatDate = (date?: string): string => dayjs(date, 'YYYY-MM-DD').format('DD.MM.YYYY')
 const formatDateTime = (date?: string): string => dayjs(date).format('DD.MM.YYYY')
@@ -42,7 +44,7 @@ export const PaymentsFileDetailsModal: React.FC<PaymentsFileDetailsModalProps> =
 }) => {
     const intl = useIntl()
 
-    const CreationDate = intl.formatMessage({ id: 'accrualsAndPayments.payments.type.registry.details.creationDate' })
+    const CreationDate = intl.formatMessage({ id: 'accrualsAndPayments.payments.type.registry.filters.formationDate' })
     const RegistryName = intl.formatMessage({ id: 'accrualsAndPayments.payments.type.registry.details.registryName' })
     const PaymentsAmountAndCount = intl.formatMessage({ id: 'accrualsAndPayments.payments.type.registry.details.paymentsAmountAndCount' })
     const PaymentOrderNumber = intl.formatMessage({ id: 'accrualsAndPayments.payments.type.registry.details.paymentOrderNumber' })

@@ -1,5 +1,5 @@
-import { useGetPaymentsFilesQuery } from '@app/condo/gql'
-import { PaymentsFile as IPaymentsFile, SortPaymentsFilesBy } from '@app/condo/schema'
+import { GetPaymentsFilesQuery, useGetPaymentsFilesQuery } from '@app/condo/gql'
+import { SortPaymentsFilesBy } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import { CheckboxChangeEvent } from 'antd/lib/checkbox/Checkbox'
 import { Gutter } from 'antd/lib/grid/row'
@@ -11,28 +11,28 @@ import { NextRouter, useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
-import { Download, Search } from '@open-condo/icons'
+import { Download } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button, Checkbox, Space } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/colors'
 
 import { PaymentsFileDetailsModal } from '@condo/domains/acquiring/components/payments/PaymentsFileDetailsModal'
 import { PaymentsSummary } from '@condo/domains/acquiring/components/payments/PaymentsSummary'
+import { PaymentsTableFilterBar } from '@condo/domains/acquiring/components/payments/PaymentsTableFilterBar'
 import useDownloadPaymentsFiles from '@condo/domains/acquiring/hooks/useDownloadPaymentsFiles'
 import { usePaymentsFilesTableColumns } from '@condo/domains/acquiring/hooks/usePaymentsFilesTableColumns'
 import { usePaymentsFilesTableFilters } from '@condo/domains/acquiring/hooks/usePaymentsFilesTableFilters'
 import usePaymentsSum from '@condo/domains/acquiring/hooks/usePaymentsSum'
+import { PaymentsFilterTemplate } from '@condo/domains/acquiring/utils/clientSchema'
 import { getInitialSelectedRegistryKeys, IPaymentsFilesFilters } from '@condo/domains/acquiring/utils/helpers'
 import { useBillingAndAcquiringContexts } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
-import Input from '@condo/domains/common/components/antd/Input'
-import { BillingTableFiltersContainer } from '@condo/domains/common/components/BillingTableFiltersContainer'
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { getMoneyRender } from '@condo/domains/common/components/Table/Renders'
 import { useDateRangeSearch } from '@condo/domains/common/hooks/useDateRangeSearch'
-import { MultipleFilterContextProvider } from '@condo/domains/common/hooks/useMultipleFiltersModal'
+import {
+    MultipleFilterContextProvider,
+    useMultipleFiltersModal,
+} from '@condo/domains/common/hooks/useMultipleFiltersModal'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
@@ -45,10 +45,11 @@ const DEFAULT_DATE_RANGE: [Dayjs, Dayjs] = [dayjs().subtract(1, 'week'), dayjs()
 const DEBOUNCE_TIMEOUT = 400
 
 const ROW_GUTTER: [Gutter, Gutter] = [0, 24]
-const TAP_BAR_ROW_GUTTER: [Gutter, Gutter] = [8, 20]
 const BOTTOM_PADDING_LIKE_ACTION_BAR: CSSProperties = { paddingBottom: '104px' }
 
 const { publicRuntimeConfig: { defaultCurrencyCode } } = getConfig()
+
+type IPaymentsFile = NonNullable<NonNullable<GetPaymentsFilesQuery['paymentsFiles']>[number]>
 
 
 const PaymentFilesTableContent: React.FC = (): JSX.Element => {
@@ -64,7 +65,6 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
     const { acquiringContexts, billingContexts } = useBillingAndAcquiringContexts()
     const { persistor } = useCachePersistor()
 
-    const { breakpoints } = useLayoutContext()
     const router = useRouter()
     const userOrganization = useOrganization()
     const organizationId = userOrganization?.organization?.id ?? ''
@@ -73,7 +73,7 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
 
     const currencyCode = billingContexts.find(({ integration }) => !!integration.currencyCode)?.integration?.currencyCode ?? defaultCurrencyCode
 
-    const tableColumns = usePaymentsFilesTableColumns(currencyCode)
+    const tableColumns = usePaymentsFilesTableColumns(currencyCode, { acquiringContexts })
     const queryMetas = usePaymentsFilesTableFilters(organizationId)
     const [isFilesDownloading, setIsFilesDownloading] = useState(false)
     const [openedPaymentsFileId, setOpenedPaymentsFileId] = useState<string | null>(null)
@@ -121,13 +121,30 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
 
     const { data: sumAllPayments, loading: sumAllPaymentsLoading } = usePaymentsSum({ paymentsFilesWhere: searchPaymentsFilesQuery })
 
-    const [search, handleSearchChange] = useSearch<IPaymentsFilesFilters>()
+    const [search, handleSearchChange, handleResetSearch] = useSearch<IPaymentsFilesFilters>()
     const handleDateChange = useCallback((value) => {
         if (!value) {
             setFiltersAreReset(true)
         }
         setDateRange(value)
     }, [setDateRange])
+
+    const onReset = useCallback(() => {
+        setFiltersAreReset(true)
+        handleResetSearch()
+    }, [handleResetSearch])
+
+    const {
+        MultipleFiltersModal,
+        ResetFiltersModalButton,
+        OpenFiltersButton,
+        appliedFiltersCount,
+    } = useMultipleFiltersModal({
+        filterMetas: queryMetas,
+        filtersSchemaGql: PaymentsFilterTemplate,
+        onReset,
+        extraQueryParameters: { tab: 'payments', type: 'registry' },
+    })
 
     const handleResetSelectedRegistry = useCallback(() => {
         setSelectedRegistryKeys([])
@@ -229,38 +246,19 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
         {
             key: 'count',
             label: PaymentsCountTitle,
-            value: sumAllPayments?.result?.paymentsCountSum ?? 0,
+            value: sumAllPayments?.result?.paymentsCount ?? 0,
             loading: sumAllPaymentsLoading,
         },
-    ]), [PaymentsCountTitle, TotalsSumTitle, currencyCode, intl, sumAllPayments?.result?.paymentsCountSum, sumAllPayments?.result?.sum, sumAllPaymentsLoading])
+    ]), [PaymentsCountTitle, TotalsSumTitle, currencyCode, intl, sumAllPayments?.result?.paymentsCount, sumAllPayments?.result?.sum, sumAllPaymentsLoading])
 
 
     return (
         <Row gutter={ROW_GUTTER} align='middle' justify='center'>
-            <Col span={24}>
-                <BillingTableFiltersContainer>
-                    <Row gutter={TAP_BAR_ROW_GUTTER} justify={breakpoints.DESKTOP_SMALL ? 'end' : 'start'}>
-                        <Col flex={breakpoints.DESKTOP_SMALL ? 'auto' : '100%'}>
-                            <Input
-                                placeholder={SearchPlaceholder}
-                                value={search}
-                                onChange={(e) => {
-                                    handleSearchChange(e.target.value)
-                                }}
-                                allowClear
-                                suffix={<Search size='medium' color={colors.gray[7]} />}
-                            />
-                        </Col>
-                        <Col flex={breakpoints.DESKTOP_SMALL ? 'none' : '100%'}>
-                            <DateRangePicker
-                                value={dateRange || dateFallback}
-                                onChange={handleDateChange}
-                                placeholder={[StartDateMessage, EndDateMessage]}
-                            />
-                        </Col>
-                    </Row>
-                </BillingTableFiltersContainer>
-            </Col>
+            <PaymentsTableFilterBar
+                search={{ value: search, placeholder: SearchPlaceholder, onChange: handleSearchChange }}
+                datePickerProps={{ value: dateRange || dateFallback, onChange: handleDateChange, placeholder: [StartDateMessage, EndDateMessage] }}
+                modalFilters={{ count: appliedFiltersCount, resetButton: <ResetFiltersModalButton />, openButton: <OpenFiltersButton showLabel={false} /> }}
+            />
 
 
             <Col span={24}>
@@ -309,6 +307,7 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
                 paymentsFile={openedPaymentsFile}
                 currency={currencyCode}
             />
+            <MultipleFiltersModal />
         </Row>
     )
 }

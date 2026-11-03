@@ -1,3 +1,4 @@
+import { AcquiringIntegrationContext } from '@app/condo/schema'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import { useMemo } from 'react'
@@ -13,18 +14,24 @@ import {
 } from '@condo/domains/common/components/Table/Renders'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 
-export function usePaymentsFilesTableColumns (currencyCode: string): Record<string, unknown>[] {
+
+type PaymentsFilesTableColumnsOptions = {
+    acquiringContexts?: AcquiringIntegrationContext[]
+}
+
+export function usePaymentsFilesTableColumns (currencyCode: string, options: PaymentsFilesTableColumnsOptions = {}): Record<string, unknown>[] {
     const intl = useIntl()
     const router = useRouter()
 
     const RegistryNumberTitle = intl.formatMessage({ id: 'accrualsAndPayments.payments.type.registry.registryNumber' })
     const AmountTitle = intl.formatMessage({ id: 'accrualsAndPayments.payments.type.registry.amount' })
-    const DateLoadTitle = intl.formatMessage({ id: 'CreatedDate' })
+    const DateLoadTitle = intl.formatMessage({ id: 'accrualsAndPayments.payments.type.registry.filters.formationDate' })
     const RegistryNameTitle = intl.formatMessage({ id: 'accrualsAndPayments.payments.type.registry.registryName' })
     const UploadedRecordsTitle = intl.formatMessage({ id: 'accrualsAndPayments.payments.type.registry.uploadedRecords' })
     const PaymentOrderColumnTitle = intl.formatMessage({ id: 'accrualsAndPayments.payments.type.registry.paymentOrder' })
 
     const PaymentOrderTooltipTitle = intl.formatMessage({ id: 'PaymentOrder' })
+    const PaymentSourceTitle = intl.formatMessage({ id: 'field.Source' })
     const StatusTitle = intl.formatMessage({ id: 'Status' })
 
     const { filters } = parseQuery(router.query)
@@ -34,6 +41,7 @@ export function usePaymentsFilesTableColumns (currencyCode: string): Record<stri
         search = Array.isArray(search) ? null : search
 
         const stringSearch = getTextRender(String(search))
+        const hasSourceColumn = Boolean(options.acquiringContexts?.length > 1)
 
         const columns = {
             number: {
@@ -62,9 +70,15 @@ export function usePaymentsFilesTableColumns (currencyCode: string): Record<stri
                 title: RegistryNameTitle,
                 key: 'name',
                 dataIndex: 'name',
-                width: '25%',
+                width: hasSourceColumn ? '18%' : '25%',
                 render: stringSearch,
             },
+            source: hasSourceColumn ? {
+                title: PaymentSourceTitle,
+                key: 'integration',
+                dataIndex: ['context', 'integration', 'name'],
+                width: '7%',
+            } : null,
             amount: {
                 title: AmountTitle,
                 key: 'amount',
@@ -89,6 +103,6 @@ export function usePaymentsFilesTableColumns (currencyCode: string): Record<stri
             },
         }
 
-        return Object.values(columns)
-    }, [filters, RegistryNumberTitle, PaymentOrderColumnTitle, PaymentOrderTooltipTitle, DateLoadTitle, intl, RegistryNameTitle, AmountTitle, currencyCode, UploadedRecordsTitle, StatusTitle])
+        return Object.values(columns).filter(Boolean)
+    }, [filters, RegistryNumberTitle, PaymentOrderColumnTitle, PaymentOrderTooltipTitle, DateLoadTitle, intl, RegistryNameTitle, PaymentSourceTitle, AmountTitle, currencyCode, UploadedRecordsTitle, StatusTitle, options.acquiringContexts])
 }

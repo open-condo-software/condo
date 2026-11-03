@@ -41,7 +41,7 @@ const REGISTER_MULTI_PAYMENT_MUTATION = gql`
     }
 `
 
-const PAYMENTS_FILTER_FIELDS = '{ advancedAt depositedDate transferDate accountNumber address type order status }'
+const PAYMENTS_FILTER_FIELDS = '{ advancedAt depositedDate transferDate loadedAt paymentPeriod paymentOrder accountNumber address type order status }'
 const PAYMENTS_FILTER_TEMPLATE_FIELDS = `{ name employee { id } fields ${PAYMENTS_FILTER_FIELDS} ${COMMON_FIELDS} }`
 const PaymentsFilterTemplate = generateGqlQueries('PaymentsFilterTemplate', PAYMENTS_FILTER_TEMPLATE_FIELDS)
 
@@ -67,6 +67,12 @@ const GENERATE_PAYMENT_LINK_QUERY = gql`
 const SUM_PAYMENTS_QUERY = gql`
     query _allPaymentsSum ($data: PaymentsSumInput!) {
         result: _allPaymentsSum(data: $data) { sum }
+    }
+`
+
+const SUM_PAYMENTS_FILES_QUERY = gql`
+    query _allPaymentsFilesSum ($data: PaymentsSumInput!) {
+        result: _allPaymentsSum(data: $data) { sum paymentsCount }
     }
 `
 
@@ -158,6 +164,7 @@ module.exports = {
     REGISTER_MULTI_PAYMENT_FOR_VIRTUAL_RECEIPT_MUTATION,
     GENERATE_PAYMENT_LINK_QUERY,
     SUM_PAYMENTS_QUERY,
+    SUM_PAYMENTS_FILES_QUERY,
     RecurrentPaymentContext,
     RecurrentPayment,
     PAYMENT_BY_LINK_MUTATION,

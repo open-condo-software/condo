@@ -61,6 +61,15 @@ describe('SumPaymentsService', () => {
 
                 expect(String(sum)).toEqual(Big(0).toFixed(8))
             })
+            test('payments count', async () => {
+                const [paymentsOrganization] = await createTestOrganization(admin)
+                await createTestPayment(admin, paymentsOrganization)
+                await createTestPayment(admin, paymentsOrganization)
+                const paymentsWhere = { organization: { id: paymentsOrganization.id } }
+                const { paymentsCount } = await sumPaymentsByTestClient(admin, { paymentsWhere })
+
+                expect(paymentsCount).toEqual('2')
+            })
         })
 
         describe('paymentsFiles', () => {
@@ -85,9 +94,20 @@ describe('SumPaymentsService', () => {
             test('zero', async () => {
                 const [context] = await createTestAcquiringIntegrationContext(admin, organization, integration)
                 const paymentsFilesWhere = { context: { id: context.id } }
-                const { sum } = await sumPaymentsByTestClient(admin, { paymentsFilesWhere })
+                const { sum, paymentsCount } = await sumPaymentsByTestClient(admin, { paymentsFilesWhere })
 
                 expect(String(sum)).toEqual('0.00000000')
+                expect(paymentsCount).toEqual('0')
+            })
+
+            test('payments count above GraphQL Int limit', async () => {
+                const [context] = await createTestAcquiringIntegrationContext(admin, organization, integration)
+                await createTestPaymentsFile(admin, context, { paymentsCount: 2147483647 })
+                await createTestPaymentsFile(admin, context, { paymentsCount: 1 })
+                const paymentsFilesWhere = { context: { id: context.id } }
+                const { paymentsCount } = await sumPaymentsByTestClient(admin, { paymentsFilesWhere })
+
+                expect(paymentsCount).toEqual('2147483648')
             })
         })
 

@@ -66627,6 +66627,9 @@ type PaymentsFilter {
   advancedAt: [String]
   depositedDate: [String]
   transferDate: [String]
+  loadedAt: [String]
+  paymentPeriod: [String]
+  paymentOrder: [String]
   accountNumber: String
   address: [String]
   type: [String]
@@ -66638,6 +66641,9 @@ input PaymentsFilterInput {
   advancedAt: [String]
   depositedDate: [String]
   transferDate: [String]
+  loadedAt: [String]
+  paymentPeriod: [String]
+  paymentOrder: [String]
   accountNumber: String
   address: [String]
   type: [String]
@@ -97453,6 +97459,7 @@ input PaymentsSumInput {
 
 type PaymentsSumOutput {
   sum: String!
+  paymentsCount: String!
 }
 
 input CreatePaymentByLinkInput {

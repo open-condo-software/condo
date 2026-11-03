@@ -47,6 +47,23 @@ describe('PaymentsFilterTemplate', () => {
             expect(filtersTemplate.id).toMatch(UUID_RE)
         })
 
+        test('employee: can create PaymentsFilterTemplate with payments file filters', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const [organization] = await createTestOrganization(admin)
+            const [role] = await createTestOrganizationEmployeeRole(admin, organization, {})
+            const user = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [employee] = await createTestOrganizationEmployee(admin, organization, user.user, role, { isAccepted: true })
+            const fields = {
+                loadedAt: ['2026-10-26', '2026-11-02'],
+                paymentPeriod: ['2026-10-17', '2026-10-19'],
+                paymentOrder: ['123', '456'],
+            }
+
+            const [filtersTemplate] = await createTestPaymentsFilterTemplate(user, employee, { fields })
+
+            expect(filtersTemplate.fields).toMatchObject(fields)
+        })
+
         test('employee: cannot create PaymentsFilterTemplate with wrong filter field', async () => {
             const admin = await makeLoggedInAdminClient()
             const [organization] = await createTestOrganization(admin)

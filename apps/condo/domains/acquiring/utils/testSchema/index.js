@@ -9,6 +9,7 @@ const { faker } = require('@faker-js/faker')
 const Big = require('big.js')
 const dayjs = require('dayjs')
 const get = require('lodash/get')
+const { gql } = require('graphql-tag')
 
 
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
@@ -46,7 +47,9 @@ const {
     REGISTER_MULTI_PAYMENT_FOR_VIRTUAL_RECEIPT_MUTATION,
     GENERATE_PAYMENT_LINK_QUERY,
 } = require('@condo/domains/acquiring/gql')
-const { PaymentsFilterTemplate: PaymentsFilterTemplateGQL, SUM_PAYMENTS_QUERY } = require('@condo/domains/acquiring/gql')
+const {
+    PaymentsFilterTemplate: PaymentsFilterTemplateGQL,
+} = require('@condo/domains/acquiring/gql')
 const { RecurrentPaymentContext: RecurrentPaymentContextGQL } = require('@condo/domains/acquiring/gql')
 const { RecurrentPayment: RecurrentPaymentGQL } = require('@condo/domains/acquiring/gql')
 const { PAYMENT_BY_LINK_MUTATION } = require('@condo/domains/acquiring/gql')
@@ -459,11 +462,17 @@ async function generatePaymentLinkByTestClient (client, receipt, receiptData, ac
     return [data.result, attrs]
 }
 
+const SUM_PAYMENTS_WITH_COUNT_QUERY = gql`
+    query _allPaymentsSumWithCount ($data: PaymentsSumInput!) {
+        result: _allPaymentsSum(data: $data) { sum paymentsCount }
+    }
+`
+
 async function sumPaymentsByTestClient (client, args = {}) {
     if (!client) throw new Error('no client')
 
-    const { data, errors } = await client.query(SUM_PAYMENTS_QUERY, { data: args })
-    throwIfError(data, errors, { query: SUM_PAYMENTS_QUERY, variables: { data: args } })
+    const { data, errors } = await client.query(SUM_PAYMENTS_WITH_COUNT_QUERY, { data: args })
+    throwIfError(data, errors, { query: SUM_PAYMENTS_WITH_COUNT_QUERY, variables: { data: args } })
     return data.result
 }
 async function createTestRecurrentPaymentContext (client, extraAttrs = {}) {

@@ -76491,7 +76491,10 @@ export type PaymentsFilter = {
   address?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   advancedAt?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   depositedDate?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  loadedAt?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   order?: Maybe<Scalars['String']['output']>;
+  paymentOrder?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  paymentPeriod?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   status?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   transferDate?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   type?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
@@ -76502,7 +76505,10 @@ export type PaymentsFilterInput = {
   address?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   advancedAt?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   depositedDate?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  loadedAt?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   order?: InputMaybe<Scalars['String']['input']>;
+  paymentOrder?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  paymentPeriod?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   status?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   transferDate?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   type?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
@@ -76867,6 +76873,7 @@ export type PaymentsSumInput = {
 
 export type PaymentsSumOutput = {
   __typename?: 'PaymentsSumOutput';
+  paymentsCount: Scalars['String']['output'];
   sum: Scalars['String']['output'];
 };
 
