@@ -125,7 +125,7 @@ async function sendWebhook (subscriptionId) {
             } else {
                 totalLoaded += lastLoaded
                 // NOTE: objs are sorted by updatedAt. Reads go to an async replica, so "now" would skip objects not replicated yet
-                lastSyncTime = get(objs, [lastLoaded - 1, 'updatedAt']) || dayjs().toISOString()
+                lastSyncTime = objs[objs.length - 1]?.updatedAt || dayjs().toISOString()
             }
 
             // Step 3: Update subscription state if full batch received. Else condition will lead to final update
