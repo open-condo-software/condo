@@ -19,7 +19,7 @@ const loadedAtFilter = getDayRangeFilter('loadedAt')
 const CALENDAR_DAY_PREFIX_REGEXP = /^(\d{4})-(\d{2})-(\d{2})(?:T|$)/
 
 const parseCalendarDay = (value: string): dayjs.Dayjs | undefined => {
-    const match = value.match(CALENDAR_DAY_PREFIX_REGEXP)
+    const match = CALENDAR_DAY_PREFIX_REGEXP.exec(value)
     if (!match) return
 
     const [, year, month, day] = match
