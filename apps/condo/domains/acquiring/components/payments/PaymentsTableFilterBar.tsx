@@ -39,29 +39,31 @@ export const PaymentsTableFilterBar: React.FC<PaymentsTableFilterBarProps> = ({
     const desktopColumnFlex = breakpoints.DESKTOP_SMALL ? 'none' : '100%'
 
     return (
-        <BillingTableFiltersContainer>
-            <Row gutter={ROW_GUTTER} justify={breakpoints.DESKTOP_SMALL ? 'end' : 'start'} align='middle'>
-                <Col flex={breakpoints.DESKTOP_SMALL ? 'auto' : '100%'}>
-                    <Input
-                        placeholder={search.placeholder}
-                        value={search.value}
-                        onChange={(event) => search.onChange(event.target.value)}
-                        allowClear
-                        suffix={<Search size='medium' color={colors.gray[7]} />}
-                    />
-                </Col>
-                <Col flex={desktopColumnFlex}>
-                    <DateRangePicker {...datePickerProps} />
-                </Col>
-                {modalFilters.count > 0 && (
-                    <Col flex={desktopColumnFlex} onClick={modalFilters.onReset}>
-                        {modalFilters.resetButton}
+        <Col span={24}>
+            <BillingTableFiltersContainer>
+                <Row gutter={ROW_GUTTER} justify={breakpoints.DESKTOP_SMALL ? 'end' : 'start'} align='middle'>
+                    <Col flex={breakpoints.DESKTOP_SMALL ? 'auto' : '100%'}>
+                        <Input
+                            placeholder={search.placeholder}
+                            value={search.value}
+                            onChange={(event) => search.onChange(event.target.value)}
+                            allowClear
+                            suffix={<Search size='medium' color={colors.gray[7]} />}
+                        />
                     </Col>
-                )}
-                <Col flex={desktopColumnFlex}>
-                    {modalFilters.openButton}
-                </Col>
-            </Row>
-        </BillingTableFiltersContainer>
+                    <Col flex={desktopColumnFlex}>
+                        <DateRangePicker {...datePickerProps} />
+                    </Col>
+                    {modalFilters.count > 0 && (
+                        <Col flex={desktopColumnFlex} onClick={modalFilters.onReset}>
+                            {modalFilters.resetButton}
+                        </Col>
+                    )}
+                    <Col flex={desktopColumnFlex}>
+                        {modalFilters.openButton}
+                    </Col>
+                </Row>
+            </BillingTableFiltersContainer>
+        </Col>
     )
 }

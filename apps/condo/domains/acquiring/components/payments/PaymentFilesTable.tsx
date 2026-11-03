@@ -253,17 +253,11 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
 
     return (
         <Row gutter={ROW_GUTTER} align='middle' justify='center'>
-            <Col span={24}>
-                <PaymentsTableFilterBar
-                    search={{ value: search, placeholder: SearchPlaceholder, onChange: handleSearchChange }}
-                    datePickerProps={{
-                        value: dateRange || dateFallback,
-                        onChange: handleDateChange,
-                        placeholder: [StartDateMessage, EndDateMessage],
-                    }}
-                    modalFilters={{ count: appliedFiltersCount, onReset, resetButton: <ResetFiltersModalButton />, openButton: <OpenFiltersButton showLabel={false} /> }}
-                />
-            </Col>
+            <PaymentsTableFilterBar
+                search={{ value: search, placeholder: SearchPlaceholder, onChange: handleSearchChange }}
+                datePickerProps={{ value: dateRange || dateFallback, onChange: handleDateChange, placeholder: [StartDateMessage, EndDateMessage] }}
+                modalFilters={{ count: appliedFiltersCount, onReset, resetButton: <ResetFiltersModalButton />, openButton: <OpenFiltersButton showLabel={false} /> }}
+            />
 
 
             <Col span={24}>
