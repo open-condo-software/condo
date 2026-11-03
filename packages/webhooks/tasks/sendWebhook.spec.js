@@ -135,6 +135,45 @@ const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer
             await softDeleteTestWebhookSubscription(actors.admin, subscription.id)
             await softDeleteTestWebhook(actors.admin, hook.id)
         })
+        it('Must set syncedAt to updatedAt of the last sent object', async () => {
+            const [hook] = await createTestWebhook(actors.admin, actors.admin.user)
+            const [subscription] = await createTestWebhookSubscription(actors.admin, hook, {
+                syncedAt: dayjs(firstUser.createdAt).subtract(10, 'millisecond'),
+                url: STABLE_URL,
+                fields: 'id updatedAt',
+            })
+            const callsBefore = STABLE_CALLS.length
+
+            await sendWebhook.delay.fn(subscription.id)
+
+            const lastSentObjects = STABLE_CALLS[STABLE_CALLS.length - 1]
+            const lastSentObject = lastSentObjects[lastSentObjects.length - 1]
+            const updated = await WebhookSubscription.getOne(actors.admin, { id: subscription.id })
+            expect(STABLE_CALLS.length).toBeGreaterThan(callsBefore)
+            expect(dayjs(updated.syncedAt).isSame(dayjs(lastSentObject.updatedAt))).toEqual(true)
+
+            await softDeleteTestWebhookSubscription(actors.admin, subscription.id)
+            await softDeleteTestWebhook(actors.admin, hook.id)
+        })
+        it('Must not update syncedAt if nothing was sent', async () => {
+            const [hook] = await createTestWebhook(actors.admin, actors.admin.user)
+            const [subscription] = await createTestWebhookSubscription(actors.admin, hook, {
+                syncedAt: dayjs(firstUser.createdAt).subtract(10, 'millisecond'),
+                url: STABLE_URL,
+                filters: { id: faker.datatype.uuid() },
+            })
+            const callsBefore = STABLE_CALLS.length
+
+            await sendWebhook.delay.fn(subscription.id)
+
+            const updated = await WebhookSubscription.getOne(actors.admin, { id: subscription.id })
+            expect(STABLE_CALLS).toHaveLength(callsBefore)
+            expect(dayjs(updated.syncedAt).isSame(dayjs(subscription.syncedAt))).toEqual(true)
+            expect(updated.v).toEqual(subscription.v)
+
+            await softDeleteTestWebhookSubscription(actors.admin, subscription.id)
+            await softDeleteTestWebhook(actors.admin, hook.id)
+        })
     })
 }
 

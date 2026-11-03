@@ -66,7 +66,7 @@ async function sendWebhook (subscriptionId) {
         let lastLoaded = packSize
         let lastSendSuccess = true
         let totalLoaded = syncedAmount
-        let lastSyncTime = dayjs().toISOString()
+        let lastSyncTime = null
         let lastSubscriptionUpdate = updatedAt
 
         const where = {
@@ -89,8 +89,6 @@ async function sendWebhook (subscriptionId) {
             logger.info({ msg: 'tryGetResult', url, entityId: subscriptionId, entity: 'WebhookSubscription', data: { data: objs, variables, model, fields, userId } })
 
             lastLoaded = objs.length
-            // time is measured by the time of the last response from our server received
-            lastSyncTime = dayjs().toISOString()
 
             // No more objects -> GOTO final update syncedAt
             if (lastLoaded === 0) {
@@ -126,6 +124,8 @@ async function sendWebhook (subscriptionId) {
 
             } else {
                 totalLoaded += lastLoaded
+                // NOTE: objs are sorted by updatedAt. Reads go to an async replica, so "now" would skip objects not replicated yet
+                lastSyncTime = get(objs, [lastLoaded - 1, 'updatedAt']) || dayjs().toISOString()
             }
 
             // Step 3: Update subscription state if full batch received. Else condition will lead to final update
@@ -138,8 +138,11 @@ async function sendWebhook (subscriptionId) {
             }
         }
 
-        // TODO(pahaz): We do not need to update the WebhookSubscription if no updates are found, as we can utilize the same query and cache it.
-        //     We also want to prevent the unnecessary expansion of the history log/database
+        // NOTE: nothing was sent - keep syncedAt, so objects not replicated yet are picked up by the next run
+        if (!lastSyncTime) {
+            return { status: OK_STATUS }
+        }
+
         await WebhookSubscription.update(keystone, subscriptionId, {
             syncedAt: lastSyncTime,
             dv: 1,
