@@ -5,6 +5,7 @@ const { execGqlAsUser } = require('@open-condo/codegen/generate.server.utils')
 const { KVLocker } = require('@open-condo/keystone/locks')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
+const { WEBHOOK_SYNC_DELAY_IN_SEC } = require('@open-condo/webhooks/config')
 const { DEFAULT_MAX_PACK_SIZE } = require('@open-condo/webhooks/constants')
 const { WebhookSubscription } = require('@open-condo/webhooks/schema/utils/serverSchema')
 const { trySendData, buildQuery } = require('@open-condo/webhooks/tasks/tasks.utils')
@@ -66,14 +67,19 @@ async function sendWebhook (subscriptionId) {
         let lastLoaded = packSize
         let lastSendSuccess = true
         let totalLoaded = syncedAmount
-        let lastSyncTime = dayjs().toISOString()
         let lastSubscriptionUpdate = updatedAt
+        const syncCutoff = dayjs().subtract(WEBHOOK_SYNC_DELAY_IN_SEC, 'second').toISOString()
+
+        if (!dayjs(syncCutoff).isAfter(syncedAt)) {
+            return { status: OK_STATUS }
+        }
 
         const where = {
             ...filters,
             updatedAt_gt: syncedAt,
+            updatedAt_lte: syncCutoff,
         }
-        logger.info({ msg: 'prepare', url, entityId: subscriptionId, entity: 'WebhookSubscription', data: { lastLoaded, packSize } })
+        logger.info({ msg: 'prepare', url, entityId: subscriptionId, entity: 'WebhookSubscription', data: { lastLoaded, packSize, syncCutoff } })
 
         while (lastLoaded === packSize) {
             // Step 1: Receive another batch
@@ -89,8 +95,6 @@ async function sendWebhook (subscriptionId) {
             logger.info({ msg: 'tryGetResult', url, entityId: subscriptionId, entity: 'WebhookSubscription', data: { data: objs, variables, model, fields, userId } })
 
             lastLoaded = objs.length
-            // time is measured by the time of the last response from our server received
-            lastSyncTime = dayjs().toISOString()
 
             // No more objects -> GOTO final update syncedAt
             if (lastLoaded === 0) {
@@ -138,10 +142,8 @@ async function sendWebhook (subscriptionId) {
             }
         }
 
-        // TODO(pahaz): We do not need to update the WebhookSubscription if no updates are found, as we can utilize the same query and cache it.
-        //     We also want to prevent the unnecessary expansion of the history log/database
         await WebhookSubscription.update(keystone, subscriptionId, {
-            syncedAt: lastSyncTime,
+            syncedAt: syncCutoff,
             dv: 1,
             sender: { dv: 1, fingerprint: 'sendWebhook' },
         })

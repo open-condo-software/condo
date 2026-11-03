@@ -1,6 +1,11 @@
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
+jest.mock('@open-condo/webhooks/config', () => ({
+    WEBHOOK_SYNC_DELAY_IN_SEC: 5,
+}))
+
+const { WEBHOOK_SYNC_DELAY_IN_SEC } = require('@open-condo/webhooks/config')
 const {
     WebhookSubscription,
     createTestWebhook,
@@ -45,6 +50,15 @@ const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer
         let firstUser
         let deletedUser
         let lastUser
+        beforeEach(() => {
+            const currentTime = Date.now()
+            const taskTime = currentTime + (WEBHOOK_SYNC_DELAY_IN_SEC + 5) * 1000
+            jest.useFakeTimers({ doNotFake: ['nextTick', 'setImmediate', 'setInterval', 'setTimeout'] })
+                .setSystemTime(taskTime)
+        })
+        afterEach(() => {
+            jest.useRealTimers()
+        })
         beforeAll(async () => {
             actors = await actorsInitializer()
             firstUser = await userCreator()
@@ -79,6 +93,58 @@ const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer
                 expect.objectContaining({ id: deletedUser.id }),
                 expect.objectContaining({ id: lastUser.id }),
             ])]))
+        })
+        it('Must advance syncedAt to the stable cutoff when no objects are returned', async () => {
+            const [hook] = await createTestWebhook(actors.admin, actors.admin.user)
+            const syncedAt = dayjs().subtract(1, 'hour')
+            const [subscription] = await createTestWebhookSubscription(actors.admin, hook, {
+                syncedAt: syncedAt.toISOString(),
+                url: STABLE_URL,
+                filters: { id: faker.datatype.uuid() },
+            })
+            const syncStart = dayjs()
+
+            await sendWebhook.delay.fn(subscription.id)
+
+            const updated = await WebhookSubscription.getOne(actors.admin, { id: subscription.id })
+            const expectedSyncCutoff = syncStart.subtract(WEBHOOK_SYNC_DELAY_IN_SEC, 'second')
+            expect(dayjs(updated.syncedAt).valueOf()).toBe(expectedSyncCutoff.valueOf())
+            expect(updated).toHaveProperty('syncedAmount', 0)
+
+            await softDeleteTestWebhookSubscription(actors.admin, subscription.id)
+            await softDeleteTestWebhook(actors.admin, hook.id)
+        })
+        it('Must defer models newer than the cutoff until the next sync', async () => {
+            const [hook] = await createTestWebhook(actors.admin, actors.admin.user)
+            const recentUser = await userCreator()
+            const [subscription] = await createTestWebhookSubscription(actors.admin, hook, {
+                syncedAt: dayjs(firstUser.updatedAt).subtract(10, 'millisecond'),
+                url: STABLE_URL,
+                filters: { id_in: [firstUser.id, recentUser.id] },
+            })
+            const initialCallsCount = STABLE_CALLS.length
+
+            await sendWebhook.delay.fn(subscription.id)
+
+            const firstSyncCalls = STABLE_CALLS.slice(initialCallsCount).flat()
+            expect(firstSyncCalls).toEqual(expect.arrayContaining([
+                expect.objectContaining({ id: firstUser.id }),
+            ]))
+            expect(firstSyncCalls).not.toEqual(expect.arrayContaining([
+                expect.objectContaining({ id: recentUser.id }),
+            ]))
+
+            jest.setSystemTime(dayjs().add(WEBHOOK_SYNC_DELAY_IN_SEC, 'second').toDate())
+            const callsBeforeSecondSync = STABLE_CALLS.length
+            await sendWebhook.delay.fn(subscription.id)
+
+            const secondSyncCalls = STABLE_CALLS.slice(callsBeforeSecondSync).flat()
+            expect(secondSyncCalls).toEqual(expect.arrayContaining([
+                expect.objectContaining({ id: recentUser.id }),
+            ]))
+
+            await softDeleteTestWebhookSubscription(actors.admin, subscription.id)
+            await softDeleteTestWebhook(actors.admin, hook.id)
         })
         it('Must correctly save state on failures', async () => {
             const [hook] = await createTestWebhook(actors.admin, actors.admin.user)

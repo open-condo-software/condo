@@ -1,5 +1,6 @@
 const { composeNonResolveInputHook } = require('@open-condo/keystone/plugins/utils')
 const { GQL_SCHEMA_PLUGIN } = require('@open-condo/keystone/plugins/utils/typing')
+const { WEBHOOK_SYNC_DELAY_IN_SEC } = require('@open-condo/webhooks/config')
 const { getModelValidator } = require('@open-condo/webhooks/model-validator')
 const { getWebhookTasks } = require('@open-condo/webhooks/tasks')
 
@@ -19,7 +20,9 @@ const webHooked = () => plugin((schema, { schemaName }) => {
 
     const syncAfterChange = async () => {
         const { sendModelWebhooks } = getWebhookTasks()
-        await sendModelWebhooks.delay(schemaName)
+        await sendModelWebhooks.applyAsync([schemaName], null, {
+            delay: WEBHOOK_SYNC_DELAY_IN_SEC * 1000,
+        })
     }
 
     const afterChange = composeNonResolveInputHook(originalHook, syncAfterChange)
