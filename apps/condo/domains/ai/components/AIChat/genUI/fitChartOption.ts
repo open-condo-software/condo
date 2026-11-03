@@ -22,14 +22,11 @@ const CHART_COLOR_SET = [
     colors.purple['5'],
 ]
 
-// Width assumed before the host is measured: the narrowest overlay.
 const UNMEASURED_WIDTH = 320
-// From this width a pie has room for callout lines and the legend fits one row.
 const WIDE_CHART_MIN_WIDTH = 480
 
 const GRID = { left: 8, right: 8, top: 16, bottom: 8, containLabel: true }
 
-// Share of the width given to a category label, clamped so a narrow chart keeps a plot.
 const LABEL_WIDTH_RATIO = 0.42
 const LABEL_MIN_WIDTH = 72
 const LABEL_MAX_WIDTH = 280
@@ -38,13 +35,11 @@ const LEGEND_ROW_HEIGHT = 22
 const LEGEND_MARKER_SIZE = 8
 const LEGEND_INLINE_GAP = 16
 const LEGEND_STACKED_GAP = 8
-// Marker plus the gap before the legend text.
 const LEGEND_MARKER_SPACE = 28
 
 const TOOLTIP_INSET = 16
 
 const PIE_WIDE_RADIUS = '46%'
-// Keeps a pie from rising into the top edge when the legend below is tall.
 const PIE_MIN_CENTER_PERCENT = 18
 
 function isDict (value: unknown): value is Dict {
@@ -57,7 +52,9 @@ function dictOrEmpty (value: unknown): Dict {
 
 export function parseChartOption (value: unknown): ChartOption | null {
     if (!isDict(value)) return null
-    const series = Array.isArray(value.series) ? value.series : value.series ? [value.series] : []
+    let series: unknown[] = []
+    if (Array.isArray(value.series)) series = value.series
+    else if (value.series) series = [value.series]
     return { ...value, series: series.filter(isDict) }
 }
 
@@ -79,15 +76,16 @@ function fitLegend (legend: Dict, width: number, wide: boolean): Dict {
 
     return {
         ...rest,
-        type: 'plain',
+        type: wide ? 'scroll' : 'plain',
         orient: wide ? 'horizontal' : 'vertical',
         left: 0,
         bottom: 0,
         width: wide ? width : undefined,
+        height: wide ? LEGEND_ROW_HEIGHT : undefined,
         itemWidth: LEGEND_MARKER_SIZE,
         itemHeight: LEGEND_MARKER_SIZE,
         itemGap: wide ? LEGEND_INLINE_GAP : LEGEND_STACKED_GAP,
-        textStyle: wide ? textStyle : {
+        textStyle: {
             ...textStyle,
             width: Math.max(LABEL_MIN_WIDTH, width - LEGEND_MARKER_SPACE),
             overflow: 'truncate',
@@ -111,7 +109,6 @@ function fitCategoryAxis (axis: unknown, labelWidth: number): unknown {
 }
 
 function fitSeriesItem (item: Dict, wide: boolean, centerYPercent: number, isOnlySeries: boolean): Dict {
-    // A lone bar series has one legend entry, so a palette per bar adds no ambiguity.
     if (item.type === 'bar' && isOnlySeries && !item.colorBy) {
         return { ...item, colorBy: 'data' }
     }
@@ -132,7 +129,6 @@ function fitTooltip (tooltip: unknown, series: Dict[], width: number): unknown {
     if (!hasPie && !hasCartesian) return tooltip
 
     const current = dictOrEmpty(tooltip)
-    // ECharts tooltips do not wrap by default, so long category names overflow the host.
     const wrapped = {
         ...current,
         confine: true,

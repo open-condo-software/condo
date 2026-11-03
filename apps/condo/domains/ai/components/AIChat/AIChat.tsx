@@ -30,8 +30,6 @@ import { extractA2UIMessages } from './genUI'
 import type { Message } from '@condo/domains/ai/utils/aiChatStorage'
 
 const WELCOME_UI_MESSAGE_ID = 'welcome-ui-message'
-// A loaded thread stays at its end until the reader moves. A few pixels of slack
-// cover the spacer settling after the input is measured.
 const END_VIEW_SLACK = 48
 
 const AI_FLOW_TIMEOUT_MS = 6 * 60 * 1000
@@ -120,10 +118,7 @@ export const AIChat: React.FC<AIChatProps> = ({
     const inputRef = useRef<any>(null)
     const pendingScrollToMessageIdRef = useRef<string | null>(null)
     const shouldScrollActiveTurnRef = useRef(false)
-    // True while a loaded thread should stay on its last line. A sent turn turns it off.
     const keepEndInViewRef = useRef(true)
-    // Setting scrollTop fires scroll. That event is ours, not the reader leaving the end.
-    const ignoreEndScrollRef = useRef(false)
     const initialLoadDoneRef = useRef(false)
     const initialMessageSentRef = useRef(false)
     const initialMessageOverrideRef = useRef<string | null>(null)
@@ -243,7 +238,6 @@ export const AIChat: React.FC<AIChatProps> = ({
         requestAnimationFrame(() => {
             const container = messagesContainerRef.current
             if (container && keepEndInViewRef.current) {
-                ignoreEndScrollRef.current = true
                 container.scrollTop = container.scrollHeight
             }
         })
@@ -383,8 +377,6 @@ export const AIChat: React.FC<AIChatProps> = ({
         const contentHeight = messageElements.reduce((total, element, index) => {
             return total + element.offsetHeight + (index > 0 ? gap : 0)
         }, 0)
-        // ::after is the clearance above the input. Padding no longer includes it,
-        // so the visible area must shrink by that spacer or the clamp stops short of the end.
         const endSpacer = Number.parseFloat(getComputedStyle(container, '::after').height) || 0
         const visibleHeight = Math.max(0, container.clientHeight - padTop - padBottom - endSpacer)
         const contentOverflow = Math.max(0, contentHeight - visibleHeight)
@@ -448,10 +440,6 @@ export const AIChat: React.FC<AIChatProps> = ({
         if (!container || activeTurnUserMessageId) return
 
         const onScroll = () => {
-            if (ignoreEndScrollRef.current) {
-                ignoreEndScrollRef.current = false
-                return
-            }
             const distance = container.scrollHeight - container.scrollTop - container.clientHeight
             keepEndInViewRef.current = distance < END_VIEW_SLACK
         }
@@ -473,7 +461,6 @@ export const AIChat: React.FC<AIChatProps> = ({
             container.style.setProperty('--ai-chat-scrollport-height', `${visibleHeight}px`)
             if (!activeTurnUserMessageId) {
                 if (keepEndInViewRef.current) {
-                    ignoreEndScrollRef.current = true
                     container.scrollTop = container.scrollHeight
                 }
                 return
@@ -486,8 +473,6 @@ export const AIChat: React.FC<AIChatProps> = ({
 
         syncScrollportHeight(messagesContainer)
         const messagesObserver = new ResizeObserver(() => syncScrollportHeight(messagesContainer))
-        // The scroller's own box does not change when a message or a chart grows.
-        // Watch the rows, and watch again when a row is added.
         const observeRows = () => {
             messagesObserver.observe(messagesContainer)
             messagesContainer.querySelectorAll(':scope > *').forEach((row) => {
@@ -509,7 +494,6 @@ export const AIChat: React.FC<AIChatProps> = ({
 
         const syncInputHeight = () => {
             chatContainer.style.setProperty('--ai-chat-input-height', `${inputContainer.offsetHeight}px`)
-            // Wait for the ::after spacer from --ai-chat-input-height to apply before measuring scrollport
             requestAnimationFrame(() => {
                 if (messagesContainerRef.current) {
                     syncScrollportHeight(messagesContainerRef.current)

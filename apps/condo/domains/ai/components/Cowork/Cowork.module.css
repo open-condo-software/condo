@@ -318,11 +318,7 @@
   --ai-chat-markdown-width: 100%;
   --ai-chat-padding-x: 0;
 
-  /* 24px breathing room above the first message.
-     Do not add the overlay header here: this page header is in normal flow. */
   --ai-chat-chrome-gap: var(--condo-global-spacing-24);
-
-  /* Clearance so the last line is not hidden under the input. */
   --ai-chat-input-bottom-gap: 64px;
 
   /* Clean input — no card, no border, no shadow. Padding comes from PageWrapper. */

@@ -79,7 +79,6 @@ const TextRenderer: React.FC<RendererProps> = ({ component, surface }) => {
     return <Typography.Text>{content}</Typography.Text>
 }
 
-// Below this basis a row child wraps onto the next line, so two charts stack in a 320px panel.
 const ROW_ITEM_FLEX_BASIS = '16rem'
 
 // Row — horizontal flex, children fill space proportionally to weight (grid-like)
@@ -197,7 +196,7 @@ const ChartRenderer: React.FC<RendererProps> = ({ component, surface }) => {
 
     const fitted = fitChartOption(option, hostWidth, Number(height) || DEFAULT_CHART_HEIGHT)
     const style: React.CSSProperties = {
-        width: hostWidth ? hostWidth : '100%',
+        width: hostWidth || '100%',
         maxWidth: '100%',
         height: fitted.height,
     }

@@ -8,8 +8,6 @@
   min-height: 0;
 }
 
-/* Bottom clearance is the ::after spacer:
-   padding-bottom on a flex scroller is not part of the scroll height. */
 .messages-container {
   position: absolute;
   display: flex;
@@ -53,7 +51,6 @@
   gap: var(--condo-global-spacing-32);
 }
 
-/* Room for the reply to grow under a turn pinned to the top. */
 .messages-container .turn[data-active="true"] {
   box-sizing: border-box;
   min-height: var(--ai-chat-scrollport-height, 100%);

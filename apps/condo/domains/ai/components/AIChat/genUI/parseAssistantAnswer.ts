@@ -28,7 +28,7 @@ export function extractA2UIMessages (answer: string): ParsedA2UIAnswer {
                 try {
                     parsed = JSON.parse(line) as A2uiMessage
                 } catch (parseError) {
-                    if (!line.includes('\\"')) throw parseError
+                    if (!line.includes(String.raw`\"`)) throw parseError
                     parsed = JSON.parse(line.replace(/\\"/g, '"')) as A2uiMessage
                 }
                 if (parsed && typeof parsed === 'object') {
