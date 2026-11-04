@@ -5,7 +5,7 @@ const { execGqlAsUser } = require('@open-condo/codegen/generate.server.utils')
 const { KVLocker } = require('@open-condo/keystone/locks')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
-const { WEBHOOK_SYNC_DELAY_IN_SEC } = require('@open-condo/webhooks/config')
+const { WEBHOOK_SYNC_DELAY_IN_MS } = require('@open-condo/webhooks/config')
 const { DEFAULT_MAX_PACK_SIZE } = require('@open-condo/webhooks/constants')
 const { WebhookSubscription } = require('@open-condo/webhooks/schema/utils/serverSchema')
 const { WEBHOOK_SYNC_UPDATED_AT_FIELD, trySendData, buildQuery } = require('@open-condo/webhooks/tasks/tasks.utils')
@@ -161,7 +161,7 @@ async function sendWebhook (subscriptionId) {
         const query = buildQuery(model, fields)
 
         let lastSyncedAt = syncedAt
-        const syncCutoff = dayjs().subtract(WEBHOOK_SYNC_DELAY_IN_SEC, 'second').toISOString()
+        const syncCutoff = dayjs().subtract(WEBHOOK_SYNC_DELAY_IN_MS, 'millisecond').toISOString()
 
         if (!dayjs(syncCutoff).isAfter(lastSyncedAt)) {
             return { status: OK_STATUS }

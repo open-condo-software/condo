@@ -2,10 +2,10 @@ const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
 jest.mock('@open-condo/webhooks/config', () => ({
-    WEBHOOK_SYNC_DELAY_IN_SEC: 5,
+    WEBHOOK_SYNC_DELAY_IN_MS: 5000,
 }))
 
-const { WEBHOOK_SYNC_DELAY_IN_SEC } = require('@open-condo/webhooks/config')
+const { WEBHOOK_SYNC_DELAY_IN_MS } = require('@open-condo/webhooks/config')
 const {
     WebhookSubscription,
     createTestWebhook,
@@ -62,7 +62,7 @@ const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer
             SCRIPTED_CALLS.length = 0
             scriptedResponseHandler = () => Promise.resolve({ ok: true, status: 200 })
             const currentTime = Date.now()
-            const taskTime = currentTime + (WEBHOOK_SYNC_DELAY_IN_SEC + 5) * 1000
+            const taskTime = currentTime + WEBHOOK_SYNC_DELAY_IN_MS + 5000
             jest.useFakeTimers({ doNotFake: ['nextTick', 'setImmediate', 'setInterval', 'setTimeout'] })
                 .setSystemTime(taskTime)
         })
@@ -86,7 +86,7 @@ const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer
             return users
         }
         const setTaskTimeAfter = (updatedAt) => {
-            const taskTime = updatedAt.add(WEBHOOK_SYNC_DELAY_IN_SEC + 1, 'second')
+            const taskTime = updatedAt.add(WEBHOOK_SYNC_DELAY_IN_MS + 1, 'millisecond')
             jest.setSystemTime(taskTime.toDate())
             return taskTime
         }
@@ -130,7 +130,7 @@ const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer
             await sendWebhook.delay.fn(subscription.id)
 
             const updated = await WebhookSubscription.getOne(actors.admin, { id: subscription.id })
-            const expectedSyncCutoff = syncStart.subtract(WEBHOOK_SYNC_DELAY_IN_SEC, 'second')
+            const expectedSyncCutoff = syncStart.subtract(WEBHOOK_SYNC_DELAY_IN_MS, 'millisecond')
             expect(dayjs(updated.syncedAt).valueOf()).toBe(expectedSyncCutoff.valueOf())
             expect(updated).toHaveProperty('syncedAmount', 0)
 
@@ -139,7 +139,7 @@ const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer
         })
         it('Must deliver a single-object timestamp group', async () => {
             const [hook] = await createTestWebhook(actors.admin, actors.admin.user)
-            const updatedAt = dayjs().subtract(WEBHOOK_SYNC_DELAY_IN_SEC + 1, 'second')
+            const updatedAt = dayjs().subtract(WEBHOOK_SYNC_DELAY_IN_MS + 1, 'millisecond')
             const [user] = await createUsersAt(updatedAt, 1)
             const taskTime = setTaskTimeAfter(updatedAt)
             const [subscription] = await createTestWebhookSubscription(actors.admin, hook, {
@@ -153,7 +153,7 @@ const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer
 
             expect(STABLE_CALLS).toEqual([[expect.objectContaining({ id: user.id })]])
             const updated = await WebhookSubscription.getOne(actors.admin, { id: subscription.id })
-            expect(updated).toHaveProperty('syncedAt', taskTime.subtract(WEBHOOK_SYNC_DELAY_IN_SEC, 'second').toISOString())
+            expect(updated).toHaveProperty('syncedAt', taskTime.subtract(WEBHOOK_SYNC_DELAY_IN_MS, 'millisecond').toISOString())
 
             await softDeleteTestWebhookSubscription(actors.admin, subscription.id)
             await softDeleteTestWebhook(actors.admin, hook.id)
@@ -178,7 +178,7 @@ const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer
                 expect.objectContaining({ id: recentUser.id }),
             ]))
 
-            jest.setSystemTime(dayjs().add(WEBHOOK_SYNC_DELAY_IN_SEC, 'second').toDate())
+            jest.setSystemTime(dayjs().add(WEBHOOK_SYNC_DELAY_IN_MS, 'millisecond').toDate())
             const callsBeforeSecondSync = STABLE_CALLS.length
             await sendWebhook.delay.fn(subscription.id)
 
@@ -192,10 +192,10 @@ const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer
         })
         it('Must deliver an entire updatedAt group before advancing syncedAt', async () => {
             const [hook] = await createTestWebhook(actors.admin, actors.admin.user)
-            const groupUpdatedAt = dayjs().subtract(WEBHOOK_SYNC_DELAY_IN_SEC + 1, 'second')
+            const groupUpdatedAt = dayjs().subtract(WEBHOOK_SYNC_DELAY_IN_MS + 1, 'millisecond')
             jest.setSystemTime(groupUpdatedAt.toDate())
             const users = await createUsersAt(groupUpdatedAt, 8)
-            const syncTime = groupUpdatedAt.add(WEBHOOK_SYNC_DELAY_IN_SEC + 1, 'second')
+            const syncTime = groupUpdatedAt.add(WEBHOOK_SYNC_DELAY_IN_MS + 1, 'millisecond')
             jest.setSystemTime(syncTime.toDate())
             const [subscription] = await createTestWebhookSubscription(actors.admin, hook, {
                 syncedAt: groupUpdatedAt.subtract(1, 'millisecond').toISOString(),
@@ -219,14 +219,14 @@ const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer
             ]))
 
             const updated = await WebhookSubscription.getOne(actors.admin, { id: subscription.id })
-            expect(updated).toHaveProperty('syncedAt', syncTime.subtract(WEBHOOK_SYNC_DELAY_IN_SEC, 'second').toISOString())
+            expect(updated).toHaveProperty('syncedAt', syncTime.subtract(WEBHOOK_SYNC_DELAY_IN_MS, 'millisecond').toISOString())
 
             await softDeleteTestWebhookSubscription(actors.admin, subscription.id)
             await softDeleteTestWebhook(actors.admin, hook.id)
         })
         it('Must deliver the safe prefix before a timestamp group', async () => {
             const [hook] = await createTestWebhook(actors.admin, actors.admin.user)
-            const firstUpdatedAt = dayjs().subtract(WEBHOOK_SYNC_DELAY_IN_SEC + 4, 'second')
+            const firstUpdatedAt = dayjs().subtract(WEBHOOK_SYNC_DELAY_IN_MS + 4, 'millisecond')
             const [first] = await createUsersAt(firstUpdatedAt, 1)
             const [second] = await createUsersAt(firstUpdatedAt.add(1, 'millisecond'), 1)
             const timestampGroup = await createUsersAt(firstUpdatedAt.add(2, 'millisecond'), 3)
@@ -245,14 +245,14 @@ const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer
             expect(sentUserIds).toEqual(expect.arrayContaining(users.map(({ id }) => id)))
             expect(sentUserIds).toHaveLength(users.length)
             const updated = await WebhookSubscription.getOne(actors.admin, { id: subscription.id })
-            expect(updated).toHaveProperty('syncedAt', taskTime.subtract(WEBHOOK_SYNC_DELAY_IN_SEC, 'second').toISOString())
+            expect(updated).toHaveProperty('syncedAt', taskTime.subtract(WEBHOOK_SYNC_DELAY_IN_MS, 'millisecond').toISOString())
 
             await softDeleteTestWebhookSubscription(actors.admin, subscription.id)
             await softDeleteTestWebhook(actors.admin, hook.id)
         })
         it('Must not skip remaining objects when a delivered object becomes ineligible', async () => {
             const [hook] = await createTestWebhook(actors.admin, actors.admin.user)
-            const firstUpdatedAt = dayjs().subtract(WEBHOOK_SYNC_DELAY_IN_SEC + 6, 'second')
+            const firstUpdatedAt = dayjs().subtract(WEBHOOK_SYNC_DELAY_IN_MS + 6, 'millisecond')
             const users = []
             for (let index = 0; index < 5; ++index) {
                 users.push(...await createUsersAt(firstUpdatedAt.add(index, 'millisecond'), 1))
@@ -282,7 +282,7 @@ const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer
         })
         it('Must retry a partially sent timestamp group without advancing syncedAt', async () => {
             const [hook] = await createTestWebhook(actors.admin, actors.admin.user)
-            const groupUpdatedAt = dayjs().subtract(WEBHOOK_SYNC_DELAY_IN_SEC + 1, 'second')
+            const groupUpdatedAt = dayjs().subtract(WEBHOOK_SYNC_DELAY_IN_MS + 1, 'millisecond')
             const users = await createUsersAt(groupUpdatedAt, 2)
             setTaskTimeAfter(groupUpdatedAt)
             const [subscription] = await createTestWebhookSubscription(actors.admin, hook, {
@@ -317,7 +317,7 @@ const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer
         })
         it('Must keep the last successful cursor when a later batch fails', async () => {
             const [hook] = await createTestWebhook(actors.admin, actors.admin.user)
-            const firstUpdatedAt = dayjs().subtract(WEBHOOK_SYNC_DELAY_IN_SEC + 4, 'second')
+            const firstUpdatedAt = dayjs().subtract(WEBHOOK_SYNC_DELAY_IN_MS + 4, 'millisecond')
             const [first] = await createUsersAt(firstUpdatedAt, 1)
             const [second] = await createUsersAt(firstUpdatedAt.add(1, 'millisecond'), 1)
             const [third] = await createUsersAt(firstUpdatedAt.add(2, 'millisecond'), 1)
@@ -345,10 +345,10 @@ const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer
         })
         it('Must not advance syncedAt if sending a timestamp group fails', async () => {
             const [hook] = await createTestWebhook(actors.admin, actors.admin.user)
-            const groupUpdatedAt = dayjs().subtract(WEBHOOK_SYNC_DELAY_IN_SEC + 1, 'second')
+            const groupUpdatedAt = dayjs().subtract(WEBHOOK_SYNC_DELAY_IN_MS + 1, 'millisecond')
             jest.setSystemTime(groupUpdatedAt.toDate())
             const users = await Promise.all([userCreator(), userCreator()])
-            const syncTime = groupUpdatedAt.add(WEBHOOK_SYNC_DELAY_IN_SEC + 1, 'second')
+            const syncTime = groupUpdatedAt.add(WEBHOOK_SYNC_DELAY_IN_MS + 1, 'millisecond')
             jest.setSystemTime(syncTime.toDate())
             const [subscription] = await createTestWebhookSubscription(actors.admin, hook, {
                 syncedAt: groupUpdatedAt.subtract(1, 'millisecond').toISOString(),

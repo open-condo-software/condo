@@ -33,7 +33,7 @@ const { webHooked } = require('@open-condo/webhooks/plugins')
 - `DATA_ENCRYPTION_CONFIG` - Encryption configuration for `EncryptedText` fields
 - `DATA_ENCRYPTION_VERSION_ID` - Version identifier for the encryption configuration
 
-Model-change webhook tasks wait before synchronizing to ensure changed models exist in the database. The delay defaults to `1` second and can be overridden with the `WEBHOOK_SYNC_DELAY_IN_SEC` environment variable.
+Model-change webhook tasks wait before synchronizing to ensure changed models exist in the database. The delay defaults to `50` milliseconds and can be overridden with the `WEBHOOK_SYNC_DELAY_IN_MS` environment variable.
 
 The `WebhookPayload` schema uses `EncryptedText` fields for storing sensitive data (webhook payload and secret). The `EncryptionManager` is instantiated at module load time when the webhooks schema is imported, which requires both environment variables to be present.
 
