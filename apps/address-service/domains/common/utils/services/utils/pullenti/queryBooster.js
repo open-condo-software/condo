@@ -14,8 +14,14 @@ const ORGANIZATION_KLADR_FIELDS = ['settlement_kladr_id', 'city_kladr_id', 'regi
  * @returns {string} extended query
  */
 async function maybeBoostQueryWithTin (query, tin, req) {
-    const dadataSuggestionProvider = new DadataSuggestionProvider({ req })
-    const organizationInfo = await dadataSuggestionProvider.getOrganization(tin)
+    let organizationInfo = null
+    try {
+        // For now we only can get organization info from Dadata
+        const dadataSuggestionProvider = new DadataSuggestionProvider({ req })
+        organizationInfo = await dadataSuggestionProvider.getOrganization(tin)
+    } catch (err) {
+        return query
+    }
 
     if (organizationInfo) {
         const closestKladrCode = ORGANIZATION_KLADR_FIELDS
