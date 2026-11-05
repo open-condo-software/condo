@@ -34,7 +34,7 @@ import {
 import { searchOrganizationPropertyScope } from '@condo/domains/scope/utils/clientSchema/search'
 import { FEEDBACK_VALUES_BY_KEY } from '@condo/domains/ticket/constants/feedback'
 import { QUALITY_CONTROL_VALUES_BY_KEY } from '@condo/domains/ticket/constants/qualityControl'
-import { VISIBLE_TICKET_SOURCE_IDS } from '@condo/domains/ticket/constants/sources'
+import { FILTERABLE_TICKET_SOURCE_IDS } from '@condo/domains/ticket/constants/sources'
 import { TicketCategoryClassifier } from '@condo/domains/ticket/utils/clientSchema'
 import { searchEmployeeUser, searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 import {
@@ -216,7 +216,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
             where: {
                 OR: [
                     {
-                        id_in: VISIBLE_TICKET_SOURCE_IDS,
+                        id_in: FILTERABLE_TICKET_SOURCE_IDS,
                     },
                     {
                         isDefault: false,
