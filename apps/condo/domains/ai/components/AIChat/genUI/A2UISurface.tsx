@@ -39,7 +39,7 @@ const SingleSurface: React.FC<{ surface: SurfaceModel, aiSessionId?: string }> =
         const topLevel = allComponents.filter(comp => !childIds.has(comp.id))
 
         return (
-            <div style={{ width: '100%' }}>
+            <div style={{ width: '100%', minWidth: 0 }}>
                 {(topLevel.length > 0 ? topLevel : allComponents).map(comp => (
                     <ComponentRenderer key={comp.id} component={comp} surface={surface} />
                 ))}
@@ -48,7 +48,7 @@ const SingleSurface: React.FC<{ surface: SurfaceModel, aiSessionId?: string }> =
     }
 
     return (
-        <div style={{ width: '100%' }}>
+        <div style={{ width: '100%', minWidth: 0 }}>
             <ComponentRenderer component={rootComponent} surface={surface} />
         </div>
     )
