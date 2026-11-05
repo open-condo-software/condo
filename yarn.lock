@@ -1686,6 +1686,7 @@ __metadata:
     typescript: "catalog:"
     uuid: "catalog:"
     xml-js: "npm:^1.6.11"
+    zod: "catalog:"
   languageName: unknown
   linkType: soft
 
