@@ -1658,6 +1658,7 @@ __metadata:
     body-parser: "npm:^1.20.3"
     body-parser-xml: "npm:^2.0.3"
     carbone: "npm:3.2.3"
+    commander: "npm:14.0.1"
     cross-env: "catalog:"
     dayjs: "catalog:"
     express: "catalog:"
