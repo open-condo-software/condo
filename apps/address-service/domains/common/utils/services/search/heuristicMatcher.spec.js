@@ -9,8 +9,9 @@ const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keys
 
 const { Address: AddressServerUtils, AddressHeuristic: AddressHeuristicServerUtils } = require('@address-service/domains/address/utils/serverSchema')
 const { createTestAddress, createTestAddressHeuristic } = require('@address-service/domains/address/utils/testSchema')
-const { HEURISTIC_TYPE_COORDINATES, HEURISTIC_TYPE_FIAS_ID } = require('@address-service/domains/common/constants/heuristicTypes')
+const { HEURISTIC_TYPE_COORDINATES, HEURISTIC_TYPE_FALLBACK, HEURISTIC_TYPE_FIAS_ID } = require('@address-service/domains/common/constants/heuristicTypes')
 const { COORDINATE_TOLERANCE } = require('@address-service/domains/common/utils/services/search/heuristicStrategies/CoordinateHeuristicStrategy')
+const { DadataSearchProvider } = require('@address-service/domains/common/utils/services/search/providers/DadataSearchProvider')
 
 const {
     coordinatesMatch,
@@ -164,6 +165,55 @@ describe('heuristicMatcher', () => {
                 { type: HEURISTIC_TYPE_FIAS_ID, value: highValue, reliability: 95 },
             ])
             expect(result).toMatchObject({ matchedHeuristic: { type: HEURISTIC_TYPE_FIAS_ID, value: highValue } })
+        })
+
+        it('matches a known stead FIAS ID and leaves an unknown stead unmatched', async () => {
+            const [firstAddress] = await createTestAddress(adminClient, { key: `fallback:${faker.random.alphaNumeric(12)}` })
+            const firstSteadId = faker.datatype.uuid()
+            const secondSteadId = faker.datatype.uuid()
+            const coordinates = { geo_lat: faker.address.latitude(), geo_lon: faker.address.longitude(), qc_geo: '0' }
+            const provider = new DadataSearchProvider({ req: { id: 'test-request-id' } })
+
+            await createTestAddressHeuristic(adminClient, firstAddress.id, {
+                type: HEURISTIC_TYPE_FIAS_ID,
+                value: firstSteadId,
+                reliability: 95,
+            })
+
+            const secondSteadHeuristics = provider.extractHeuristics({ data: { stead_fias_id: secondSteadId, ...coordinates } })
+            const secondSteadMatch = await findAddressByHeuristics(secondSteadHeuristics)
+            expect(secondSteadMatch).toBeNull()
+
+            const sameSteadHeuristics = provider.extractHeuristics({ data: { stead_fias_id: firstSteadId, ...coordinates } })
+            const sameSteadMatch = await findAddressByHeuristics(sameSteadHeuristics)
+            expect(sameSteadMatch.addressId).toBe(firstAddress.id)
+        })
+
+        it.each(['house_fias_id', 'stead_fias_id'])('preserves coordinate matching for %s and fallback matching for empty stead IDs', async (fiasField) => {
+            const [address] = await createTestAddress(adminClient, { key: `fallback:${faker.random.alphaNumeric(12)}` })
+            const provider = new DadataSearchProvider({ req: { id: 'test-request-id' } })
+            const latitude = faker.address.latitude()
+            const longitude = faker.address.longitude()
+            const coordinate = `${latitude},${longitude}`
+            await createTestAddressHeuristic(adminClient, address.id, {
+                type: HEURISTIC_TYPE_COORDINATES,
+                value: coordinate,
+                reliability: 90,
+                latitude,
+                longitude,
+            })
+
+            const leafHeuristics = provider.extractHeuristics({ data: {
+                [fiasField]: faker.datatype.uuid(),
+                geo_lat: latitude,
+                geo_lon: longitude,
+                qc_geo: '0',
+            } })
+            expect((await findAddressByHeuristics(leafHeuristics)).addressId).toBe(address.id)
+
+            const emptyStead = { data: { stead_fias_id: '', city: 'Moscow', house: '10' } }
+            const fallbackHeuristics = provider.extractHeuristics(emptyStead)
+            expect(fallbackHeuristics[0].type).toBe(HEURISTIC_TYPE_FALLBACK)
         })
     })
 

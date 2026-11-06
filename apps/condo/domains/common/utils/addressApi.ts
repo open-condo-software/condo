@@ -7,7 +7,7 @@ import { makeId } from './makeid.utils'
 
 type TSuggestion = AddressMetaField & {
     rawValue: string
-    type: 'building' | 'village' | null
+    type: 'building' | 'village' | 'stead' | null
 }
 
 type SuggestionsResponse = Promise<{ suggestions: Array<TSuggestion> }>
