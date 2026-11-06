@@ -5,9 +5,10 @@ const { execGqlAsUser } = require('@open-condo/codegen/generate.server.utils')
 const { KVLocker } = require('@open-condo/keystone/locks')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
+const { WEBHOOK_SYNC_DELAY_IN_MS } = require('@open-condo/webhooks/config')
 const { DEFAULT_MAX_PACK_SIZE } = require('@open-condo/webhooks/constants')
 const { WebhookSubscription } = require('@open-condo/webhooks/schema/utils/serverSchema')
-const { trySendData, buildQuery } = require('@open-condo/webhooks/tasks/tasks.utils')
+const { WEBHOOK_SYNC_UPDATED_AT_FIELD, trySendData, buildQuery } = require('@open-condo/webhooks/tasks/tasks.utils')
 
 const LOCK_DURATION = 30 * 1000 // 30 sec
 const OK_STATUS = 'OK'
@@ -20,6 +21,103 @@ const locker = new KVLocker({
     lockDuration: LOCK_DURATION,
 })
 const logger = getLogger()
+
+const getSyncUpdatedAt = (obj) => obj[WEBHOOK_SYNC_UPDATED_AT_FIELD]
+
+const toWebhookPayload = (obj) => {
+    const payload = { ...obj }
+    delete payload[WEBHOOK_SYNC_UPDATED_AT_FIELD]
+    return payload
+}
+
+const getCompleteFirstTimestampGroup = async (objs, initialProbeSize, getObjects) => {
+    const groupUpdatedAt = getSyncUpdatedAt(objs[0])
+    let probe = objs
+    let probeSize = initialProbeSize
+
+    while (probe.length === probeSize && probe.every((obj) => getSyncUpdatedAt(obj) === groupUpdatedAt)) {
+        probeSize *= 2
+        probe = await getObjects(probeSize)
+    }
+
+    const firstNewerObjectIndex = probe.findIndex((obj) => getSyncUpdatedAt(obj) !== groupUpdatedAt)
+    const group = firstNewerObjectIndex === -1 ? probe : probe.slice(0, firstNewerObjectIndex)
+    const isLastGroup = firstNewerObjectIndex === -1 && probe.length < probeSize
+
+    return { group, groupUpdatedAt, isLastGroup }
+}
+
+const getNextBatch = async (getObjects, packSize, syncCutoff) => {
+    const lookAheadSize = packSize + 1
+    const objs = await getObjects(lookAheadSize)
+
+    if (objs.length === 0) {
+        return { objs, syncedAt: syncCutoff, isLastBatch: true }
+    }
+
+    if (objs.length <= packSize) {
+        return { objs, syncedAt: syncCutoff, isLastBatch: true }
+    }
+
+    const boundaryUpdatedAt = getSyncUpdatedAt(objs[packSize - 1])
+    const nextUpdatedAt = getSyncUpdatedAt(objs[packSize])
+
+    if (boundaryUpdatedAt !== nextUpdatedAt) {
+        return {
+            objs: objs.slice(0, packSize),
+            syncedAt: boundaryUpdatedAt,
+            isLastBatch: false,
+        }
+    }
+
+    const firstBoundaryObjectIndex = objs.findIndex((obj) => getSyncUpdatedAt(obj) === boundaryUpdatedAt)
+    if (firstBoundaryObjectIndex > 0) {
+        return {
+            objs: objs.slice(0, firstBoundaryObjectIndex),
+            syncedAt: getSyncUpdatedAt(objs[firstBoundaryObjectIndex - 1]),
+            isLastBatch: false,
+        }
+    }
+
+    // A timestamp cursor cannot pass a partially delivered group.
+    const { group, groupUpdatedAt, isLastGroup } = await getCompleteFirstTimestampGroup(objs, lookAheadSize, getObjects)
+    return {
+        objs: group,
+        syncedAt: isLastGroup ? syncCutoff : groupUpdatedAt,
+        isLastBatch: isLastGroup,
+    }
+}
+
+const sendBatch = async ({ url, objs, packSize, model, fields, user, subscriptionId }) => {
+    const payloads = objs.map(toWebhookPayload)
+
+    for (let start = 0; start < payloads.length; start += packSize) {
+        const payload = payloads.slice(start, start + packSize)
+        const opts = { model, fields, lastLoaded: payload.length, user }
+        logger.info({ msg: 'trySendData', url, entityId: subscriptionId, entity: 'WebhookSubscription', data: { data: payload, opts }  })
+        const response = await trySendData(url, payload)
+        logger.info({ msg: 'trySendResult', url, entityId: subscriptionId, entity: 'WebhookSubscription', status: response.status })
+
+        if (!response.ok) return response
+    }
+
+    return { ok: true }
+}
+
+const handleFailedResponse = async ({ response, keystone, subscriptionId, failuresCount, lastSubscriptionUpdate }) => {
+    const noFailureIncrementInterval = dayjs().subtract(1, 'hour')
+    const lastUpdate = dayjs(lastSubscriptionUpdate)
+    // NOTE: If no failures before or > 1 hour since last failure passed -> increment failuresCount
+    if (failuresCount === 0 || noFailureIncrementInterval.isAfter(lastUpdate)) {
+        await WebhookSubscription.update(keystone, subscriptionId, {
+            failuresCount: failuresCount + 1,
+            dv: 1,
+            sender: { dv: 1, fingerprint: 'sendWebhook' },
+        })
+    }
+
+    return response.status === 523 ? NO_RESPONSE_STATUS : BAD_RESPONSE_STATUS
+}
 
 /**
  *
@@ -36,7 +134,7 @@ async function sendWebhook (subscriptionId) {
         const subscription = await WebhookSubscription.getOne(
             keystone,
             { id: subscriptionId },
-            'model fields filters syncedAt syncedAmount failuresCount maxPackSize ' +
+            'model fields filters syncedAt failuresCount maxPackSize ' +
             'url updatedAt webhook { url user { id } }'
         )
         if (!subscription) {
@@ -48,7 +146,6 @@ async function sendWebhook (subscriptionId) {
             fields,
             filters,
             syncedAt,
-            syncedAmount,
             failuresCount,
             maxPackSize,
             url: overrideUrl,
@@ -63,21 +160,22 @@ async function sendWebhook (subscriptionId) {
         const packSize = maxPackSize || DEFAULT_MAX_PACK_SIZE
         const query = buildQuery(model, fields)
 
-        let lastLoaded = packSize
-        let lastSendSuccess = true
-        let totalLoaded = syncedAmount
-        let lastSyncTime = dayjs().toISOString()
-        let lastSubscriptionUpdate = updatedAt
+        let lastSyncedAt = syncedAt
+        const syncCutoff = dayjs().subtract(WEBHOOK_SYNC_DELAY_IN_MS, 'millisecond').toISOString()
 
-        const where = {
-            ...filters,
-            updatedAt_gt: syncedAt,
+        if (!dayjs(syncCutoff).isAfter(lastSyncedAt)) {
+            return { status: OK_STATUS }
         }
-        logger.info({ msg: 'prepare', url, entityId: subscriptionId, entity: 'WebhookSubscription', data: { lastLoaded, packSize } })
 
-        while (lastLoaded === packSize) {
-            // Step 1: Receive another batch
-            const variables = { first: maxPackSize || DEFAULT_MAX_PACK_SIZE, skip: totalLoaded, where }
+        logger.info({ msg: 'prepare', url, entityId: subscriptionId, entity: 'WebhookSubscription', data: { packSize, syncCutoff } })
+
+        const getObjects = async (first) => {
+            const where = {
+                ...filters,
+                updatedAt_gt: lastSyncedAt,
+                updatedAt_lte: syncCutoff,
+            }
+            const variables = { first, where }
             const userId = get(user, 'id')
             logger.info({ msg: 'tryGetData', url, entityId: subscriptionId, entity: 'WebhookSubscription', data: { variables, model, fields, userId } })
             const objs = await execGqlAsUser(keystone, user, {
@@ -88,63 +186,45 @@ async function sendWebhook (subscriptionId) {
             })
             logger.info({ msg: 'tryGetResult', url, entityId: subscriptionId, entity: 'WebhookSubscription', data: { data: objs, variables, model, fields, userId } })
 
-            lastLoaded = objs.length
-            // time is measured by the time of the last response from our server received
-            lastSyncTime = dayjs().toISOString()
+            return objs
+        }
 
-            // No more objects -> GOTO final update syncedAt
-            if (lastLoaded === 0) {
-                break
-            }
-
-            // Step 2: Send batch to specified url
-            const opts = { model, fields, variables, lastLoaded, totalLoaded, user }
-            logger.info({ msg: 'trySendData', url, entityId: subscriptionId, entity: 'WebhookSubscription', data: { data: objs, opts }  })
-            const response = await trySendData(url, objs)
-            logger.info({ msg: 'trySendResult', url, entityId: subscriptionId, entity: 'WebhookSubscription', status: response.status })
-
-            lastSendSuccess = response.ok
-
-            // If not succeed - log and finish task
-            if (!lastSendSuccess) {
-                const noFailureIncrementInterval = dayjs().subtract(1, 'hour')
-                const lastUpdate = dayjs(lastSubscriptionUpdate)
-                // NOTE: If no failures before or > 1 hour since last failure passed -> increment failuresCount
-                if (failuresCount === 0 || noFailureIncrementInterval.isAfter(lastUpdate)) {
-                    await WebhookSubscription.update(keystone, subscriptionId, {
-                        failuresCount: failuresCount + 1,
-                        dv: 1,
-                        sender: { dv: 1, fingerprint: 'sendWebhook' },
-                    })
-                }
-
-                if (response.status === 523) {
-                    return { status: NO_RESPONSE_STATUS }
-                } else {
-                    return { status: BAD_RESPONSE_STATUS }
-                }
-
-            } else {
-                totalLoaded += lastLoaded
-            }
-
-            // Step 3: Update subscription state if full batch received. Else condition will lead to final update
-            if (lastLoaded === packSize) {
+        while (dayjs(syncCutoff).isAfter(lastSyncedAt)) {
+            const batch = await getNextBatch(getObjects, packSize, syncCutoff)
+            if (batch.objs.length === 0) {
                 await WebhookSubscription.update(keystone, subscriptionId, {
-                    syncedAmount: totalLoaded,
+                    syncedAt: batch.syncedAt,
                     dv: 1,
                     sender: { dv: 1, fingerprint: 'sendWebhook' },
                 })
+                return { status: OK_STATUS }
+            }
+
+            const response = await sendBatch({
+                url,
+                objs: batch.objs,
+                packSize,
+                model,
+                fields,
+                user,
+                subscriptionId,
+            })
+            if (!response.ok) {
+                const status = await handleFailedResponse({ response, keystone, subscriptionId, failuresCount, lastSubscriptionUpdate: updatedAt })
+                return { status }
+            }
+
+            await WebhookSubscription.update(keystone, subscriptionId, {
+                syncedAt: batch.syncedAt,
+                dv: 1,
+                sender: { dv: 1, fingerprint: 'sendWebhook' },
+            })
+            lastSyncedAt = batch.syncedAt
+
+            if (batch.isLastBatch) {
+                return { status: OK_STATUS }
             }
         }
-
-        // TODO(pahaz): We do not need to update the WebhookSubscription if no updates are found, as we can utilize the same query and cache it.
-        //     We also want to prevent the unnecessary expansion of the history log/database
-        await WebhookSubscription.update(keystone, subscriptionId, {
-            syncedAt: lastSyncTime,
-            dv: 1,
-            sender: { dv: 1, fingerprint: 'sendWebhook' },
-        })
 
         return { status: OK_STATUS }
 

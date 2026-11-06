@@ -3,12 +3,21 @@ const pluralize = require('pluralize')
 
 const { fetch } = require('@open-condo/keystone/fetch')
 
+// Fetch the cursor timestamp without exposing it in the webhook payload.
+const WEBHOOK_SYNC_UPDATED_AT_FIELD = '_webhookSyncUpdatedAt'
+
 const buildQuery = (modelName, fields) => {
     const pluralName = pluralize.plural(modelName)
+    const closingBracketIndex = fields.lastIndexOf('}')
+    const fieldsWithSyncUpdatedAt = [
+        fields.slice(0, closingBracketIndex),
+        `${WEBHOOK_SYNC_UPDATED_AT_FIELD}: updatedAt`,
+        fields.slice(closingBracketIndex),
+    ].join(' ')
 
     return gql`
-        query ${modelName}WebhookQuery($first: Int!, $skip: Int!, $where: ${modelName}WhereInput!) {
-            objs: all${pluralName}(first: $first, skip: $skip, where: $where, sortBy: [updatedAt_ASC, id_ASC]) ${fields}
+        query ${modelName}WebhookQuery($first: Int!, $where: ${modelName}WhereInput!) {
+            objs: all${pluralName}(first: $first, where: $where, sortBy: [updatedAt_ASC, id_ASC]) ${fieldsWithSyncUpdatedAt}
         }
     `
 }
@@ -30,6 +39,7 @@ async function trySendData (url, data) {
 }
 
 module.exports = {
+    WEBHOOK_SYNC_UPDATED_AT_FIELD,
     buildQuery,
     trySendData,
 }
