@@ -48,6 +48,7 @@ const {
     validateNoDuplicateReceipts,
     validateNoDuplicateServiceConsumers,
     validateNoRecurrentPaymentContextForInvoiceMode,
+    validateInvoiceAddressFields,
     validateReceiptBelongsToServiceConsumer,
     validateReceiptsHavePositiveToPay,
     validateSingleAcquiringIntegration,
@@ -70,7 +71,11 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
         },
         {
             access: true,
-            type: 'input RegisterMultiPaymentInput { dv: Int!, sender: SenderFieldInput!, groupedReceipts: [RegisterMultiPaymentServiceConsumerInput!], recurrentPaymentContext: RecurrentPaymentContextWhereUniqueInput, invoices: [InvoiceWhereUniqueInput!] }',
+            type: 'input RegisterMultiPaymentInvoiceInput { id: ID!, addressKey: String, unitType: String, unitName: String }',
+        },
+        {
+            access: true,
+            type: 'input RegisterMultiPaymentInput { dv: Int!, sender: SenderFieldInput!, groupedReceipts: [RegisterMultiPaymentServiceConsumerInput!], recurrentPaymentContext: RecurrentPaymentContextWhereUniqueInput, invoices: [RegisterMultiPaymentInvoiceInput!] }',
         },
         {
             access: true,
@@ -101,6 +106,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 } else if (mode === REQUEST_MODE.INVOICES) {
                     validateNoDuplicateInvoices(invoices, context)
                     validateNoRecurrentPaymentContextForInvoiceMode(recurrentPaymentContext, context)
+                    validateInvoiceAddressFields(invoices, context)
                 } else {
                     throw new GQLError(ERRORS.INVALID_REQUEST_MODE, context)
                 }
@@ -191,6 +197,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                         groupedReceipts,
                         consumersByIds,
                         receiptsByIds,
+                        residentsById,
                         acquiringContextsByConsumerId,
                         billingIntegrationCurrencyCode,
                         sender,
@@ -198,6 +205,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     })
                     : await buildInvoicePaymentInputs({
                         foundInvoices,
+                        invoicesWithAddress: invoices,
                         acquiringContext: acquiringContexts[0],
                         acquiringIntegration,
                         sender,
