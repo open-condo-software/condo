@@ -129,9 +129,7 @@ function getWebhookSubscriptionModel (schemaPath) {
                 isRequired: true,
             },
             syncedAmount: {
-                schemaDoc: 'The number of objects successfully delivered by webhooks. ' +
-                    'On successful synchronization, the syncedAt field is updated and syncedAmount becomes 0. ' +
-                    'If the remote server fails, syncedAt will not be updated, and syncedAmount will increment to the number of successfully delivered objects.',
+                schemaDoc: '@deprecated - syncedAt + maxPackSize used for measuring state',
                 type: 'Integer',
                 isRequired: true,
                 defaultValue: 0,

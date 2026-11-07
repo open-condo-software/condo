@@ -89,7 +89,6 @@ const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer
             })
             expect(subscription).toHaveProperty('syncedAt')
             expect(subscription).toHaveProperty('failuresCount', 0)
-            expect(subscription).toHaveProperty('syncedAmount', 0)
             const initialSyncTime = dayjs(subscription.syncedAt)
 
             await sendWebhook.delay.fn(subscription.id)
@@ -98,9 +97,8 @@ const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer
             expect(updated).toHaveProperty('syncedAt')
             const syncTime = dayjs(updated.syncedAt)
             // NOTE: Only one user must be in sent data
-            expect(syncTime.isSame(initialSyncTime)).toEqual(true)
+            expect(syncTime.isAfter(initialSyncTime)).toEqual(true)
             expect(updated).toHaveProperty('failuresCount', 1)
-            expect(updated).toHaveProperty('syncedAmount', 1)
             expect(ODD_CALLS).toHaveLength(1)
             expect(ODD_CALLS[0]).toHaveLength(1)
 
@@ -108,10 +106,10 @@ const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer
 
             const newUpdated = await WebhookSubscription.getOne(actors.admin, { id: subscription.id })
             expect(newUpdated).toHaveProperty('syncedAt')
-            const newSyncTime = dayjs(updated.syncedAt)
+            const newSyncTime = dayjs(newUpdated.syncedAt)
             // NOTE: 1 more object is sent
-            expect(newSyncTime.isSame(initialSyncTime)).toEqual(true)
-            expect(newUpdated).toHaveProperty('syncedAmount', 2)
+            expect(newSyncTime.isAfter(initialSyncTime)).toEqual(true)
+            expect(newSyncTime.isAfter(syncTime)).toEqual(true)
             expect(ODD_CALLS).toHaveLength(2)
             expect(ODD_CALLS[1]).toHaveLength(1)
 
@@ -127,7 +125,6 @@ const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer
             // NOTE: Rest of objects was sent
             expect(lastSyncTime.isSame(initialSyncTime)).toEqual(false)
             expect(lastSyncTime.isAfter(initialSyncTime)).toEqual(true)
-            expect(lastUpdated).toHaveProperty('syncedAmount', 0)
             expect(lastUpdated).toHaveProperty('failuresCount', 0)
             expect(ODD_CALLS).toHaveLength(3)
             expect(ODD_CALLS[2].length).toBeGreaterThanOrEqual(1)
