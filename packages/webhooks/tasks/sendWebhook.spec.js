@@ -99,7 +99,7 @@ const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer
 
             const [hook] = await createTestWebhook(actors.admin, actors.admin.user)
             const [subscription] = await createTestWebhookSubscription(actors.admin, hook, {
-                syncedAt: dayjs(firstUser.createdAt).subtract(10, 'millisecond'),
+                syncedAt: dayjs(firstUser.createdAt).subtract(10, 'millisecond').toISOString(),
                 url,
             })
             expect(subscription).toHaveProperty('syncedAt')
@@ -132,7 +132,7 @@ const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer
 
             const [hook] = await createTestWebhook(actors.admin, actors.admin.user)
             const [subscription] = await createTestWebhookSubscription(actors.admin, hook, {
-                syncedAt: dayjs(firstUser.createdAt).subtract(10, 'millisecond'),
+                syncedAt: dayjs(firstUser.createdAt).subtract(10, 'millisecond').toISOString(),
                 url,
                 maxPackSize: 1,
             })
@@ -204,7 +204,7 @@ const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer
 
             const [hook] = await createTestWebhook(actors.admin, actors.admin.user)
             const [subscription] = await createTestWebhookSubscription(actors.admin, hook, {
-                syncedAt: dayjs(baseTime).subtract(5, 'millisecond'),
+                syncedAt: dayjs(baseTime).subtract(5, 'millisecond').toISOString(),
                 url,
                 maxPackSize: 1,
             })
@@ -255,7 +255,7 @@ const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer
 
             const [hook] = await createTestWebhook(actors.admin, actors.admin.user)
             const [subscription] = await createTestWebhookSubscription(actors.admin, hook, {
-                syncedAt: dayjs(collisionUser1.createdAt).subtract(5, 'millisecond'),
+                syncedAt: dayjs(collisionUser1.createdAt).subtract(5, 'millisecond').toISOString(),
                 url,
                 maxPackSize: 1,
             })
@@ -283,6 +283,28 @@ const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer
 
             await softDeleteTestWebhookSubscription(actors.admin, subscription.id)
             await softDeleteTestWebhook(actors.admin, hook.id)
+            delete ENDPOINTS[url]
+        })
+        it('Subsequent calls must not trigger data sending', async () => {
+            const url = faker.internet.url()
+            const endpoint = new WebhookEndpoint()
+            ENDPOINTS[url] = endpoint
+
+            const [hook] = await createTestWebhook(actors.admin, actors.admin.user)
+            const [subscription] = await createTestWebhookSubscription(actors.admin, hook, {
+                syncedAt: dayjs().toISOString(),
+                url,
+            })
+            expect(subscription).toHaveProperty('syncedAt')
+
+            await sendWebhook.delay.fn(subscription.id)
+            await sendWebhook.delay.fn(subscription.id)
+
+            expect(endpoint.calls).toHaveLength(0)
+
+            await softDeleteTestWebhookSubscription(actors.admin, subscription.id)
+            await softDeleteTestWebhook(actors.admin, hook.id)
+
             delete ENDPOINTS[url]
         })
     })
