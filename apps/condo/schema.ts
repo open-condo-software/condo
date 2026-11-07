@@ -123512,7 +123512,7 @@ export type WebhookSubscription = {
   newId?: Maybe<Scalars['String']['output']>;
   /**  Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
-  /**  The number of objects successfully delivered by webhooks. On successful synchronization, the syncedAt field is updated and syncedAmount becomes 0. If the remote server fails, syncedAt will not be updated, and syncedAmount will increment to the number of successfully delivered objects.  */
+  /**  @deprecated - syncedAt + maxPackSize used for measuring state  */
   syncedAmount?: Maybe<Scalars['Int']['output']>;
   /**  The time was the data was last synced. At the next synchronization, only objects that have changed since that time will be sent.  */
   syncedAt?: Maybe<Scalars['String']['output']>;

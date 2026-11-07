@@ -94260,8 +94260,7 @@ type WebhookSubscription {
   """
   syncedAt: String
 
-  """ The number of objects successfully delivered by webhooks. On successful synchronization, the syncedAt field is updated and syncedAmount becomes 0. If the remote server fails, syncedAt will not be updated, and syncedAmount will increment to the number of successfully delivered objects. 
-  """
+  """ @deprecated - syncedAt + maxPackSize used for measuring state """
   syncedAmount: Int
 
   """ The number of consecutive failures to send webhooks to a remote server. Field value is automatically incremented when the specified url is unavailable or the server response was not ok, but no more than once per hour. Field value is automatically reset to 0 when the remote server is successfully reached (syncedAt or syncedAmount changed), or can be manually reset by support. As soon as the counter reaches the value 10, which is interpreted as the unavailability of the external service for at least 10 hours, the webhook will stop being sent to this url. In this case, you will need to manually reset the counter via support to resume sending. 
