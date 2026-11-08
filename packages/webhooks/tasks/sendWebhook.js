@@ -72,6 +72,37 @@ function _buildWhere ({
     }
 }
 
+async function _updateSubscriptionOnFail ({
+    updatedAt,
+    failuresCount,
+    partiallySyncedItemIds,
+    syncedTo,
+    prevSyncedTo,
+    syncedAt,
+    keystone,
+    subscriptionId,
+}) {
+    const noFailureIncrementInterval = dayjs().subtract(1, 'hour')
+    const lastUpdate = dayjs(updatedAt)
+    const updatePayload = {}
+    if (failuresCount === 0 || noFailureIncrementInterval.isAfter(lastUpdate)) {
+        updatePayload.failuresCount = failuresCount + 1
+    }
+
+    const syncTimeToSave = partiallySyncedItemIds.length ? prevSyncedTo : syncedTo
+    if (syncTimeToSave !== syncedAt) {
+        updatePayload.syncedAt = syncTimeToSave
+    }
+
+    if (Object.keys(updatePayload).length > 0) {
+        await WebhookSubscription.update(keystone, subscriptionId, {
+            ...updatePayload,
+            dv: 1,
+            sender: { dv: 1, fingerprint: 'sendWebhook' },
+        })
+    }
+}
+
 async function _sendWebhook (subscriptionId) {
     const { keystone } = getSchemaCtx('WebhookSubscription')
     const subscription = await WebhookSubscription.getOne(
@@ -136,12 +167,23 @@ async function _sendWebhook (subscriptionId) {
             // query can potentially fail during refetch (partiallySyncedItemIds.length > 0),
             // so we override syncedTo to prevSyncedTo, so it will be saved instead
             err = queryErr
-            syncedTo = prevSyncedTo
+
+            await _updateSubscriptionOnFail({
+                updatedAt,
+                failuresCount,
+                partiallySyncedItemIds,
+                syncedTo,
+                prevSyncedTo,
+                syncedAt,
+                keystone,
+                subscriptionId,
+            })
+
+            return { status: NO_RESPONSE_STATUS }
+        } finally {
+            loggerData.data = objs
+            logger.info({ msg: 'tryGetResult', url, entityId: subscriptionId, entity: 'WebhookSubscription', data: loggerData, err })
         }
-
-        loggerData.data = objs
-        logger.info({ msg: 'tryGetResult', url, entityId: subscriptionId, entity: 'WebhookSubscription', data: loggerData, err })
-
 
         const itemsPack = objs.slice(0, packSize)
         hasMoreItems = (objs.length > packSize)
@@ -155,25 +197,16 @@ async function _sendWebhook (subscriptionId) {
             logger.info({ msg: 'trySendResult', url, entityId: subscriptionId, entity: 'WebhookSubscription', status: response.status })
 
             if (!response.ok) {
-                const noFailureIncrementInterval = dayjs().subtract(1, 'hour')
-                const lastUpdate = dayjs(updatedAt)
-                const updatePayload = {}
-                if (failuresCount === 0 || noFailureIncrementInterval.isAfter(lastUpdate)) {
-                    updatePayload.failuresCount = failuresCount + 1
-                }
-
-                const syncTimeToSave = partiallySyncedItemIds.length ? prevSyncedTo : syncedTo
-                if (syncTimeToSave !== syncedAt) {
-                    updatePayload.syncedAt = syncTimeToSave
-                }
-
-                if (Object.keys(updatePayload).length > 0) {
-                    await WebhookSubscription.update(keystone, subscriptionId, {
-                        ...updatePayload,
-                        dv: 1,
-                        sender: { dv: 1, fingerprint: 'sendWebhook' },
-                    })
-                }
+                await _updateSubscriptionOnFail({
+                    updatedAt,
+                    failuresCount,
+                    partiallySyncedItemIds,
+                    syncedTo,
+                    prevSyncedTo,
+                    syncedAt,
+                    keystone,
+                    subscriptionId,
+                })
 
                 return {
                     status: response.status === 523 ? NO_RESPONSE_STATUS : BAD_RESPONSE_STATUS,
