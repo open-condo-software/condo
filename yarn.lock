@@ -10055,6 +10055,7 @@ __metadata:
     jest-jasmine2: "catalog:"
     lodash: "catalog:"
     nock: "npm:^14.0.5"
+    pg: "npm:^8.11.3"
     pluralize: "catalog:"
   peerDependencies:
     "@graphql-tools/graphql-file-loader": ^7.5.17

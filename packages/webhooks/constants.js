@@ -1,4 +1,6 @@
 const DEFAULT_MAX_PACK_SIZE = 100
+const ID_FIELD_ALIAS = '_webhookIdField'
+const UPDATED_AT_FIELD_ALIAS = '_webhookUpdatedAtField'
 // TODO(DOMA-4570) Correct this value based on received stats, when actual skip-send logic will be implemented
 const DEFAULT_UNAVAILABILITY_THRESHOLD = 10
 
@@ -38,6 +40,8 @@ const WEBHOOK_PAYLOAD_RETENTION_IN_SEC = 42 * 24 * 60 * 60 // 42 days
 const WEBHOOK_PAYLOAD_MAX_RESPONSE_LENGTH = 1000
 
 module.exports = {
+    ID_FIELD_ALIAS,
+    UPDATED_AT_FIELD_ALIAS,
     DEFAULT_MAX_PACK_SIZE,
     DEFAULT_UNAVAILABILITY_THRESHOLD,
     WEBHOOK_PAYLOAD_STATUS_PENDING,

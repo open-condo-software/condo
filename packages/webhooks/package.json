@@ -38,7 +38,8 @@
     "express": "catalog:",
     "jest": "catalog:",
     "jest-jasmine2": "catalog:",
-    "nock": "^14.0.5"
+    "nock": "^14.0.5",
+    "pg": "^8.11.3"
   },
   "peerDependencies": {
     "@graphql-tools/graphql-file-loader": "^7.5.17",
