@@ -17,19 +17,19 @@ jobs:
       PULL_PERSONAL_ACCESS_KEY: ${{ secrets.PULL_PERSONAL_ACCESS_KEY }}
     steps:
       - name: Login to Container Registry
-        uses: docker/login-action@v3.7.0
+        uses: docker/login-action@v3
         with:
           registry: ${{ secrets.DOCKER_REGISTRY }}
           username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
           password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
       - name: Checkout code
-        uses: actions/checkout@v4.4.0
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           submodules: recursive
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
       - name: Install SSH key
-        uses: shimataro/ssh-key-action@v2.8.1
+        uses: shimataro/ssh-key-action@v2
         with:
           key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
           name: id_rsa
