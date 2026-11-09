@@ -73,8 +73,9 @@ async function evaluateRenewalCandidate (context, invoiceId, invoiceContexts) {
     }
 
     const payments = await find('Payment', { invoice: { id: invoiceId }, deletedAt: null })
-    // No payments means the invoice was registered to be paid by bank transfer: charging the card would take the money twice
-    if (payments.length === 0) return { ...renewal, skipReason: 'PAID_BY_TRANSFER' }
+    const isPaidByTransfer = payments.length === 0
+        || invoiceContexts.some(subscriptionContext => subscriptionContext.frozenPaymentInfo?.paymentType === SUBSCRIPTION_PAYMENT_TYPE_INVOICE)
+    if (isPaidByTransfer) return { ...renewal, skipReason: 'PAID_BY_TRANSFER' }
     // The gateway moves only the MultiPayment to PROCESSING when it charges; payments turn DONE later, from the provider webhook.
     // Either one started means the money may already be taken
     const multiPaymentIds = [...new Set(payments.map(payment => payment.multiPayment).filter(Boolean))]
