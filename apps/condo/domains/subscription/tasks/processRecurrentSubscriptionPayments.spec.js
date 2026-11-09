@@ -8,7 +8,7 @@ const { encryptionManager } = require('@open-condo/webhooks/utils/encryption')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { MULTIPAYMENT_PROCESSING_STATUS } = require('@condo/domains/acquiring/constants/payment')
-const { Payment, createTestAcquiringIntegration, createTestAcquiringIntegrationContext, updateTestMultiPayment } = require('@condo/domains/acquiring/utils/testSchema')
+const { Payment, createTestAcquiringIntegration, createTestAcquiringIntegrationContext, registerMultiPaymentByTestClient, updateTestMultiPayment } = require('@condo/domains/acquiring/utils/testSchema')
 const { WEBHOOK_EVENT_SUBSCRIPTION_INVOICE_REQUESTED } = require('@condo/domains/common/constants/webhooks')
 const { INVOICE_STATUS_CANCELED, INVOICE_STATUS_PUBLISHED, INVOICE_STATUS_PAID, INVOICE_TYPE_B2B } = require('@condo/domains/marketplace/constants')
 const { Invoice, createTestInvoice, updateTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
@@ -733,6 +733,22 @@ describe('processRecurrentSubscriptionPayments', () => {
             expect(chargesOf(proceedPaymentSpy, organization.id)).toHaveLength(0)
             const invoices = await Invoice.getAll(adminClient, { payerOrganization: { id: organization.id } })
             expect(invoices).toHaveLength(1)
+        })
+
+        test('does not charge the card for a bank transfer renewal even if its invoice got a payment', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+            await createCardContext(organization, dayjs().subtract(1, 'day').format('YYYY-MM-DD'))
+            const [{ subscriptionContexts }] = await registerSubscriptionContextsByTestClient(adminClient, {
+                organization: { id: organization.id },
+                subscriptionPlanPricingRules: [{ id: pricingRule.id }],
+                paymentType: 'invoice',
+            })
+            await registerMultiPaymentByTestClient(adminClient, undefined, { invoices: [{ id: subscriptionContexts[0].invoice.id }] })
+            const proceedPaymentSpy = mockFailedPayment()
+
+            await processRecurrentSubscriptionPayments()
+
+            expect(chargesOf(proceedPaymentSpy, organization.id)).toHaveLength(0)
         })
 
         test('closes a renewal whose invoice was cancelled and registers a new one', async () => {
