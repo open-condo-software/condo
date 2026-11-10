@@ -6,7 +6,6 @@ const { BillingIntegration, BillingIntegrationAccessRight } = require('@condo/do
 const { SERVICE } = require('@condo/domains/user/constants/common')
 const { User } = require('@condo/domains/user/utils/serverSchema')
 
-
 function getJson (data) {
     try {
         return JSON.parse(data)
