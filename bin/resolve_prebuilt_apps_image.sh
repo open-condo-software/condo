@@ -16,5 +16,6 @@ else
         echo "Normal production deploy requires a successful Condo CI build for this commit."
         exit 1
     fi
-    echo "CI image not found for ${SHA}, falling back to full werf build"
+    echo "CI image not found for ${SHA}: $IMAGE"
+    echo "Falling back to full werf build"
 fi
