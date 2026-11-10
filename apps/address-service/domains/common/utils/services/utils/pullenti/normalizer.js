@@ -170,6 +170,10 @@ function normalize (rawXmlString) {
         stead ? `${stead_type_full} ${stead}` : null,
     ].filter(Boolean).join(', ')
 
+    // Existing clients accept buildings and read house fields only. Expose the entire stead leaf as a house,
+    // retaining the original stead fields and FIAS value. Steads have no house KLADR equivalent.
+    const mimicSteadAsHouse = !house_fias_id && Boolean(stead_fias_id)
+
     return {
         value,
         unrestricted_value: [postal_code, path].filter(Boolean).join(', '),
@@ -222,12 +226,12 @@ function normalize (rawXmlString) {
             stead_type,
             stead_type_full,
             stead,
-            house_fias_id,
-            house_kladr_id,
-            house_cadnum,
-            house_type,
-            house_type_full,
-            house,
+            house_fias_id: mimicSteadAsHouse ? stead_fias_id : house_fias_id,
+            house_kladr_id: mimicSteadAsHouse ? null : house_kladr_id,
+            house_cadnum: mimicSteadAsHouse ? stead_cadnum : house_cadnum,
+            house_type: mimicSteadAsHouse ? stead_type : house_type,
+            house_type_full: mimicSteadAsHouse ? stead_type_full : house_type_full,
+            house: mimicSteadAsHouse ? stead : house,
             block_type,
             block_type_full,
             block,
@@ -272,7 +276,7 @@ function normalize (rawXmlString) {
             name: PULLENTI_PROVIDER,
             rawData: rawXmlString,
         },
-        type: VALID_DADATA_BUILDING_TYPES.includes(house_type_full) ? BUILDING_ADDRESS_TYPE : null,
+        type: mimicSteadAsHouse || VALID_DADATA_BUILDING_TYPES.includes(house_type_full) ? BUILDING_ADDRESS_TYPE : null,
     }
 }
 

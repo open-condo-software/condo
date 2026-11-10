@@ -315,12 +315,28 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
         // So, transform data field-by-field
         // Yes, at the beginning it will be 1-to-1 copying
         return data.map((item) => {
+            let houseFiasId = get(item, ['data', 'house_fias_id'])
+            let houseKladrId = get(item, ['data', 'house_kladr_id'])
+            let houseCadnum = get(item, ['data', 'house_cadnum'])
+            let houseType = get(item, ['data', 'house_type'])
+            let houseTypeFull = get(item, ['data', 'house_type_full'])
+            let house = get(item, ['data', 'house'])
+
+            const stead = get(item, ['data', 'stead'])
+            const steadFiasId = get(item, ['data', 'stead_fias_id'])
+            const useSteadFields = !houseFiasId && Boolean(steadFiasId)
             let type = null
-            if (get(item, ['data', 'stead_fias_id'])) {
-                // External consumers (mobile application) accept only 'building'; expose steads as buildings for compatibility.
-                // type = STEAD_ADDRESS_TYPE
+            if (useSteadFields) {
+                // Existing clients accept buildings and read house fields only. Expose the entire stead leaf as a house,
+                // retaining the original stead fields and FIAS value. Steads have no house KLADR equivalent.
                 type = BUILDING_ADDRESS_TYPE
-            } else if (VALID_DADATA_BUILDING_TYPES.includes(get(item, ['data', 'house_type_full']))) {
+                houseFiasId = steadFiasId
+                houseKladrId = null
+                houseCadnum = get(item, ['data', 'stead_cadnum'])
+                houseType = get(item, ['data', 'stead_type'])
+                houseTypeFull = get(item, ['data', 'stead_type_full'])
+                house = stead
+            } else if (steadFiasId || VALID_DADATA_BUILDING_TYPES.includes(houseTypeFull)) {
                 type = BUILDING_ADDRESS_TYPE
             }
 
@@ -376,12 +392,12 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
                     stead_type: get(item, ['data', 'stead_type']),
                     stead_type_full: get(item, ['data', 'stead_type_full']),
                     stead: get(item, ['data', 'stead']),
-                    house_fias_id: get(item, ['data', 'house_fias_id']),
-                    house_kladr_id: get(item, ['data', 'house_kladr_id']),
-                    house_cadnum: get(item, ['data', 'house_cadnum']),
-                    house_type: get(item, ['data', 'house_type']),
-                    house_type_full: get(item, ['data', 'house_type_full']),
-                    house: get(item, ['data', 'house']),
+                    house_fias_id: houseFiasId,
+                    house_kladr_id: houseKladrId,
+                    house_cadnum: houseCadnum,
+                    house_type: houseType,
+                    house_type_full: houseTypeFull,
+                    house,
                     block_type: get(item, ['data', 'block_type']),
                     block_type_full: get(item, ['data', 'block_type_full']),
                     block: get(item, ['data', 'block']),

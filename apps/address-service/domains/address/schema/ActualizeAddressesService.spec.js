@@ -104,10 +104,47 @@ describe('ActualizeAddressesService', () => {
 
     describe('implements logic correctly', () => {
         describe('for dadata provider', () => {
-            describe('when returns a failure', () => {
-                test('if try to actualize address without house_fias_id', async () => {
+            test.each(['fallback', 'fias_id'])('actualizes a stead using its raw FIAS ID with an initial %s key', async (keyType) => {
+                const steadId = faker.datatype.uuid()
+                const suggestionItem = generateDadataSuggestionItem({
+                    value: `участок ${steadId}`,
+                    unrestricted_value: `участок ${steadId}`,
+                }, {
+                    house_fias_id: null,
+                    house_type: null,
+                    house_type_full: null,
+                    house: null,
+                    stead_fias_id: steadId,
+                    stead: '42',
+                    stead_type: 'уч',
+                    stead_type_full: 'участок',
+                    fias_id: steadId,
+                })
+                const searchProvider = new DadataSearchProvider({ req: { id: faker.datatype.uuid() } })
+                const [normalized] = searchProvider.normalize([suggestionItem])
+                const oldKey = keyType === 'fias_id' ? `fias_id:${steadId}` : `fallback:${faker.datatype.uuid()}`
+                const addressData = buildAddressModelData(normalized, oldKey, searchProvider.getProviderName(), suggestionItem)
+                addressData.meta.data = { ...normalized.data, house: null, house_type: null, house_type_full: null, house_fias_id: null }
+                const createdAddress = await createOrUpdateAddressWithSource(adminClient, Address, AddressSource, addressData, suggestionItem.value, dvSender)
+                mockedCallToDadata.mockResolvedValueOnce({ suggestions: [suggestionItem] })
+
+                const [result] = await actualizeAddressesByTestClient(supportClient, [{ id: createdAddress.id }])
+
+                expect(result).toEqual({ successIds: [createdAddress.id], failures: [] })
+                expect(mockedCallToDadata).toHaveBeenCalledWith(expect.stringContaining('/findById/address'), { query: steadId })
+                const updatedAddress = await Address.getOne(supportClient, { id: createdAddress.id })
+                expect(updatedAddress.key).toBe(`fias_id:${steadId}`)
+                expect(updatedAddress.meta.data.house_fias_id).toBe(steadId)
+                expect(updatedAddress.meta.data.house).toBe('42')
+                expect(updatedAddress.meta.provider.rawData.data.house_fias_id).toBeNull()
+                expect(updatedAddress.meta.provider.rawData.data.stead_fias_id).toBe(steadId)
+            })
+
+            describe('when handling provider results', () => {
+                test('if try to actualize address without house_fias_id or stead_fias_id', async () => {
                     const suggestionItem = generateDadataSuggestionItem({}, {
                         house_fias_id: null,
+                        stead_fias_id: null,
                     })
 
                     mockedCallToDadata.mockImplementationOnce(() => {
@@ -131,12 +168,12 @@ describe('ActualizeAddressesService', () => {
                         successIds: [],
                         failures: [{
                             addressId: createdAddress.id,
-                            errorMessage: 'No house_fias_id in meta.provider.rawData.data',
+                            errorMessage: 'No house_fias_id or stead_fias_id in meta.provider.rawData.data',
                         }],
                     })
                 })
 
-                test('if try to actualize with the same key', async () => {
+                test('refreshes address text and metadata with the same key without deleting itself', async () => {
                     const suggestionItem = generateDadataSuggestionItem()
 
                     mockedCallToDadata.mockImplementationOnce(() => {
@@ -151,18 +188,24 @@ describe('ActualizeAddressesService', () => {
                     const addressData = buildAddressModelData(searchResult, addressKey, searchProvider.getProviderName(), denormalizedRows[0])
                     const createdAddress = await createOrUpdateAddressWithSource(adminClient, Address, AddressSource, addressData, s, dvSender)
 
-                    mockedCallToDadata.mockImplementationOnce(() => {
-                        return { suggestions: [suggestionItem] }
-                    })
+                    const refreshedItem = generateDadataSuggestionItem({
+                        value: `${s} updated`,
+                        unrestricted_value: `${suggestionItem.unrestricted_value} updated`,
+                    }, { ...suggestionItem.data, house: '99', postal_code: '123456' })
+                    mockedCallToDadata.mockResolvedValueOnce({ suggestions: [refreshedItem] })
 
                     const [actualizeResult] = await actualizeAddressesByTestClient(supportClient, [{ id: createdAddress.id }])
-                    expect(actualizeResult).toEqual({
-                        successIds: [],
-                        failures: [{
-                            addressId: createdAddress.id,
-                            errorMessage: `The addressKey was not changed: ${addressKey}`,
-                        }],
-                    })
+                    expect(actualizeResult).toEqual({ successIds: [createdAddress.id], failures: [] })
+                    const updatedAddress = await Address.getOne(supportClient, { id: createdAddress.id })
+                    expect(updatedAddress).toBeDefined()
+                    expect(updatedAddress.key).toBe(addressKey)
+                    expect(updatedAddress.deletedAt).toBeNull()
+                    expect(updatedAddress.address).toBe(refreshedItem.value)
+                    expect(updatedAddress.meta.data.house).toBe('99')
+                    expect(updatedAddress.meta.data.postal_code).toBe('123456')
+                    expect(updatedAddress.meta.provider.rawData).toEqual(refreshedItem)
+                    const sources = await AddressSource.getAll(supportClient, { address: { id: createdAddress.id } })
+                    expect(sources.length).toBeGreaterThan(0)
                 })
 
                 test('if Dadata can\'t find an address', async () => {
