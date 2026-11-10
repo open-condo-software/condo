@@ -49,18 +49,15 @@ const ActualizeAddressesService = new GQLCustomSchema('ActualizeAddressesService
                         continue
                     }
 
-                    const { key, meta } = addressModelData
+                    const { meta } = addressModelData
                     const { provider: { name: providerName } } = meta
 
                     if (providerName === DADATA_PROVIDER) {
-                        let fiasId
-
                         dataForLog.providerName = providerName
 
-                        if (meta.provider?.rawData?.data?.house_fias_id) {
-                            fiasId = meta.provider.rawData.data.house_fias_id
-                        } else {
-                            failures.push({ addressId, errorMessage: 'No house_fias_id in meta.provider.rawData.data' })
+                        const fiasId = meta.provider?.rawData?.data?.house_fias_id || meta.provider?.rawData?.data?.stead_fias_id
+                        if (!fiasId) {
+                            failures.push({ addressId, errorMessage: 'No house_fias_id or stead_fias_id in meta.provider.rawData.data' })
                             continue
                         }
 
@@ -86,13 +83,9 @@ const ActualizeAddressesService = new GQLCustomSchema('ActualizeAddressesService
                         dataForLog.denormalizedResult = denormalizedResult
                         dataForLog.addressKey = addressKey
 
-                        if (key === addressKey) {
-                            failures.push({ addressId, errorMessage: `The addressKey was not changed: ${addressKey}` })
-                            continue
-                        }
-
                         const existingAddress = await getByCondition('Address', { key: addressKey })
-                        if (existingAddress) {
+                        // An unchanged key resolves to this address: refresh it without merging it into itself.
+                        if (existingAddress && existingAddress.id !== addressId) {
                             dataForLog.existingAddress = existingAddress
                             await mergeAddresses(context, addressId, existingAddress.id, { dv, sender })
                         }
