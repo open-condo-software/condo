@@ -50,7 +50,13 @@ export type CondoTaskRecord = Pick<BaseTaskRecord, 'progress' | 'sender' | 'stat
 export type TaskProgressTranslations<TTaskRecord extends BaseTaskRecord = BaseTaskRecord> = {
     title: (task: TTaskRecord) => string
     description: (task: TTaskRecord) => string | React.ReactNode
-    link?: (task: TTaskRecord) => { label: string, url: string }
+    link?: (task: TTaskRecord) => TaskProgressLink
+}
+
+export type TaskProgressLink = {
+    label: string
+    onClick?: () => void
+    url?: string
 }
 
 // Meaning of task progress is domain specific
@@ -102,6 +108,7 @@ export interface ITask<TTaskRecord extends BaseTaskRecord = BaseTaskRecord> {
     removeStrategy: Array<TASK_REMOVE_STRATEGY>
     translations: TaskProgressTranslations<TTaskRecord>
     calculateProgress: CalculateProgressFunc<TTaskRecord>
+    canCancel?: (taskRecord: TTaskRecord) => boolean
     onComplete: OnCompleteFunc<TTaskRecord>
     onCancel: OnCancelFunc<TTaskRecord>
     onError?: OnErrorFunc<TTaskRecord>

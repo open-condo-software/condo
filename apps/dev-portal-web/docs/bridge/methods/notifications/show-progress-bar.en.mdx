@@ -15,9 +15,12 @@ which the notification describes.
 | message        | string                                            | yes          | Notification header. For example: "Uploading data".                                                                             |
 | description    | string                                            | no           | The body of the notification, which should describe the details of the notification                                             |
 | externalTaskId | string                                            | no           | The ID of your task that this notification describes. Useful for syncing when a user logs out / logs in to the mini-application |
+| disableCancel  | boolean                                           | no           | Prevents Condo from showing a cancellation control. Use this when the underlying process cannot be cancelled.                    |
+| background     | `{ url }`                                         | no           | Same-origin iframe page that Condo keeps alive in the background while this bar is active.                                       |
+| action         | `{ type, label, url \| modal }`                   | no           | Optional same-origin link or miniapp-modal action.                                                                              |
 
 <Alert type='info'>
-    You can also update these values later with the [CondoWebAppUpdateProgressBar](/docs/bridge/methods/notifications/update-progress-bar) method
+    You can update the bar state and action later with the [CondoWebAppUpdateProgressBar](/docs/bridge/methods/notifications/update-progress-bar) method. `background` is set only when creating a bar.
 </Alert>
 
 ## Return value
@@ -35,9 +38,14 @@ bridge.send('CondoWebAppShowProgressBar', {
     message: 'Uploading some data',
     description: 'Please keep the page open',
     externalTaskId: '26abf417-9159-488d-a446-595e987d8802',
+    background: { url: 'https://miniapp.example/import-progress?importId=123' },
 }).then((data) => {
     console.log(data.barId)
 })
 ```
 
 ![progress-bar-example](/bridge/show-progress-bar.png)
+
+Use `background` only for an iframe miniapp page at the same origin. Condo removes the hidden iframe as soon as the bar receives a terminal status.
+
+`action` is either a same-origin link (`{ type: 'link', label, url }`) or a modal action (`{ type: 'modal', label, modal }`).

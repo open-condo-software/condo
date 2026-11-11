@@ -1,3 +1,5 @@
+import type { ProgressBarAction } from './ShowProgressBar'
+
 export type GetActiveProgressBarsParams = Record<string, never>
 
 export type GetActiveProgressBarData = {
@@ -6,6 +8,8 @@ export type GetActiveProgressBarData = {
     description?: string
     progress: number
     externalTaskId?: string
+    disableCancel?: boolean
+    action?: ProgressBarAction
 }
 
 export type GetActiveProgressBarsData = {

@@ -21,7 +21,15 @@ If successful, the method will return a JSON object containing the `bars` field 
       "message": "Uploading some data",
       "description": "Please keep the page open",
       "progress": 0,
-      "externalTaskId": "de74da8d-207a-4a25-bf52-5bce25efe860"
+      "externalTaskId": "de74da8d-207a-4a25-bf52-5bce25efe860",
+      "action": {
+        "type": "modal",
+        "label": "Details",
+        "modal": {
+          "title": "Import details",
+          "url": "https://miniapp.example/details"
+        }
+      }
     },
     {
       "id": "30cc8153-2d71-4be5-98dd-f2eae4cbfc82",
