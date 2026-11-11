@@ -82,14 +82,18 @@ const TaskIconsWrapper = styled.div<{ cursor?: 'pointer' | 'default' }>`
     }
 `
 
-const TaskIconsHoverSwitcher = ({ progress, taskStatus, removeTask }) => {
+const TaskIconsHoverSwitcher = ({ progress, taskStatus, removeTask, canCancel }) => {
     const [isHovered, setIsHovered] = useState(false)
+    const canRemoveTask = taskStatus !== TASK_PROCESSING_STATUS || canCancel
 
     return (
         <TaskIconsWrapper
-            onMouseEnter={() => setIsHovered(true)}
+            cursor={canRemoveTask ? 'pointer' : 'default'}
+            onMouseEnter={() => {
+                if (canRemoveTask) setIsHovered(true)
+            }}
             onMouseLeave={() => setIsHovered(false)}
-            onClick={removeTask}
+            onClick={canRemoveTask ? removeTask : undefined}
         >
             {
                 taskStatus === TASK_COMPLETED_STATUS
@@ -98,7 +102,7 @@ const TaskIconsHoverSwitcher = ({ progress, taskStatus, removeTask }) => {
                         : <Check size='medium' color={colors.green['5']} />
                     ) : taskStatus === TASK_ERROR_STATUS
                         ? <CloseCircleIcon />
-                        : (isHovered ? <Close size='medium' color={colors.red['5']} /> : <CircularProgress progress={progress}/>)
+                        : (canCancel && isHovered ? <Close size='medium' color={colors.red['5']} /> : <CircularProgress progress={progress}/>)
             }
         </TaskIconsWrapper>
     )
@@ -109,6 +113,7 @@ interface ITaskProgressProps {
     translations: TaskProgressTranslations
     progress: TaskRecordProgress
     removeTask: () => void
+    canCancel: boolean
     isDesktop: boolean
     isAllTasksFinished: boolean
 }
@@ -116,12 +121,14 @@ interface ITaskProgressProps {
 /**
  * Displays task as an item in tasks list on panel
  */
-export const TaskProgress = ({ task, translations, progress, removeTask, isDesktop, isAllTasksFinished }: ITaskProgressProps) => {
+export const TaskProgress = ({ task, translations, progress, removeTask, canCancel, isDesktop, isAllTasksFinished }: ITaskProgressProps) => {
     const intl = useIntl()
     const DeleteTitle = intl.formatMessage({ id: 'Delete' })
     const CancelTitle = intl.formatMessage({ id: 'Cancel' })
 
     const isProcessing = task.status === TASK_PROCESSING_STATUS
+    const link = translations.link?.(task)
+    const description = translations.description(task)
 
     return (
         <List.Item style={RELATIVE_CONTAINER_STYLE}>
@@ -132,9 +139,16 @@ export const TaskProgress = ({ task, translations, progress, removeTask, isDeskt
                             {translations.title(task)}
                         </Typography.Title>
                     }
-                    description={translations.description(task)}
+                    description={link ? (
+                        <Space direction='vertical' size={0} width='100%'>
+                            {description}
+                            <Typography.Link size='large' href={link.url} onClick={link.onClick}>
+                                {link.label}
+                            </Typography.Link>
+                        </Space>
+                    ) : description}
                 />
-                {!isDesktop && (
+                {!isDesktop && (!isProcessing || canCancel) && (
                     <Typography.Text type={isProcessing ? 'primary' : 'danger'} onClick={removeTask}>
                         {isProcessing ? CancelTitle : DeleteTitle}
                     </Typography.Text>
@@ -146,6 +160,7 @@ export const TaskProgress = ({ task, translations, progress, removeTask, isDeskt
                         progress={progress}
                         taskStatus={task.status}
                         removeTask={removeTask}
+                        canCancel={canCancel}
                     />)
                     : (<TaskIconsWrapper cursor='default'>
                         <Check size='medium' color={colors.green['5']} />
@@ -169,7 +184,7 @@ const handledTerminalStatesOfTasksIds = []
  * Polls tasks record for updates and handles its transition to completed status.
  */
 export const TaskProgressTracker: React.FC<ITaskProgressTrackerProps> = ({ task, isDesktop, isAllTasksFinished }) => {
-    const { storage, removeStrategy, calculateProgress, onComplete, onCancel, onError, translations } = task
+    const { storage, removeStrategy, calculateProgress, canCancel, onComplete, onCancel, onError, translations } = task
     const { record, stopPolling } = storage.useTask(task.record.id)
 
     const { deleteTask: deleteTaskFromContext, updateTask } = useTasks()
@@ -193,11 +208,12 @@ export const TaskProgressTracker: React.FC<ITaskProgressTrackerProps> = ({ task,
     const handleRemoveTask = useCallback(async () => {
         // Tasks under processing should be cancelled before removing from UI
         if (record.status === TASK_PROCESSING_STATUS) {
+            if (canCancel && !canCancel(record)) return
             cancelTaskAndRemoveFromUI({}, record)
         } else {
             removeTaskFromUI()
         }
-    }, [record, cancelTaskAndRemoveFromUI, removeTaskFromUI])
+    }, [record, canCancel, cancelTaskAndRemoveFromUI, removeTaskFromUI])
 
     useEffect(() => {
         if (record && record.status !== TASK_PROCESSING_STATUS) {
@@ -230,6 +246,7 @@ export const TaskProgressTracker: React.FC<ITaskProgressTrackerProps> = ({ task,
             progress={calculateProgress(record)}
             translations={translations}
             removeTask={handleRemoveTask}
+            canCancel={canCancel ? canCancel(record) : true}
             isDesktop={isDesktop}
             isAllTasksFinished={isAllTasksFinished}
         />

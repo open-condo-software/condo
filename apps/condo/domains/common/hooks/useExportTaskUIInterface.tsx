@@ -85,26 +85,15 @@ export const useExportTaskUIInterface = <TExportTaskName extends keyof ExportTas
                 const taskStatus = taskRecord?.status
                 const totalRecordsCount = taskRecord?.totalRecordsCount
                 const exportedRecordsCount = taskRecord?.exportedRecordsCount
-                const publicUrl = taskRecord?.file?.publicUrl
 
                 return taskStatus === TASK_COMPLETED_STATUS
                     ? (
-                        <>
-                            <Typography.Text
-                                type='secondary'
-                                size='small'
-                            >
-                                {ExportTaskProgressDescriptionCompleted}
-                            </Typography.Text>
-                            {publicUrl && (
-                                <>
-                                    <br/>
-                                    <Typography.Link size='large' href={publicUrl}>
-                                        {ExportTaskProgressDescriptionCompletedLinkLabel}
-                                    </Typography.Link>
-                                </>
-                            )}
-                        </>
+                        <Typography.Text
+                            type='secondary'
+                            size='small'
+                        >
+                            {ExportTaskProgressDescriptionCompleted}
+                        </Typography.Text>
                     ) : !totalRecordsCount || !exportedRecordsCount
                         ? ExportTaskProgressDescriptionPreparing
                         : ExportTaskProgressDescriptionProcessing
@@ -113,10 +102,11 @@ export const useExportTaskUIInterface = <TExportTaskName extends keyof ExportTas
             },
             link: (taskRecord) => {
                 const taskStatus = taskRecord?.status
-                if (taskStatus === TASK_COMPLETED_STATUS) {
+                const publicUrl = taskRecord?.file?.publicUrl
+                if (taskStatus === TASK_COMPLETED_STATUS && publicUrl) {
                     return {
                         label: ExportTaskProgressDescriptionCompletedLinkLabel,
-                        url: taskRecord?.file?.publicUrl,
+                        url: publicUrl,
                     }
                 }
                 return null

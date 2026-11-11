@@ -9,7 +9,23 @@ This method allows you to update a previously created [progress bar notification
 | Parameter name | Parameter type                                    | Required     | Parameter description                                                                                                                                                                                      |
 |----------------|---------------------------------------------------|--------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | barId          | string                                            | yes          | Progress bar ID                                                                                                                                                                                            |
-| data           | JSON                                              | yes          | Data to update. Any field from the ones [indicated in the notification creation](/docs/bridge/methods/notifications/show-progress-bar#method-params) can be updated as well as the numeric progress fields |
+| data           | JSON                                              | yes          | Data to update: `message`, `description`, `progress`, `disableCancel`, `status`, or `action`. The background URL is set only when creating a bar. |
+
+`data.progress` accepts a number from `0` to `100`. Set `data.status` to `completed` or `error` to finish the bar. A completed bar may include an action that opens a same-origin miniapp modal:
+
+Use `{ type: 'link', label, url }` for a same-origin link or `{ type: 'modal', label, modal }` to open a modal.
+
+```typescript
+action: {
+    type: 'modal',
+    label: 'Details',
+    modal: {
+        title: 'Import details',
+        url: 'https://miniapp.example/details',
+        size: 'big',
+    },
+}
+```
 
 ## Return value
 
