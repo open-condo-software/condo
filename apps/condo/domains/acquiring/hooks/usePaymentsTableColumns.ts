@@ -1,21 +1,18 @@
 import { GetB2BAppContextWithPosIntegrationConfigQuery } from '@app/condo/gql'
-import get from 'lodash/get'
-import { useRouter } from 'next/router'
+import { Payment } from '@app/condo/schema'
 import { useMemo } from 'react'
 
-
-
 import { useIntl } from '@open-condo/next/intl'
+import { TableColumn } from '@open-condo/ui'
 
 import { getPosReceiptUrlRender } from '@condo/domains/acquiring/components/payments/getPosReceiptUrlRender'
 import {
+    getColumnTooltip,
     getDateRender,
     getMoneyRender,
     getStatusRender,
     getTextRender,
-    getColumnTooltip,
 } from '@condo/domains/common/components/Table/Renders'
-import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 
 import { LastTestingPosReceiptData } from './usePosIntegrationLastTestingPosReceipt'
 
@@ -26,11 +23,20 @@ type PaymentsTableColumnsOptions = {
     acquiringContexts?: AcquiringIntegrationContext[]
     lastTestingPosReceipt?: LastTestingPosReceiptData
     posIntegrationContext?: GetB2BAppContextWithPosIntegrationConfigQuery['contexts'][number]
+    search?: string
 }
 
-export function usePaymentsTableColumns (currencyCode: string, openStatusDescModal, options: PaymentsTableColumnsOptions = {}): Record<string, unknown>[] {
+type PaymentColumn = TableColumn<Payment>
+type PaymentDataKey = Extract<PaymentColumn, { dataKey: unknown }>['dataKey']
+
+const paymentDataKey = <TKey extends PaymentDataKey>(value: TKey): TKey => value
+
+export function usePaymentsTableColumns (
+    currencyCode: string,
+    openStatusDescModal,
+    options: PaymentsTableColumnsOptions = {}
+): PaymentColumn[] {
     const intl = useIntl()
-    const router = useRouter()
 
     const AddressTitle = intl.formatMessage({ id: 'field.Address' })
     const DateTitle = intl.formatMessage({ id: 'Date' })
@@ -45,82 +51,102 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
     const PosReceiptVerifyTitle = intl.formatMessage({ id: 'pages.condo.payments.posReceiptVerifyTitle' })
     const PosReceiptVerifyDescription = intl.formatMessage({ id: 'pages.condo.payments.posReceiptVerifyDescription' })
 
-    const { filters } = parseQuery(router.query)
-
     return useMemo(() => {
-        let search = get(filters, 'search')
-        search = Array.isArray(search) ? null : search
-
-        const stringSearch = getTextRender(String(search))
+        const stringRender = getTextRender(options.search)
         const hasSourceColumn = Boolean(options.acquiringContexts?.length > 1)
         const hasPosReceiptUrlColumn = Boolean(options.posIntegrationContext)
 
-        const columns = {
+        const columns: Record<string, PaymentColumn | null> = {
             depositedDate: {
-                title: DateTitle,
-                key: 'depositedDate',
-                dataIndex: ['depositedDate'],
-                sorter: true,
-                width: '11%',
-                render: getDateRender(intl, String(search)),
+                header: DateTitle,
+                id: 'depositedDate',
+                dataKey: paymentDataKey('depositedDate'),
+                enableSorting: true,
+                initialSize: '11%',
+                render: getDateRender(intl, options.search),
             },
             account: {
-                title: AccountTitle,
-                key: 'accountNumber',
-                dataIndex: 'accountNumber',
-                width: '8%',
-                render: stringSearch,
+                header: AccountTitle,
+                id: 'accountNumber',
+                dataKey: paymentDataKey('accountNumber'),
+                enableSorting: false,
+                initialSize: '8%',
+                render: stringRender,
             },
             address: {
-                title: AddressTitle,
-                key: 'rawAddress',
-                dataIndex: 'rawAddress',
-                width: '20%',
-                sorter: true,
-                render: stringSearch,
+                header: AddressTitle,
+                id: 'rawAddress',
+                dataKey: paymentDataKey('rawAddress'),
+                enableSorting: true,
+                initialSize: '20%',
+                render: stringRender,
             },
             source: hasSourceColumn ? {
-                title: PaymentSourceTitle,
-                key: 'integration',
-                dataIndex: ['context', 'integration', 'name'],
-                width: '7%',
+                header: PaymentSourceTitle,
+                id: 'integration',
+                dataKey: paymentDataKey('context.integration.name'),
+                enableSorting: false,
+                initialSize: '7%',
             } : null,
             order: {
-                title: getColumnTooltip(PaymentOrderColumnTitle, PaymentOrderTooltipTitle),
-                key: 'order',
-                dataIndex: 'order',
-                width: '8%',
-                render: stringSearch,
+                header: () => getColumnTooltip(PaymentOrderColumnTitle, PaymentOrderTooltipTitle),
+                id: 'order',
+                dataKey: paymentDataKey('order'),
+                enableSorting: false,
+                initialSize: '8%',
+                render: stringRender,
             },
             status: {
-                title: StatusTitle,
-                key: 'status',
-                dataIndex: 'status',
-                width: '8%',
-                render: getStatusRender(intl, openStatusDescModal, search),
+                header: StatusTitle,
+                id: 'status',
+                dataKey: paymentDataKey('status'),
+                enableSorting: false,
+                initialSize: '8%',
+                render: getStatusRender(intl, openStatusDescModal, options.search),
             },
             amount: {
-                title: PaymentAmountTitle,
-                key: 'amount',
-                dataIndex: 'amount',
+                header: PaymentAmountTitle,
+                id: 'amount',
+                dataKey: paymentDataKey('amount'),
+                enableSorting: true,
+                initialSize: '10%',
                 render: getMoneyRender(intl, currencyCode),
-                width: '10%',
-                sorter: true,
             },
             posReceiptUrl: hasPosReceiptUrlColumn ? {
-                title: PosReceiptColumnTitle,
-                key: 'posReceiptUrl',
-                dataIndex: 'posReceiptUrl',
+                header: PosReceiptColumnTitle,
+                id: 'posReceiptUrl',
+                dataKey: paymentDataKey('posReceiptUrl'),
+                enableSorting: false,
                 render: getPosReceiptUrlRender({
                     linkText: PosReceiptLinkTitle,
                     verifyTitle: PosReceiptVerifyTitle,
                     verifyDescription: PosReceiptVerifyDescription,
                     lastTestingPosReceipt: options.lastTestingPosReceipt,
                 }),
-                width: '8%',
-            } : undefined,
+                initialSize: '8%',
+            } : null,
         }
 
-        return Object.values(columns).filter(Boolean)
-    }, [filters, DateTitle, intl, AccountTitle, AddressTitle, StatusTitle, openStatusDescModal, PaymentOrderColumnTitle, PaymentOrderTooltipTitle, PaymentAmountTitle, currencyCode, options.acquiringContexts, options.posIntegrationContext, options.lastTestingPosReceipt, PaymentSourceTitle, PosReceiptColumnTitle, PosReceiptLinkTitle, PosReceiptVerifyTitle, PosReceiptVerifyDescription])
+        return Object.values(columns).filter((column): column is PaymentColumn => Boolean(column))
+    }, [
+        AccountTitle,
+        AddressTitle,
+        DateTitle,
+        PaymentAmountTitle,
+        PaymentOrderColumnTitle,
+        PaymentOrderTooltipTitle,
+        PaymentSourceTitle,
+        PosReceiptColumnTitle,
+        PosReceiptLinkTitle,
+        PosReceiptVerifyDescription,
+        PosReceiptVerifyTitle,
+        StatusTitle,
+        currencyCode,
+        intl,
+        openStatusDescModal,
+        options.acquiringContexts,
+        options.lastTestingPosReceipt,
+        options.posIntegrationContext,
+        options.search,
+    ])
 }
