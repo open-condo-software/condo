@@ -1,0 +1,32 @@
+.circular-progress :global(.ant-progress-circle) {
+  animation: rotate 1.6s linear infinite;
+}
+
+.task-progress-row {
+  width: 100%;
+}
+
+.task-progress-content {
+  min-width: 0;
+}
+
+.task-icon-column {
+  padding-right: 0 !important;
+}
+
+.task-icons {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-height: 24px;
+}
+
+.task-icons-clickable {
+  cursor: pointer;
+}
+
+@keyframes rotate {
+  100% {
+    transform: rotate(1turn);
+  }
+}
