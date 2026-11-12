@@ -41,6 +41,7 @@ export function usePaymentsTableFilters (
     const EnterSourceMessage = intl.formatMessage({ id: 'pages.condo.payments.enterSource' })
     const StatusTitle = intl.formatMessage({ id: 'Status' })
     const PaymentOrderTitle = intl.formatMessage({ id: 'PaymentOrder' })
+    const PaymentOrderPlaceholder = intl.formatMessage({ id: 'accrualsAndPayments.payments.type.registry.filters.paymentOrder.placeholder' })
     const EnterStatusMessage = intl.formatMessage({ id: 'pages.condo.payments.enterStatus' })
 
     const statuses = statusType.map((item) => ({
@@ -49,118 +50,126 @@ export function usePaymentsTableFilters (
     }))
     const statusOptions = convertToOptions(statuses, 'name', 'id')
 
-    return useMemo(() => {
-        return [
-            {
-                keyword: 'search',
-                filters: [addressFilter, accountFilter, typeFilter, transactionFilter, depositedDateFilter, transferDateFilter],
-                combineType: 'OR',
-            },
-            {
-                keyword: 'depositedDate',
-                filters: [depositedDateFilter],
-                component: {
-                    type: ComponentType.DateRange,
-                    props: {
-                        placeholder: [StartDateMessage, EndDateMessage],
-                    },
-                    modalFilterComponentWrapper: {
-                        label: DepositedDateMessage,
-                        size: FilterComponentSize.Medium,
-                    },
+    return useMemo(() => [
+        {
+            keyword: 'search',
+            filters: [addressFilter, accountFilter, typeFilter, transactionFilter, depositedDateFilter, transferDateFilter],
+            combineType: 'OR',
+        },
+        {
+            keyword: 'depositedDate',
+            filters: [depositedDateFilter],
+            component: {
+                type: ComponentType.DateRange,
+                props: {
+                    placeholder: [StartDateMessage, EndDateMessage],
+                },
+                modalFilterComponentWrapper: {
+                    label: DepositedDateMessage,
+                    size: FilterComponentSize.Medium,
                 },
             },
-            {
-                keyword: 'transferDate',
-                filters: [transferDateFilter],
-                component: {
-                    type: ComponentType.DateRange,
-                    props: {
-                        placeholder: [StartDateMessage, EndDateMessage],
-                    },
-                    modalFilterComponentWrapper: {
-                        label: TransferDateMessage,
-                        size: FilterComponentSize.Medium,
-                    },
+        },
+        {
+            keyword: 'transferDate',
+            filters: [transferDateFilter],
+            component: {
+                type: ComponentType.DateRange,
+                props: {
+                    placeholder: [StartDateMessage, EndDateMessage],
+                },
+                modalFilterComponentWrapper: {
+                    label: TransferDateMessage,
+                    size: FilterComponentSize.Medium,
                 },
             },
-            {
-                keyword: 'accountNumber',
-                filters: [accountFilter],
-                component: {
-                    type: ComponentType.Input,
-                    modalFilterComponentWrapper: {
-                        label: AccountTitle,
-                        size: FilterComponentSize.Medium,
-                    },
+        },
+        {
+            keyword: 'order',
+            filters: [orderFilter],
+            component: {
+                type: ComponentType.TagsSelect,
+                props: {
+                    placeholder: PaymentOrderPlaceholder,
+                    tokenSeparators: [',', ' '],
+                },
+                modalFilterComponentWrapper: {
+                    label: PaymentOrderTitle,
+                    size: FilterComponentSize.Medium,
                 },
             },
-            {
-                keyword: 'type',
-                filters: [acquiringContextFilter],
-                component: {
-                    type: ComponentType.GQLSelect,
-                    props: {
-                        search: searchAcquiringIntegration(organizationId),
-                        mode: 'multiple',
-                        showArrow: true,
-                        placeholder: EnterSourceMessage,
-                        infinityScroll: true,
-                    },
-                    modalFilterComponentWrapper: {
-                        label: SourceMessage,
-                        size: FilterComponentSize.Medium,
-                    },
+        },
+        {
+            keyword: 'type',
+            filters: [acquiringContextFilter],
+            component: {
+                type: ComponentType.GQLSelect,
+                props: {
+                    search: searchAcquiringIntegration(organizationId),
+                    mode: 'multiple',
+                    showArrow: true,
+                    placeholder: EnterSourceMessage,
+                    infinityScroll: true,
+                },
+                modalFilterComponentWrapper: {
+                    label: SourceMessage,
+                    size: FilterComponentSize.Medium,
                 },
             },
-            {
-                keyword: 'address',
-                filters: [propertyFilter],
-                component: {
-                    type: ComponentType.Input,
-                    modalFilterComponentWrapper: {
-                        label: AddressMessage,
-                        size: FilterComponentSize.Large,
-                    },
+        },
+        {
+            keyword: 'status',
+            filters: [statusFilter],
+            component: {
+                type: ComponentType.Select,
+                options: statusOptions,
+                props: {
+                    mode: 'multiple',
+                    showArrow: true,
+                    placeholder: EnterStatusMessage,
+                },
+                modalFilterComponentWrapper: {
+                    label: StatusTitle,
+                    size: FilterComponentSize.Medium,
                 },
             },
-            {
-                keyword: 'order',
-                filters: [orderFilter],
-                component: {
-                    type: ComponentType.Input,
-                    modalFilterComponentWrapper: {
-                        label: PaymentOrderTitle,
-                        size: FilterComponentSize.Medium,
-                    },
+        },
+        {
+            keyword: 'accountNumber',
+            filters: [accountFilter],
+            component: {
+                type: ComponentType.Input,
+                modalFilterComponentWrapper: {
+                    label: AccountTitle,
+                    size: FilterComponentSize.Medium,
                 },
             },
-            {
-                keyword: 'status',
-                filters: [statusFilter],
-                component: {
-                    type: ComponentType.Select,
-                    options: statusOptions,
-                    props: {
-                        mode: 'multiple',
-                        showArrow: true,
-                        placeholder: EnterStatusMessage,
-                    },
-                    modalFilterComponentWrapper: {
-                        label: StatusTitle,
-                        size: FilterComponentSize.Medium,
-                    },
+        },
+        {
+            keyword: 'address',
+            filters: [propertyFilter],
+            component: {
+                type: ComponentType.Input,
+                modalFilterComponentWrapper: {
+                    label: AddressMessage,
+                    size: FilterComponentSize.Large,
                 },
             },
-        ]
-    }, [
-        AccountTitle, AddressMessage,
-        DepositedDateMessage, TransferDateMessage, EndDateMessage,
+        },
+    ], [
+        AccountTitle,
+        AddressMessage,
+        DepositedDateMessage,
+        EndDateMessage,
+        EnterSourceMessage,
         EnterStatusMessage,
-        EnterSourceMessage, PaymentOrderTitle,
-        StartDateMessage, StatusTitle,
+        PaymentOrderPlaceholder,
+        PaymentOrderTitle,
         SourceMessage,
-        organizationId, statusOptions,
+        StartDateMessage,
+        StatusTitle,
+        TransferDateMessage,
+        organizationId,
+        statusOptions,
     ])
-
 }

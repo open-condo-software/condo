@@ -1,7 +1,6 @@
 import { Payment as PaymentType, PaymentStatusType, PaymentWhereInput, SortPaymentsBy } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
-import dayjs, { Dayjs } from 'dayjs'
 import get from 'lodash/get'
 import isEqual from 'lodash/isEqual'
 import getConfig from 'next/config'
@@ -13,30 +12,21 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Button, FullTableState, GetTableData, Modal, Space, Table, TableRef, Tour, Typography } from '@open-condo/ui'
 
+import { usePaymentsFilters } from '@condo/domains/acquiring/components/payments/PaymentsFiltersContext'
 import { PaymentsSummary } from '@condo/domains/acquiring/components/payments/PaymentsSummary'
 import styles from '@condo/domains/acquiring/components/payments/PaymentsTable.module.css'
-import { PaymentsTableFilterBar } from '@condo/domains/acquiring/components/payments/PaymentsTableFilterBar'
 import { EXPORT_PAYMENTS_TO_EXCEL, Payment as PaymentGQL } from '@condo/domains/acquiring/gql'
 import usePaymentsSum from '@condo/domains/acquiring/hooks/usePaymentsSum'
 import { usePaymentsTableColumns } from '@condo/domains/acquiring/hooks/usePaymentsTableColumns'
-import { usePaymentsTableFilters } from '@condo/domains/acquiring/hooks/usePaymentsTableFilters'
 import { usePosIntegrationAlert } from '@condo/domains/acquiring/hooks/usePosIntegrationAlert'
 import { usePosIntegrationLastTestingPosReceipt } from '@condo/domains/acquiring/hooks/usePosIntegrationLastTestingPosReceipt'
-import { PaymentsFilterTemplate } from '@condo/domains/acquiring/utils/clientSchema'
-import { IFilters } from '@condo/domains/acquiring/utils/helpers'
 import { useBillingAndAcquiringContexts } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
 import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { DEFAULT_PAGE_SIZE } from '@condo/domains/common/components/Table/Index'
 import { getMoneyRender } from '@condo/domains/common/components/Table/Renders'
-import { useDateRangeSearch } from '@condo/domains/common/hooks/useDateRangeSearch'
-import {
-    MultipleFilterContextProvider,
-    useMultipleFiltersModal,
-} from '@condo/domains/common/hooks/useMultipleFiltersModal'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
-import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { useTableTranslations } from '@condo/domains/common/hooks/useTableTranslations'
 import { defaultParseUrlQuery } from '@condo/domains/common/utils/tableUrls'
 
@@ -45,7 +35,6 @@ const { publicRuntimeConfig: { defaultCurrencyCode } } = getConfig()
 
 const SORTABLE_PROPERTIES = ['advancedAt', 'depositedDate', 'amount']
 const PAYMENTS_DEFAULT_SORT_BY = ['advancedAt_DESC']
-const DEFAULT_DATE_RANGE: [Dayjs, Dayjs] = [dayjs().subtract(1, 'week'), dayjs()]
 
 const ROW_GUTTER: [Gutter, Gutter] = [0, 24]
 const ASC = 'ASC'
@@ -84,9 +73,6 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
     // multiple times and interfering with tab navigation (e.g., switching to accruals tab)
     const hasDateRangeBeenClearedRef = useRef(false)
     const tableRef = useRef<TableRef | null>(null)
-    const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
-    const StartDateMessage = intl.formatMessage({ id: 'pages.condo.meter.StartDate' })
-    const EndDateMessage = intl.formatMessage({ id: 'pages.condo.meter.EndDate' })
     const ConfirmTitle = intl.formatMessage({ id: 'component.TicketWarningModal.ConfirmTitle' })
     const TotalsSumTitle = intl.formatMessage({ id: 'pages.condo.payments.TotalSum' })
     const DoneSumTitle = intl.formatMessage({ id: 'MultiPayment.status.DONE' })
@@ -127,15 +113,8 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
     }, [areAlertLoading, refetchLastTestingPosReceipt])
 
     const organizationId = get(userOrganization, ['organization', 'id'], '')
-    const queryMetas = usePaymentsTableFilters(organizationId)
+    const { clearDateFilter, dateFilter, paymentFilterMetas: queryMetas, search } = usePaymentsFilters()
     const { filtersToWhere, sortersToSortBy } = useQueryMappers<PaymentWhereInput>(queryMetas, SORTABLE_PROPERTIES)
-
-    const [filtersAreReset, setFiltersAreReset] = useState(false)
-    const dateFallback = filtersAreReset ? null : DEFAULT_DATE_RANGE
-    const [dateRange, setDateRange] = useDateRangeSearch('depositedDate')
-    const dateFilterValue = dateRange || dateFallback
-    const dateFilter = dateFilterValue ? dateFilterValue.map(el => el.toISOString()) : null
-    const [search, handleSearchChange, handleResetSearch] = useSearch<IFilters>()
     const tableColumns = usePaymentsTableColumns(currencyCode, openStatusDescModal, {
         acquiringContexts,
         lastTestingPosReceipt,
@@ -231,40 +210,15 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
         }
     }, [filtersKey])
 
-    const handleDateChange = useCallback((value) => {
-        if (!value) {
-            setFiltersAreReset(true)
-        }
-        setDateRange(value)
-    }, [setDateRange])
-
     useEffect(() => {
         if (lastTestingPosReceipt && !isLastTestingPosReceiptLoading && currentTab === 'payments' && !hasDateRangeBeenClearedRef.current) {
             hasDateRangeBeenClearedRef.current = true
-            setFiltersAreReset(true)
-            setDateRange(null)
+            clearDateFilter()
         } else if (currentTab !== 'payments') {
             // Reset flag when leaving the tab so it can be cleared again on return
             hasDateRangeBeenClearedRef.current = false
         }
-    }, [lastTestingPosReceipt, isLastTestingPosReceiptLoading, currentTab, setDateRange])
-
-    const onReset = useCallback(() => {
-        setFiltersAreReset(true)
-        handleResetSearch()
-    }, [handleResetSearch])
-
-    const {
-        MultipleFiltersModal,
-        ResetFiltersModalButton,
-        OpenFiltersButton,
-        appliedFiltersCount,
-    } = useMultipleFiltersModal({
-        filterMetas: queryMetas,
-        filtersSchemaGql: PaymentsFilterTemplate,
-        onReset,
-        extraQueryParameters: { tab: 'payments', type: 'list' },
-    })
+    }, [clearDateFilter, currentTab, isLastTestingPosReceiptLoading, lastTestingPosReceipt])
 
     const currentSortBy = sortersToSortBy(parsedUrlState.sortState, PAYMENTS_DEFAULT_SORT_BY)
     const { data: sumDonePayments, loading: donePaymentsLoading } = usePaymentsSum({ paymentsWhere: { ...searchPaymentsQuery, status: PaymentStatusType.Done } })
@@ -308,12 +262,6 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
     return (
         <Tour.Provider>
             <Row gutter={ROW_GUTTER} align='middle' justify='center'>
-                <PaymentsTableFilterBar
-                    search={{ value: search, placeholder: SearchPlaceholder, onChange: handleSearchChange }}
-                    datePickerProps={{ value: dateRange || dateFallback, onChange: handleDateChange, placeholder: [StartDateMessage, EndDateMessage] }}
-                    modalFilters={{ count: appliedFiltersCount, resetButton: <ResetFiltersModalButton />, openButton: <OpenFiltersButton showLabel={false} /> }}
-                />
-
                 <Col span={24}>
                     <Space size={8} direction='vertical' width='100%'>
                         <PaymentsSummary items={paymentsSummaryItems} />
@@ -362,8 +310,6 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
                     {textStatusDescModal}
                 </Typography.Text>
             </Modal>
-
-            <MultipleFiltersModal />
         </Tour.Provider>
     )
 }
@@ -385,9 +331,7 @@ const PaymentsTable: React.FC = (props) => {
                     </Col>
                 )}
                 <Col span={24}>
-                    <MultipleFilterContextProvider>
-                        <PaymentsTableContent areAlertLoading={areAlertLoading} {...props} />
-                    </MultipleFilterContextProvider>
+                    <PaymentsTableContent areAlertLoading={areAlertLoading} {...props} />
                 </Col>
             </Row>
         </>
