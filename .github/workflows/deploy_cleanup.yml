@@ -50,6 +50,6 @@ jobs:
         with:
           kube-config-base64-data: ${{ secrets.KUBECONFIG_BASE64_PROD_BACKUP_CLUSTER }}
         env:
-          WERF_REPO: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}/condo/condo
+          WERF_REPO: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}/doma/werf
           WERF_REPO_CONTAINER_REGISTRY: default
           DOCKER_REGISTRY: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}
