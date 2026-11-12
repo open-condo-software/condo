@@ -9678,7 +9678,7 @@ __metadata:
     jsonwebtoken: "npm:^9.0.0"
     rimraf: "npm:^6.0.1"
     typescript: "npm:^5.8.3"
-    zod: "catalog:"
+    zod: "npm:^4.6.7"
   languageName: unknown
   linkType: soft
 
@@ -9870,10 +9870,10 @@ __metadata:
     prompts: "npm:^2.4.2"
     testcontainers: "npm:^11.7.0"
     tmp: "npm:^0.2.3"
-    ts-jest: "catalog:"
+    ts-jest: "npm:^29.4.15"
     tsup: "npm:^8.3.6"
     typescript: "npm:^5.8.3"
-    zod: "catalog:"
+    zod: "npm:^4.6.7"
   bin:
     migrator: dist/cli.js
   languageName: unknown
@@ -9902,11 +9902,11 @@ __metadata:
     proxy-addr: "npm:^2.0.8"
     react: "npm:^18.3.1"
     react-dom: "npm:^18.3.1"
-    ts-jest: "catalog:"
+    ts-jest: "npm:^29.4.15"
     tsup: "npm:^8.4.0"
     typescript: "npm:^5.8.3"
     webpack: "npm:^5.99.9"
-    zod: "catalog:"
+    zod: "npm:^4.6.7"
   peerDependencies:
     "@apollo/client": ">=3.0.0"
     "@open-condo/bridge": ">=2.0.0"
@@ -10031,7 +10031,7 @@ __metadata:
     webpack: "npm:^5.99.9"
     webpack-cli: "npm:^4.10.0"
     webpack-merge: "npm:^5.8.0"
-    zod: "catalog:"
+    zod: "npm:^4.6.7"
   peerDependencies:
     react: ">=16"
     react-dom: ">=16"

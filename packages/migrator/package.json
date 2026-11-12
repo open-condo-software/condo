@@ -48,7 +48,7 @@
     "jest": "^29.7.0",
     "testcontainers": "^11.7.0",
     "tmp": "^0.2.3",
-    "ts-jest": "catalog:",
+    "ts-jest": "^29.4.15",
     "tsup": "^8.3.6",
     "typescript": "^5.8.3"
   },
@@ -59,6 +59,6 @@
     "glob": "^11.0.1",
     "ioredis": "^4.28.5",
     "prompts": "^2.4.2",
-    "zod": "catalog:"
+    "zod": "^4.6.7"
   }
 }
