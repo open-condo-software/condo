@@ -140,6 +140,8 @@ jobs:
           WERF_NAMESPACE: "production"
           WERF_VIRTUAL_MERGE_FROM_COMMIT: "true"
           WERF_SET_CI_REF: "ci.werf.io/ref=${GITHUB_REF_NAME}"
+          WERF_SET_UTILS_REGISTRY: "global.utils_registry=${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}/doma/utils"
+          WERF_SET_PREBUILT_APPS_IMAGE: "global.prebuilt_apps_image=${{ env.PREBUILT_APPS_IMAGE }}"
           WERF_REPO: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}/doma/werf
           WERF_REPO_CONTAINER_REGISTRY: default
           DOCKER_REGISTRY: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}
