@@ -79,7 +79,7 @@ jobs:
           WERF_NAMESPACE: "stage"
           WERF_VIRTUAL_MERGE_FROM_COMMIT: "true"
           WERF_SET_CI_REF: "ci.werf.io/ref=${GITHUB_REF_NAME}"
-          WERF_REPO: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}/condo/condo
+          WERF_REPO: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}/doma/werf
           WERF_REPO_CONTAINER_REGISTRY: default
           DOCKER_REGISTRY: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}
           TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}

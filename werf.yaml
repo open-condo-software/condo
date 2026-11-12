@@ -19,11 +19,8 @@ args:
   TURBO_TOKEN: {{ env "TURBO_TOKEN" "" }}
 {{ end }}
 ---
-image: valkeyreview
-from: valkey/valkey:8.0.2
----
 image: preparepostgresreview
-from: postgres:16.8
+from: {{ env "DOCKER_REGISTRY" "" }}/doma/utils/postgres:16.8
 shell:
   install:
   - "apt update -qq"
