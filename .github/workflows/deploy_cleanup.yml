@@ -16,12 +16,12 @@ jobs:
       WERF_SECRET_KEY: ${{ secrets.WERF_SECRET_KEY }}
       WERF_PARALLEL: 0
     steps:
-      - name: Login to Container Registry
+      - name: Login to self-hosted registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ secrets.DOCKER_REGISTRY }}
-          username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
-          password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
+          registry: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}
+          username: ${{ secrets.SELF_HOSTED_CR_USERNAME }}
+          password: ${{ secrets.SELF_HOSTED_CR_PASSWORD }}
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2
         with:
@@ -50,6 +50,6 @@ jobs:
         with:
           kube-config-base64-data: ${{ secrets.KUBECONFIG_BASE64_PROD_BACKUP_CLUSTER }}
         env:
-          WERF_REPO: ${{ secrets.DOCKER_REGISTRY }}/condo/condo
+          WERF_REPO: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}/condo/condo
           WERF_REPO_CONTAINER_REGISTRY: default
-          DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
+          DOCKER_REGISTRY: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}
