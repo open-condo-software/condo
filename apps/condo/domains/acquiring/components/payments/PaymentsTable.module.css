@@ -2,3 +2,10 @@
   height: 50px;
   margin-bottom: 30px;
 }
+
+.testing-payment-row,
+.testing-payment-row :global(.condo-table-td),
+.testing-payment-row:hover,
+.testing-payment-row:hover :global(.condo-table-td) {
+  background-color: #fff5e6;
+}

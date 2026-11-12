@@ -1,34 +1,34 @@
-import { PaymentStatusType, SortPaymentsBy } from '@app/condo/schema'
+import { Payment as PaymentType, PaymentStatusType, PaymentWhereInput, SortPaymentsBy } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
 import dayjs, { Dayjs } from 'dayjs'
 import get from 'lodash/get'
+import isEqual from 'lodash/isEqual'
 import getConfig from 'next/config'
 import { useRouter } from 'next/router'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { useLazyQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Modal, Typography, Button, Tour, Space } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/colors'
+import { Button, FullTableState, GetTableData, Modal, Space, Table, TableRef, Tour, Typography } from '@open-condo/ui'
 
 import { PaymentsSummary } from '@condo/domains/acquiring/components/payments/PaymentsSummary'
 import styles from '@condo/domains/acquiring/components/payments/PaymentsTable.module.css'
 import { PaymentsTableFilterBar } from '@condo/domains/acquiring/components/payments/PaymentsTableFilterBar'
-import { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } from '@condo/domains/acquiring/constants/payment'
-import { EXPORT_PAYMENTS_TO_EXCEL } from '@condo/domains/acquiring/gql'
+import { EXPORT_PAYMENTS_TO_EXCEL, Payment as PaymentGQL } from '@condo/domains/acquiring/gql'
 import usePaymentsSum from '@condo/domains/acquiring/hooks/usePaymentsSum'
 import { usePaymentsTableColumns } from '@condo/domains/acquiring/hooks/usePaymentsTableColumns'
 import { usePaymentsTableFilters } from '@condo/domains/acquiring/hooks/usePaymentsTableFilters'
 import { usePosIntegrationAlert } from '@condo/domains/acquiring/hooks/usePosIntegrationAlert'
 import { usePosIntegrationLastTestingPosReceipt } from '@condo/domains/acquiring/hooks/usePosIntegrationLastTestingPosReceipt'
-import { Payment, PaymentsFilterTemplate } from '@condo/domains/acquiring/utils/clientSchema'
+import { PaymentsFilterTemplate } from '@condo/domains/acquiring/utils/clientSchema'
 import { IFilters } from '@condo/domains/acquiring/utils/helpers'
 import { useBillingAndAcquiringContexts } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
 import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Loader } from '@condo/domains/common/components/Loader'
-import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
+import { DEFAULT_PAGE_SIZE } from '@condo/domains/common/components/Table/Index'
 import { getMoneyRender } from '@condo/domains/common/components/Table/Renders'
 import { useDateRangeSearch } from '@condo/domains/common/hooks/useDateRangeSearch'
 import {
@@ -37,7 +37,8 @@ import {
 } from '@condo/domains/common/hooks/useMultipleFiltersModal'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
-import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { useTableTranslations } from '@condo/domains/common/hooks/useTableTranslations'
+import { defaultParseUrlQuery } from '@condo/domains/common/utils/tableUrls'
 
 
 const { publicRuntimeConfig: { defaultCurrencyCode } } = getConfig()
@@ -47,7 +48,28 @@ const PAYMENTS_DEFAULT_SORT_BY = ['advancedAt_DESC']
 const DEFAULT_DATE_RANGE: [Dayjs, Dayjs] = [dayjs().subtract(1, 'week'), dayjs()]
 
 const ROW_GUTTER: [Gutter, Gutter] = [0, 24]
+const ASC = 'ASC'
+const DESC = 'DESC'
 
+const getSortQueryValue = (sortState: FullTableState['sortState']): string | undefined => {
+    if (!sortState?.length) return undefined
+
+    const firstSort = sortState[0]
+    return `${firstSort.id}_${firstSort.desc ? DESC : ASC}`
+}
+
+const setQueryParam = (
+    query: Record<string, string | string[]>,
+    key: string,
+    value: string | undefined
+): void => {
+    if (value) {
+        query[key] = value
+        return
+    }
+
+    delete query[key]
+}
 
 interface PaymentsTableContentProps {
     areAlertLoading: boolean
@@ -60,7 +82,8 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
     })
     // Track if date range has been cleared for testing receipt to prevent the effect from running
     // multiple times and interfering with tab navigation (e.g., switching to accruals tab)
-    const hasDateRangeBeenClearedRef = React.useRef(false)
+    const hasDateRangeBeenClearedRef = useRef(false)
+    const tableRef = useRef<TableRef | null>(null)
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const StartDateMessage = intl.formatMessage({ id: 'pages.condo.meter.StartDate' })
     const EndDateMessage = intl.formatMessage({ id: 'pages.condo.meter.EndDate' })
@@ -70,15 +93,13 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
     const WithdrawnSumTitle = intl.formatMessage({ id: 'MultiPayment.status.PROCESSING' })
     const PaymentsCountTitle = intl.formatMessage({ id: 'pages.condo.payments.summary.count' })
     const ExportPaymentsTitle = intl.formatMessage({ id: 'pages.billing.payments.exportToExcel.title' })
-    
+
     const { billingContexts, acquiringContexts } = useBillingAndAcquiringContexts()
     const billingContext = billingContexts[0]
 
     const { breakpoints } = useLayoutContext()
     const router = useRouter()
     const userOrganization = useOrganization()
-
-    const { filters, sorters, offset } = parseQuery(router.query)
     const currentTab = router.query.tab
 
     const currencyCode = get(billingContext, ['integration', 'currencyCode'], defaultCurrencyCode)
@@ -86,16 +107,18 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
     const [isStatusDescModalVisible, setIsStatusDescModalVisible] = useState<boolean>(false)
     const [titleStatusDescModal, setTitleStatusDescModal] = useState('')
     const [textStatusDescModal, setTextStatusDescModal] = useState('')
-    const openStatusDescModal = (statusType) => {
+    const [paymentsCount, setPaymentsCount] = useState(0)
+    const [paymentsLoading, setPaymentsLoading] = useState(true)
+    const openStatusDescModal = useCallback((statusType) => {
         const titleModal = intl.formatMessage({ id: 'payment.status.description.title.' + statusType as FormatjsIntl.Message['ids'] })
         const textModal = intl.formatMessage({ id: 'payment.status.description.text.' + statusType as FormatjsIntl.Message['ids'] })
 
         setTitleStatusDescModal(titleModal)
         setTextStatusDescModal(textModal)
         setIsStatusDescModalVisible(true)
-    }
+    }, [intl])
 
-    const tableColumns = usePaymentsTableColumns(currencyCode, openStatusDescModal, { lastTestingPosReceipt, posIntegrationContext, acquiringContexts })
+    const columnLabels = useTableTranslations()
 
     useEffect(() => {
         if (!areAlertLoading) {
@@ -105,43 +128,109 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
 
     const organizationId = get(userOrganization, ['organization', 'id'], '')
     const queryMetas = usePaymentsTableFilters(organizationId)
-
-    const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
-    const { filtersToWhere, sortersToSortBy } = useQueryMappers(queryMetas, SORTABLE_PROPERTIES)
+    const { filtersToWhere, sortersToSortBy } = useQueryMappers<PaymentWhereInput>(queryMetas, SORTABLE_PROPERTIES)
 
     const [filtersAreReset, setFiltersAreReset] = useState(false)
     const dateFallback = filtersAreReset ? null : DEFAULT_DATE_RANGE
     const [dateRange, setDateRange] = useDateRangeSearch('depositedDate')
     const dateFilterValue = dateRange || dateFallback
     const dateFilter = dateFilterValue ? dateFilterValue.map(el => el.toISOString()) : null
-
-
-    const searchPaymentsQuery: Record<string, unknown> = {
-        ...filtersToWhere({ depositedDate: dateFilter, ...filters }),
-        organization: { id: organizationId },
-        status_in: [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS],
-        invoice_is_null: true,
-    }
-    const sortBy = sortersToSortBy(sorters, PAYMENTS_DEFAULT_SORT_BY)
-
-    const {
-        loading,
-        count,
-        objs,
-    } = Payment.useObjects({
-        where: searchPaymentsQuery,
-        sortBy: sortBy as SortPaymentsBy[],
-        first: DEFAULT_PAGE_SIZE,
-        skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
-    }, {
-        fetchPolicy: 'network-only',
+    const [search, handleSearchChange, handleResetSearch] = useSearch<IFilters>()
+    const tableColumns = usePaymentsTableColumns(currencyCode, openStatusDescModal, {
+        acquiringContexts,
+        lastTestingPosReceipt,
+        posIntegrationContext,
+        search,
     })
 
-    const { data: sumDonePayments, loading: donePaymentsLoading } = usePaymentsSum({ paymentsWhere: { ...searchPaymentsQuery, status: PaymentStatusType.Done } })
-    const { data: sumWithdrawnPayments, loading: withdrawnPaymentsLoading } = usePaymentsSum({ paymentsWhere: { ...searchPaymentsQuery, status: PaymentStatusType.Withdrawn } })
-    const { data: sumAllPayments, loading: allPaymentsLoading } = usePaymentsSum({ paymentsWhere: searchPaymentsQuery })
+    const parsedUrlState = useMemo(
+        () => defaultParseUrlQuery(router.query as Record<string, string | string[]>, DEFAULT_PAGE_SIZE),
+        [router.query]
+    )
+    const initialTableState = useMemo<FullTableState>(() => ({
+        ...parsedUrlState,
+        filterState: {},
+        globalFilter: undefined,
+        rowSelectionState: [],
+    // Table reads initial state only once. URL changes are handled through its API and data source.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }), [])
 
-    const [search, handleSearchChange, handleResetSearch] = useSearch<IFilters>()
+    const searchPaymentsQuery: PaymentWhereInput = useMemo(() => ({
+        ...filtersToWhere({ depositedDate: dateFilter, ...parsedUrlState.filterState, search }),
+        organization: { id: organizationId },
+        status_in: [PaymentStatusType.Withdrawn, PaymentStatusType.Done],
+        invoice_is_null: true,
+    }), [dateFilter, filtersToWhere, organizationId, parsedUrlState.filterState, search])
+    const searchPaymentsQueryRef = useRef(searchPaymentsQuery)
+    searchPaymentsQueryRef.current = searchPaymentsQuery
+    const lastTestingPosReceiptRef = useRef(lastTestingPosReceipt)
+    lastTestingPosReceiptRef.current = lastTestingPosReceipt
+    const filtersKey = JSON.stringify(searchPaymentsQuery)
+    const previousFiltersKeyRef = useRef(filtersKey)
+
+    const [fetchPayments] = useLazyQuery(PaymentGQL.GET_ALL_OBJS_WITH_COUNT_QUERY)
+    const dataSource: GetTableData<PaymentType> = useCallback(async ({ sortState, startRow, endRow }) => {
+        setPaymentsLoading(true)
+        try {
+            const sortBy = sortersToSortBy(sortState, PAYMENTS_DEFAULT_SORT_BY) as SortPaymentsBy[]
+            const { data } = await fetchPayments({
+                variables: {
+                    where: searchPaymentsQueryRef.current,
+                    sortBy,
+                    first: endRow - startRow,
+                    skip: startRow,
+                },
+                fetchPolicy: 'network-only',
+            })
+            const rowData: PaymentType[] = data?.objs?.filter(Boolean) ?? []
+            const rowCount = data?.meta?.count ?? 0
+
+            if (lastTestingPosReceiptRef.current) {
+                const highlightedIndex = rowData.findIndex(payment => payment.id === lastTestingPosReceiptRef.current.condoPaymentId)
+                if (highlightedIndex > 0) {
+                    const [highlightedRow] = rowData.splice(highlightedIndex, 1)
+                    rowData.unshift(highlightedRow)
+                }
+            }
+
+            setPaymentsCount(rowCount)
+            return { rowData, rowCount }
+        } catch (error) {
+            console.error('Failed to fetch payments', error)
+            setPaymentsCount(0)
+            return { rowData: [], rowCount: 0 }
+        } finally {
+            setPaymentsLoading(false)
+        }
+    }, [fetchPayments, sortersToSortBy])
+
+    const updateUrlQuery = useCallback((params: FullTableState) => {
+        const nextQuery = { ...router.query } as Record<string, string | string[]>
+        const nextOffset = params.startRow > 0 ? String(params.startRow) : undefined
+
+        setQueryParam(nextQuery, 'offset', nextOffset)
+        setQueryParam(nextQuery, 'sort', getSortQueryValue(params.sortState))
+        delete nextQuery.selectedRows
+
+        if (isEqual(router.query, nextQuery)) return
+        router.replace({ pathname: router.pathname, query: nextQuery }, undefined, { shallow: true }).catch((error) => {
+            console.error('Failed to update payments table query params', error)
+        })
+    }, [router])
+
+    useEffect(() => {
+        if (previousFiltersKeyRef.current === filtersKey || !tableRef.current) return
+        previousFiltersKeyRef.current = filtersKey
+
+        const { startRow } = tableRef.current.api.getPagination()
+        if (startRow > 0) {
+            tableRef.current.api.setPagination({ startRow: 0, endRow: DEFAULT_PAGE_SIZE })
+        } else {
+            tableRef.current.api.refetchData()
+        }
+    }, [filtersKey])
+
     const handleDateChange = useCallback((value) => {
         if (!value) {
             setFiltersAreReset(true)
@@ -158,7 +247,7 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
             // Reset flag when leaving the tab so it can be cleared again on return
             hasDateRangeBeenClearedRef.current = false
         }
-    }, [lastTestingPosReceipt, isLastTestingPosReceiptLoading, currentTab, setDateRange, setFiltersAreReset])
+    }, [lastTestingPosReceipt, isLastTestingPosReceiptLoading, currentTab, setDateRange])
 
     const onReset = useCallback(() => {
         setFiltersAreReset(true)
@@ -177,19 +266,10 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
         extraQueryParameters: { tab: 'payments', type: 'list' },
     })
 
-    const sortedDataSource = useMemo(() => {
-        if (!lastTestingPosReceipt || !objs) return objs
-        
-        const sortedObjs = [...objs]
-        const highlightedIndex = sortedObjs.findIndex(obj => obj.id === lastTestingPosReceipt.condoPaymentId)
-        
-        if (highlightedIndex > 0) {
-            const [highlightedRow] = sortedObjs.splice(highlightedIndex, 1)
-            sortedObjs.unshift(highlightedRow)
-        }
-        
-        return sortedObjs
-    }, [objs, lastTestingPosReceipt])
+    const currentSortBy = sortersToSortBy(parsedUrlState.sortState, PAYMENTS_DEFAULT_SORT_BY)
+    const { data: sumDonePayments, loading: donePaymentsLoading } = usePaymentsSum({ paymentsWhere: { ...searchPaymentsQuery, status: PaymentStatusType.Done } })
+    const { data: sumWithdrawnPayments, loading: withdrawnPaymentsLoading } = usePaymentsSum({ paymentsWhere: { ...searchPaymentsQuery, status: PaymentStatusType.Withdrawn } })
+    const { data: sumAllPayments, loading: allPaymentsLoading } = usePaymentsSum({ paymentsWhere: searchPaymentsQuery })
 
     const paymentsSummaryItems = useMemo(() => ([
         {
@@ -215,10 +295,15 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
         {
             key: 'count',
             label: PaymentsCountTitle,
-            value: count || 0,
-            loading,
+            value: paymentsCount,
+            loading: paymentsLoading,
         },
-    ]), [TotalsSumTitle, intl, currencyCode, sumAllPayments?.result?.sum, allPaymentsLoading, DoneSumTitle, sumDonePayments?.result?.sum, donePaymentsLoading, WithdrawnSumTitle, sumWithdrawnPayments?.result?.sum, withdrawnPaymentsLoading, PaymentsCountTitle, count, loading])
+    ]), [TotalsSumTitle, intl, currencyCode, sumAllPayments?.result?.sum, allPaymentsLoading, DoneSumTitle, sumDonePayments?.result?.sum, donePaymentsLoading, WithdrawnSumTitle, sumWithdrawnPayments?.result?.sum, withdrawnPaymentsLoading, PaymentsCountTitle, paymentsCount, paymentsLoading])
+
+    const getRowId = useCallback((payment: PaymentType) => payment.id, [])
+    const getRowClassName = useCallback((payment: PaymentType) => {
+        return lastTestingPosReceipt?.condoPaymentId === payment.id ? styles.testingPaymentRow : undefined
+    }, [lastTestingPosReceipt])
 
     return (
         <Tour.Provider>
@@ -229,20 +314,20 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
                     modalFilters={{ count: appliedFiltersCount, resetButton: <ResetFiltersModalButton />, openButton: <OpenFiltersButton showLabel={false} /> }}
                 />
 
-
                 <Col span={24}>
                     <Space size={8} direction='vertical' width='100%'>
                         <PaymentsSummary items={paymentsSummaryItems} />
-                        <Table
-                            loading={loading || isLastTestingPosReceiptLoading}
-                            dataSource={sortedDataSource}
-                            totalRows={count}
+                        <Table<PaymentType>
+                            id='payments-table'
+                            dataSource={dataSource}
                             columns={tableColumns}
-                            onRow={(record) => {
-                                if (lastTestingPosReceipt && lastTestingPosReceipt.condoPaymentId === record.id) {
-                                    return { style: { backgroundColor: colors.orange[1] } }
-                                }
-                            }}
+                            pageSize={DEFAULT_PAGE_SIZE}
+                            onTableStateChange={updateUrlQuery}
+                            initialTableState={initialTableState}
+                            columnLabels={columnLabels}
+                            getRowId={getRowId}
+                            getRowClassName={getRowClassName}
+                            ref={tableRef}
                         />
                     </Space>
                 </Col>
@@ -250,9 +335,9 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
                     <ExportToExcelActionBar
                         hidden={!breakpoints.TABLET_LARGE}
                         searchObjectsQuery={searchPaymentsQuery}
-                        sortBy={sortBy}
+                        sortBy={currentSortBy}
                         exportToExcelQuery={EXPORT_PAYMENTS_TO_EXCEL}
-                        disabled={count < 1}
+                        disabled={paymentsCount < 1}
                         label={ExportPaymentsTitle}
                         buttonType='primary'
                     />

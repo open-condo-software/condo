@@ -1,9 +1,9 @@
+import { GetPaymentsFilesQuery } from '@app/condo/gql'
 import { AcquiringIntegrationContext } from '@app/condo/schema'
-import get from 'lodash/get'
-import { useRouter } from 'next/router'
 import { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { TableColumn } from '@open-condo/ui'
 
 import { getPaymentsFileStatusRender } from '@condo/domains/acquiring/utils/clientSchema/Renders'
 import {
@@ -12,16 +12,24 @@ import {
     getMoneyRender,
     getTextRender,
 } from '@condo/domains/common/components/Table/Renders'
-import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 
 
 type PaymentsFilesTableColumnsOptions = {
     acquiringContexts?: AcquiringIntegrationContext[]
+    search?: string
 }
 
-export function usePaymentsFilesTableColumns (currencyCode: string, options: PaymentsFilesTableColumnsOptions = {}): Record<string, unknown>[] {
+type PaymentsFile = NonNullable<NonNullable<GetPaymentsFilesQuery['paymentsFiles']>[number]>
+type PaymentsFileColumn = TableColumn<PaymentsFile>
+type PaymentsFileDataKey = Extract<PaymentsFileColumn, { dataKey: unknown }>['dataKey']
+
+const paymentsFileDataKey = <TKey extends PaymentsFileDataKey>(value: TKey): TKey => value
+
+export function usePaymentsFilesTableColumns (
+    currencyCode: string,
+    options: PaymentsFilesTableColumnsOptions = {}
+): PaymentsFileColumn[] {
     const intl = useIntl()
-    const router = useRouter()
 
     const RegistryNumberTitle = intl.formatMessage({ id: 'accrualsAndPayments.payments.type.registry.registryNumber' })
     const AmountTitle = intl.formatMessage({ id: 'accrualsAndPayments.payments.type.registry.amount' })
@@ -34,75 +42,90 @@ export function usePaymentsFilesTableColumns (currencyCode: string, options: Pay
     const PaymentSourceTitle = intl.formatMessage({ id: 'field.Source' })
     const StatusTitle = intl.formatMessage({ id: 'Status' })
 
-    const { filters } = parseQuery(router.query)
-
     return useMemo(() => {
-        let search = get(filters, 'search')
-        search = Array.isArray(search) ? null : search
-
-        const stringSearch = getTextRender(String(search))
+        const stringRender = getTextRender(options.search)
         const hasSourceColumn = Boolean(options.acquiringContexts?.length > 1)
 
-        const columns = {
+        const columns: Record<string, PaymentsFileColumn | null> = {
             number: {
-                title: RegistryNumberTitle,
-                key: 'number',
-                dataIndex: 'number',
-                width: '10%',
-                render: stringSearch,
+                header: RegistryNumberTitle,
+                id: 'number',
+                dataKey: paymentsFileDataKey('number'),
+                enableSorting: false,
+                initialSize: '10%',
+                render: stringRender,
             },
             paymentOrder: {
-                title: getColumnTooltip(PaymentOrderColumnTitle, PaymentOrderTooltipTitle),
-                key: 'paymentOrder',
-                dataIndex: 'paymentOrder',
-                width: '15%',
-                render: stringSearch,
+                header: () => getColumnTooltip(PaymentOrderColumnTitle, PaymentOrderTooltipTitle),
+                id: 'paymentOrder',
+                dataKey: paymentsFileDataKey('paymentOrder'),
+                enableSorting: false,
+                initialSize: '15%',
+                render: stringRender,
             },
             loadedAt: {
-                title: DateLoadTitle,
-                key: 'loadedAt',
-                dataIndex: ['loadedAt'],
-                sorter: true,
-                width: '15%',
-                render: getDateRender(intl, String(search)),
+                header: DateLoadTitle,
+                id: 'loadedAt',
+                dataKey: paymentsFileDataKey('loadedAt'),
+                enableSorting: true,
+                initialSize: '15%',
+                render: getDateRender(intl, options.search),
             },
             registryName: {
-                title: RegistryNameTitle,
-                key: 'name',
-                dataIndex: 'name',
-                width: hasSourceColumn ? '18%' : '25%',
-                render: stringSearch,
+                header: RegistryNameTitle,
+                id: 'name',
+                dataKey: paymentsFileDataKey('name'),
+                enableSorting: false,
+                initialSize: hasSourceColumn ? '18%' : '25%',
+                render: stringRender,
             },
             source: hasSourceColumn ? {
-                title: PaymentSourceTitle,
-                key: 'integration',
-                dataIndex: ['context', 'integration', 'name'],
-                width: '7%',
+                header: PaymentSourceTitle,
+                id: 'integration',
+                dataKey: paymentsFileDataKey('context.integration.name'),
+                enableSorting: false,
+                initialSize: '7%',
             } : null,
             amount: {
-                title: AmountTitle,
-                key: 'amount',
-                dataIndex: 'amount',
+                header: AmountTitle,
+                id: 'amount',
+                dataKey: paymentsFileDataKey('amount'),
+                enableSorting: true,
+                initialSize: '15%',
                 render: getMoneyRender(intl, currencyCode),
-                width: '15%',
-                sorter: true,
             },
             uploadedRecords: {
-                title: UploadedRecordsTitle,
-                key: 'paymentsCount',
-                dataIndex: 'paymentsCount',
-                width: '10%',
-                render: stringSearch,
+                header: UploadedRecordsTitle,
+                id: 'paymentsCount',
+                dataKey: paymentsFileDataKey('paymentsCount'),
+                enableSorting: false,
+                initialSize: '10%',
+                render: stringRender,
             },
             status: {
-                title: StatusTitle,
-                key: 'status',
-                dataIndex: 'status',
-                width: '12%',
-                render: getPaymentsFileStatusRender(intl, search),
+                header: StatusTitle,
+                id: 'status',
+                dataKey: paymentsFileDataKey('status'),
+                enableSorting: false,
+                initialSize: '12%',
+                render: getPaymentsFileStatusRender(intl, options.search),
             },
         }
 
-        return Object.values(columns).filter(Boolean)
-    }, [filters, RegistryNumberTitle, PaymentOrderColumnTitle, PaymentOrderTooltipTitle, DateLoadTitle, intl, RegistryNameTitle, PaymentSourceTitle, AmountTitle, currencyCode, UploadedRecordsTitle, StatusTitle, options.acquiringContexts])
+        return Object.values(columns).filter((column): column is PaymentsFileColumn => Boolean(column))
+    }, [
+        AmountTitle,
+        DateLoadTitle,
+        PaymentOrderColumnTitle,
+        PaymentOrderTooltipTitle,
+        PaymentSourceTitle,
+        RegistryNameTitle,
+        RegistryNumberTitle,
+        StatusTitle,
+        UploadedRecordsTitle,
+        currencyCode,
+        intl,
+        options.acquiringContexts,
+        options.search,
+    ])
 }
