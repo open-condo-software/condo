@@ -2,7 +2,6 @@ import { GetPaymentsFilesQuery, useGetPaymentsFilesLazyQuery } from '@app/condo/
 import { PaymentsFileWhereInput, SortPaymentsFilesBy } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
-import dayjs, { Dayjs } from 'dayjs'
 import isEqual from 'lodash/isEqual'
 import getConfig from 'next/config'
 import { useRouter } from 'next/router'
@@ -11,7 +10,6 @@ import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState
 import { useCachePersistor } from '@open-condo/apollo'
 import { Download } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import {
     ActionBar,
     Button,
@@ -24,31 +22,22 @@ import {
 } from '@open-condo/ui'
 
 import { PaymentsFileDetailsModal } from '@condo/domains/acquiring/components/payments/PaymentsFileDetailsModal'
+import { usePaymentsFilters } from '@condo/domains/acquiring/components/payments/PaymentsFiltersContext'
 import { PaymentsSummary } from '@condo/domains/acquiring/components/payments/PaymentsSummary'
-import { PaymentsTableFilterBar } from '@condo/domains/acquiring/components/payments/PaymentsTableFilterBar'
 import useDownloadPaymentsFiles from '@condo/domains/acquiring/hooks/useDownloadPaymentsFiles'
 import { usePaymentsFilesTableColumns } from '@condo/domains/acquiring/hooks/usePaymentsFilesTableColumns'
-import { usePaymentsFilesTableFilters } from '@condo/domains/acquiring/hooks/usePaymentsFilesTableFilters'
 import usePaymentsSum from '@condo/domains/acquiring/hooks/usePaymentsSum'
-import { PaymentsFilterTemplate } from '@condo/domains/acquiring/utils/clientSchema'
-import { getInitialSelectedRegistryKeys, IPaymentsFilesFilters } from '@condo/domains/acquiring/utils/helpers'
+import { getInitialSelectedRegistryKeys } from '@condo/domains/acquiring/utils/helpers'
 import { useBillingAndAcquiringContexts } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
 import { DEFAULT_PAGE_SIZE } from '@condo/domains/common/components/Table/Index'
 import { getMoneyRender } from '@condo/domains/common/components/Table/Renders'
-import { useDateRangeSearch } from '@condo/domains/common/hooks/useDateRangeSearch'
-import {
-    MultipleFilterContextProvider,
-    useMultipleFiltersModal,
-} from '@condo/domains/common/hooks/useMultipleFiltersModal'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
-import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { useTableTranslations } from '@condo/domains/common/hooks/useTableTranslations'
 import { defaultParseUrlQuery } from '@condo/domains/common/utils/tableUrls'
 
 
 const SORTABLE_PROPERTIES = ['amount', 'loadedAt']
 const PAYMENTS_DEFAULT_SORT_BY = ['loadedAt_DESC']
-const DEFAULT_DATE_RANGE: [Dayjs, Dayjs] = [dayjs().subtract(1, 'week'), dayjs()]
 
 const ROW_GUTTER: [Gutter, Gutter] = [0, 24]
 const BOTTOM_PADDING_LIKE_ACTION_BAR: CSSProperties = { paddingBottom: '104px' }
@@ -81,9 +70,6 @@ const setQueryParam = (
 
 const PaymentFilesTableContent: React.FC = (): JSX.Element => {
     const intl = useIntl()
-    const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
-    const StartDateMessage = intl.formatMessage({ id: 'pages.condo.meter.StartDate' })
-    const EndDateMessage = intl.formatMessage({ id: 'pages.condo.meter.EndDate' })
     const TotalsSumTitle = intl.formatMessage({ id: 'pages.condo.payments.TotalSum' })
     const PaymentsCountTitle = intl.formatMessage({ id: 'pages.condo.payments.summary.count' })
     const CancelSelectedRegistryMessage = intl.formatMessage({ id: 'global.cancelSelection' })
@@ -94,8 +80,6 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
 
     const router = useRouter()
     const tableRef = useRef<TableRef | null>(null)
-    const userOrganization = useOrganization()
-    const organizationId = userOrganization?.organization?.id ?? ''
 
     const parsedUrlState = useMemo(
         () => defaultParseUrlQuery(router.query as Record<string, string | string[]>, DEFAULT_PAGE_SIZE),
@@ -116,7 +100,7 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
     const currencyCode = billingContexts.find(({ integration }) => !!integration.currencyCode)?.integration?.currencyCode ?? defaultCurrencyCode
 
     const columnLabels = useTableTranslations()
-    const queryMetas = usePaymentsFilesTableFilters(organizationId)
+    const { dateFilter, paymentsFileFilterMetas: queryMetas, search } = usePaymentsFilters()
     const { filtersToWhere, sortersToSortBy } = useQueryMappers<PaymentsFileWhereInput>(queryMetas, SORTABLE_PROPERTIES)
     const [isFilesDownloading, setIsFilesDownloading] = useState(false)
     const [openedPaymentsFileId, setOpenedPaymentsFileId] = useState<string | null>(null)
@@ -126,16 +110,10 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
     const [selectedRegistryKeys, setSelectedRegistryKeys] = useState<string[]>(initialTableState.rowSelectionState)
     const CountSelectedRegistryMessage = intl.formatMessage({ id: 'ItemsSelectedCount' }, { count: selectedRegistryKeys.length })
 
-    const [filtersAreReset, setFiltersAreReset] = useState(false)
-    const dateFallback = filtersAreReset ? null : DEFAULT_DATE_RANGE
-    const [dateRange, setDateRange] = useDateRangeSearch('loadedAt')
-    const dateFilterValue = dateRange || dateFallback
-    const dateFilter = dateFilterValue ? dateFilterValue.map(el => el.toISOString()) : null
-    const [search, handleSearchChange, handleResetSearch] = useSearch<IPaymentsFilesFilters>()
     const tableColumns = usePaymentsFilesTableColumns(currencyCode, { acquiringContexts, search })
 
     const searchPaymentsFilesQuery: PaymentsFileWhereInput = useMemo(() => ({
-        ...filtersToWhere({ loadedAt: dateFilter, ...parsedUrlState.filterState, search }),
+        ...filtersToWhere({ paymentPeriod: dateFilter, ...parsedUrlState.filterState, search }),
         context: { id_in: acquiringContexts.map(({ id }) => id) },
     }), [acquiringContexts, dateFilter, filtersToWhere, parsedUrlState.filterState, search])
     const searchPaymentsFilesQueryRef = useRef(searchPaymentsFilesQuery)
@@ -204,30 +182,6 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
             tableRef.current.api.refetchData()
         }
     }, [filtersKey])
-
-    const handleDateChange = useCallback((value) => {
-        if (!value) {
-            setFiltersAreReset(true)
-        }
-        setDateRange(value)
-    }, [setDateRange])
-
-    const onReset = useCallback(() => {
-        setFiltersAreReset(true)
-        handleResetSearch()
-    }, [handleResetSearch])
-
-    const {
-        MultipleFiltersModal,
-        ResetFiltersModalButton,
-        OpenFiltersButton,
-        appliedFiltersCount,
-    } = useMultipleFiltersModal({
-        filterMetas: queryMetas,
-        filtersSchemaGql: PaymentsFilterTemplate,
-        onReset,
-        extraQueryParameters: { tab: 'payments', type: 'registry' },
-    })
 
     const handleResetSelectedRegistry = useCallback(() => {
         tableRef.current?.api?.resetRowSelection()
@@ -301,12 +255,6 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
 
     return (
         <Row gutter={ROW_GUTTER} align='middle' justify='center'>
-            <PaymentsTableFilterBar
-                search={{ value: search, placeholder: SearchPlaceholder, onChange: handleSearchChange }}
-                datePickerProps={{ value: dateRange || dateFallback, onChange: handleDateChange, placeholder: [StartDateMessage, EndDateMessage] }}
-                modalFilters={{ count: appliedFiltersCount, resetButton: <ResetFiltersModalButton />, openButton: <OpenFiltersButton showLabel={false} /> }}
-            />
-
             <Col span={24}>
                 <Space size={8} direction='vertical' width='100%'>
                     <PaymentsSummary items={paymentsSummaryItems} />
@@ -358,17 +306,12 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
                 paymentsFile={openedPaymentsFile}
                 currency={currencyCode}
             />
-            <MultipleFiltersModal />
         </Row>
     )
 }
 
 const PaymentFilesTable = () => {
-    return (
-        <MultipleFilterContextProvider>
-            <PaymentFilesTableContent />
-        </MultipleFilterContextProvider>
-    )
+    return <PaymentFilesTableContent />
 }
 
 export default PaymentFilesTable
