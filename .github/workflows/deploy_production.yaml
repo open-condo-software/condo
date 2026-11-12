@@ -92,6 +92,14 @@ jobs:
         env:
           DOCKER_REGISTRY: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}
         run: bash bin/resolve_prebuilt_apps_image.sh "$DOCKER_REGISTRY" "${{ github.sha }}" ${{ inputs.skip_tests && 'optional' || 'required' }}
+      - name: Tag release image
+        if: ${{ env.PREBUILT_APPS_IMAGE != '' }}
+        run: |
+          set -euo pipefail
+          source="${{ env.PREBUILT_APPS_IMAGE }}"
+          target="${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}/condo/condo-image:${{ github.ref_name }}"
+          docker buildx imagetools create --tag "$target" "$source"
+          echo "Tagged ${target} from ${source}"
       - name: Prune package manifests for Docker deps layer
         if: ${{ env.PREBUILT_APPS_IMAGE == '' }}
         run: bash bin/prune.sh
