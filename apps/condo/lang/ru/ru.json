@@ -2082,6 +2082,7 @@
   "pages.billing.NoBilling.title": "Вы пока не подключили биллинг",
   "pages.billing.ReceiptsTable.PDFTooltip": "Посмотреть PDF-квитанцию",
   "pages.billing.ReceiptsTable.loadRegistry.button": "Загрузить реестр",
+  "pages.billing.ServicesModal.noChargeDetails": "Нет детализации по начислениям",
   "pages.billing.setup.chooseChannels.title": "Настройка платежей для физлиц",
   "pages.billing.setup.chooseChannels.chooseChannels.title": "Каналы для публикации",
   "pages.billing.setup.chooseChannels.integrtion.setup.title": "Настройка интеграции",

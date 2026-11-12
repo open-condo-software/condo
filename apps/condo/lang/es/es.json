@@ -2080,6 +2080,7 @@
   "pages.billing.NoBilling.title": "Todavía no ha conectado la facturación",
   "pages.billing.ReceiptsTable.PDFTooltip": "Ver factura en PDF",
   "pages.billing.ReceiptsTable.loadRegistry.button": "Cargar registro",
+  "pages.billing.ServicesModal.noChargeDetails": "No hay desglose de los cargos",
   "pages.billing.Status.success.title": "Pagos de personas físicas conectados",
   "pages.billing.footer.sppFintechLink": "Volver a SberBusiness",
   "pages.billing.setup.chooseAcquirings.title": "Dónde se publicarán los devengos",

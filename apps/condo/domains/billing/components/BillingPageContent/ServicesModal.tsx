@@ -7,7 +7,7 @@ import React, { useCallback, useMemo, useState } from 'react'
 
 import { ChevronDown, ChevronUp } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Button, Modal } from '@open-condo/ui'
+import { Alert, Button, Modal } from '@open-condo/ui'
 
 import { useServicesTableColumns } from '@condo/domains/billing/hooks/useServicesTableColumns'
 import { TableRecord } from '@condo/domains/common/components/Table/Index'
@@ -16,7 +16,6 @@ import { getMoneyRender } from '@condo/domains/common/components/Table/Renders'
 interface IServicesModalProps {
     receipt: BillingReceipt
     currencyCode: string
-    isDetailed: boolean
     visible: boolean
     onCancel: () => void
 }
@@ -82,10 +81,10 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
     onCancel,
     receipt,
     currencyCode,
-    isDetailed,
 }) => {
     const intl = useIntl()
     const AccountMessage = intl.formatMessage({ id: 'field.AccountNumberShort' })
+    const NoChargeDetailsMessage = intl.formatMessage({ id: 'pages.billing.ServicesModal.noChargeDetails' })
     const ViewPDFButton = intl.formatMessage({ id: 'pages.billing.ReceiptsTable.PDFTooltip' })
 
     const moneyRender = useMemo(() => {
@@ -111,7 +110,7 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
 
     const modalTitleMessage = `${AccountMessage} ${accountNumber}`
 
-    const columns = useServicesTableColumns(isDetailed, currencyCode)
+    const columns = useServicesTableColumns(currencyCode)
 
     const { significantServices, insignificantServices } = splitServices(receipt)
     const ExpandMessage = intl.formatMessage({ id: 'MoreReceiptsWithZeroCharge' }, {
@@ -138,12 +137,12 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
         )
     }
 
-    if (!visible || !services?.length) return null
+    if (!visible) return null
 
     // TODO (savelevMatthew): Move modal to common width-expandable component?
     return (
         <>
-            {isDetailed && <Global styles={WideModalStyles}/>}
+            <Global styles={WideModalStyles}/>
             <Modal
                 open={visible}
                 onCancel={handleClose}
@@ -163,7 +162,7 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
                             {period && <Typography.Paragraph strong type='secondary'>{period}</Typography.Paragraph>}
                         </Space>
                     </Col>
-                    <Col span={24}>
+                    <Col span={24}>{ services?.length ?
                         <Table
                             bordered
                             tableLayout='auto'
@@ -205,7 +204,10 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
                                     </Table.Summary.Row>
                                 )
                             }}
-                        />
+                        /> : <Alert
+                            type='info'
+                            description={NoChargeDetailsMessage}
+                        /> }
                     </Col>
                 </Row>
             </Modal>
