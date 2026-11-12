@@ -290,20 +290,38 @@ export const useSubscriptionPaymentModal = ({
         const isSmallScreen = !breakpoints.DESKTOP_SMALL
 
 
+        // routing number - bic
+
+
+
+        // apps/condo/domains/acquiring/constants/gql.js
+
         // Вопросы к биллингу:
         // -- Какие данные у нас хранятся?
         // -- Какие данные необходимы для платежа?
-        // -- У нас может быть несколько реквизитов для одного контекста? Что делать, если их несколько? Выбирать тот, который Дома?
+        // -- У нас может быть несколько реквизитов для одного контекста?
+        //      Что делать, если их несколько? Выбирать тот, который Дома?
+        //      (в логике поля invoice.recipient может быть только один контекст)
+        // -- Что такое корреспондентский счет и чем он отличается от счета получателя?
+        // -- На какой счет у нас будут приходить платежи?
+        // -- Какие плятежи на этот счет приходят? Все подряд? Или какие-то определенные? (Вопрос в бугалтерию)
+        //      (Мне нужно понимать как выцеплять нужные платежи для подписок)
+
+        // 1. Разобраться с тем, что приходит к нам на 407 счет.
+        //      Понять как формировать и смотреть на назначение платежа,
+        //      чтобы задевать только подписки
+        // 2. Нужен ли registerMultiPayment, MultiPayment и Payment или хватит только Invoice?
         const qrCodeData = [
             ['ST00012'],
+            // хардкодим (конфиг)!
             ['Name', 'ООО "ДОМА"'], // получатель -- invoice.RECIPIENT_FIELD.name
             ['PersonalAcc', '40702810916540071538'], // счет получателя -- invoice.RECIPIENT_FIELD.bankAccount
             ['BankName', 'УРАЛЬСКИЙ БАНК ПАО СБЕРБАНК г.Екатеринбург'], // банк получателя -- invoice.RECIPIENT_FIELD.bankName
             ['BIC', '046577674'], // БИК -- invoice.RECIPIENT_FIELD.bic
-            ['CorrespAcc', '40702810916540071538'], // корреспондентский счет -- invoice.RECIPIENT_FIELD.???
-            ['PayeeINN', '9731062087'], // ИНН получателя -- invoice.RECIPIENT_FIELD.tin (???)
-            ['KPP', '773101001'], // КПП -- invoice.RECIPIENT_FIELD.???
-            ['Purpose', 'Л12'], // назначение платежа -- invoice.RECIPIENT_FIELD.
+            ['CorrespAcc', '40702810916540071538'], // корреспондентский счет -- invoice.RECIPIENT_FIELD.??? (offsettingAccount?)
+            ['PayeeINN', '9731062087'], // ИНН получателя -- invoice.RECIPIENT_FIELD.tin
+            ['KPP', '773101001'], // КПП -- invoice.RECIPIENT_FIELD.iec
+            ['Purpose', 'Л12'], // назначение платежа -- invoice.RECIPIENT_FIELD. -- указываем сами
             ['Sum', '1'], // в копейках -- invoice.toPay
             // currency code
         ]
