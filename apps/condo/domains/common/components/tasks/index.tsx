@@ -57,9 +57,9 @@ export type TaskProgressLink = {
     label: string
 } & ({
     onClick: () => void
-    url?: never
+    url?: undefined
 } | {
-    onClick?: never
+    onClick?: undefined
     url: string
 })
 
