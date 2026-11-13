@@ -74,14 +74,22 @@ function getSourceMetadata (source: MessageSource) {
     return success ? data : undefined
 }
 
+function hasAllowedProgressBarUrlProtocol (url: string) {
+    const { protocol } = new URL(url)
+    return protocol === 'http:' || protocol === 'https:'
+}
+
 function validateProgressBarUrls (
     params: Pick<ShowProgressBarParams, 'action' | 'background'>,
     source: MessageSource,
 ) {
     const sourceOrigin = getSourceOrigin(source)
+    if (sourceOrigin === 'null' && (params.background || params.action)) {
+        throw new Error('Forbidden origin. Progress bar URLs require a non-opaque sender origin')
+    }
 
     if (params.background) {
-        if (!isSafeUrl(params.background.url)) {
+        if (!isSafeUrl(params.background.url) || !hasAllowedProgressBarUrlProtocol(params.background.url)) {
             throw new Error('Forbidden url. Your progress bar background url is probably injected')
         }
         if (source.type !== 'frame') {
@@ -94,7 +102,7 @@ function validateProgressBarUrls (
 
     if (params.action) {
         const actionUrl = params.action.type === 'modal' ? params.action.modal.url : params.action.url
-        if (!isSafeUrl(actionUrl)) {
+        if (!isSafeUrl(actionUrl) || !hasAllowedProgressBarUrlProtocol(actionUrl)) {
             throw new Error('Forbidden url. Your progress bar action url is probably injected')
         }
         if (source.type === 'worker') {
