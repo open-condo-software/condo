@@ -92842,6 +92842,7 @@ export type ResetUserInput = {
   dv: Scalars['Int']['input'];
   saveName?: InputMaybe<Scalars['Boolean']['input']>;
   sender: SenderFieldInput;
+  token?: InputMaybe<Scalars['String']['input']>;
   user: UserWhereUniqueInput;
 };
 
