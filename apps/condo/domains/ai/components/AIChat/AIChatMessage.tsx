@@ -205,7 +205,7 @@ const AIChatAssistantMessage: React.FC<AIChatAssistantMessageProps> = ({
             className={`${styles.messageWrapper} ${styles.assistantMessage}`}
         >
             <div className={styles.assistantMessageContainer}>
-                <div ref={assistantContentRef}>
+                <div ref={assistantContentRef} className={styles.assistantBody}>
                     {message.status === 'sending' && !message.content.text?.trim() ? (
                         <AIChatThinkingStatus />
                     ) : (
