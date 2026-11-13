@@ -71,6 +71,13 @@ export function sendResponseMessage ({ data, target, origin }: ResponseMessageAr
     if (isServiceWorker(target)) {
         target.postMessage(data)
     } else {
-        target.postMessage(data, origin)
+        // NOTE: event.origin but be "null" in several cases:
+        // 1. File protocol of sender-window (file://my/path.html)
+        // 2. Iframe with "sandbox" attribute without "allow-same-origin"
+        // Since this is a "response" util, we can respond to these frames by specifying "*" as receiver origin
+        // We also should validate sender on listener "message" event handlers inside controller
+
+        const targetOrigin = origin === 'null' ? '*' : origin
+        target.postMessage(data, targetOrigin)
     }
 }
