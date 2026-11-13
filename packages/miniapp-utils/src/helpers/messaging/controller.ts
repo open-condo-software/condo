@@ -226,6 +226,15 @@ export class PostMessageController extends EventTarget {
             })
         }
 
+        // NOTE: origin "null" is allowed for parent window, so we need to check only frames
+        if (messageSource.type === 'frame' && event.origin === 'null') {
+            return sendResponseMessage({
+                data: getClientErrorMessage('ACCESS_DENIED', 0, 'Message was received from anonymous null origin', requestId, eventName),
+                target: event.source,
+                origin: event.origin,
+            })
+        }
+
         const handlerMethods = (
             this.#registeredHandlers[messageSource.id]?.[eventType]?.[eventName]
             ?? this.#registeredHandlers['*']?.[eventType]?.[eventName]
