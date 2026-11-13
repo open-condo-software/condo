@@ -135,9 +135,26 @@ export const TaskProgress = ({ task, translations, progress, removeTask, canCanc
                             description={link ? (
                                 <Space direction='vertical' size={0} width='100%'>
                                     {description}
-                                    <Typography.Link size='large' href={link.url} onClick={link.onClick}>
-                                        {link.label}
-                                    </Typography.Link>
+                                    {link.url ? (
+                                        <Typography.Link size='large' href={link.url}>
+                                            {link.label}
+                                        </Typography.Link>
+                                    ) : (
+                                        <Typography.Link
+                                            role='button'
+                                            size='large'
+                                            tabIndex={0}
+                                            onClick={link.onClick}
+                                            onKeyDown={(event) => {
+                                                if (event.key === 'Enter' || event.key === ' ') {
+                                                    event.preventDefault()
+                                                    link.onClick()
+                                                }
+                                            }}
+                                        >
+                                            {link.label}
+                                        </Typography.Link>
+                                    )}
                                 </Space>
                             ) : description}
                         />

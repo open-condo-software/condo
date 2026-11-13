@@ -9,6 +9,8 @@ import { B2BAppFrame } from '@condo/domains/miniapp/components/B2BAppFrame'
 
 type ProgressBarBackgroundFrameProps = Pick<MiniAppTaskRecord, 'background' | 'sourceMetadata'>
 
+const ignoreCloseApplication = () => undefined
+
 const ProgressBarBackgroundFrame: React.FC<ProgressBarBackgroundFrameProps> = ({ background, sourceMetadata }) => {
     const sourceMetadataKey = JSON.stringify(sourceMetadata)
     const metadata = useMemo(() => {
@@ -19,7 +21,7 @@ const ProgressBarBackgroundFrame: React.FC<ProgressBarBackgroundFrameProps> = ({
 
     if (!background) return null
 
-    return <B2BAppFrame hidden metadata={metadata} src={background.url}/>
+    return <B2BAppFrame hidden metadata={metadata} src={background.url} onCloseApplication={ignoreCloseApplication}/>
 }
 
 export const ProgressBarBackgroundFrames: React.FC = () => {

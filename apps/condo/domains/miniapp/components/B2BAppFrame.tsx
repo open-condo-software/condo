@@ -40,10 +40,11 @@ type ActionParams = SetPageActionsParams['actions'][number] & {
 export type B2BAppFrameProps = Pick<IFrameProps,
 'src' | 'metadata' | 'initialHeight' | 'onRegister' | 'hidden' | 'reloadScope' | 'onLoad'> & {
     actions?: boolean
+    onCloseApplication?: () => void
     onCloseModal?: () => void
 }
 
-export const B2BAppFrame: React.FC<B2BAppFrameProps>  = ({ src, metadata, initialHeight, actions, onRegister, hidden, reloadScope, onLoad, onCloseModal }) => {
+export const B2BAppFrame: React.FC<B2BAppFrameProps>  = ({ src, metadata, initialHeight, actions, onRegister, hidden, reloadScope, onLoad, onCloseApplication, onCloseModal }) => {
     const intl = useIntl()
     const { addHandler, addMiddleware } = usePostMessageContext()
     const router = useRouter()
@@ -106,6 +107,11 @@ export const B2BAppFrame: React.FC<B2BAppFrameProps>  = ({ src, metadata, initia
             frameId,
             zodSchemaToValidator(z.strictObject({})),
             async () => {
+                if (onCloseApplication) {
+                    onCloseApplication()
+                    return { success: true }
+                }
+
                 const srcUrl = new URL(src)
                 const modalId = srcUrl.searchParams.get('modalId')
                 // NOTE 1: Case 1.  This modal was opened locally, so it is not registered
@@ -212,6 +218,7 @@ export const B2BAppFrame: React.FC<B2BAppFrameProps>  = ({ src, metadata, initia
         addMiddleware,
         intl.locale,
         metadata?.domainsMapping,
+        onCloseApplication,
         onCloseModal,
         onRegister,
         organization?.id,
