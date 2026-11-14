@@ -8,7 +8,19 @@ import { getTextRender, getMoneyRender } from '@condo/domains/common/components/
 
 type AlignType = 'right' | 'left' | 'center'
 
+const SERVICES_COLUMNS_AMOUNT = 6
 const textRender = getTextRender()
+
+const expandTextRender = (text: string, record: TableRecord) => {
+    if (get(record, ['children', 'length'])) {
+        return {
+            children: text,
+            props: { colSpan: SERVICES_COLUMNS_AMOUNT },
+        }
+    }
+
+    return { children: textRender(text) }
+}
 
 const getAdvancedMoneyRender = (intl, currencyCode: string) => {
     const moneyRender = getMoneyRender(intl, currencyCode)
@@ -42,7 +54,7 @@ export const useServicesTableColumns = (currencyCode: string) => {
                 key: 'serviceName',
                 dataIndex: 'name',
                 width: '20%',
-                render: textRender,
+                render: expandTextRender,
             },
             toPay: {
                 title: ToPayTitle,
@@ -50,7 +62,7 @@ export const useServicesTableColumns = (currencyCode: string) => {
                 dataIndex: 'toPay',
                 width: '10%',
                 align: moneyAlign,
-                render: textRender,
+                render: moneyRender,
             },
             charge: {
                 title: ChargeTitle,

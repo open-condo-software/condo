@@ -11,7 +11,7 @@ import {
     FilterComponentSize,
     FiltersMeta,
 } from '@condo/domains/common/utils/filters.utils'
-import { getDayRangeFilter, getFilter, getStringContainsFilter } from '@condo/domains/common/utils/tables.utils'
+import { FilterType, getDayRangeFilter, getFilter, getStringContainsFilter } from '@condo/domains/common/utils/tables.utils'
 
 
 const addressFilter = getStringContainsFilter(['receipt', 'property', 'address'])
@@ -23,7 +23,8 @@ const transferDateFilter = getDayRangeFilter('transferDate')
 const propertyFilter = getStringContainsFilter(['rawAddress'])
 const acquiringContextFilter = getFilter(['context', 'id'], 'array', 'string', 'in')
 const statusFilter = getFilter('status', 'array', 'string', 'in')
-const orderFilter = getStringContainsFilter('order')
+const orderContainsFilter = getStringContainsFilter('order')
+const orderFilter: FilterType = (value) => orderContainsFilter(Array.isArray(value) ? value[0] : value)
 
 const statusType = [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS]
 
