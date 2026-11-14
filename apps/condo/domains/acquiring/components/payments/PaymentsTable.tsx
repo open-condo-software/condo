@@ -18,10 +18,13 @@ import styles from '@condo/domains/acquiring/components/payments/PaymentsTable.m
 import { EXPORT_PAYMENTS_TO_EXCEL, Payment as PaymentGQL } from '@condo/domains/acquiring/gql'
 import usePaymentsSum from '@condo/domains/acquiring/hooks/usePaymentsSum'
 import { usePaymentsTableColumns } from '@condo/domains/acquiring/hooks/usePaymentsTableColumns'
+import {
+    usePaymentsTableDataRefresh,
+    usePaymentsTableState,
+} from '@condo/domains/acquiring/hooks/usePaymentsTableState'
 import { usePosIntegrationAlert } from '@condo/domains/acquiring/hooks/usePosIntegrationAlert'
 import { usePosIntegrationLastTestingPosReceipt } from '@condo/domains/acquiring/hooks/usePosIntegrationLastTestingPosReceipt'
 import {
-    getPaymentColumnFilterState,
     mergePaymentColumnFilters,
 } from '@condo/domains/acquiring/utils/paymentFilters'
 import { useBillingAndAcquiringContexts } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
@@ -33,7 +36,6 @@ import { getMoneyRender } from '@condo/domains/common/components/Table/Renders'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useTableTranslations } from '@condo/domains/common/hooks/useTableTranslations'
 import { FiltersFromQueryType } from '@condo/domains/common/utils/tables.utils'
-import { defaultParseUrlQuery } from '@condo/domains/common/utils/tableUrls'
 
 
 const { publicRuntimeConfig: { defaultCurrencyCode } } = getConfig()
@@ -134,32 +136,17 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
         search,
     })
 
-    const parsedUrlState = useMemo(
-        () => defaultParseUrlQuery(router.query as Record<string, string | string[]>, DEFAULT_PAGE_SIZE),
-        [router.query]
-    )
-    const columnFilterState = useMemo(
-        () => getPaymentColumnFilterState(parsedUrlState.filterState as FiltersFromQueryType, 'list'),
-        [parsedUrlState.filterState]
-    )
-    const filtersFromUrl = useMemo<FiltersFromQueryType>(() => ({
-        ...parsedUrlState.filterState as FiltersFromQueryType,
-        ...(parsedUrlState.globalFilter ? { search: parsedUrlState.globalFilter } : {}),
-    }), [parsedUrlState.filterState, parsedUrlState.globalFilter])
-    const sortStateFromUrl = useMemo(
-        () => parsedUrlState.sortState.filter(({ id }) => SORTABLE_COLUMN_IDS.has(id)),
-        [parsedUrlState.sortState]
-    )
-    const normalizedSortState = sortStateFromUrl.length ? sortStateFromUrl : PAYMENTS_DEFAULT_SORT_STATE
-    const initialTableState = useMemo<FullTableState>(() => ({
-        ...parsedUrlState,
-        filterState: columnFilterState,
-        globalFilter: undefined,
-        sortState: normalizedSortState,
-        rowSelectionState: [],
-    // Table reads initial state only once. URL changes are handled through its API and data source.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }), [])
+    const {
+        columnFilterState,
+        filtersFromUrl,
+        initialTableState,
+        parsedUrlState,
+    } = usePaymentsTableState({
+        defaultSortState: PAYMENTS_DEFAULT_SORT_STATE,
+        sortableColumnIds: SORTABLE_COLUMN_IDS,
+        tableRef,
+        type: 'list',
+    })
 
     const buildSearchPaymentsQuery = useCallback((filterState: FiltersFromQueryType): PaymentWhereInput => ({
         ...filtersToWhere(filterState),
@@ -176,9 +163,8 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
     const lastTestingPosReceiptRef = useRef(lastTestingPosReceipt)
     lastTestingPosReceiptRef.current = lastTestingPosReceipt
     const filtersKey = JSON.stringify(searchPaymentsQuery)
-    const previousFiltersKeyRef = useRef(filtersKey)
-    const previousColumnFilterStateRef = useRef(columnFilterState)
     const latestRequestRef = useRef<PaymentsTableRequest | null>(null)
+    usePaymentsTableDataRefresh({ columnFilterState, filtersKey, tableRef })
 
     const [fetchPayments] = useLazyQuery(PaymentGQL.GET_ALL_OBJS_WITH_COUNT_QUERY)
     const waitForLatestRequest = useCallback(async (): Promise<PaymentsTableResult> => {
@@ -260,44 +246,6 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
             console.error('Failed to update payments table query params', error)
         })
     }, [buildSearchPaymentsQuery, filtersFromUrl, router])
-
-    useEffect(() => {
-        if (!tableRef.current) return
-
-        const { api } = tableRef.current
-        const currentColumnFilterState = api.getFilterState()
-        if (!isEqual(currentColumnFilterState, columnFilterState)) {
-            api.setFilterState(columnFilterState)
-        }
-
-        if (!isEqual(api.getSorting(), normalizedSortState)) {
-            api.setSorting(normalizedSortState)
-        }
-
-        const { startRow } = api.getPagination()
-        if (startRow !== parsedUrlState.startRow) {
-            api.setPagination({
-                startRow: parsedUrlState.startRow,
-                endRow: parsedUrlState.startRow + DEFAULT_PAGE_SIZE,
-            })
-        }
-    }, [columnFilterState, normalizedSortState, parsedUrlState.startRow])
-
-    useEffect(() => {
-        if (previousFiltersKeyRef.current === filtersKey || !tableRef.current) return
-        previousFiltersKeyRef.current = filtersKey
-
-        const haveColumnFiltersChanged = !isEqual(previousColumnFilterStateRef.current, columnFilterState)
-        previousColumnFilterStateRef.current = columnFilterState
-        if (haveColumnFiltersChanged) return
-
-        const { startRow } = tableRef.current.api.getPagination()
-        if (startRow > 0) {
-            tableRef.current.api.setPagination({ startRow: 0, endRow: DEFAULT_PAGE_SIZE })
-        } else {
-            tableRef.current.api.refetchData()
-        }
-    }, [columnFilterState, filtersKey])
 
     useEffect(() => {
         if (lastTestingPosReceipt && !isLastTestingPosReceiptLoading && currentTab === 'payments' && !hasDateRangeBeenClearedRef.current) {

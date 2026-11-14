@@ -5,7 +5,7 @@ import { Gutter } from 'antd/lib/grid/row'
 import isEqual from 'lodash/isEqual'
 import getConfig from 'next/config'
 import { useRouter } from 'next/router'
-import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { CSSProperties, useCallback, useMemo, useRef, useState } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
 import { Download } from '@open-condo/icons'
@@ -27,9 +27,12 @@ import { PaymentsSummary } from '@condo/domains/acquiring/components/payments/Pa
 import useDownloadPaymentsFiles from '@condo/domains/acquiring/hooks/useDownloadPaymentsFiles'
 import { usePaymentsFilesTableColumns } from '@condo/domains/acquiring/hooks/usePaymentsFilesTableColumns'
 import usePaymentsSum from '@condo/domains/acquiring/hooks/usePaymentsSum'
+import {
+    usePaymentsTableDataRefresh,
+    usePaymentsTableState,
+} from '@condo/domains/acquiring/hooks/usePaymentsTableState'
 import { getInitialSelectedRegistryKeys } from '@condo/domains/acquiring/utils/helpers'
 import {
-    getPaymentColumnFilterState,
     mergePaymentColumnFilters,
 } from '@condo/domains/acquiring/utils/paymentFilters'
 import { useBillingAndAcquiringContexts } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
@@ -38,7 +41,6 @@ import { getMoneyRender } from '@condo/domains/common/components/Table/Renders'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useTableTranslations } from '@condo/domains/common/hooks/useTableTranslations'
 import { FiltersFromQueryType } from '@condo/domains/common/utils/tables.utils'
-import { defaultParseUrlQuery } from '@condo/domains/common/utils/tableUrls'
 
 
 const SORTABLE_PROPERTIES = ['amount', 'loadedAt', 'number', 'paymentPeriodStartDate', 'paymentsCount']
@@ -98,35 +100,19 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
     const router = useRouter()
     const tableRef = useRef<TableRef | null>(null)
 
-    const parsedUrlState = useMemo(
-        () => defaultParseUrlQuery(router.query as Record<string, string | string[]>, DEFAULT_PAGE_SIZE),
-        [router.query]
-    )
     const legacySelectedRegistryKeys = useMemo(() => getInitialSelectedRegistryKeys(router), [router])
-    const columnFilterState = useMemo(
-        () => getPaymentColumnFilterState(parsedUrlState.filterState as FiltersFromQueryType, 'registry'),
-        [parsedUrlState.filterState]
-    )
-    const filtersFromUrl = useMemo<FiltersFromQueryType>(() => ({
-        ...parsedUrlState.filterState as FiltersFromQueryType,
-        ...(parsedUrlState.globalFilter ? { search: parsedUrlState.globalFilter } : {}),
-    }), [parsedUrlState.filterState, parsedUrlState.globalFilter])
-    const sortStateFromUrl = useMemo(
-        () => parsedUrlState.sortState.filter(({ id }) => SORTABLE_COLUMN_IDS.has(id)),
-        [parsedUrlState.sortState]
-    )
-    const normalizedSortState = sortStateFromUrl.length ? sortStateFromUrl : PAYMENTS_DEFAULT_SORT_STATE
-    const initialTableState = useMemo<FullTableState>(() => ({
-        ...parsedUrlState,
-        filterState: columnFilterState,
-        globalFilter: undefined,
-        sortState: normalizedSortState,
-        rowSelectionState: parsedUrlState.rowSelectionState.length
-            ? parsedUrlState.rowSelectionState
-            : legacySelectedRegistryKeys,
-    // Table reads initial state only once. URL changes are handled through its API and data source.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }), [])
+    const {
+        columnFilterState,
+        filtersFromUrl,
+        initialTableState,
+    } = usePaymentsTableState({
+        defaultSortState: PAYMENTS_DEFAULT_SORT_STATE,
+        fallbackRowSelectionState: legacySelectedRegistryKeys,
+        preserveUrlRowSelection: true,
+        sortableColumnIds: SORTABLE_COLUMN_IDS,
+        tableRef,
+        type: 'registry',
+    })
 
     const currencyCode = billingContexts.find(({ integration }) => !!integration.currencyCode)?.integration?.currencyCode ?? defaultCurrencyCode
 
@@ -160,9 +146,8 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
     const canFetchPaymentsFilesRef = useRef(Boolean(persistor && acquiringContexts.length))
     canFetchPaymentsFilesRef.current = Boolean(persistor && acquiringContexts.length)
     const filtersKey = JSON.stringify({ searchPaymentsFilesQuery, persistorReady: Boolean(persistor) })
-    const previousFiltersKeyRef = useRef(filtersKey)
-    const previousColumnFilterStateRef = useRef(columnFilterState)
     const latestRequestRef = useRef<PaymentsFileTableRequest | null>(null)
+    usePaymentsTableDataRefresh({ columnFilterState, filtersKey, tableRef })
 
     const [fetchPaymentsFiles] = useGetPaymentsFilesLazyQuery()
     const waitForLatestRequest = useCallback(async (): Promise<PaymentsFileTableResult> => {
@@ -231,22 +216,6 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
 
     const { data: sumAllPayments, loading: sumAllPaymentsLoading } = usePaymentsSum({ paymentsFilesWhere: searchPaymentsFilesQuery })
 
-    useEffect(() => {
-        if (previousFiltersKeyRef.current === filtersKey || !tableRef.current) return
-        previousFiltersKeyRef.current = filtersKey
-
-        const haveColumnFiltersChanged = !isEqual(previousColumnFilterStateRef.current, columnFilterState)
-        previousColumnFilterStateRef.current = columnFilterState
-        if (haveColumnFiltersChanged) return
-
-        const { startRow } = tableRef.current.api.getPagination()
-        if (startRow > 0) {
-            tableRef.current.api.setPagination({ startRow: 0, endRow: DEFAULT_PAGE_SIZE })
-        } else {
-            tableRef.current.api.refetchData()
-        }
-    }, [columnFilterState, filtersKey])
-
     const handleResetSelectedRegistry = useCallback(() => {
         tableRef.current?.api?.resetRowSelection()
         setSelectedRegistryKeys([])
@@ -293,28 +262,6 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
             console.error('Failed to update payments files table query params', error)
         })
     }, [buildSearchPaymentsFilesQuery, filtersFromUrl, router])
-
-    useEffect(() => {
-        if (!tableRef.current) return
-
-        const { api } = tableRef.current
-        const currentColumnFilterState = api.getFilterState()
-        if (!isEqual(currentColumnFilterState, columnFilterState)) {
-            api.setFilterState(columnFilterState)
-        }
-
-        if (!isEqual(api.getSorting(), normalizedSortState)) {
-            api.setSorting(normalizedSortState)
-        }
-
-        const { startRow } = api.getPagination()
-        if (startRow !== parsedUrlState.startRow) {
-            api.setPagination({
-                startRow: parsedUrlState.startRow,
-                endRow: parsedUrlState.startRow + DEFAULT_PAGE_SIZE,
-            })
-        }
-    }, [columnFilterState, normalizedSortState, parsedUrlState.startRow])
 
     const onRowSelectionChange = useCallback((rowSelectionState: RowSelectionState) => {
         setSelectedRegistryKeys(rowSelectionState)

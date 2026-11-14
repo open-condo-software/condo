@@ -212,10 +212,11 @@ export const CombinedMainContent: React.FC = () => {
     useEffect(() => {
         if (isExtensionTabActive) return
         if (!tab || tab !== activeTab || !type || type !== activeType) {
+            const shouldPreserveQuery = !tab && type === activeType
             updateQuery(
                 router,
                 { newParameters: { tab: activeTab, type: activeType } },
-                { resetOldParameters: true, routerAction: 'replace', shallow: true }
+                { resetOldParameters: !shouldPreserveQuery, routerAction: 'replace', shallow: true }
             )
         }
     }, [activeTab, activeType, isExtensionTabActive, router, tab, type])

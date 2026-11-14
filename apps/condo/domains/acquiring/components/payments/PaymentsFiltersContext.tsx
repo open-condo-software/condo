@@ -122,17 +122,22 @@ const PaymentsFiltersContent: React.FC<PaymentsFiltersContentProps> = ({ childre
 
         return filtersUpdateQueueRef.current
     }, [router, type])
+    const enqueueFiltersUpdateRef = useRef(enqueueFiltersUpdate)
+    enqueueFiltersUpdateRef.current = enqueueFiltersUpdate
 
     const updateSearch = useMemo(() => debounce((value: string) => {
-        void enqueueFiltersUpdate(currentFilters => ({ ...currentFilters, search: value }))
+        void enqueueFiltersUpdateRef.current(currentFilters => ({ ...currentFilters, search: value }))
             .finally(() => {
                 if (pendingSearchRef.current === value) {
                     pendingSearchRef.current = null
                 }
             })
-    }, 400), [enqueueFiltersUpdate])
+    }, 400), [])
 
-    useEffect(() => () => updateSearch.cancel(), [updateSearch])
+    useEffect(() => () => {
+        updateSearch.cancel()
+        pendingSearchRef.current = null
+    }, [type, updateSearch])
 
     const handleSearchChange = useCallback((value: string) => {
         pendingSearchRef.current = value
