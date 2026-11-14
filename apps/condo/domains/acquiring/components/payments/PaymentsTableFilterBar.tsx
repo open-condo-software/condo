@@ -22,17 +22,11 @@ type PaymentsTableFilterBarProps = {
         onChange: (value: string) => void
     }
     datePickerProps: DatePickerProps
-    modalFilters: {
-        count: number
-        resetButton: React.ReactNode
-        openButton: React.ReactNode
-    }
 }
 
 export const PaymentsTableFilterBar: React.FC<PaymentsTableFilterBarProps> = ({
     search,
     datePickerProps,
-    modalFilters,
 }) => {
     const { breakpoints } = useLayoutContext()
     const desktopColumnFlex = breakpoints.DESKTOP_SMALL ? 'none' : '100%'
@@ -52,14 +46,6 @@ export const PaymentsTableFilterBar: React.FC<PaymentsTableFilterBarProps> = ({
                     </Col>
                     <Col flex={desktopColumnFlex}>
                         <DateRangePicker {...datePickerProps} />
-                    </Col>
-                    {modalFilters.count > 0 && (
-                        <Col flex={desktopColumnFlex}>
-                            {modalFilters.resetButton}
-                        </Col>
-                    )}
-                    <Col flex={desktopColumnFlex}>
-                        {modalFilters.openButton}
                     </Col>
                 </Row>
             </BillingTableFiltersContainer>

@@ -28,16 +28,23 @@ import useDownloadPaymentsFiles from '@condo/domains/acquiring/hooks/useDownload
 import { usePaymentsFilesTableColumns } from '@condo/domains/acquiring/hooks/usePaymentsFilesTableColumns'
 import usePaymentsSum from '@condo/domains/acquiring/hooks/usePaymentsSum'
 import { getInitialSelectedRegistryKeys } from '@condo/domains/acquiring/utils/helpers'
+import {
+    getPaymentColumnFilterState,
+    mergePaymentColumnFilters,
+} from '@condo/domains/acquiring/utils/paymentFilters'
 import { useBillingAndAcquiringContexts } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
 import { DEFAULT_PAGE_SIZE } from '@condo/domains/common/components/Table/Index'
 import { getMoneyRender } from '@condo/domains/common/components/Table/Renders'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useTableTranslations } from '@condo/domains/common/hooks/useTableTranslations'
+import { FiltersFromQueryType } from '@condo/domains/common/utils/tables.utils'
 import { defaultParseUrlQuery } from '@condo/domains/common/utils/tableUrls'
 
 
-const SORTABLE_PROPERTIES = ['amount', 'loadedAt']
-const PAYMENTS_DEFAULT_SORT_BY = ['loadedAt_DESC']
+const SORTABLE_PROPERTIES = ['amount', 'loadedAt', 'number', 'paymentPeriodStartDate', 'paymentsCount']
+const SORTABLE_COLUMN_IDS = ['amount', 'loadedAt', 'number', 'paymentPeriod', 'paymentsCount']
+const PAYMENTS_DEFAULT_SORT_BY = ['paymentPeriodStartDate_DESC']
+const PAYMENTS_DEFAULT_SORT_STATE: FullTableState['sortState'] = [{ id: 'paymentPeriod', desc: true }]
 
 const ROW_GUTTER: [Gutter, Gutter] = [0, 24]
 const BOTTOM_PADDING_LIKE_ACTION_BAR: CSSProperties = { paddingBottom: '104px' }
@@ -86,10 +93,16 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
         [router.query]
     )
     const legacySelectedRegistryKeys = useMemo(() => getInitialSelectedRegistryKeys(router), [router])
+    const columnFilterState = useMemo(
+        () => getPaymentColumnFilterState(parsedUrlState.filterState as FiltersFromQueryType, 'registry'),
+        [parsedUrlState.filterState]
+    )
+    const initialSortState = parsedUrlState.sortState.filter(({ id }) => SORTABLE_COLUMN_IDS.includes(id))
     const initialTableState = useMemo<FullTableState>(() => ({
         ...parsedUrlState,
-        filterState: {},
+        filterState: columnFilterState,
         globalFilter: undefined,
+        sortState: initialSortState.length ? initialSortState : PAYMENTS_DEFAULT_SORT_STATE,
         rowSelectionState: parsedUrlState.rowSelectionState.length
             ? parsedUrlState.rowSelectionState
             : legacySelectedRegistryKeys,
@@ -110,18 +123,27 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
     const [selectedRegistryKeys, setSelectedRegistryKeys] = useState<string[]>(initialTableState.rowSelectionState)
     const CountSelectedRegistryMessage = intl.formatMessage({ id: 'ItemsSelectedCount' }, { count: selectedRegistryKeys.length })
 
-    const tableColumns = usePaymentsFilesTableColumns(currencyCode, { acquiringContexts, search })
+    const tableColumns = usePaymentsFilesTableColumns(currencyCode, {
+        acquiringContexts,
+        filterMetas: queryMetas,
+        search,
+    })
 
-    const searchPaymentsFilesQuery: PaymentsFileWhereInput = useMemo(() => ({
-        ...filtersToWhere({ paymentPeriod: dateFilter, ...parsedUrlState.filterState, search }),
+    const buildSearchPaymentsFilesQuery = useCallback((filterState: FiltersFromQueryType): PaymentsFileWhereInput => ({
+        ...filtersToWhere({ paymentPeriod: dateFilter, ...filterState, search }),
         context: { id_in: acquiringContexts.map(({ id }) => id) },
-    }), [acquiringContexts, dateFilter, filtersToWhere, parsedUrlState.filterState, search])
+    }), [acquiringContexts, dateFilter, filtersToWhere, search])
+    const searchPaymentsFilesQuery = useMemo(
+        () => buildSearchPaymentsFilesQuery(parsedUrlState.filterState as FiltersFromQueryType),
+        [buildSearchPaymentsFilesQuery, parsedUrlState.filterState]
+    )
     const searchPaymentsFilesQueryRef = useRef(searchPaymentsFilesQuery)
     searchPaymentsFilesQueryRef.current = searchPaymentsFilesQuery
     const canFetchPaymentsFilesRef = useRef(Boolean(persistor && acquiringContexts.length))
     canFetchPaymentsFilesRef.current = Boolean(persistor && acquiringContexts.length)
     const filtersKey = JSON.stringify({ searchPaymentsFilesQuery, persistorReady: Boolean(persistor) })
     const previousFiltersKeyRef = useRef(filtersKey)
+    const previousColumnFilterStateRef = useRef(columnFilterState)
 
     const [fetchPaymentsFiles] = useGetPaymentsFilesLazyQuery()
     const dataSource: GetTableData<PaymentsFile> = useCallback(async ({ sortState, startRow, endRow }) => {
@@ -134,7 +156,10 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
         }
 
         try {
-            const sortBy = sortersToSortBy(sortState, PAYMENTS_DEFAULT_SORT_BY) as SortPaymentsFilesBy[]
+            const querySortState = sortState.map(sort => (
+                sort.id === 'paymentPeriod' ? { ...sort, id: 'paymentPeriodStartDate' } : sort
+            ))
+            const sortBy = sortersToSortBy(querySortState, PAYMENTS_DEFAULT_SORT_BY) as SortPaymentsFilesBy[]
             const { data } = await fetchPaymentsFiles({
                 variables: {
                     where: searchPaymentsFilesQueryRef.current,
@@ -175,13 +200,17 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
         if (previousFiltersKeyRef.current === filtersKey || !tableRef.current) return
         previousFiltersKeyRef.current = filtersKey
 
+        const haveColumnFiltersChanged = !isEqual(previousColumnFilterStateRef.current, columnFilterState)
+        previousColumnFilterStateRef.current = columnFilterState
+        if (haveColumnFiltersChanged) return
+
         const { startRow } = tableRef.current.api.getPagination()
         if (startRow > 0) {
             tableRef.current.api.setPagination({ startRow: 0, endRow: DEFAULT_PAGE_SIZE })
         } else {
             tableRef.current.api.refetchData()
         }
-    }, [filtersKey])
+    }, [columnFilterState, filtersKey])
 
     const handleResetSelectedRegistry = useCallback(() => {
         tableRef.current?.api?.resetRowSelection()
@@ -206,11 +235,20 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
     const updateUrlQuery = useCallback((params: FullTableState) => {
         const nextQuery = { ...router.query } as Record<string, string | string[]>
         const nextOffset = params.startRow > 0 ? String(params.startRow) : undefined
+        const nextFilters = mergePaymentColumnFilters(
+            parsedUrlState.filterState as FiltersFromQueryType,
+            params.filterState as FiltersFromQueryType,
+            'registry'
+        )
+        const nextFiltersValue = Object.keys(nextFilters).length ? JSON.stringify(nextFilters) : undefined
         const nextSelectedRows = params.rowSelectionState.length
             ? JSON.stringify(params.rowSelectionState)
             : undefined
 
+        searchPaymentsFilesQueryRef.current = buildSearchPaymentsFilesQuery(nextFilters)
+
         setQueryParam(nextQuery, 'offset', nextOffset)
+        setQueryParam(nextQuery, 'filters', nextFiltersValue)
         setQueryParam(nextQuery, 'sort', getSortQueryValue(params.sortState))
         setQueryParam(nextQuery, 'selectedRows', nextSelectedRows)
         delete nextQuery.selectedRegistryIds
@@ -219,7 +257,16 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
         router.replace({ pathname: router.pathname, query: nextQuery }, undefined, { shallow: true }).catch((error) => {
             console.error('Failed to update payments files table query params', error)
         })
-    }, [router])
+    }, [buildSearchPaymentsFilesQuery, parsedUrlState.filterState, router])
+
+    useEffect(() => {
+        if (!tableRef.current) return
+
+        const currentColumnFilterState = tableRef.current.api.getFilterState()
+        if (!isEqual(currentColumnFilterState, columnFilterState)) {
+            tableRef.current.api.setFilterState(columnFilterState)
+        }
+    }, [columnFilterState])
 
     const onRowSelectionChange = useCallback((rowSelectionState: RowSelectionState) => {
         setSelectedRegistryKeys(rowSelectionState)
@@ -260,6 +307,7 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
                     <PaymentsSummary items={paymentsSummaryItems} />
                     <Table<PaymentsFile>
                         id='payments-files-table'
+                        storageKey='payments-files-table-settings-v6'
                         dataSource={dataSource}
                         columns={tableColumns}
                         pageSize={DEFAULT_PAGE_SIZE}

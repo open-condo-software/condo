@@ -1,5 +1,5 @@
 import { GetB2BAppContextWithPosIntegrationConfigQuery } from '@app/condo/gql'
-import { Payment } from '@app/condo/schema'
+import { Payment, PaymentWhereInput } from '@app/condo/schema'
 import { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -13,6 +13,7 @@ import {
     getStatusRender,
     getTextRender,
 } from '@condo/domains/common/components/Table/Renders'
+import { FiltersMeta, getFilterComponentByKey, TableFiltersMeta } from '@condo/domains/common/utils/filters.utils'
 
 import { LastTestingPosReceiptData } from './usePosIntegrationLastTestingPosReceipt'
 
@@ -21,6 +22,7 @@ import type { AcquiringIntegrationContext } from '@app/condo/schema'
 
 type PaymentsTableColumnsOptions = {
     acquiringContexts?: AcquiringIntegrationContext[]
+    filterMetas?: FiltersMeta<PaymentWhereInput>[]
     lastTestingPosReceipt?: LastTestingPosReceiptData
     posIntegrationContext?: GetB2BAppContextWithPosIntegrationConfigQuery['contexts'][number]
     search?: string
@@ -39,9 +41,10 @@ export function usePaymentsTableColumns (
     const intl = useIntl()
 
     const AddressTitle = intl.formatMessage({ id: 'field.Address' })
-    const DateTitle = intl.formatMessage({ id: 'Date' })
+    const DateTitle = intl.formatMessage({ id: 'DepositedDate' })
+    const TransferDateTitle = intl.formatMessage({ id: 'TransferDate' })
     const AccountTitle = intl.formatMessage({ id: 'field.AccountNumberShort' })
-    const PaymentAmountTitle = intl.formatMessage({ id: 'PaymentAmount' })
+    const PaymentAmountTitle = intl.formatMessage({ id: 'accrualsAndPayments.payments.type.registry.amount' })
     const PaymentSourceTitle = intl.formatMessage({ id: 'field.Source' })
     const StatusTitle = intl.formatMessage({ id: 'Status' })
     const PaymentOrderColumnTitle = intl.formatMessage({ id: 'PaymentOrderShort' })
@@ -62,54 +65,67 @@ export function usePaymentsTableColumns (
                 id: 'depositedDate',
                 dataKey: paymentDataKey('depositedDate'),
                 enableSorting: true,
-                initialSize: '11%',
+                filterComponent: getFilterComponentByKey(
+                    (options.filterMetas || []) as TableFiltersMeta<PaymentWhereInput>[],
+                    'depositedDate'
+                ),
+                initialSize: '12%',
                 render: getDateRender(intl, options.search),
             },
-            account: {
-                header: AccountTitle,
-                id: 'accountNumber',
-                dataKey: paymentDataKey('accountNumber'),
-                enableSorting: false,
-                initialSize: '8%',
-                render: stringRender,
-            },
-            address: {
-                header: AddressTitle,
-                id: 'rawAddress',
-                dataKey: paymentDataKey('rawAddress'),
+            transferDate: {
+                header: TransferDateTitle,
+                id: 'transferDate',
+                dataKey: paymentDataKey('transferDate'),
                 enableSorting: true,
-                initialSize: '20%',
-                render: stringRender,
+                filterComponent: getFilterComponentByKey(
+                    (options.filterMetas || []) as TableFiltersMeta<PaymentWhereInput>[],
+                    'transferDate'
+                ),
+                initialVisibility: false,
+                initialSize: '12%',
+                render: getDateRender(intl, options.search),
             },
-            source: hasSourceColumn ? {
-                header: PaymentSourceTitle,
-                id: 'integration',
-                dataKey: paymentDataKey('context.integration.name'),
-                enableSorting: false,
-                initialSize: '7%',
-            } : null,
             order: {
                 header: () => getColumnTooltip(PaymentOrderColumnTitle, PaymentOrderTooltipTitle),
                 id: 'order',
                 dataKey: paymentDataKey('order'),
                 enableSorting: false,
-                initialSize: '8%',
+                filterComponent: getFilterComponentByKey(
+                    (options.filterMetas || []) as TableFiltersMeta<PaymentWhereInput>[],
+                    'order'
+                ),
+                initialSize: '10%',
                 render: stringRender,
             },
-            status: {
-                header: StatusTitle,
-                id: 'status',
-                dataKey: paymentDataKey('status'),
+            account: {
+                header: AccountTitle,
+                id: 'accountNumber',
+                dataKey: paymentDataKey('accountNumber'),
+                enableSorting: true,
+                filterComponent: getFilterComponentByKey(
+                    (options.filterMetas || []) as TableFiltersMeta<PaymentWhereInput>[],
+                    'accountNumber'
+                ),
+                initialSize: '10%',
+                render: stringRender,
+            },
+            address: {
+                header: AddressTitle,
+                id: 'address',
+                dataKey: paymentDataKey('rawAddress'),
                 enableSorting: false,
-                initialSize: '8%',
-                render: getStatusRender(intl, openStatusDescModal, options.search),
+                filterComponent: getFilterComponentByKey(
+                    (options.filterMetas || []) as TableFiltersMeta<PaymentWhereInput>[],
+                    'address'
+                ),
+                render: stringRender,
             },
             amount: {
                 header: PaymentAmountTitle,
                 id: 'amount',
                 dataKey: paymentDataKey('amount'),
                 enableSorting: true,
-                initialSize: '10%',
+                initialSize: '13%',
                 render: getMoneyRender(intl, currencyCode),
             },
             posReceiptUrl: hasPosReceiptUrlColumn ? {
@@ -123,8 +139,32 @@ export function usePaymentsTableColumns (
                     verifyDescription: PosReceiptVerifyDescription,
                     lastTestingPosReceipt: options.lastTestingPosReceipt,
                 }),
-                initialSize: '8%',
+                initialVisibility: false,
+                initialSize: '10%',
             } : null,
+            source: hasSourceColumn ? {
+                header: PaymentSourceTitle,
+                id: 'type',
+                dataKey: paymentDataKey('context.integration.name'),
+                enableSorting: false,
+                filterComponent: getFilterComponentByKey(
+                    (options.filterMetas || []) as TableFiltersMeta<PaymentWhereInput>[],
+                    'type'
+                ),
+                initialSize: '10%',
+            } : null,
+            status: {
+                header: StatusTitle,
+                id: 'status',
+                dataKey: paymentDataKey('status'),
+                enableSorting: false,
+                filterComponent: getFilterComponentByKey(
+                    (options.filterMetas || []) as TableFiltersMeta<PaymentWhereInput>[],
+                    'status'
+                ),
+                initialSize: '12%',
+                render: getStatusRender(intl, openStatusDescModal, options.search),
+            },
         }
 
         return Object.values(columns).filter((column): column is PaymentColumn => Boolean(column))
@@ -141,10 +181,12 @@ export function usePaymentsTableColumns (
         PosReceiptVerifyDescription,
         PosReceiptVerifyTitle,
         StatusTitle,
+        TransferDateTitle,
         currencyCode,
         intl,
         openStatusDescModal,
         options.acquiringContexts,
+        options.filterMetas,
         options.lastTestingPosReceipt,
         options.posIntegrationContext,
         options.search,

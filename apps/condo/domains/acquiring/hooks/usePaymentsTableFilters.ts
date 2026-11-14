@@ -23,7 +23,7 @@ const transferDateFilter = getDayRangeFilter('transferDate')
 const propertyFilter = getStringContainsFilter(['rawAddress'])
 const acquiringContextFilter = getFilter(['context', 'id'], 'array', 'string', 'in')
 const statusFilter = getFilter('status', 'array', 'string', 'in')
-const orderFilter = getFilter('order', 'array', 'string', 'in')
+const orderFilter = getStringContainsFilter('order')
 
 const statusType = [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS]
 
@@ -44,11 +44,10 @@ export function usePaymentsTableFilters (
     const PaymentOrderPlaceholder = intl.formatMessage({ id: 'accrualsAndPayments.payments.type.registry.filters.paymentOrder.placeholder' })
     const EnterStatusMessage = intl.formatMessage({ id: 'pages.condo.payments.enterStatus' })
 
-    const statuses = statusType.map((item) => ({
+    const statusOptions = useMemo(() => convertToOptions(statusType.map((item) => ({
         name: intl.formatMessage({ id: 'payment.status.' + item as FormatjsIntl.Message['ids'] }),
         id: item,
-    }))
-    const statusOptions = convertToOptions(statuses, 'name', 'id')
+    })), 'name', 'id'), [intl])
 
     return useMemo(() => [
         {
@@ -88,10 +87,9 @@ export function usePaymentsTableFilters (
             keyword: 'order',
             filters: [orderFilter],
             component: {
-                type: ComponentType.TagsSelect,
+                type: ComponentType.Input,
                 props: {
                     placeholder: PaymentOrderPlaceholder,
-                    tokenSeparators: [',', ' '],
                 },
                 modalFilterComponentWrapper: {
                     label: PaymentOrderTitle,

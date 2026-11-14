@@ -1,4 +1,4 @@
-import { paymentOrderNumbersFilter, paymentPeriodFilter } from './usePaymentsFilesTableFilters'
+import { paymentPeriodFilter } from './usePaymentsFilesTableFilters'
 
 
 describe('paymentPeriodFilter', () => {
@@ -21,14 +21,6 @@ describe('paymentPeriodFilter', () => {
         expect(paymentPeriodFilter(['2026-10-19', '2026-10-17'])).toStrictEqual({
             paymentPeriodStartDate_gt: '2026-10-19',
             paymentPeriodStartDate_lt: '2026-10-17',
-        })
-    })
-})
-
-describe('paymentOrderNumbersFilter', () => {
-    it('should filter by multiple payment order numbers', () => {
-        expect(paymentOrderNumbersFilter(['123', '456'])).toStrictEqual({
-            paymentOrder_in: ['123', '456'],
         })
     })
 })

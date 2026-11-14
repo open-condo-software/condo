@@ -1,5 +1,6 @@
 import { GetPaymentsFilesQuery } from '@app/condo/gql'
-import { AcquiringIntegrationContext } from '@app/condo/schema'
+import { AcquiringIntegrationContext, PaymentsFileWhereInput } from '@app/condo/schema'
+import dayjs from 'dayjs'
 import { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -10,12 +11,15 @@ import {
     getColumnTooltip,
     getDateRender,
     getMoneyRender,
+    getTableCellRenderer,
     getTextRender,
 } from '@condo/domains/common/components/Table/Renders'
+import { FiltersMeta, getFilterComponentByKey, TableFiltersMeta } from '@condo/domains/common/utils/filters.utils'
 
 
 type PaymentsFilesTableColumnsOptions = {
     acquiringContexts?: AcquiringIntegrationContext[]
+    filterMetas?: FiltersMeta<PaymentsFileWhereInput>[]
     search?: string
 }
 
@@ -31,19 +35,25 @@ export function usePaymentsFilesTableColumns (
 ): PaymentsFileColumn[] {
     const intl = useIntl()
 
-    const RegistryNumberTitle = intl.formatMessage({ id: 'accrualsAndPayments.payments.type.registry.registryNumber' })
+    const RegistryNumberTitle = intl.formatMessage({ id: 'global.number' })
     const AmountTitle = intl.formatMessage({ id: 'accrualsAndPayments.payments.type.registry.amount' })
-    const DateLoadTitle = intl.formatMessage({ id: 'accrualsAndPayments.payments.type.registry.filters.formationDate' })
+    const DateLoadTitle = intl.formatMessage({ id: 'TransferDate' })
+    const DateLoadTooltipTitle = intl.formatMessage({ id: 'accrualsAndPayments.payments.type.registry.filters.formationDate' })
     const RegistryNameTitle = intl.formatMessage({ id: 'accrualsAndPayments.payments.type.registry.registryName' })
     const UploadedRecordsTitle = intl.formatMessage({ id: 'accrualsAndPayments.payments.type.registry.uploadedRecords' })
-    const PaymentOrderColumnTitle = intl.formatMessage({ id: 'accrualsAndPayments.payments.type.registry.paymentOrder' })
+    const PaymentOrderColumnTitle = intl.formatMessage({ id: 'PaymentOrderShort' })
 
     const PaymentOrderTooltipTitle = intl.formatMessage({ id: 'PaymentOrder' })
+    const PaymentDateTitle = intl.formatMessage({ id: 'DepositedDate' })
     const PaymentSourceTitle = intl.formatMessage({ id: 'field.Source' })
     const StatusTitle = intl.formatMessage({ id: 'Status' })
 
     return useMemo(() => {
         const stringRender = getTextRender(options.search)
+        const fileNameRender = getTableCellRenderer({
+            search: options.search,
+            ellipsis: { rows: 1, expandable: false },
+        })
         const hasSourceColumn = Boolean(options.acquiringContexts?.length > 1)
 
         const columns: Record<string, PaymentsFileColumn | null> = {
@@ -51,63 +61,95 @@ export function usePaymentsFilesTableColumns (
                 header: RegistryNumberTitle,
                 id: 'number',
                 dataKey: paymentsFileDataKey('number'),
-                enableSorting: false,
-                initialSize: '10%',
+                enableSorting: true,
+                initialSize: '7%',
                 render: stringRender,
+            },
+            paymentPeriod: {
+                header: PaymentDateTitle,
+                id: 'paymentPeriod',
+                dataKey: paymentsFileDataKey('paymentPeriodStartDate'),
+                enableSorting: true,
+                filterComponent: getFilterComponentByKey(
+                    (options.filterMetas || []) as TableFiltersMeta<PaymentsFileWhereInput>[],
+                    'paymentPeriod'
+                ),
+                initialSize: '11%',
+                render: (paymentPeriodStartDate: string) => {
+                    if (!paymentPeriodStartDate) return stringRender('')
+
+                    return stringRender(dayjs(paymentPeriodStartDate).format('DD.MM.YYYY'))
+                },
+            },
+            loadedAt: {
+                header: () => getColumnTooltip(DateLoadTitle, DateLoadTooltipTitle),
+                id: 'loadedAt',
+                dataKey: paymentsFileDataKey('loadedAt'),
+                enableSorting: true,
+                filterComponent: getFilterComponentByKey(
+                    (options.filterMetas || []) as TableFiltersMeta<PaymentsFileWhereInput>[],
+                    'loadedAt'
+                ),
+                initialVisibility: false,
+                initialSize: '12%',
+                render: getDateRender(intl, options.search),
             },
             paymentOrder: {
                 header: () => getColumnTooltip(PaymentOrderColumnTitle, PaymentOrderTooltipTitle),
                 id: 'paymentOrder',
                 dataKey: paymentsFileDataKey('paymentOrder'),
                 enableSorting: false,
-                initialSize: '15%',
+                filterComponent: getFilterComponentByKey(
+                    (options.filterMetas || []) as TableFiltersMeta<PaymentsFileWhereInput>[],
+                    'paymentOrder'
+                ),
+                initialSize: '10%',
                 render: stringRender,
-            },
-            loadedAt: {
-                header: DateLoadTitle,
-                id: 'loadedAt',
-                dataKey: paymentsFileDataKey('loadedAt'),
-                enableSorting: true,
-                initialSize: '15%',
-                render: getDateRender(intl, options.search),
             },
             registryName: {
                 header: RegistryNameTitle,
                 id: 'name',
                 dataKey: paymentsFileDataKey('name'),
                 enableSorting: false,
-                initialSize: hasSourceColumn ? '18%' : '25%',
-                render: stringRender,
+                render: fileNameRender,
             },
-            source: hasSourceColumn ? {
-                header: PaymentSourceTitle,
-                id: 'integration',
-                dataKey: paymentsFileDataKey('context.integration.name'),
-                enableSorting: false,
-                initialSize: '7%',
-            } : null,
             amount: {
                 header: AmountTitle,
                 id: 'amount',
                 dataKey: paymentsFileDataKey('amount'),
                 enableSorting: true,
-                initialSize: '15%',
+                initialSize: '13%',
                 render: getMoneyRender(intl, currencyCode),
             },
             uploadedRecords: {
                 header: UploadedRecordsTitle,
                 id: 'paymentsCount',
                 dataKey: paymentsFileDataKey('paymentsCount'),
-                enableSorting: false,
-                initialSize: '10%',
+                enableSorting: true,
+                initialSize: '12%',
                 render: stringRender,
             },
+            source: hasSourceColumn ? {
+                header: PaymentSourceTitle,
+                id: 'type',
+                dataKey: paymentsFileDataKey('context.integration.name'),
+                enableSorting: false,
+                filterComponent: getFilterComponentByKey(
+                    (options.filterMetas || []) as TableFiltersMeta<PaymentsFileWhereInput>[],
+                    'type'
+                ),
+                initialSize: '10%',
+            } : null,
             status: {
                 header: StatusTitle,
                 id: 'status',
                 dataKey: paymentsFileDataKey('status'),
                 enableSorting: false,
-                initialSize: '12%',
+                filterComponent: getFilterComponentByKey(
+                    (options.filterMetas || []) as TableFiltersMeta<PaymentsFileWhereInput>[],
+                    'status'
+                ),
+                initialSize: '11%',
                 render: getPaymentsFileStatusRender(intl, options.search),
             },
         }
@@ -116,8 +158,10 @@ export function usePaymentsFilesTableColumns (
     }, [
         AmountTitle,
         DateLoadTitle,
+        DateLoadTooltipTitle,
         PaymentOrderColumnTitle,
         PaymentOrderTooltipTitle,
+        PaymentDateTitle,
         PaymentSourceTitle,
         RegistryNameTitle,
         RegistryNumberTitle,
@@ -126,6 +170,7 @@ export function usePaymentsFilesTableColumns (
         currencyCode,
         intl,
         options.acquiringContexts,
+        options.filterMetas,
         options.search,
     ])
 }
