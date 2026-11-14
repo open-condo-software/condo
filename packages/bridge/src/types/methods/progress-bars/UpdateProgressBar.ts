@@ -1,8 +1,12 @@
+import type { ProgressBarAction } from './ShowProgressBar'
+
 type UpdatableParams = {
     message: string
     description: string
     progress: number
+    disableCancel: boolean
     status: 'completed' | 'error'
+    action: ProgressBarAction
 }
 
 export type UpdateProgressBarParams = {

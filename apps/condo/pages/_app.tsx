@@ -91,6 +91,7 @@ import { useMeterReadingsImportTaskUIInterface } from '@condo/domains/meter/hook
 import { ConnectedAppsWithIconsContextProvider, useConnectedAppsWithIconsContext } from '@condo/domains/miniapp/components/ConnectedAppsWithIconsProvider'
 import { GlobalAppsContainer } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsContainer'
 import { GlobalAppsFeaturesProvider } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsFeaturesContext'
+import { ProgressBarBackgroundFrames } from '@condo/domains/miniapp/components/ProgressBarBackgroundFrames'
 import {
     useNewsItemRecipientsExportTaskUIInterface,
 } from '@condo/domains/news/hooks/useNewsItemRecipientsExportTaskUIInterface'
@@ -469,10 +470,11 @@ const TasksProvider = ({ children }) => {
         skip: !isAuthenticated || userLoading || organizationIsLoading || !organization || !persistor,
     })
 
-    const { records: miniAppTasks, loading: isMiniAppTasksLoading } = MiniAppTaskUIInterface.storage.useTasks(
-        { status: 'processing', today: true }, 
+    const { records: processingMiniAppTasks, loading: isMiniAppTasksLoading } = MiniAppTaskUIInterface.storage.useTasks(
+        { status: 'processing' },
         userLoading ? null : user,
     )
+    const miniAppTasks = processingMiniAppTasks.filter((task) => task.background || dayjs(task.createdAt).isToday())
     // ... another task records should be loaded here
 
     const initialTaskRecords = useMemo(
@@ -575,8 +577,8 @@ const MyApp = ({ Component, pageProps }) => {
                             {shouldDisplayCookieAgreement && isLegalInfoEnabled && <CookieAgreement/>}
                             <HCaptchaProvider>
                                 <SudoTokenProvider>
-                                    <TasksProvider>
-                                        <PostMessageProvider>
+                                    <PostMessageProvider>
+                                        <TasksProvider>
                                             <TourProvider>
                                                 <GlobalAppsFeaturesProvider>
                                                     <GlobalAppsContainer/>
@@ -584,6 +586,7 @@ const MyApp = ({ Component, pageProps }) => {
                                                         <ActiveCallContextProvider>
                                                             <ConnectedAppsWithIconsContextProvider>
                                                                 <CondoAppEventsHandler/>
+                                                                <ProgressBarBackgroundFrames/>
                                                                 <SurveysProvider>
                                                                     <SurveysQueue/>
                                                                     <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
@@ -601,8 +604,8 @@ const MyApp = ({ Component, pageProps }) => {
                                                     </TicketVisibilityContextProvider>
                                                 </GlobalAppsFeaturesProvider>
                                             </TourProvider>
-                                        </PostMessageProvider>
-                                    </TasksProvider>
+                                        </TasksProvider>
+                                    </PostMessageProvider>
                                 </SudoTokenProvider>
                             </HCaptchaProvider>
                             {!isSnowfallDisabled && <Snowfall />}

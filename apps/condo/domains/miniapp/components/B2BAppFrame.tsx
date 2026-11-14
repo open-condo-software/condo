@@ -6,6 +6,8 @@ import bridge, { type IncomingEventData } from '@open-condo/bridge'
 import type {
     CloseApplicationParams,
     CloseApplicationData,
+    CloseModalWindowParams,
+    CloseModalWindowData,
     GetLaunchParamsParams,
     GetLaunchParamsData,
     RequestAuthParams,
@@ -38,9 +40,11 @@ type ActionParams = SetPageActionsParams['actions'][number] & {
 export type B2BAppFrameProps = Pick<IFrameProps,
 'src' | 'metadata' | 'initialHeight' | 'onRegister' | 'hidden' | 'reloadScope' | 'onLoad'> & {
     actions?: boolean
+    onCloseApplication?: () => void
+    onCloseModal?: () => void
 }
 
-export const B2BAppFrame: React.FC<B2BAppFrameProps>  = ({ src, metadata, initialHeight, actions, onRegister, hidden, reloadScope, onLoad }) => {
+export const B2BAppFrame: React.FC<B2BAppFrameProps>  = ({ src, metadata, initialHeight, actions, onRegister, hidden, reloadScope, onLoad, onCloseApplication, onCloseModal }) => {
     const intl = useIntl()
     const { addHandler, addMiddleware } = usePostMessageContext()
     const router = useRouter()
@@ -103,9 +107,20 @@ export const B2BAppFrame: React.FC<B2BAppFrameProps>  = ({ src, metadata, initia
             frameId,
             zodSchemaToValidator(z.strictObject({})),
             async () => {
+                if (onCloseApplication) {
+                    onCloseApplication()
+                    return { success: true }
+                }
+
                 const srcUrl = new URL(src)
                 const modalId = srcUrl.searchParams.get('modalId')
-                // NOTE 1: Case 1. B2BApp frame is opened via modal (CondoWebAppShowModalWindow call),
+                // NOTE 1: Case 1.  This modal was opened locally, so it is not registered
+                // in the bridge modal storage. Close its owning Condo modal instead of the application.
+                if (modalId && onCloseModal) {
+                    onCloseModal()
+                    return { success: true }
+                }
+                // NOTE 2: Case 2. B2BApp frame is opened via modal (CondoWebAppShowModalWindow call),
                 // In that case we should treat CloseApplication call as alias to CondoWebAppCloseModalWindow with it's modalId
                 if (modalId) {
                     const { success } = await bridge
@@ -126,6 +141,22 @@ export const B2BAppFrame: React.FC<B2BAppFrameProps>  = ({ src, metadata, initia
                 }
             }
         )
+
+        const modalId = new URL(src).searchParams.get('modalId')
+        if (modalId && onCloseModal) {
+            addHandler<CloseModalWindowParams, CloseModalWindowData>(
+                'condo-bridge',
+                'CondoWebAppCloseModalWindow',
+                frameId,
+                zodSchemaToValidator(z.strictObject({ modalId: z.string() })),
+                ({ params }) => {
+                    if (params.modalId !== modalId) return { modalId: params.modalId, success: false }
+
+                    onCloseModal()
+                    return { modalId, success: true }
+                }
+            )
+        }
 
         if (actions) {
             addHandler<SetPageActionsParams, SetPageActionsData>(
@@ -187,6 +218,8 @@ export const B2BAppFrame: React.FC<B2BAppFrameProps>  = ({ src, metadata, initia
         addMiddleware,
         intl.locale,
         metadata?.domainsMapping,
+        onCloseApplication,
+        onCloseModal,
         onRegister,
         organization?.id,
         src,
