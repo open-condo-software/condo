@@ -211,14 +211,14 @@ export const CombinedMainContent: React.FC = () => {
 
     useEffect(() => {
         if (isExtensionTabActive) return
-        if (!type || type !== activeType) {
+        if (!tab || tab !== activeTab || !type || type !== activeType) {
             updateQuery(
                 router,
                 { newParameters: { tab: activeTab, type: activeType } },
                 { resetOldParameters: true, routerAction: 'replace', shallow: true }
             )
         }
-    }, [activeTab, activeType, isExtensionTabActive, router, type])
+    }, [activeTab, activeType, isExtensionTabActive, router, tab, type])
 
     const handleTabChange = useCallback(async (activeTab) => {
         const nextAvailableTypes = availableTypesByTab[activeTab] || DEFAULT_COMBINED_VIEW_TYPES

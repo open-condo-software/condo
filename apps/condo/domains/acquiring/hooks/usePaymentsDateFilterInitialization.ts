@@ -18,13 +18,17 @@ export const usePaymentsDateFilterInitialization = (
     type: ViewTypes
 ): boolean => {
     const router = useRouter()
-    const [isInitialized, setIsInitialized] = useState(false)
+    const [initializedType, setInitializedType] = useState<ViewTypes | null>(null)
     const isInitializationInProgressRef = useRef(false)
+    const initializationIdRef = useRef(0)
+    const isInitialized = isPaymentsRouteReady && initializedType === type
 
     useEffect(() => {
+        const initializationId = ++initializationIdRef.current
+
         if (!isPaymentsRouteReady) {
             isInitializationInProgressRef.current = false
-            setIsInitialized(false)
+            setInitializedType(null)
             return
         }
 
@@ -34,30 +38,49 @@ export const usePaymentsDateFilterInitialization = (
         const { filters } = parseQuery(router.query)
         const dateFilterKey = type === VIEW_TYPES.registry ? 'paymentPeriod' : 'depositedDate'
         const dateFilter = filters[dateFilterKey]
+        const hasValidDateFilter = Array.isArray(dateFilter)
+            && dateFilter.length === 2
+            && dateFilter.every(date => dayjs(date).isValid())
 
         const initialize = async (): Promise<void> => {
-            if (!Array.isArray(dateFilter) || dateFilter.length !== 2) {
-                await updateQuery(
-                    router,
-                    {
-                        newParameters: {
-                            ...getFiltersQueryData({
-                                ...filters,
-                                [dateFilterKey]: getDefaultDateFilter(),
-                            }),
-                            tab: 'payments',
-                            type,
+            try {
+                if (!hasValidDateFilter) {
+                    await updateQuery(
+                        router,
+                        {
+                            newParameters: {
+                                ...getFiltersQueryData({
+                                    ...filters,
+                                    [dateFilterKey]: getDefaultDateFilter(),
+                                }),
+                                tab: 'payments',
+                                type,
+                            },
                         },
-                    },
-                    { resetOldParameters: false, routerAction: 'replace', shallow: true }
-                )
-            }
+                        { resetOldParameters: false, routerAction: 'replace', shallow: true }
+                    )
+                }
 
-            setIsInitialized(true)
-            isInitializationInProgressRef.current = false
+                if (initializationIdRef.current === initializationId) {
+                    setInitializedType(type)
+                }
+            } catch (error) {
+                console.error('Failed to initialize payments date filter', error)
+            } finally {
+                if (initializationIdRef.current === initializationId) {
+                    isInitializationInProgressRef.current = false
+                }
+            }
         }
 
         void initialize()
+
+        return () => {
+            if (initializationIdRef.current === initializationId) {
+                initializationIdRef.current += 1
+                isInitializationInProgressRef.current = false
+            }
+        }
     }, [isInitialized, isPaymentsRouteReady, router, type])
 
     return isInitialized

@@ -39,6 +39,7 @@ import { defaultParseUrlQuery } from '@condo/domains/common/utils/tableUrls'
 const { publicRuntimeConfig: { defaultCurrencyCode } } = getConfig()
 
 const SORTABLE_PROPERTIES = ['advancedAt', 'depositedDate', 'transferDate', 'accountNumber', 'amount']
+const SORTABLE_COLUMN_IDS = new Set(SORTABLE_PROPERTIES)
 const PAYMENTS_DEFAULT_SORT_BY = ['depositedDate_DESC']
 const PAYMENTS_DEFAULT_SORT_STATE: FullTableState['sortState'] = [{ id: 'depositedDate', desc: true }]
 
@@ -68,6 +69,16 @@ const setQueryParam = (
 
 interface PaymentsTableContentProps {
     areAlertLoading: boolean
+}
+
+type PaymentsTableResult = {
+    rowData: PaymentType[]
+    rowCount: number
+    error?: unknown
+}
+
+type PaymentsTableRequest = {
+    promise: Promise<PaymentsTableResult>
 }
 
 const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoading }): JSX.Element => {
@@ -113,7 +124,7 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
     const columnLabels = useTableTranslations()
 
     const organizationId = get(userOrganization, ['organization', 'id'], '')
-    const { clearDateFilter, dateFilter, paymentFilterMetas: queryMetas, search } = usePaymentsFilters()
+    const { clearDateFilter, paymentFilterMetas: queryMetas, search } = usePaymentsFilters()
     const { filtersToWhere, sortersToSortBy } = useQueryMappers<PaymentWhereInput>(queryMetas, SORTABLE_PROPERTIES)
     const tableColumns = usePaymentsTableColumns(currencyCode, openStatusDescModal, {
         acquiringContexts,
@@ -131,26 +142,34 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
         () => getPaymentColumnFilterState(parsedUrlState.filterState as FiltersFromQueryType, 'list'),
         [parsedUrlState.filterState]
     )
-    const initialSortState = parsedUrlState.sortState.filter(({ id }) => SORTABLE_PROPERTIES.includes(id))
+    const filtersFromUrl = useMemo<FiltersFromQueryType>(() => ({
+        ...parsedUrlState.filterState as FiltersFromQueryType,
+        ...(parsedUrlState.globalFilter ? { search: parsedUrlState.globalFilter } : {}),
+    }), [parsedUrlState.filterState, parsedUrlState.globalFilter])
+    const sortStateFromUrl = useMemo(
+        () => parsedUrlState.sortState.filter(({ id }) => SORTABLE_COLUMN_IDS.has(id)),
+        [parsedUrlState.sortState]
+    )
+    const normalizedSortState = sortStateFromUrl.length ? sortStateFromUrl : PAYMENTS_DEFAULT_SORT_STATE
     const initialTableState = useMemo<FullTableState>(() => ({
         ...parsedUrlState,
         filterState: columnFilterState,
         globalFilter: undefined,
-        sortState: initialSortState.length ? initialSortState : PAYMENTS_DEFAULT_SORT_STATE,
+        sortState: normalizedSortState,
         rowSelectionState: [],
     // Table reads initial state only once. URL changes are handled through its API and data source.
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }), [])
 
     const buildSearchPaymentsQuery = useCallback((filterState: FiltersFromQueryType): PaymentWhereInput => ({
-        ...filtersToWhere({ depositedDate: dateFilter, ...filterState, search }),
+        ...filtersToWhere(filterState),
         organization: { id: organizationId },
         status_in: [PaymentStatusType.Withdrawn, PaymentStatusType.Done],
         invoice_is_null: true,
-    }), [dateFilter, filtersToWhere, organizationId, search])
+    }), [filtersToWhere, organizationId])
     const searchPaymentsQuery = useMemo(
-        () => buildSearchPaymentsQuery(parsedUrlState.filterState as FiltersFromQueryType),
-        [buildSearchPaymentsQuery, parsedUrlState.filterState]
+        () => buildSearchPaymentsQuery(filtersFromUrl),
+        [buildSearchPaymentsQuery, filtersFromUrl]
     )
     const searchPaymentsQueryRef = useRef(searchPaymentsQuery)
     searchPaymentsQueryRef.current = searchPaymentsQuery
@@ -159,48 +178,71 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
     const filtersKey = JSON.stringify(searchPaymentsQuery)
     const previousFiltersKeyRef = useRef(filtersKey)
     const previousColumnFilterStateRef = useRef(columnFilterState)
+    const latestRequestRef = useRef<PaymentsTableRequest | null>(null)
 
     const [fetchPayments] = useLazyQuery(PaymentGQL.GET_ALL_OBJS_WITH_COUNT_QUERY)
+    const waitForLatestRequest = useCallback(async (): Promise<PaymentsTableResult> => {
+        while (latestRequestRef.current) {
+            const latestRequest = latestRequestRef.current
+            const result = await latestRequest.promise
+            if (latestRequest === latestRequestRef.current) return result
+        }
+
+        return { rowData: [], rowCount: 0 }
+    }, [])
+
     const dataSource: GetTableData<PaymentType> = useCallback(async ({ sortState, startRow, endRow }) => {
-        setPaymentsLoading(true)
-        try {
-            const sortBy = sortersToSortBy(sortState, PAYMENTS_DEFAULT_SORT_BY) as SortPaymentsBy[]
-            const { data } = await fetchPayments({
-                variables: {
-                    where: searchPaymentsQueryRef.current,
-                    sortBy,
-                    first: endRow - startRow,
-                    skip: startRow,
-                },
-                fetchPolicy: 'network-only',
-            })
-            const rowData: PaymentType[] = data?.objs?.filter(Boolean) ?? []
-            const rowCount = data?.meta?.count ?? 0
+        const request: PaymentsTableRequest = {
+            promise: (async () => {
+                try {
+                    const sortBy = sortersToSortBy(sortState, PAYMENTS_DEFAULT_SORT_BY) as SortPaymentsBy[]
+                    const { data } = await fetchPayments({
+                        variables: {
+                            where: searchPaymentsQueryRef.current,
+                            sortBy,
+                            first: endRow - startRow,
+                            skip: startRow,
+                        },
+                        fetchPolicy: 'network-only',
+                    })
+                    const rowData: PaymentType[] = data?.objs?.filter(Boolean) ?? []
+                    const rowCount = data?.meta?.count ?? 0
 
-            if (lastTestingPosReceiptRef.current) {
-                const highlightedIndex = rowData.findIndex(payment => payment.id === lastTestingPosReceiptRef.current.condoPaymentId)
-                if (highlightedIndex > 0) {
-                    const [highlightedRow] = rowData.splice(highlightedIndex, 1)
-                    rowData.unshift(highlightedRow)
+                    if (lastTestingPosReceiptRef.current) {
+                        const highlightedIndex = rowData.findIndex(payment => payment.id === lastTestingPosReceiptRef.current.condoPaymentId)
+                        if (highlightedIndex > 0) {
+                            const [highlightedRow] = rowData.splice(highlightedIndex, 1)
+                            rowData.unshift(highlightedRow)
+                        }
+                    }
+
+                    return { rowData, rowCount }
+                } catch (error) {
+                    return { rowData: [], rowCount: 0, error }
                 }
-            }
+            })(),
+        }
 
-            setPaymentsCount(rowCount)
-            return { rowData, rowCount }
-        } catch (error) {
-            console.error('Failed to fetch payments', error)
-            setPaymentsCount(0)
-            return { rowData: [], rowCount: 0 }
-        } finally {
+        latestRequestRef.current = request
+        setPaymentsLoading(true)
+
+        const result = await waitForLatestRequest()
+        if (request === latestRequestRef.current) {
+            if (result.error) {
+                console.error('Failed to fetch payments', result.error)
+            }
+            setPaymentsCount(result.rowCount)
             setPaymentsLoading(false)
         }
-    }, [fetchPayments, sortersToSortBy])
+
+        return { rowData: result.rowData, rowCount: result.rowCount }
+    }, [fetchPayments, sortersToSortBy, waitForLatestRequest])
 
     const updateUrlQuery = useCallback((params: FullTableState) => {
         const nextQuery = { ...router.query } as Record<string, string | string[]>
         const nextOffset = params.startRow > 0 ? String(params.startRow) : undefined
         const nextFilters = mergePaymentColumnFilters(
-            parsedUrlState.filterState as FiltersFromQueryType,
+            filtersFromUrl,
             params.filterState as FiltersFromQueryType,
             'list'
         )
@@ -217,16 +259,29 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
         router.replace({ pathname: router.pathname, query: nextQuery }, undefined, { shallow: true }).catch((error) => {
             console.error('Failed to update payments table query params', error)
         })
-    }, [buildSearchPaymentsQuery, parsedUrlState.filterState, router])
+    }, [buildSearchPaymentsQuery, filtersFromUrl, router])
 
     useEffect(() => {
         if (!tableRef.current) return
 
-        const currentColumnFilterState = tableRef.current.api.getFilterState()
+        const { api } = tableRef.current
+        const currentColumnFilterState = api.getFilterState()
         if (!isEqual(currentColumnFilterState, columnFilterState)) {
-            tableRef.current.api.setFilterState(columnFilterState)
+            api.setFilterState(columnFilterState)
         }
-    }, [columnFilterState])
+
+        if (!isEqual(api.getSorting(), normalizedSortState)) {
+            api.setSorting(normalizedSortState)
+        }
+
+        const { startRow } = api.getPagination()
+        if (startRow !== parsedUrlState.startRow) {
+            api.setPagination({
+                startRow: parsedUrlState.startRow,
+                endRow: parsedUrlState.startRow + DEFAULT_PAGE_SIZE,
+            })
+        }
+    }, [columnFilterState, normalizedSortState, parsedUrlState.startRow])
 
     useEffect(() => {
         if (previousFiltersKeyRef.current === filtersKey || !tableRef.current) return
