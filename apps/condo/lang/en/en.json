@@ -2082,6 +2082,7 @@
   "pages.billing.NoBilling.title": "You haven't connected any billing yet",
   "pages.billing.ReceiptsTable.PDFTooltip": "View PDF-receipt",
   "pages.billing.ReceiptsTable.loadRegistry.button": "Load registry",
+  "pages.billing.ServicesModal.noChargeDetails": "No charge details available",
   "pages.billing.setup.chooseChannels.title": "Payment setup for individuals",
   "pages.billing.setup.chooseChannels.chooseChannels.title": "Channels for publication",
   "pages.billing.setup.chooseChannels.integrtion.setup.title": "Integration setup",

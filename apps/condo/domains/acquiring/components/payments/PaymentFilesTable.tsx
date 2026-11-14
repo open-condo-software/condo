@@ -1,62 +1,94 @@
-import { GetPaymentsFilesQuery, useGetPaymentsFilesQuery } from '@app/condo/gql'
-import { SortPaymentsFilesBy } from '@app/condo/schema'
+import { GetPaymentsFilesQuery, useGetPaymentsFilesLazyQuery } from '@app/condo/gql'
+import { PaymentsFileWhereInput, SortPaymentsFilesBy } from '@app/condo/schema'
 import { Col, Row } from 'antd'
-import { CheckboxChangeEvent } from 'antd/lib/checkbox/Checkbox'
 import { Gutter } from 'antd/lib/grid/row'
-import { TableRowSelection } from 'antd/lib/table/interface'
-import dayjs, { Dayjs } from 'dayjs'
-import debounce from 'lodash/debounce'
+import isEqual from 'lodash/isEqual'
 import getConfig from 'next/config'
-import { NextRouter, useRouter } from 'next/router'
-import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
+import { useRouter } from 'next/router'
+import React, { CSSProperties, useCallback, useMemo, useRef, useState } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
 import { Download } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Button, Checkbox, Space } from '@open-condo/ui'
+import {
+    ActionBar,
+    Button,
+    FullTableState,
+    GetTableData,
+    RowSelectionState,
+    Space,
+    Table,
+    TableRef,
+} from '@open-condo/ui'
 
 import { PaymentsFileDetailsModal } from '@condo/domains/acquiring/components/payments/PaymentsFileDetailsModal'
+import { usePaymentsFilters } from '@condo/domains/acquiring/components/payments/PaymentsFiltersContext'
 import { PaymentsSummary } from '@condo/domains/acquiring/components/payments/PaymentsSummary'
-import { PaymentsTableFilterBar } from '@condo/domains/acquiring/components/payments/PaymentsTableFilterBar'
 import useDownloadPaymentsFiles from '@condo/domains/acquiring/hooks/useDownloadPaymentsFiles'
 import { usePaymentsFilesTableColumns } from '@condo/domains/acquiring/hooks/usePaymentsFilesTableColumns'
-import { usePaymentsFilesTableFilters } from '@condo/domains/acquiring/hooks/usePaymentsFilesTableFilters'
 import usePaymentsSum from '@condo/domains/acquiring/hooks/usePaymentsSum'
-import { PaymentsFilterTemplate } from '@condo/domains/acquiring/utils/clientSchema'
-import { getInitialSelectedRegistryKeys, IPaymentsFilesFilters } from '@condo/domains/acquiring/utils/helpers'
-import { useBillingAndAcquiringContexts } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
-import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
-import { getMoneyRender } from '@condo/domains/common/components/Table/Renders'
-import { useDateRangeSearch } from '@condo/domains/common/hooks/useDateRangeSearch'
 import {
-    MultipleFilterContextProvider,
-    useMultipleFiltersModal,
-} from '@condo/domains/common/hooks/useMultipleFiltersModal'
+    usePaymentsTableDataRefresh,
+    usePaymentsTableState,
+} from '@condo/domains/acquiring/hooks/usePaymentsTableState'
+import { getInitialSelectedRegistryKeys } from '@condo/domains/acquiring/utils/helpers'
+import {
+    mergePaymentColumnFilters,
+} from '@condo/domains/acquiring/utils/paymentFilters'
+import { useBillingAndAcquiringContexts } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
+import { DEFAULT_PAGE_SIZE } from '@condo/domains/common/components/Table/Index'
+import { getMoneyRender } from '@condo/domains/common/components/Table/Renders'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
-import { useSearch } from '@condo/domains/common/hooks/useSearch'
-import { updateQuery } from '@condo/domains/common/utils/helpers'
-import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { useTableTranslations } from '@condo/domains/common/hooks/useTableTranslations'
+import { FiltersFromQueryType } from '@condo/domains/common/utils/tables.utils'
 
 
-const SORTABLE_PROPERTIES = ['amount', 'loadedAt']
-const PAYMENTS_DEFAULT_SORT_BY = ['loadedAt_DESC']
-const DEFAULT_DATE_RANGE: [Dayjs, Dayjs] = [dayjs().subtract(1, 'week'), dayjs()]
-const DEBOUNCE_TIMEOUT = 400
+const SORTABLE_PROPERTIES = ['amount', 'loadedAt', 'number', 'paymentPeriodStartDate', 'paymentsCount']
+const SORTABLE_COLUMN_IDS = new Set(['amount', 'loadedAt', 'number', 'paymentPeriod', 'paymentsCount'])
+const PAYMENTS_DEFAULT_SORT_BY = ['paymentPeriodStartDate_DESC']
+const PAYMENTS_DEFAULT_SORT_STATE: FullTableState['sortState'] = [{ id: 'paymentPeriod', desc: true }]
 
 const ROW_GUTTER: [Gutter, Gutter] = [0, 24]
 const BOTTOM_PADDING_LIKE_ACTION_BAR: CSSProperties = { paddingBottom: '104px' }
+const ASC = 'ASC'
+const DESC = 'DESC'
 
 const { publicRuntimeConfig: { defaultCurrencyCode } } = getConfig()
 
-type IPaymentsFile = NonNullable<NonNullable<GetPaymentsFilesQuery['paymentsFiles']>[number]>
+type PaymentsFile = NonNullable<NonNullable<GetPaymentsFilesQuery['paymentsFiles']>[number]>
 
+type PaymentsFileTableResult = {
+    rowData: PaymentsFile[]
+    rowCount: number
+    error?: unknown
+}
+
+type PaymentsFileTableRequest = {
+    promise: Promise<PaymentsFileTableResult>
+}
+
+const getSortQueryValue = (sortState: FullTableState['sortState']): string | undefined => {
+    if (!sortState?.length) return undefined
+
+    const firstSort = sortState[0]
+    return `${firstSort.id}_${firstSort.desc ? DESC : ASC}`
+}
+
+const setQueryParam = (
+    query: Record<string, string | string[]>,
+    key: string,
+    value: string | undefined
+): void => {
+    if (value) {
+        query[key] = value
+        return
+    }
+
+    delete query[key]
+}
 
 const PaymentFilesTableContent: React.FC = (): JSX.Element => {
     const intl = useIntl()
-    const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
-    const StartDateMessage = intl.formatMessage({ id: 'pages.condo.meter.StartDate' })
-    const EndDateMessage = intl.formatMessage({ id: 'pages.condo.meter.EndDate' })
     const TotalsSumTitle = intl.formatMessage({ id: 'pages.condo.payments.TotalSum' })
     const PaymentsCountTitle = intl.formatMessage({ id: 'pages.condo.payments.summary.count' })
     const CancelSelectedRegistryMessage = intl.formatMessage({ id: 'global.cancelSelection' })
@@ -66,87 +98,126 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
     const { persistor } = useCachePersistor()
 
     const router = useRouter()
-    const userOrganization = useOrganization()
-    const organizationId = userOrganization?.organization?.id ?? ''
+    const tableRef = useRef<TableRef | null>(null)
 
-    const { filters, sorters, offset } = parseQuery(router.query)
+    const legacySelectedRegistryKeys = useMemo(() => getInitialSelectedRegistryKeys(router), [router])
+    const {
+        columnFilterState,
+        filtersFromUrl,
+        initialTableState,
+    } = usePaymentsTableState({
+        defaultSortState: PAYMENTS_DEFAULT_SORT_STATE,
+        fallbackRowSelectionState: legacySelectedRegistryKeys,
+        preserveUrlRowSelection: true,
+        sortableColumnIds: SORTABLE_COLUMN_IDS,
+        tableRef,
+        type: 'registry',
+    })
 
     const currencyCode = billingContexts.find(({ integration }) => !!integration.currencyCode)?.integration?.currencyCode ?? defaultCurrencyCode
 
-    const tableColumns = usePaymentsFilesTableColumns(currencyCode, { acquiringContexts })
-    const queryMetas = usePaymentsFilesTableFilters(organizationId)
+    const columnLabels = useTableTranslations()
+    const { paymentsFileFilterMetas: queryMetas, search } = usePaymentsFilters()
+    const { filtersToWhere, sortersToSortBy } = useQueryMappers<PaymentsFileWhereInput>(queryMetas, SORTABLE_PROPERTIES)
     const [isFilesDownloading, setIsFilesDownloading] = useState(false)
     const [openedPaymentsFileId, setOpenedPaymentsFileId] = useState<string | null>(null)
-    const [selectedRegistryKeys, setSelectedRegistryKeys] = useState<string[]>(() => getInitialSelectedRegistryKeys(router))
+    const [paymentsFiles, setPaymentsFiles] = useState<PaymentsFile[]>([])
+    const [paymentsFilesCount, setPaymentsFilesCount] = useState(0)
+    const [paymentsFilesLoading, setPaymentsFilesLoading] = useState(true)
+    const [selectedRegistryKeys, setSelectedRegistryKeys] = useState<string[]>(initialTableState.rowSelectionState)
     const CountSelectedRegistryMessage = intl.formatMessage({ id: 'ItemsSelectedCount' }, { count: selectedRegistryKeys.length })
 
-    const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
-    const { filtersToWhere, sortersToSortBy } = useQueryMappers(queryMetas, SORTABLE_PROPERTIES)
-
-    const [filtersAreReset, setFiltersAreReset] = useState(false)
-    const dateFallback = filtersAreReset ? null : DEFAULT_DATE_RANGE
-    const [dateRange, setDateRange] = useDateRangeSearch('loadedAt')
-    const dateFilterValue = dateRange || dateFallback
-    const dateFilter = dateFilterValue ? dateFilterValue.map(el => el.toISOString()) : null
-
-    const searchPaymentsFilesQuery: Record<string, unknown> = {
-        ...filtersToWhere({ loadedAt: dateFilter, ...filters }),
-        context: { id_in: acquiringContexts.map(({ id }) => id) },
-    }
-    const sortBy = sortersToSortBy(sorters, PAYMENTS_DEFAULT_SORT_BY)
-
-    const {
-        data,
-        loading,
-        refetch,
-    } = useGetPaymentsFilesQuery({
-        variables: {
-            where: searchPaymentsFilesQuery,
-            sortBy: sortBy as SortPaymentsFilesBy[],
-            first: DEFAULT_PAGE_SIZE,
-            skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
-        },
-        skip: !acquiringContexts.length || !persistor,
-        fetchPolicy: 'network-only', // TODO(@abshnko): remove when sorters work with cache
+    const tableColumns = usePaymentsFilesTableColumns(currencyCode, {
+        acquiringContexts,
+        filterMetas: queryMetas,
+        search,
     })
 
-    const paymentsFiles = useMemo(() => data?.paymentsFiles?.filter(Boolean) || [], [data?.paymentsFiles])
-    const total = useMemo(() => data?.meta?.count, [data?.meta?.count])
-    const openedPaymentsFile = useMemo(() => paymentsFiles.find(({ id }) => id === openedPaymentsFileId) || null, [openedPaymentsFileId, paymentsFiles])
+    const buildSearchPaymentsFilesQuery = useCallback((filterState: FiltersFromQueryType): PaymentsFileWhereInput => ({
+        ...filtersToWhere(filterState),
+        context: { id_in: acquiringContexts.map(({ id }) => id) },
+    }), [acquiringContexts, filtersToWhere])
+    const searchPaymentsFilesQuery = useMemo(
+        () => buildSearchPaymentsFilesQuery(filtersFromUrl),
+        [buildSearchPaymentsFilesQuery, filtersFromUrl]
+    )
+    const searchPaymentsFilesQueryRef = useRef(searchPaymentsFilesQuery)
+    searchPaymentsFilesQueryRef.current = searchPaymentsFilesQuery
+    const canFetchPaymentsFilesRef = useRef(Boolean(persistor && acquiringContexts.length))
+    canFetchPaymentsFilesRef.current = Boolean(persistor && acquiringContexts.length)
+    const filtersKey = JSON.stringify({ searchPaymentsFilesQuery, persistorReady: Boolean(persistor) })
+    const latestRequestRef = useRef<PaymentsFileTableRequest | null>(null)
+    usePaymentsTableDataRefresh({ columnFilterState, filtersKey, tableRef })
 
-    const { downloadPaymentsFiles } = useDownloadPaymentsFiles(refetch)
-    const selectedRowKeysByPage = useMemo(() => {
-        return paymentsFiles?.filter(file => selectedRegistryKeys.includes(file.id)).map(file => file.id) || []
-    }, [selectedRegistryKeys, paymentsFiles])
+    const [fetchPaymentsFiles] = useGetPaymentsFilesLazyQuery()
+    const waitForLatestRequest = useCallback(async (): Promise<PaymentsFileTableResult> => {
+        while (latestRequestRef.current) {
+            const latestRequest = latestRequestRef.current
+            const result = await latestRequest.promise
+            if (latestRequest === latestRequestRef.current) return result
+        }
+
+        return { rowData: [], rowCount: 0 }
+    }, [])
+
+    const dataSource: GetTableData<PaymentsFile> = useCallback(async ({ sortState, startRow, endRow }) => {
+        const request: PaymentsFileTableRequest = {
+            promise: (async () => {
+                if (!canFetchPaymentsFilesRef.current) return { rowData: [], rowCount: 0 }
+
+                try {
+                    const querySortState = sortState.map(sort => (
+                        sort.id === 'paymentPeriod' ? { ...sort, id: 'paymentPeriodStartDate' } : sort
+                    ))
+                    const sortBy = sortersToSortBy(querySortState, PAYMENTS_DEFAULT_SORT_BY) as SortPaymentsFilesBy[]
+                    const { data } = await fetchPaymentsFiles({
+                        variables: {
+                            where: searchPaymentsFilesQueryRef.current,
+                            sortBy,
+                            first: endRow - startRow,
+                            skip: startRow,
+                        },
+                        fetchPolicy: 'network-only',
+                    })
+                    const rowData = data?.paymentsFiles?.filter(Boolean) || []
+                    const rowCount = data?.meta?.count ?? 0
+                    return { rowData, rowCount }
+                } catch (error) {
+                    return { rowData: [], rowCount: 0, error }
+                }
+            })(),
+        }
+
+        latestRequestRef.current = request
+        setPaymentsFilesLoading(true)
+
+        const result = await waitForLatestRequest()
+        if (request === latestRequestRef.current) {
+            if (result.error) {
+                console.error('Failed to fetch payments files', result.error)
+            }
+            setPaymentsFiles(result.rowData)
+            setPaymentsFilesCount(result.rowCount)
+            setPaymentsFilesLoading(false)
+        }
+
+        return { rowData: result.rowData, rowCount: result.rowCount }
+    }, [fetchPaymentsFiles, sortersToSortBy, waitForLatestRequest])
+
+    const openedPaymentsFile = useMemo(
+        () => paymentsFiles.find(({ id }) => id === openedPaymentsFileId) || null,
+        [openedPaymentsFileId, paymentsFiles]
+    )
+
+    const refetchPaymentsFiles = useCallback(async () => {
+        await tableRef.current?.api?.refetchData()
+    }, [])
+    const { downloadPaymentsFiles } = useDownloadPaymentsFiles(refetchPaymentsFiles)
 
     const { data: sumAllPayments, loading: sumAllPaymentsLoading } = usePaymentsSum({ paymentsFilesWhere: searchPaymentsFilesQuery })
 
-    const [search, handleSearchChange, handleResetSearch] = useSearch<IPaymentsFilesFilters>()
-    const handleDateChange = useCallback((value) => {
-        if (!value) {
-            setFiltersAreReset(true)
-        }
-        setDateRange(value)
-    }, [setDateRange])
-
-    const onReset = useCallback(() => {
-        setFiltersAreReset(true)
-        handleResetSearch()
-    }, [handleResetSearch])
-
-    const {
-        MultipleFiltersModal,
-        ResetFiltersModalButton,
-        OpenFiltersButton,
-        appliedFiltersCount,
-    } = useMultipleFiltersModal({
-        filterMetas: queryMetas,
-        filtersSchemaGql: PaymentsFilterTemplate,
-        onReset,
-        extraQueryParameters: { tab: 'payments', type: 'registry' },
-    })
-
     const handleResetSelectedRegistry = useCallback(() => {
+        tableRef.current?.api?.resetRowSelection()
         setSelectedRegistryKeys([])
     }, [])
 
@@ -161,80 +232,51 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
     const handleDownloadClick = async () => {
         setIsFilesDownloading(true)
         await downloadPaymentsFiles(selectedRegistryKeys)
-        setSelectedRegistryKeys([])
-        changeQuery(router, [])
+        handleResetSelectedRegistry()
         setIsFilesDownloading(false)
     }
 
-    const changeQuery = useMemo(() => debounce(async (router: NextRouter, selectedRegistryKeys: string[]) => {
-        await updateQuery(router, { newParameters: { selectedRegistryIds: selectedRegistryKeys } }, {
-            routerAction: 'replace',
-            resetOldParameters: false,
-            shallow: true,
+    const updateUrlQuery = useCallback((params: FullTableState) => {
+        const nextQuery = { ...router.query } as Record<string, string | string[]>
+        const nextOffset = params.startRow > 0 ? String(params.startRow) : undefined
+        const nextFilters = mergePaymentColumnFilters(
+            filtersFromUrl,
+            params.filterState as FiltersFromQueryType,
+            'registry'
+        )
+        const nextFiltersValue = Object.keys(nextFilters).length ? JSON.stringify(nextFilters) : undefined
+        const nextSelectedRows = params.rowSelectionState.length
+            ? JSON.stringify(params.rowSelectionState)
+            : undefined
+
+        searchPaymentsFilesQueryRef.current = buildSearchPaymentsFilesQuery(nextFilters)
+
+        setQueryParam(nextQuery, 'offset', nextOffset)
+        setQueryParam(nextQuery, 'filters', nextFiltersValue)
+        setQueryParam(nextQuery, 'sort', getSortQueryValue(params.sortState))
+        setQueryParam(nextQuery, 'selectedRows', nextSelectedRows)
+        delete nextQuery.selectedRegistryIds
+
+        if (isEqual(router.query, nextQuery)) return
+        router.replace({ pathname: router.pathname, query: nextQuery }, undefined, { shallow: true }).catch((error) => {
+            console.error('Failed to update payments files table query params', error)
         })
-    }, DEBOUNCE_TIMEOUT), [])
+    }, [buildSearchPaymentsFilesQuery, filtersFromUrl, router])
 
-    const updateSelectedRegistryKeys = useCallback((selectedRegistryKeys: string[]) => {
-        setSelectedRegistryKeys(selectedRegistryKeys)
-        changeQuery(router, selectedRegistryKeys)
-    }, [changeQuery, router])
+    const onRowSelectionChange = useCallback((rowSelectionState: RowSelectionState) => {
+        setSelectedRegistryKeys(rowSelectionState)
+    }, [])
+    const rowSelectionOptions = useMemo(() => ({
+        enableRowSelection: true,
+        onRowSelectionChange,
+    }), [onRowSelectionChange])
 
-    const isSelectedAllRowsByPage = !loading && selectedRowKeysByPage.length > 0 && selectedRowKeysByPage.length === paymentsFiles.length
-    const isSelectedSomeRowsByPage = !loading && selectedRowKeysByPage.length > 0 && selectedRowKeysByPage.length < paymentsFiles.length
+    const handlePaymentsFileRowClick = useCallback((record: PaymentsFile) => {
+        const hasSelectedText = globalThis.window?.getSelection?.()?.toString().trim()
+        if (hasSelectedText) return
 
-    const handleSelectAllRowsByPage = useCallback((e: CheckboxChangeEvent) => {
-        const checked = e.target.checked
-        if (checked) {
-            const newSelectedRegistryKeys = paymentsFiles
-                ?.filter(file => !selectedRowKeysByPage.includes(file.id))
-                .map(file => file.id)
-            updateSelectedRegistryKeys([...selectedRegistryKeys, ...newSelectedRegistryKeys])
-        } else {
-            updateSelectedRegistryKeys(selectedRegistryKeys.filter(key => !selectedRowKeysByPage.includes(key)))
-        }
-    }, [updateSelectedRegistryKeys, selectedRegistryKeys, selectedRowKeysByPage, paymentsFiles])
-
-    const handleSelectRow: (record: IPaymentsFile, checked: boolean) => void = useCallback((record, checked) => {
-        const selectedKey = record.id
-        if (checked) {
-            updateSelectedRegistryKeys([...selectedRegistryKeys, selectedKey])
-        } else {
-            updateSelectedRegistryKeys(selectedRegistryKeys.filter(key => selectedKey !== key))
-        }
-    }, [selectedRegistryKeys, updateSelectedRegistryKeys])
-
-    const handlePaymentsFileRowClick = useCallback((record: IPaymentsFile) => ({
-        onKeyDown: (event) => {
-            if (event.key !== 'Enter' && event.key !== ' ') return
-            if (event.target !== event.currentTarget) return
-
-            event.preventDefault()
-            setOpenedPaymentsFileId(record.id)
-        },
-        onClick: (event) => {
-            const selection = window.getSelection()
-            if (selection && selection.type === 'Range') return
-
-            const targetColumn = (event.target as HTMLElement).closest('td')
-            if (targetColumn?.cellIndex === 0) return
-
-            setOpenedPaymentsFileId(record.id)
-        },
-        tabIndex: 0,
-    }), [])
-
-    const rowSelection: TableRowSelection<IPaymentsFile> = useMemo(() => ({
-        selectedRowKeys: selectedRowKeysByPage,
-        fixed: true,
-        onSelect: handleSelectRow,
-        columnTitle: (
-            <Checkbox
-                checked={isSelectedAllRowsByPage}
-                indeterminate={isSelectedSomeRowsByPage}
-                onChange={handleSelectAllRowsByPage}
-            />
-        ),
-    }), [handleSelectAllRowsByPage, handleSelectRow, isSelectedAllRowsByPage, isSelectedSomeRowsByPage, selectedRowKeysByPage])
+        setOpenedPaymentsFileId(record.id)
+    }, [])
 
     const paymentsSummaryItems = useMemo(() => ([
         {
@@ -251,31 +293,31 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
         },
     ]), [PaymentsCountTitle, TotalsSumTitle, currencyCode, intl, sumAllPayments?.result?.paymentsCount, sumAllPayments?.result?.sum, sumAllPaymentsLoading])
 
+    const getRowId = useCallback((paymentsFile: PaymentsFile) => paymentsFile.id, [])
 
     return (
         <Row gutter={ROW_GUTTER} align='middle' justify='center'>
-            <PaymentsTableFilterBar
-                search={{ value: search, placeholder: SearchPlaceholder, onChange: handleSearchChange }}
-                datePickerProps={{ value: dateRange || dateFallback, onChange: handleDateChange, placeholder: [StartDateMessage, EndDateMessage] }}
-                modalFilters={{ count: appliedFiltersCount, resetButton: <ResetFiltersModalButton />, openButton: <OpenFiltersButton showLabel={false} /> }}
-            />
-
-
             <Col span={24}>
-                <Space size={8} direction='vertical'>
+                <Space size={8} direction='vertical' width='100%'>
                     <PaymentsSummary items={paymentsSummaryItems} />
-                    <Table
-                        loading={loading}
-                        dataSource={paymentsFiles}
-                        totalRows={total}
+                    <Table<PaymentsFile>
+                        id='payments-files-table'
+                        storageKey='payments-files-table-settings-v6'
+                        dataSource={dataSource}
                         columns={tableColumns}
-                        rowSelection={rowSelection}
-                        onRow={handlePaymentsFileRowClick}
+                        pageSize={DEFAULT_PAGE_SIZE}
+                        onTableStateChange={updateUrlQuery}
+                        initialTableState={initialTableState}
+                        columnLabels={columnLabels}
+                        rowSelectionOptions={rowSelectionOptions}
+                        getRowId={getRowId}
+                        onRowClick={handlePaymentsFileRowClick}
+                        ref={tableRef}
                     />
                 </Space>
             </Col>
             <Col span={24}>
-                {!loading && total > 0 && selectedRegistryKeys.length > 0 && (
+                {!paymentsFilesLoading && paymentsFilesCount > 0 && selectedRegistryKeys.length > 0 && (
                     <ActionBar
                         message={CountSelectedRegistryMessage}
                         actions={[
@@ -307,17 +349,12 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
                 paymentsFile={openedPaymentsFile}
                 currency={currencyCode}
             />
-            <MultipleFiltersModal />
         </Row>
     )
 }
 
 const PaymentFilesTable = () => {
-    return (
-        <MultipleFilterContextProvider>
-            <PaymentFilesTableContent />
-        </MultipleFilterContextProvider>
-    )
+    return <PaymentFilesTableContent />
 }
 
 export default PaymentFilesTable

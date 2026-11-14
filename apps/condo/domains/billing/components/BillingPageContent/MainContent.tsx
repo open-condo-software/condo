@@ -9,7 +9,9 @@ import { useOrganization } from '@open-condo/next/organization'
 import { RadioGroup, Tabs, Radio } from '@open-condo/ui'
 import type { TabItem } from '@open-condo/ui'
 
+import { usePaymentsDateFilterInitialization } from '@condo/domains/acquiring/hooks/usePaymentsDateFilterInitialization'
 import { VIEW_TYPES, ViewTypes } from '@condo/domains/acquiring/utils/clientSchema'
+import { getTransferredPaymentFilters } from '@condo/domains/acquiring/utils/paymentFilters'
 import { AccrualsTab } from '@condo/domains/billing/components/BillingPageContent/AccrualsTab'
 import { B2BAppBillingTab } from '@condo/domains/billing/components/BillingPageContent/B2BAppBillingTab'
 import { BillingTabTourStep } from '@condo/domains/billing/components/BillingPageContent/BillingTabTourStep'
@@ -18,8 +20,11 @@ import { EmptyContent } from '@condo/domains/billing/components/BillingPageConte
 import { PaymentsTab } from '@condo/domains/billing/components/BillingPageContent/PaymentsTab'
 import { ACCRUALS_TAB_KEY, PAYMENTS_TAB_KEY, EXTENSION_TAB_KEY } from '@condo/domains/billing/constants/constants'
 import { useQueryParams } from '@condo/domains/billing/hooks/useQueryParams'
+import { Loader } from '@condo/domains/common/components/Loader'
 import { useTourStepsConfig } from '@condo/domains/common/hooks/useTourStepsConfig'
+import { getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
+import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { B2BAppFrame } from '@condo/domains/miniapp/components/B2BAppFrame'
 
 
@@ -42,6 +47,7 @@ export const PaymentTypeSwitch = ({ defaultValue, activeTab }: PaymentTypeSwitch
 
     const isListSelected = type === VIEW_TYPES.list
     const isRegistrySelected = type === VIEW_TYPES.registry
+    const currentType = isRegistrySelected ? VIEW_TYPES.registry : VIEW_TYPES.list
 
     const [value, setValue] = useState<ViewTypes>(VIEW_TYPES.list)
     useEffect(() => {
@@ -54,14 +60,16 @@ export const PaymentTypeSwitch = ({ defaultValue, activeTab }: PaymentTypeSwitch
 
 
     const handleRadioChange = useCallback(async (event) => {
-        const value = event.target.value
+        const value = event.target.value as ViewTypes
+        const { filters } = parseQuery(router.query)
+        const transferredFilters = getTransferredPaymentFilters(filters, currentType, value)
         setValue(value)
         await updateQuery(
             router,
-            { newParameters: { type: value, tab: activeTab } },
+            { newParameters: { ...getFiltersQueryData(transferredFilters), type: value, tab: activeTab } },
             { resetOldParameters: true, routerAction: 'replace', shallow: true }
         )
-    }, [activeTab, router])
+    }, [activeTab, currentType, router])
 
     return (
         <RadioGroup optionType='button' value={value} onChange={handleRadioChange} defaultValue={defaultValue}>
@@ -142,6 +150,12 @@ export const MainContent: React.FC<MainContentProps> = ({
     const tourStepsConfig = useTourStepsConfig()
 
     const [currentTab, currentType, onTabChange] = useQueryParams(extensionTabKeys)
+    const router = useRouter()
+    const { tab: routeTab, type: routeType } = parseQuery(router.query)
+    const isPaymentsRouteReady = currentTab === PAYMENTS_TAB_KEY
+        && routeTab === currentTab
+        && routeType === currentType
+    const isPaymentsFilterInitialized = usePaymentsDateFilterInitialization(isPaymentsRouteReady, currentType)
     const renderTabIcon = useCallback((iconUrl: string | null) => {
         if (!iconUrl) return null
 
@@ -167,7 +181,7 @@ export const MainContent: React.FC<MainContentProps> = ({
             canReadPayments && {
                 label: PaymentsTabTitle,
                 key: PAYMENTS_TAB_KEY,
-                children: <PaymentsTab type={currentType} />,
+                children: isPaymentsFilterInitialized ? <PaymentsTab type={currentType} /> : <Loader />,
             },
         ]
 
@@ -188,7 +202,7 @@ export const MainContent: React.FC<MainContentProps> = ({
         })
 
         return result
-    }, [canReadBillingReceipts, AccrualsTabTitle, hasLastReport, uploadComponent, canReadPayments, PaymentsTabTitle, currentType, extensionAppTabs, renderTabIcon])
+    }, [canReadBillingReceipts, AccrualsTabTitle, hasLastReport, uploadComponent, canReadPayments, PaymentsTabTitle, currentType, extensionAppTabs, isPaymentsFilterInitialized, renderTabIcon])
 
     return (
         <>
