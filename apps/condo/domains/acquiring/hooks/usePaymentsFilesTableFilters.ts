@@ -55,7 +55,6 @@ export const paymentPeriodFilter = (search: QueryArgType): PaymentsFileWhereInpu
     }
 }
 
-export const paymentOrderNumbersFilter = getFilter('paymentOrder', 'array', 'string', 'in')
 const acquiringContextFilter = getFilter(['context', 'id'], 'array', 'string', 'in')
 const statusFilter = getFilter('status', 'array', 'string', 'in')
 const paymentOrderFilter = getStringContainsFilter('paymentOrder')
@@ -75,11 +74,10 @@ export function usePaymentsFilesTableFilters (organizationId: string): FiltersMe
     const StatusTitle = intl.formatMessage({ id: 'Status' })
     const EnterStatusMessage = intl.formatMessage({ id: 'pages.condo.payments.enterStatus' })
 
-    const statuses = statusType.map((item) => ({
+    const statusOptions = useMemo(() => convertToOptions(statusType.map((item) => ({
         name: intl.formatMessage({ id: `accrualsAndPayments.payments.type.registry.status.${item}` as FormatjsIntl.Message['ids'] }),
         id: item,
-    }))
-    const statusOptions = convertToOptions(statuses, 'name', 'id')
+    })), 'name', 'id'), [intl])
 
     return useMemo(() => [
         {
@@ -117,12 +115,11 @@ export function usePaymentsFilesTableFilters (organizationId: string): FiltersMe
         },
         {
             keyword: 'paymentOrder',
-            filters: [paymentOrderNumbersFilter],
+            filters: [paymentOrderFilter],
             component: {
-                type: ComponentType.TagsSelect,
+                type: ComponentType.Input,
                 props: {
                     placeholder: PaymentOrderPlaceholder,
-                    tokenSeparators: [',', ' '],
                 },
                 modalFilterComponentWrapper: {
                     label: PaymentOrderMessage,

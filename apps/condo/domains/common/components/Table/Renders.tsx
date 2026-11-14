@@ -13,7 +13,7 @@ import React from 'react'
 import { IntlShape } from 'react-intl/src/types'
 
 import { AlertCircle, IconProps } from '@open-condo/icons'
-import { Space, Tag, TypographyLinkProps, Tooltip, TooltipProps } from '@open-condo/ui'
+import { Space, Tag, Typography as CondoTypography, TypographyLinkProps, Tooltip, TooltipProps } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import { PAYMENT_WITHDRAWN_STATUS } from '@condo/domains/acquiring/constants/payment'
@@ -364,7 +364,9 @@ export const getColumnTooltip = (columnTitle: string, tooltipTitle: string) => {
             title={tooltipTitle}
             placement='top'
         >
-            {columnTitle}
+            <CondoTypography.Text size='medium' type='secondary'>
+                {columnTitle}
+            </CondoTypography.Text>
         </Tooltip>
     )
 }
