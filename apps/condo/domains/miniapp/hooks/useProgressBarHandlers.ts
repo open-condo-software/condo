@@ -79,6 +79,42 @@ function hasAllowedProgressBarUrlProtocol (url: string) {
     return protocol === 'http:' || protocol === 'https:'
 }
 
+function validateProgressBarUrl (url: string, sourceOrigin: string, type: 'action' | 'background') {
+    if (!isSafeUrl(url) || !hasAllowedProgressBarUrlProtocol(url)) {
+        throw new Error(`Forbidden url. Your progress bar ${type} url is probably injected`)
+    }
+    if (new URL(url).origin !== sourceOrigin) {
+        throw new Error(`Forbidden url. Progress bar ${type} url must have same origin as sender`)
+    }
+}
+
+function validateProgressBarBackground (
+    background: ShowProgressBarParams['background'],
+    source: MessageSource,
+    sourceOrigin: string,
+) {
+    if (!background) return
+
+    validateProgressBarUrl(background.url, sourceOrigin, 'background')
+    if (source.type !== 'frame') {
+        throw new Error('Forbidden source type. Progress bar backgrounds are only available for iframes')
+    }
+}
+
+function validateProgressBarAction (
+    action: ShowProgressBarParams['action'],
+    source: MessageSource,
+    sourceOrigin: string,
+) {
+    if (!action) return
+
+    const actionUrl = action.type === 'modal' ? action.modal.url : action.url
+    validateProgressBarUrl(actionUrl, sourceOrigin, 'action')
+    if (source.type === 'worker') {
+        throw new Error('Forbidden source type. Progress bar actions are not available for service workers')
+    }
+}
+
 function validateProgressBarUrls (
     params: Pick<ShowProgressBarParams, 'action' | 'background'>,
     source: MessageSource,
@@ -88,30 +124,8 @@ function validateProgressBarUrls (
         throw new Error('Forbidden origin. Progress bar URLs require a non-opaque sender origin')
     }
 
-    if (params.background) {
-        if (!isSafeUrl(params.background.url) || !hasAllowedProgressBarUrlProtocol(params.background.url)) {
-            throw new Error('Forbidden url. Your progress bar background url is probably injected')
-        }
-        if (source.type !== 'frame') {
-            throw new Error('Forbidden source type. Progress bar backgrounds are only available for iframes')
-        }
-        if (new URL(params.background.url).origin !== sourceOrigin) {
-            throw new Error('Forbidden url. Progress bar background url must have same origin as sender')
-        }
-    }
-
-    if (params.action) {
-        const actionUrl = params.action.type === 'modal' ? params.action.modal.url : params.action.url
-        if (!isSafeUrl(actionUrl) || !hasAllowedProgressBarUrlProtocol(actionUrl)) {
-            throw new Error('Forbidden url. Your progress bar action url is probably injected')
-        }
-        if (source.type === 'worker') {
-            throw new Error('Forbidden source type. Progress bar actions are not available for service workers')
-        }
-        if (new URL(actionUrl).origin !== sourceOrigin) {
-            throw new Error('Forbidden url. Progress bar action url must have same origin as sender')
-        }
-    }
+    validateProgressBarBackground(params.background, source, sourceOrigin)
+    validateProgressBarAction(params.action, source, sourceOrigin)
 }
 
 export function useProgressBarHandlers () {
