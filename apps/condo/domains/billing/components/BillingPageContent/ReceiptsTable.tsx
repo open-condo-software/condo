@@ -157,8 +157,6 @@ export const ReceiptsTable: React.FC = () => {
         () => billingContexts.map(({ id }) => id).sort((a, b) => a.localeCompare(b)),
         [billingContexts]
     )
-    const hasServices = get(billingContext, ['integration', 'dataFormat', 'hasServices'], false)
-    const hasServicesDetails = get(billingContext, ['integration', 'dataFormat', 'hasServicesDetails'], false)
     const canManageReceipts =  get(userOrganization, ['link', 'role', 'canImportBillingReceipts'], false)
 
     const router = useRouter()
@@ -240,10 +238,8 @@ export const ReceiptsTable: React.FC = () => {
         const hasSelectedText =  globalThis.window?.getSelection?.()?.toString().trim()
         if (hasSelectedText) return
 
-        if (hasServices) {
-            showServiceModal(record)
-        }
-    }, [hasServices, showServiceModal])
+        showServiceModal(record)
+    }, [showServiceModal])
 
     const dataSource: GetTableData<BillingReceiptType> = useCallback(async ({
         filterState,
@@ -458,7 +454,6 @@ export const ReceiptsTable: React.FC = () => {
                 receipt={detailedReceipt}
                 visible={modalIsVisible}
                 onCancel={hideServiceModal}
-                isDetailed={hasServicesDetails}
                 currencyCode={currencyCode}
             />
         </>
