@@ -102,12 +102,13 @@ export const usePaymentsTableDataRefresh = ({
     const previousColumnFilterStateRef = useRef(columnFilterState)
 
     useEffect(() => {
-        if (previousFiltersKeyRef.current === filtersKey || !tableRef.current) return
-        previousFiltersKeyRef.current = filtersKey
-
+        const haveFiltersChanged = previousFiltersKeyRef.current !== filtersKey
         const haveColumnFiltersChanged = !isEqual(previousColumnFilterStateRef.current, columnFilterState)
+
+        previousFiltersKeyRef.current = filtersKey
         previousColumnFilterStateRef.current = columnFilterState
-        if (haveColumnFiltersChanged) return
+
+        if (!haveFiltersChanged || haveColumnFiltersChanged || !tableRef.current) return
 
         const { startRow } = tableRef.current.api.getPagination()
         if (startRow > 0) {
