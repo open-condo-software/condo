@@ -1,10 +1,9 @@
-import { PaymentWhereInput } from '@app/condo/schema'
+import { AcquiringIntegrationContext, PaymentWhereInput } from '@app/condo/schema'
 import { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
 import { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } from '@condo/domains/acquiring/constants/payment'
-import { searchAcquiringIntegration } from '@condo/domains/acquiring/utils/clientSchema/search'
 import {
     ComponentType,
     convertToOptions,
@@ -27,7 +26,7 @@ const orderFilter: FilterType = (value) => orderContainsFilter(Array.isArray(val
 const statusType = [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS]
 
 export function usePaymentsTableFilters (
-    organizationId: string,
+    acquiringContexts: AcquiringIntegrationContext[],
 ): FiltersMeta<PaymentWhereInput>[] {
     const intl = useIntl()
     const StartDateMessage = intl.formatMessage({ id: 'pages.condo.meter.StartDate' })
@@ -47,6 +46,13 @@ export function usePaymentsTableFilters (
         name: intl.formatMessage({ id: 'payment.status.' + item as FormatjsIntl.Message['ids'] }),
         id: item,
     })), 'name', 'id'), [intl])
+    const sourceOptions = useMemo(() => convertToOptions(acquiringContexts.reduce<Array<{ id: string, name: string }>>((result, context) => {
+        if (context.integration?.name) {
+            result.push({ id: context.id, name: context.integration.name })
+        }
+
+        return result
+    }, []), 'name', 'id'), [acquiringContexts])
 
     return useMemo(() => [
         {
@@ -100,13 +106,12 @@ export function usePaymentsTableFilters (
             keyword: 'type',
             filters: [acquiringContextFilter],
             component: {
-                type: ComponentType.GQLSelect,
+                type: ComponentType.Select,
+                options: sourceOptions,
                 props: {
-                    search: searchAcquiringIntegration(organizationId),
                     mode: 'multiple',
                     showArrow: true,
                     placeholder: EnterSourceMessage,
-                    infinityScroll: true,
                 },
                 modalFilterComponentWrapper: {
                     label: SourceMessage,
@@ -166,7 +171,7 @@ export function usePaymentsTableFilters (
         StartDateMessage,
         StatusTitle,
         TransferDateMessage,
-        organizationId,
+        sourceOptions,
         statusOptions,
     ])
 }

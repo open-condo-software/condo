@@ -340,7 +340,7 @@
   "accrualsAndPayments.payments.type.registry.filters.formationDate": "Дата формирования реестра",
   "accrualsAndPayments.payments.type.registry.filters.paymentPeriod": "Период приёма платежей",
   "accrualsAndPayments.payments.type.registry.filters.paymentOrder": "Номер платёжного поручения",
-  "accrualsAndPayments.payments.type.registry.filters.paymentOrder.placeholder": "Введите номера платёжных поручений",
+  "accrualsAndPayments.payments.type.registry.filters.paymentOrder.placeholder": "Введите номер платёжного поручения",
   "accrualsAndPayments.payments.type.registry.paymentOrder": "Номер п/п",
   "accrualsAndPayments.payments.type.registry.registryName": "Имя файла",
   "accrualsAndPayments.payments.type.registry.registryNumber": "№ реестра",

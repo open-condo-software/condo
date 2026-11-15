@@ -6,12 +6,12 @@ import { useRouter } from 'next/router'
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 
 import { PaymentsTableFilterBar } from '@condo/domains/acquiring/components/payments/PaymentsTableFilterBar'
 import { usePaymentsFilesTableFilters } from '@condo/domains/acquiring/hooks/usePaymentsFilesTableFilters'
 import { usePaymentsTableFilters } from '@condo/domains/acquiring/hooks/usePaymentsTableFilters'
 import { VIEW_TYPES, ViewTypes } from '@condo/domains/acquiring/utils/clientSchema'
+import { useBillingAndAcquiringContexts } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
 import { FiltersMeta, getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'
 import { getFiltersFromQuery, updateQuery } from '@condo/domains/common/utils/helpers'
 import { FiltersFromQueryType } from '@condo/domains/common/utils/tables.utils'
@@ -48,10 +48,9 @@ const PaymentsFiltersContent: React.FC<PaymentsFiltersContentProps> = ({ childre
     const StartDateMessage = intl.formatMessage({ id: 'pages.condo.meter.StartDate' })
     const EndDateMessage = intl.formatMessage({ id: 'pages.condo.meter.EndDate' })
 
-    const userOrganization = useOrganization()
-    const organizationId = userOrganization?.organization?.id ?? ''
-    const paymentFilterMetas = usePaymentsTableFilters(organizationId)
-    const paymentsFileFilterMetas = usePaymentsFilesTableFilters(organizationId)
+    const { acquiringContexts } = useBillingAndAcquiringContexts()
+    const paymentFilterMetas = usePaymentsTableFilters(acquiringContexts)
+    const paymentsFileFilterMetas = usePaymentsFilesTableFilters(acquiringContexts)
 
     const dateFilterKey = type === VIEW_TYPES.registry ? 'paymentPeriod' : 'depositedDate'
     const filters = useMemo(

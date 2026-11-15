@@ -1,11 +1,10 @@
-import { PaymentsFileWhereInput } from '@app/condo/schema'
+import { AcquiringIntegrationContext, PaymentsFileWhereInput } from '@app/condo/schema'
 import dayjs from 'dayjs'
 import { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
 import { PAYMENTS_FILE_DOWNLOADED_STATUS, PAYMENTS_FILE_NEW_STATUS } from '@condo/domains/acquiring/constants/constants'
-import { searchAcquiringIntegration } from '@condo/domains/acquiring/utils/clientSchema/search'
 import {
     ComponentType,
     convertToOptions,
@@ -62,7 +61,7 @@ const fileNameFilter = getStringContainsFilter('name')
 
 const statusType = [PAYMENTS_FILE_NEW_STATUS, PAYMENTS_FILE_DOWNLOADED_STATUS]
 
-export function usePaymentsFilesTableFilters (organizationId: string): FiltersMeta<PaymentsFileWhereInput>[] {
+export function usePaymentsFilesTableFilters (acquiringContexts: AcquiringIntegrationContext[]): FiltersMeta<PaymentsFileWhereInput>[] {
     const intl = useIntl()
     const StartDateMessage = intl.formatMessage({ id: 'pages.condo.meter.StartDate' })
     const EndDateMessage = intl.formatMessage({ id: 'pages.condo.meter.EndDate' })
@@ -79,6 +78,13 @@ export function usePaymentsFilesTableFilters (organizationId: string): FiltersMe
         name: intl.formatMessage({ id: `accrualsAndPayments.payments.type.registry.status.${item}` as FormatjsIntl.Message['ids'] }),
         id: item,
     })), 'name', 'id'), [intl])
+    const sourceOptions = useMemo(() => convertToOptions(acquiringContexts.reduce<Array<{ id: string, name: string }>>((result, context) => {
+        if (context.integration?.name) {
+            result.push({ id: context.id, name: context.integration.name })
+        }
+
+        return result
+    }, []), 'name', 'id'), [acquiringContexts])
 
     return useMemo(() => [
         {
@@ -132,13 +138,12 @@ export function usePaymentsFilesTableFilters (organizationId: string): FiltersMe
             keyword: 'type',
             filters: [acquiringContextFilter],
             component: {
-                type: ComponentType.GQLSelect,
+                type: ComponentType.Select,
+                options: sourceOptions,
                 props: {
-                    search: searchAcquiringIntegration(organizationId),
                     mode: 'multiple',
                     showArrow: true,
                     placeholder: EnterSourceMessage,
-                    infinityScroll: true,
                 },
                 modalFilterComponentWrapper: {
                     label: SourceMessage,
@@ -174,7 +179,7 @@ export function usePaymentsFilesTableFilters (organizationId: string): FiltersMe
         StartDateMessage,
         StatusTitle,
         TransferDateMessage,
-        organizationId,
+        sourceOptions,
         statusOptions,
     ])
 }

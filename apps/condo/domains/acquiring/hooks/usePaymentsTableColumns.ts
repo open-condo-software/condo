@@ -7,10 +7,15 @@ import { TableColumn } from '@open-condo/ui'
 
 import { getPosReceiptUrlRender } from '@condo/domains/acquiring/components/payments/getPosReceiptUrlRender'
 import {
+    getPaymentDateOnlyRender,
+    withPaymentFilterWidth,
+} from '@condo/domains/acquiring/components/payments/paymentTableRenderers'
+import {
     getColumnTooltip,
     getDateRender,
     getMoneyRender,
     getStatusRender,
+    getTableCellRenderer,
     getTextRender,
 } from '@condo/domains/common/components/Table/Renders'
 import { FiltersMeta, getFilterComponentByKey, TableFiltersMeta } from '@condo/domains/common/utils/filters.utils'
@@ -32,6 +37,8 @@ type PaymentColumn = TableColumn<Payment>
 type PaymentDataKey = Extract<PaymentColumn, { dataKey: unknown }>['dataKey']
 
 const paymentDataKey = <TKey extends PaymentDataKey>(value: TKey): TKey => value
+const SELECT_FILTER_WIDTH = '320px'
+const PAYMENT_ORDER_FILTER_WIDTH = '360px'
 
 export function usePaymentsTableColumns (
     currencyCode: string,
@@ -56,6 +63,10 @@ export function usePaymentsTableColumns (
 
     return useMemo(() => {
         const stringRender = getTextRender(options.search)
+        const paymentOrderRender = getTableCellRenderer({
+            search: options.search,
+            ellipsis: { rows: 1, expandable: false },
+        })
         const hasSourceColumn = Boolean(options.acquiringContexts?.length > 1)
         const hasPosReceiptUrlColumn = Boolean(options.posIntegrationContext)
 
@@ -83,19 +94,22 @@ export function usePaymentsTableColumns (
                 ),
                 initialVisibility: false,
                 initialSize: '12%',
-                render: getDateRender(intl, options.search),
+                render: getPaymentDateOnlyRender(options.search),
             },
             order: {
                 header: () => getColumnTooltip(PaymentOrderColumnTitle, PaymentOrderTooltipTitle),
                 id: 'order',
                 dataKey: paymentDataKey('order'),
                 enableSorting: false,
-                filterComponent: getFilterComponentByKey(
-                    (options.filterMetas || []) as TableFiltersMeta<PaymentWhereInput>[],
-                    'order'
+                filterComponent: withPaymentFilterWidth(
+                    getFilterComponentByKey(
+                        (options.filterMetas || []) as TableFiltersMeta<PaymentWhereInput>[],
+                        'order'
+                    ),
+                    PAYMENT_ORDER_FILTER_WIDTH
                 ),
                 initialSize: '10%',
-                render: stringRender,
+                render: paymentOrderRender,
             },
             account: {
                 header: AccountTitle,
@@ -147,9 +161,12 @@ export function usePaymentsTableColumns (
                 id: 'type',
                 dataKey: paymentDataKey('context.integration.name'),
                 enableSorting: false,
-                filterComponent: getFilterComponentByKey(
-                    (options.filterMetas || []) as TableFiltersMeta<PaymentWhereInput>[],
-                    'type'
+                filterComponent: withPaymentFilterWidth(
+                    getFilterComponentByKey(
+                        (options.filterMetas || []) as TableFiltersMeta<PaymentWhereInput>[],
+                        'type'
+                    ),
+                    SELECT_FILTER_WIDTH
                 ),
                 initialSize: '10%',
             } : null,
@@ -158,9 +175,12 @@ export function usePaymentsTableColumns (
                 id: 'status',
                 dataKey: paymentDataKey('status'),
                 enableSorting: false,
-                filterComponent: getFilterComponentByKey(
-                    (options.filterMetas || []) as TableFiltersMeta<PaymentWhereInput>[],
-                    'status'
+                filterComponent: withPaymentFilterWidth(
+                    getFilterComponentByKey(
+                        (options.filterMetas || []) as TableFiltersMeta<PaymentWhereInput>[],
+                        'status'
+                    ),
+                    SELECT_FILTER_WIDTH
                 ),
                 initialSize: '12%',
                 render: getStatusRender(intl, openStatusDescModal, options.search),

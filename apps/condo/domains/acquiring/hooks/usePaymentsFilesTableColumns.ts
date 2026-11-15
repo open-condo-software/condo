@@ -6,10 +6,14 @@ import { useMemo } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { TableColumn } from '@open-condo/ui'
 
+import {
+    getEllipsedPaymentColumnTooltip,
+    getPaymentDateOnlyRender,
+    withPaymentFilterWidth,
+} from '@condo/domains/acquiring/components/payments/paymentTableRenderers'
 import { getPaymentsFileStatusRender } from '@condo/domains/acquiring/utils/clientSchema/Renders'
 import {
     getColumnTooltip,
-    getDateRender,
     getMoneyRender,
     getTableCellRenderer,
     getTextRender,
@@ -28,6 +32,8 @@ type PaymentsFileColumn = TableColumn<PaymentsFile>
 type PaymentsFileDataKey = Extract<PaymentsFileColumn, { dataKey: unknown }>['dataKey']
 
 const paymentsFileDataKey = <TKey extends PaymentsFileDataKey>(value: TKey): TKey => value
+const SELECT_FILTER_WIDTH = '320px'
+const PAYMENT_ORDER_FILTER_WIDTH = '360px'
 
 export function usePaymentsFilesTableColumns (
     currencyCode: string,
@@ -50,6 +56,10 @@ export function usePaymentsFilesTableColumns (
 
     return useMemo(() => {
         const stringRender = getTextRender(options.search)
+        const paymentOrderRender = getTableCellRenderer({
+            search: options.search,
+            ellipsis: { rows: 1, expandable: false },
+        })
         const fileNameRender = getTableCellRenderer({
             search: options.search,
             ellipsis: { rows: 1, expandable: false },
@@ -82,7 +92,7 @@ export function usePaymentsFilesTableColumns (
                 },
             },
             loadedAt: {
-                header: () => getColumnTooltip(DateLoadTitle, DateLoadTooltipTitle),
+                header: () => getEllipsedPaymentColumnTooltip(DateLoadTitle, DateLoadTooltipTitle),
                 id: 'loadedAt',
                 dataKey: paymentsFileDataKey('loadedAt'),
                 enableSorting: true,
@@ -92,19 +102,22 @@ export function usePaymentsFilesTableColumns (
                 ),
                 initialVisibility: false,
                 initialSize: '12%',
-                render: getDateRender(intl, options.search),
+                render: getPaymentDateOnlyRender(options.search),
             },
             paymentOrder: {
                 header: () => getColumnTooltip(PaymentOrderColumnTitle, PaymentOrderTooltipTitle),
                 id: 'paymentOrder',
                 dataKey: paymentsFileDataKey('paymentOrder'),
                 enableSorting: false,
-                filterComponent: getFilterComponentByKey(
-                    (options.filterMetas || []) as TableFiltersMeta<PaymentsFileWhereInput>[],
-                    'paymentOrder'
+                filterComponent: withPaymentFilterWidth(
+                    getFilterComponentByKey(
+                        (options.filterMetas || []) as TableFiltersMeta<PaymentsFileWhereInput>[],
+                        'paymentOrder'
+                    ),
+                    PAYMENT_ORDER_FILTER_WIDTH
                 ),
                 initialSize: '10%',
-                render: stringRender,
+                render: paymentOrderRender,
             },
             registryName: {
                 header: RegistryNameTitle,
@@ -134,9 +147,12 @@ export function usePaymentsFilesTableColumns (
                 id: 'type',
                 dataKey: paymentsFileDataKey('context.integration.name'),
                 enableSorting: false,
-                filterComponent: getFilterComponentByKey(
-                    (options.filterMetas || []) as TableFiltersMeta<PaymentsFileWhereInput>[],
-                    'type'
+                filterComponent: withPaymentFilterWidth(
+                    getFilterComponentByKey(
+                        (options.filterMetas || []) as TableFiltersMeta<PaymentsFileWhereInput>[],
+                        'type'
+                    ),
+                    SELECT_FILTER_WIDTH
                 ),
                 initialSize: '10%',
             } : null,
@@ -145,9 +161,12 @@ export function usePaymentsFilesTableColumns (
                 id: 'status',
                 dataKey: paymentsFileDataKey('status'),
                 enableSorting: false,
-                filterComponent: getFilterComponentByKey(
-                    (options.filterMetas || []) as TableFiltersMeta<PaymentsFileWhereInput>[],
-                    'status'
+                filterComponent: withPaymentFilterWidth(
+                    getFilterComponentByKey(
+                        (options.filterMetas || []) as TableFiltersMeta<PaymentsFileWhereInput>[],
+                        'status'
+                    ),
+                    SELECT_FILTER_WIDTH
                 ),
                 initialSize: '11%',
                 render: getPaymentsFileStatusRender(intl, options.search),
