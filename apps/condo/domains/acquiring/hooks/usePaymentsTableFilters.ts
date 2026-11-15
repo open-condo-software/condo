@@ -16,8 +16,6 @@ import { FilterType, getDayRangeFilter, getFilter, getStringContainsFilter } fro
 
 const addressFilter = getStringContainsFilter(['receipt', 'property', 'address'])
 const accountFilter = getStringContainsFilter(['accountNumber'])
-const typeFilter = getStringContainsFilter(['context', 'integration', 'name'])
-const transactionFilter = getStringContainsFilter(['multiPayment', 'transactionId'])
 const depositedDateFilter = getDayRangeFilter('depositedDate')
 const transferDateFilter = getDayRangeFilter('transferDate')
 const propertyFilter = getStringContainsFilter(['rawAddress'])
@@ -53,7 +51,7 @@ export function usePaymentsTableFilters (
     return useMemo(() => [
         {
             keyword: 'search',
-            filters: [addressFilter, accountFilter, typeFilter, transactionFilter, depositedDateFilter, transferDateFilter],
+            filters: [addressFilter, propertyFilter, accountFilter, orderFilter],
             combineType: 'OR',
         },
         {

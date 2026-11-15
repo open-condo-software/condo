@@ -86,4 +86,17 @@ describe('payment column filters', () => {
             type: ['new-integration'],
         })
     })
+
+    test('normalizes legacy registry order and preserves non-column filters', () => {
+        const filters = {
+            paymentOrder: ['123'],
+            search: 'query',
+        }
+        const columnFilters = getPaymentColumnFilterState(filters, VIEW_TYPES.registry)
+
+        expect(mergePaymentColumnFilters(filters, columnFilters, VIEW_TYPES.registry)).toEqual({
+            paymentOrder: '123',
+            search: 'query',
+        })
+    })
 })

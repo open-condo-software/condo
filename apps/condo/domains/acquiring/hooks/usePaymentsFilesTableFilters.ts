@@ -58,6 +58,7 @@ export const paymentPeriodFilter = (search: QueryArgType): PaymentsFileWhereInpu
 const acquiringContextFilter = getFilter(['context', 'id'], 'array', 'string', 'in')
 const statusFilter = getFilter('status', 'array', 'string', 'in')
 const paymentOrderFilter = getStringContainsFilter('paymentOrder')
+const fileNameFilter = getStringContainsFilter('name')
 
 const statusType = [PAYMENTS_FILE_NEW_STATUS, PAYMENTS_FILE_DOWNLOADED_STATUS]
 
@@ -82,7 +83,7 @@ export function usePaymentsFilesTableFilters (organizationId: string): FiltersMe
     return useMemo(() => [
         {
             keyword: 'search',
-            filters: [loadedAtFilter, paymentOrderFilter],
+            filters: [paymentOrderFilter, fileNameFilter],
             combineType: 'OR',
         },
         {

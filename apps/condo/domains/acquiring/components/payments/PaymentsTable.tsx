@@ -164,7 +164,12 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
     lastTestingPosReceiptRef.current = lastTestingPosReceipt
     const filtersKey = JSON.stringify(searchPaymentsQuery)
     const latestRequestRef = useRef<PaymentsTableRequest | null>(null)
-    usePaymentsTableDataRefresh({ columnFilterState, filtersKey, tableRef })
+    usePaymentsTableDataRefresh({
+        columnFilterState,
+        filtersKey,
+        tableRef,
+        urlStartRow: parsedUrlState.startRow,
+    })
 
     const [fetchPayments] = useLazyQuery(PaymentGQL.GET_ALL_OBJS_WITH_COUNT_QUERY)
     const waitForLatestRequest = useCallback(async (): Promise<PaymentsTableResult> => {

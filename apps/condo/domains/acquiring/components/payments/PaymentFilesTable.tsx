@@ -105,6 +105,7 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
         columnFilterState,
         filtersFromUrl,
         initialTableState,
+        parsedUrlState,
     } = usePaymentsTableState({
         defaultSortState: PAYMENTS_DEFAULT_SORT_STATE,
         fallbackRowSelectionState: legacySelectedRegistryKeys,
@@ -147,7 +148,12 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
     canFetchPaymentsFilesRef.current = Boolean(persistor && acquiringContexts.length)
     const filtersKey = JSON.stringify({ searchPaymentsFilesQuery, persistorReady: Boolean(persistor) })
     const latestRequestRef = useRef<PaymentsFileTableRequest | null>(null)
-    usePaymentsTableDataRefresh({ columnFilterState, filtersKey, tableRef })
+    usePaymentsTableDataRefresh({
+        columnFilterState,
+        filtersKey,
+        tableRef,
+        urlStartRow: parsedUrlState.startRow,
+    })
 
     const [fetchPaymentsFiles] = useGetPaymentsFilesLazyQuery()
     const waitForLatestRequest = useCallback(async (): Promise<PaymentsFileTableResult> => {

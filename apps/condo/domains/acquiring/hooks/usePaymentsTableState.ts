@@ -5,7 +5,10 @@ import { RefObject, useEffect, useMemo, useRef } from 'react'
 import { FullTableState, RowSelectionState, TableRef } from '@open-condo/ui'
 
 import { ViewTypes } from '@condo/domains/acquiring/utils/clientSchema'
-import { getPaymentColumnFilterState } from '@condo/domains/acquiring/utils/paymentFilters'
+import {
+    getPaymentColumnFilterState,
+    mergePaymentColumnFilters,
+} from '@condo/domains/acquiring/utils/paymentFilters'
 import { DEFAULT_PAGE_SIZE } from '@condo/domains/common/components/Table/Index'
 import { FiltersFromQueryType } from '@condo/domains/common/utils/tables.utils'
 import { defaultParseUrlQuery } from '@condo/domains/common/utils/tableUrls'
@@ -38,9 +41,13 @@ export const usePaymentsTableState = ({
         [parsedUrlState.filterState, type]
     )
     const filtersFromUrl = useMemo<FiltersFromQueryType>(() => ({
-        ...parsedUrlState.filterState as FiltersFromQueryType,
+        ...mergePaymentColumnFilters(
+            parsedUrlState.filterState as FiltersFromQueryType,
+            columnFilterState,
+            type
+        ),
         ...(parsedUrlState.globalFilter ? { search: parsedUrlState.globalFilter } : {}),
-    }), [parsedUrlState.filterState, parsedUrlState.globalFilter])
+    }), [columnFilterState, parsedUrlState.filterState, parsedUrlState.globalFilter, type])
     const sortStateFromUrl = useMemo(
         () => parsedUrlState.sortState.filter(({ id }) => sortableColumnIds.has(id)),
         [parsedUrlState.sortState, sortableColumnIds]
@@ -62,16 +69,19 @@ export const usePaymentsTableState = ({
         if (!tableRef.current) return
 
         const { api } = tableRef.current
+        let shouldRestoreUrlPagination = false
         if (!isEqual(api.getFilterState(), columnFilterState)) {
             api.setFilterState(columnFilterState)
+            shouldRestoreUrlPagination = true
         }
 
         if (!isEqual(api.getSorting(), normalizedSortState)) {
             api.setSorting(normalizedSortState)
+            shouldRestoreUrlPagination = true
         }
 
         const { startRow } = api.getPagination()
-        if (startRow !== parsedUrlState.startRow) {
+        if (shouldRestoreUrlPagination || startRow !== parsedUrlState.startRow) {
             api.setPagination({
                 startRow: parsedUrlState.startRow,
                 endRow: parsedUrlState.startRow + DEFAULT_PAGE_SIZE,
@@ -91,24 +101,29 @@ type UsePaymentsTableDataRefreshOptions = {
     columnFilterState: FiltersFromQueryType
     filtersKey: string
     tableRef: RefObject<TableRef | null>
+    urlStartRow: number
 }
 
 export const usePaymentsTableDataRefresh = ({
     columnFilterState,
     filtersKey,
     tableRef,
+    urlStartRow,
 }: UsePaymentsTableDataRefreshOptions): void => {
     const previousFiltersKeyRef = useRef(filtersKey)
     const previousColumnFilterStateRef = useRef(columnFilterState)
+    const previousUrlStartRowRef = useRef(urlStartRow)
 
     useEffect(() => {
         const haveFiltersChanged = previousFiltersKeyRef.current !== filtersKey
         const haveColumnFiltersChanged = !isEqual(previousColumnFilterStateRef.current, columnFilterState)
+        const hasUrlPaginationChanged = previousUrlStartRowRef.current !== urlStartRow
 
         previousFiltersKeyRef.current = filtersKey
         previousColumnFilterStateRef.current = columnFilterState
+        previousUrlStartRowRef.current = urlStartRow
 
-        if (!haveFiltersChanged || haveColumnFiltersChanged || !tableRef.current) return
+        if (!haveFiltersChanged || haveColumnFiltersChanged || hasUrlPaginationChanged || !tableRef.current) return
 
         const { startRow } = tableRef.current.api.getPagination()
         if (startRow > 0) {
@@ -116,5 +131,5 @@ export const usePaymentsTableDataRefresh = ({
         } else {
             tableRef.current.api.refetchData()
         }
-    }, [columnFilterState, filtersKey, tableRef])
+    }, [columnFilterState, filtersKey, tableRef, urlStartRow])
 }
