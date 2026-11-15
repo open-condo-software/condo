@@ -41,10 +41,16 @@ export const usePaymentsDateFilterInitialization = (
         const hasValidDateFilter = Array.isArray(dateFilter)
             && dateFilter.length === 2
             && dateFilter.every(date => dayjs(date).isValid())
+        const hasNonDateFilter = Object.entries(filters).some(([key, value]) => {
+            if (key === dateFilterKey) return false
+            if (Array.isArray(value)) return value.length > 0
+
+            return Boolean(value)
+        })
 
         const initialize = async (): Promise<void> => {
             try {
-                if (!hasValidDateFilter) {
+                if (!hasValidDateFilter && !hasNonDateFilter) {
                     await updateQuery(
                         router,
                         {
