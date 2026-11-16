@@ -15,7 +15,7 @@ const { downloadFile, getTmpFile, readXlsx, expectDataFormat } = require('@condo
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 const { createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
-const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
+const { createTestProperty, makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 
 
 function prepareVariables (organization) {
@@ -173,6 +173,24 @@ describe('ExportPaymentsService', () => {
             invoice,
             order: '789',
         })
+        const [contactProperty] = await createTestProperty(admin, organization)
+        const contactUnitName = 'Contact unit 18'
+        const [contact] = await createTestContact(admin, organization, contactProperty, {
+            unitName: contactUnitName,
+        })
+        const [invoiceWithDifferentContactProperty] = await createTestInvoice(admin, organization, {
+            contact: { connect: { id: contact.id } },
+            property: { connect: { id: property.id } },
+        })
+        const [invoicePaymentWithoutUnit] = await createTestPayment(admin, organization, null, acquiringContext, {
+            accountNumber: 'not-used-for-invoice-payment',
+            advancedAt: '2024-01-04T22:30:00.000Z',
+            amount: '400',
+            depositedDate: '2024-01-04T22:30:00.000Z',
+            implicitFee: '20',
+            invoice: invoiceWithDifferentContactProperty,
+            order: '790',
+        })
 
         const [{ linkToFile: invoiceLinkToFile }] = await exportPaymentsServiceByTestClient(
             admin,
@@ -200,6 +218,18 @@ describe('ExportPaymentsService', () => {
                 '285.00',
                 '789',
                 invoicePayment.recipientBankAccount,
+                '',
+            ],
+            [
+                dayjs(invoicePaymentWithoutUnit.depositedDate).utc().tz(DEFAULT_ORGANIZATION_TIMEZONE).format('DD-MM-YYYY'),
+                dayjs(invoicePaymentWithoutUnit.depositedDate).utc().tz(DEFAULT_ORGANIZATION_TIMEZONE).format('HH-mm-ss'),
+                String(invoiceWithDifferentContactProperty.number),
+                property.address,
+                '400.00',
+                '20.00',
+                '380.00',
+                '790',
+                invoicePaymentWithoutUnit.recipientBankAccount,
                 '',
             ],
         ])

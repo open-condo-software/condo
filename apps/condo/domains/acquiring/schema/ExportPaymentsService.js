@@ -26,7 +26,7 @@ const DATE_FORMAT = 'DD-MM-YYYY'
 const TIME_FORMAT = 'HH-mm-ss'
 const PAYMENT_FIELDS = 'id order amount implicitFee accountNumber depositedDate recipientBankAccount rawAddress frozenReceipt '
     + 'receipt { category { name } property { address } account { unitName } } '
-    + 'invoice { number property { address } unitName contact { property { address } unitName } } '
+    + 'invoice { number property { id address } unitName contact { property { id address } unitName } } '
 
 const PAYMENT_EXPORT_HEADERS = [
     'date',
@@ -119,10 +119,14 @@ const ExportPaymentsService = new GQLCustomSchema('ExportPaymentsService', {
                         ? services.map(({ name }) => name).filter(Boolean).slice(0, 3)
                         : []
                     const categoryName = get(obj, ['receipt', 'category', 'name'], '')
-                    const receiptAddress = get(obj, ['receipt', 'property', 'address'], '')
-                    const receiptUnitName = get(obj, ['receipt', 'account', 'unitName'], '')
-                    const invoiceAddress = obj.invoice?.property?.address || obj.invoice?.contact?.property?.address || ''
-                    const invoiceUnitName = obj.invoice?.unitName || obj.invoice?.contact?.unitName || ''
+                    const receiptAddress = obj.receipt?.property?.address || ''
+                    const receiptUnitName = obj.receipt?.account?.unitName || ''
+                    const invoiceProperty = obj.invoice?.property
+                    const invoiceContact = obj.invoice?.contact
+                    const invoiceAddress = invoiceProperty?.address || invoiceContact?.property?.address || ''
+                    const invoiceUnitName = invoiceProperty
+                        ? obj.invoice?.unitName || (invoiceProperty.id === invoiceContact?.property?.id ? invoiceContact?.unitName : '')
+                        : invoiceContact?.unitName || ''
                     const paymentAddress = obj.rawAddress
                         || [receiptAddress, receiptUnitName].filter(Boolean).join(', ')
                         || [invoiceAddress, invoiceUnitName].filter(Boolean).join(', ')
