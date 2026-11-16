@@ -140,7 +140,8 @@ export default function useDownloadPaymentsFiles (refetch) {
             }))
 
             const zipBlob = await zip.generateAsync({ type: 'blob' })
-            downloadBlob(zipBlob, 'payments_files.zip')
+            const archiveTimestamp = new Date().toISOString().replace(/[:.]/g, '-')
+            downloadBlob(zipBlob, `payments_files_${archiveTimestamp}.zip`)
             await Promise.all(selectedFiles.map(file => updatePaymentsFileStatus(file.id)))
         }
     }

@@ -13,6 +13,7 @@ const { makePayer, createTestPayment } = require('@condo/domains/acquiring/utils
 const { exportPaymentsServiceByTestClient } = require('@condo/domains/acquiring/utils/testSchema')
 const { downloadFile, getTmpFile, readXlsx, expectDataFormat } = require('@condo/domains/common/utils/testSchema/file')
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
+const { createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 
@@ -91,7 +92,7 @@ describe('ExportPaymentsService', () => {
 
     it('check payments export', async () => {
         const locale = 'ru'
-        const { admin, billingReceipts, acquiringContext, organization } = await makePayer(2)
+        const { admin, billingReceipts, acquiringContext, organization, property } = await makePayer(2)
         admin.setHeaders({ 'Accept-Language': locale })
         const rawAddress = 'Raw payment address, unit 42'
         const [paymentWithServices] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext, {
@@ -157,6 +158,51 @@ describe('ExportPaymentsService', () => {
         ])
         expect(status).toBe('ok')
         expect(linkToFile).not.toHaveLength(0)
+
+        const invoiceUnitName = 'Invoice unit 17'
+        const [invoice] = await createTestInvoice(admin, organization, {
+            property: { connect: { id: property.id } },
+            unitName: invoiceUnitName,
+        })
+        const [invoicePayment] = await createTestPayment(admin, organization, null, acquiringContext, {
+            accountNumber: 'not-used-for-invoice-payment',
+            advancedAt: '2024-01-03T22:30:00.000Z',
+            amount: '300',
+            depositedDate: '2024-01-03T22:30:00.000Z',
+            implicitFee: '15',
+            invoice,
+            order: '789',
+        })
+
+        const [{ linkToFile: invoiceLinkToFile }] = await exportPaymentsServiceByTestClient(
+            admin,
+            {
+                organization: { id: organization.id },
+                invoice: { organization: { id: organization.id } },
+            },
+            { sortBy: 'depositedDate_ASC', timeZone: DEFAULT_ORGANIZATION_TIMEZONE }
+        )
+
+        const invoiceUrl = invoiceLinkToFile.replace(conf.SERVER_URL, admin.serverUrl)
+        const invoiceFilename = getTmpFile('xlsx')
+        await downloadFile(invoiceUrl, invoiceFilename)
+        const invoiceData = await readXlsx(invoiceFilename)
+
+        expectDataFormat(invoiceData, [
+            ['Дата платежа', 'Время платежа', 'Лицевой счет', 'Адрес', 'Сумма платежа', 'Сумма комиссии', 'Начислено', 'Платежное поручение', 'Расчетный счет', 'Услуги'],
+            [
+                dayjs(invoicePayment.depositedDate).utc().tz(DEFAULT_ORGANIZATION_TIMEZONE).format('DD-MM-YYYY'),
+                dayjs(invoicePayment.depositedDate).utc().tz(DEFAULT_ORGANIZATION_TIMEZONE).format('HH-mm-ss'),
+                String(invoice.number),
+                `${property.address}, ${invoiceUnitName}`,
+                '300.00',
+                '15.00',
+                '285.00',
+                '789',
+                invoicePayment.recipientBankAccount,
+                '',
+            ],
+        ])
     })
 
     describe('Anonymous', () => {

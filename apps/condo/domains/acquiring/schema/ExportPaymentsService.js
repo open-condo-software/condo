@@ -26,6 +26,7 @@ const DATE_FORMAT = 'DD-MM-YYYY'
 const TIME_FORMAT = 'HH-mm-ss'
 const PAYMENT_FIELDS = 'id order amount implicitFee accountNumber depositedDate recipientBankAccount rawAddress frozenReceipt '
     + 'receipt { category { name } property { address } account { unitName } } '
+    + 'invoice { number property { address } unitName contact { property { address } unitName } } '
 
 const PAYMENT_EXPORT_HEADERS = [
     'date',
@@ -118,16 +119,20 @@ const ExportPaymentsService = new GQLCustomSchema('ExportPaymentsService', {
                         ? services.map(({ name }) => name).filter(Boolean).slice(0, 3)
                         : []
                     const categoryName = get(obj, ['receipt', 'category', 'name'], '')
-                    const address = get(obj, ['receipt', 'property', 'address'], '')
-                    const unitName = get(obj, ['receipt', 'account', 'unitName'], '')
-                    const paymentAddress = get(obj, 'rawAddress') || [address, unitName].filter(Boolean).join(', ')
+                    const receiptAddress = get(obj, ['receipt', 'property', 'address'], '')
+                    const receiptUnitName = get(obj, ['receipt', 'account', 'unitName'], '')
+                    const invoiceAddress = obj.invoice?.property?.address || obj.invoice?.contact?.property?.address || ''
+                    const invoiceUnitName = obj.invoice?.unitName || obj.invoice?.contact?.unitName || ''
+                    const paymentAddress = obj.rawAddress
+                        || [receiptAddress, receiptUnitName].filter(Boolean).join(', ')
+                        || [invoiceAddress, invoiceUnitName].filter(Boolean).join(', ')
                     const amount = Big(get(obj, 'amount', 0))
                     const implicitFee = Big(get(obj, 'implicitFee', 0) || 0)
 
                     return {
                         date: formatDate(obj.depositedDate, DATE_FORMAT),
                         time: formatDate(obj.depositedDate, TIME_FORMAT),
-                        accountNumber: get(obj, 'accountNumber', ''),
+                        accountNumber: obj.invoice?.number ?? obj.accountNumber ?? '',
                         address: paymentAddress,
                         amount: amount.toFixed(2),
                         fee: implicitFee.toFixed(2),
