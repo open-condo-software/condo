@@ -18,7 +18,7 @@ const {
 
 const { CONTEXT_FINISHED_STATUS, CONTEXT_IN_PROGRESS_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { createTestAcquiringIntegrationContext, createTestAcquiringIntegration } = require('@condo/domains/acquiring/utils/testSchema')
-const { HOUSING_CATEGORY_ID, REPAIR_CATEGORY_ID } = require('@condo/domains/billing/constants/constants')
+const { HOUSING_CATEGORY_ID, REPAIR_CATEGORY_ID, ELECTRICITY_CATEGORY_ID } = require('@condo/domains/billing/constants/constants')
 const {
     ONLINE_INTERACTION_CHECK_ACCOUNT_NOT_FOUND_STATUS,
     ONLINE_INTERACTION_CHECK_ACCOUNT_SUCCESS_STATUS,
@@ -27,6 +27,7 @@ const {
     createTestBillingIntegrationOrganizationContext,
     createTestBillingIntegration,
     updateTestBillingIntegrationOrganizationContext,
+    createTestBillingCategory,
 } = require('@condo/domains/billing/utils/testSchema')
 const { createTestBillingIntegrationAccessRight } = require('@condo/domains/billing/utils/testSchema')
 const {
@@ -845,6 +846,190 @@ describe('FindOrganizationsByAddress', () => {
                 expect(found3.type).toEqual(utils.organization.type)
             })
 
+        })
+
+        describe('Receipts validity period', () => {
+            setFeatureFlag(DISABLE_DISCOVER_SERVICE_CONSUMERS, false)
+
+            const unitType = 'flat'
+            const createPeriod = (monthsModifier = 0) => {
+                const period = dayjs().add(monthsModifier, 'month').format('YYYY-MM-01')
+                const [year, month] = period.split('-').map(Number)
+                return { period, year, month }
+            }
+            const current = createPeriod()
+            const monthAgo = createPeriod(-1)
+            const twoMonthsAgo = createPeriod(-2)
+            const threeMonthsAgo = createPeriod(-3)
+
+            const createReceiptBuilder = (utils) => ({ address = utils.property.address, accountNumber = faker.random.alphaNumeric(16), unitName = faker.random.alphaNumeric(16), period, category = HOUSING_CATEGORY_ID, toPay = '1000', bankAccount }) =>
+                utils.createJSONReceipt({
+                    address,
+                    addressMeta: { unitName, unitType },
+                    accountNumber,
+                    category: { id: category },
+                    toPay,
+                    ...(bankAccount ? { bankAccount } : {}),
+                    month: period.month,
+                    year: period.year,
+                })
+
+            const createOrganizationWithReceipts = async (buildReceipts) => {
+                const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                await utils.init()
+                await utils.createReceipts(await buildReceipts(createReceiptBuilder(utils), utils))
+                return utils
+            }
+
+            const registerReceiptsInSecondBillingContext = async (utils, buildReceipts) => {
+                const secondUtils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                await secondUtils.init()
+                secondUtils.organization = utils.organization
+                await initBillingTestMixin(secondUtils)
+                const buildReceipt = (spec) => createReceiptBuilder(secondUtils)({ address: utils.property.address, ...spec })
+                await secondUtils.createReceipts(await buildReceipts(buildReceipt, secondUtils))
+                return secondUtils
+            }
+
+            const findByAccountNumber = async (utils, accountNumber) => {
+                const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
+                    addressKey: utils.property.addressKey,
+                    accountNumber,
+                    tin: utils.organization.tin,
+                })
+                return foundOrganizations.find(({ id }) => id === utils.organization.id)
+            }
+
+            const findByUnit = async (utils, unitName) => {
+                const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
+                    addressKey: utils.property.addressKey,
+                    unitName,
+                    unitType,
+                })
+                return foundOrganizations.find(({ id }) => id === utils.organization.id)
+            }
+
+            describe('all situations on a single account', () => {
+                const accountNumber = faker.random.alphaNumeric(16)
+                const unitName = faker.random.alphaNumeric(16)
+                const sharedBankAccount = faker.random.numeric(12)
+                let latestCategoryId
+
+                const buildMixedReceipts = async (receipt, utils) => {
+                    const [uniqueCategory] = await createTestBillingCategory(utils.clients.admin)
+                    const [latestCategory] = await createTestBillingCategory(utils.clients.admin)
+                    latestCategoryId = latestCategory.id
+                    return [
+                        // out of the window — would survive dedup if the window let it through (unique category and receiver)
+                        receipt({ accountNumber, unitName, period: threeMonthsAgo, category: uniqueCategory.id, toPay: '9000' }),
+                        // superseded by the newer HOUSING receipts below (same category)
+                        receipt({ accountNumber, unitName, period: twoMonthsAgo, toPay: '1000' }),
+                        receipt({ accountNumber, unitName, period: monthAgo, toPay: '2000' }),
+                        // payable: no newer receipt with same category or receiver
+                        receipt({ accountNumber, unitName, period: twoMonthsAgo, category: REPAIR_CATEGORY_ID, toPay: '3000' }),
+                        // superseded by the newer receipt with the same receiver (same bankAccount)
+                        receipt({ accountNumber, unitName, period: monthAgo, category: ELECTRICITY_CATEGORY_ID, toPay: '5000', bankAccount: sharedBankAccount }),
+                        // payable: a different category, despite being newer than the HOUSING receipt above;
+                        // also sets lastReport.period to the current month and supersedes ELECTRICITY by receiver
+                        receipt({ accountNumber, unitName, period: current, category: latestCategory.id, toPay: '8000', bankAccount: sharedBankAccount }),
+                    ]
+                }
+
+                test('addressKey + tin + accountNumber returns only payable receipts within the window', async () => {
+                    const utils = await createOrganizationWithReceipts(buildMixedReceipts)
+                    const found = await findByAccountNumber(utils, accountNumber)
+                    expect(found).toBeDefined()
+                    expect(found.receipts).toHaveLength(3)
+                    expect(found.receipts).toEqual(expect.arrayContaining([
+                        expect.objectContaining({ category: HOUSING_CATEGORY_ID, balance: Big('2000').toFixed(8) }),
+                        expect.objectContaining({ category: REPAIR_CATEGORY_ID, balance: Big('3000').toFixed(8) }),
+                        expect.objectContaining({ category: latestCategoryId, balance: Big('8000').toFixed(8) }),
+                    ]))
+                })
+
+                test('addressKey + unitName + unitType returns the same surviving receipts', async () => {
+                    const utils = await createOrganizationWithReceipts(buildMixedReceipts)
+                    const found = await findByUnit(utils, unitName)
+                    expect(found).toBeDefined()
+                    expect(found.receipts).toHaveLength(3)
+                    expect(found.receipts).toEqual(expect.arrayContaining([
+                        expect.objectContaining({ category: HOUSING_CATEGORY_ID }),
+                        expect.objectContaining({ category: REPAIR_CATEGORY_ID }),
+                        expect.objectContaining({ category: latestCategoryId }),
+                    ]))
+                })
+            })
+
+            describe('account with only an expired receipt', () => {
+                test('addressKey + tin + accountNumber does not return the organization', async () => {
+                    const accountNumber = faker.random.alphaNumeric(16)
+                    const utils = await createOrganizationWithReceipts(receipt => [
+                        // a receipt of another account sets lastReport.period to the current month
+                        receipt({ period: current }),
+                        receipt({ accountNumber, period: threeMonthsAgo }),
+                    ])
+                    expect(await findByAccountNumber(utils, accountNumber)).toBeUndefined()
+                })
+
+                test('addressKey + unitName + unitType returns the organization with empty receipts', async () => {
+                    const unitName = faker.random.alphaNumeric(16)
+                    const utils = await createOrganizationWithReceipts(receipt => [
+                        // a receipt of another unit sets lastReport.period to the current month
+                        receipt({ period: current }),
+                        receipt({ unitName, period: threeMonthsAgo }),
+                    ])
+                    const found = await findByUnit(utils, unitName)
+                    expect(found).toBeDefined()
+                    expect(found.receipts).toHaveLength(0)
+                })
+            })
+
+            describe('same account number in two billing contexts', () => {
+                test('addressKey + tin + accountNumber applies the window of each context', async () => {
+                    const accountNumber = faker.random.alphaNumeric(16)
+                    const utils = await createOrganizationWithReceipts(receipt => [
+                        // the newest receipt here, lastReport.period = the current month
+                        receipt({ accountNumber, period: current, toPay: '4000' }),
+                    ])
+                    await registerReceiptsInSecondBillingContext(utils, receipt => [
+                        // the freshest report in this context is 3 months ago, so this receipt is within its own window
+                        receipt({ accountNumber, period: threeMonthsAgo, toPay: '7000' }),
+                    ])
+                    const found = await findByAccountNumber(utils, accountNumber)
+                    expect(found).toBeDefined()
+                    expect(found.receipts).toHaveLength(2)
+                    expect(found.receipts).toEqual(expect.arrayContaining([
+                        expect.objectContaining({ balance: Big('4000').toFixed(8) }),
+                        expect.objectContaining({ balance: Big('7000').toFixed(8) }),
+                    ]))
+                })
+
+                test('addressKey + unitName + unitType matches only the unit of the second context', async () => {
+                    const unitName = faker.random.alphaNumeric(16)
+                    const utils = await createOrganizationWithReceipts(receipt => [
+                        receipt({ period: current, toPay: '4000' }),
+                    ])
+                    await registerReceiptsInSecondBillingContext(utils, receipt => [
+                        receipt({ unitName, period: threeMonthsAgo, toPay: '7000' }),
+                    ])
+                    const found = await findByUnit(utils, unitName)
+                    expect(found).toBeDefined()
+                    expect(found.receipts).toHaveLength(1)
+                })
+            })
+
+            test('receipt is returned even if its category has expired receiptValidityMonths', async () => {
+                const accountNumber = faker.random.alphaNumeric(16)
+                const utils = await createOrganizationWithReceipts(async (receipt, { clients }) => {
+                    const [shortLivedCategory] = await createTestBillingCategory(clients.admin, { receiptValidityMonths: 1 })
+                    // expired by category rules: with receiptValidityMonths = 1 it is payable
+                    // only till the end of its own month, but this service does not check it
+                    return [receipt({ accountNumber, period: twoMonthsAgo, category: shortLivedCategory.id })]
+                })
+                const found = await findByAccountNumber(utils, accountNumber)
+                expect(found).toBeDefined()
+                expect(found.receipts).toHaveLength(1)
+            })
         })
     })
 
