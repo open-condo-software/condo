@@ -1,7 +1,7 @@
 // ELS is a 10-digit code, where 3 and 4 characters are russian letters and the rest are numbers.
 const IS_ELS_REGEXP = /^\d{2}[А-ЯЁ]{2}\d{6}(?:-[^-\s]+)*$/i
 
-const { isEmpty, isNil } = require('lodash')
+const { isEmpty } = require('lodash')
 
 const { find } = require('@open-condo/keystone/schema')
 
@@ -18,7 +18,6 @@ class AccountResolver extends Resolver {
     constructor ({ billingContext, context }) {
         super(billingContext, context, { name: 'account' })
         this.recipients = []
-        this.accountsByReceiptByImportId = {}
         this.accountsByNumber = new Map()
     }
 
@@ -31,27 +30,12 @@ class AccountResolver extends Resolver {
         return account
     }
 
-    // If receipt input has importId from integration - then connected account will not be created, only updated
-    async createIndexByImportId (receiptIndex) {
-        const receiptImportIds = []
-        for (const [,receipt] of Object.entries(receiptIndex)) {
-            if (receipt.importId) {
-                receiptImportIds.push(receipt.importId)
-            }
-        }
-        if (receiptImportIds.length) {
-            const receipts = await find('BillingReceipt', { importId_in: receiptImportIds, deletedAt: null, context: { id: this.billingContext.id } })
-            this.accountsByReceiptByImportId = Object.fromEntries(receipts.map(({ importId, account }) => ([importId, account])))
-        }
-    }
-
     async processReceipts (receiptIndex) {
-        await this.createIndexByImportId(receiptIndex)
         for (const [index, receipt] of Object.entries(receiptIndex)) {
             let { unitName, unitType } = receipt.addressResolve
             let { accountNumber, accountMeta = {} } = receipt
             let { globalId, importId, fullName, isClosed, ownerType } = accountMeta
-            if (fullName && isNil(ownerType)) {
+            if (fullName && ownerType === undefined) {
                 ownerType = isPerson(fullName) ? BILLING_ACCOUNT_OWNER_TYPE_PERSON : BILLING_ACCOUNT_OWNER_TYPE_COMPANY
             }
             accountNumber = clearAccountNumber(accountNumber)
@@ -59,9 +43,6 @@ class AccountResolver extends Resolver {
                 globalId = undefined
             }
             let existingAccount = this.accountsByNumber.get(accountNumber)
-            if (receipt.importId && this.accountsByReceiptByImportId[receipt.importId]) {
-                existingAccount = await this.getBillingAccount({ id: this.accountsByReceiptByImportId[receipt.importId] })
-            }
             if (!existingAccount) {
                 existingAccount = await this.getBillingAccount({ number: accountNumber })
             }

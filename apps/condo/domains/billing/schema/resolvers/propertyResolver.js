@@ -98,14 +98,10 @@ class PropertyResolver extends Resolver {
         }
         if (addressInput) {
             const transformedAddressInput = this.transform.apply(addressInput)
-            if (unitNameInput && unitTypeInput) {
-                addresses.push(transformedAddressInput)
-            } else {
-                let { unitName: unitNameFromAddress, unitType: unitTypeFromAddress, address: houseFromAddress } = this.parser.parse(transformedAddressInput)
-                if (!unitNameInput) unitNames.push(unitNameFromAddress)
-                if (!unitTypeInput) unitTypes.push(unitTypeFromAddress)
-                addresses.push(houseFromAddress)
-            }
+            const { unitName: unitNameFromAddress, unitType: unitTypeFromAddress, address: houseFromAddress } = this.parser.parse(transformedAddressInput)
+            if (!unitNameInput) unitNames.push(unitNameFromAddress)
+            if (!unitTypeInput) unitTypes.push(unitTypeFromAddress)
+            addresses.push(houseFromAddress)
         }
         if (unitTypes.length > 1) {
             const specificUnitType = unitTypes.find(unitType => unitType !== DEFAULT_UNIT_TYPE)

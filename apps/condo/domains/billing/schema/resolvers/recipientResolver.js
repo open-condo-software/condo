@@ -12,6 +12,20 @@ const { BillingRecipient } = require('@condo/domains/billing/utils/serverSchema'
 
 
 const BILLING_RECIPIENT_FIELDS = '{ id name bankName bankAccount tin iec bic offsettingAccount territoryCode isApproved }'
+const INFRASTRUCTURE_ERROR_CODES = new Set([
+    'ECONNREFUSED',
+    'ECONNRESET',
+    'ENETUNREACH',
+    'ENOTFOUND',
+    'ETIMEDOUT',
+])
+
+const isInfrastructureError = (error) => error instanceof Error && (
+    error.message.startsWith('Failed to fetch:') ||
+    INFRASTRUCTURE_ERROR_CODES.has(error.code) ||
+    error.name === 'FetchError' ||
+    error.name === 'MaxRetriesPerRequestError'
+)
 
 class RecipientResolver extends Resolver {
     constructor ({ billingContext, context }) {
@@ -26,7 +40,7 @@ class RecipientResolver extends Resolver {
         this.recipients = await find('BillingRecipient', { context: { id: this.billingContext.id }, deletedAt: null })
     }
 
-    async syncBillingRecipient (existing, data){
+    async syncBillingRecipient (existing, data) {
         if (!existing) {
             try {
                 const newRecipient = await BillingRecipient.create(
@@ -37,7 +51,7 @@ class RecipientResolver extends Resolver {
                 this.recipients.push(newRecipient)
                 return newRecipient
             } catch (error) {
-                return { error: ERRORS.RECIPIENT_SAVE_FAILED }
+                return { error: { ...ERRORS.RECIPIENT_SAVE_FAILED, messageInterpolation: { bankAccount: data.bankAccount } } }
             }
         } else {
             const updateInput = this.buildUpdateInput(data, existing)
@@ -52,18 +66,20 @@ class RecipientResolver extends Resolver {
                     this.recipients.push(updatedRecipient)
                     return updatedRecipient
                 } catch (error) {
-                    return { error: ERRORS.RECIPIENT_SAVE_FAILED }
+                    return { error: { ...ERRORS.RECIPIENT_SAVE_FAILED, messageInterpolation: { bankAccount: data.bankAccount } } }
                 }
             } else {
                 return existing
             }
         }
     }
-    async getReceiver ({ tin, routingNumber, bankAccount } ) {
+    async prepareReceiver ({ tin, routingNumber, bankAccount }) {
         const existingRecipient = this.recipients.find(({ bankAccount: existingBankAccount }) => existingBankAccount === bankAccount)
         const { error: getBankError, result: routingNumberMeta  } = await getBankInfo(routingNumber)
         const { error: getOrganizationError, result: tinMeta } = await getOrganizationInfo(tin)
-        if (getBankError){
+        if (isInfrastructureError(getBankError)) throw getBankError
+        if (isInfrastructureError(getOrganizationError)) throw getOrganizationError
+        if (getBankError) {
             return { error: { ...ERRORS.BANK_FOUND_ERROR, messageInterpolation: { routingNumber } } }
         }
         if (getOrganizationError) {
@@ -74,7 +90,13 @@ class RecipientResolver extends Resolver {
         const name = get(tinMeta, 'name', get(existingRecipient, 'name', null))
         const iec = get(tinMeta, 'iec', get(existingRecipient, 'iec', null))
         const territoryCode = get(tinMeta, 'territoryCode', get(existingRecipient, 'territoryCode', null))
-        const { error, id, isApproved } = await this.syncBillingRecipient(existingRecipient, { context: this.billingContext.id, name, iec, tin, bankAccount, bankName, bic: routingNumber, offsettingAccount, territoryCode })
+        const data = { context: this.billingContext.id, name, iec, tin, bankAccount, bankName, bic: routingNumber, offsettingAccount, territoryCode }
+
+        return { existingRecipient, data }
+    }
+
+    async saveReceiver ({ existingRecipient, data }) {
+        const { error, id, isApproved } = await this.syncBillingRecipient(existingRecipient, data)
         if (error) {
             return { error }
         }
@@ -84,7 +106,16 @@ class RecipientResolver extends Resolver {
         // For some organizations there is no information about territoryCode
         const recipient = Object.fromEntries(
             Object.entries(
-                { name, bankName, territoryCode, offsettingAccount, tin, iec, bic: routingNumber, bankAccount }
+                {
+                    name: data.name,
+                    bankName: data.bankName,
+                    territoryCode: data.territoryCode,
+                    offsettingAccount: data.offsettingAccount,
+                    tin: data.tin,
+                    iec: data.iec,
+                    bic: data.bic,
+                    bankAccount: data.bankAccount,
+                }
             ).filter(([, value]) => !!value)
         )
         if (!isApproved) {
@@ -93,12 +124,21 @@ class RecipientResolver extends Resolver {
         return { result: { id, recipient } }
     }
     async processReceipts (receiptIndex) {
+        const receiverPrepareResult = {}
         const receiverSyncResult = {}
+        for (const receipt of Object.values(receiptIndex)) {
+            const { tin, routingNumber, bankAccount } = receipt
+            if (!receiverPrepareResult[bankAccount]) {
+                receiverPrepareResult[bankAccount] = await this.prepareReceiver({ tin, routingNumber, bankAccount })
+            }
+        }
+        for (const [bankAccount, preparedReceiver] of Object.entries(receiverPrepareResult)) {
+            receiverSyncResult[bankAccount] = preparedReceiver.error
+                ? preparedReceiver
+                : await this.saveReceiver(preparedReceiver)
+        }
         for (const [index, receipt] of Object.entries(receiptIndex)) {
             const { tin, routingNumber, bankAccount } = receipt
-            if (!receiverSyncResult[bankAccount]) {
-                receiverSyncResult[bankAccount] = await this.getReceiver({ tin, routingNumber, bankAccount } )
-            }
             const { error, problem, result } = receiverSyncResult[receipt.bankAccount]
             if (error) {
                 receiptIndex[index].error = this.error(error, index, null, error.messageInterpolation)

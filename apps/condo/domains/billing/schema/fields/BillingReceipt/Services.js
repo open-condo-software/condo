@@ -18,6 +18,10 @@ const ServiceToPayDetailsFields = {
     tariff: 'String',
     measure: 'String',
 }
+const ServiceToPayDetailsReturnFields = {
+    ...ServiceToPayDetailsFields,
+    formula: 'String @deprecated(reason: "Use explicit amount fields instead")',
+}
 
 const ServiceFields = {
     id: 'String',
@@ -33,7 +37,7 @@ const ServiceInputs = {
 
 const SERVICES_GRAPHQL_TYPES = `
     type ${BILLING_RECEIPT_SERVICE_TO_PAY_DETAILS_FIELD_NAME} {
-        ${render(ServiceToPayDetailsFields)}
+        ${render(ServiceToPayDetailsReturnFields)}
     }
     
     input ${BILLING_RECEIPT_SERVICE_TO_PAY_DETAILS_INPUT_NAME} {

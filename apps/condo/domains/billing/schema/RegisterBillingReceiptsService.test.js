@@ -133,23 +133,43 @@ describe('RegisterBillingReceiptsService', () => {
     })
 
     describe('Mixed output check', () => {
-        test('should return errors together with good receipts', async () => {
+        test('should process 49 receipts when one receipt in a chunk of 50 is invalid', async () => {
+            const invalidReceiptIndex = 24
+            const receipts = Array.from({ length: 50 }, (_, index) => utils.createJSONReceipt({
+                importId: utils.randomNumber(50).toString(),
+                month: index === invalidReceiptIndex ? -1 : 1,
+            }))
+            await catchErrorFrom(async () => {
+                await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                    context: { id: utils.billingContext.id },
+                    receipts,
+                })
+            }, ({ data: { result }, errors }) => {
+                expect(errors).toHaveLength(1)
+                expect(result).toHaveLength(50)
+                expect(result[invalidReceiptIndex]).toBeNull()
+                expect(result.filter(Boolean)).toHaveLength(49)
+                expect(result.filter(Boolean)).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: expect.anything() }),
+                ]))
+            })
+        })
+
+        test('should reject a comma amount without affecting valid receipts', async () => {
             await catchErrorFrom(async () => {
                 await registerBillingReceiptsByTestClient(utils.clients.admin, {
                     context: { id: utils.billingContext.id },
                     receipts: [
                         utils.createJSONReceipt(),
-                        utils.createJSONReceipt({ month: -1 }),
-                        utils.createJSONReceipt(),
+                        utils.createJSONReceipt({ toPay: '123,45' }),
                     ],
                 })
             }, ({ data: { result }, errors }) => {
                 expect(errors).toHaveLength(1)
-                expect(result).toEqual([
-                    expect.objectContaining({ id: expect.anything() }),
-                    null,
-                    expect.objectContaining({ id: expect.anything() }),
-                ])
+                expect(errors[0].message).toContain('toPay')
+                expect(errors[0].message).toContain('123,45')
+                expect(result[0]).toEqual(expect.objectContaining({ id: expect.anything() }))
+                expect(result[1]).toBeNull()
             })
         })
     })
@@ -456,6 +476,49 @@ describe('RegisterBillingReceiptsService', () => {
             expect(companyAccount.globalId).toBeNull()
             expect(companyAccount.isClosed).toEqual(companyAccountMeta.isClosed)
             expect(companyAccount.ownerType).toEqual(BILLING_ACCOUNT_OWNER_TYPE_COMPANY)
+        })
+        test('Accepts ELS suffixes without changing the value', async () => {
+            const globalId = `${utils.createValidELS()}-01-6101`
+            const [[{ account }]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                context: { id: utils.billingContext.id },
+                receipts: [utils.createJSONReceipt({ accountMeta: { globalId } })],
+            })
+
+            expect(account.globalId).toEqual(globalId)
+        })
+        test('Distinguishes null from undefined when updating BillingAccount metadata', async () => {
+            const receipt = utils.createJSONReceipt({
+                accountMeta: {
+                    globalId: utils.createValidELS(),
+                    fullName: faker.name.fullName(),
+                    isClosed: true,
+                    ownerType: BILLING_ACCOUNT_OWNER_TYPE_PERSON,
+                },
+            })
+            const [[{ account: createdAccount }]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                context: { id: utils.billingContext.id },
+                receipts: [receipt],
+            })
+            const [[{ account: unchangedAccount }]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                context: { id: utils.billingContext.id },
+                receipts: [{ ...receipt, accountMeta: {} }],
+            })
+            expect(unchangedAccount.fullName).toEqual(createdAccount.fullName)
+            expect(unchangedAccount.globalId).toEqual(createdAccount.globalId)
+            expect(unchangedAccount.isClosed).toEqual(createdAccount.isClosed)
+            expect(unchangedAccount.ownerType).toEqual(createdAccount.ownerType)
+
+            const [[{ account: clearedAccount }]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                context: { id: utils.billingContext.id },
+                receipts: [{
+                    ...receipt,
+                    accountMeta: { globalId: null, fullName: null, isClosed: null, ownerType: null },
+                }],
+            })
+            expect(clearedAccount.fullName).toBeNull()
+            expect(clearedAccount.globalId).toBeNull()
+            expect(clearedAccount.isClosed).toBeNull()
+            expect(clearedAccount.ownerType).toBeNull()
         })
         test('[IMPORT_ID] It will not create another account on address change', async () => {
             const importId = utils.randomNumber(50).toString()
