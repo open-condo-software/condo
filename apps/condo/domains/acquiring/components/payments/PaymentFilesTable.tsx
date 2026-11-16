@@ -237,9 +237,14 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
 
     const handleDownloadClick = async () => {
         setIsFilesDownloading(true)
-        await downloadPaymentsFiles(selectedRegistryKeys)
-        handleResetSelectedRegistry()
-        setIsFilesDownloading(false)
+        try {
+            await downloadPaymentsFiles(selectedRegistryKeys)
+            handleResetSelectedRegistry()
+        } catch (error) {
+            console.error('Failed to download payments files', error)
+        } finally {
+            setIsFilesDownloading(false)
+        }
     }
 
     const updateUrlQuery = useCallback((params: FullTableState) => {
@@ -341,7 +346,7 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
                                 type='secondary'
                                 children={CancelSelectedRegistryMessage}
                                 onClick={handleResetSelectedRegistry}
-                                loading={isFilesDownloading}
+                                disabled={isFilesDownloading}
                             />,
                         ]}
                     />
