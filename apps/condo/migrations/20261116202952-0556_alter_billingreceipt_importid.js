@@ -21,35 +21,9 @@ exports.down = async (knex) => {
 --
 -- Alter field importId on billingreceipt
 --
-DO $$
-DECLARE
-    receipt RECORD;
-    candidate text;
-    suffix integer;
-BEGIN
-    FOR receipt IN
-        SELECT "id"
-        FROM "BillingReceipt"
-        WHERE "importId" IS NULL
-        ORDER BY "id"
-    LOOP
-        suffix := 0;
-        LOOP
-            candidate := '__rollback__:' || receipt."id"::text || ':' || suffix::text;
-            EXIT WHEN NOT EXISTS (
-                SELECT 1
-                FROM "BillingReceipt"
-                WHERE "importId" = candidate
-            );
-            suffix := suffix + 1;
-        END LOOP;
-
-        UPDATE "BillingReceipt"
-        SET "importId" = candidate
-        WHERE "id" = receipt."id";
-    END LOOP;
-END
-$$;
+UPDATE "BillingReceipt"
+SET "importId" = "id"::text
+WHERE "importId" IS NULL;
 ALTER TABLE "BillingReceipt" ALTER COLUMN "importId" SET NOT NULL;
 CREATE INDEX "BillingReceipt_importId_9da6acbf_like" ON "BillingReceipt" ("importId" text_pattern_ops);
 COMMIT;
