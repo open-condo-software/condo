@@ -410,6 +410,15 @@ describe('RegisterBillingReceiptsService', () => {
     })
 
     describe('Address fix', () => {
+        test('accepts deprecated addressMeta.importId but does not use it for property identity', async () => {
+            const receipt = utils.createJSONReceipt({ addressMeta: { importId: 'legacy-property-id' } })
+            const [[createdReceipt]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                context: { id: utils.billingContext.id },
+                receipts: [receipt],
+            })
+            expect(createdReceipt).toHaveProperty('id')
+        })
+
         test('[REGISTRY] Address can be corrected for account if it starts to match organization property', async () => {
             const organizationPropertyAddress = utils.createPropertyAddress()
             await createTestProperty(utils.clients.admin, utils.organization, {

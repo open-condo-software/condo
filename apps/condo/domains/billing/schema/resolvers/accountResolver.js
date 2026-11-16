@@ -3,7 +3,7 @@ const IS_ELS_REGEXP = /^\d{2}[А-ЯЁ]{2}\d{6}(?:-[^-\s]+)*$/i
 
 const isEmpty = require('lodash/isEmpty')
 
-const { find } = require('@open-condo/keystone/schema')
+const { itemsQuery } = require('@open-condo/keystone/schema')
 
 const { BILLING_ACCOUNT_OWNER_TYPE_COMPANY, BILLING_ACCOUNT_OWNER_TYPE_PERSON } = require('@condo/domains/billing/constants/constants')
 const {
@@ -20,12 +20,24 @@ class AccountResolver extends Resolver {
         this.accountsByNumber = new Map()
     }
 
-    async getBillingAccount (where = {}) {
-        const [account] = await find('BillingAccount', { ...where, deletedAt: null, context: { id: this.billingContext.id } })
-        return account
+    async loadExistingAccounts (receiptIndex) {
+        const accountNumbers = [...new Set(Object.values(receiptIndex).map(({ accountNumber }) => clearAccountNumber(accountNumber)))]
+        if (!accountNumbers.length) return
+        const accounts = await itemsQuery('BillingAccount', {
+            where: {
+                number_in: accountNumbers,
+                deletedAt: null,
+                context: { id: this.billingContext.id },
+            },
+            sortBy: ['createdAt_ASC', 'id_ASC'],
+        })
+        for (const account of accounts) {
+            if (!this.accountsByNumber.has(account.number)) this.accountsByNumber.set(account.number, account)
+        }
     }
 
     async processReceipts (receiptIndex) {
+        await this.loadExistingAccounts(receiptIndex)
         for (const [index, receipt] of Object.entries(receiptIndex)) {
             let { unitName, unitType } = receipt.addressResolve
             let { accountNumber, accountMeta = {} } = receipt
@@ -41,10 +53,7 @@ class AccountResolver extends Resolver {
             if (globalId !== null && globalId !== undefined && !IS_ELS_REGEXP.test(globalId)) {
                 globalId = undefined
             }
-            let existingAccount = this.accountsByNumber.get(accountNumber)
-            if (!existingAccount) {
-                existingAccount = await this.getBillingAccount({ number: accountNumber })
-            }
+            const existingAccount = this.accountsByNumber.get(accountNumber)
             if (existingAccount) {
                 const accountData = {
                     number: accountNumber, unitName, unitType, property: receipt.property,
@@ -55,7 +64,8 @@ class AccountResolver extends Resolver {
                 let accountForCache = existingAccount
                 if (!isEmpty(updateInput)) {
                     try {
-                        await BillingAccount.update(this.context, existingAccount.id, updateInput)
+                        // Receipts sharing an account must update it in input order.
+                        await BillingAccount.update(this.context, existingAccount.id, updateInput) // NOSONAR
                         accountForCache = {
                             ...existingAccount,
                             ...Object.fromEntries(Object.entries(accountData).filter(([, value]) => value !== undefined)),
@@ -68,7 +78,8 @@ class AccountResolver extends Resolver {
                 this.accountsByNumber.set(accountNumber, accountForCache)
             } else {
                 try {
-                    const { id }  = await BillingAccount.create(this.context, this.buildCreateInput({
+                    // Receipts sharing an account must create/cache it before the next item.
+                    const { id }  = await BillingAccount.create(this.context, this.buildCreateInput({ // NOSONAR
                         number: accountNumber, unitName, unitType, context: this.billingContext.id, property: receipt.property,
                         globalId, importId,
                         fullName, isClosed, ownerType,

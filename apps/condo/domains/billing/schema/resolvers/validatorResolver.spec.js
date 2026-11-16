@@ -41,6 +41,19 @@ describe('Register billing receipts validator', () => {
         })
     })
 
+    test('rejects a null service without stopping sibling receipts', async () => {
+        const resolver = new ValidatorResolver({ context: {} })
+        const result = await resolver.processReceipts({
+            0: buildReceipt({ services: [null] }),
+            1: buildReceipt(),
+        })
+        expect(result.errorReceipts[0].extensions.messageInterpolation).toEqual({
+            field: 'services.0',
+            value: 'null',
+        })
+        expect(result.receipts).toHaveProperty('1')
+    })
+
     test('rejects month zero', async () => {
         const resolver = new ValidatorResolver({ context: {} })
         const result = await resolver.processReceipts({ 0: buildReceipt({ month: 0 }) })

@@ -22,6 +22,11 @@ const ServiceToPayDetailsReturnFields = {
     ...ServiceToPayDetailsFields,
     formula: 'String @deprecated(reason: "Use explicit amount fields instead")',
 }
+const ServiceToPayDetailsInputFields = {
+    ...ServiceToPayDetailsFields,
+    // GraphQL input fields cannot be marked deprecated in the version used by Condo.
+    formula: 'String',
+}
 
 const ServiceFields = {
     id: 'String',
@@ -41,7 +46,7 @@ const SERVICES_GRAPHQL_TYPES = `
     }
     
     input ${BILLING_RECEIPT_SERVICE_TO_PAY_DETAILS_INPUT_NAME} {
-        ${render(ServiceToPayDetailsFields)}
+        ${render(ServiceToPayDetailsInputFields)}
     }
 
     type ${BILLING_RECEIPT_SERVICE_FIELD_NAME} {
@@ -57,7 +62,7 @@ const ServiceToPayDetailsSchema = {
     type: ['object', 'null'],
     properties: Object.assign({},
         ...Object.keys(ServiceToPayDetailsFields).map((field) => ({ [field]: { type: ['string', 'null'] } })),
-        { formula: { type: 'string' } },
+        { formula: { type: ['string', 'null'] } },
     ),
 }
 

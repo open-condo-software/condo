@@ -23,7 +23,7 @@ const {
 const access = require('@condo/domains/billing/access/BillingReceipt')
 const { DEFAULT_BILLING_CATEGORY_ID } = require('@condo/domains/billing/constants/constants')
 const { BillingReceiptFile, BillingRecipient } = require('@condo/domains/billing/utils/serverSchema')
-const { UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
+const { WRONG_TEXT_FORMAT, UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
 const { MONEY_AMOUNT_FIELD } = require('@condo/domains/common/schema/fields')
 
 const { AMOUNT_DISTRIBUTION_FIELD } = require('./fields/AmountDistribution')
@@ -78,6 +78,14 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             type: 'Text',
             isRequired: false,
             kmigratorOptions: { null: true },
+            hooks: {
+                validateInput: ({ resolvedData, addFieldValidationError }) => {
+                    const resolvedImportId = get(resolvedData, 'importId')
+                    if (resolvedImportId === '') {
+                        addFieldValidationError(`${WRONG_TEXT_FORMAT}importId] Cannot mutate billing receipt with empty importId`)
+                    }
+                },
+            },
             access: { read: access.canReadSensitiveBillingReceiptData },
         },
 

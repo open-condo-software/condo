@@ -34,6 +34,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
         {
             access: true,
             type: `input RegisterBillingReceiptAddressMetaInput {
+                importId: String
                 globalId: String
                 unitName: String
                 unitType: String

@@ -1,6 +1,6 @@
 const dayjs = require('dayjs')
 
-const { getSchemaCtx, itemsQuery } = require('@open-condo/keystone/schema')
+const { getById, getSchemaCtx, itemsQuery } = require('@open-condo/keystone/schema')
 
 const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
 const { BillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/serverSchema')
@@ -64,31 +64,43 @@ const sortPeriodFunction = (periodA, periodB) => (dayjs(periodA, 'YYYY-MM-DD').i
 
 const buildLastReportForBillingContext = async (receipts, { dv, sender, billingContext, createdReceiptIds = new Set() }) => {
     const syncTime = new Date().toISOString()
-    const { lastReport: existingLastReport } = billingContext
 
     if (!receipts.length) return
 
     const { keystone: context } = getSchemaCtx('BillingIntegrationOrganizationContext')
+    const receiptsCategories = [...new Set(receipts.map(({ category }) => category).filter(Boolean))]
+    const receiptsPeriods = [...new Set(receipts.map(({ period }) => period).filter(Boolean))]
+
+    const newestPeriodFromReceipts = receiptsPeriods.sort(sortPeriodFunction).pop()
+    const [newerReceipts, currentPeriodReceiptsCount] = await Promise.all([
+        itemsQuery('BillingReceipt', {
+            where: {
+                context: { id: billingContext.id },
+                period_gt: newestPeriodFromReceipts,
+                deletedAt: null,
+            },
+            first: 1,
+        }),
+        BillingReceipt.count(context, {
+            context: { id: billingContext.id },
+            period: newestPeriodFromReceipts,
+            deletedAt: null,
+        }),
+    ])
+
+    // Receipt processing can take long enough for another registration to update the report.
+    // Read it again immediately before writing instead of merging timestamps into the initial snapshot.
+    const { lastReport: existingLastReport } = await getById('BillingIntegrationOrganizationContext', billingContext.id)
     const existingLastAddedReceiptsAt = existingLastReport?.lastAddedReceiptsAt || existingLastReport?.finishTime
     const lastAddedReceiptsAt = createdReceiptIds.size > 0 ? syncTime : existingLastAddedReceiptsAt
     const addedReceiptsFields = lastAddedReceiptsAt
         ? { finishTime: lastAddedReceiptsAt, lastAddedReceiptsAt }
         : {}
     const syncFields = { lastSyncAt: syncTime, ...addedReceiptsFields }
-    const receiptsCategories = [...new Set(receipts.map(({ category }) => category).filter(Boolean))]
-    const receiptsPeriods = [...new Set(receipts.map(({ period }) => period).filter(Boolean))]
+    const existingReportHasNewerPeriod = existingLastReport?.period &&
+        dayjs(existingLastReport.period, 'YYYY-MM-DD').isAfter(dayjs(newestPeriodFromReceipts, 'YYYY-MM-DD'))
 
-    const newestPeriodFromReceipts = receiptsPeriods.sort(sortPeriodFunction).pop()
-    const newerReceipts = await itemsQuery('BillingReceipt', {
-        where: {
-            context: { id: billingContext.id },
-            period_gt: newestPeriodFromReceipts,
-            deletedAt: null,
-        },
-        first: 1,
-    })
-
-    if (newerReceipts.length) {
+    if (newerReceipts.length || existingReportHasNewerPeriod) {
         await BillingIntegrationOrganizationContext.update(context, billingContext.id, {
             dv,
             sender,
@@ -96,12 +108,6 @@ const buildLastReportForBillingContext = async (receipts, { dv, sender, billingC
         })
         return
     }
-
-    const currentPeriodReceiptsCount = await BillingReceipt.count(context, {
-        context: { id: billingContext.id },
-        period: newestPeriodFromReceipts,
-        deletedAt: null,
-    })
 
     const lastReport = {
         ...existingLastReport,

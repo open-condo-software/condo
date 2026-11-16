@@ -119,19 +119,17 @@ class RecipientResolver extends Resolver {
         return { result: { id, recipient } }
     }
     async processReceipts (receiptIndex) {
-        const receiverPrepareResult = {}
-        const receiverSyncResult = {}
+        const receiversByBankAccount = new Map()
         for (const receipt of Object.values(receiptIndex)) {
             const { tin, routingNumber, bankAccount } = receipt
-            if (!receiverPrepareResult[bankAccount]) {
-                receiverPrepareResult[bankAccount] = await this.prepareReceiver({ tin, routingNumber, bankAccount })
-            }
+            if (!receiversByBankAccount.has(bankAccount)) receiversByBankAccount.set(bankAccount, { tin, routingNumber, bankAccount })
         }
-        for (const [bankAccount, preparedReceiver] of Object.entries(receiverPrepareResult)) {
-            receiverSyncResult[bankAccount] = preparedReceiver.error
-                ? preparedReceiver
-                : await this.saveReceiver(preparedReceiver)
-        }
+        const preparedReceivers = await Promise.all([...receiversByBankAccount.entries()].map(async ([bankAccount, receiver]) => (
+            [bankAccount, await this.prepareReceiver(receiver)]
+        )))
+        const receiverSyncResult = Object.fromEntries(await Promise.all(preparedReceivers.map(async ([bankAccount, preparedReceiver]) => (
+            [bankAccount, preparedReceiver.error ? preparedReceiver : await this.saveReceiver(preparedReceiver)]
+        ))))
         for (const [index, receipt] of Object.entries(receiptIndex)) {
             const { tin, routingNumber, bankAccount } = receipt
             const { error, problem, result } = receiverSyncResult[receipt.bankAccount]

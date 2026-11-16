@@ -767,17 +767,20 @@ describe('BillingReceipt', () => {
             receipt = firstReceipt
         })
         describe('importId', () => {
-            describe('Cannot create receipt with falsy importId', () => {
+            describe('Can create receipt without importId', () => {
                 const cases = [
-                    ['null', null, '"importId" is null or undefined'],
-                    ['undefined', undefined, '"importId" is null or undefined'],
-                    ['empty string', '', `${WRONG_TEXT_FORMAT}importId]`],
+                    ['null', null],
+                    ['undefined', undefined],
                 ]
-                test.each(cases)('%p', async (name, value, errorMessageContains) => {
-                    await expectToThrowValidationFailureError(async () => {
-                        await createTestBillingReceipt(admin, context, property, account, { importId: value })
-                    }, errorMessageContains)
+                test.each(cases)('%p', async (name, value) => {
+                    const [createdReceipt] = await createTestBillingReceipt(admin, context, property, account, { importId: value })
+                    expect(createdReceipt.importId).toBeNull()
                 })
+            })
+            test('Cannot create receipt with empty importId', async () => {
+                await expectToThrowValidationFailureError(async () => {
+                    await createTestBillingReceipt(admin, context, property, account, { importId: '' })
+                }, `${WRONG_TEXT_FORMAT}importId]`)
             })
             describe('Can update importId', () => {
                 test('To different value', async () => {
@@ -823,6 +826,21 @@ describe('BillingReceipt', () => {
                 await expectToThrowGraphQLRequestError(async () => {
                     await updateTestBillingReceipt(admin, receipt.id, payload)
                 }, '"data.services[0]"; Field "name" of required type "String!" was not provided.')
+            })
+            test('Deprecated formula accepts null', async () => {
+                const services = [{
+                    name: 'Service',
+                    toPay: '1200.22',
+                    toPayDetails: { formula: null },
+                }]
+                const [updatedReceipt] = await updateTestBillingReceipt(admin, receipt.id, { services })
+                expect(updatedReceipt.services).toEqual([
+                    expect.objectContaining({
+                        name: services[0].name,
+                        toPay: services[0].toPay,
+                        toPayDetails: expect.objectContaining({ formula: null }),
+                    }),
+                ])
             })
         })
         describe('Hooks', () => {

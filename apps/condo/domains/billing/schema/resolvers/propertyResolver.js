@@ -4,7 +4,7 @@ const isEmpty = require('lodash/isEmpty')
 
 const { createInstance } = require('@open-condo/clients/address-service-client')
 const { AddressFromStringParser } = require('@open-condo/clients/address-service-client/utils/parseAddressesFromString')
-const { find } = require('@open-condo/keystone/schema')
+const { find, itemsQuery } = require('@open-condo/keystone/schema')
 
 const {
     ERRORS,
@@ -30,11 +30,6 @@ class PropertyResolver extends Resolver {
         this.organizationId = get(billingContext, 'organization.id')
         this.transform.init(get(billingContext, 'settings.addressTransform', {}))
         this.addressService = createInstance()
-    }
-
-    async getBillingProperty (where = {}) {
-        const [property] = await find('BillingProperty', { ...where, context: { id: this.billingContext.id }, deletedAt: null })
-        return property
     }
 
     async getOrganizationProperty (addressKey) {
@@ -198,6 +193,21 @@ class PropertyResolver extends Resolver {
     async processReceipts (receiptIndex) {
         const updated = new Set()
         await this.normalizeAddresses(receiptIndex)
+        const addressKeys = [...new Set(Object.values(receiptIndex)
+            .map(receipt => receipt.addressResolve.propertyAddress.addressKey)
+            .filter(Boolean))]
+        const existingProperties = addressKeys.length ? await itemsQuery('BillingProperty', {
+            where: {
+                addressKey_in: addressKeys,
+                context: { id: this.billingContext.id },
+                deletedAt: null,
+            },
+            sortBy: ['createdAt_ASC', 'id_ASC'],
+        }) : []
+        const propertiesByAddressKey = new Map()
+        for (const property of existingProperties) {
+            if (!propertiesByAddressKey.has(property.addressKey)) propertiesByAddressKey.set(property.addressKey, property)
+        }
         for (const [index, receipt] of Object.entries(receiptIndex)) {
             const { propertyAddress, addresses } = receipt.addressResolve
             const { addressKey: resultAddressKey, address, error, problem  } = propertyAddress
@@ -210,7 +220,7 @@ class PropertyResolver extends Resolver {
             }
             const { globalId = '' } = get(receipt, 'addressMeta') || {}
             const propertyGlobalId = normalizePropertyGlobalId(globalId)
-            const existingProperty = await this.getBillingProperty({ addressKey: resultAddressKey })
+            const existingProperty = propertiesByAddressKey.get(resultAddressKey)
             if (existingProperty) {
                 receiptIndex[index].property = existingProperty.id
                 if (!updated.has(existingProperty.id)) {
@@ -218,23 +228,28 @@ class PropertyResolver extends Resolver {
                         globalId: propertyGlobalId,
                         address: resultAddressKey !== existingProperty.addressKey ? this.addressFieldValue(address, resultAddressKey) : null,
                     }, existingProperty)
+                    let isSaved = true
                     if (!isEmpty(updateInput)) {
                         try {
-                            await BillingProperty.update(this.context, existingProperty.id, updateInput)
+                            // Duplicate addresses must observe the first update in this batch.
+                            await BillingProperty.update(this.context, existingProperty.id, updateInput) // NOSONAR
                         } catch (error) {
+                            isSaved = false
                             receiptIndex[index].error = this.error(ERRORS.PROPERTY_SAVE_FAILED, index, error, { address: receipt.address })
                         }
                     }
-                    updated.add(existingProperty.id)
+                    if (isSaved) updated.add(existingProperty.id)
                 }
             } else {
                 try {
-                    const newProperty = await BillingProperty.create(this.context, this.buildCreateInput({
+                    // Cache the created property before processing another receipt with the same address.
+                    const newProperty = await BillingProperty.create(this.context, this.buildCreateInput({ // NOSONAR
                         context: this.billingContext.id,
                         address: this.addressFieldValue(address, resultAddressKey),
                         globalId: propertyGlobalId,
                     }, ['context']))
                     receiptIndex[index].property = newProperty.id
+                    propertiesByAddressKey.set(resultAddressKey, newProperty)
                     updated.add(newProperty.id)
                 } catch (error) {
                     receiptIndex[index].error = this.error(ERRORS.PROPERTY_SAVE_FAILED, index, error, { address: receipt.address })

@@ -23,6 +23,12 @@ class ValidatorResolver extends Resolver {
             values.push({ value: receipt.toPayDetails?.[field], field: `toPayDetails.${field}` })
         }
         for (const [serviceIndex, service] of (receipt.services || []).entries()) {
+            if (!service) {
+                return this.error(ERRORS.WRONG_AMOUNT_FORMAT, index, null, {
+                    field: `services.${serviceIndex}`,
+                    value: String(service),
+                })
+            }
             values.push({ value: service.toPay, field: `services.${serviceIndex}.toPay` })
             for (const field of MONEY_FIELDS) {
                 values.push({ value: service.toPayDetails?.[field], field: `services.${serviceIndex}.toPayDetails.${field}` })
