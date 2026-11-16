@@ -7,6 +7,7 @@ const dayjs = require('dayjs')
 
 const conf = require('@open-condo/config')
 const { makeClient } = require('@open-condo/keystone/test.utils')
+const { i18n } = require('@open-condo/locales/loader')
 
 const { EXPORT_PAYMENTS_TO_EXCEL } = require('@condo/domains/acquiring/gql')
 const { makePayer, createTestPayment } = require('@condo/domains/acquiring/utils/testSchema')
@@ -136,9 +137,9 @@ describe('ExportPaymentsService', () => {
                 dayjs(paymentWithServices.depositedDate).utc().tz(DEFAULT_ORGANIZATION_TIMEZONE).format('HH-mm-ss'),
                 paymentWithServices.accountNumber,
                 rawAddress,
-                '100.00',
-                '2.40',
-                '97.60',
+                100,
+                2.4,
+                97.6,
                 '123',
                 paymentWithServices.recipientBankAccount,
                 billingReceipts[0].services.map(({ name }) => name).slice(0, 3).join(', '),
@@ -148,12 +149,12 @@ describe('ExportPaymentsService', () => {
                 dayjs(paymentWithCategory.depositedDate).utc().tz(DEFAULT_ORGANIZATION_TIMEZONE).format('HH-mm-ss'),
                 paymentWithCategory.accountNumber,
                 `${billingReceipts[1].property.address}, ${billingReceipts[1].account.unitName}`,
-                '200.00',
-                '10.00',
-                '190.00',
+                200,
+                10,
+                190,
                 '456',
                 paymentWithCategory.recipientBankAccount,
-                billingReceipts[1].category.name,
+                i18n('billing.category.housing.name', { locale }),
             ],
         ])
         expect(status).toBe('ok')
@@ -213,9 +214,9 @@ describe('ExportPaymentsService', () => {
                 dayjs(invoicePayment.depositedDate).utc().tz(DEFAULT_ORGANIZATION_TIMEZONE).format('HH-mm-ss'),
                 String(invoice.number),
                 `${property.address}, ${invoiceUnitName}`,
-                '300.00',
-                '15.00',
-                '285.00',
+                300,
+                15,
+                285,
                 '789',
                 invoicePayment.recipientBankAccount,
                 '',
@@ -225,9 +226,9 @@ describe('ExportPaymentsService', () => {
                 dayjs(invoicePaymentWithoutUnit.depositedDate).utc().tz(DEFAULT_ORGANIZATION_TIMEZONE).format('HH-mm-ss'),
                 String(invoiceWithDifferentContactProperty.number),
                 property.address,
-                '400.00',
-                '20.00',
-                '380.00',
+                400,
+                20,
+                380,
                 '790',
                 invoicePaymentWithoutUnit.recipientBankAccount,
                 '',
