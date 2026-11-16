@@ -64,10 +64,10 @@ class RecipientResolver extends Resolver {
         const { error: getBankError, result: routingNumberMeta  } = await getBankInfo(routingNumber)
         const { error: getOrganizationError, result: tinMeta } = await getOrganizationInfo(tin)
         if (getBankError){
-            return { error: ERRORS.BANK_FOUND_ERROR }
+            return { error: { ...ERRORS.BANK_FOUND_ERROR, messageInterpolation: { routingNumber } } }
         }
         if (getOrganizationError) {
-            return { error: ERRORS.ORGANIZATION_FOUND_ERROR }
+            return { error: { ...ERRORS.ORGANIZATION_FOUND_ERROR, messageInterpolation: { tin } } }
         }
         const bankName = get(routingNumberMeta, 'bankName', get(existingRecipient, 'bankName', null))
         const offsettingAccount = get(routingNumberMeta, 'offsettingAccount', get(existingRecipient, 'offsettingAccount', null))
@@ -101,7 +101,7 @@ class RecipientResolver extends Resolver {
             }
             const { error, problem, result } = receiverSyncResult[receipt.bankAccount]
             if (error) {
-                receiptIndex[index].error = this.error(error, index)
+                receiptIndex[index].error = this.error(error, index, null, error.messageInterpolation)
             }
             if (problem) {
                 receiptIndex[index].problems.push({ problem, params: { tin, routingNumber, bankAccount } })

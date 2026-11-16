@@ -10,7 +10,7 @@ class PeriodResolver extends Resolver {
     async processReceipts (receiptIndex) {
         for (const [index, receipt] of Object.entries(receiptIndex)) {
             const { month, year } = receipt
-            if (!(0 <= month && month <= 12 )) {
+            if (!(1 <= month && month <= 12 )) {
                 receiptIndex[index].error = this.error(ERRORS.WRONG_MONTH, index)
                 continue
             }

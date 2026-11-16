@@ -1,0 +1,49 @@
+const { ValidatorResolver } = require('./validatorResolver')
+
+const buildReceipt = (extra = {}) => ({
+    month: 1,
+    year: 2026,
+    toPay: '100.00',
+    ...extra,
+})
+
+describe('Register billing receipts validator', () => {
+    test.each(['0', '0.00', '-10', '-10.25', '1000000000000000.12345678'])(
+        'accepts money value %s',
+        async (toPay) => {
+            const resolver = new ValidatorResolver({ context: {} })
+            const result = await resolver.processReceipts({ 0: buildReceipt({ toPay }) })
+            expect(result.errorReceipts).toEqual({})
+        }
+    )
+
+    test.each(['10,25', '1 000.00', '', 'value', '1.2.3', 'NaN', 'Infinity', '+10', '1e3'])(
+        'rejects money value %s',
+        async (toPay) => {
+            const resolver = new ValidatorResolver({ context: {} })
+            const result = await resolver.processReceipts({ 0: buildReceipt({ toPay }) })
+            expect(result.receipts).toEqual({})
+            expect(result.errorReceipts[0].extensions).toMatchObject({
+                inputIndex: '0',
+                messageInterpolation: { field: 'toPay', value: toPay },
+            })
+        }
+    )
+
+    test('validates nested service amounts but ignores volume and tariff', async () => {
+        const resolver = new ValidatorResolver({ context: {} })
+        const result = await resolver.processReceipts({
+            0: buildReceipt({ services: [{ id: 'service-id', name: 'Service', toPay: '1.00', toPayDetails: { paid: '1,00', volume: '1,5', tariff: '2,5' } }] }),
+        })
+        expect(result.errorReceipts[0].extensions.messageInterpolation).toEqual({
+            field: 'services.0.toPayDetails.paid',
+            value: '1,00',
+        })
+    })
+
+    test('rejects month zero', async () => {
+        const resolver = new ValidatorResolver({ context: {} })
+        const result = await resolver.processReceipts({ 0: buildReceipt({ month: 0 }) })
+        expect(result.errorReceipts[0].extensions.type).toEqual('WRONG_FORMAT')
+    })
+})

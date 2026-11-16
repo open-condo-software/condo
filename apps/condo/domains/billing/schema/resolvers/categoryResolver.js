@@ -18,7 +18,6 @@ class CategoryResolver extends Resolver {
         this.categories = []
         this.categoriesByNames = {}
         this.categoriesSearchIndex = {}
-        this.forceCategoryDetect = get(billingContext, 'settings.forceCategoryDetect', false)
     }
 
     async init () {
@@ -71,7 +70,7 @@ class CategoryResolver extends Resolver {
         }
         const byServicesCategoryId = this.detectCategoryByServices(services)
         const byUnitTypeCategoryId = this.detectCategoryByUnitType(unitType)
-        if (userDefinedCategory && !this.forceCategoryDetect) {
+        if (userDefinedCategory) {
             return { error: null, result: { id: userDefinedCategory } }
         }
         if (byServicesCategoryId && byServicesCategoryId !== DEFAULT_BILLING_CATEGORY_ID) {

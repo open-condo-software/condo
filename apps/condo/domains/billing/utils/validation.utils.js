@@ -12,6 +12,7 @@ const REPORT_SCHEMA = {
     properties: {
         period: { type: 'string', format: 'date' },
         finishTime: { type: 'string', format: 'date-time' },
+        lastSuccessfulSyncAt: { type: 'string', format: 'date-time' },
         totalReceipts: { type: 'number' },
         categories: { type: 'array', uniqueItems: true, items: { type: 'string' } },
     },

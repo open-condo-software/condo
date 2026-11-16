@@ -62,8 +62,21 @@ const normalizePropertyGlobalId = (rawFiasCode) => {
 
 const sortPeriodFunction = (periodA, periodB) => (dayjs(periodA, 'YYYY-MM-DD').isAfter(dayjs(periodB, 'YYYY-MM-DD')) ? 1 : -1)
 
-const buildLastReportForBillingContext = async (receipts, { dv, sender, billingContext }) => {
-    if (!receipts.length) return
+const buildLastReportForBillingContext = async (receipts, { dv, sender, billingContext, createdReceiptIds = new Set() }) => {
+    const syncTime = new Date().toISOString()
+    const { lastReport: existingLastReport } = billingContext
+
+    if (!receipts.length) {
+        if (existingLastReport) {
+            const { keystone: context } = getSchemaCtx('BillingIntegrationOrganizationContext')
+            await BillingIntegrationOrganizationContext.update(context, billingContext.id, {
+                dv,
+                sender,
+                lastReport: { ...existingLastReport, lastSuccessfulSyncAt: syncTime },
+            })
+        }
+        return
+    }
 
     const { keystone: context } = getSchemaCtx('BillingIntegrationOrganizationContext')
     const receiptsCategories = [...new Set(receipts.map(({ category }) => category).filter(Boolean))]
@@ -79,7 +92,16 @@ const buildLastReportForBillingContext = async (receipts, { dv, sender, billingC
         first: 1,
     })
 
-    if (newerReciepts.length) return
+    if (newerReciepts.length) {
+        if (existingLastReport) {
+            await BillingIntegrationOrganizationContext.update(context, billingContext.id, {
+                dv,
+                sender,
+                lastReport: { ...existingLastReport, lastSuccessfulSyncAt: syncTime },
+            })
+        }
+        return
+    }
 
     const currentPeriodReceiptsCount = await BillingReceipt.count(context, {
         context: { id: billingContext.id },
@@ -87,14 +109,15 @@ const buildLastReportForBillingContext = async (receipts, { dv, sender, billingC
         deletedAt: null,
     })
 
-    const { lastReport: existingLastReport } = billingContext
-
     const lastReport = {
         period: newestPeriodFromReceipts,
-        finishTime: new Date().toISOString(),
+        finishTime: existingLastReport?.finishTime || syncTime,
+        lastSuccessfulSyncAt: syncTime,
         totalReceipts: currentPeriodReceiptsCount,
         categories: [],
     }
+
+    if (createdReceiptIds.size > 0) lastReport.finishTime = syncTime
 
     if (existingLastReport && existingLastReport.categories && Array.isArray(existingLastReport.categories)) {
         if (dayjs(newestPeriodFromReceipts, 'YYYY-MM-DD').isAfter(dayjs(existingLastReport.period, 'YYYY-MM-DD'))){
@@ -107,20 +130,7 @@ const buildLastReportForBillingContext = async (receipts, { dv, sender, billingC
     }
 
     if (existingLastReport) {
-        const existingPeriod = dayjs(existingLastReport.period, 'YYYY-MM-DD')
-        let hasDifferentCategories = true
-
-        if (existingLastReport.categories && Array.isArray(existingLastReport.categories)) {
-            hasDifferentCategories = receiptsCategories.some(item => !existingLastReport.categories.includes(item))
-        }
-
-        const needsUpdate = !dayjs(newestPeriodFromReceipts, 'YYYY-MM-DD').isSame(existingPeriod) ||
-            hasDifferentCategories ||
-            currentPeriodReceiptsCount !== existingLastReport.totalReceipts
-
-        if (needsUpdate) {
-            await BillingIntegrationOrganizationContext.update(context, billingContext.id, { dv, sender, lastReport })
-        }
+        await BillingIntegrationOrganizationContext.update(context, billingContext.id, { dv, sender, lastReport })
     } else {
         await BillingIntegrationOrganizationContext.update(context, billingContext.id, { dv, sender, lastReport })
     }

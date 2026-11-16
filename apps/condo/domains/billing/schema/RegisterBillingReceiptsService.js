@@ -20,6 +20,7 @@ const {
     AccountResolver,
     PeriodResolver,
     ReceiptResolver,
+    ValidatorResolver,
 } = require('@condo/domains/billing/schema/resolvers')
 const { buildLastReportForBillingContext } = require('@condo/domains/billing/schema/resolvers/utils')
 const {
@@ -34,7 +35,6 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
             access: true,
             type: `input RegisterBillingReceiptAddressMetaInput {
                 globalId: String
-                importId: String
                 unitName: String
                 unitType: String
             }`,
@@ -116,18 +116,18 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                 ))
                 let errorsIndex = {}
                 const debug = []
-                const resolvers = [PeriodResolver, RecipientResolver, PropertyResolver, AccountResolver, CategoryResolver, ReceiptResolver]
+                const createdReceiptIds = new Set()
+                const resolvers = [ValidatorResolver, PeriodResolver, RecipientResolver, PropertyResolver, AccountResolver, CategoryResolver, ReceiptResolver]
                 for (const resolver of resolvers) {
-                    try {
-                        const worker = new resolver({ context, billingContext })
-                        await worker.init()
-                        const { errorReceipts, receipts } = await worker.processReceipts(receiptIndex)
-                        debug.push(...worker.debugMessages)
-                        errorsIndex = { ...errorsIndex, ...errorReceipts }
-                        receiptIndex = receipts
-                    } catch (err) {
-                        logger.error({ msg: 'Resolver fail', err })
+                    const worker = new resolver({ context, billingContext })
+                    await worker.init()
+                    const { errorReceipts, receipts } = await worker.processReceipts(receiptIndex)
+                    debug.push(...worker.debugMessages)
+                    if (worker.createdReceiptIds) {
+                        for (const receiptId of worker.createdReceiptIds) createdReceiptIds.add(receiptId)
                     }
+                    errorsIndex = { ...errorsIndex, ...errorReceipts }
+                    receiptIndex = receipts
                 }
                 logger.info({
                     msg: 'register-receipts-profiler',
@@ -140,7 +140,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                 const receiptIds = Object.values(receiptIndex).map(({ id }) => id)
                 const receipts = receiptIds.length ? await find('BillingReceipt', { id_in: receiptIds }) : []
                 const receiptsIndex = Object.fromEntries(receipts.map(receipt => ([receipt.id, receipt])))
-                await buildLastReportForBillingContext(receipts, { dv, sender, billingContext })
+                await buildLastReportForBillingContext(receipts, { dv, sender, billingContext, createdReceiptIds })
                 return Object.values({ ...receiptIndex, ...errorsIndex }).map(idOrError => {
                     const id = get(idOrError, 'id')
                     if (id) {

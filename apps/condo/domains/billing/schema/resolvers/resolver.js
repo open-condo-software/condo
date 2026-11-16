@@ -24,11 +24,14 @@ class Resolver {
         this.logger = getLogger()
     }
 
-    error (error, index, errorDescription) {
-        if (errorDescription) {
-            this.logger.error({ msg: `${this.name} internal error`, data: { errorDescription } })
+    error (error, index, originalError, messageInterpolation) {
+        if (originalError) {
+            this.logger.error({ msg: `${this.name} internal error`, err: originalError })
         }
-        return new GQLError({ ...error, inputIndex: index }, this.context)
+        const fields = { ...error, inputIndex: index, ...messageInterpolation ? { messageInterpolation } : {} }
+        return originalError
+            ? new GQLError(fields, this.context, originalError)
+            : new GQLError(fields, this.context)
     }
 
     debug (message) {
@@ -62,10 +65,10 @@ class Resolver {
         return isEqual(oldValue, newValue)
     }
 
-    buildUpdateInput (data, existingItem, relations = []) {
+    buildUpdateInput (data, existingItem, relations = [], { allowNull = false } = {}) {
         let updateInput = {}
         for (const [propertyName, propertyValue] of Object.entries(data)) {
-            if (!isNil(propertyValue) && !this.isEqual(existingItem[propertyName], data[propertyName])) {
+            if ((allowNull ? propertyValue !== undefined : !isNil(propertyValue)) && !this.isEqual(existingItem[propertyName], data[propertyName])) {
                 if (relations.indexOf(propertyName) !== -1) {
                     updateInput[propertyName] = { connect: { id: propertyValue } }
                 } else {

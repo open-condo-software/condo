@@ -48,9 +48,8 @@ const mockReceipts = [
     },
     {
         receipt: { category: { id: DEFAULT_BILLING_CATEGORY_ID }, services: [ { name: 'Electricity' } ] },
-        result: 'electricity',
-        forceCategoryDetect: true,
-        description: 'Can be forced to detect categories even if it is already set by user',
+        result: DEFAULT_BILLING_CATEGORY_ID,
+        description: 'User-defined category has priority over auto-detection',
     },
     {
         receipt: { addressMeta: { unitType: PARKING_UNIT_TYPE }, services: [ { name: 'Electricity' } ] },
@@ -69,8 +68,7 @@ helper.categories = mockCategories
 helper.indexKeywords()
 
 describe('Detect Billing Category', () => {
-    test.each(mockReceipts)('$description', ({ forceCategoryDetect, receipt, result, expectError }) => {
-        helper.forceCategoryDetect = !!forceCategoryDetect
+    test.each(mockReceipts)('$description', ({ receipt, result, expectError }) => {
         const { error, result: { id: categoryId } = {} } = helper.detectCategory(receipt)
         expect(categoryId).toEqual(result)
         if (expectError) {

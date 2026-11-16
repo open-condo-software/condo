@@ -11,6 +11,7 @@ const RECEIPT_UPDATE_FIELDS = ['services', 'toPayDetails', 'recipient', 'period'
 class ReceiptResolver extends Resolver {
     constructor ({ billingContext, context }) {
         super(billingContext, context, { name: 'receipt' })
+        this.createdReceiptIds = new Set()
     }
 
     buildUniqKey (receipt) {
@@ -58,21 +59,19 @@ class ReceiptResolver extends Resolver {
                     try {
                         receiptIndex[index] = await BillingReceipt.update(this.context, receiptToUpdate.id, { ...updateInput, raw: receipt }, 'id')
                     } catch (error) {
-                        this.error(ERRORS.RECEIPT_SAVE_FAILED, index, error)
+                        receiptIndex[index].error = this.error(ERRORS.RECEIPT_SAVE_FAILED, index, error, { receiptIdentity: importId || `${account}:${period}` })
                     }
                 } else {
                     receiptIndex[index] = { id: receiptToUpdate.id }
                 }
             } else {
-                if (!receipt.importId){
-                    receipt.importId = this.buildUniqKey(receipt)
-                }
                 try {
                     receiptIndex[index] = await BillingReceipt.create(this.context, this.buildCreateInput({
                         ...pick(receipt, RECEIPT_UPDATE_FIELDS), context: this.billingContext.id, raw: receipt,
                     }, ['category', 'account', 'property', 'receiver', 'context']), 'id')
+                    this.createdReceiptIds.add(receiptIndex[index].id)
                 } catch (error) {
-                    this.error(ERRORS.RECEIPT_SAVE_FAILED, index, error)
+                    receiptIndex[index].error = this.error(ERRORS.RECEIPT_SAVE_FAILED, index, error, { receiptIdentity: importId || this.buildUniqKey(receipt) })
                 }
             }
         }

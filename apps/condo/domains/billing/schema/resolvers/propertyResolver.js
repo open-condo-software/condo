@@ -23,12 +23,10 @@ class PropertyResolver extends Resolver {
         this.organizationProperties = []
         this.missingOrganizationPropertiesIndex = {}
         this.transform = new AddressTransform()
-        this.propertyFinder = new PropertyFinder()
         this.parser = new AddressFromStringParser()
         this.tin = get(billingContext, 'organization.tin')
         this.organizationId = get(billingContext, 'organization.id')
         this.transform.init(get(billingContext, 'settings.addressTransform', {}))
-        this.isCottageVillage = !!(get(billingContext, 'settings.isCottageVillage'))
         this.addressService = createInstance()
     }
 
@@ -60,15 +58,6 @@ class PropertyResolver extends Resolver {
         return property
     }
 
-    async init () {
-        if (this.isCottageVillage) {
-            // We still need to load all properties in case we do not use addressService for address normalize
-            const organizationProperties = await find('Property', { organization: { id: this.organizationId }, deletedAt: null })
-            this.organizationProperties = Object.fromEntries(organizationProperties.map(({ addressKey, address }) => ([addressKey, address])))
-            this.propertyFinder.init(organizationProperties)
-        }
-    }
-
     getAddressFromReceipt (receipt) {
         let {
             address: addressInput,
@@ -78,10 +67,6 @@ class PropertyResolver extends Resolver {
                 unitType: unitTypeFromMeta,
             } = {},
         } = receipt
-        if (this.isCottageVillage) {
-            let { unitName: unitNameFromAddress, unitType: unitTypeFromAddress, address: houseFromAddress } = this.parser.parse(addressInput)
-            return { addresses: [houseFromAddress], unitType: unitTypeFromAddress, unitName: unitNameFromAddress }
-        }
         // support for deprecated params
         const unitNameInput = unitNameFromMeta || ''
         const unitTypeInput = unitTypeFromMeta || ''
@@ -104,8 +89,8 @@ class PropertyResolver extends Resolver {
             const transformedGlobalId = this.transform.apply(globalId)
             if (transformedGlobalId.indexOf(',') !== -1) {
                 const { unitName: unitNameFromFias, unitType: unitTypeFromFias, address: houseFromFias } = this.parser.parse(transformedGlobalId)
-                unitNames.push(unitNameFromFias)
-                unitTypes.push(unitTypeFromFias)
+                if (!unitNameInput) unitNames.push(unitNameFromFias)
+                if (!unitTypeInput) unitTypes.push(unitTypeFromFias)
                 addresses.push(`fiasId:${houseFromFias.toLowerCase()}`)
             } else {
                 addresses.push(`fiasId:${transformedGlobalId.toLowerCase()}`)
@@ -117,8 +102,8 @@ class PropertyResolver extends Resolver {
                 addresses.push(transformedAddressInput)
             } else {
                 let { unitName: unitNameFromAddress, unitType: unitTypeFromAddress, address: houseFromAddress } = this.parser.parse(transformedAddressInput)
-                unitNames.push(unitNameFromAddress)
-                unitTypes.push(unitTypeFromAddress)
+                if (!unitNameInput) unitNames.push(unitNameFromAddress)
+                if (!unitTypeInput) unitTypes.push(unitTypeFromAddress)
                 addresses.push(houseFromAddress)
             }
         }
@@ -136,7 +121,10 @@ class PropertyResolver extends Resolver {
             items: properties,
             helpers: { tin: this.tin },
         })
-        const normalizedAddresses = {}
+        const normalizedAddresses = Object.fromEntries(properties.map(address => ([address, {
+            address: ERRORS.ADDRESS_NOT_RECOGNIZED_VALUE,
+            addressKey: null,
+        }])))
         for (const address of Object.keys(result.map)) {
             try {
                 const { data: { addressKey } } = result.map[address]
@@ -156,9 +144,6 @@ class PropertyResolver extends Resolver {
     }
 
     async normalizeAddresses (receiptIndex) {
-        if (this.isCottageVillage) {
-            return this.findMatchingAddressFromOrganization(receiptIndex)
-        }
         const toNormalize = new Set()
         for (const [index, receipt] of Object.entries(receiptIndex)) {
             const { addresses, unitName, unitType } = this.getAddressFromReceipt(receipt)
@@ -204,16 +189,6 @@ class PropertyResolver extends Resolver {
         return { ...get(properties, '[0]'), problem: NO_PROPERTY_IN_ORGANIZATION }
     }
 
-    findMatchingAddressFromOrganization (receiptIndex) {
-        for (const [index, receipt] of Object.entries(receiptIndex)) {
-            const { addresses, unitName, unitType } = this.getAddressFromReceipt(receipt)
-            const [receiptAddress] = addresses
-            const { address, addressKey } = this.propertyFinder.findPropertyByOrganizationAndAddress(receiptAddress)
-            receiptIndex[index].addressResolve = { unitName, unitType, addresses, propertyAddress: { address, addressKey } }
-        }
-        return receiptIndex
-    }
-    
     addressFieldValue (address, addressKey) {
         // In the tests we create addressKey as a md5 hash of address
         if (UUID_REGEXP.test(addressKey)) {
@@ -229,26 +204,19 @@ class PropertyResolver extends Resolver {
             const { propertyAddress, addresses } = receipt.addressResolve
             const { addressKey: resultAddressKey, address, error, problem  } = propertyAddress
             if (error) {
-                receiptIndex[index].error = error
+                receiptIndex[index].error = this.error(error, index, null, { address: receipt.address })
                 continue
             }
             if (problem) {
                 receiptIndex[index].problems.push({ problem, params: { addresses } })
             }
-            const { importId: importIdInput = '', globalId = '' } = get(receipt, 'addressMeta') || {}
+            const { globalId = '' } = get(receipt, 'addressMeta') || {}
             const propertyGlobalId = normalizePropertyGlobalId(globalId)
-            let existingProperty
-            if (importIdInput) {
-                existingProperty = await this.getBillingProperty({ importId: importIdInput })
-            }
-            if (!existingProperty) {
-                existingProperty = await this.getBillingProperty( { addressKey: resultAddressKey })
-            }
+            const existingProperty = await this.getBillingProperty({ addressKey: resultAddressKey })
             if (existingProperty) {
                 receiptIndex[index].property = existingProperty.id
                 if (!updated.has(existingProperty.id)) {
                     const updateInput = this.buildUpdateInput({
-                        importId: importIdInput,
                         globalId: propertyGlobalId,
                         address: resultAddressKey !== existingProperty.addressKey ? this.addressFieldValue(address, resultAddressKey) : null,
                     }, existingProperty)
@@ -256,7 +224,7 @@ class PropertyResolver extends Resolver {
                         try {
                             await BillingProperty.update(this.context, existingProperty.id, updateInput)
                         } catch (error) {
-                            receiptIndex[index].error = this.error(ERRORS.PROPERTY_SAVE_FAILED, index, error)
+                            receiptIndex[index].error = this.error(ERRORS.PROPERTY_SAVE_FAILED, index, error, { address: receipt.address })
                         }
                     }
                     updated.add(existingProperty.id)
@@ -266,13 +234,12 @@ class PropertyResolver extends Resolver {
                     const newProperty = await BillingProperty.create(this.context, this.buildCreateInput({
                         context: this.billingContext.id,
                         address: this.addressFieldValue(address, resultAddressKey),
-                        importId: importIdInput,
                         globalId: propertyGlobalId,
                     }, ['context']))
                     receiptIndex[index].property = newProperty.id
                     updated.add(newProperty.id)
                 } catch (error) {
-                    receiptIndex[index].error = this.error(ERRORS.PROPERTY_SAVE_FAILED, index, error)
+                    receiptIndex[index].error = this.error(ERRORS.PROPERTY_SAVE_FAILED, index, error, { address: receipt.address })
                 }
             }
 
@@ -326,68 +293,7 @@ class AddressTransform {
 }
 
 
-class PropertyFinder {
-
-    constructor () {
-        this.organizationProperties = []
-    }
-
-    init (organizationProperties) {
-        this.organizationProperties = organizationProperties.map(property => ({
-            ...property,
-            tokens: this.getTokensFromAddress(property.address),
-        }))
-    }
-
-    getTokensFromAddress (addressStr) {
-        const SYMBOLS_TO_REMOVE_REGEXP = /[!@#$%^&*)(+=_:"'`[\]]/g
-        const SPLITTERS_REGEXP = /[,;.\s-/]/
-        const IS_DIGITS_ONLY_REGEXP = /^\d+$/
-        return addressStr
-            .toLowerCase()
-            .replace(/[ёë]/g, 'е')
-            .replace(SYMBOLS_TO_REMOVE_REGEXP, '')
-            .replace(/\s+/g, ' ')
-            .split(SPLITTERS_REGEXP)
-            .filter(Boolean)
-            .filter((x) => x.length > 1 || IS_DIGITS_ONLY_REGEXP.test(x))
-    }
-
-    orderedIntersection (arr1, arr2) {
-        const result = []
-        const _arr2 = Array.from(arr2)
-        for (const str1 of arr1) {
-            if (_arr2.includes(str1)) {
-                result.push(str1)
-                _arr2.splice(0, _arr2.indexOf(str1) + 1)
-            }
-        }
-        return result
-    }
-
-    findPropertyByOrganizationAndAddress (address) {
-        const targetTokens = this.getTokensFromAddress(address)
-        let maxScore = 0
-        let theMostProbableProperties = []
-        for (const property of this.organizationProperties) {
-            const intersection = this.orderedIntersection(targetTokens, property.tokens)
-            const score = intersection.length
-            if (score >= maxScore) {
-                if (score === maxScore) {
-                    theMostProbableProperties.push(property)
-                } else {
-                    theMostProbableProperties = [property]
-                    maxScore = score
-                }
-            }
-        }
-        return theMostProbableProperties[0]
-    }
-
-}
-
 module.exports = {
     AddressTransform,
-    PropertyFinder,
     PropertyResolver,
 }

@@ -23,7 +23,7 @@ const {
 const access = require('@condo/domains/billing/access/BillingReceipt')
 const { DEFAULT_BILLING_CATEGORY_ID } = require('@condo/domains/billing/constants/constants')
 const { BillingReceiptFile, BillingRecipient } = require('@condo/domains/billing/utils/serverSchema')
-const { WRONG_TEXT_FORMAT, UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
+const { UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
 const { MONEY_AMOUNT_FIELD } = require('@condo/domains/common/schema/fields')
 
 const { AMOUNT_DISTRIBUTION_FIELD } = require('./fields/AmountDistribution')
@@ -76,18 +76,8 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             schemaDoc: '`billing receipt` local object ID. Unique up to billing context. It is unique up to the context. ' +
                 'The constrain is a combination of contextId and importId.',
             type: 'Text',
-            isRequired: true,
-            kmigratorOptions: { unique: true, null: false },
-            hooks: {
-                validateInput: async ({ resolvedData, addFieldValidationError }) => {
-                    const resolvedImportId = get(resolvedData, ['importId'])
-
-                    if (!resolvedImportId || typeof resolvedImportId !== 'string' || resolvedImportId.length === 0) {
-                        addFieldValidationError(
-                            `${WRONG_TEXT_FORMAT}importId] Cannot mutate billing receipt with empty or null importId, found ${resolvedImportId}`)
-                    }
-                },
-            },
+            isRequired: false,
+            kmigratorOptions: { null: true },
             access: { read: access.canReadSensitiveBillingReceiptData },
         },
 

@@ -407,7 +407,7 @@ describe('RegisterBillingReceiptsService', () => {
     })
 
     describe('AccountResolver', () => {
-        test('Can exist 2 accounts with same number if now matching organization properties for both of them', async () => {
+        test('Uses one account for the same number in one context', async () => {
             const accountNumber = utils.randomNumber(10).toString()
             const [[receipt1, receipt2]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
                 context: { id: utils.billingContext.id },
@@ -416,9 +416,9 @@ describe('RegisterBillingReceiptsService', () => {
                     utils.createJSONReceipt({ accountNumber }),
                 ],
             })
-            expect(receipt1.account.id).not.toEqual(receipt2.account.id)
+            expect(receipt1.account.id).toEqual(receipt2.account.id)
         })
-        test('[IMPORT_ID] Can exist 2 accounts with same number but different houses if different importIds are passed', async () => {
+        test('[IMPORT_ID] Uses one account for the same number with different receipt importIds', async () => {
             const accountNumber = utils.randomNumber(10).toString()
             const [[receipt1, receipt2]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
                 context: { id: utils.billingContext.id },
@@ -427,7 +427,7 @@ describe('RegisterBillingReceiptsService', () => {
                     utils.createJSONReceipt({ importId: utils.randomNumber(50).toString(), accountNumber }),
                 ],
             })
-            expect(receipt1.account.id).not.toEqual(receipt2.account.id)
+            expect(receipt1.account.id).toEqual(receipt2.account.id)
         })
         test('Will set information from accountMeta to BillingAccount', async () => {
             const accountMeta = {
