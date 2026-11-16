@@ -1,4 +1,6 @@
-const { isEmpty, get, chunk } = require('lodash')
+const chunk = require('lodash/chunk')
+const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
 
 const { createInstance } = require('@open-condo/clients/address-service-client')
 const { AddressFromStringParser } = require('@open-condo/clients/address-service-client/utils/parseAddressesFromString')

@@ -1,4 +1,5 @@
-const { isEmpty, get } = require('lodash')
+const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
 
 const { getOrganizationInfo, getBankInfo } = require('@open-condo/clients/finance-info-client')
 const { find } = require('@open-condo/keystone/schema')
@@ -12,20 +13,14 @@ const { BillingRecipient } = require('@condo/domains/billing/utils/serverSchema'
 
 
 const BILLING_RECIPIENT_FIELDS = '{ id name bankName bankAccount tin iec bic offsettingAccount territoryCode isApproved }'
-const INFRASTRUCTURE_ERROR_CODES = new Set([
-    'ECONNREFUSED',
-    'ECONNRESET',
-    'ENETUNREACH',
-    'ENOTFOUND',
-    'ETIMEDOUT',
-])
+const FINANCE_INPUT_ERROR_REGEXP = /^(Invalid TIN:|Invalid routing number:)| needs to start with 04 or 01$/
 
-const isInfrastructureError = (error) => error instanceof Error && (
-    error.message.startsWith('Failed to fetch:') ||
-    INFRASTRUCTURE_ERROR_CODES.has(error.code) ||
-    error.name === 'FetchError' ||
-    error.name === 'MaxRetriesPerRequestError'
-)
+// FinanceInfoClient currently reports a missing suggestion as TypeError.
+// Explicit input errors and missing suggestions belong to one receipt; other errors mean that
+// the finance service or its cache is unavailable and must stop the whole mutation.
+const isInfrastructureError = (error) => error instanceof Error &&
+    !(error instanceof TypeError) &&
+    !FINANCE_INPUT_ERROR_REGEXP.test(error.message)
 
 class RecipientResolver extends Resolver {
     constructor ({ billingContext, context }) {

@@ -11,12 +11,13 @@ const REPORT_SCHEMA = {
     type: 'object',
     properties: {
         period: { type: 'string', format: 'date' },
+        // Deprecated compatibility field. Use lastAddedReceiptsAt instead.
         finishTime: { type: 'string', format: 'date-time' },
-        lastSuccessfulSyncAt: { type: 'string', format: 'date-time' },
+        lastSyncAt: { type: 'string', format: 'date-time' },
+        lastAddedReceiptsAt: { type: 'string', format: 'date-time' },
         totalReceipts: { type: 'number' },
         categories: { type: 'array', uniqueItems: true, items: { type: 'string' } },
     },
-    required: ['period', 'finishTime', 'totalReceipts'],
     additionalProperties: false,
 }
 
@@ -44,7 +45,10 @@ function validatePeriod ({ resolvedData, fieldPath, addFieldValidationError }) {
 }
 
 function validateReport ({ resolvedData, fieldPath, addFieldValidationError }) {
-    if (!jsonReportValidator(resolvedData[fieldPath])) {
+    const report = resolvedData[fieldPath]
+    if (report === null || report === undefined) return
+
+    if (!jsonReportValidator(report)) {
         jsonReportValidator.errors.forEach((error) => {
             addFieldValidationError(`${fieldPath} field validation error. JSON not in the correct format - path:${error.instancePath} msg:${error.message}`)
         })

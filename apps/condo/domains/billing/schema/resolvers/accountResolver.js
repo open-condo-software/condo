@@ -1,7 +1,7 @@
 // ELS is a 10-digit code, where 3 and 4 characters are russian letters and the rest are numbers.
 const IS_ELS_REGEXP = /^\d{2}[А-ЯЁ]{2}\d{6}(?:-[^-\s]+)*$/i
 
-const { isEmpty } = require('lodash')
+const isEmpty = require('lodash/isEmpty')
 
 const { find } = require('@open-condo/keystone/schema')
 
@@ -17,12 +17,7 @@ const { BillingAccount } = require('@condo/domains/billing/utils/serverSchema')
 class AccountResolver extends Resolver {
     constructor ({ billingContext, context }) {
         super(billingContext, context, { name: 'account' })
-        this.recipients = []
         this.accountsByNumber = new Map()
-    }
-
-    async init () {
-        //this.accounts = await find('BillingAccount', { context: { id: this.billingContext.id }, deletedAt: null })
     }
 
     async getBillingAccount (where = {}) {
@@ -38,6 +33,10 @@ class AccountResolver extends Resolver {
             if (fullName && ownerType === undefined) {
                 ownerType = isPerson(fullName) ? BILLING_ACCOUNT_OWNER_TYPE_PERSON : BILLING_ACCOUNT_OWNER_TYPE_COMPANY
             }
+            // Checkbox and Select fields are not nullable in BillingAccount.
+            // Null-clearing is supported only for nullable account metadata.
+            if (isClosed === null) isClosed = undefined
+            if (ownerType === null) ownerType = undefined
             accountNumber = clearAccountNumber(accountNumber)
             if (globalId !== null && globalId !== undefined && !IS_ELS_REGEXP.test(globalId)) {
                 globalId = undefined
@@ -47,19 +46,26 @@ class AccountResolver extends Resolver {
                 existingAccount = await this.getBillingAccount({ number: accountNumber })
             }
             if (existingAccount) {
-                const updateInput = this.buildUpdateInput({
+                const accountData = {
                     number: accountNumber, unitName, unitType, property: receipt.property,
                     globalId, importId,
-                    fullName, isClosed, ownerType }, existingAccount, ['property'], { allowNull: true })
+                    fullName, isClosed, ownerType,
+                }
+                const updateInput = this.buildUpdateInput(accountData, existingAccount, ['property'], { allowNull: true })
+                let accountForCache = existingAccount
                 if (!isEmpty(updateInput)) {
                     try {
                         await BillingAccount.update(this.context, existingAccount.id, updateInput)
+                        accountForCache = {
+                            ...existingAccount,
+                            ...Object.fromEntries(Object.entries(accountData).filter(([, value]) => value !== undefined)),
+                        }
                     } catch (error) {
                         receiptIndex[index].error = this.error(ERRORS.ACCOUNT_SAVE_FAILED, index, error, { accountNumber })
                     }
                 }
                 receiptIndex[index].account = existingAccount.id
-                this.accountsByNumber.set(accountNumber, { ...existingAccount, property: receipt.property, unitName, unitType, globalId, importId, fullName, isClosed, ownerType })
+                this.accountsByNumber.set(accountNumber, accountForCache)
             } else {
                 try {
                     const { id }  = await BillingAccount.create(this.context, this.buildCreateInput({

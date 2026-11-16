@@ -9,6 +9,7 @@ const { find } = require('@open-condo/keystone/schema')
 const { getById } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/billing/access/BillingProperty')
+const { IMPORT_ID_FIELD } = require('@condo/domains/common/schema/fields')
 
 const { RAW_DATA_FIELD } = require('./fields/common')
 const { INTEGRATION_CONTEXT_FIELD } = require('./fields/relations')
@@ -17,6 +18,11 @@ const BillingProperty = new GQLListSchema('BillingProperty', {
     schemaDoc: 'All `property` objects from `billing data source`',
     fields: {
         context: INTEGRATION_CONTEXT_FIELD,
+
+        importId: {
+            ...IMPORT_ID_FIELD,
+            schemaDoc: `[DEPRECATED] ${IMPORT_ID_FIELD.schemaDoc}`,
+        },
 
         raw: RAW_DATA_FIELD,
 

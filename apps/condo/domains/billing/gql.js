@@ -25,7 +25,7 @@ const BillingIntegrationOrganizationContext = generateGqlQueries('BillingIntegra
 const BILLING_INTEGRATION_PROBLEM_FIELDS = `{ context { id } title message meta ${COMMON_FIELDS} }`
 const BillingIntegrationProblem = generateGqlQueries('BillingIntegrationProblem', BILLING_INTEGRATION_PROBLEM_FIELDS)
 
-const BILLING_PROPERTY_FIELDS = `{ context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} property { id address addressKey } address addressKey addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } raw globalId meta ${COMMON_FIELDS} }`
+const BILLING_PROPERTY_FIELDS = `{ context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} property { id address addressKey } importId address addressKey addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } raw globalId meta ${COMMON_FIELDS} }`
 const BillingProperty = generateGqlQueries('BillingProperty', BILLING_PROPERTY_FIELDS)
 
 const BILLING_ACCOUNT_FIELDS = `{ context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} importId property { id address addressKey } number unitName unitType raw globalId meta fullName isClosed ownerType ${COMMON_FIELDS} }`

@@ -66,7 +66,8 @@ const BillingIntegrationOrganizationContext = new GQLListSchema('BillingIntegrat
         },
 
         lastReport: {
-            schemaDoc: 'Information about last report, such as time of report, period of report, amount of loaded data and etc',
+            schemaDoc: 'Information about last report, such as time of report, period of report, amount of loaded data and etc. ' +
+                'The finishTime property is deprecated; use lastAddedReceiptsAt instead',
             type: 'Json',
             isRequired: false,
             hooks: {

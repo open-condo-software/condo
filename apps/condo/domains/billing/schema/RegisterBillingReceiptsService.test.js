@@ -190,6 +190,8 @@ describe('RegisterBillingReceiptsService', () => {
             expect(contextBefore.lastReport.categories).toContain(REPAIR_CATEGORY_ID)
             expect(contextBefore.lastReport.categories).toContain(HOUSING_CATEGORY_ID)
             expect(contextBefore.lastReport.totalReceipts).toEqual(2)
+            expect(contextBefore.lastReport.lastSyncAt).toEqual(expect.any(String))
+            expect(contextBefore.lastReport.lastAddedReceiptsAt).toEqual(contextBefore.lastReport.finishTime)
             const [nextYear, nextMonth] = nextMonthPeriod.split('-').map(Number)
             await registerBillingReceiptsByTestClient(utils.clients.admin, {
                 context: { id: utils.billingContext.id },
@@ -218,6 +220,15 @@ describe('RegisterBillingReceiptsService', () => {
             expect(contextBefore.lastReport.categories).toContain(REPAIR_CATEGORY_ID)
             expect(contextBefore.lastReport.categories).toContain(HOUSING_CATEGORY_ID)
             expect(contextBefore.lastReport.totalReceipts).toEqual(2)
+            const previousTimestamp = '2020-01-01T00:00:00.000Z'
+            await utils.updateBillingContext({
+                lastReport: {
+                    ...contextBefore.lastReport,
+                    finishTime: previousTimestamp,
+                    lastAddedReceiptsAt: previousTimestamp,
+                    lastSyncAt: previousTimestamp,
+                },
+            })
             const [currentYear, currentMonth] = currentMonthPeriod.split('-').map(Number)
             await registerBillingReceiptsByTestClient(utils.clients.admin, {
                 context: { id: utils.billingContext.id },
@@ -229,6 +240,9 @@ describe('RegisterBillingReceiptsService', () => {
             expect(contextAfter.lastReport.categories).toContain(HOUSING_CATEGORY_ID)
             expect(contextAfter.lastReport.categories).not.toContain(ELECTRICITY_CATEGORY_ID)
             expect(contextBefore.lastReport.totalReceipts).toEqual(2)
+            expect(contextAfter.lastReport.lastSyncAt).not.toEqual(previousTimestamp)
+            expect(contextAfter.lastReport.lastAddedReceiptsAt).not.toEqual(previousTimestamp)
+            expect(contextAfter.lastReport.finishTime).toEqual(contextAfter.lastReport.lastAddedReceiptsAt)
         })
 
         test('should update lastReport if categories were changed during the same period', async () => {
@@ -277,6 +291,65 @@ describe('RegisterBillingReceiptsService', () => {
             expect(contextAfter.lastReport.categories).toContain(ELECTRICITY_CATEGORY_ID)
             expect(contextAfter.lastReport.categories).not.toContain(REPAIR_CATEGORY_ID)
             expect(contextAfter.lastReport.totalReceipts).toEqual(2)
+        })
+
+        test('should update lastSyncAt but not receipt addition timestamps when an existing receipt is updated', async () => {
+            const receipt = utils.createJSONReceipt()
+            await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                context: { id: utils.billingContext.id },
+                receipts: [receipt],
+            })
+            const contextBefore = await BillingContext.getOne(utils.clients.admin, { id: utils.billingContext.id })
+            const previousTimestamp = '2020-01-01T00:00:00.000Z'
+            await utils.updateBillingContext({
+                lastReport: {
+                    ...contextBefore.lastReport,
+                    finishTime: previousTimestamp,
+                    lastAddedReceiptsAt: previousTimestamp,
+                    lastSyncAt: previousTimestamp,
+                },
+            })
+
+            await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                context: { id: utils.billingContext.id },
+                receipts: [{ ...receipt, toPay: faker.finance.amount(-100, 5000) }],
+            })
+            const contextAfter = await BillingContext.getOne(utils.clients.admin, { id: utils.billingContext.id })
+            expect(contextAfter.lastReport.lastSyncAt).not.toEqual(previousTimestamp)
+            expect(contextAfter.lastReport.lastAddedReceiptsAt).toEqual(previousTimestamp)
+            expect(contextAfter.lastReport.finishTime).toEqual(previousTimestamp)
+        })
+
+        test('allows saving a lastReport containing only categories', async () => {
+            const utils = new TestUtils([BillingTestMixin])
+            await utils.init()
+            const categories = [ELECTRICITY_CATEGORY_ID]
+
+            await utils.updateBillingContext({ lastReport: { categories } })
+
+            const contextAfter = await BillingContext.getOne(utils.clients.admin, { id: utils.billingContext.id })
+            expect(contextAfter.lastReport).toEqual({ categories })
+        })
+
+        test('saves synchronization timestamps when lastReport is missing and older receipts are added', async () => {
+            const utils = new TestUtils([BillingTestMixin])
+            await utils.init()
+            const newerPeriod = dayjs().add(7, 'year').add(1, 'month')
+            const olderPeriod = newerPeriod.subtract(1, 'month')
+            await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                context: { id: utils.billingContext.id },
+                receipts: [utils.createJSONReceipt({ month: newerPeriod.month() + 1, year: newerPeriod.year() })],
+            })
+            await utils.updateBillingContext({ lastReport: null })
+
+            await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                context: { id: utils.billingContext.id },
+                receipts: [utils.createJSONReceipt({ month: olderPeriod.month() + 1, year: olderPeriod.year() })],
+            })
+
+            const contextAfter = await BillingContext.getOne(utils.clients.admin, { id: utils.billingContext.id })
+            expect(contextAfter.lastReport.lastSyncAt).toEqual(expect.any(String))
+            expect(contextAfter.lastReport.lastAddedReceiptsAt).toEqual(contextAfter.lastReport.finishTime)
         })
     })
 
@@ -391,7 +464,7 @@ describe('RegisterBillingReceiptsService', () => {
             })
             expect(correctAddressAccount.id).toEqual(spoiledAddressAccount.id)
         })
-        test('[REGISTRY] two accounts will be created if they both matches organization properties', async () => {
+        test('[REGISTRY] reuses account with the same number across organization properties', async () => {
             const organizationProperty1Address = utils.createPropertyAddress()
             const organizationProperty2Address = utils.createPropertyAddress()
             await createTestProperty(utils.clients.admin, utils.organization, {
@@ -421,8 +494,8 @@ describe('RegisterBillingReceiptsService', () => {
                     }
                 )],
             })
-            expect(account2.id).not.toEqual(account1.id)
-            expect(receipt2Id).not.toEqual(receipt1Id)
+            expect(account2.id).toEqual(account1.id)
+            expect(receipt2Id).toEqual(receipt1Id)
         })
     })
 
@@ -517,18 +590,18 @@ describe('RegisterBillingReceiptsService', () => {
             })
             expect(clearedAccount.fullName).toBeNull()
             expect(clearedAccount.globalId).toBeNull()
-            expect(clearedAccount.isClosed).toBeNull()
-            expect(clearedAccount.ownerType).toBeNull()
+            expect(clearedAccount.isClosed).toEqual(createdAccount.isClosed)
+            expect(clearedAccount.ownerType).toEqual(createdAccount.ownerType)
         })
-        test('[IMPORT_ID] It will not create another account on address change', async () => {
-            const importId = utils.randomNumber(50).toString()
+        test('It will not create another account for the same number on address change', async () => {
+            const receipt = utils.createJSONReceipt()
             const [[{ account: accountBeforeFix }]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
                 context: { id: utils.billingContext.id },
-                receipts: [utils.createJSONReceipt({ importId } )],
+                receipts: [receipt],
             })
             const [[{ account: accountAfterFix }]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
                 context: { id: utils.billingContext.id },
-                receipts: [utils.createJSONReceipt({ importId } )],
+                receipts: [{ ...receipt, address: utils.createAddressWithUnit() }],
             })
             expect(accountBeforeFix.id).toEqual(accountAfterFix.id)
         })
@@ -661,6 +734,7 @@ describe('RegisterBillingReceiptsService', () => {
                 expect(createdReceipt.id).toEqual(updatedReceipt.id)
                 expect(createdReceipt.services).toHaveLength(3)
                 expect(updatedReceipt.services).toHaveLength(4)
+                expect(createdReceipt.services.map(({ id, name, toPay }) => ({ id, name, toPay }) )).toEqual(createServices.map(({ id, name, toPay }) => ({ id, name, toPay }) ))
                 expect(updatedReceipt.services.map(({ id, name, toPay }) => ({ id, name, toPay }) )).toEqual(updateServices.map(({ id, name, toPay }) => ({ id, name, toPay }) ))
             })
         })

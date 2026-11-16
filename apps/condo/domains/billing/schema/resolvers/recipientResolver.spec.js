@@ -84,6 +84,15 @@ describe('RecipientResolver', () => {
         expect(BillingRecipient.create).not.toHaveBeenCalled()
     })
 
+    test('treats a finance cache error as infrastructure failure', async () => {
+        getOrganizationInfo.mockResolvedValue({ error: new Error('Connection is closed') })
+        const resolver = new RecipientResolver({ billingContext: { id: 'context-id' }, context: {} })
+        await resolver.init()
+
+        await expect(resolver.processReceipts({ 0: createReceipt() })).rejects.toThrow('Connection is closed')
+        expect(BillingRecipient.create).not.toHaveBeenCalled()
+    })
+
     test('includes bank account in recipient persistence error', async () => {
         BillingRecipient.create.mockRejectedValue(new Error('database error'))
         const resolver = new RecipientResolver({ billingContext: { id: 'context-id' }, context: {} })
