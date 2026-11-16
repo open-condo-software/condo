@@ -124,9 +124,13 @@ const ExportPaymentsService = new GQLCustomSchema('ExportPaymentsService', {
                     const invoiceProperty = obj.invoice?.property
                     const invoiceContact = obj.invoice?.contact
                     const invoiceAddress = invoiceProperty?.address || invoiceContact?.property?.address || ''
-                    const invoiceUnitName = invoiceProperty
-                        ? obj.invoice?.unitName || (invoiceProperty.id === invoiceContact?.property?.id ? invoiceContact?.unitName : '')
-                        : invoiceContact?.unitName || ''
+                    let invoiceUnitName = invoiceContact?.unitName || ''
+                    if (invoiceProperty) {
+                        invoiceUnitName = obj.invoice?.unitName || ''
+                        if (!invoiceUnitName && invoiceProperty.id === invoiceContact?.property?.id) {
+                            invoiceUnitName = invoiceContact?.unitName || ''
+                        }
+                    }
                     const paymentAddress = obj.rawAddress
                         || [receiptAddress, receiptUnitName].filter(Boolean).join(', ')
                         || [invoiceAddress, invoiceUnitName].filter(Boolean).join(', ')
