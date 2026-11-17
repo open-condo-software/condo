@@ -1,6 +1,7 @@
 import { Invoice } from '@app/condo/schema'
 import { QRCodeCanvas } from '@rc-component/qrcode'
 import { Row, Col, RowProps } from 'antd'
+import getConfig from 'next/config'
 import React, { useCallback, useMemo, useState } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
@@ -11,8 +12,28 @@ import { Button, Card, Checkbox, Modal, Typography, Space, Alert } from '@open-c
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { UI_HIDE_PAID_FEATURES } from '@condo/domains/common/constants/featureflags'
 
-import type { useActivateSubscriptions } from './useActivateSubscriptions'
+import { generatePDF } from '../utils/clientSchema/pdf'
 
+
+const { publicRuntimeConfig: { subscriptionPaymentRequisites, closingDocsRequisites } } = getConfig()
+
+const TEST_SUBSCRIPTION_PAYMENT_REQUISITES = {
+    bankName: 'УРАЛЬСКИЙ БАНК ПАО СБЕРБАНК г.Екатеринбург', // банк получателя
+    bic: '046577674', // БИК
+    correspondentAccount: '30101810500000000674', // корреспондентский счет
+    name: 'ООО "ДОМА"', // получатель
+    tin: '9731062087', // ИНН получателя
+    iec: '773101001', // КПП
+    personalAccount: '40702810916540071538', // счет получателя
+}
+
+const TEST_CLOSING_DOCS_REQUISITES = {
+    tin: '7721581040',
+    edoId: '2BM-9731062087-773101001-202005151155067272010',
+}
+
+const SUBSCRIPTION_PAYMENT_REQUISITES = (subscriptionPaymentRequisites ? JSON.parse(subscriptionPaymentRequisites) : null) || TEST_SUBSCRIPTION_PAYMENT_REQUISITES
+const CLOSING_DOCS_REQUISITES = (closingDocsRequisites ? JSON.parse(closingDocsRequisites) : null) || TEST_CLOSING_DOCS_REQUISITES
 
 export type PaymentType = 'card' | 'invoice'
 
@@ -79,11 +100,35 @@ export const useSubscriptionPaymentModal = ({
     const CardSaveNoticeMessage = intl.formatMessage({ id: 'subscription.paymentModal.cardSaveNotice' })
     const ProceedToPaymentMessage = intl.formatMessage({ id: 'subscription.paymentModal.proceedToPayment' })
     const IssueInvoiceMessage = intl.formatMessage({ id: 'subscription.paymentModal.issueInvoice' })
+    const InvoiceModalDescriptionMessage = intl.formatMessage({ id: 'subscription.invoiceModal.description' })
+    const PayByCardMessage = intl.formatMessage({ id: 'subscription.invoiceModal.payByCard' })
+    const DownloadPdfMessage = intl.formatMessage({ id: 'subscription.invoiceModal.downloadPdf' })
+    const RequisitesTitleMessage = intl.formatMessage({ id: 'subscription.invoiceModal.requisitesTitle' })
+    const PaymentPurposeMessage = intl.formatMessage({ id: 'subscription.invoiceModal.paymentPurpose' })
+    const BankNameLabelMessage = intl.formatMessage({ id: 'subscription.invoiceModal.bankName' })
+    const BicLabelMessage = intl.formatMessage({ id: 'subscription.invoiceModal.bic' })
+    const PersonalAccountLabelMessage = intl.formatMessage({ id: 'subscription.invoiceModal.personalAccount' })
+    const CorrespondentAccountLabelMessage = intl.formatMessage({ id: 'subscription.invoiceModal.correspondentAccount' })
+    const InnLabelMessage = intl.formatMessage({ id: 'subscription.invoiceModal.inn' })
+    const KppLabelMessage = intl.formatMessage({ id: 'subscription.invoiceModal.kpp' })
+    const RecipientLabelMessage = intl.formatMessage({ id: 'subscription.invoiceModal.recipient' })
+    const CopyRequisitesMessage = intl.formatMessage({ id: 'subscription.invoiceModal.copyRequisites' })
+    const QrDescriptionMessage = intl.formatMessage({ id: 'subscription.invoiceModal.qrDescription' })
+    const ClosingDocsTitleMessage = intl.formatMessage({ id: 'subscription.invoiceModal.closingDocs.title' })
+    const ClosingDocsInstructionMessage = intl.formatMessage({ id: 'subscription.invoiceModal.closingDocs.instruction' })
+    const ClosingDocsDescriptionMessage = intl.formatMessage(
+        { id: 'subscription.invoiceModal.closingDocs.description' },
+        { tin: CLOSING_DOCS_REQUISITES.tin, edoId: CLOSING_DOCS_REQUISITES.edoId },
+    )
 
     const { breakpoints } = useLayoutContext()
 
     const [isOpenInvoiceModal, setIsOpenInvoiceModal] = useState<boolean>(false)
     const [invoice, setInvoice] = useState<Partial<Invoice> | null>(null)
+    const InvoiceModalTitleMessage = intl.formatMessage(
+        { id: 'subscription.invoiceModal.title' },
+        { number: invoice?.number || '', date: invoice?.createdAt || '' },
+    )
     const [open, setOpen] = useState<boolean>(false)
     const [selectedMethod, setSelectedMethod] = useState<PaymentType>('card')
 
@@ -284,50 +329,53 @@ export const useSubscriptionPaymentModal = ({
         handleIssueInvoice,
     ])
 
+    // NOTE: Only for Russia: ГОСТ Р 56042-2014
+    const getQRCodeValue = useCallback((purpose, sum) => {
+        if (!SUBSCRIPTION_PAYMENT_REQUISITES.name || !SUBSCRIPTION_PAYMENT_REQUISITES.personalAccount || !SUBSCRIPTION_PAYMENT_REQUISITES.bankName || !SUBSCRIPTION_PAYMENT_REQUISITES.bic || !SUBSCRIPTION_PAYMENT_REQUISITES.correspondentAccount) {
+            throw new Error('Missing required requisites for QR code generation')
+        }
+
+        if (!purpose || !sum) {
+            throw new Error('Missing required purpose or sum for QR code generation')
+        }
+
+        const separator = '|'
+        const requisiteSeperator = '='
+
+        // metadata
+        const formatIdentifier = 'ST'
+        const version = '0001'
+        const characterSetIdentifier = '2'
+        const metadata = formatIdentifier + version + characterSetIdentifier
+
+        const getRequisiteLine = (key: string, value: string) => `${key}${requisiteSeperator}${value}`
+
+        const qrCodeData = [
+            // metadata
+            metadata,
+
+            // required requisites (the order matters)
+            getRequisiteLine('Name', SUBSCRIPTION_PAYMENT_REQUISITES.name),
+            getRequisiteLine('PersonalAcc', SUBSCRIPTION_PAYMENT_REQUISITES.personalAccount),
+            getRequisiteLine('BankName', SUBSCRIPTION_PAYMENT_REQUISITES.bankName),
+            getRequisiteLine('BIC', SUBSCRIPTION_PAYMENT_REQUISITES.bic),
+            getRequisiteLine('CorrespAcc', SUBSCRIPTION_PAYMENT_REQUISITES.correspondentAccount),
+
+            // optional requisites
+            getRequisiteLine('Sum', sum),
+            getRequisiteLine('Purpose', purpose),
+            SUBSCRIPTION_PAYMENT_REQUISITES.tin ? getRequisiteLine('PayeeINN', SUBSCRIPTION_PAYMENT_REQUISITES.tin) : null,
+            SUBSCRIPTION_PAYMENT_REQUISITES.iec ? getRequisiteLine('KPP', SUBSCRIPTION_PAYMENT_REQUISITES.iec) : null,
+        ]
+
+        return qrCodeData.filter(Boolean).join(separator)
+    }, [])
+
     const InvoiceModal = useMemo(() => {
         // if (!invoice) return null
 
         const isSmallScreen = !breakpoints.DESKTOP_SMALL
-
-
-        // routing number - bic
-
-
-
-        // apps/condo/domains/acquiring/constants/gql.js
-
-        // Вопросы к биллингу:
-        // -- Какие данные у нас хранятся?
-        // -- Какие данные необходимы для платежа?
-        // -- У нас может быть несколько реквизитов для одного контекста?
-        //      Что делать, если их несколько? Выбирать тот, который Дома?
-        //      (в логике поля invoice.recipient может быть только один контекст)
-        // -- Что такое корреспондентский счет и чем он отличается от счета получателя?
-        // -- На какой счет у нас будут приходить платежи?
-        // -- Какие плятежи на этот счет приходят? Все подряд? Или какие-то определенные? (Вопрос в бугалтерию)
-        //      (Мне нужно понимать как выцеплять нужные платежи для подписок)
-
-        // 1. Разобраться с тем, что приходит к нам на 407 счет.
-        //      Понять как формировать и смотреть на назначение платежа,
-        //      чтобы задевать только подписки
-        // 2. Нужен ли registerMultiPayment, MultiPayment и Payment или хватит только Invoice?
-        const qrCodeData = [
-            ['ST00012'],
-            // хардкодим (конфиг)!
-            ['Name', 'ООО "ДОМА"'], // получатель -- invoice.RECIPIENT_FIELD.name
-            ['PersonalAcc', '40702810916540071538'], // счет получателя -- invoice.RECIPIENT_FIELD.bankAccount
-            ['BankName', 'УРАЛЬСКИЙ БАНК ПАО СБЕРБАНК г.Екатеринбург'], // банк получателя -- invoice.RECIPIENT_FIELD.bankName
-            ['BIC', '046577674'], // БИК -- invoice.RECIPIENT_FIELD.bic
-            ['CorrespAcc', '40702810916540071538'], // корреспондентский счет -- invoice.RECIPIENT_FIELD.??? (offsettingAccount?)
-            ['PayeeINN', '9731062087'], // ИНН получателя -- invoice.RECIPIENT_FIELD.tin
-            ['KPP', '773101001'], // КПП -- invoice.RECIPIENT_FIELD.iec
-            ['Purpose', 'Л12'], // назначение платежа -- invoice.RECIPIENT_FIELD. -- указываем сами
-            ['Sum', '1'], // в копейках -- invoice.toPay
-            // currency code
-        ]
-        const qrCodeValue = qrCodeData
-            .map(item => item.join('='))
-            .join('|')
+        const qrCodeValue = getQRCodeValue('Л12', '1')
 
         return (
             <Modal
@@ -336,14 +384,15 @@ export const useSubscriptionPaymentModal = ({
                 onCancel={() => {
                     setIsOpenInvoiceModal(false)
                     closeModal()
+                    setInvoice(null)
                 }}
                 title={
                     <Space direction='vertical' size={8}>
                         <Typography.Title level={2}>
-                            Оплатите счет № {invoice?.number || '3122'} до {invoice?.createdAt || '12.21.2026'}
+                            {InvoiceModalTitleMessage}
                         </Typography.Title>
                         <Typography.Paragraph type='secondary' size='medium'>
-                            У вас есть 5 дней на оплату — скопируйте реквизиты или отсканируйте QR-код. Если будете оплачивать позже, сгенерируйте новый счет — иначе платеж не пройдет.
+                            {InvoiceModalDescriptionMessage}
                         </Typography.Paragraph>
                     </Space>
                 }
@@ -352,13 +401,17 @@ export const useSubscriptionPaymentModal = ({
                         key='payByCard'
                         type='secondary'
                     >
-                        Оплатить картой
+                        {PayByCardMessage}
                     </Button>,
                     <Button
                         key='printPdf'
                         type='primary'
+                        onClick={() => {
+                            const pdfDoc = generatePDF()
+                            pdfDoc.download(`invoice-${Date.now()}.pdf`)
+                        }}
                     >
-                        Скачать PDF
+                        {DownloadPdfMessage}
                     </Button>,
                 ]}
             >
@@ -370,7 +423,7 @@ export const useSubscriptionPaymentModal = ({
                                     <Row gutter={[0, 12]}>
                                         <Col span={24}>
                                             <Typography.Title level={3}>
-                                                Реквизиты для оплаты
+                                                {RequisitesTitleMessage}
                                             </Typography.Title>
                                         </Col>
                                         <Col span={24}>
@@ -378,25 +431,28 @@ export const useSubscriptionPaymentModal = ({
                                                 <Col span={24}>
                                                     <Row gutter={[0, 16]}>
                                                         <Col span={24}>
-                                                            <RequisiteLine label='Назначение платежа' value='Л12' bold />
+                                                            <RequisiteLine label={PaymentPurposeMessage} value='Л12' bold />
                                                         </Col>
                                                         <Col span={24}>
-                                                            <RequisiteLine label='Банк получателя' value='УРАЛЬСКИЙ БАНК ПАО СБЕРБАНК г.Екатеринбург' />
+                                                            <RequisiteLine label={BankNameLabelMessage} value={SUBSCRIPTION_PAYMENT_REQUISITES.bankName} />
                                                         </Col>
                                                         <Col span={24}>
-                                                            <RequisiteLine label='БИК' value='046577674' />
+                                                            <RequisiteLine label={BicLabelMessage} value={SUBSCRIPTION_PAYMENT_REQUISITES.bic} />
                                                         </Col>
                                                         <Col span={24}>
-                                                            <RequisiteLine label='№ счета' value='40702810916540071538' />
+                                                            <RequisiteLine label={CorrespondentAccountLabelMessage} value={SUBSCRIPTION_PAYMENT_REQUISITES.correspondentAccount} />
                                                         </Col>
                                                         <Col span={24}>
-                                                            <RequisiteLine label='ИНН' value='9731062087' />
+                                                            <RequisiteLine label={InnLabelMessage} value={SUBSCRIPTION_PAYMENT_REQUISITES.tin} />
                                                         </Col>
                                                         <Col span={24}>
-                                                            <RequisiteLine label='КПП' value='773101001' />
+                                                            <RequisiteLine label={KppLabelMessage} value={SUBSCRIPTION_PAYMENT_REQUISITES.iec} />
                                                         </Col>
                                                         <Col span={24}>
-                                                            <RequisiteLine label='Получатель' value='ООО "ДОМА"' />
+                                                            <RequisiteLine label={PersonalAccountLabelMessage} value={SUBSCRIPTION_PAYMENT_REQUISITES.personalAccount} />
+                                                        </Col>
+                                                        <Col span={24}>
+                                                            <RequisiteLine label={RecipientLabelMessage} value={SUBSCRIPTION_PAYMENT_REQUISITES.name} />
                                                         </Col>
                                                     </Row>
                                                 </Col>
@@ -407,7 +463,7 @@ export const useSubscriptionPaymentModal = ({
                                                         size='medium'
                                                         type='primary'
                                                         icon={<Copy size='small' />}
-                                                        children='Скопировать реквизиты'
+                                                        children={CopyRequisitesMessage}
                                                         onClick={async () => {
                                                             await navigator.clipboard.writeText(qrCodeValue)
                                                         }}
@@ -435,7 +491,7 @@ export const useSubscriptionPaymentModal = ({
                                         <Col span={24}>
                                             <div style={{ display: 'inline-flex', maxWidth: isSmallScreen ? 400 : 320 }}>
                                                 <Typography.Paragraph size='medium'>
-                                                    Отсканируйте QR-код в банковском приложении — реквизиты заполнятся автоматически
+                                                    {QrDescriptionMessage}
                                                 </Typography.Paragraph>
                                             </div>
                                         </Col>
@@ -448,19 +504,18 @@ export const useSubscriptionPaymentModal = ({
                         <Alert
                             type='info'
                             showIcon
-                            message='Закрывающие документы'
+                            message={ClosingDocsTitleMessage}
                             description={(
                                 <Space direction='vertical' size={4}>
                                     <Typography.Paragraph size='medium'>
-                                        Чтобы получить закрывающие документы, отправьте нам приглашение в Диадоке или другой программе документооборота, которой пользуетесь. Найдите нас через ИНН <b>7721581040</b> или идентификатор ЭДО <b>2BM-9731062087-773101001-202005151155067272010</b>
+                                        {ClosingDocsDescriptionMessage}
                                     </Typography.Paragraph>
                                     <Typography.Link
                                         size='medium'
-                                        onClick={async () => {
-                                            await navigator.clipboard.writeText(qrCodeValue)
-                                        }}
+                                        href='https://help.doma.ai/article/83297'
+                                        target='_blank'
                                     >
-                                        Посмотреть инструкцию
+                                        {ClosingDocsInstructionMessage}
                                     </Typography.Link>
                                 </Space>
                             )}
@@ -469,7 +524,30 @@ export const useSubscriptionPaymentModal = ({
                 </Row>
             </Modal>
         )
-    }, [breakpoints, closeModal, invoice, isOpenInvoiceModal])
+    }, [
+        breakpoints,
+        closeModal,
+        invoice,
+        isOpenInvoiceModal,
+        InvoiceModalTitleMessage,
+        InvoiceModalDescriptionMessage,
+        PayByCardMessage,
+        DownloadPdfMessage,
+        RequisitesTitleMessage,
+        PaymentPurposeMessage,
+        BankNameLabelMessage,
+        BicLabelMessage,
+        CorrespondentAccountLabelMessage,
+        PersonalAccountLabelMessage,
+        InnLabelMessage,
+        KppLabelMessage,
+        RecipientLabelMessage,
+        CopyRequisitesMessage,
+        QrDescriptionMessage,
+        ClosingDocsTitleMessage,
+        ClosingDocsDescriptionMessage,
+        ClosingDocsInstructionMessage,
+    ])
 
     return {
         PaymentModal,
@@ -478,3 +556,4 @@ export const useSubscriptionPaymentModal = ({
         closeModal,
     }
 }
+
