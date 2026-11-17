@@ -1,7 +1,3 @@
-const chunk = require('lodash/chunk')
-const get = require('lodash/get')
-const isEmpty = require('lodash/isEmpty')
-
 const { createInstance } = require('@open-condo/clients/address-service-client')
 const { AddressFromStringParser } = require('@open-condo/clients/address-service-client/utils/parseAddressesFromString')
 const { itemsQuery } = require('@open-condo/keystone/schema')
@@ -11,7 +7,12 @@ const {
     NO_PROPERTY_IN_ORGANIZATION,
     ADDRESS_SERVICE_NORMALIZE_CHUNK_SIZE,
 } = require('@condo/domains/billing/constants/registerBillingReceiptService')
-const { createStageContext } = require('@condo/domains/billing/schema/resolvers/resolver')
+const {
+    chunkArray,
+    createStageContext,
+    forEachSequential,
+    isObjectEmpty,
+} = require('@condo/domains/billing/schema/resolvers/resolver')
 const { isValidFias, normalizePropertyGlobalId } = require('@condo/domains/billing/schema/resolvers/utils')
 const { BillingProperty } = require('@condo/domains/billing/utils/serverSchema')
 const { UUID_REGEXP } = require('@condo/domains/common/constants/regexps')
@@ -100,8 +101,8 @@ function getAddressFromReceipt (receipt, { parser, transformAddress }) {
     }
     return {
         addresses: addresses.filter(Boolean),
-        unitName: get(unitNames.filter(Boolean), '[0]', ''),
-        unitType: get(unitTypes.filter(Boolean), '[0]', ''),
+        unitName: unitNames.find(Boolean) || '',
+        unitType: unitTypes.find(Boolean) || '',
     }
 }
 
@@ -162,12 +163,12 @@ async function normalizeAddresses (receiptIndex, runtime) {
     }
 
     let normalizeResult = {}
-    for (const addressChunk of chunk([...toNormalize], ADDRESS_SERVICE_NORMALIZE_CHUNK_SIZE)) {
+    await forEachSequential(chunkArray([...toNormalize], ADDRESS_SERVICE_NORMALIZE_CHUNK_SIZE), async addressChunk => {
         normalizeResult = {
             ...normalizeResult,
             ...await normalizeChunk(addressChunk, runtime),
         }
-    }
+    })
     for (const receipt of Object.values(receiptIndex)) {
         const properties = {}
         for (const address of receipt.addressResolve.addresses) {
@@ -194,10 +195,10 @@ async function resolveProperties (receiptIndex, { billingContext, context }) {
     const stage = createStageContext({ name: 'property', context })
     const runtime = {
         addressService: createInstance(),
-        organizationId: get(billingContext, 'organization.id'),
+        organizationId: billingContext.organization?.id,
         parser: new AddressFromStringParser(),
-        tin: get(billingContext, 'organization.tin'),
-        transformAddress: createAddressTransform(get(billingContext, 'settings.addressTransform', {})),
+        tin: billingContext.organization?.tin,
+        transformAddress: createAddressTransform(billingContext.settings?.addressTransform || {}),
     }
     await normalizeAddresses(receiptIndex, runtime)
 
@@ -220,31 +221,31 @@ async function resolveProperties (receiptIndex, { billingContext, context }) {
     }
 
     const updated = new Set()
-    for (const [index, receipt] of Object.entries(receiptIndex)) {
+    await forEachSequential(Object.entries(receiptIndex), async ([index, receipt]) => {
         const { propertyAddress, addresses } = receipt.addressResolve
         const { addressKey, address, error, problem } = propertyAddress
         if (error) {
             receiptIndex[index].error = stage.error(error, index, null, { address: receipt.address })
-            continue
+            return
         }
         if (problem) {
             receiptIndex[index].problems.push({ problem, params: { addresses } })
         }
 
-        const propertyGlobalId = normalizePropertyGlobalId(get(receipt, 'addressMeta.globalId', ''))
+        const propertyGlobalId = normalizePropertyGlobalId(receipt.addressMeta?.globalId || '')
         const existingProperty = propertiesByAddressKey.get(addressKey)
         if (existingProperty) {
             receiptIndex[index].property = existingProperty.id
-            if (updated.has(existingProperty.id)) continue
+            if (updated.has(existingProperty.id)) return
 
             const updateInput = stage.buildUpdateInput({ globalId: propertyGlobalId }, existingProperty)
             let isSaved = true
-            if (isEmpty(updateInput)) {
+            if (isObjectEmpty(updateInput)) {
                 stage.markUntouched()
             } else {
                 try {
                     // Duplicate addresses must observe the first update in this batch.
-                    await BillingProperty.update(context, existingProperty.id, updateInput) // NOSONAR
+                    await BillingProperty.update(context, existingProperty.id, updateInput)
                     stage.markUpdated()
                 } catch (originalError) {
                     isSaved = false
@@ -252,12 +253,12 @@ async function resolveProperties (receiptIndex, { billingContext, context }) {
                 }
             }
             if (isSaved) updated.add(existingProperty.id)
-            continue
+            return
         }
 
         try {
             // Cache the created property before processing another receipt with the same address.
-            const newProperty = await BillingProperty.create(context, stage.buildCreateInput({ // NOSONAR
+            const newProperty = await BillingProperty.create(context, stage.buildCreateInput({
                 context: billingContext.id,
                 address: addressFieldValue(address, addressKey),
                 globalId: propertyGlobalId,
@@ -269,7 +270,7 @@ async function resolveProperties (receiptIndex, { billingContext, context }) {
         } catch (originalError) {
             receiptIndex[index].error = stage.error(ERRORS.PROPERTY_SAVE_FAILED, index, originalError, { address: receipt.address })
         }
-    }
+    })
     return stage.result(receiptIndex)
 }
 

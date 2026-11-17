@@ -1,5 +1,3 @@
-const get = require('lodash/get')
-
 const { find } = require('@open-condo/keystone/schema')
 
 const { DEFAULT_BILLING_CATEGORY_ID } = require('@condo/domains/billing/constants/constants')
@@ -40,7 +38,7 @@ function detectCategoryByServices (services, serviceNamesByCategory) {
 
 function detectCategory (receipt, categoryIndex) {
     const { category = {}, services = [], addressResolve: { unitType = '' } = {} } = receipt
-    const userDefinedCategory = get(category, 'id')
+    const userDefinedCategory = category?.id
     if (category && userDefinedCategory && !categoryIndex.categoryIds.has(userDefinedCategory)) {
         return { error: ERRORS.BILLING_CATEGORY_NOT_FOUND }
     }
@@ -71,7 +69,7 @@ async function resolveCategories (receiptIndex, { context }) {
             continue
         }
         if (result) {
-            receiptIndex[index].category = get(result, 'id')
+            receiptIndex[index].category = result.id
         }
     }
     return stage.result(receiptIndex)

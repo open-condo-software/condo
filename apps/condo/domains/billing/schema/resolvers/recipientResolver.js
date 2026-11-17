@@ -1,7 +1,3 @@
-const chunk = require('lodash/chunk')
-const get = require('lodash/get')
-const isEmpty = require('lodash/isEmpty')
-
 const { getOrganizationInfo, getBankInfo } = require('@open-condo/clients/finance-info-client')
 const { find } = require('@open-condo/keystone/schema')
 
@@ -9,7 +5,12 @@ const {
     ERRORS,
     RECIPIENT_IS_NOT_APPROVED,
 } = require('@condo/domains/billing/constants/registerBillingReceiptService')
-const { createStageContext } = require('@condo/domains/billing/schema/resolvers/resolver')
+const {
+    chunkArray,
+    createStageContext,
+    forEachSequential,
+    isObjectEmpty,
+} = require('@condo/domains/billing/schema/resolvers/resolver')
 const { BillingRecipient } = require('@condo/domains/billing/utils/serverSchema')
 
 
@@ -36,10 +37,14 @@ function indexRecipientsByBankAccount (recipients) {
 
 async function mapInChunks (items, mapper) {
     const result = []
-    for (const itemsChunk of chunk(items, RECIPIENT_PROCESSING_CHUNK_SIZE)) {
+    await forEachSequential(chunkArray(items, RECIPIENT_PROCESSING_CHUNK_SIZE), async itemsChunk => {
         result.push(...await Promise.all(itemsChunk.map(mapper)))
-    }
+    })
     return result
+}
+
+function valueOrDefault (object, propertyName, defaultValue) {
+    return object?.[propertyName] === undefined ? defaultValue : object[propertyName]
 }
 
 async function syncBillingRecipient (existing, data, { context, stage, recipientsByBankAccount }) {
@@ -56,7 +61,7 @@ async function syncBillingRecipient (existing, data, { context, stage, recipient
         }
 
         const updateInput = stage.buildUpdateInput(data, existing)
-        if (isEmpty(updateInput)) {
+        if (isObjectEmpty(updateInput)) {
             stage.markUntouched()
             return existing
         }
@@ -89,11 +94,11 @@ async function prepareReceiver ({ tin, routingNumber, bankAccount }, { billingCo
     if (getOrganizationError) {
         return { error: { ...ERRORS.ORGANIZATION_FOUND_ERROR, messageInterpolation: { tin } } }
     }
-    const bankName = get(routingNumberMeta, 'bankName', get(existingRecipient, 'bankName', null))
-    const offsettingAccount = get(routingNumberMeta, 'offsettingAccount', get(existingRecipient, 'offsettingAccount', null))
-    const name = get(tinMeta, 'name', get(existingRecipient, 'name', null))
-    const iec = get(tinMeta, 'iec', get(existingRecipient, 'iec', null))
-    const territoryCode = get(tinMeta, 'territoryCode', get(existingRecipient, 'territoryCode', null))
+    const bankName = valueOrDefault(routingNumberMeta, 'bankName', valueOrDefault(existingRecipient, 'bankName', null))
+    const offsettingAccount = valueOrDefault(routingNumberMeta, 'offsettingAccount', valueOrDefault(existingRecipient, 'offsettingAccount', null))
+    const name = valueOrDefault(tinMeta, 'name', valueOrDefault(existingRecipient, 'name', null))
+    const iec = valueOrDefault(tinMeta, 'iec', valueOrDefault(existingRecipient, 'iec', null))
+    const territoryCode = valueOrDefault(tinMeta, 'territoryCode', valueOrDefault(existingRecipient, 'territoryCode', null))
     const data = { context: billingContext.id, name, iec, tin, bankAccount, bankName, bic: routingNumber, offsettingAccount, territoryCode }
 
     return { existingRecipient, data }

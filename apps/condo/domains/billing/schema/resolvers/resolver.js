@@ -1,12 +1,36 @@
-const isEmpty = require('lodash/isEmpty')
-const isEqual = require('lodash/isEqual')
-const isNil = require('lodash/isNil')
-const xorWith = require('lodash/xorWith')
+const { isDeepStrictEqual } = require('node:util')
 
 const { GQLError } = require('@open-condo/keystone/errors')
 const { getLogger } = require('@open-condo/keystone/logging')
 
-const isArrayEqual = (left, right) => isEmpty(xorWith(left, right, isEqual))
+const isObjectEmpty = value => Object.keys(value).length === 0
+const isNil = value => value === null || value === undefined
+
+function areArraysEqual (left, right) {
+    if (!Array.isArray(right) || left.length !== right.length) return false
+
+    const unmatched = [...right]
+    return left.every(leftItem => {
+        const matchIndex = unmatched.findIndex(rightItem => isDeepStrictEqual(leftItem, rightItem))
+        if (matchIndex === -1) return false
+        unmatched.splice(matchIndex, 1)
+        return true
+    })
+}
+
+function chunkArray (items, chunkSize) {
+    return Array.from(
+        { length: Math.ceil(items.length / chunkSize) },
+        (_, index) => items.slice(index * chunkSize, (index + 1) * chunkSize),
+    )
+}
+
+function forEachSequential (items, callback) {
+    return items.reduce(
+        (previous, item) => previous.then(() => callback(item)),
+        Promise.resolve(),
+    )
+}
 
 /**
  * Creates request-local helpers and metrics for one receipt processing stage.
@@ -54,15 +78,15 @@ function createStageContext ({ name, context }) {
         for (const [propertyName, propertyValue] of Object.entries(data)) {
             const shouldCompare = allowNull ? propertyValue !== undefined : !isNil(propertyValue)
             const valuesAreEqual = Array.isArray(existingItem[propertyName])
-                ? isArrayEqual(existingItem[propertyName], propertyValue)
-                : isEqual(existingItem[propertyName], propertyValue)
+                ? areArraysEqual(existingItem[propertyName], propertyValue)
+                : isDeepStrictEqual(existingItem[propertyName], propertyValue)
             if (shouldCompare && !valuesAreEqual) {
                 updateInput[propertyName] = relations.includes(propertyName)
                     ? { connect: { id: propertyValue } }
                     : propertyValue
             }
         }
-        if (!isEmpty(updateInput)) {
+        if (!isObjectEmpty(updateInput)) {
             const versionedInput = { ...dvSender, ...updateInput }
             logger.debug({ msg: `Update ${name}`, data: { updateInput: versionedInput } })
             return versionedInput
@@ -77,7 +101,7 @@ function createStageContext ({ name, context }) {
         return {
             name,
             time: Number(time),
-            ...!isEmpty(nonEmptyStats) ? { stats: nonEmptyStats } : {},
+            ...!isObjectEmpty(nonEmptyStats) ? { stats: nonEmptyStats } : {},
         }
     }
 
@@ -111,5 +135,8 @@ function createStageContext ({ name, context }) {
 
 
 module.exports = {
+    chunkArray,
     createStageContext,
+    forEachSequential,
+    isObjectEmpty,
 }

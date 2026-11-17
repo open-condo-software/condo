@@ -1,14 +1,13 @@
 const Big = require('big.js')
-const get = require('lodash/get')
-const isEmpty = require('lodash/isEmpty')
-const pick = require('lodash/pick')
 
 const { find } = require('@open-condo/keystone/schema')
 
 const { ERRORS } = require('@condo/domains/billing/constants/registerBillingReceiptService')
-const { createStageContext } = require('@condo/domains/billing/schema/resolvers/resolver')
+const { createStageContext, forEachSequential, isObjectEmpty } = require('@condo/domains/billing/schema/resolvers/resolver')
 const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
 const RECEIPT_UPDATE_FIELDS = ['services', 'toPayDetails', 'recipient', 'period', 'category', 'account', 'property', 'receiver', 'importId', 'toPay']
+
+const pickFields = (value, fields) => Object.fromEntries(fields.map(field => [field, value[field]]))
 
 function buildReceiptIdentity (receipt) {
     const { accountNumber, category, addressResolve: { propertyAddress: { addressKey } }, period, receiver } = receipt
@@ -18,7 +17,7 @@ function buildReceiptIdentity (receipt) {
 async function resolveReceipts (receiptIndex, { billingContext, context }) {
     const stage = createStageContext({ name: 'receipt', context })
     const createdReceiptIds = new Set()
-    for (const [index, receipt] of Object.entries(receiptIndex)) {
+    await forEachSequential(Object.entries(receiptIndex), async ([index, receipt]) => {
         const { importId, period, account, receiver, category } = receipt
 
         const sameReceiptQuery = importId ? {
@@ -38,16 +37,16 @@ async function resolveReceipts (receiptIndex, { billingContext, context }) {
             receiptToUpdate.toPay = Big(receiptToUpdate.toPay).toFixed(2)
             receipt.toPay = Big(receipt.toPay).toFixed(2)
             const updateInput = stage.buildUpdateInput(
-                pick(receipt, RECEIPT_UPDATE_FIELDS),
+                pickFields(receipt, RECEIPT_UPDATE_FIELDS),
                 receiptToUpdate,
                 ['category', 'account', 'property', 'receiver']
             )
-            const oldPaid = Big(get(receipt, 'toPayDetails.paid') || 0).toFixed(2)
-            const newPaid = Big(get(receiptToUpdate, 'toPayDetails.paid') || 0).toFixed(2)
+            const oldPaid = Big(receipt.toPayDetails?.paid || 0).toFixed(2)
+            const newPaid = Big(receiptToUpdate.toPayDetails?.paid || 0).toFixed(2)
             if (receiptToUpdate.toPay !== receipt.toPay || oldPaid !== newPaid) {
                 updateInput.balanceUpdatedAt = new Date().toISOString()
             }
-            if (!isEmpty(updateInput)) {
+            if (!isObjectEmpty(updateInput)) {
                 try {
                     receiptIndex[index] = await BillingReceipt.update(context, receiptToUpdate.id, { ...updateInput, raw: receipt }, 'id')
                     stage.markUpdated()
@@ -61,7 +60,7 @@ async function resolveReceipts (receiptIndex, { billingContext, context }) {
         } else {
             try {
                 receiptIndex[index] = await BillingReceipt.create(context, stage.buildCreateInput({
-                    ...pick(receipt, RECEIPT_UPDATE_FIELDS), context: billingContext.id, raw: receipt,
+                    ...pickFields(receipt, RECEIPT_UPDATE_FIELDS), context: billingContext.id, raw: receipt,
                 }, ['category', 'account', 'property', 'receiver', 'context']), 'id')
                 stage.markCreated()
                 createdReceiptIds.add(receiptIndex[index].id)
@@ -69,7 +68,7 @@ async function resolveReceipts (receiptIndex, { billingContext, context }) {
                 receiptIndex[index].error = stage.error(ERRORS.RECEIPT_SAVE_FAILED, index, originalError, { receiptIdentity: importId || buildReceiptIdentity(receipt) })
             }
         }
-    }
+    })
     return stage.result(receiptIndex, { createdReceiptIds })
 }
 

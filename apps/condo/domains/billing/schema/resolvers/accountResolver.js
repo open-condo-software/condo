@@ -1,15 +1,13 @@
 // ELS is a 10-digit code, where 3 and 4 characters are russian letters and the rest are numbers.
 const IS_ELS_REGEXP = /^\d{2}[А-ЯЁ]{2}\d{6}(?:-[^-\s]+)*$/i
 
-const isEmpty = require('lodash/isEmpty')
-
 const { itemsQuery } = require('@open-condo/keystone/schema')
 
 const { BILLING_ACCOUNT_OWNER_TYPE_COMPANY, BILLING_ACCOUNT_OWNER_TYPE_PERSON } = require('@condo/domains/billing/constants/constants')
 const {
     ERRORS,
 } = require('@condo/domains/billing/constants/registerBillingReceiptService')
-const { createStageContext } = require('@condo/domains/billing/schema/resolvers/resolver')
+const { createStageContext, forEachSequential, isObjectEmpty } = require('@condo/domains/billing/schema/resolvers/resolver')
 const { clearAccountNumber, isPerson } = require('@condo/domains/billing/schema/resolvers/utils')
 const { BillingAccount } = require('@condo/domains/billing/utils/serverSchema')
 
@@ -35,7 +33,7 @@ async function loadExistingAccounts (receiptIndex, billingContextId) {
 async function resolveAccounts (receiptIndex, { billingContext, context }) {
     const stage = createStageContext({ name: 'account', context })
     const accountsByNumber = await loadExistingAccounts(receiptIndex, billingContext.id)
-    for (const [index, receipt] of Object.entries(receiptIndex)) {
+    await forEachSequential(Object.entries(receiptIndex), async ([index, receipt]) => {
         const { unitName, unitType } = receipt.addressResolve
         let { accountNumber, accountMeta = {} } = receipt
         let { globalId, importId, fullName, isClosed, ownerType } = accountMeta
@@ -59,10 +57,10 @@ async function resolveAccounts (receiptIndex, { billingContext, context }) {
         if (existingAccount) {
             const updateInput = stage.buildUpdateInput(accountData, existingAccount, ['property'], { allowNull: true })
             let accountForCache = existingAccount
-            if (!isEmpty(updateInput)) {
+            if (!isObjectEmpty(updateInput)) {
                 try {
                     // Receipts sharing an account must update it in input order.
-                    await BillingAccount.update(context, existingAccount.id, updateInput) // NOSONAR
+                    await BillingAccount.update(context, existingAccount.id, updateInput)
                     stage.markUpdated()
                     accountForCache = {
                         ...existingAccount,
@@ -79,7 +77,7 @@ async function resolveAccounts (receiptIndex, { billingContext, context }) {
         } else {
             try {
                 // Receipts sharing an account must create/cache it before the next item.
-                const { id }  = await BillingAccount.create(context, stage.buildCreateInput({ // NOSONAR
+                const { id } = await BillingAccount.create(context, stage.buildCreateInput({
                     ...accountData,
                     context: billingContext.id,
                 }, ['context', 'property']))
@@ -90,7 +88,7 @@ async function resolveAccounts (receiptIndex, { billingContext, context }) {
                 receiptIndex[index].error = stage.error(ERRORS.ACCOUNT_SAVE_FAILED, index, error, { accountNumber })
             }
         }
-    }
+    })
     return stage.result(receiptIndex)
 }
 
