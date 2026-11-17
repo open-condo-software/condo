@@ -6,9 +6,9 @@ import { TasksLocalStorage } from '@condo/domains/common/components/tasks/storag
 import { useProgressBarActions } from '@condo/domains/miniapp/components/ProgressBarActionsContext'
 
 export type MiniAppTaskRecord = LocalTaskRecord & {
-    action?: NonNullable<ShowProgressBarParams['action']>
-    background?: NonNullable<ShowProgressBarParams['background']>
+    actions?: Array<NonNullable<ShowProgressBarParams['actions']>[number] & { id: string }>
     disableCancel?: ShowProgressBarParams['disableCancel']
+    processingFrame?: NonNullable<ShowProgressBarParams['processingFrame']>
     sourceMetadata?: IFrameMetadata
 }
 
@@ -22,12 +22,12 @@ export const useMiniappTaskUIInterface: UseMiniappTaskUIInterfaceType = () => {
             title: (taskRecord) => taskRecord.title,
             description: (taskRecord) => taskRecord.description,
             link: (taskRecord) => {
-                const action = taskRecord.action
+                const action = taskRecord.actions?.[0]
                 if (!action) return null
 
                 return {
                     label: action.label,
-                    onClick: () => sendProgressBarAction(taskRecord.id, action.actionId),
+                    onClick: () => sendProgressBarAction(taskRecord.id, action.id),
                 }
             },
         },

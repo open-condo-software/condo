@@ -9,11 +9,9 @@ import { B2BAppFrame } from '@condo/domains/miniapp/components/B2BAppFrame'
 
 import { useProgressBarActions } from './ProgressBarActionsContext'
 
-type ProgressBarBackgroundFrameProps = Pick<MiniAppTaskRecord, 'background' | 'id' | 'sourceMetadata'>
+type ProgressBarBackgroundFrameProps = Pick<MiniAppTaskRecord, 'id' | 'processingFrame' | 'sourceMetadata'>
 
-const ignoreCloseApplication = () => undefined
-
-const ProgressBarBackgroundFrame: React.FC<ProgressBarBackgroundFrameProps> = ({ background, id, sourceMetadata }) => {
+const ProgressBarBackgroundFrame: React.FC<ProgressBarBackgroundFrameProps> = ({ processingFrame, id, sourceMetadata }) => {
     const { registerProgressBarFrame } = useProgressBarActions()
     const sourceMetadataKey = JSON.stringify(sourceMetadata)
     const metadata = useMemo(() => {
@@ -24,16 +22,16 @@ const ProgressBarBackgroundFrame: React.FC<ProgressBarBackgroundFrameProps> = ({
 
     const onRegister = useCallback((event) => registerProgressBarFrame(id, event), [id, registerProgressBarFrame])
 
-    if (!background) return null
+    if (!processingFrame) return null
 
-    return <B2BAppFrame hidden metadata={metadata} src={background.url} onCloseApplication={ignoreCloseApplication} onRegister={onRegister}/>
+    return <B2BAppFrame hidden metadata={metadata} src={processingFrame.url} onRegister={onRegister}/>
 }
 
 export const ProgressBarBackgroundFrames: React.FC = () => {
     const { tasks } = useTasks<MiniAppTaskRecord>()
     const records = tasks
         .map((task) => task.record)
-        .filter((task) => task.__typename === 'MiniAppTask' && (task.status === TASK_PROCESSING_STATUS || task.action))
+        .filter((task) => task.__typename === 'MiniAppTask' && (task.status === TASK_PROCESSING_STATUS || task.actions?.length))
 
     return (
         <>
@@ -41,7 +39,7 @@ export const ProgressBarBackgroundFrames: React.FC = () => {
                 return (
                     <ProgressBarBackgroundFrame
                         key={task.id}
-                        background={task.background}
+                        processingFrame={task.processingFrame}
                         id={task.id}
                         sourceMetadata={task.sourceMetadata}
                     />

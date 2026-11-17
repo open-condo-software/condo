@@ -17,18 +17,18 @@
 | description    | string                                            | нет          | Тело уведомления, в котором стоит описать дополнительную информацию. Пример: "Не закрывайте страницу"                                  |
 | externalTaskId | string                                            | нет          | ID вашей задачи, которую отображает данное уведомление. Необходимо для синхронизации при выходе / входе пользователя в мини-приложение |
 | disableCancel  | boolean                                           | нет          | Не показывает в Condo действие отмены. Используйте, если процесс мини-приложения нельзя отменить.                                      |
-| background     | `{ url }`                                         | нет          | Same-origin iframe-страница, которую Condo держит в фоне, пока этот progress bar активен.                                            |
-| action         | `{ label, actionId }`                             | нет          | Действие мини-приложения. Требует `background`; Condo отправляет клик в этот background iframe.                                      |
+| processingFrame | `{ url }`                                        | нет          | Same-origin iframe-страница, которую Condo держит, пока progress bar активен или показывает действия.                                |
+| actions        | `Array<{ label }>`                                | нет          | Действия мини-приложения. Требуют processing frame; Condo сам назначает ID и отправляет клики в этот iframe. Пока поддерживается одно действие. |
 
 <Alert type='info'>
-    Позже с помощью метода [CondoWebAppUpdateProgressBar](/docs/bridge/methods/notifications/update-progress-bar) можно обновить состояние и действие progress bar. `background` задаётся только при его создании.
+    Позже с помощью метода [CondoWebAppUpdateProgressBar](/docs/bridge/methods/notifications/update-progress-bar) можно обновить состояние и действия progress bar. `processingFrame` задаётся только при его создании.
 </Alert>
 
 ## Возвращаемое значение
 
-При успешном выполнении метод вернет назад JSON-объект, содержащий единственное поле `barId` - ID созданной шкалы прогресса:
+При успешном выполнении метод вернет ID созданной шкалы прогресса и назначенные Condo ID действий:
 ```json
-{ "barId": "3f4714ab-30f9-4bd4-b91b-67e9c5b7f1a8" }
+{ "barId": "3f4714ab-30f9-4bd4-b91b-67e9c5b7f1a8", "actionIds": [] }
 ```
 
 ## Пример использования
@@ -40,7 +40,7 @@ bridge.send('CondoWebAppShowProgressBar', {
     message: 'Uploading some data',
     description: 'Please keep the page open',
     externalTaskId: '26abf417-9159-488d-a446-595e987d8802',
-    background: { url: 'https://miniapp.example/import-progress?importId=123' },
+    processingFrame: { url: 'https://miniapp.example/import-progress?importId=123' },
 }).then((data) => {
     console.log(data.barId)
 })
@@ -48,6 +48,6 @@ bridge.send('CondoWebAppShowProgressBar', {
 
 ![progress-bar-example](/bridge/show-progress-bar.png)
 
-`background` доступен только iframe-странице того же origin. Он обязателен, если у progress bar есть `action`. Condo хранит скрытый iframe, пока progress bar обрабатывается или показывает действие, и удаляет его после закрытия карточки задачи.
+`processingFrame` доступен только iframe-странице того же origin. Он обязателен, если у progress bar есть действия. Condo хранит скрытый iframe, пока progress bar обрабатывается или показывает действия, и удаляет его после закрытия карточки задачи.
 
-По клику на `action` Condo отправляет `CondoWebAppActionClickEvent` с `actionId` в background iframe. Мини-приложение само выбирает действие: например, вызывает `CondoWebAppShowModalWindow` или `CondoWebAppRedirect`.
+По клику на действие Condo отправляет `CondoWebAppActionClickEvent` с назначенным `actionId` в processing iframe. Мини-приложение само выбирает действие: например, вызывает `CondoWebAppShowModalWindow` или `CondoWebAppRedirect`.

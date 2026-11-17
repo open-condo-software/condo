@@ -1,9 +1,12 @@
 export type ProgressBarAction = {
     label: string
-    actionId: string
 }
 
-export type ProgressBarBackground = {
+export type ProgressBarActionData = ProgressBarAction & {
+    id: string
+}
+
+export type ProgressBarProcessingFrame = {
     url: string
 }
 
@@ -12,10 +15,11 @@ export type ShowProgressBarParams = {
     description?: string
     externalTaskId?: string
     disableCancel?: boolean
-    background?: ProgressBarBackground
-    action?: ProgressBarAction
+    processingFrame?: ProgressBarProcessingFrame
+    actions?: Array<ProgressBarAction>
 }
 
 export type ShowProgressBarData = {
     barId: string
+    actionIds: Array<string>
 }

@@ -9,25 +9,27 @@
 | Имя параметра  | Тип параметра                                     | Обязательный | Описание параметра                                                                                                                                                                                      |
 |----------------|---------------------------------------------------|--------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | barId          | string                                            | да           | ID уведомления                                                                                                                                                                                          |
-| data           | JSON                                              | да           | Данные для обновления: `message`, `description`, `progress`, `disableCancel`, `status` или `action`. URL фона задаётся только при создании progress bar. |
+| data           | JSON                                              | да           | Данные для обновления: `message`, `description`, `progress`, `status` или `actions`. Processing frame задаётся только при создании progress bar. |
 
-`data.progress` принимает число от `0` до `100`. Чтобы завершить процесс, передайте `data.status` со значением `completed` или `error`. Для действия progress bar должен быть создан с `background`:
+`data.progress` принимает число от `0` до `100`. Чтобы завершить процесс, передайте `data.status` со значением `completed` или `error`. Для действий progress bar должен быть создан с `processingFrame`:
 
 ```typescript
-action: {
-    label: 'Подробнее',
-    actionId: 'open-import-details',
-}
+actions: [{ label: 'Подробнее' }]
 ```
 
-Condo передаёт клик как `CondoWebAppActionClickEvent` в background iframe. Мини-приложение обрабатывает событие и решает, открыть ли modal, выполнить redirect или другой Bridge-метод.
+Condo сам генерирует ID действий и возвращает их из метода. По клику Condo передаёт `CondoWebAppActionClickEvent` в processing iframe. Мини-приложение обрабатывает событие и решает, открыть ли modal, выполнить redirect или другой Bridge-метод.
 
 ```typescript
 import bridge from '@open-condo/bridge'
 import { useSetPageActionsHandlers } from '@open-condo/miniapp-utils'
 
+const { actionIds } = await bridge.send('CondoWebAppUpdateProgressBar', {
+    barId,
+    data: { actions: [{ label: 'Подробнее' }] },
+})
+
 useSetPageActionsHandlers(bridge, {
-    'open-import-details': () => {
+    [actionIds[0]]: () => {
         void bridge.send('CondoWebAppShowModalWindow', {
             title: 'Детали импорта',
             url: 'https://miniapp.example/details',
@@ -39,9 +41,9 @@ useSetPageActionsHandlers(bridge, {
 
 ## Возвращаемое значение
 
-При успешном выполнении метод вернет назад JSON-объект, содержащий единственное поле `updated`:
+При успешном выполнении метод вернет `updated` и назначенные ID действий:
 ```json
-{ "updated": true }
+{ "updated": true, "actionIds": [] }
 ```
 
 ## Пример использования

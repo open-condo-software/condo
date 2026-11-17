@@ -475,7 +475,7 @@ const TasksProviderContent = ({ children }) => {
         { status: 'processing' },
         userLoading ? null : user,
     )
-    const miniAppTasks = processingMiniAppTasks.filter((task) => task.background || dayjs(task.createdAt).isToday())
+    const miniAppTasks = processingMiniAppTasks.filter((task) => task.processingFrame || dayjs(task.createdAt).isToday())
     // ... another task records should be loaded here
 
     const initialTaskRecords = useMemo(

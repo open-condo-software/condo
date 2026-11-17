@@ -4,9 +4,8 @@ type UpdatableParams = {
     message: string
     description: string
     progress: number
-    disableCancel: boolean
     status: 'completed' | 'error'
-    action: ProgressBarAction
+    actions: Array<ProgressBarAction>
 }
 
 export type UpdateProgressBarParams = {
@@ -16,4 +15,5 @@ export type UpdateProgressBarParams = {
 
 export type UpdateProgressBarData = {
     updated: boolean
+    actionIds: Array<string>
 }

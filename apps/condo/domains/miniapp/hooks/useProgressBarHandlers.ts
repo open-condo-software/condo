@@ -23,9 +23,13 @@ type MessageSource = Parameters<
 Parameters<ReturnType<typeof usePostMessageContext>['addHandler']>[4]
 >[0]['source']
 
+type ProgressBarAction = NonNullable<ShowProgressBarParams['actions']>[number]
+type ProgressBarActionData = NonNullable<GetActiveProgressBarsData['bars'][number]['actions']>[number]
+
+const MAX_PROGRESS_BAR_ACTIONS = 1
+
 const ProgressBarActionSchema = z.strictObject({
     label: z.string().min(1),
-    actionId: z.string().min(1),
 })
 
 const ShowProgressBarParamsSchema = z.object({
@@ -33,10 +37,10 @@ const ShowProgressBarParamsSchema = z.object({
     description: z.string().optional(),
     externalTaskId: z.string().optional(),
     disableCancel: z.boolean().optional(),
-    background: z.strictObject({
+    processingFrame: z.strictObject({
         url: z.url(),
     }).optional(),
-    action: ProgressBarActionSchema.optional(),
+    actions: z.array(ProgressBarActionSchema).max(MAX_PROGRESS_BAR_ACTIONS).optional(),
 })
 const UpdateProgressBarParamsSchema = z.object({
     barId: z.string(),
@@ -44,9 +48,8 @@ const UpdateProgressBarParamsSchema = z.object({
         message: z.string(),
         description: z.string(),
         progress: z.number().min(0).max(100),
-        disableCancel: z.boolean(),
         status: z.enum(['completed', 'error']),
-        action: ProgressBarActionSchema,
+        actions: z.array(ProgressBarActionSchema).max(MAX_PROGRESS_BAR_ACTIONS),
     }).partial(),
 })
 
@@ -68,39 +71,43 @@ function hasAllowedProgressBarUrlProtocol (url: string) {
 
 function validateProgressBarUrl (url: string, sourceOrigin: string) {
     if (!isSafeUrl(url) || !hasAllowedProgressBarUrlProtocol(url)) {
-        throw new Error('Forbidden url. Your progress bar background url is probably injected')
+        throw new Error('Forbidden url. Your progress bar processing frame url is probably injected')
     }
     if (new URL(url).origin !== sourceOrigin) {
-        throw new Error('Forbidden url. Progress bar background url must have same origin as sender')
+        throw new Error('Forbidden url. Progress bar processing frame url must have same origin as sender')
     }
 }
 
-function validateProgressBarBackground (
-    background: ShowProgressBarParams['background'],
+function validateProgressBarProcessingFrame (
+    processingFrame: ShowProgressBarParams['processingFrame'],
     source: MessageSource,
     sourceOrigin: string,
 ) {
-    if (!background) return
+    if (!processingFrame) return
 
-    validateProgressBarUrl(background.url, sourceOrigin)
+    validateProgressBarUrl(processingFrame.url, sourceOrigin)
     if (source.type !== 'frame') {
-        throw new Error('Forbidden source type. Progress bar backgrounds are only available for iframes')
+        throw new Error('Forbidden source type. Progress bar processing frames are only available for iframes')
     }
 }
 
 function validateProgressBarShowParams (
-    params: Pick<ShowProgressBarParams, 'action' | 'background'>,
+    params: Pick<ShowProgressBarParams, 'actions' | 'processingFrame'>,
     source: MessageSource,
 ) {
     const sourceOrigin = getSourceOrigin(source)
-    if (sourceOrigin === 'null' && (params.background || params.action)) {
-        throw new Error('Forbidden origin. Progress bar URLs require a non-opaque sender origin')
+    if (sourceOrigin === 'null' && (params.processingFrame || params.actions?.length)) {
+        throw new Error('Forbidden origin. Progress bar processing frames require a non-opaque sender origin')
     }
-    if (params.action && !params.background) {
-        throw new Error('Progress bar background is required when action is set')
+    if (params.actions?.length && !params.processingFrame) {
+        throw new Error('Progress bar processing frame is required when actions are set')
     }
 
-    validateProgressBarBackground(params.background, source, sourceOrigin)
+    validateProgressBarProcessingFrame(params.processingFrame, source, sourceOrigin)
+}
+
+function createProgressBarActions (actions?: Array<ProgressBarAction>): Array<ProgressBarActionData> {
+    return actions?.map((action) => ({ ...action, id: generateUUIDv4() })) || []
 }
 
 export function useProgressBarHandlers () {
@@ -123,12 +130,13 @@ export function useProgressBarHandlers () {
         description,
         externalTaskId,
         disableCancel,
-        background,
-        action,
+        processingFrame,
+        actions,
     }: ShowProgressBarParams,
     source: MessageSource) => {
-        validateProgressBarShowParams({ action, background }, source)
+        validateProgressBarShowParams({ actions, processingFrame }, source)
         const id = generateUUIDv4()
+        const resolvedActions = createProgressBarActions(actions)
         const origin = getSourceOrigin(source)
         const sourceMetadata = getSourceMetadata(source)
         const taskRecord: MiniAppTaskRecord = {
@@ -144,13 +152,13 @@ export function useProgressBarHandlers () {
             createdAt: dayjs().toISOString(),
             __typename: 'MiniAppTask',
             ...(sourceMetadata ? { sourceMetadata } : {}),
-            ...(background ? { background } : {}),
-            ...(action ? { action } : {}),
+            ...(processingFrame ? { processingFrame } : {}),
+            ...(resolvedActions.length ? { actions: resolvedActions } : {}),
         }
 
         createTaskOp(taskRecord)
 
-        return { barId: id }
+        return { barId: id, actionIds: resolvedActions.map((action) => action.id) }
         // TODO(DOMA-5171): Adding miniAppTaskUIInterface in deps causing rerender hell!
     }, [userId, createTaskOp])
 
@@ -170,8 +178,8 @@ export function useProgressBarHandlers () {
                     description: task.description,
                     progress: task.progress as number,
                     externalTaskId: task.taskId,
-                    ...(task.action ? {
-                        action: task.action,
+                    ...(task.actions?.length ? {
+                        actions: task.actions,
                     } : {}),
                     ...(task.disableCancel ? {
                         disableCancel: true,
@@ -190,9 +198,10 @@ export function useProgressBarHandlers () {
         if (!existingTask || existingTask.sender !== origin || existingTask.user?.id !== userId) {
             throw new Error('Forbidden progress bar update')
         }
-        if (data.action && !existingTask.background) {
-            throw new Error('Progress bar background is required when action is set')
+        if (data.actions?.length && !existingTask.processingFrame) {
+            throw new Error('Progress bar processing frame is required when actions are set')
         }
+        const resolvedActions = createProgressBarActions(data.actions)
         const status = data.status
             ? data.status
             : (typeof data.progress === 'number' && data.progress >= 100 ? TASK_COMPLETED_STATUS : undefined)
@@ -205,12 +214,12 @@ export function useProgressBarHandlers () {
             user: { id: userId },
             sender: origin,
             __typename: 'MiniAppTask',
-            ...(data.action ? { action: data.action } : {}),
+            ...(data.actions ? { actions: resolvedActions } : {}),
         }
 
         updateTaskOperation(pickBy(taskRecord, value => value !== undefined), { id: barId })
 
-        return { updated: true }
+        return { updated: true, actionIds: resolvedActions.map((action) => action.id) }
         // TODO(DOMA-5171): Adding miniAppTaskUIInterface in deps causing rerender hell!
     }, [miniAppTaskUIInterface.storage, userId, updateTaskOperation])
 
