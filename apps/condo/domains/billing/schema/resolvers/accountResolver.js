@@ -9,93 +9,91 @@ const { BILLING_ACCOUNT_OWNER_TYPE_COMPANY, BILLING_ACCOUNT_OWNER_TYPE_PERSON } 
 const {
     ERRORS,
 } = require('@condo/domains/billing/constants/registerBillingReceiptService')
-const { Resolver } = require('@condo/domains/billing/schema/resolvers/resolver')
+const { createStageContext } = require('@condo/domains/billing/schema/resolvers/resolver')
 const { clearAccountNumber, isPerson } = require('@condo/domains/billing/schema/resolvers/utils')
 const { BillingAccount } = require('@condo/domains/billing/utils/serverSchema')
 
+async function loadExistingAccounts (receiptIndex, billingContextId) {
+    const accountNumbers = [...new Set(Object.values(receiptIndex).map(({ accountNumber }) => clearAccountNumber(accountNumber)))]
+    if (!accountNumbers.length) return new Map()
 
-class AccountResolver extends Resolver {
-    constructor ({ billingContext, context }) {
-        super(billingContext, context, { name: 'account' })
-        this.accountsByNumber = new Map()
+    const accounts = await itemsQuery('BillingAccount', {
+        where: {
+            number_in: accountNumbers,
+            deletedAt: null,
+            context: { id: billingContextId },
+        },
+        sortBy: ['createdAt_ASC', 'id_ASC'],
+    })
+    const accountsByNumber = new Map()
+    for (const account of accounts) {
+        if (!accountsByNumber.has(account.number)) accountsByNumber.set(account.number, account)
     }
+    return accountsByNumber
+}
 
-    async loadExistingAccounts (receiptIndex) {
-        const accountNumbers = [...new Set(Object.values(receiptIndex).map(({ accountNumber }) => clearAccountNumber(accountNumber)))]
-        if (!accountNumbers.length) return
-        const accounts = await itemsQuery('BillingAccount', {
-            where: {
-                number_in: accountNumbers,
-                deletedAt: null,
-                context: { id: this.billingContext.id },
-            },
-            sortBy: ['createdAt_ASC', 'id_ASC'],
-        })
-        for (const account of accounts) {
-            if (!this.accountsByNumber.has(account.number)) this.accountsByNumber.set(account.number, account)
+async function resolveAccounts (receiptIndex, { billingContext, context }) {
+    const stage = createStageContext({ name: 'account', context })
+    const accountsByNumber = await loadExistingAccounts(receiptIndex, billingContext.id)
+    for (const [index, receipt] of Object.entries(receiptIndex)) {
+        const { unitName, unitType } = receipt.addressResolve
+        let { accountNumber, accountMeta = {} } = receipt
+        let { globalId, importId, fullName, isClosed, ownerType } = accountMeta
+        if (fullName && ownerType === undefined) {
+            ownerType = isPerson(fullName) ? BILLING_ACCOUNT_OWNER_TYPE_PERSON : BILLING_ACCOUNT_OWNER_TYPE_COMPANY
         }
-    }
-
-    async processReceipts (receiptIndex) {
-        await this.loadExistingAccounts(receiptIndex)
-        for (const [index, receipt] of Object.entries(receiptIndex)) {
-            let { unitName, unitType } = receipt.addressResolve
-            let { accountNumber, accountMeta = {} } = receipt
-            let { globalId, importId, fullName, isClosed, ownerType } = accountMeta
-            if (fullName && ownerType === undefined) {
-                ownerType = isPerson(fullName) ? BILLING_ACCOUNT_OWNER_TYPE_PERSON : BILLING_ACCOUNT_OWNER_TYPE_COMPANY
-            }
-            // Checkbox and Select fields are not nullable in BillingAccount.
-            // Null-clearing is supported only for nullable account metadata.
-            if (isClosed === null) isClosed = undefined
-            if (ownerType === null) ownerType = undefined
-            accountNumber = clearAccountNumber(accountNumber)
-            if (globalId !== null && globalId !== undefined && !IS_ELS_REGEXP.test(globalId)) {
-                globalId = undefined
-            }
-            const existingAccount = this.accountsByNumber.get(accountNumber)
-            if (existingAccount) {
-                const accountData = {
-                    number: accountNumber, unitName, unitType, property: receipt.property,
-                    globalId, importId,
-                    fullName, isClosed, ownerType,
-                }
-                const updateInput = this.buildUpdateInput(accountData, existingAccount, ['property'], { allowNull: true })
-                let accountForCache = existingAccount
-                if (!isEmpty(updateInput)) {
-                    try {
-                        // Receipts sharing an account must update it in input order.
-                        await BillingAccount.update(this.context, existingAccount.id, updateInput) // NOSONAR
-                        accountForCache = {
-                            ...existingAccount,
-                            ...Object.fromEntries(Object.entries(accountData).filter(([, value]) => value !== undefined)),
-                        }
-                    } catch (error) {
-                        receiptIndex[index].error = this.error(ERRORS.ACCOUNT_SAVE_FAILED, index, error, { accountNumber })
-                    }
-                }
-                receiptIndex[index].account = existingAccount.id
-                this.accountsByNumber.set(accountNumber, accountForCache)
-            } else {
+        // Checkbox and Select fields are not nullable in BillingAccount.
+        // Null-clearing is supported only for nullable account metadata.
+        if (isClosed === null) isClosed = undefined
+        if (ownerType === null) ownerType = undefined
+        accountNumber = clearAccountNumber(accountNumber)
+        if (globalId !== null && globalId !== undefined && !IS_ELS_REGEXP.test(globalId)) {
+            globalId = undefined
+        }
+        const accountData = {
+            number: accountNumber, unitName, unitType, property: receipt.property,
+            globalId, importId,
+            fullName, isClosed, ownerType,
+        }
+        const existingAccount = accountsByNumber.get(accountNumber)
+        if (existingAccount) {
+            const updateInput = stage.buildUpdateInput(accountData, existingAccount, ['property'], { allowNull: true })
+            let accountForCache = existingAccount
+            if (!isEmpty(updateInput)) {
                 try {
-                    // Receipts sharing an account must create/cache it before the next item.
-                    const { id }  = await BillingAccount.create(this.context, this.buildCreateInput({ // NOSONAR
-                        number: accountNumber, unitName, unitType, context: this.billingContext.id, property: receipt.property,
-                        globalId, importId,
-                        fullName, isClosed, ownerType,
-                    }, ['context', 'property']))
-                    receiptIndex[index].account = id
-                    this.accountsByNumber.set(accountNumber, { id, number: accountNumber, property: receipt.property, unitName, unitType, globalId, importId, fullName, isClosed, ownerType })
+                    // Receipts sharing an account must update it in input order.
+                    await BillingAccount.update(context, existingAccount.id, updateInput) // NOSONAR
+                    stage.markUpdated()
+                    accountForCache = {
+                        ...existingAccount,
+                        ...Object.fromEntries(Object.entries(accountData).filter(([, value]) => value !== undefined)),
+                    }
                 } catch (error) {
-                    receiptIndex[index].error = this.error(ERRORS.ACCOUNT_SAVE_FAILED, index, error, { accountNumber })
+                    receiptIndex[index].error = stage.error(ERRORS.ACCOUNT_SAVE_FAILED, index, error, { accountNumber })
                 }
+            } else {
+                stage.markUntouched()
+            }
+            receiptIndex[index].account = existingAccount.id
+            accountsByNumber.set(accountNumber, accountForCache)
+        } else {
+            try {
+                // Receipts sharing an account must create/cache it before the next item.
+                const { id }  = await BillingAccount.create(context, stage.buildCreateInput({ // NOSONAR
+                    ...accountData,
+                    context: billingContext.id,
+                }, ['context', 'property']))
+                stage.markCreated()
+                receiptIndex[index].account = id
+                accountsByNumber.set(accountNumber, { id, ...accountData })
+            } catch (error) {
+                receiptIndex[index].error = stage.error(ERRORS.ACCOUNT_SAVE_FAILED, index, error, { accountNumber })
             }
         }
-        return this.result(receiptIndex)
     }
-
+    return stage.result(receiptIndex)
 }
 
 module.exports = {
-    AccountResolver,
+    resolveAccounts,
 }

@@ -14,13 +14,13 @@ const {
     ERRORS,
 } = require('@condo/domains/billing/constants/registerBillingReceiptService')
 const {
-    CategoryResolver,
-    RecipientResolver,
-    PropertyResolver,
-    AccountResolver,
-    PeriodResolver,
-    ReceiptResolver,
-    ValidatorResolver,
+    resolveAccounts,
+    resolveCategories,
+    resolvePeriods,
+    resolveProperties,
+    resolveReceipts,
+    resolveRecipients,
+    resolveValidation,
 } = require('@condo/domains/billing/schema/resolvers')
 const { buildLastReportForBillingContext } = require('@condo/domains/billing/schema/resolvers/utils')
 const {
@@ -118,14 +118,13 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                 let errorsIndex = {}
                 const debug = []
                 const createdReceiptIds = new Set()
-                const resolvers = [ValidatorResolver, PeriodResolver, RecipientResolver, PropertyResolver, AccountResolver, CategoryResolver, ReceiptResolver]
-                for (const resolver of resolvers) {
-                    const worker = new resolver({ context, billingContext })
-                    await worker.init()
-                    const { errorReceipts, receipts } = await worker.processReceipts(receiptIndex)
-                    debug.push(...worker.debugMessages)
-                    if (worker.createdReceiptIds) {
-                        for (const receiptId of worker.createdReceiptIds) createdReceiptIds.add(receiptId)
+                const stages = [resolveValidation, resolvePeriods, resolveRecipients, resolveProperties, resolveAccounts, resolveCategories, resolveReceipts]
+                for (const resolveStage of stages) {
+                    if (!Object.keys(receiptIndex).length) break
+                    const { errorReceipts, receipts, debugMessages, createdReceiptIds: stageCreatedReceiptIds } = await resolveStage(receiptIndex, { context, billingContext })
+                    debug.push(...debugMessages)
+                    if (stageCreatedReceiptIds) {
+                        for (const receiptId of stageCreatedReceiptIds) createdReceiptIds.add(receiptId)
                     }
                     errorsIndex = { ...errorsIndex, ...errorReceipts }
                     receiptIndex = receipts

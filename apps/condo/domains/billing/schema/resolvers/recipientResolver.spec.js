@@ -3,7 +3,7 @@ const { find } = require('@open-condo/keystone/schema')
 
 const { BillingRecipient } = require('@condo/domains/billing/utils/serverSchema')
 
-const { RecipientResolver } = require('./recipientResolver')
+const { resolveRecipients } = require('./recipientResolver')
 
 jest.mock('@open-condo/clients/finance-info-client', () => ({
     getBankInfo: jest.fn(),
@@ -37,13 +37,10 @@ describe('RecipientResolver', () => {
     })
 
     test('loads finance data and saves recipient once for the same bank account', async () => {
-        const resolver = new RecipientResolver({ billingContext: { id: 'context-id' }, context: {} })
-        await resolver.init()
-
-        const { receipts } = await resolver.processReceipts({
+        const { receipts } = await resolveRecipients({
             0: createReceipt(),
             1: createReceipt({ tin: '7811089030', routingNumber: '044030653' }),
-        })
+        }, { billingContext: { id: 'context-id' }, context: {} })
 
         expect(getBankInfo).toHaveBeenCalledTimes(1)
         expect(getOrganizationInfo).toHaveBeenCalledTimes(1)
@@ -57,12 +54,10 @@ describe('RecipientResolver', () => {
             .mockResolvedValueOnce({ result: { bankName: 'Bank' } })
             .mockResolvedValueOnce({ error: new Error('Invalid routing number: bad-bic') })
 
-        const resolver = new RecipientResolver({ billingContext: { id: 'context-id' }, context: {} })
-        await resolver.init()
-        const { receipts, errorReceipts } = await resolver.processReceipts({
+        const { receipts, errorReceipts } = await resolveRecipients({
             0: createReceipt(),
             1: createReceipt({ bankAccount: '40702810000000000002', routingNumber: 'bad-bic' }),
-        })
+        }, { billingContext: { id: 'context-id' }, context: {} })
 
         expect(BillingRecipient.create).toHaveBeenCalledTimes(1)
         expect(receipts[0].receiver).toEqual('recipient-id')
@@ -74,30 +69,28 @@ describe('RecipientResolver', () => {
             .mockResolvedValueOnce({ result: { bankName: 'Bank' } })
             .mockResolvedValueOnce({ error: new Error('Failed to fetch: /findById/bank') })
 
-        const resolver = new RecipientResolver({ billingContext: { id: 'context-id' }, context: {} })
-        await resolver.init()
-
-        await expect(resolver.processReceipts({
+        await expect(resolveRecipients({
             0: createReceipt(),
             1: createReceipt({ bankAccount: '40702810000000000002', routingNumber: '044030653' }),
-        })).rejects.toThrow('Failed to fetch')
+        }, { billingContext: { id: 'context-id' }, context: {} })).rejects.toThrow('Failed to fetch')
         expect(BillingRecipient.create).not.toHaveBeenCalled()
     })
 
     test('treats a finance cache error as infrastructure failure', async () => {
         getOrganizationInfo.mockResolvedValue({ error: new Error('Connection is closed') })
-        const resolver = new RecipientResolver({ billingContext: { id: 'context-id' }, context: {} })
-        await resolver.init()
-
-        await expect(resolver.processReceipts({ 0: createReceipt() })).rejects.toThrow('Connection is closed')
+        await expect(resolveRecipients(
+            { 0: createReceipt() },
+            { billingContext: { id: 'context-id' }, context: {} },
+        )).rejects.toThrow('Connection is closed')
         expect(BillingRecipient.create).not.toHaveBeenCalled()
     })
 
     test('includes bank account in recipient persistence error', async () => {
         BillingRecipient.create.mockRejectedValue(new Error('database error'))
-        const resolver = new RecipientResolver({ billingContext: { id: 'context-id' }, context: {} })
-        await resolver.init()
-        const { errorReceipts } = await resolver.processReceipts({ 0: createReceipt() })
+        const { errorReceipts } = await resolveRecipients(
+            { 0: createReceipt() },
+            { billingContext: { id: 'context-id' }, context: {} },
+        )
 
         expect(errorReceipts[0].message).toContain('40702810000000000001')
     })

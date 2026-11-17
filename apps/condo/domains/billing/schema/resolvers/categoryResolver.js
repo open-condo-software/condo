@@ -1,104 +1,84 @@
 const get = require('lodash/get')
-const isEmpty = require('lodash/isEmpty')
 
 const { find } = require('@open-condo/keystone/schema')
 
 const { DEFAULT_BILLING_CATEGORY_ID } = require('@condo/domains/billing/constants/constants')
 const { ERRORS } = require('@condo/domains/billing/constants/registerBillingReceiptService')
-const { Resolver } = require('@condo/domains/billing/schema/resolvers/resolver')
+const { createStageContext } = require('@condo/domains/billing/schema/resolvers/resolver')
 const { PARKING_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 
 const UNIT_TYPE_MAPPING = {
     [PARKING_UNIT_TYPE] : 'billing.category.parking.name',
 }
 
-class CategoryResolver extends Resolver {
-
-    constructor ({ billingContext, context }) {
-        super(billingContext, context, { name: 'category' })
-        this.categories = []
-        this.categoriesByNames = {}
-        this.categoriesSearchIndex = {}
+function createCategoryIndex (categories) {
+    const categoryIds = new Set()
+    const categoriesByNames = new Map()
+    const serviceNamesByCategory = new Map()
+    for (const { id, name, serviceNames } of categories) {
+        categoryIds.add(id)
+        categoriesByNames.set(name, id)
+        serviceNamesByCategory.set(id, new Set(
+            Array.isArray(serviceNames) ? serviceNames.map(serviceName => serviceName.toLowerCase()) : []
+        ))
     }
+    return { categoryIds, categoriesByNames, serviceNamesByCategory }
+}
 
-    async init () {
-        if (!isEmpty(this.categories)) {
-            return
-        }
-        this.categories = await find('BillingCategory', { deletedAt: null })
-        this.indexKeywords()
-    }
+function detectCategoryByServices (services, serviceNamesByCategory) {
+    if (!services.length) return DEFAULT_BILLING_CATEGORY_ID
 
-    indexKeywords () {
-        this.categoriesByNames = Object.fromEntries(this.categories.map(({ id, name }) => ([name, id])))
-        for (const category of this.categories) {
-            if (category.serviceNames && Array.isArray(category.serviceNames) && !isEmpty(category.serviceNames)) {
-                this.categoriesSearchIndex[category.id] = new Set(category.serviceNames.map(keyWord => keyWord.toLowerCase()))
-            } else {
-                this.categoriesSearchIndex[category.id] = new Set()
-            }
+    const names = services.map(({ name }) => name.toLowerCase())
+    let detected = DEFAULT_BILLING_CATEGORY_ID
+    for (const [categoryId, serviceNames] of serviceNamesByCategory) {
+        if (serviceNames.size > 0 && names.every(name => serviceNames.has(name))) {
+            detected = categoryId
         }
     }
+    return detected
+}
 
-    detectCategoryByServices (services) {
-        if (!services.length) {
-            return DEFAULT_BILLING_CATEGORY_ID
-        }
-        const names = services.map(({ name }) => name.toLowerCase())
-        let detected = DEFAULT_BILLING_CATEGORY_ID
-        for (const categoryId of Object.keys(this.categoriesSearchIndex)) {
-            if (this.categoriesSearchIndex[categoryId].size > 0) {
-                const diffNames = names.filter(name => !this.categoriesSearchIndex[categoryId].has(name))
-                if (diffNames.length === 0) {
-                    detected = categoryId
-                }
-            }
-        }
-        return detected
+function detectCategory (receipt, categoryIndex) {
+    const { category = {}, services = [], addressResolve: { unitType = '' } = {} } = receipt
+    const userDefinedCategory = get(category, 'id')
+    if (category && userDefinedCategory && !categoryIndex.categoryIds.has(userDefinedCategory)) {
+        return { error: ERRORS.BILLING_CATEGORY_NOT_FOUND }
     }
+    const byServicesCategoryId = detectCategoryByServices(services, categoryIndex.serviceNamesByCategory)
+    const byUnitTypeCategoryId = Reflect.has(UNIT_TYPE_MAPPING, unitType)
+        ? categoryIndex.categoriesByNames.get(UNIT_TYPE_MAPPING[unitType])
+        : undefined
+    if (userDefinedCategory) {
+        return { error: null, result: { id: userDefinedCategory } }
+    }
+    if (byServicesCategoryId && byServicesCategoryId !== DEFAULT_BILLING_CATEGORY_ID) {
+        return { error: null, result: { id: byServicesCategoryId } }
+    }
+    if (byUnitTypeCategoryId && byUnitTypeCategoryId !== DEFAULT_BILLING_CATEGORY_ID) {
+        return { error: null, result: { id: byUnitTypeCategoryId } }
+    }
+    return  { error: null, result: { id: DEFAULT_BILLING_CATEGORY_ID } }
+}
 
-    detectCategoryByUnitType (unitType) {
-        if (Reflect.has(UNIT_TYPE_MAPPING, unitType)) {
-            return this.categoriesByNames[UNIT_TYPE_MAPPING[unitType]]
+async function resolveCategories (receiptIndex, { context }) {
+    const stage = createStageContext({ name: 'category', context })
+    const categories = await find('BillingCategory', { deletedAt: null })
+    const categoryIndex = createCategoryIndex(categories)
+    for (const [index, receipt] of Object.entries(receiptIndex)) {
+        const { error, result } = detectCategory(receipt, categoryIndex)
+        if (error) {
+            receiptIndex[index].error = stage.error(error, index)
+            continue
+        }
+        if (result) {
+            receiptIndex[index].category = get(result, 'id')
         }
     }
-
-    detectCategory (receipt) {
-        const { category = {}, services = [], addressResolve: { unitType = '' } = {} } = receipt
-        const userDefinedCategory = get(category, 'id')
-        if (category && userDefinedCategory && !this.categories.some(({ id }) => id === userDefinedCategory)) {
-            return { error: ERRORS.BILLING_CATEGORY_NOT_FOUND }
-        }
-        const byServicesCategoryId = this.detectCategoryByServices(services)
-        const byUnitTypeCategoryId = this.detectCategoryByUnitType(unitType)
-        if (userDefinedCategory) {
-            return { error: null, result: { id: userDefinedCategory } }
-        }
-        if (byServicesCategoryId && byServicesCategoryId !== DEFAULT_BILLING_CATEGORY_ID) {
-            return { error: null, result: { id: byServicesCategoryId } }
-        }
-        if (byUnitTypeCategoryId && byUnitTypeCategoryId !== DEFAULT_BILLING_CATEGORY_ID) {
-            return { error: null, result: { id: byUnitTypeCategoryId } }
-        }
-        return  { error: null, result: { id: DEFAULT_BILLING_CATEGORY_ID } }
-    }
-
-    async processReceipts (receiptIndex) {
-        for (const [index, receipt] of Object.entries(receiptIndex)) {
-            const { error, result } = this.detectCategory(receipt)
-            if (error) {
-                receiptIndex[index].error = this.error(error, index)
-                continue
-            }
-            if (result) {
-                receiptIndex[index].category = get(result, 'id')
-            }
-        }
-        return this.result(receiptIndex)
-    }
-
+    return stage.result(receiptIndex)
 }
 
 module.exports = {
-    CategoryResolver,
+    createCategoryIndex,
+    detectCategory,
+    resolveCategories,
 }

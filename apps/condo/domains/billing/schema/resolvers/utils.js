@@ -12,6 +12,7 @@ const FIAS_REGEXP = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}
 const COMPANY_REGEXP = /(?:^|[^\p{L}\d_])(ИП|ООО|ОАО|АО|ПАО|НКО|КО|ПК|ПКК|СППК|КПК|ЖСК|КСК|ЖНК|ЖК|ТСН|ТСЖ|ТСК|СА|РХ|КХ|ОВС|ЗАО|ТОО)(?=[^\p{L}\d_]|$)/ui
 
 const clearAccountNumber = (accountNumber = '') => String(accountNumber).replace(NOT_USED_WORDS_IN_ACCOUNT_NUMBER_REGEXP, '').trim()
+const isValidBillingYear = year => Number.isInteger(year) && year >= 1000 && year <= 9999
 
 const replaceSameEnglishLetters = (input) => {
     const replacements = {
@@ -61,6 +62,9 @@ const normalizePropertyGlobalId = (rawFiasCode) => {
 }
 
 const sortPeriodFunction = (periodA, periodB) => (dayjs(periodA, 'YYYY-MM-DD').isAfter(dayjs(periodB, 'YYYY-MM-DD')) ? 1 : -1)
+const latestTimestamp = (currentTimestamp, storedTimestamp) => storedTimestamp && dayjs(storedTimestamp).isAfter(dayjs(currentTimestamp))
+    ? storedTimestamp
+    : currentTimestamp
 
 const buildLastReportForBillingContext = async (receipts, { dv, sender, billingContext, createdReceiptIds = new Set() }) => {
     const syncTime = new Date().toISOString()
@@ -92,11 +96,14 @@ const buildLastReportForBillingContext = async (receipts, { dv, sender, billingC
     // Read it again immediately before writing instead of merging timestamps into the initial snapshot.
     const { lastReport: existingLastReport } = await getById('BillingIntegrationOrganizationContext', billingContext.id)
     const existingLastAddedReceiptsAt = existingLastReport?.lastAddedReceiptsAt || existingLastReport?.finishTime
-    const lastAddedReceiptsAt = createdReceiptIds.size > 0 ? syncTime : existingLastAddedReceiptsAt
+    const lastAddedReceiptsAt = createdReceiptIds.size > 0
+        ? latestTimestamp(syncTime, existingLastAddedReceiptsAt)
+        : existingLastAddedReceiptsAt
+    const lastSyncAt = latestTimestamp(syncTime, existingLastReport?.lastSyncAt)
     const addedReceiptsFields = lastAddedReceiptsAt
         ? { finishTime: lastAddedReceiptsAt, lastAddedReceiptsAt }
         : {}
-    const syncFields = { lastSyncAt: syncTime, ...addedReceiptsFields }
+    const syncFields = { lastSyncAt, ...addedReceiptsFields }
     const existingReportHasNewerPeriod = existingLastReport?.period &&
         dayjs(existingLastReport.period, 'YYYY-MM-DD').isAfter(dayjs(newestPeriodFromReceipts, 'YYYY-MM-DD'))
 
@@ -132,6 +139,7 @@ const buildLastReportForBillingContext = async (receipts, { dv, sender, billingC
 
 module.exports = {
     clearAccountNumber,
+    isValidBillingYear,
     isPerson,
     isValidFias,
     sortPeriodFunction,

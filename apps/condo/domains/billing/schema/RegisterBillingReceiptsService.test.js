@@ -320,6 +320,35 @@ describe('RegisterBillingReceiptsService', () => {
             expect(contextAfter.lastReport.finishTime).toEqual(previousTimestamp)
         })
 
+        test('does not move synchronization timestamps backwards', async () => {
+            const utils = new TestUtils([BillingTestMixin])
+            await utils.init()
+            await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                context: { id: utils.billingContext.id },
+                receipts: [utils.createJSONReceipt()],
+            })
+            const contextBefore = await BillingContext.getOne(utils.clients.admin, { id: utils.billingContext.id })
+            const laterTimestamp = dayjs().add(1, 'year').toISOString()
+            await utils.updateBillingContext({
+                lastReport: {
+                    ...contextBefore.lastReport,
+                    finishTime: laterTimestamp,
+                    lastAddedReceiptsAt: laterTimestamp,
+                    lastSyncAt: laterTimestamp,
+                },
+            })
+
+            await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                context: { id: utils.billingContext.id },
+                receipts: [utils.createJSONReceipt()],
+            })
+
+            const contextAfter = await BillingContext.getOne(utils.clients.admin, { id: utils.billingContext.id })
+            expect(contextAfter.lastReport.lastSyncAt).toEqual(laterTimestamp)
+            expect(contextAfter.lastReport.lastAddedReceiptsAt).toEqual(laterTimestamp)
+            expect(contextAfter.lastReport.finishTime).toEqual(laterTimestamp)
+        })
+
         test('allows saving a lastReport containing only categories', async () => {
             const utils = new TestUtils([BillingTestMixin])
             await utils.init()

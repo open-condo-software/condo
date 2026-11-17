@@ -91,19 +91,19 @@ Every input receipt is stored in an index keyed by its original position. It is
 initialized with an empty `problems` array and no critical error, then passed
 through these resolvers in order:
 
-1. `ValidatorResolver`;
-2. `PeriodResolver`;
-3. `RecipientResolver`;
-4. `PropertyResolver`;
-5. `AccountResolver`;
-6. `CategoryResolver`;
-7. `ReceiptResolver`.
+1. `resolveValidation`;
+2. `resolvePeriods`;
+3. `resolveRecipients`;
+4. `resolveProperties`;
+5. `resolveAccounts`;
+6. `resolveCategories`;
+7. `resolveReceipts`.
 
 After each stage, receipts with a critical error are removed from subsequent
 stages. Non-critical problems remain attached to the internal receipt and are
 included in the saved `raw` snapshot.
 
-Each resolver records its duration and create, update, and no-op counters. The
+Each stage records its duration and successful create, update, and no-op counters. The
 mutation writes the combined data to the structured
 `register-receipts-profiler` log entry.
 
@@ -115,9 +115,7 @@ Validation runs before external lookups or database writes.
 
 `month` must be an integer from 1 through 12.
 
-The current year check requires a truthy value whose string representation has
-exactly four characters. It does not check that all four characters are digits;
-for example, the integer `-123` passes this check and is later given to `dayjs`.
+`year` must be an integer from 1000 through 9999.
 
 For a valid input, the period is stored as the first day of the requested month
 in `YYYY-MM-01` format.
@@ -152,12 +150,12 @@ rejected value.
 
 ## Recipient resolution
 
-`RecipientResolver` loads all active `BillingRecipient` records in the billing
+The recipient stage loads all active `BillingRecipient` records in the billing
 context. Inputs are deduplicated by `bankAccount` for the duration of the
 request. If multiple inputs use the same bank account, the first input's TIN and
 routing number are used for the shared lookup and recipient synchronization.
 
-For each unique bank account, the resolver concurrently:
+For each unique bank account, the stage:
 
 1. requests bank data by `routingNumber` from finance info service;
 2. requests organization data by `tin` from finance info service;
@@ -216,10 +214,11 @@ unit values parsed from the FIAS suffix or textual address. An unknown explicit
 unit type is normalized through the address parser. If several parsed unit types
 exist, a non-flat type is preferred over the default flat type.
 
-The textual address is currently parsed even when both explicit unit metadata
-fields are present. Consequently, parsing still determines the house candidate;
-for an address whose last comma-separated house component resembles a unit, the
-parser may remove that component even though the parsed unit itself is ignored.
+When both explicit unit metadata fields are present, the textual address is
+treated as the complete house address and is not parsed for a unit. This keeps
+house components such as `корп. 2` intact. When either metadata field is absent,
+the parser extracts the missing unit data and the house candidate from the
+textual address.
 
 ### Address service and candidate selection
 
@@ -227,7 +226,8 @@ Unique house candidates are sent to address service in sequential chunks of ten.
 The organization TIN is passed as a search helper. A transport failure from
 address service aborts the mutation.
 
-For successfully normalized candidates, selection follows these rules:
+All normalized address keys are checked against organization properties in one
+batch query. Candidate selection then follows these rules:
 
 1. prefer the first candidate matching an active `Property` in the context's
    organization;
@@ -442,10 +442,10 @@ Updating an existing receipt changes `lastSyncAt` but preserves
 timestamps, including when the created receipt belongs to an older period.
 
 The report is re-read immediately before the update to reduce stale snapshot
-overwrites. There is no transaction or row lock, however. Timestamp values are
-captured before the report queries, and concurrent registrations use last-write
-wins semantics; the current implementation does not guarantee monotonically
-increasing timestamps under concurrent writes.
+overwrites. `lastSyncAt`, `lastAddedReceiptsAt`, and deprecated `finishTime`
+preserve a later stored value, so concurrent registrations do not move these
+timestamps backwards. There is still no transaction or row lock around the
+complete report summary update.
 
 ## Side effects and batching
 
@@ -456,8 +456,10 @@ without a corresponding receipt.
 
 Batching and caching behavior includes:
 
-- finance lookups deduplicated by bank account and executed concurrently;
+- finance lookups deduplicated by bank account and executed in concurrent
+  chunks of 50;
 - address lookups deduplicated by house candidate and sent in chunks of ten;
+- organization properties batch-loaded for all normalized address keys;
 - existing properties batch-loaded by address key;
 - existing accounts batch-loaded by normalized number;
 - shared property and account writes serialized where input order affects the

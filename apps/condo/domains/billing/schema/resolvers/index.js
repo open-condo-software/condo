@@ -1,18 +1,18 @@
-const { AccountResolver } = require('@condo/domains/billing/schema/resolvers/accountResolver')
-const { CategoryResolver } = require('@condo/domains/billing/schema/resolvers/categoryResolver')
-const { PeriodResolver } = require('@condo/domains/billing/schema/resolvers/periodResolver')
-const { PropertyResolver } = require('@condo/domains/billing/schema/resolvers/propertyResolver')
-const { ReceiptResolver } = require('@condo/domains/billing/schema/resolvers/receiptResolver')
-const { RecipientResolver } = require('@condo/domains/billing/schema/resolvers/recipientResolver')
-const { ValidatorResolver } = require('@condo/domains/billing/schema/resolvers/validatorResolver')
+const { resolveAccounts } = require('@condo/domains/billing/schema/resolvers/accountResolver')
+const { resolveCategories } = require('@condo/domains/billing/schema/resolvers/categoryResolver')
+const { resolvePeriods } = require('@condo/domains/billing/schema/resolvers/periodResolver')
+const { resolveProperties } = require('@condo/domains/billing/schema/resolvers/propertyResolver')
+const { resolveReceipts } = require('@condo/domains/billing/schema/resolvers/receiptResolver')
+const { resolveRecipients } = require('@condo/domains/billing/schema/resolvers/recipientResolver')
+const { resolveValidation } = require('@condo/domains/billing/schema/resolvers/validatorResolver')
 
 
 module.exports = {
-    AccountResolver,
-    CategoryResolver,
-    PeriodResolver,
-    PropertyResolver,
-    RecipientResolver,
-    ReceiptResolver,
-    ValidatorResolver,
+    resolveAccounts,
+    resolveCategories,
+    resolvePeriods,
+    resolveProperties,
+    resolveRecipients,
+    resolveReceipts,
+    resolveValidation,
 }

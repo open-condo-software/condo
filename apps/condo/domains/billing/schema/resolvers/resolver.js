@@ -6,119 +6,110 @@ const xorWith = require('lodash/xorWith')
 const { GQLError } = require('@open-condo/keystone/errors')
 const { getLogger } = require('@open-condo/keystone/logging')
 
-const isArrayEqual = (x, y) => isEmpty(xorWith(x, y, isEqual))
+const isArrayEqual = (left, right) => isEmpty(xorWith(left, right, isEqual))
 
-class Resolver {
-
-    constructor (billingContext, context, params = {}) {
-        const { name = 'resolver' } = params
-        this.name = name
-        this.dvSender = {
-            dv: 1,
-            sender: { dv: 1, fingerprint: `register-receipt-${name}-resolver` },
-        }
-        this.billingContext = billingContext
-        this.context = context
-        this.timeStart = process.hrtime()
-        this.debugMessages = []
-        this.unTouched = 0
-        this.created = 0
-        this.updated = 0
-        this.logger = getLogger()
+/**
+ * Creates request-local helpers and metrics for one receipt processing stage.
+ * Domain state and caches stay inside the stage function instead of being hidden
+ * on a short-lived class instance.
+ */
+function createStageContext ({ name, context }) {
+    const logger = getLogger()
+    const startedAt = process.hrtime()
+    const stats = { created: 0, updated: 0, unTouched: 0 }
+    const dvSender = {
+        dv: 1,
+        sender: { dv: 1, fingerprint: `register-receipt-${name}-resolver` },
     }
 
-    error (error, index, originalError, messageInterpolation) {
+    function error (errorDefinition, index, originalError, messageInterpolation) {
         if (originalError) {
-            this.logger.error({ msg: `${this.name} internal error`, err: originalError })
+            logger.error({ msg: `${name} internal error`, err: originalError })
         }
-        const fields = { ...error, inputIndex: index, ...messageInterpolation ? { messageInterpolation } : {} }
+        const fields = {
+            ...errorDefinition,
+            inputIndex: index,
+            ...messageInterpolation ? { messageInterpolation } : {},
+        }
         return originalError
-            ? new GQLError(fields, this.context, originalError)
-            : new GQLError(fields, this.context)
+            ? new GQLError(fields, context, originalError)
+            : new GQLError(fields, context)
     }
 
-    debug (message) {
-        this.debugMessages.push(message)
-    }
-
-    async init () {
-        // some init logic
-    }
-
-    buildCreateInput (data, relations = []) {
-        const createInput = { ...this.dvSender }
+    function buildCreateInput (data, relations = []) {
+        const createInput = { ...dvSender }
         for (const [propertyName, propertyValue] of Object.entries(data)) {
             if (!isNil(propertyValue)) {
-                if (relations.indexOf(propertyName) !== -1) {
-                    createInput[propertyName] = { connect: { id: propertyValue } }
-                } else {
-                    createInput[propertyName] = propertyValue
-                }
+                createInput[propertyName] = relations.includes(propertyName)
+                    ? { connect: { id: propertyValue } }
+                    : propertyValue
             }
         }
-        this.created++
-        this.logger.debug({ msg: `Create new ${this.name}`, data: createInput })
+        logger.debug({ msg: `Create new ${name}`, data: createInput })
         return createInput
     }
 
-    isEqual (oldValue, newValue) {
-        if (Array.isArray(oldValue)) {
-            return isArrayEqual(oldValue, newValue)
-        }
-        return isEqual(oldValue, newValue)
-    }
-
-    buildUpdateInput (data, existingItem, relations = [], { allowNull = false } = {}) {
-        let updateInput = {}
+    function buildUpdateInput (data, existingItem, relations = [], { allowNull = false } = {}) {
+        const updateInput = {}
         for (const [propertyName, propertyValue] of Object.entries(data)) {
-            if ((allowNull ? propertyValue !== undefined : !isNil(propertyValue)) && !this.isEqual(existingItem[propertyName], data[propertyName])) {
-                if (relations.indexOf(propertyName) !== -1) {
-                    updateInput[propertyName] = { connect: { id: propertyValue } }
-                } else {
-                    updateInput[propertyName] = propertyValue
-                }
+            const shouldCompare = allowNull ? propertyValue !== undefined : !isNil(propertyValue)
+            const valuesAreEqual = Array.isArray(existingItem[propertyName])
+                ? isArrayEqual(existingItem[propertyName], propertyValue)
+                : isEqual(existingItem[propertyName], propertyValue)
+            if (shouldCompare && !valuesAreEqual) {
+                updateInput[propertyName] = relations.includes(propertyName)
+                    ? { connect: { id: propertyValue } }
+                    : propertyValue
             }
         }
         if (!isEmpty(updateInput)) {
-            updateInput = { ...this.dvSender, ...updateInput }
-            this.logger.debug({ msg: `Update ${this.name}`, data: { updateInput } })
-            this.updated++
-        } else {
-            this.unTouched++
+            const versionedInput = { ...dvSender, ...updateInput }
+            logger.debug({ msg: `Update ${name}`, data: { updateInput: versionedInput } })
+            return versionedInput
         }
         return updateInput
     }
 
-    buildStats () {
-        const timeEnd = process.hrtime(this.timeStart)
-        const time = ((timeEnd[0] * 1000 + timeEnd[1] / 1e6) / 1000).toFixed(2)
-        const stats = {
-            ...this.created ? { created: this.created } : {},
-            ...this.updated ? { updated: this.updated } : {},
-            ...this.unTouched ? { unTouched: this.unTouched } : {},
+    function buildStats () {
+        const elapsed = process.hrtime(startedAt)
+        const time = ((elapsed[0] * 1000 + elapsed[1] / 1e6) / 1000).toFixed(2)
+        const nonEmptyStats = Object.fromEntries(Object.entries(stats).filter(([, count]) => count > 0))
+        return {
+            name,
+            time: Number(time),
+            ...!isEmpty(nonEmptyStats) ? { stats: nonEmptyStats } : {},
         }
-        return { name: this.name, time: Number(time), ...!isEmpty(stats) ? { stats } : {} }
     }
 
-    result ( receiptIndex ) {
-        this.debug(this.buildStats())
-        return Object.entries(receiptIndex).reduce((result, [index, receipt]) => {
+    function result (receiptIndex, metadata = {}) {
+        const partitioned = Object.entries(receiptIndex).reduce((result, [index, receipt]) => {
             if (receipt.error) {
                 result.errorReceipts[index] = receipt.error
             } else {
                 result.receipts[index] = receipt
             }
             return result
-        }, {
-            errorReceipts: {},
-            receipts: {},
-        })
+        }, { errorReceipts: {}, receipts: {} })
+
+        return {
+            ...partitioned,
+            debugMessages: [buildStats()],
+            ...metadata,
+        }
     }
 
-
+    return {
+        buildCreateInput,
+        buildUpdateInput,
+        error,
+        markCreated: () => stats.created++,
+        markUpdated: () => stats.updated++,
+        markUntouched: () => stats.unTouched++,
+        result,
+    }
 }
 
 
 module.exports = {
-    Resolver,
+    createStageContext,
 }

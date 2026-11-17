@@ -1,7 +1,7 @@
 const { DEFAULT_BILLING_CATEGORY_ID } = require('@condo/domains/billing/constants/constants')
 const { PARKING_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 
-const { CategoryResolver } = require('./categoryResolver')
+const { createCategoryIndex, detectCategory } = require('./categoryResolver')
 
 const mockCategories = [
     { id: DEFAULT_BILLING_CATEGORY_ID, name: 'billing.category.housing.name', serviceNames: [] },
@@ -63,13 +63,11 @@ const mockReceipts = [
     },
 ]
 
-let helper = new CategoryResolver({})
-helper.categories = mockCategories
-helper.indexKeywords()
+const categoryIndex = createCategoryIndex(mockCategories)
 
 describe('Detect Billing Category', () => {
     test.each(mockReceipts)('$description', ({ receipt, result, expectError }) => {
-        const { error, result: { id: categoryId } = {} } = helper.detectCategory(receipt)
+        const { error, result: { id: categoryId } = {} } = detectCategory(receipt, categoryIndex)
         expect(categoryId).toEqual(result)
         if (expectError) {
             expect(error.code).toEqual(expectError.code)
