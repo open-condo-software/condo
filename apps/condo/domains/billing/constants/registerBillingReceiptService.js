@@ -12,28 +12,32 @@ const ERRORS = {
         variable: ['data', 'context'],
         code: BAD_USER_INPUT,
         type: NOT_FOUND,
-        message: 'Provided BillingIntegrationOrganizationContext is not found',
+        message: 'Provided BillingIntegrationOrganizationContext is not found: {billingContextId}',
+        messageForUser: 'api.billing.registerBillingReceipts.BILLING_CONTEXT_NOT_FOUND',
     },
     BILLING_CATEGORY_NOT_FOUND: {
         mutation: 'registerBillingReceipts',
         variable: ['data', 'receipts', '[]', 'category'],
         code: BAD_USER_INPUT,
         type: NOT_FOUND,
-        message: 'Provided BillingCategory is not found for some receipts',
+        message: 'Provided BillingCategory is not found: {categoryId}',
+        messageForUser: 'api.billing.registerBillingReceipts.BILLING_CATEGORY_NOT_FOUND',
     },
     WRONG_YEAR: {
         mutation: 'registerBillingReceipts',
         variable: ['data', 'receipts', '[]', 'year'],
         code: BAD_USER_INPUT,
         type: WRONG_FORMAT,
-        message: 'Year is wrong for some receipts. Year should be in format YYYY. Example: 2023',
+        message: 'Year is wrong: {year}. Year should be in format YYYY. Example: 2023',
+        messageForUser: 'api.billing.registerBillingReceipts.WRONG_YEAR',
     },
     WRONG_MONTH: {
         mutation: 'registerBillingReceipts',
         variable: ['data', 'receipts', '[]', 'month'],
         code: BAD_USER_INPUT,
         type: WRONG_FORMAT,
-        message: 'Month is wrong for some receipts. Month should be greater then 0 and less then 13. Example: 1 - January. 12 - December',
+        message: 'Month is wrong: {month}. Month should be greater then 0 and less then 13. Example: 1 - January. 12 - December',
+        messageForUser: 'api.billing.registerBillingReceipts.WRONG_MONTH',
     },
     ADDRESS_NOT_RECOGNIZED_VALUE: {
         mutation: 'registerBillingReceipts',
@@ -41,6 +45,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: WRONG_VALUE,
         message: 'Address is not recognized: {address}',
+        messageForUser: 'api.billing.registerBillingReceipts.ADDRESS_NOT_RECOGNIZED_VALUE',
     },
     ACCOUNT_SAVE_FAILED: {
         mutation: 'registerBillingReceipts',
@@ -48,6 +53,7 @@ const ERRORS = {
         code: INTERNAL_ERROR,
         type: WRONG_VALUE,
         message: 'Error on saving BillingAccount: {accountNumber}',
+        messageForUser: 'api.billing.registerBillingReceipts.ACCOUNT_SAVE_FAILED',
     },
     PROPERTY_SAVE_FAILED: {
         mutation: 'registerBillingReceipts',
@@ -55,6 +61,7 @@ const ERRORS = {
         code: INTERNAL_ERROR,
         type: WRONG_VALUE,
         message: 'Error on saving BillingProperty: {address}',
+        messageForUser: 'api.billing.registerBillingReceipts.PROPERTY_SAVE_FAILED',
     },
     RECEIPT_SAVE_FAILED: {
         mutation: 'registerBillingReceipts',
@@ -62,6 +69,7 @@ const ERRORS = {
         code: INTERNAL_ERROR,
         type: WRONG_VALUE,
         message: 'Error on saving BillingReceipt: {receiptIdentity}',
+        messageForUser: 'api.billing.registerBillingReceipts.RECEIPT_SAVE_FAILED',
     },
     RECIPIENT_SAVE_FAILED: {
         mutation: 'registerBillingReceipts',
@@ -69,6 +77,7 @@ const ERRORS = {
         code: INTERNAL_ERROR,
         type: WRONG_VALUE,
         message: 'Error on saving BillingRecipient: {bankAccount}',
+        messageForUser: 'api.billing.registerBillingReceipts.RECIPIENT_SAVE_FAILED',
     },
     BANK_FOUND_ERROR: {
         mutation: 'registerBillingReceipts',
@@ -76,6 +85,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: WRONG_VALUE,
         message: 'No information about the bank from routingNumber: {routingNumber}',
+        messageForUser: 'api.billing.registerBillingReceipts.BANK_FOUND_ERROR',
     },
     ORGANIZATION_FOUND_ERROR: {
         mutation: 'registerBillingReceipts',
@@ -83,6 +93,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: WRONG_VALUE,
         message: 'No information about the organization from tin: {tin}',
+        messageForUser: 'api.billing.registerBillingReceipts.ORGANIZATION_FOUND_ERROR',
     },
     WRONG_AMOUNT_FORMAT: {
         mutation: 'registerBillingReceipts',
@@ -90,13 +101,15 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: WRONG_FORMAT,
         message: 'Invalid money amount in {field}: {value}',
+        messageForUser: 'api.billing.registerBillingReceipts.WRONG_AMOUNT_FORMAT',
     },
     RECEIPTS_LIMIT_HIT: {
         mutation: 'registerBillingReceipts',
         variable: ['data', 'receipts'],
         code: BAD_USER_INPUT,
         type: WRONG_VALUE,
-        message: `Too many receipts in one query! We support up to ${RECEIPTS_LIMIT} receipts`,
+        message: 'Too many receipts in one query: {count}. We support up to {limit} receipts',
+        messageForUser: 'api.billing.registerBillingReceipts.RECEIPTS_LIMIT_HIT',
     },
 }
 

@@ -4,7 +4,6 @@ const { resolvePeriods } = require('@condo/domains/billing/schema/resolvers/peri
 const { resolveProperties } = require('@condo/domains/billing/schema/resolvers/propertyResolver')
 const { resolveReceipts } = require('@condo/domains/billing/schema/resolvers/receiptResolver')
 const { resolveRecipients } = require('@condo/domains/billing/schema/resolvers/recipientResolver')
-const { resolveValidation } = require('@condo/domains/billing/schema/resolvers/validatorResolver')
 
 
 module.exports = {
@@ -14,5 +13,4 @@ module.exports = {
     resolveProperties,
     resolveRecipients,
     resolveReceipts,
-    resolveValidation,
 }

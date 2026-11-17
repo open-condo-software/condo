@@ -1,70 +1,11 @@
 const { AddressFromStringParser } = require('@open-condo/clients/address-service-client/utils/parseAddressesFromString')
 
-const { createAddressTransform, getAddressFromReceipt } = require('./propertyResolver')
-
-const rules = Object.fromEntries([
-    ['ул.Революции 1905 года', 'г. Новороссийск, ул.Революции 1905 года'],
-    ['r^(.*?)\\sК.$', 'Самара, $1'],
-    ['r^Автопарковка (.*?)№(.*?)$', '$1 м/м $2'],
-])
-
-const TRANSFORM_CASES = [
-    {
-        input: 'ул.Революции 1905 года, д.37, кв.1001',
-        output: 'г. Новороссийск, ул.Революции 1905 года, д.37, кв.1001',
-    },
-    {
-        input: 'Автопарковка Юннатов пер, дом 44А, № 2003',
-        output: 'Юннатов пер, дом 44А, м/м 2003',
-    },
-    {
-        input: '   Автопарковка Юннатов пер, дом 44А, №2003',
-        output: 'Юннатов пер, дом 44А, м/м 2003',
-    },
-    {
-        input: '   Автопарковка Юннатов пер, дом 44А, №  2003',
-        output: 'Юннатов пер, дом 44А, м/м 2003',
-    },
-    {
-        input: 'УЛ СЪЕЗДОВСКАЯ Д. 110 КВ. 1410 К.',
-        output: 'Самара, УЛ СЪЕЗДОВСКАЯ Д. 110 КВ. 1410',
-    },
-    {
-        input: 'УЛ СЪЕЗДОВСКАЯ Д. 110 КВ. 1410 К.           ',
-        output: 'Самара, УЛ СЪЕЗДОВСКАЯ Д. 110 КВ. 1410',
-    },
-    {
-        input: 'УЛ СЪЕЗДОВСКАЯ Д. 110 КВ. 1410 К.           ',
-        output: 'Самара, УЛ СЪЕЗДОВСКАЯ Д. 110 КВ. 1410',
-    },
-]
-
-
-describe('Transform address according to context rules', () => {
-    const transform = createAddressTransform(rules)
-    for (const rawData of TRANSFORM_CASES) {
-        const { input, output } = rawData
-        test(`"${input}" to be: "${output}" `, () => {
-            const result = transform(input)
-            expect(result).toEqual(output)
-        })
-    }
-    test('case of Cottage Village', () => {
-        const transform = createAddressTransform({ 'r^(.*?)$': '$1, кв. 1' })
-        const result = transform('Some village house')
-        expect(result).toEqual('Some village house, кв. 1')
-    })
-    test('case of Cottage Village with unit', () => {
-        const transform = createAddressTransform({ 'r,\\s-$': ', кв. 1' })
-        const result = transform('п.Малое Васильково, ул.Вишнёвая, уч.10, -')
-        expect(result).toEqual('п.Малое Васильково, ул.Вишнёвая, уч.10, кв. 1')
-    })
-})
+const { getAddressFromReceipt } = require('./propertyResolver')
 
 const PARSE_ADDRESS_CASES_PRIORITIES = [
     // When address is the only source of information
     { description: 'address for the unit', receipt: { address: 'пер.Малый Козихинский, д.7, м/м 3,4 (1 ур.)' }, result: { addresses: ['пер.Малый Козихинский, д.7'], unitName: '3,4 (1 ур.)', unitType: 'parking' } },
-    { description: 'address for a single house', receipt: { address: 'пер.Малый Козихинский, д.7' }, addressTransform: { 'r^(.*?)$': '$1, кв. 1' }, result: { addresses: ['пер.Малый Козихинский, д.7'], unitName: '1', unitType: 'flat' } },
+    { description: 'address for a single house', receipt: { address: 'пер.Малый Козихинский, д.7' }, result: { addresses: ['пер.Малый Козихинский, д.7'], unitName: '1', unitType: 'flat' } },
     { description: 'unitType is not in our type', receipt: { address: 'пер.Малый Козихинский, д.7', addressMeta: { unitName: '3,4 (1 ур.)', unitType: 'машиноместо' } }, result: { addresses: ['пер.Малый Козихинский, д.7'], unitName: '3,4 (1 ур.)', unitType: 'parking' } },
     { description: 'unitType is in our type', receipt: { address: 'пер.Малый Козихинский, д.7', addressMeta: { unitName: '3,4 (1 ур.)', unitType: 'warehouse' }  }, result: { addresses: ['пер.Малый Козихинский, д.7'], unitName: '3,4 (1 ур.)', unitType: 'warehouse' } },
     { description: 'addressMeta unit has priority over parsed unit', receipt: { address: 'пер.Малый Козихинский, д.7, м/м 99', addressMeta: { unitName: '42', unitType: 'flat' } }, result: { addresses: ['пер.Малый Козихинский, д.7, м/м 99'], unitName: '42', unitType: 'flat' } },
@@ -81,12 +22,9 @@ const PARSE_ADDRESS_CASES_PRIORITIES = [
 
 describe('Get information about address from receipt', () => {
     const parser = new AddressFromStringParser()
-    for (const { description, receipt, result, addressTransform } of PARSE_ADDRESS_CASES_PRIORITIES) {
+    for (const { description, receipt, result } of PARSE_ADDRESS_CASES_PRIORITIES) {
         test(description, () => {
-            const { addresses, unitName, unitType } = getAddressFromReceipt(receipt, {
-                parser,
-                transformAddress: createAddressTransform(addressTransform),
-            })
+            const { addresses, unitName, unitType } = getAddressFromReceipt(receipt, { parser })
             expect(result.unitName).toEqual(unitName)
             expect(result.unitType).toEqual(unitType)
             for (const address of addresses) {

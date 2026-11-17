@@ -72,10 +72,13 @@ const buildLastReportForBillingContext = async (receipts, { dv, sender, billingC
     if (!receipts.length) return
 
     const { keystone: context } = getSchemaCtx('BillingIntegrationOrganizationContext')
-    const receiptsCategories = [...new Set(receipts.map(({ category }) => category).filter(Boolean))]
     const receiptsPeriods = [...new Set(receipts.map(({ period }) => period).filter(Boolean))]
 
     const newestPeriodFromReceipts = receiptsPeriods.sort(sortPeriodFunction).pop()
+    const receiptsCategories = [...new Set(receipts
+        .filter(({ period }) => period === newestPeriodFromReceipts)
+        .map(({ category }) => category)
+        .filter(Boolean))]
     const [newerReceipts, currentPeriodReceiptsCount] = await Promise.all([
         itemsQuery('BillingReceipt', {
             where: {

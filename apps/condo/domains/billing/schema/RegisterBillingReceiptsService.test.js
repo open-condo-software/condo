@@ -132,8 +132,8 @@ describe('RegisterBillingReceiptsService', () => {
 
     })
 
-    describe('Mixed output check', () => {
-        test('should process 49 receipts when one receipt in a chunk of 50 is invalid', async () => {
+    describe('Input validation and mixed output', () => {
+        test('should stop before processing when one receipt has invalid input', async () => {
             const invalidReceiptIndex = 24
             const receipts = Array.from({ length: 50 }, (_, index) => utils.createJSONReceipt({
                 importId: utils.randomNumber(50).toString(),
@@ -146,16 +146,31 @@ describe('RegisterBillingReceiptsService', () => {
                 })
             }, ({ data: { result }, errors }) => {
                 expect(errors).toHaveLength(1)
-                expect(result).toHaveLength(50)
-                expect(result[invalidReceiptIndex]).toBeNull()
-                expect(result.filter(Boolean)).toHaveLength(49)
-                expect(result.filter(Boolean)).toEqual(expect.arrayContaining([
-                    expect.objectContaining({ id: expect.anything() }),
-                ]))
+                expect(errors[0].extensions).toMatchObject({ code: 'BAD_USER_INPUT', inputIndex: invalidReceiptIndex })
+                expect(result).toBeNull()
             })
         })
 
-        test('should reject a comma amount without affecting valid receipts', async () => {
+        test('should process 49 receipts when one receipt has an unknown category', async () => {
+            const invalidReceiptIndex = 24
+            const receipts = Array.from({ length: 50 }, (_, index) => utils.createJSONReceipt({
+                importId: utils.randomNumber(50).toString(),
+                category: { id: index === invalidReceiptIndex ? faker.datatype.uuid() : HOUSING_CATEGORY_ID },
+            }))
+            await catchErrorFrom(async () => {
+                await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                    context: { id: utils.billingContext.id },
+                    receipts,
+                })
+            }, ({ data: { result }, errors }) => {
+                expect(errors).toHaveLength(1)
+                expect(result).toHaveLength(50)
+                expect(result[invalidReceiptIndex]).toBeNull()
+                expect(result.filter(Boolean)).toHaveLength(49)
+            })
+        })
+
+        test('should stop before processing a comma amount', async () => {
             await catchErrorFrom(async () => {
                 await registerBillingReceiptsByTestClient(utils.clients.admin, {
                     context: { id: utils.billingContext.id },
@@ -168,13 +183,41 @@ describe('RegisterBillingReceiptsService', () => {
                 expect(errors).toHaveLength(1)
                 expect(errors[0].message).toContain('toPay')
                 expect(errors[0].message).toContain('123,45')
-                expect(result[0]).toEqual(expect.objectContaining({ id: expect.anything() }))
-                expect(result[1]).toBeNull()
+                expect(errors[0].extensions.code).toEqual('BAD_USER_INPUT')
+                expect(result).toBeNull()
             })
         })
     })
 
     describe('ReportCreat', () => {
+        test('stores categories only from the newest period in a mixed-period request', async () => {
+            const utils = new TestUtils([BillingTestMixin])
+            await utils.init()
+            const olderPeriod = dayjs().add(8, 'year')
+            const newestPeriod = olderPeriod.add(1, 'month')
+
+            await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                context: { id: utils.billingContext.id },
+                receipts: [
+                    utils.createJSONReceipt({
+                        month: olderPeriod.month() + 1,
+                        year: olderPeriod.year(),
+                        category: { id: REPAIR_CATEGORY_ID },
+                    }),
+                    utils.createJSONReceipt({
+                        month: newestPeriod.month() + 1,
+                        year: newestPeriod.year(),
+                        category: { id: ELECTRICITY_CATEGORY_ID },
+                    }),
+                ],
+            })
+
+            const contextAfter = await BillingContext.getOne(utils.clients.admin, { id: utils.billingContext.id })
+            expect(contextAfter.lastReport.period).toEqual(newestPeriod.format('YYYY-MM-01'))
+            expect(contextAfter.lastReport.categories).toEqual([ELECTRICITY_CATEGORY_ID])
+            expect(contextAfter.lastReport.totalReceipts).toEqual(1)
+        })
+
         test('should update lastReport for BillingContext if new period was loaded', async () => {
             const utils = new TestUtils([BillingTestMixin])
             await utils.init()
@@ -382,7 +425,7 @@ describe('RegisterBillingReceiptsService', () => {
         })
     })
 
-    describe('PeriodResolver',  () => {
+    describe('Input validation',  () => {
         test('should return an error on a wrong year format', async () => {
             await catchErrorFrom(async () => {
                 await registerBillingReceiptsByTestClient(utils.clients.admin, {

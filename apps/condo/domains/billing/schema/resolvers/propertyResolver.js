@@ -18,35 +18,7 @@ const { BillingProperty } = require('@condo/domains/billing/utils/serverSchema')
 const { UUID_REGEXP } = require('@condo/domains/common/constants/regexps')
 const { FLAT_UNIT_TYPE: DEFAULT_UNIT_TYPE, UNIT_TYPES } = require('@condo/domains/property/constants/common')
 
-function createAddressTransform (config = {}) {
-    const regExps = []
-    const replaces = []
-    try {
-        for (const [search, replace] of Object.entries(config || {})) {
-            if (search.startsWith('r')) {
-                regExps.push([new RegExp(search.slice(1), 'g'), replace])
-            } else {
-                replaces.push([search, replace])
-            }
-        }
-    } catch {
-        // Ignore a malformed context configuration and use the valid rules collected before it.
-    }
-
-    return (input) => {
-        if (typeof input !== 'string') return input
-        let transformed = input
-        for (const [search, replace] of regExps) {
-            transformed = transformed.trim().replace(search, replace)
-        }
-        for (const [search, replace] of replaces) {
-            transformed = transformed.trim().split(search).join(replace)
-        }
-        return transformed.replaceAll(/\s+/g, ' ').trim()
-    }
-}
-
-function getAddressFromReceipt (receipt, { parser, transformAddress }) {
+function getAddressFromReceipt (receipt, { parser }) {
     let {
         address: addressInput,
         addressMeta: {
@@ -74,22 +46,20 @@ function getAddressFromReceipt (receipt, { parser, transformAddress }) {
         addressInput = ''
     }
     if (globalId && isValidFias(globalId)) {
-        const transformedGlobalId = transformAddress(globalId)
-        if (transformedGlobalId.includes(',')) {
-            const { unitName, unitType, address } = parser.parse(transformedGlobalId)
+        if (globalId.includes(',')) {
+            const { unitName, unitType, address } = parser.parse(globalId)
             if (!unitNameInput) unitNames.push(unitName)
             if (!unitTypeInput) unitTypes.push(unitType)
             addresses.push(`fiasId:${address.toLowerCase()}`)
         } else {
-            addresses.push(`fiasId:${transformedGlobalId.toLowerCase()}`)
+            addresses.push(`fiasId:${globalId.toLowerCase()}`)
         }
     }
     if (addressInput) {
-        const transformedAddress = transformAddress(addressInput)
         if (unitNameInput && unitTypeInput) {
-            addresses.push(transformedAddress)
+            addresses.push(addressInput)
         } else {
-            const { unitName, unitType, address } = parser.parse(transformedAddress)
+            const { unitName, unitType, address } = parser.parse(addressInput)
             if (!unitNameInput) unitNames.push(unitName)
             if (!unitTypeInput) unitTypes.push(unitType)
             addresses.push(address)
@@ -198,7 +168,6 @@ async function resolveProperties (receiptIndex, { billingContext, context }) {
         organizationId: billingContext.organization?.id,
         parser: new AddressFromStringParser(),
         tin: billingContext.organization?.tin,
-        transformAddress: createAddressTransform(billingContext.settings?.addressTransform || {}),
     }
     await normalizeAddresses(receiptIndex, runtime)
 
@@ -275,7 +244,6 @@ async function resolveProperties (receiptIndex, { billingContext, context }) {
 }
 
 module.exports = {
-    createAddressTransform,
     getAddressFromReceipt,
     resolveProperties,
 }

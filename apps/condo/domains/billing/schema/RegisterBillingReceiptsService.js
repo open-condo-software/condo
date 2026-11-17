@@ -18,9 +18,9 @@ const {
     resolveProperties,
     resolveReceipts,
     resolveRecipients,
-    resolveValidation,
 } = require('@condo/domains/billing/schema/resolvers')
 const { buildLastReportForBillingContext } = require('@condo/domains/billing/schema/resolvers/utils')
+const { validateReceiptInputs } = require('@condo/domains/billing/schema/validateReceiptInputs')
 const {
     BillingIntegrationOrganizationContext: BillingContextApi,
 } = require('@condo/domains/billing/utils/serverSchema')
@@ -98,14 +98,21 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                 const { data: { context: billingContextInput, receipts: receiptsInput, dv, sender } } = args
                 // Input guard validations
                 if (receiptsInput.length > RECEIPTS_LIMIT) {
-                    throw new GQLError(ERRORS.RECEIPTS_LIMIT_HIT, context)
+                    throw new GQLError({
+                        ...ERRORS.RECEIPTS_LIMIT_HIT,
+                        messageInterpolation: { count: receiptsInput.length, limit: RECEIPTS_LIMIT },
+                    }, context)
                 }
+                validateReceiptInputs(receiptsInput, context)
                 const { id: billingContextId } = billingContextInput
                 const billingContext = await BillingContextApi.getOne(context, { id: billingContextId },
-                    'id organization { id tin name country type } settings lastReport'
+                    'id organization { id tin name country type } lastReport'
                 )
                 if (!billingContextId || !billingContext) {
-                    throw new GQLError(ERRORS.BILLING_CONTEXT_NOT_FOUND, context)
+                    throw new GQLError({
+                        ...ERRORS.BILLING_CONTEXT_NOT_FOUND,
+                        messageInterpolation: { billingContextId: billingContextId || '' },
+                    }, context)
                 }
 
                 // preserve order for response
@@ -116,7 +123,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                 let errorsIndex = {}
                 const debug = []
                 const createdReceiptIds = new Set()
-                const stages = [resolveValidation, resolvePeriods, resolveRecipients, resolveProperties, resolveAccounts, resolveCategories, resolveReceipts]
+                const stages = [resolvePeriods, resolveRecipients, resolveProperties, resolveAccounts, resolveCategories, resolveReceipts]
                 for (const resolveStage of stages) {
                     if (!Object.keys(receiptIndex).length) break
                     const { errorReceipts, receipts, debugMessages, createdReceiptIds: stageCreatedReceiptIds } = await resolveStage(receiptIndex, { context, billingContext })

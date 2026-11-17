@@ -87,17 +87,17 @@ not have access through this mutation.
 
 ## Processing pipeline
 
-Every input receipt is stored in an index keyed by its original position. It is
-initialized with an empty `problems` array and no critical error, then passed
-through these resolvers in order:
+The complete receipt array is validated before external lookups and database
+writes. After validation, every input receipt is stored in an index keyed by its
+original position. It is initialized with an empty `problems` array and no
+critical error, then passed through these resolvers in order:
 
-1. `resolveValidation`;
-2. `resolvePeriods`;
-3. `resolveRecipients`;
-4. `resolveProperties`;
-5. `resolveAccounts`;
-6. `resolveCategories`;
-7. `resolveReceipts`.
+1. `resolvePeriods`;
+2. `resolveRecipients`;
+3. `resolveProperties`;
+4. `resolveAccounts`;
+5. `resolveCategories`;
+6. `resolveReceipts`.
 
 After each stage, receipts with a critical error are removed from subsequent
 stages. Non-critical problems remain attached to the internal receipt and are
@@ -110,6 +110,9 @@ mutation writes the combined data to the structured
 ## Validation
 
 Validation runs before external lookups or database writes.
+An invalid receipt rejects the complete mutation with `BAD_USER_INPUT`; no
+receipt from that request is processed. This validation extends the structural
+validation provided by the GraphQL input schema.
 
 ### Period input
 
@@ -202,12 +205,7 @@ The resolver builds candidates from `addressMeta.globalId` and `address`:
 - a valid FIAS `globalId` becomes a `fiasId:<value>` lookup;
 - a FIAS value with a comma-separated unit suffix is parsed and only its house
   part is used in the `fiasId` lookup;
-- the textual address is transformed using `context.settings.addressTransform`
-  and parsed into house and unit parts.
-
-Transformation keys prefixed with `r` are interpreted as regular expressions
-after removing the prefix. Other keys are literal replacements. Repeated
-whitespace is collapsed after transformation.
+- the textual address is parsed into house and unit parts.
 
 Non-empty `addressMeta.unitName` and `addressMeta.unitType` take precedence over
 unit values parsed from the FIAS suffix or textual address. An unknown explicit
@@ -384,9 +382,11 @@ original GraphQL error without exposing database details in the public message.
 
 ## Error model
 
-Receipt-specific errors use `BAD_USER_INPUT` for invalid caller data and
-`INTERNAL_ERROR` for entity save failures. They include `inputIndex` and, where
-applicable, interpolate the rejected or identifying input value:
+Input-format errors reject the complete request with `BAD_USER_INPUT` and the
+corresponding `inputIndex`. Errors found during receipt resolution remain
+receipt-specific. Domain data errors use `BAD_USER_INPUT`, and entity save
+failures use `INTERNAL_ERROR`. They include `inputIndex` and, where applicable,
+interpolate the rejected or identifying input value:
 
 - original address;
 - routing number;
@@ -427,10 +427,11 @@ The mutation uses these fields:
 - `finishTime`: deprecated compatibility field mirroring
   `lastAddedReceiptsAt`.
 
-For a newer period, categories are replaced with categories from the current
-successful batch. For the same period, they are merged with existing report
-categories. If an old report has no `categories` field, the current batch's
-categories are used.
+For a newer period, categories are replaced with categories from receipts in
+that newest period only. Categories from older periods in the same request are
+ignored. For the same period, they are merged with existing report categories.
+If an old report has no `categories` field, categories from the newest period
+in the current batch are used.
 
 When older receipts are processed while newer receipts or a newer report period
 exist, the period summary is preserved. Synchronization timestamps are still

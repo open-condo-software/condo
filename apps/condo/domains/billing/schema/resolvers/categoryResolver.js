@@ -40,7 +40,10 @@ function detectCategory (receipt, categoryIndex) {
     const { category = {}, services = [], addressResolve: { unitType = '' } = {} } = receipt
     const userDefinedCategory = category?.id
     if (category && userDefinedCategory && !categoryIndex.categoryIds.has(userDefinedCategory)) {
-        return { error: ERRORS.BILLING_CATEGORY_NOT_FOUND }
+        return {
+            error: ERRORS.BILLING_CATEGORY_NOT_FOUND,
+            messageInterpolation: { categoryId: userDefinedCategory },
+        }
     }
     const byServicesCategoryId = detectCategoryByServices(services, categoryIndex.serviceNamesByCategory)
     const byUnitTypeCategoryId = Reflect.has(UNIT_TYPE_MAPPING, unitType)
@@ -63,9 +66,9 @@ async function resolveCategories (receiptIndex, { context }) {
     const categories = await find('BillingCategory', { deletedAt: null })
     const categoryIndex = createCategoryIndex(categories)
     for (const [index, receipt] of Object.entries(receiptIndex)) {
-        const { error, result } = detectCategory(receipt, categoryIndex)
+        const { error, messageInterpolation, result } = detectCategory(receipt, categoryIndex)
         if (error) {
-            receiptIndex[index].error = stage.error(error, index)
+            receiptIndex[index].error = stage.error(error, index, null, messageInterpolation)
             continue
         }
         if (result) {
