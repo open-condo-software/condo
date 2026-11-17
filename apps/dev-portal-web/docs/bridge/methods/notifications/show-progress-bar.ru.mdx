@@ -18,7 +18,7 @@
 | externalTaskId | string                                            | нет          | ID вашей задачи, которую отображает данное уведомление. Необходимо для синхронизации при выходе / входе пользователя в мини-приложение |
 | disableCancel  | boolean                                           | нет          | Не показывает в Condo действие отмены. Используйте, если процесс мини-приложения нельзя отменить.                                      |
 | background     | `{ url }`                                         | нет          | Same-origin iframe-страница, которую Condo держит в фоне, пока этот progress bar активен.                                            |
-| action         | `{ type, label, url \| modal }`                   | нет          | Необязательная same-origin ссылка или modal-действие мини-приложения.                                                                 |
+| action         | `{ label, actionId }`                             | нет          | Действие мини-приложения. Требует `background`; Condo отправляет клик в этот background iframe.                                      |
 
 <Alert type='info'>
     Позже с помощью метода [CondoWebAppUpdateProgressBar](/docs/bridge/methods/notifications/update-progress-bar) можно обновить состояние и действие progress bar. `background` задаётся только при его создании.
@@ -48,6 +48,6 @@ bridge.send('CondoWebAppShowProgressBar', {
 
 ![progress-bar-example](/bridge/show-progress-bar.png)
 
-`background` доступен только iframe-странице того же origin. Condo удалит скрытый iframe, когда progress bar получит конечный статус.
+`background` доступен только iframe-странице того же origin. Он обязателен, если у progress bar есть `action`. Condo хранит скрытый iframe, пока progress bar обрабатывается или показывает действие, и удаляет его после закрытия карточки задачи.
 
-`action` может быть same-origin ссылкой (`{ type: 'link', label, url }`) или действием открытия modal (`{ type: 'modal', label, modal }`).
+По клику на `action` Condo отправляет `CondoWebAppActionClickEvent` с `actionId` в background iframe. Мини-приложение само выбирает действие: например, вызывает `CondoWebAppShowModalWindow` или `CondoWebAppRedirect`.

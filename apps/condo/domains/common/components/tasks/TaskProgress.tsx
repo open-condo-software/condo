@@ -148,7 +148,7 @@ export const TaskProgress = ({ task, translations, progress, removeTask, canCanc
                                             onKeyDown={(event) => {
                                                 if (event.key === 'Enter' || event.key === ' ') {
                                                     event.preventDefault()
-                                                    link.onClick()
+                                                    link.onClick?.()
                                                 }
                                             }}
                                         >

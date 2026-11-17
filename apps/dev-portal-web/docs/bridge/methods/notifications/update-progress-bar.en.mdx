@@ -11,20 +11,30 @@ This method allows you to update a previously created [progress bar notification
 | barId          | string                                            | yes          | Progress bar ID                                                                                                                                                                                            |
 | data           | JSON                                              | yes          | Data to update: `message`, `description`, `progress`, `disableCancel`, `status`, or `action`. The background URL is set only when creating a bar. |
 
-`data.progress` accepts a number from `0` to `100`. Set `data.status` to `completed` or `error` to finish the bar. A completed bar may include an action that opens a same-origin miniapp modal:
-
-Use `{ type: 'link', label, url }` for a same-origin link or `{ type: 'modal', label, modal }` to open a modal.
+`data.progress` accepts a number from `0` to `100`. Set `data.status` to `completed` or `error` to finish the bar. An action requires that the bar was created with `background`:
 
 ```typescript
 action: {
-    type: 'modal',
     label: 'Details',
-    modal: {
-        title: 'Import details',
-        url: 'https://miniapp.example/details',
-        size: 'big',
-    },
+    actionId: 'open-import-details',
 }
+```
+
+Condo delivers the click as `CondoWebAppActionClickEvent` to the bar's background iframe. The miniapp handles the event and chooses whether to open a modal, redirect, or perform another Bridge operation.
+
+```typescript
+import bridge from '@open-condo/bridge'
+import { useSetPageActionsHandlers } from '@open-condo/miniapp-utils'
+
+useSetPageActionsHandlers(bridge, {
+    'open-import-details': () => {
+        void bridge.send('CondoWebAppShowModalWindow', {
+            title: 'Import details',
+            url: 'https://miniapp.example/details',
+            size: 'big',
+        })
+    },
+})
 ```
 
 ## Return value

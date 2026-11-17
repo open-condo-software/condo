@@ -3,7 +3,7 @@ import type { IFrameMetadata } from '@open-condo/miniapp-utils/helpers/iframe'
 
 import { ITask, LocalTaskRecord, TASK_REMOVE_STRATEGY } from '@condo/domains/common/components/tasks'
 import { TasksLocalStorage } from '@condo/domains/common/components/tasks/storage/TasksLocalStorage'
-import { useOpenMiniappModal } from '@condo/domains/miniapp/components/MiniappModalContext'
+import { useProgressBarActions } from '@condo/domains/miniapp/components/ProgressBarActionsContext'
 
 export type MiniAppTaskRecord = LocalTaskRecord & {
     action?: NonNullable<ShowProgressBarParams['action']>
@@ -14,7 +14,7 @@ export type MiniAppTaskRecord = LocalTaskRecord & {
 
 type UseMiniappTaskUIInterfaceType = () => ({ MiniAppTask: ITask<MiniAppTaskRecord> })
 export const useMiniappTaskUIInterface: UseMiniappTaskUIInterfaceType = () => {
-    const openMiniappModal = useOpenMiniappModal()
+    const { sendProgressBarAction } = useProgressBarActions()
     const TaskUIInterface: ITask<MiniAppTaskRecord> = {
         storage: new TasksLocalStorage(),
         removeStrategy: [TASK_REMOVE_STRATEGY.PANEL, TASK_REMOVE_STRATEGY.STORAGE],
@@ -25,13 +25,9 @@ export const useMiniappTaskUIInterface: UseMiniappTaskUIInterfaceType = () => {
                 const action = taskRecord.action
                 if (!action) return null
 
-                if (action.type === 'link') {
-                    return { label: action.label, url: action.url }
-                }
-
                 return {
                     label: action.label,
-                    onClick: () => openMiniappModal?.({ ...action.modal, metadata: taskRecord.sourceMetadata }),
+                    onClick: () => sendProgressBarAction(taskRecord.id, action.actionId),
                 }
             },
         },

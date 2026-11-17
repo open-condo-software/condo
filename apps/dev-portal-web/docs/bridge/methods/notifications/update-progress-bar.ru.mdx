@@ -11,20 +11,30 @@
 | barId          | string                                            | да           | ID уведомления                                                                                                                                                                                          |
 | data           | JSON                                              | да           | Данные для обновления: `message`, `description`, `progress`, `disableCancel`, `status` или `action`. URL фона задаётся только при создании progress bar. |
 
-`data.progress` принимает число от `0` до `100`. Чтобы завершить процесс, передайте `data.status` со значением `completed` или `error`. В завершённый progress bar можно добавить действие, открывающее same-origin modal мини-приложения:
-
-Используйте `{ type: 'link', label, url }` для same-origin ссылки или `{ type: 'modal', label, modal }` для открытия modal.
+`data.progress` принимает число от `0` до `100`. Чтобы завершить процесс, передайте `data.status` со значением `completed` или `error`. Для действия progress bar должен быть создан с `background`:
 
 ```typescript
 action: {
-    type: 'modal',
     label: 'Подробнее',
-    modal: {
-        title: 'Детали импорта',
-        url: 'https://miniapp.example/details',
-        size: 'big',
-    },
+    actionId: 'open-import-details',
 }
+```
+
+Condo передаёт клик как `CondoWebAppActionClickEvent` в background iframe. Мини-приложение обрабатывает событие и решает, открыть ли modal, выполнить redirect или другой Bridge-метод.
+
+```typescript
+import bridge from '@open-condo/bridge'
+import { useSetPageActionsHandlers } from '@open-condo/miniapp-utils'
+
+useSetPageActionsHandlers(bridge, {
+    'open-import-details': () => {
+        void bridge.send('CondoWebAppShowModalWindow', {
+            title: 'Детали импорта',
+            url: 'https://miniapp.example/details',
+            size: 'big',
+        })
+    },
+})
 ```
 
 ## Возвращаемое значение

@@ -1,18 +1,7 @@
-import type { ShowModalWindowParams } from '../modals/ShowModalWindow'
-
-export type ProgressBarLinkAction = {
-    type: 'link'
+export type ProgressBarAction = {
     label: string
-    url: string
+    actionId: string
 }
-
-export type ProgressBarModalAction = {
-    type: 'modal'
-    label: string
-    modal: ShowModalWindowParams
-}
-
-export type ProgressBarAction = ProgressBarLinkAction | ProgressBarModalAction
 
 export type ProgressBarBackground = {
     url: string

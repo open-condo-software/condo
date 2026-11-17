@@ -23,23 +23,10 @@ type MessageSource = Parameters<
 Parameters<ReturnType<typeof usePostMessageContext>['addHandler']>[4]
 >[0]['source']
 
-const ProgressBarActionSchema = z.discriminatedUnion('type', [
-    z.strictObject({
-        type: z.literal('link'),
-        label: z.string().min(1),
-        url: z.url(),
-    }),
-    z.strictObject({
-        type: z.literal('modal'),
-        label: z.string().min(1),
-        modal: z.strictObject({
-            title: z.string().min(1),
-            url: z.url(),
-            size: z.enum(['big', 'small']).optional(),
-            initialHeight: z.number().optional(),
-        }),
-    }),
-])
+const ProgressBarActionSchema = z.strictObject({
+    label: z.string().min(1),
+    actionId: z.string().min(1),
+})
 
 const ShowProgressBarParamsSchema = z.object({
     message: z.string(),
@@ -79,12 +66,12 @@ function hasAllowedProgressBarUrlProtocol (url: string) {
     return protocol === 'http:' || protocol === 'https:'
 }
 
-function validateProgressBarUrl (url: string, sourceOrigin: string, type: 'action' | 'background') {
+function validateProgressBarUrl (url: string, sourceOrigin: string) {
     if (!isSafeUrl(url) || !hasAllowedProgressBarUrlProtocol(url)) {
-        throw new Error(`Forbidden url. Your progress bar ${type} url is probably injected`)
+        throw new Error('Forbidden url. Your progress bar background url is probably injected')
     }
     if (new URL(url).origin !== sourceOrigin) {
-        throw new Error(`Forbidden url. Progress bar ${type} url must have same origin as sender`)
+        throw new Error('Forbidden url. Progress bar background url must have same origin as sender')
     }
 }
 
@@ -95,27 +82,13 @@ function validateProgressBarBackground (
 ) {
     if (!background) return
 
-    validateProgressBarUrl(background.url, sourceOrigin, 'background')
+    validateProgressBarUrl(background.url, sourceOrigin)
     if (source.type !== 'frame') {
         throw new Error('Forbidden source type. Progress bar backgrounds are only available for iframes')
     }
 }
 
-function validateProgressBarAction (
-    action: ShowProgressBarParams['action'],
-    source: MessageSource,
-    sourceOrigin: string,
-) {
-    if (!action) return
-
-    const actionUrl = action.type === 'modal' ? action.modal.url : action.url
-    validateProgressBarUrl(actionUrl, sourceOrigin, 'action')
-    if (source.type === 'worker') {
-        throw new Error('Forbidden source type. Progress bar actions are not available for service workers')
-    }
-}
-
-function validateProgressBarUrls (
+function validateProgressBarShowParams (
     params: Pick<ShowProgressBarParams, 'action' | 'background'>,
     source: MessageSource,
 ) {
@@ -123,9 +96,11 @@ function validateProgressBarUrls (
     if (sourceOrigin === 'null' && (params.background || params.action)) {
         throw new Error('Forbidden origin. Progress bar URLs require a non-opaque sender origin')
     }
+    if (params.action && !params.background) {
+        throw new Error('Progress bar background is required when action is set')
+    }
 
     validateProgressBarBackground(params.background, source, sourceOrigin)
-    validateProgressBarAction(params.action, source, sourceOrigin)
 }
 
 export function useProgressBarHandlers () {
@@ -152,7 +127,7 @@ export function useProgressBarHandlers () {
         action,
     }: ShowProgressBarParams,
     source: MessageSource) => {
-        validateProgressBarUrls({ action, background }, source)
+        validateProgressBarShowParams({ action, background }, source)
         const id = generateUUIDv4()
         const origin = getSourceOrigin(source)
         const sourceMetadata = getSourceMetadata(source)
@@ -210,11 +185,13 @@ export function useProgressBarHandlers () {
     })
 
     const updateProgressBar = useCallback(({ barId, data }: UpdateProgressBarParams, source: MessageSource) => {
-        validateProgressBarUrls({ action: data.action }, source)
         const origin = getSourceOrigin(source)
         const { record: existingTask } = miniAppTaskUIInterface.storage.useTask(barId)
         if (!existingTask || existingTask.sender !== origin || existingTask.user?.id !== userId) {
             throw new Error('Forbidden progress bar update')
+        }
+        if (data.action && !existingTask.background) {
+            throw new Error('Progress bar background is required when action is set')
         }
         const status = data.status
             ? data.status
@@ -224,7 +201,6 @@ export function useProgressBarHandlers () {
             title: data.message,
             description: data.description,
             progress: data.progress,
-            disableCancel: data.disableCancel,
             status,
             user: { id: userId },
             sender: origin,

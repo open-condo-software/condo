@@ -91,6 +91,7 @@ import { useMeterReadingsImportTaskUIInterface } from '@condo/domains/meter/hook
 import { ConnectedAppsWithIconsContextProvider, useConnectedAppsWithIconsContext } from '@condo/domains/miniapp/components/ConnectedAppsWithIconsProvider'
 import { GlobalAppsContainer } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsContainer'
 import { GlobalAppsFeaturesProvider } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsFeaturesContext'
+import { ProgressBarActionsProvider } from '@condo/domains/miniapp/components/ProgressBarActionsContext'
 import { ProgressBarBackgroundFrames } from '@condo/domains/miniapp/components/ProgressBarBackgroundFrames'
 import {
     useNewsItemRecipientsExportTaskUIInterface,
@@ -446,7 +447,7 @@ const MenuItems: React.FC = () => {
     )
 }
 
-const TasksProvider = ({ children }) => {
+const TasksProviderContent = ({ children }) => {
     const { user, isLoading: userLoading, isAuthenticated } = useAuth()
     const { organization, isLoading: organizationIsLoading } = useOrganization()
     const { persistor } = useCachePersistor()
@@ -517,9 +518,16 @@ const TasksProvider = ({ children }) => {
             isInitialLoading={isInitialLoading}
         >
             {children}
+            <ProgressBarBackgroundFrames/>
         </TasksContextProvider>
     )
 }
+
+const TasksProvider = ({ children }) => (
+    <ProgressBarActionsProvider>
+        <TasksProviderContent>{children}</TasksProviderContent>
+    </ProgressBarActionsProvider>
+)
 
 const MyApp = ({ Component, pageProps }) => {
     const intl = useIntl()
@@ -586,7 +594,6 @@ const MyApp = ({ Component, pageProps }) => {
                                                         <ActiveCallContextProvider>
                                                             <ConnectedAppsWithIconsContextProvider>
                                                                 <CondoAppEventsHandler/>
-                                                                <ProgressBarBackgroundFrames/>
                                                                 <SurveysProvider>
                                                                     <SurveysQueue/>
                                                                     <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
