@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useMemo, useState } from 'react'
+import React, { createContext, useCallback, useContext, useMemo, useRef } from 'react'
 
 import type { IncomingEventData } from '@open-condo/bridge'
 
@@ -16,33 +16,32 @@ type ProgressBarActionsContextValue = {
 const ProgressBarActionsContext = createContext<ProgressBarActionsContextValue | null>(null)
 
 export const ProgressBarActionsProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
-    const [frames, setFrames] = useState<Map<string, ProgressBarFrame>>(() => new Map())
+    const framesRef = useRef<Map<string, ProgressBarFrame>>(new Map())
 
     const registerProgressBarFrame = useCallback((barId: string, event: FrameRegistrationEvent) => {
         const frame = { frameOrigin: event.frameOrigin, frameRef: event.frameRef }
-        setFrames((previousFrames) => new Map(previousFrames).set(barId, frame))
+        framesRef.current.set(barId, frame)
 
         return () => {
-            setFrames((previousFrames) => {
-                if (previousFrames.get(barId) !== frame) return previousFrames
+            if (framesRef.current.get(barId) !== frame) return
 
-                const nextFrames = new Map(previousFrames)
-                nextFrames.delete(barId)
-                return nextFrames
-            })
+            framesRef.current.delete(barId)
         }
     }, [])
 
     const sendProgressBarAction = useCallback((barId: string, actionId: string) => {
-        const frame = frames.get(barId)
-        frame?.frameRef.current?.contentWindow?.postMessage({
+        const frame = framesRef.current.get(barId)
+        const targetWindow = frame?.frameRef.current?.contentWindow
+        if (!frame || !targetWindow) return
+
+        targetWindow.postMessage({
             type: 'CondoWebAppActionClickEvent',
             data: { actionId },
         }, frame.frameOrigin)
-    }, [frames])
+    }, [])
 
     const sendTaskCancel = useCallback((taskId: string, externalTaskId?: string) => {
-        const frame = frames.get(taskId)
+        const frame = framesRef.current.get(taskId)
         const data: IncomingEventData<'CondoWebAppTaskCancel'> = {
             taskId,
             ...(externalTaskId !== undefined ? { externalTaskId } : {}),
@@ -51,7 +50,7 @@ export const ProgressBarActionsProvider: React.FC<React.PropsWithChildren> = ({ 
             type: 'CondoWebAppTaskCancelEvent',
             data,
         }, frame.frameOrigin)
-    }, [frames])
+    }, [])
 
     const value = useMemo(() => ({ registerProgressBarFrame, sendProgressBarAction, sendTaskCancel }), [registerProgressBarFrame, sendProgressBarAction, sendTaskCancel])
 
