@@ -7,14 +7,13 @@ import { useProgressBarActions } from '@condo/domains/miniapp/components/Progres
 
 export type MiniAppTaskRecord = LocalTaskRecord & {
     actions?: Array<NonNullable<ShowProgressBarParams['actions']>[number] & { id: string }>
-    disableCancel?: ShowProgressBarParams['disableCancel']
     processingFrame?: NonNullable<ShowProgressBarParams['processingFrame']>
     sourceMetadata?: IFrameMetadata
 }
 
 type UseMiniappTaskUIInterfaceType = () => ({ MiniAppTask: ITask<MiniAppTaskRecord> })
 export const useMiniappTaskUIInterface: UseMiniappTaskUIInterfaceType = () => {
-    const { sendProgressBarAction } = useProgressBarActions()
+    const { sendProgressBarAction, sendProgressBarCancel } = useProgressBarActions()
     const TaskUIInterface: ITask<MiniAppTaskRecord> = {
         storage: new TasksLocalStorage(),
         removeStrategy: [TASK_REMOVE_STRATEGY.PANEL, TASK_REMOVE_STRATEGY.STORAGE],
@@ -31,7 +30,6 @@ export const useMiniappTaskUIInterface: UseMiniappTaskUIInterfaceType = () => {
                 }
             },
         },
-        canCancel: (taskRecord) => !taskRecord.disableCancel,
         calculateProgress: (taskRecord) => {
             return taskRecord.progress
         },
@@ -39,7 +37,7 @@ export const useMiniappTaskUIInterface: UseMiniappTaskUIInterfaceType = () => {
             console.debug('Completed third-party taskRecord', taskRecord)
         },
         onCancel: (taskRecord) => {
-            console.debug('Cancelled third-party taskRecord', taskRecord)
+            sendProgressBarCancel(taskRecord.id)
         },
     }
 

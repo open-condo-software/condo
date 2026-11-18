@@ -15,7 +15,6 @@ which the notification describes.
 | message        | string                                            | yes          | Notification header. For example: "Uploading data".                                                                             |
 | description    | string                                            | no           | The body of the notification, which should describe the details of the notification                                             |
 | externalTaskId | string                                            | no           | The ID of your task that this notification describes. Useful for syncing when a user logs out / logs in to the mini-application |
-| disableCancel  | boolean                                           | no           | Prevents Condo from showing a cancellation control. Use this when the underlying process cannot be cancelled.                   |
 | processingFrame | `{ url }`                                        | no           | Same-origin iframe page that Condo keeps alive while this bar is active or has actions.                                         |
 | actions        | `Array<{ label }>`                                | no           | Miniapp actions. A processing frame is required; Condo assigns IDs and sends clicks to that iframe. Only one action is supported currently. |
 
@@ -49,3 +48,5 @@ bridge.send('CondoWebAppShowProgressBar', {
 Use `processingFrame` only for an iframe miniapp page at the same origin. It is required when the bar has actions. Condo keeps the hidden iframe while the bar is processing or displays an action, and removes it after the task card is dismissed.
 
 When the user clicks an action, Condo sends `CondoWebAppActionClickEvent` with its generated `actionId` to the processing iframe. The miniapp decides what to do, for example by calling `CondoWebAppShowModalWindow` or `CondoWebAppRedirect`.
+
+When the user cancels a processing bar, Condo sends `CondoWebAppProgressBarCancelEvent` to its processing iframe before removing the bar. The miniapp is responsible for cancelling its own server-side work. Subscribe to this event with `useProgressBarCancelHandler` from `@open-condo/miniapp-utils`.

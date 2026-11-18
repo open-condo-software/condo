@@ -8,7 +8,6 @@ export type GetActiveProgressBarData = {
     description?: string
     progress: number
     externalTaskId?: string
-    disableCancel?: boolean
     actions?: Array<ProgressBarActionData>
 }
 

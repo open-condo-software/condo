@@ -36,7 +36,6 @@ const ShowProgressBarParamsSchema = z.object({
     message: z.string(),
     description: z.string().optional(),
     externalTaskId: z.string().optional(),
-    disableCancel: z.boolean().optional(),
     processingFrame: z.strictObject({
         url: z.url(),
     }).optional(),
@@ -129,7 +128,6 @@ export function useProgressBarHandlers () {
         message,
         description,
         externalTaskId,
-        disableCancel,
         processingFrame,
         actions,
     }: ShowProgressBarParams,
@@ -145,7 +143,6 @@ export function useProgressBarHandlers () {
             title: message,
             description,
             progress: 0,
-            ...(disableCancel ? { disableCancel } : {}),
             status: TASK_PROCESSING_STATUS,
             user: { id: userId },
             sender: origin,
@@ -180,9 +177,6 @@ export function useProgressBarHandlers () {
                     externalTaskId: task.taskId,
                     ...(task.actions?.length ? {
                         actions: task.actions,
-                    } : {}),
-                    ...(task.disableCancel ? {
-                        disableCancel: true,
                     } : {}),
                 })),
         }

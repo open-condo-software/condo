@@ -14,7 +14,6 @@ export type ShowProgressBarParams = {
     message: string
     description?: string
     externalTaskId?: string
-    disableCancel?: boolean
     processingFrame?: ProgressBarProcessingFrame
     actions?: Array<ProgressBarAction>
 }

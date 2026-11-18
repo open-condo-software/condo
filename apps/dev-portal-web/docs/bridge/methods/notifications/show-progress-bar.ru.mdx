@@ -16,7 +16,6 @@
 | message        | string                                            | да           | Заголовок уведомления. Пример: "Загружаем данные"                                                                                      |
 | description    | string                                            | нет          | Тело уведомления, в котором стоит описать дополнительную информацию. Пример: "Не закрывайте страницу"                                  |
 | externalTaskId | string                                            | нет          | ID вашей задачи, которую отображает данное уведомление. Необходимо для синхронизации при выходе / входе пользователя в мини-приложение |
-| disableCancel  | boolean                                           | нет          | Не показывает в Condo действие отмены. Используйте, если процесс мини-приложения нельзя отменить.                                      |
 | processingFrame | `{ url }`                                        | нет          | Same-origin iframe-страница, которую Condo держит, пока progress bar активен или показывает действия.                                |
 | actions        | `Array<{ label }>`                                | нет          | Действия мини-приложения. Требуют processing frame; Condo сам назначает ID и отправляет клики в этот iframe. Пока поддерживается одно действие. |
 
@@ -51,3 +50,5 @@ bridge.send('CondoWebAppShowProgressBar', {
 `processingFrame` доступен только iframe-странице того же origin. Он обязателен, если у progress bar есть действия. Condo хранит скрытый iframe, пока progress bar обрабатывается или показывает действия, и удаляет его после закрытия карточки задачи.
 
 По клику на действие Condo отправляет `CondoWebAppActionClickEvent` с назначенным `actionId` в processing iframe. Мини-приложение само выбирает действие: например, вызывает `CondoWebAppShowModalWindow` или `CondoWebAppRedirect`.
+
+При отмене progress bar Condo перед его удалением отправляет в processing iframe событие `CondoWebAppProgressBarCancelEvent`. Мини-приложение само отменяет свою серверную работу. Для подписки на это событие используйте `useProgressBarCancelHandler` из `@open-condo/miniapp-utils`.

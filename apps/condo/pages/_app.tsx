@@ -70,7 +70,6 @@ import {
     SETTINGS_CATEGORY,
 } from '@condo/domains/common/constants/menuCategories'
 import { useHotCodeReload } from '@condo/domains/common/hooks/useHotCodeReload'
-import { useMiniappTaskUIInterface } from '@condo/domains/common/hooks/useMiniappTaskUIInterface'
 import { PageComponentType } from '@condo/domains/common/types'
 import { messagesImporter } from '@condo/domains/common/utils/clientSchema/messagesImporter'
 import { apolloHelperOptions } from '@condo/domains/common/utils/next/apollo'
@@ -93,6 +92,7 @@ import { GlobalAppsContainer } from '@condo/domains/miniapp/components/GlobalApp
 import { GlobalAppsFeaturesProvider } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsFeaturesContext'
 import { ProgressBarActionsProvider } from '@condo/domains/miniapp/components/ProgressBarActionsContext'
 import { ProgressBarBackgroundFrames } from '@condo/domains/miniapp/components/ProgressBarBackgroundFrames'
+import { useMiniAppTaskRecords } from '@condo/domains/miniapp/hooks/useMiniAppTaskRecords'
 import {
     useNewsItemRecipientsExportTaskUIInterface,
 } from '@condo/domains/news/hooks/useNewsItemRecipientsExportTaskUIInterface'
@@ -460,7 +460,11 @@ const TasksProviderContent = ({ children }) => {
     const { ContactExportTask: ContactExportTaskUIInterface } = useContactExportTaskUIInterface()
     const { BankSyncTask: BankSyncTaskUIInterface } = useBankSyncTaskUIInterface()
     const { BankReportTask: BankReportTaskUIInterface } = useBankReportTaskUIInterface()
-    const { MiniAppTask: MiniAppTaskUIInterface } = useMiniappTaskUIInterface()
+    const {
+        MiniAppTaskUIInterface,
+        records: miniAppTasks,
+        loading: isMiniAppTasksLoading,
+    } = useMiniAppTaskRecords(user || null)
     const { NewsItemRecipientsExportTask: NewsItemRecipientsExportTaskUIInterface } = useNewsItemRecipientsExportTaskUIInterface()
     const { MeterReadingsImportTask: MeterReadingsImportTaskUIInterface } = useMeterReadingsImportTaskUIInterface()
     // ... another interfaces of tasks should be used here
@@ -471,11 +475,6 @@ const TasksProviderContent = ({ children }) => {
         skip: !isAuthenticated || userLoading || organizationIsLoading || !organization || !persistor,
     })
 
-    const { records: processingMiniAppTasks, loading: isMiniAppTasksLoading } = MiniAppTaskUIInterface.storage.useTasks(
-        { status: 'processing' },
-        userLoading ? null : user,
-    )
-    const miniAppTasks = processingMiniAppTasks.filter((task) => task.processingFrame || dayjs(task.createdAt).isToday())
     // ... another task records should be loaded here
 
     const initialTaskRecords = useMemo(

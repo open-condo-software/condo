@@ -223,11 +223,15 @@ export const TaskProgressTracker: React.FC<ITaskProgressTrackerProps> = ({ task,
         // Tasks under processing should be cancelled before removing from UI
         if (record.status === TASK_PROCESSING_STATUS) {
             if (canCancel && !canCancel(record)) return
+            if (isFunction(onCancel)) {
+                handledTerminalStatesOfTasksIds.push(record.id)
+                onCancel(record)
+            }
             cancelTaskAndRemoveFromUI({}, record)
         } else {
             removeTaskFromUI()
         }
-    }, [record, canCancel, cancelTaskAndRemoveFromUI, removeTaskFromUI])
+    }, [record, canCancel, onCancel, cancelTaskAndRemoveFromUI, removeTaskFromUI])
 
     useEffect(() => {
         if (record && record.status !== TASK_PROCESSING_STATUS) {
