@@ -1,6 +1,8 @@
 const { isEmpty, isObject } = require('lodash')
 
-const { AddressSource } = require('@address-service/domains/address/utils/serverSchema')
+const { find } = require('@open-condo/keystone/schema')
+
+const { AddressHeuristic, AddressSource } = require('@address-service/domains/address/utils/serverSchema')
 const { PULLENTI_PROVIDER } = require('@address-service/domains/common/constants/providers')
 const { md5 } = require('@condo/domains/common/utils/crypto')
 
@@ -37,6 +39,83 @@ async function upsertAddressSource (context, addressSourceServerUtils, dvSender,
     return created?.id ?? null
 }
 
+class AddressIdentityConflict extends Error {}
+
+async function createOrRead (read, create, validate) {
+    const existing = await read()
+    if (existing) return validate(existing)
+
+    try {
+        return await create()
+    } catch (err) {
+        // Keystone may wrap uniqueness violations in a GraphQL error. Only recover
+        // when the row can be read again and its identity is verified.
+        const concurrent = await read()
+        if (!concurrent) throw err
+        return validate(concurrent)
+    }
+}
+
+async function persistWithExactFias (context, addressServerUtils, addressSourceServerUtils, addressData, dvSender, heuristic, strictFias) {
+    const { guid, findByGuid, getStoredGuid, sources } = strictFias
+    const validateAddress = (address) => {
+        const storedGuid = getStoredGuid(address)
+        if (storedGuid && storedGuid !== guid) throw new AddressIdentityConflict('Address FIAS does not match')
+        return address
+    }
+    const readAddress = async () => {
+        const matches = await findByGuid()
+        if (matches.length > 1) throw new AddressIdentityConflict('Multiple addresses for one FIAS')
+        return matches[0]
+    }
+    const address = await createOrRead(
+        readAddress,
+        () => addressServerUtils.create(context, { ...dvSender, ...addressData }, ADDRESS_ITEM_FIELDS),
+        validateAddress,
+    )
+    validateAddress(address)
+
+    const readHeuristic = async () => {
+        const [existing] = await find('AddressHeuristic', {
+            type: heuristic.type, value: guid, deletedAt: null,
+        })
+        return existing
+    }
+    // Each write is idempotent. If a later write fails, the next request can
+    // resume from the existing exact Address and heuristic.
+    await createOrRead(
+        readHeuristic,
+        () => AddressHeuristic.create(context, {
+            ...dvSender,
+            ...heuristic,
+            address: { connect: { id: address.id } },
+            provider: addressData.meta.provider.name,
+            enabled: true,
+        }),
+        (existing) => {
+            if (existing.address !== address.id || !existing.enabled) throw new AddressIdentityConflict('Conflicting FIAS heuristic')
+            return existing
+        },
+    )
+
+    for (const source of sources) {
+        await createOrRead(
+            async () => (await find('AddressSource', { source, deletedAt: null }))[0],
+            () => addressSourceServerUtils.create(context, {
+                ...dvSender,
+                source,
+                address: { connect: { id: address.id } },
+            }),
+            (existing) => {
+                if (existing.address !== address.id) throw new AddressIdentityConflict('Address alias already belongs to a different house')
+                return existing
+            },
+        )
+    }
+
+    return address
+}
+
 /**
  * @param context Keystone context
  * @param addressServerUtils
@@ -46,7 +125,11 @@ async function upsertAddressSource (context, addressSourceServerUtils, dvSender,
  * @param {{ dv: number, sender: { dv: number, fingerprint: string } }} dvSender
  * @param {Array<{type: string, value: string, reliability: number, meta?: object}>} [heuristics] - extracted heuristics from provider
  */
-async function createOrUpdateAddressWithSource (context, addressServerUtils, addressSourceServerUtils, addressData, addressSource, dvSender, heuristics = []) {
+async function createOrUpdateAddressWithSource (context, addressServerUtils, addressSourceServerUtils, addressData, addressSource, dvSender, heuristics = [], { strictFias } = {}) {
+    if (strictFias) {
+        return await persistWithExactFias(context, addressServerUtils, addressSourceServerUtils, addressData, dvSender, heuristics[0], strictFias)
+    }
+
     const { key, meta } = addressData
     const { helpers = null, provider: { name: providerName } = {}, data: { fias_id } = {} } = meta
 
@@ -199,6 +282,7 @@ function mergeAddressAndHelpers (address, helpers) {
 }
 
 module.exports = {
+    AddressIdentityConflict,
     upsertAddressSource,
     createOrUpdateAddressWithSource,
     createReturnObject,

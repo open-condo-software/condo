@@ -21,7 +21,7 @@ class PullentiClient {
      */
     constructor (url, options = {}) {
         if (!url) {
-            console.error('The `url` parameter is mandatory')
+            throw new Error('The `url` parameter is mandatory')
         }
         
         const { processor = null } = options
@@ -56,6 +56,36 @@ class PullentiClient {
         }
 
         throw new Error(`Failed to fetch from Pullenti. Status ${response.status}. StatusText: ${response.statusText}`)
+    }
+
+    /**
+     * Makes a GET request to the Pullenti OpenAPI endpoint.
+     *
+     * @param {string} pathname OpenAPI endpoint pathname
+     * @param {Record<string, string|number|boolean|null|undefined>} params Query parameters
+     * @returns {Promise<any>} Parsed JSON response
+     */
+    async callToPullentiApi (pathname, params = {}, requestOptions) {
+        const url = new URL(pathname, this.url)
+        for (const [key, value] of Object.entries(params)) {
+            if (value !== null && value !== undefined) {
+                url.searchParams.set(key, String(value))
+            }
+        }
+
+        const response = await fetch(url.toString(), {
+            method: 'GET',
+            ...requestOptions,
+            headers: {
+                accept: 'application/json',
+            },
+        })
+
+        if (response.ok) {
+            return await response.json()
+        }
+
+        throw new Error(`Failed to fetch from Pullenti OpenAPI. Status ${response.status}. StatusText: ${response.statusText}`)
     }
 
     /**
@@ -110,6 +140,52 @@ class PullentiClient {
     async processAddress (address) {
         const escapedAddress = this.escapeXml(address)
         return await this.callToPullenti(`<ProcessSingleAddressText>${escapedAddress}</ProcessSingleAddressText>`)
+    }
+
+    /**
+     * Processes one address using Pullenti 4.35 OpenAPI.
+     *
+     * @param {string} address Address to process
+     * @param {Object} options OpenAPI processing options
+     * @returns {Promise<Object>} Processed address
+     */
+    async processAddressJson (address, options = {}, requestOptions) {
+        return await this.callToPullentiApi('/Api/ProcessOneAddress', {
+            text: address,
+            ...options,
+        }, requestOptions)
+    }
+
+    /**
+     * Returns GAR parameters, including GUID, for a Pullenti object ID.
+     *
+     * @param {string} id Pullenti object ID
+     * @returns {Promise<Record<string, string[]>>} GAR parameters
+     */
+    async getGarObjectParams (id, requestOptions) {
+        return await this.callToPullentiApi('/Api/GetGarObjectParams', { id }, requestOptions)
+    }
+
+    /**
+     * Searches GAR objects using Pullenti 4.35 OpenAPI.
+     * Parameter names are case-sensitive in Pullenti, for example `Guid`.
+     *
+     * @param {string} paramName GAR parameter name
+     * @param {string} paramValue GAR parameter value
+     * @returns {Promise<Object[]>} Matching GAR objects
+     */
+    async searchObjectsByParamJson (paramName, paramValue, requestOptions) {
+        return await this.callToPullentiApi('/Api/SearchObjectsByParam', { paramName, paramValue }, requestOptions)
+    }
+
+    /**
+     * Searches GAR objects by FIAS GUID using Pullenti 4.35 OpenAPI.
+     *
+     * @param {string} guid FIAS GUID
+     * @returns {Promise<Object[]>} Matching GAR objects
+     */
+    async searchByGuidJson (guid, requestOptions) {
+        return await this.searchObjectsByParamJson('Guid', guid, requestOptions)
     }
 
     /**

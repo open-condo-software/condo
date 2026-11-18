@@ -170,7 +170,7 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
      * @param {Object} body
      * @returns {Promise<*|null>}
      */
-    async callToDadata (url, body) {
+    async callToDadata (url, body, requestOptions) {
         this.logger.info({ msg: 'api call', url, data: body, reqId: this.req.id })
 
         try {
@@ -178,6 +178,7 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
                 url,
                 {
                     method: 'POST',
+                    ...requestOptions,
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
@@ -215,12 +216,13 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
      * @param {string} tin
      * @returns {Promise<*|null>}
      */
-    async getOrganization (tin) {
+    async getOrganization (tin, requestOptions) {
         return await this.callToDadataCached({
             cacheClient: getKVClient('organization', 'tin'),
             searchKey: tin,
             apiUrl: 'findById/party',
             ttl: ORGANIZATION_TIN_CACHE_TTL,
+            requestOptions,
         })
     }
 
@@ -244,14 +246,14 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
      * @param {number} ttl
      * @returns {Promise<*|null>}
      */
-    async callToDadataCached ({ cacheClient, searchKey, apiUrl, ttl = DEFAULT_CACHE_TTL }) {
+    async callToDadataCached ({ cacheClient, searchKey, apiUrl, ttl = DEFAULT_CACHE_TTL, requestOptions }) {
         const cached = await cacheClient.get(searchKey)
 
         if (cached) {
             return JSON.parse(cached)
         }
 
-        const result = await this.callToDadata(`${this.url}/${apiUrl}`, { query: searchKey })
+        const result = await this.callToDadata(`${this.url}/${apiUrl}`, { query: searchKey }, ...(requestOptions ? [requestOptions] : []))
 
         if (result) {
             const data = get(result, ['suggestions', 0], null)
@@ -274,36 +276,43 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
         return TRAILING_HOUSE_NUMBER_RE.test(trimmedQuery) ? `${trimmedQuery} ` : trimmedQuery
     }
 
-    /**
-     * @returns {Promise<DadataObject[]>}
-     */
-    async get ({ query, context = '', count = 20, helpers = {} }) {
-        const { tin = null } = helpers
-
+    getSuggestBody ({ query, context, count, organizationInfo }) {
         const body = {
             query: DadataSuggestionProvider.prepareQuery(query),
             ...this.getContext(context),
             ...(isNaN(count) ? {} : { count }),
         }
-
-        if (tin) {
-            const organizationInfo = await this.getOrganization(tin)
-
-            if (organizationInfo) {
-                body.locations_boost = ORGANIZATION_KLADR_FIELDS
-                    .map(fieldName => get(organizationInfo, `data.address.data.${fieldName}`))
-                    .filter(Boolean)
-                    .map((kladr_id) => ({ kladr_id }))
-            }
+        if (organizationInfo) {
+            body.locations_boost = ORGANIZATION_KLADR_FIELDS
+                .map(fieldName => get(organizationInfo, `data.address.data.${fieldName}`))
+                .filter(Boolean)
+                .map((kladr_id) => ({ kladr_id }))
         }
+        return body
+    }
 
+    /**
+     * @returns {Promise<DadataObject[]>}
+     */
+    async get ({ query, context = '', count = 20, helpers = {} }) {
+        const { tin = null } = helpers
+        const organizationInfo = tin ? await this.getOrganization(tin) : null
+        const body = this.getSuggestBody({ query, context, count, organizationInfo })
         const result = await this.callToDadata(`${this.url}/suggest/address`, body)
+        return get(result, 'suggestions', [])
+    }
 
-        if (result) {
-            return get(result, 'suggestions', [])
+    /**
+     * Bulk normalization distinguishes an empty list from a failed or malformed provider response.
+     */
+    async getAddressSuggestions ({ query, count, organizationInfo, byId = false, requestOptions }) {
+        const apiPath = byId ? 'findById/address' : 'suggest/address'
+        const body = byId ? { query } : this.getSuggestBody({ query, count, organizationInfo })
+        const result = await this.callToDadata(`${this.url}/${apiPath}`, body, requestOptions)
+        if (!Array.isArray(result?.suggestions)) {
+            throw new Error('DaData address suggestions unavailable')
         }
-
-        return []
+        return result.suggestions
     }
 
     /**

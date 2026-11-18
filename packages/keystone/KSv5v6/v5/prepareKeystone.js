@@ -128,7 +128,7 @@ function _getApolloServerPlugins (keystone) {
     return apolloServerPlugins
 }
 
-function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, schemas, schemasPreprocessors, tasks, queues, apps, lastApp, graphql, ui, authStrategyOpts }) {
+function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressAppBeforeBodyParser, extendExpressApp, schemas, schemasPreprocessors, tasks, queues, apps, lastApp, graphql, ui, authStrategyOpts }) {
     // trying to be compatible with keystone-6 and keystone-5
     // TODO(pahaz): add storage like https://keystonejs.com/docs/config/config#storage-images-and-files
 
@@ -274,6 +274,8 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
                 }
                 next()
             })
+
+            if (extendExpressAppBeforeBodyParser) extendExpressAppBeforeBodyParser(app)
 
             // NOTE(toplenboren): we need a custom body parser for custom file upload limit
             app.use(json({ limit: '100mb', extended: true }))

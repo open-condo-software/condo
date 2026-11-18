@@ -6,6 +6,11 @@ const KEYWORDS = {
     flat: ['квартира', 'кв', 'комн'],
 }
 
+const EXPLICIT_KEYWORDS = {
+    ...KEYWORDS,
+    flat: [...KEYWORDS.flat, 'ком', 'комната'],
+    warehouse: [...KEYWORDS.warehouse, 'н/п'],
+}
 const HOUSE_IDENTIFIERS = 'д|уч|дом|участок|двлд'
 const SPLIT_SYMBOL = '%'
 const UUID_REGEXP = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i
@@ -73,7 +78,7 @@ class AddressFromStringParser {
      * @returns {{address: string, unitType: string, unitName: string}}
      */
     parse (rawString = '') {
-        if (UUID_REGEXP.test(rawString)) {
+        if (isAddressUUID(rawString)) {
             rawString = `${rawString},`
         }
 
@@ -151,6 +156,56 @@ class AddressFromStringParser {
         }
     }
 
+    parseExplicit (input) {
+        // Only split on a classified unit marker. The legacy parser also treats the last comma
+        // segment as a unit and can synthesize flat 1, which is unsuitable for normalization.
+        const parts = input.split(',').map(part => part.trim()).filter(Boolean)
+        const keywords = Object.values(EXPLICIT_KEYWORDS).flat()
+        const unitMarker = new RegExp(String.raw`^(?:${this.keywordsToRegexp(keywords)})(?:\.\s*|\s+|(?=\d|$))`, 'iu')
+        const inlineUnit = new RegExp(String.raw`\s+(?:${this.keywordsToRegexp(keywords)})(?:\.\s*|\s+|(?=\d|$))`, 'iu')
+        const building = new RegExp(String.raw`(?:^|\s)(?:${HOUSE_IDENTIFIERS})(?:\.\s*|\s+|(?=\d))\d`, 'iu')
+        const houseParts = []
+        const unitParts = []
+        let hasUnit = false
+        let hasBuilding = false
+
+        for (const part of parts) {
+            const buildingMatch = part.match(building)
+            const afterBuilding = buildingMatch ? buildingMatch.index + buildingMatch[0].length : 0
+            const inlineMatch = buildingMatch ? part.slice(afterBuilding).search(inlineUnit) : -1
+            const inlineIndex = inlineMatch >= 0 ? afterBuilding + inlineMatch : -1
+            if (inlineIndex >= 0) {
+                houseParts.push(part.slice(0, inlineIndex))
+                unitParts.push(part.slice(inlineIndex).trim())
+                hasUnit = true
+            } else if (unitMarker.test(part) || ((hasBuilding || hasUnit) && /^(?:№\s*)?\d+[а-яёa-z]*(?:[/-][\dа-яёa-z]+)*\)?$/iu.test(part))
+                || (hasUnit && /^(?:(?:этаж|подъезд|секция)(?:\.|\s|№)|мансарда|подвал)/iu.test(part))) {
+                unitParts.push(part)
+                hasUnit = true
+            } else {
+                houseParts.push(part)
+            }
+            hasBuilding ||= Boolean(buildingMatch)
+        }
+
+        const unit = unitParts.join(', ')
+        const { unitType, unitName } = this.parseUnitDescription(unit)
+        return { address: houseParts.join(', '), unitType, unitName, hasUnit }
+    }
+
+    parseUnitDescription (unit) {
+        const matches = Object.entries(EXPLICIT_KEYWORDS).map(([type, keywords]) => {
+            const pattern = this.keywordsToRegexp(keywords)
+            const marker = new RegExp(String.raw`^(?:${pattern})(?:\.\s*|\s+|(?=\d|$))`, 'iu')
+            return { type, match: unit.match(marker)?.[0] || '' }
+        })
+        const { type, match } = matches.reduce((longest, item) => item.match.length > longest.match.length ? item : longest)
+        return {
+            unitName: this.normalizeUnitName(unit.slice(match.length).replace(/^№\s*/, '')) || null,
+            unitType: match ? type : null,
+        }
+    }
+
     /**
      * @param {string} input
      * @returns {{housePart: string, unitPart: string}}
@@ -166,6 +221,8 @@ class AddressFromStringParser {
     }
 }
 
+const isAddressUUID = value => UUID_REGEXP.test(value)
+
 const parseAddressesFromString = (addresses = []) => {
     const parser = new AddressFromStringParser()
     return addresses.map(source => ({ source, result: parser.parse(source) }))
@@ -173,5 +230,6 @@ const parseAddressesFromString = (addresses = []) => {
 
 module.exports = {
     AddressFromStringParser,
+    isAddressUUID,
     parseAddressesFromString,
 }

@@ -1,10 +1,14 @@
 const { faker } = require('@faker-js/faker')
+const isPlainObject = require('lodash/isPlainObject')
 
 const { AddressFromStringParser } = require('@open-condo/clients/address-service-client/utils')
+
+const { isAddressUUID } = require('./utils/parseAddressesFromString')
 
 class FakeAddressServiceClient {
     addressKeysToSearchResultsMapping = new Map()
     addressSourcesToAddressKeyMapping = new Map()
+    bulkNormalizeResults = new Map()
 
     /**
      * @param {string} s
@@ -185,6 +189,58 @@ class FakeAddressServiceClient {
         }) => ([addressKey, { address }])))
         return { map, addresses }
     }
+
+    async bulkNormalize ({ items } = {}) {
+        if (!isPlainObject(items) || !Object.keys(items).length) return null
+        const parser = new AddressFromStringParser()
+        const normalized = await Promise.all(Object.entries(items).map(async ([input, metadata]) => {
+            if (this.bulkNormalizeResults.has(input)) return [input, this.bulkNormalizeResults.get(input)]
+
+            const { addressMeta = {} } = metadata || {}
+            const keyIsGuid = isAddressUUID(input)
+            const validMetadata = isPlainObject(addressMeta) && Object.values(addressMeta).every(value => value == null || typeof value === 'string')
+            const [guid, ...tail] = validMetadata ? (addressMeta.globalId || '').split(',') : []
+            if (!input.trim() || !isPlainObject(metadata) || !validMetadata ||
+                (keyIsGuid && guid && guid.trim().toLowerCase() !== input.toLowerCase())) {
+                return [input, {
+                    result: null,
+                    warnings: [],
+                    error: { code: 'INVALID_INPUT', stage: 'validate', message: 'Invalid address or address metadata' },
+                }]
+            }
+
+            const parsed = parser.parseExplicit(input)
+            const source = keyIsGuid ? `fiasId:${input.toLowerCase()}` : parsed.address
+            if (!source || (keyIsGuid && !this.addressSourcesToAddressKeyMapping.has(source))) {
+                return [input, {
+                    result: null,
+                    warnings: [],
+                    error: { code: 'ADDRESS_NOT_FOUND', stage: 'resolve-house', message: 'No house candidate was resolved' },
+                }]
+            }
+
+            const tailUnit = parser.parseUnitDescription(tail.join(',').trim())
+            const unitName = addressMeta.unitName || tailUnit.unitName || parsed.unitName
+            const stored = await this.search(source)
+            const acceptedTypes = ['flat', 'parking', 'apartment', 'commercial', 'warehouse']
+            const explicitType = acceptedTypes.includes(addressMeta.unitType) ? addressMeta.unitType : null
+            const inferredType = [tailUnit, parsed].find(unit => unit.unitName === unitName)?.unitType
+            return [input, {
+                result: {
+                    id: stored.addressKey,
+                    house: stored.address,
+                    globalId: stored.addressMeta.data.house_fias_id,
+                    unitName,
+                    unitType: unitName ? explicitType || inferredType || null : null,
+                    confidence: 100,
+                },
+                warnings: guid && !isAddressUUID(guid.trim()) ? ['BAD_FIAS'] : [],
+                error: null,
+            }]
+        }))
+        return { items: Object.fromEntries(normalized) }
+    }
+
 }
 
 module.exports = { FakeAddressServiceClient }

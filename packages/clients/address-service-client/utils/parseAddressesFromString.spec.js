@@ -1,4 +1,4 @@
-const { parseAddressesFromString, AddressFromStringParser } = require('./parseAddressesFromString')
+const { parseAddressesFromString, AddressFromStringParser, isAddressUUID } = require('./parseAddressesFromString')
 
 const ADDRESS_USE_CASES = [
     ['пер.Малый Козихинский, д.7, м/м 3,4 (1 ур.)', 'пер.Малый Козихинский, д.7', 'parking', '3,4 (1 ур.)'],
@@ -63,6 +63,95 @@ describe('AddressFromStringParser', () => {
         })
     })
 
+    describe('parseExplicit', () => {
+        test.each([
+            '',
+            '   ',
+            'г Москва, ул Хабаровская, д 5',
+            'г Москва, ул Ленина, д. 12, к. 2',
+            'г Москва, ул Ленина, д. 12, стр. 2',
+            'г Колпино, ул Промышленная, д. 3, литер А',
+            'г Москва, кв-л Солнечный, д. 1',
+            'г Москва, ул Квартальная, д. 1',
+            'ул Щорса, уч. 103',
+            '671ea901-641e-4ce9-9815-604e7223de6c',
+        ])('preserves the house and returns empty unit fields for "%s"', (input) => {
+            const parser = new AddressFromStringParser()
+
+            expect(parser.parseExplicit(input)).toEqual({
+                address: input.trim(),
+                unitName: null,
+                unitType: null,
+                hasUnit: false,
+            })
+        })
+
+        test.each([
+            ['г Москва, ул Ленина, д. 12, кв.001', 'г Москва, ул Ленина, д. 12', '001', 'flat'],
+            ['г Москва, ул Ленина, д. 12 кв 000', 'г Москва, ул Ленина, д. 12', '000', 'flat'],
+            ['г Москва, ул Ленина, д. 12, кв.0', 'г Москва, ул Ленина, д. 12', '0', 'flat'],
+            ['г Краснодар, кв.001, ул Ленина, д. 5', 'г Краснодар, ул Ленина, д. 5', '001', 'flat'],
+            ['г Москва, ул Ленина, д. 12, кв.001, к. 2', 'г Москва, ул Ленина, д. 12, к. 2', '001', 'flat'],
+            ['г Москва, ул Ленина, д. 12, оф.7', 'г Москва, ул Ленина, д. 12', '7', 'commercial'],
+            ['г Москва, ул Ленина, д. 12, м/м ММ3', 'г Москва, ул Ленина, д. 12', 'ММ3', 'parking'],
+            ['г Москва, ул Ленина, д. 12, апарт.1', 'г Москва, ул Ленина, д. 12', '1', 'apartment'],
+            ['г Москва, ул Ленина, д. 12, н/п 3', 'г Москва, ул Ленина, д. 12', '3', 'warehouse'],
+            ['г Москва, ул Ленина, д. 12, ком.1', 'г Москва, ул Ленина, д. 12', '1', 'flat'],
+            ['г Москва, ул Ленина, д. 12, комната 1', 'г Москва, ул Ленина, д. 12', '1', 'flat'],
+            ['г Москва, ул Ленина, д. 12, 001', 'г Москва, ул Ленина, д. 12', '001', null],
+            ['г Москва, ул Ленина, д. 12, № 1', 'г Москва, ул Ленина, д. 12', '1', null],
+            ['г Москва, ул Ленина, д. 12, кв.53/1', 'г Москва, ул Ленина, д. 12', '53/1', 'flat'],
+            ['г Москва, ул Ленина, д. 12, кв.5,31,32', 'г Москва, ул Ленина, д. 12', '5, 31, 32', 'flat'],
+            ['г Москва, ул Ленина, д. 12, кл.1 (кв.25)', 'г Москва, ул Ленина, д. 12', '1 (кв.25)', 'warehouse'],
+            ['г Москва, ул Ленина, д. 12, кв.1, ком.1, 2, 3, 4', 'г Москва, ул Ленина, д. 12', '1, ком.1, 2, 3, 4', 'flat'],
+            ['г Колпино, ул Промышленная, д. 3, литер А, нп.1-Н, 2-Н', 'г Колпино, ул Промышленная, д. 3, литер А', '1-Н, 2-Н', 'warehouse'],
+            ['ул Мира, д. 29, нп.подвал, этаж№1, этаж№2, мансарда', 'ул Мира, д. 29', 'подвал, этаж№1, этаж№2, мансарда', 'warehouse'],
+            ['ул Гамарника, д. 17, нп.-I (1-6, 8-10, 14-20)', 'ул Гамарника, д. 17', '-I (1-6, 8-10, 14-20)', 'warehouse'],
+        ])('extracts the complete unit from "%s"', (input, address, unitName, unitType) => {
+            const parser = new AddressFromStringParser()
+
+            expect(parser.parseExplicit(input)).toEqual({ address, unitName, unitType, hasUnit: true })
+        })
+
+        test('keeps an empty unit marker so the caller can report a missing number', () => {
+            const parser = new AddressFromStringParser()
+
+            expect(parser.parseExplicit('г Москва, ул Ленина, д. 12, кв.')).toEqual({
+                address: 'г Москва, ул Ленина, д. 12',
+                unitName: null,
+                unitType: 'flat',
+                hasUnit: true,
+            })
+        })
+    })
+
+    describe('parseUnitDescription', () => {
+        test.each([
+            ['', null, null],
+            ['   ', null, null],
+            ['001', '001', null],
+            ['№ 001', '001', null],
+            ['НП10', '10', 'warehouse'],
+            ['кладовая001', '001', 'warehouse'],
+            ['кв.0', '0', 'flat'],
+            ['ком.1', '1', 'flat'],
+            ['комната 1', '1', 'flat'],
+            ['офис 123', '123', 'commercial'],
+            ['апарт.1', '1', 'apartment'],
+            ['м/м ММ3', 'ММ3', 'parking'],
+            ['н/п 3', '3', 'warehouse'],
+            ['кв.39/ЖП', '39/ЖП', 'flat'],
+            ['кв.1, ком.1, 2, 3, 4', '1, ком.1, 2, 3, 4', 'flat'],
+            ['кл.1 ( кв.25 )', '1 (кв.25)', 'warehouse'],
+            ['помещение подвал, этаж№1, секция А', 'подвал, этаж№1, секция А', 'warehouse'],
+            ['Квартальная', 'Квартальная', null],
+        ])('parses "%s" and preserves its unit description', (input, unitName, unitType) => {
+            const parser = new AddressFromStringParser()
+
+            expect(parser.parseUnitDescription(input)).toEqual({ unitName, unitType })
+        })
+    })
+
     describe('check AddressFromStringParser methods', () => {
 
         test('parseUnit should return flat if no unit type is detected', () => {
@@ -96,3 +185,25 @@ describe('AddressFromStringParser', () => {
     })
 })
 
+
+describe('isAddressUUID', () => {
+    test.each([
+        '671ea901-641e-4ce9-9815-604e7223de6c',
+        '671EA901-641E-4CE9-9815-604E7223DE6C',
+    ])('recognizes "%s"', (input) => {
+        expect(isAddressUUID(input)).toBe(true)
+    })
+
+    test.each([
+        '',
+        'г Москва, ул Ленина, д. 12',
+        '671ea901-641e-4ce9-9815-604e7223de6',
+        '671ea901-641e-4ce9-9815-604e7223de6z',
+        '671ea901641e4ce99815604e7223de6c',
+        '671ea901-641e-4ce9-9815-604e7223de6c, кв.1',
+        '671ea901-641e-4ce9-9815-604e7223de6c ',
+        ' 671ea901-641e-4ce9-9815-604e7223de6c',
+    ])('rejects "%s"', (input) => {
+        expect(isAddressUUID(input)).toBe(false)
+    })
+})

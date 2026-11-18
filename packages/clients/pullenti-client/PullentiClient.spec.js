@@ -29,6 +29,7 @@ describe('PullentiClient', () => {
         mockFetch.mockResolvedValue({
             ok: true,
             text: () => Promise.resolve(JSON.stringify(mockResponse)),
+            json: () => Promise.resolve(mockResponse),
         })
 
         // Create a new client instance for each test
@@ -173,6 +174,48 @@ describe('PullentiClient', () => {
                 mockFetch.mockClear()
             }
         )
+    })
+
+    describe('OpenAPI methods', () => {
+        const testAddress = 'Test Address 123'
+        const testGuid = '550e8400-e29b-41d4-a716-446655440000'
+        const testPullentiId = 'h123'
+
+        test('should process an address as JSON', async () => {
+            await client.processAddressJson(testAddress, { noFlats: true })
+
+            expect(mockFetch).toHaveBeenCalledWith(
+                'http://test-pullenti-service/Api/ProcessOneAddress?text=Test+Address+123&noFlats=true',
+                {
+                    method: 'GET',
+                    headers: { accept: 'application/json' },
+                }
+            )
+        })
+
+        test('should get GAR object parameters as JSON', async () => {
+            await client.getGarObjectParams(testPullentiId)
+
+            expect(mockFetch).toHaveBeenCalledWith(
+                `http://test-pullenti-service/Api/GetGarObjectParams?id=${testPullentiId}`,
+                {
+                    method: 'GET',
+                    headers: { accept: 'application/json' },
+                }
+            )
+        })
+
+        test('should use the case-sensitive Guid parameter name', async () => {
+            await client.searchByGuidJson(testGuid)
+
+            expect(mockFetch).toHaveBeenCalledWith(
+                `http://test-pullenti-service/Api/SearchObjectsByParam?paramName=Guid&paramValue=${testGuid}`,
+                {
+                    method: 'GET',
+                    headers: { accept: 'application/json' },
+                }
+            )
+        })
     })
 
     describe('error handling', () => {

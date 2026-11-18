@@ -117,6 +117,14 @@ class AddressServiceClient {
     async bulkSearch (params = {}) {
         return this.call(`${this.url}/bulkSearch`, 'POST', params)
     }
+
+    /**
+     * @param {{items: Record<string, {addressMeta?: {globalId?: string|null, unitName?: string|null, unitType?: string|null}}>, helpers?: {tin?: string}}} params
+     * @returns {Promise<{items: Record<string, {result: ?Object, warnings: string[], error: ?Object}>}|null>}
+     */
+    async bulkNormalize (params) {
+        return this.call(`${this.url}/bulkNormalize`, 'POST', params)
+    }
 }
 
 module.exports = { AddressServiceClient }

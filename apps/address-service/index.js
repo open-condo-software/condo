@@ -9,6 +9,7 @@ const {
     getAddressProviderBalanceHealthCheck,
     getAddressProviderLimitHealthCheck,
 } = require('@address-service/domains/common/utils/healthchecks')
+const { BulkNormalizeKeystoneApp, prepareBulkNormalizeBodyParser } = require('@address-service/domains/common/utils/services/normalize/BulkNormalizeKeystoneApp')
 const {
     SearchBySource,
     SearchByProvider,
@@ -44,6 +45,7 @@ const apps = () => [
     }),
     conf.DISABLE_OIDC_AUTH ? undefined : new OIDCKeystoneApp(),
     new SuggestionKeystoneApp(),
+    new BulkNormalizeKeystoneApp(),
     new SearchKeystoneApp([
         new SearchByAddressKey(),
         new SearchBySource(),
@@ -55,5 +57,5 @@ const apps = () => [
 ].filter(identity)
 
 module.exports = prepareKeystone({
-    schemas, apps,
+    schemas, apps, extendExpressAppBeforeBodyParser: prepareBulkNormalizeBodyParser,
 })
