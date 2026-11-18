@@ -21,12 +21,12 @@ concurrency:
 
 env:
   DOCKER_IMAGE: condo/condo-image:${{ github.event.pull_request.head.sha || github.sha }}
-  DOCKER_IMAGE_FULL: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}/condo/condo-image:${{ github.event.pull_request.head.sha || github.sha }}
+  DOCKER_IMAGE_FULL: ${{ secrets.DOCKER_REGISTRY }}/condo/condo-image:${{ github.event.pull_request.head.sha || github.sha }}
   CONDO_TEST_SHARD_TOTAL: 20
-  PG_IMAGE_FULL: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}/doma/utils/postgres:16.8
-  REDIS_IMAGE_FULL: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}/doma/utils/redis:6.2
+  PG_IMAGE_FULL: ${{ secrets.DOCKER_REGISTRY }}/doma/utils/postgres:16.8
+  REDIS_IMAGE_FULL: ${{ secrets.DOCKER_REGISTRY }}/doma/utils/redis:6.2
   REF: ${{ github.event.pull_request.head.sha || github.ref }}
-  REDIS_RUN_COMMAND: docker run -p="127.0.0.1:6379:6379" -d ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}/doma/utils/redis:6.2 --databases 64
+  REDIS_RUN_COMMAND: docker run -p="127.0.0.1:6379:6379" -d ${{ secrets.DOCKER_REGISTRY }}/doma/utils/redis:6.2 --databases 64
 
 jobs:
   authorize:
@@ -54,8 +54,8 @@ jobs:
       - name: Set registry variables
         run: |
           ref="$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9]/-/g')"
-          echo "DOCKER_CACHE_FROM=type=registry,ref=${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}/condo/condo-image:${ref}" >> $GITHUB_ENV
-          echo "DOCKER_CACHE_TO=type=registry,ref=${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}/condo/condo-image:${ref},mode=max,image-manifest=true" >> $GITHUB_ENV
+          echo "DOCKER_CACHE_FROM=type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/condo/condo-image:${ref}" >> $GITHUB_ENV
+          echo "DOCKER_CACHE_TO=type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/condo/condo-image:${ref},mode=max,image-manifest=true" >> $GITHUB_ENV
 
       - name: Wait for dind to be ready
         run: |
@@ -90,12 +90,12 @@ jobs:
             fi
             sleep 1
           done
-      - name: Login to self-hosted registry
+      - name: Login to cloud registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}
-          username: ${{ secrets.SELF_HOSTED_CR_USERNAME }}
-          password: ${{ secrets.SELF_HOSTED_CR_PASSWORD }}
+          registry: ${{ secrets.DOCKER_REGISTRY }}
+          username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
+          password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
       - name: Checkout code
         uses: actions/checkout@v4
         with:
@@ -117,7 +117,7 @@ jobs:
           endpoint: builders
           driver-opts: |
             env.BUILDKIT_STEP_LOG_MAX_SIZE=10485760
-            image=${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}/doma/utils/buildkit:buildx-stable-2
+            image=${{ secrets.DOCKER_REGISTRY }}/doma/utils/buildkit:buildx-stable-2
       - name: Build repo image
         uses: docker/build-push-action@v6
         with:
@@ -126,7 +126,7 @@ jobs:
           push: true
           tags: ${{ env.DOCKER_IMAGE_FULL }}
           build-args: |
-            REGISTRY=${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}/doma/utils
+            REGISTRY=${{ secrets.DOCKER_REGISTRY }}/doma/utils
             TURBO_TEAM=condo-ci
             TURBO_REMOTE_ONLY=true
             TURBO_TOKEN=${{ secrets.TURBO_TOKEN }}
@@ -450,12 +450,12 @@ jobs:
             sleep 1
           done
 
-      - name: Login to self-hosted registry
+      - name: Login to cloud registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}
-          username: ${{ secrets.SELF_HOSTED_CR_USERNAME }}
-          password: ${{ secrets.SELF_HOSTED_CR_PASSWORD }}
+          registry: ${{ secrets.DOCKER_REGISTRY }}
+          username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
+          password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
       - name: Setup PG db
         run: |
           docker run -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_DB=$POSTGRES_DB -p="127.0.0.1:5432:5432" -d ${{ env.PG_IMAGE_FULL }}
@@ -570,12 +570,12 @@ jobs:
             sleep 1
           done
 
-      - name: Login to self-hosted registry
+      - name: Login to cloud registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}
-          username: ${{ secrets.SELF_HOSTED_CR_USERNAME }}
-          password: ${{ secrets.SELF_HOSTED_CR_PASSWORD }}
+          registry: ${{ secrets.DOCKER_REGISTRY }}
+          username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
+          password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
       - name: Setup PG db
         run: |
           docker run -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_DB=$POSTGRES_DB -p="127.0.0.1:5432:5432" -d ${{ env.PG_IMAGE_FULL }}
@@ -673,12 +673,12 @@ jobs:
             sleep 1
           done
 
-      - name: Login to self-hosted registry
+      - name: Login to cloud registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}
-          username: ${{ secrets.SELF_HOSTED_CR_USERNAME }}
-          password: ${{ secrets.SELF_HOSTED_CR_PASSWORD }}
+          registry: ${{ secrets.DOCKER_REGISTRY }}
+          username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
+          password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
       - name: Setup PG db
         run: |
           docker run -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_DB=$POSTGRES_DB -p="127.0.0.1:5432:5432" -d ${{ env.PG_IMAGE_FULL }}
@@ -759,12 +759,12 @@ jobs:
             sleep 1
           done
 
-      - name: Login to self-hosted registry
+      - name: Login to cloud registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}
-          username: ${{ secrets.SELF_HOSTED_CR_USERNAME }}
-          password: ${{ secrets.SELF_HOSTED_CR_PASSWORD }}
+          registry: ${{ secrets.DOCKER_REGISTRY }}
+          username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
+          password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
       - name: Setup PG db
         run: |
           docker run -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_DB=$POSTGRES_DB -p="127.0.0.1:5432:5432" -d ${{ env.PG_IMAGE_FULL }}
@@ -845,12 +845,12 @@ jobs:
             sleep 1
           done
 
-      - name: Login to self-hosted registry
+      - name: Login to cloud registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}
-          username: ${{ secrets.SELF_HOSTED_CR_USERNAME }}
-          password: ${{ secrets.SELF_HOSTED_CR_PASSWORD }}
+          registry: ${{ secrets.DOCKER_REGISTRY }}
+          username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
+          password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
       - name: Setup PG db
         run: |
           docker run -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_DB=$POSTGRES_DB -p="127.0.0.1:5432:5432" -d ${{ env.PG_IMAGE_FULL }}
@@ -931,12 +931,12 @@ jobs:
             sleep 1
           done
 
-      - name: Login to self-hosted registry
+      - name: Login to cloud registry
         uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef
         with:
-          registry: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}
-          username: ${{ secrets.SELF_HOSTED_CR_USERNAME }}
-          password: ${{ secrets.SELF_HOSTED_CR_PASSWORD }}
+          registry: ${{ secrets.DOCKER_REGISTRY }}
+          username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
+          password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
       - name: Setup PG db
         run: |
           docker run -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_DB=$POSTGRES_DB -p="127.0.0.1:5432:5432" -d ${{ env.PG_IMAGE_FULL }}
@@ -1017,12 +1017,12 @@ jobs:
             sleep 1
           done
 
-      - name: Login to self-hosted registry
+      - name: Login to cloud registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}
-          username: ${{ secrets.SELF_HOSTED_CR_USERNAME }}
-          password: ${{ secrets.SELF_HOSTED_CR_PASSWORD }}
+          registry: ${{ secrets.DOCKER_REGISTRY }}
+          username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
+          password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
       - name: Setup PG db
         run: |
           docker run -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_DB=$POSTGRES_DB -p="127.0.0.1:5432:5432" -d ${{ env.PG_IMAGE_FULL }}
@@ -1153,12 +1153,12 @@ jobs:
             sleep 1
           done
 
-      - name: Login to self-hosted registry
+      - name: Login to cloud registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}
-          username: ${{ secrets.SELF_HOSTED_CR_USERNAME }}
-          password: ${{ secrets.SELF_HOSTED_CR_PASSWORD }}
+          registry: ${{ secrets.DOCKER_REGISTRY }}
+          username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
+          password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
       - name: Setup PG db
         run: |
           docker run -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_DB=$POSTGRES_DB -p="127.0.0.1:5432:5432" -d ${{ env.PG_IMAGE_FULL }}
@@ -1239,12 +1239,12 @@ jobs:
             sleep 1
           done
 
-      - name: Login to self-hosted registry
+      - name: Login to cloud registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}
-          username: ${{ secrets.SELF_HOSTED_CR_USERNAME }}
-          password: ${{ secrets.SELF_HOSTED_CR_PASSWORD }}
+          registry: ${{ secrets.DOCKER_REGISTRY }}
+          username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
+          password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
       - name: Setup PG db
         run: |
           docker run -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_DB=$POSTGRES_DB -p="127.0.0.1:5432:5432" -d ${{ env.PG_IMAGE_FULL }}
@@ -1357,12 +1357,12 @@ jobs:
             sleep 1
           done
 
-      - name: Login to self-hosted registry
+      - name: Login to cloud registry
         uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9
         with:
-          registry: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}
-          username: ${{ secrets.SELF_HOSTED_CR_USERNAME }}
-          password: ${{ secrets.SELF_HOSTED_CR_PASSWORD }}
+          registry: ${{ secrets.DOCKER_REGISTRY }}
+          username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
+          password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
       - name: Setup PG db
         run: |
           docker run -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_DB=$POSTGRES_DB -p="127.0.0.1:5432:5432" -d ${{ env.PG_IMAGE_FULL }}
