@@ -4,13 +4,17 @@ const mockBillingReceiptServiceCategories = {
     colors: {
         'billing.category.hot_water.name': '#ff0000',
         'billing.category.water_removal.name': '#0000ff',
-        'billing.category.other.name': '#999999',
+        'billing.servicesDistribution.other.name': '#999999',
         invalidColor: 42,
     },
     patterns: [
         {
             categoryName: 'billing.category.invalid.name',
             patterns: [17, { expression: '[', flags: [] }],
+        },
+        {
+            categoryName: 'billing.servicesDistribution.other.name',
+            patterns: ['explicit other'],
         },
         {
             categoryName: 'billing.category.water_removal.name',
@@ -35,7 +39,7 @@ const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getLocalized } = require('@open-condo/locales/loader')
 
-const { SERVICES_DISTRIBUTION_FIELD } = require('./ServicesDistribution')
+const { getOtherServiceNames, SERVICES_DISTRIBUTION_FIELD } = require('./ServicesDistribution')
 const logger = getLogger()
 
 describe('BillingReceipt servicesDistribution', () => {
@@ -79,8 +83,21 @@ describe('BillingReceipt servicesDistribution', () => {
         expect(await resolve([
             { name: 'Uncategorized service', toPay: '-1.25' },
         ], 'unsupported')).toEqual([
-            { categoryName: getLocalized(conf.DEFAULT_LOCALE, 'billing.category.other.name'), amount: '-1.25', color: '#999999' },
+            { categoryName: getLocalized(conf.DEFAULT_LOCALE, 'billing.servicesDistribution.other.name'), amount: '-1.25', color: '#999999' },
         ])
+    })
+
+    test('groups explicit Other rules with unmatched services and keeps Other last', async () => {
+        const services = [
+            { name: 'Explicit other', toPay: '0.50' },
+            { name: 'Hot water', toPay: '0.25' },
+            { name: 'Unknown service', toPay: '0.75' },
+        ]
+        expect(await resolve(services)).toEqual([
+            { categoryName: getLocalized('ru', 'billing.category.hot_water.name'), amount: '0.25', color: '#ff0000' },
+            { categoryName: getLocalized('ru', 'billing.servicesDistribution.other.name'), amount: '1.25', color: '#999999' },
+        ])
+        expect(getOtherServiceNames({ services, toPay: '1.50' })).toEqual(['Explicit other', 'Unknown service'])
     })
 
     test('keeps zero and negative amounts and returns an empty list when there are no services', async () => {

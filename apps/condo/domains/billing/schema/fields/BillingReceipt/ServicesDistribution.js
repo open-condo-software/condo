@@ -115,6 +115,7 @@ function parseServiceCategoriesConfig () {
             let flags = ''
             if (typeof patternResult.data === 'string') {
                 expression = patternResult.data
+                flags = 'i'
             } else {
                 expression = patternResult.data.expression
                 flags = patternResult.data.flags.join('')
