@@ -51,4 +51,4 @@ bridge.send('CondoWebAppShowProgressBar', {
 
 По клику на действие Condo отправляет `CondoWebAppActionClickEvent` с назначенным `actionId` в processing iframe. Мини-приложение само выбирает действие: например, вызывает `CondoWebAppShowModalWindow` или `CondoWebAppRedirect`.
 
-При отмене progress bar Condo перед его удалением отправляет в processing iframe событие `CondoWebAppProgressBarCancelEvent`. Мини-приложение само отменяет свою серверную работу. Для подписки на это событие используйте `useProgressBarCancelHandler` из `@open-condo/miniapp-utils`.
+При отмене progress bar Condo перед его удалением отправляет в processing iframe событие `CondoWebAppTaskCancelEvent`. В его данных есть host `taskId` и, если он был передан, `externalTaskId` мини-приложения. Мини-приложение само отменяет свою серверную работу.

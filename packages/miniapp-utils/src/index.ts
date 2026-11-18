@@ -32,7 +32,6 @@ export { generateUUIDv4 } from './helpers/uuid'
  */
 
 export { useSetPageActionsHandlers } from './hooks/useSetPageActionsHandlers'
-export { useProgressBarCancelHandler } from './hooks/useProgressBarCancelHandler'
 export { useEffectOnce } from './hooks/useEffectOnce'
 export { useIntersectionObserver } from './hooks/useIntersectionObserver'
 export { usePrevious } from './hooks/usePrevious'

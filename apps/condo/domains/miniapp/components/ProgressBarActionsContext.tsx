@@ -10,7 +10,7 @@ type ProgressBarFrame = Pick<FrameRegistrationEvent, 'frameOrigin' | 'frameRef'>
 type ProgressBarActionsContextValue = {
     registerProgressBarFrame: (barId: string, event: FrameRegistrationEvent) => () => void
     sendProgressBarAction: (barId: string, actionId: string) => void
-    sendProgressBarCancel: (barId: string) => void
+    sendTaskCancel: (taskId: string, externalTaskId?: string) => void
 }
 
 const ProgressBarActionsContext = createContext<ProgressBarActionsContextValue | null>(null)
@@ -41,16 +41,19 @@ export const ProgressBarActionsProvider: React.FC<React.PropsWithChildren> = ({ 
         }, frame.frameOrigin)
     }, [frames])
 
-    const sendProgressBarCancel = useCallback((barId: string) => {
-        const frame = frames.get(barId)
-        const data: IncomingEventData<'CondoWebAppProgressBarCancel'> = {}
+    const sendTaskCancel = useCallback((taskId: string, externalTaskId?: string) => {
+        const frame = frames.get(taskId)
+        const data: IncomingEventData<'CondoWebAppTaskCancel'> = {
+            taskId,
+            ...(externalTaskId !== undefined ? { externalTaskId } : {}),
+        }
         frame?.frameRef.current?.contentWindow?.postMessage({
-            type: 'CondoWebAppProgressBarCancelEvent',
+            type: 'CondoWebAppTaskCancelEvent',
             data,
         }, frame.frameOrigin)
     }, [frames])
 
-    const value = useMemo(() => ({ registerProgressBarFrame, sendProgressBarAction, sendProgressBarCancel }), [registerProgressBarFrame, sendProgressBarAction, sendProgressBarCancel])
+    const value = useMemo(() => ({ registerProgressBarFrame, sendProgressBarAction, sendTaskCancel }), [registerProgressBarFrame, sendProgressBarAction, sendTaskCancel])
 
     return <ProgressBarActionsContext.Provider value={value}>{children}</ProgressBarActionsContext.Provider>
 }

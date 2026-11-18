@@ -49,4 +49,4 @@ Use `processingFrame` only for an iframe miniapp page at the same origin. It is 
 
 When the user clicks an action, Condo sends `CondoWebAppActionClickEvent` with its generated `actionId` to the processing iframe. The miniapp decides what to do, for example by calling `CondoWebAppShowModalWindow` or `CondoWebAppRedirect`.
 
-When the user cancels a processing bar, Condo sends `CondoWebAppProgressBarCancelEvent` to its processing iframe before removing the bar. The miniapp is responsible for cancelling its own server-side work. Subscribe to this event with `useProgressBarCancelHandler` from `@open-condo/miniapp-utils`.
+When the user cancels a processing bar, Condo sends `CondoWebAppTaskCancelEvent` to its processing iframe before removing the bar. Its data contains the host `taskId` and, when provided, the miniapp `externalTaskId`. The miniapp is responsible for cancelling its own server-side work.

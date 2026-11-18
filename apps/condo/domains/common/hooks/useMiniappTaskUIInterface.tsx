@@ -13,7 +13,7 @@ export type MiniAppTaskRecord = LocalTaskRecord & {
 
 type UseMiniappTaskUIInterfaceType = () => ({ MiniAppTask: ITask<MiniAppTaskRecord> })
 export const useMiniappTaskUIInterface: UseMiniappTaskUIInterfaceType = () => {
-    const { sendProgressBarAction, sendProgressBarCancel } = useProgressBarActions()
+    const { sendProgressBarAction, sendTaskCancel } = useProgressBarActions()
     const TaskUIInterface: ITask<MiniAppTaskRecord> = {
         storage: new TasksLocalStorage(),
         removeStrategy: [TASK_REMOVE_STRATEGY.PANEL, TASK_REMOVE_STRATEGY.STORAGE],
@@ -37,7 +37,7 @@ export const useMiniappTaskUIInterface: UseMiniappTaskUIInterfaceType = () => {
             console.debug('Completed third-party taskRecord', taskRecord)
         },
         onCancel: (taskRecord) => {
-            sendProgressBarCancel(taskRecord.id)
+            sendTaskCancel(taskRecord.id, taskRecord.taskId)
         },
     }
 
