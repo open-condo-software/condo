@@ -17,16 +17,17 @@
  */
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, FORBIDDEN } } = require('@open-condo/keystone/errors')
-const { GQLCustomSchema, getById, find } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema, getById, getByCondition, find } = require('@open-condo/keystone/schema')
 
 const { removeOrphansRecurrentPaymentContexts } = require('@condo/domains/acquiring/tasks')
 const { DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
 const { OrganizationEmployee, OrganizationEmployeeRequest } = require('@condo/domains/organization/utils/serverSchema')
 const access = require('@condo/domains/user/access/ResetUserService')
 const { DELETED_USER_NAME } = require('@condo/domains/user/constants')
-const { User } = require('@condo/domains/user/utils/serverSchema')
+const { User, UserSudoToken } = require('@condo/domains/user/utils/serverSchema')
+const { detectTokenTypeSafely, TOKEN_TYPES } = require('@condo/domains/user/utils/tokens')
 
-const { USER_NOT_FOUND, CANNOT_RESET_ADMIN_USER } = require('../constants/errors')
+const { USER_NOT_FOUND, CANNOT_RESET_ADMIN_USER, INVALID_TOKEN, UNSUPPORTED_TOKEN, TOKEN_NOT_FOUND } = require('../constants/errors')
 const { UserExternalIdentity } = require('../utils/serverSchema')
 
 
@@ -52,13 +53,44 @@ const ERRORS = {
         type: CANNOT_RESET_ADMIN_USER,
         message: 'You cannot reset admin user',
     },
+    INVALID_TOKEN: {
+        mutation: 'resetUser',
+        variable: ['data', 'token'],
+        code: BAD_USER_INPUT,
+        type: INVALID_TOKEN,
+        message: 'Invalid token',
+        messageForUser: 'api.user.resetUser.INVALID_TOKEN',
+    },
+    UNSUPPORTED_TOKEN: {
+        mutation: 'resetUser',
+        variable: ['data', 'token'],
+        code: BAD_USER_INPUT,
+        type: UNSUPPORTED_TOKEN,
+        message: 'Unsupported token',
+        messageForUser: 'api.user.resetUser.UNSUPPORTED_TOKEN',
+    },
+    TOKEN_NOT_FOUND: {
+        mutation: 'resetUser',
+        variable: ['data', 'token'],
+        code: BAD_USER_INPUT,
+        type: TOKEN_NOT_FOUND,
+        message: 'Unable to find non-expired UserSudoToken by specified token',
+        messageForUser: 'api.user.resetUser.TOKEN_NOT_FOUND',
+    },
+    OPERATION_FAILED: {
+        mutation: 'resetUser',
+        code: BAD_USER_INPUT,
+        type: 'OPERATION_FAILED',
+        message: 'The operation failed',
+        messageForUser: 'api.user.resetUser.OPERATION_FAILED',
+    },
 }
 
 const ResetUserService = new GQLCustomSchema('ResetUserService', {
     types: [
         {
             access: true,
-            type: 'input ResetUserInput { dv: Int! sender: SenderFieldInput! user: UserWhereUniqueInput!, saveName: Boolean }',
+            type: 'input ResetUserInput { dv: Int! sender: SenderFieldInput! user: UserWhereUniqueInput!, saveName: Boolean, token: String }',
         },
         {
             access: true,
@@ -76,7 +108,7 @@ const ResetUserService = new GQLCustomSchema('ResetUserService', {
             },
             resolver: async (parent, args, context) => {
                 const { data } = args
-                const { dv, sender, user, saveName } = data
+                const { dv, sender, user, saveName, token } = data
                 if (!user.id) throw new Error('resetUser(): no user.id')
 
                 if (dv !== 1) {
@@ -90,6 +122,30 @@ const ResetUserService = new GQLCustomSchema('ResetUserService', {
 
                 if (userEntity.isAdmin) {
                     throw new GQLError(ERRORS.CANNOT_RESET_ADMIN_USER, context)
+                }
+
+                let sudoToken = null
+
+                // A user can only reset themselves with a sudo token
+                if (user.id === context?.authedItem?.id) {
+                    const { error: tokenError, tokenType } = detectTokenTypeSafely(token)
+                    if (tokenError) {
+                        throw new GQLError({ ...ERRORS.INVALID_TOKEN, data: { error: tokenError } }, context)
+                    }
+
+                    if (tokenType !== TOKEN_TYPES.SUDO) {
+                        throw new GQLError(ERRORS.UNSUPPORTED_TOKEN, context)
+                    }
+
+                    sudoToken = await getByCondition('UserSudoToken', {
+                        token,
+                        expiresAt_gte: new Date().toISOString(),
+                        remainingUses_gt: 0,
+                        deletedAt: null,
+                    })
+
+                    if (!sudoToken) throw new GQLError(ERRORS.TOKEN_NOT_FOUND, context)
+                    if (sudoToken.user !== user.id) throw new GQLError(ERRORS.OPERATION_FAILED, context)
                 }
 
                 const newUserData = {
@@ -109,6 +165,13 @@ const ResetUserService = new GQLCustomSchema('ResetUserService', {
                 }
 
                 await User.update(context, user.id, newUserData)
+
+                if (sudoToken) {
+                    await UserSudoToken.update(context, sudoToken.id, {
+                        dv: 1, sender,
+                        remainingUses: sudoToken.remainingUses - 1,
+                    })
+                }
 
                 const employees = await find('OrganizationEmployee', { user: { id: user.id }, deletedAt: null })
                 for (const employee of employees) {
