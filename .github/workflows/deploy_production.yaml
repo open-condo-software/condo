@@ -76,22 +76,22 @@ jobs:
           name: id_rsa
           known_hosts: ${{ secrets.SSH_DOCK_SERVER_KNOWN_HOSTS }}
           if_key_exists: replace
-      - name: Login to self-hosted registry
+      - name: Login to cloud registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}
-          username: ${{ secrets.SELF_HOSTED_CR_USERNAME }}
-          password: ${{ secrets.SELF_HOSTED_CR_PASSWORD }}
+          registry: ${{ secrets.DOCKER_REGISTRY }}
+          username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
+          password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
       - name: Resolve prebuilt apps image
         env:
-          DOCKER_REGISTRY: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}
+          DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
         run: bash bin/resolve_prebuilt_apps_image.sh "$DOCKER_REGISTRY" "${{ github.sha }}" ${{ inputs.skip_tests && 'optional' || 'required' }}
       - name: Tag release image
         if: ${{ env.PREBUILT_APPS_IMAGE != '' }}
         run: |
           set -euo pipefail
           source="${{ env.PREBUILT_APPS_IMAGE }}"
-          target="${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}/condo/condo-image:${{ github.ref_name }}"
+          target="${{ secrets.DOCKER_REGISTRY }}/condo/condo-image:${{ github.ref_name }}"
           docker buildx imagetools create --tag "$target" "$source"
           echo "Tagged ${target} from ${source}"
       - name: Prune package manifests for Docker deps layer
@@ -140,11 +140,11 @@ jobs:
           WERF_NAMESPACE: "production"
           WERF_VIRTUAL_MERGE_FROM_COMMIT: "true"
           WERF_SET_CI_REF: "ci.werf.io/ref=${GITHUB_REF_NAME}"
-          WERF_SET_UTILS_REGISTRY: "global.utils_registry=${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}/doma/utils"
+          WERF_SET_UTILS_REGISTRY: "global.utils_registry=${{ secrets.DOCKER_REGISTRY }}/doma/utils"
           WERF_SET_PREBUILT_APPS_IMAGE: "global.prebuilt_apps_image=${{ env.PREBUILT_APPS_IMAGE }}"
-          WERF_REPO: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}/doma/werf
+          WERF_REPO: ${{ secrets.DOCKER_REGISTRY }}/doma/werf
           WERF_REPO_CONTAINER_REGISTRY: default
-          DOCKER_REGISTRY: ${{ secrets.SELF_HOSTED_DOCKER_REGISTRY }}
+          DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
           TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
           TURBO_API: ${{ secrets.TURBO_API }}
           TURBO_CACHE: "remote:rw"
