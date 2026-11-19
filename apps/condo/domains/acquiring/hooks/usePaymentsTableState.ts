@@ -55,9 +55,12 @@ export const usePaymentsTableState = ({
     )
     const sort = Array.isArray(router.query.sort) ? router.query.sort[0] : router.query.sort
     const hasExplicitlyClearedSort = sort === PAYMENTS_EMPTY_SORT_QUERY_VALUE
-    const normalizedSortState = sortStateFromUrl.length || hasExplicitlyClearedSort
-        ? sortStateFromUrl
-        : defaultSortState
+    let normalizedSortState = defaultSortState
+    if (hasExplicitlyClearedSort) {
+        normalizedSortState = []
+    } else if (sortStateFromUrl.length) {
+        normalizedSortState = sortStateFromUrl
+    }
     const initialTableState = useMemo<FullTableState>(() => ({
         ...parsedUrlState,
         filterState: columnFilterState,
