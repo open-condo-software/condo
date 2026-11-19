@@ -119,7 +119,7 @@ jobs:
           WERF_SET_CI_REF: "ci.werf.io/ref=${GITHUB_REF_NAME}"
           WERF_SET_UTILS_REGISTRY: "global.utils_registry=${{ secrets.DOCKER_REGISTRY }}/doma/utils"
           WERF_SET_PREBUILT_APPS_IMAGE: "global.prebuilt_apps_image=${{ env.PREBUILT_APPS_IMAGE }}"
-          WERF_REPO: ${{ secrets.DOCKER_REGISTRY }}/doma/werf
+          WERF_REPO: ${{ secrets.DOCKER_REGISTRY }}/condo/condo
           WERF_REPO_CONTAINER_REGISTRY: default
           DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
           TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
