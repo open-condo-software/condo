@@ -2,16 +2,19 @@
 import type { ActionClickData } from './ActionClick'
 import type { BackButtonData } from './BackButton'
 import type { HistoryPopStateData } from './HistoryPopState'
+import type { TaskCancelData } from './TaskCancel'
 
 // Reexports for accessibility from outside
 export type { ActionClickData } from './ActionClick'
 export type { BackButtonData } from './BackButton'
 export type { HistoryPopStateData } from './HistoryPopState'
+export type { TaskCancelData } from './TaskCancel'
 
 export type IncomingEventsDataMap = {
     CondoWebAppActionClick: ActionClickData
     CondoWebAppBackButton: BackButtonData
     CondoWebAppHistoryPopState: HistoryPopStateData
+    CondoWebAppTaskCancel: TaskCancelData
 }
 
 export type IncomingEventNamesMap = { [Event in keyof IncomingEventsDataMap]: `${Event}Event` }

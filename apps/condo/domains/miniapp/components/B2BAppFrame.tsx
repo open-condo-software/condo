@@ -103,9 +103,15 @@ export const B2BAppFrame: React.FC<B2BAppFrameProps>  = ({ src, metadata, initia
             frameId,
             zodSchemaToValidator(z.strictObject({})),
             async () => {
+                // NOTE 1: Case 1. Hidden processing frames are not removed by the miniapp.
+                if (hidden) {
+                    return { success: true }
+                }
+
                 const srcUrl = new URL(src)
                 const modalId = srcUrl.searchParams.get('modalId')
-                // NOTE 1: Case 1. B2BApp frame is opened via modal (CondoWebAppShowModalWindow call),
+
+                // NOTE 2: Case 2. B2BApp frame is opened via modal (CondoWebAppShowModalWindow call),
                 // In that case we should treat CloseApplication call as alias to CondoWebAppCloseModalWindow with it's modalId
                 if (modalId) {
                     const { success } = await bridge

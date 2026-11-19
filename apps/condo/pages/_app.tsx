@@ -70,7 +70,6 @@ import {
     SETTINGS_CATEGORY,
 } from '@condo/domains/common/constants/menuCategories'
 import { useHotCodeReload } from '@condo/domains/common/hooks/useHotCodeReload'
-import { useMiniappTaskUIInterface } from '@condo/domains/common/hooks/useMiniappTaskUIInterface'
 import { PageComponentType } from '@condo/domains/common/types'
 import { messagesImporter } from '@condo/domains/common/utils/clientSchema/messagesImporter'
 import { apolloHelperOptions } from '@condo/domains/common/utils/next/apollo'
@@ -91,6 +90,9 @@ import { useMeterReadingsImportTaskUIInterface } from '@condo/domains/meter/hook
 import { ConnectedAppsWithIconsContextProvider, useConnectedAppsWithIconsContext } from '@condo/domains/miniapp/components/ConnectedAppsWithIconsProvider'
 import { GlobalAppsContainer } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsContainer'
 import { GlobalAppsFeaturesProvider } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsFeaturesContext'
+import { ProgressBarActionsProvider } from '@condo/domains/miniapp/components/ProgressBarActionsContext'
+import { ProgressBarBackgroundFrames } from '@condo/domains/miniapp/components/ProgressBarBackgroundFrames'
+import { useMiniAppTaskRecords } from '@condo/domains/miniapp/hooks/useMiniAppTaskRecords'
 import {
     useNewsItemRecipientsExportTaskUIInterface,
 } from '@condo/domains/news/hooks/useNewsItemRecipientsExportTaskUIInterface'
@@ -445,7 +447,7 @@ const MenuItems: React.FC = () => {
     )
 }
 
-const TasksProvider = ({ children }) => {
+const TasksProviderContent = ({ children }) => {
     const { user, isLoading: userLoading, isAuthenticated } = useAuth()
     const { organization, isLoading: organizationIsLoading } = useOrganization()
     const { persistor } = useCachePersistor()
@@ -458,7 +460,11 @@ const TasksProvider = ({ children }) => {
     const { ContactExportTask: ContactExportTaskUIInterface } = useContactExportTaskUIInterface()
     const { BankSyncTask: BankSyncTaskUIInterface } = useBankSyncTaskUIInterface()
     const { BankReportTask: BankReportTaskUIInterface } = useBankReportTaskUIInterface()
-    const { MiniAppTask: MiniAppTaskUIInterface } = useMiniappTaskUIInterface()
+    const {
+        MiniAppTaskUIInterface,
+        records: miniAppTasks,
+        loading: isMiniAppTasksLoading,
+    } = useMiniAppTaskRecords(user || null)
     const { NewsItemRecipientsExportTask: NewsItemRecipientsExportTaskUIInterface } = useNewsItemRecipientsExportTaskUIInterface()
     const { MeterReadingsImportTask: MeterReadingsImportTaskUIInterface } = useMeterReadingsImportTaskUIInterface()
     // ... another interfaces of tasks should be used here
@@ -469,10 +475,6 @@ const TasksProvider = ({ children }) => {
         skip: !isAuthenticated || userLoading || organizationIsLoading || !organization || !persistor,
     })
 
-    const { records: miniAppTasks, loading: isMiniAppTasksLoading } = MiniAppTaskUIInterface.storage.useTasks(
-        { status: 'processing', today: true }, 
-        userLoading ? null : user,
-    )
     // ... another task records should be loaded here
 
     const initialTaskRecords = useMemo(
@@ -515,9 +517,16 @@ const TasksProvider = ({ children }) => {
             isInitialLoading={isInitialLoading}
         >
             {children}
+            <ProgressBarBackgroundFrames/>
         </TasksContextProvider>
     )
 }
+
+const TasksProvider = ({ children }) => (
+    <ProgressBarActionsProvider>
+        <TasksProviderContent>{children}</TasksProviderContent>
+    </ProgressBarActionsProvider>
+)
 
 const MyApp = ({ Component, pageProps }) => {
     const intl = useIntl()
@@ -575,8 +584,8 @@ const MyApp = ({ Component, pageProps }) => {
                             {shouldDisplayCookieAgreement && isLegalInfoEnabled && <CookieAgreement/>}
                             <HCaptchaProvider>
                                 <SudoTokenProvider>
-                                    <TasksProvider>
-                                        <PostMessageProvider>
+                                    <PostMessageProvider>
+                                        <TasksProvider>
                                             <TourProvider>
                                                 <GlobalAppsFeaturesProvider>
                                                     <GlobalAppsContainer/>
@@ -601,8 +610,8 @@ const MyApp = ({ Component, pageProps }) => {
                                                     </TicketVisibilityContextProvider>
                                                 </GlobalAppsFeaturesProvider>
                                             </TourProvider>
-                                        </PostMessageProvider>
-                                    </TasksProvider>
+                                        </TasksProvider>
+                                    </PostMessageProvider>
                                 </SudoTokenProvider>
                             </HCaptchaProvider>
                             {!isSnowfallDisabled && <Snowfall />}

@@ -9,13 +9,41 @@ This method allows you to update a previously created [progress bar notification
 | Parameter name | Parameter type                                    | Required     | Parameter description                                                                                                                                                                                      |
 |----------------|---------------------------------------------------|--------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | barId          | string                                            | yes          | Progress bar ID                                                                                                                                                                                            |
-| data           | JSON                                              | yes          | Data to update. Any field from the ones [indicated in the notification creation](/docs/bridge/methods/notifications/show-progress-bar#method-params) can be updated as well as the numeric progress fields |
+| data           | JSON                                              | yes          | Data to update: `message`, `description`, `progress`, `status`, or `actions`. The processing frame is set only when creating a bar. |
+
+`data.progress` accepts a number from `0` to `100`. Set `data.status` to `completed` or `error` to finish the bar. Actions require that the bar was created with `processingFrame`:
+
+```typescript
+actions: [{ label: 'Details' }]
+```
+
+Condo generates action IDs and returns them from this method. It delivers clicks as `CondoWebAppActionClickEvent` to the bar's processing iframe. The miniapp handles the event and chooses whether to open a modal, redirect, or perform another Bridge operation.
+
+```typescript
+import bridge from '@open-condo/bridge'
+import { useSetPageActionsHandlers } from '@open-condo/miniapp-utils'
+
+const { actionIds } = await bridge.send('CondoWebAppUpdateProgressBar', {
+    barId,
+    data: { actions: [{ label: 'Details' }] },
+})
+
+useSetPageActionsHandlers(bridge, {
+    [actionIds[0]]: () => {
+        void bridge.send('CondoWebAppShowModalWindow', {
+            title: 'Import details',
+            url: 'https://miniapp.example/details',
+            size: 'big',
+        })
+    },
+})
+```
 
 ## Return value
 
-If successful, the method will return a JSON object containing a single `updated` field:
+If successful, the method returns an `updated` field and generated IDs for any actions provided:
 ```json
-{ "updated": true }
+{ "updated": true, "actionIds": [] }
 ```
 
 ## Usage example
