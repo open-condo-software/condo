@@ -11,7 +11,8 @@
         "dist/**",
         "build/**",
         "src/colors/*",
-        "src/tokens/**/*"
+        "src/tokens/**/*",
+        "public/**"
       ]
     },
     "lint-translations": {

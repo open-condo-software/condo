@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - 'release-v*'
 
   # NOTE: change pull_request_target to pull_request if you want to change the CI in your branch
   pull_request_target:
@@ -17,7 +18,9 @@ on:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  # Keep an in-progress main/release run (including development deploy).
+  # New PR commits still cancel the previous PR CI.
+  cancel-in-progress: ${{ github.event_name == 'pull_request_target' }}
 
 env:
   DOCKER_IMAGE: condo/condo-image:${{ github.event.pull_request.head.sha || github.sha }}
@@ -128,9 +131,10 @@ jobs:
           build-args: |
             REGISTRY=${{ secrets.DOCKER_REGISTRY }}/doma/utils
             TURBO_TEAM=condo-ci
-            TURBO_REMOTE_ONLY=true
-            TURBO_TOKEN=${{ secrets.TURBO_TOKEN }}
+            TURBO_CACHE=remote:rw
             TURBO_API=${{ secrets.TURBO_API }}
+          secrets: |
+            TURBO_TOKEN=${{ secrets.TURBO_TOKEN }}
           provenance: false
           cache-from: ${{ env.DOCKER_CACHE_FROM }}
           cache-to: ${{ env.DOCKER_CACHE_TO }}
@@ -148,6 +152,19 @@ jobs:
             *.log
             ./docker-logs
           retention-days: 2
+
+  # Start development deploy as soon as the image is pushed
+  deploy-development:
+    name: Development Deploy
+    needs:
+      - build-image
+    if: >-
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/deploy_development.yaml
+    with:
+      ref: ${{ github.sha }}
+    secrets: inherit
 
   # SRC: https://how.wtf/run-workflow-step-or-job-based-on-file-changes-github-actions.html
   detect-changes:
