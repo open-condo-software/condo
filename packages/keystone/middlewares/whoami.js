@@ -40,6 +40,22 @@ const GEO_CITY_HEADERS = [
 ]
 
 const X_TARGET_OPTIONS_VAR_NAME = 'X_TARGET_OPTIONS'
+const WHOAMI_KV_CLIENT_NAME = 'whoami'
+const WHOAMI_REDIS_READ_TIMEOUT_MS = 500
+
+function withTimeout (promise, timeoutMs, message) {
+    let timeoutId
+    return Promise.race([
+        promise,
+        new Promise((_, reject) => {
+            timeoutId = setTimeout(() => {
+                reject(new Error(message))
+            }, timeoutMs)
+        }),
+    ]).finally(() => {
+        clearTimeout(timeoutId)
+    })
+}
 
 function getHeaderValue (headers, name) {
     const value = headers[name]
@@ -122,11 +138,16 @@ async function getComplexityRateLimits ({ userId, ip }) {
     const window = rateLimitConfig.window || DEFAULT_QUOTA_WINDOW
 
     try {
-        const redisClient = getKVClient()
-        const [usedRaw, ttlValueInSec] = await Promise.all([
-            redisClient.get(key),
-            redisClient.ttl(key),
-        ])
+        // Dedicated diagnostic client: do not alter the shared enforcement client options.
+        const redisClient = getKVClient(WHOAMI_KV_CLIENT_NAME)
+        const [usedRaw, ttlValueInSec] = await withTimeout(
+            Promise.all([
+                redisClient.get(key),
+                redisClient.ttl(key),
+            ]),
+            WHOAMI_REDIS_READ_TIMEOUT_MS,
+            `whoami redis read timed out after ${WHOAMI_REDIS_READ_TIMEOUT_MS}ms`,
+        )
 
         const used = Math.max(0, Number.parseInt(usedRaw, 10) || 0)
         const remaining = Math.max(limit - used, 0)

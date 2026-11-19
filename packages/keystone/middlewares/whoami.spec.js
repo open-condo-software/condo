@@ -178,7 +178,7 @@ describe('WhoAmIMiddleware', () => {
         })
         const after = Date.now()
 
-        expect(getKVClient).toHaveBeenCalled()
+        expect(getKVClient).toHaveBeenCalledWith('whoami')
         expect(mockRedisClient.get).toHaveBeenCalledWith('rate-limit:ip:198.51.100.7')
         expect(mockRedisClient.ttl).toHaveBeenCalledWith('rate-limit:ip:198.51.100.7')
         expect(body.rateLimits.complexity).toEqual(expect.objectContaining({
@@ -223,6 +223,25 @@ describe('WhoAmIMiddleware', () => {
         }))
         expect(mockLogger.error).toHaveBeenCalled()
     })
+
+    test('returns unavailable when redis read stalls past timeout', async () => {
+        mockRedisClient.get.mockImplementation(() => new Promise(() => {}))
+        mockRedisClient.ttl.mockImplementation(() => new Promise(() => {}))
+
+        const { response, body } = await getWhoAmI({
+            'x-forwarded-for': '198.51.100.9',
+        })
+
+        expect(response.status).toBe(200)
+        expect(getKVClient).toHaveBeenCalledWith('whoami')
+        expect(body.rateLimits.complexity).toEqual(expect.objectContaining({
+            enabled: true,
+            error: 'unavailable',
+            used: 0,
+            remaining: 100,
+        }))
+        expect(mockLogger.error).toHaveBeenCalled()
+    }, 10000)
 
     test('accepts x-target only when listed in X_TARGET_OPTIONS', async () => {
         const allowed = await getWhoAmI({ 'x-target': 'condo-app' })
