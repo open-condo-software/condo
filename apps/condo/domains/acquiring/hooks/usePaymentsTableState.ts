@@ -53,7 +53,8 @@ export const usePaymentsTableState = ({
         () => parsedUrlState.sortState.filter(({ id }) => sortableColumnIds.has(id)),
         [parsedUrlState.sortState, sortableColumnIds]
     )
-    const hasExplicitlyClearedSort = router.query.sort === PAYMENTS_EMPTY_SORT_QUERY_VALUE
+    const sort = Array.isArray(router.query.sort) ? router.query.sort[0] : router.query.sort
+    const hasExplicitlyClearedSort = sort === PAYMENTS_EMPTY_SORT_QUERY_VALUE
     const normalizedSortState = sortStateFromUrl.length || hasExplicitlyClearedSort
         ? sortStateFromUrl
         : defaultSortState
