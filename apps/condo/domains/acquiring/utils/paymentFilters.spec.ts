@@ -1,8 +1,11 @@
 import { VIEW_TYPES } from '@condo/domains/acquiring/utils/clientSchema'
 import {
+    getDefaultPaymentSort,
     getPaymentColumnFilterState,
     getTransferredPaymentFilters,
+    getTransferredPaymentSort,
     mergePaymentColumnFilters,
+    PAYMENTS_EMPTY_SORT_QUERY_VALUE,
 } from '@condo/domains/acquiring/utils/paymentFilters'
 
 
@@ -45,6 +48,41 @@ describe('getTransferredPaymentFilters', () => {
             order: '1',
             type: ['integration-id'],
         })
+    })
+})
+
+describe('getTransferredPaymentSort', () => {
+    test.each([
+        [VIEW_TYPES.list, 'depositedDate_DESC'],
+        [VIEW_TYPES.registry, 'paymentPeriod_DESC'],
+    ])('returns default sort for %s view', (type, expectedSort) => {
+        expect(getDefaultPaymentSort(type)).toBe(expectedSort)
+    })
+
+    test.each([
+        ['depositedDate_ASC', VIEW_TYPES.list, VIEW_TYPES.registry, 'paymentPeriod_ASC'],
+        ['paymentPeriod_DESC', VIEW_TYPES.registry, VIEW_TYPES.list, 'depositedDate_DESC'],
+        ['transferDate_DESC', VIEW_TYPES.list, VIEW_TYPES.registry, 'loadedAt_DESC'],
+        ['loadedAt_ASC', VIEW_TYPES.registry, VIEW_TYPES.list, 'transferDate_ASC'],
+        ['amount_ASC', VIEW_TYPES.list, VIEW_TYPES.registry, 'amount_ASC'],
+    ])('transfers common sort %s', (sort, currentType, nextType, expectedSort) => {
+        expect(getTransferredPaymentSort(sort, currentType, nextType)).toBe(expectedSort)
+    })
+
+    test('preserves explicitly cleared sort', () => {
+        expect(getTransferredPaymentSort(
+            PAYMENTS_EMPTY_SORT_QUERY_VALUE,
+            VIEW_TYPES.list,
+            VIEW_TYPES.registry
+        )).toBe(PAYMENTS_EMPTY_SORT_QUERY_VALUE)
+    })
+
+    test('clears sort unavailable in the next view', () => {
+        expect(getTransferredPaymentSort(
+            'accountNumber_ASC',
+            VIEW_TYPES.list,
+            VIEW_TYPES.registry
+        )).toBe(PAYMENTS_EMPTY_SORT_QUERY_VALUE)
     })
 })
 

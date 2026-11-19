@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import { useEffect, useRef, useState } from 'react'
 
 import { VIEW_TYPES, ViewTypes } from '@condo/domains/acquiring/utils/clientSchema'
+import { getDefaultPaymentSort } from '@condo/domains/acquiring/utils/paymentFilters'
 import { getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
@@ -18,17 +19,15 @@ export const usePaymentsDateFilterInitialization = (
     type: ViewTypes
 ): boolean => {
     const router = useRouter()
-    const [initializedType, setInitializedType] = useState<ViewTypes | null>(null)
+    const [isInitialized, setIsInitialized] = useState(false)
     const isInitializationInProgressRef = useRef(false)
     const initializationIdRef = useRef(0)
-    const isInitialized = isPaymentsRouteReady && initializedType === type
 
     useEffect(() => {
         const initializationId = ++initializationIdRef.current
 
         if (!isPaymentsRouteReady) {
             isInitializationInProgressRef.current = false
-            setInitializedType(null)
             return
         }
 
@@ -47,18 +46,22 @@ export const usePaymentsDateFilterInitialization = (
 
             return Boolean(value)
         })
+        const sort = Array.isArray(router.query.sort) ? router.query.sort[0] : router.query.sort
+        const shouldInitializeDateFilter = !hasValidDateFilter && !hasNonDateFilter
+        const shouldInitializeSort = !sort
 
         const initialize = async (): Promise<void> => {
             try {
-                if (!hasValidDateFilter && !hasNonDateFilter) {
+                if (shouldInitializeDateFilter || shouldInitializeSort) {
                     await updateQuery(
                         router,
                         {
                             newParameters: {
                                 ...getFiltersQueryData({
                                     ...filters,
-                                    [dateFilterKey]: getDefaultDateFilter(),
+                                    ...(shouldInitializeDateFilter ? { [dateFilterKey]: getDefaultDateFilter() } : {}),
                                 }),
+                                sort: sort || getDefaultPaymentSort(type),
                                 tab: 'payments',
                                 type,
                             },
@@ -68,7 +71,7 @@ export const usePaymentsDateFilterInitialization = (
                 }
 
                 if (initializationIdRef.current === initializationId) {
-                    setInitializedType(type)
+                    setIsInitialized(true)
                 }
             } catch (error) {
                 console.error('Failed to initialize payments date filter', error)
@@ -89,5 +92,5 @@ export const usePaymentsDateFilterInitialization = (
         }
     }, [isInitialized, isPaymentsRouteReady, router, type])
 
-    return isInitialized
+    return isPaymentsRouteReady && isInitialized
 }

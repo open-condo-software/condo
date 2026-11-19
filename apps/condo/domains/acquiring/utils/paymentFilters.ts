@@ -5,12 +5,26 @@ import type { FiltersFromQueryType } from '@condo/domains/common/utils/tables.ut
 
 type PaymentFilterKeyByView = Record<ViewTypes, string>
 
-const COMMON_PAYMENT_FILTER_KEYS: PaymentFilterKeyByView[] = [
-    { list: 'depositedDate', registry: 'paymentPeriod' },
-    { list: 'transferDate', registry: 'loadedAt' },
-    { list: 'order', registry: 'paymentOrder' },
-    { list: 'type', registry: 'type' },
+type CommonPaymentField = PaymentFilterKeyByView & {
+    filter?: boolean
+    sortable?: boolean
+}
+
+const PAYMENT_DATE_FIELD: PaymentFilterKeyByView = { list: 'depositedDate', registry: 'paymentPeriod' }
+
+const COMMON_PAYMENT_FIELDS: CommonPaymentField[] = [
+    { ...PAYMENT_DATE_FIELD, filter: true, sortable: true },
+    { list: 'transferDate', registry: 'loadedAt', filter: true, sortable: true },
+    { list: 'order', registry: 'paymentOrder', filter: true },
+    { list: 'type', registry: 'type', filter: true },
+    { list: 'amount', registry: 'amount', sortable: true },
 ]
+
+export const PAYMENTS_EMPTY_SORT_QUERY_VALUE = 'none'
+
+export const getDefaultPaymentSort = (type: ViewTypes): string => {
+    return `${PAYMENT_DATE_FIELD[type]}_DESC`
+}
 
 const PAYMENT_COLUMN_FILTER_KEYS: Record<ViewTypes, string[]> = {
     list: ['depositedDate', 'transferDate', 'accountNumber', 'address', 'type', 'order', 'status'],
@@ -78,7 +92,7 @@ export const getTransferredPaymentFilters = (
         transferredFilters.search = filters.search
     }
 
-    COMMON_PAYMENT_FILTER_KEYS.forEach((filterKeys) => {
+    COMMON_PAYMENT_FIELDS.filter(({ filter }) => filter).forEach((filterKeys) => {
         const currentKey = filterKeys[currentType]
         const value = normalizeFilterValue(currentKey, filters[currentKey])
         if (value) {
@@ -87,4 +101,27 @@ export const getTransferredPaymentFilters = (
     })
 
     return transferredFilters
+}
+
+export const getTransferredPaymentSort = (
+    sort: string | string[] | undefined,
+    currentType: ViewTypes,
+    nextType: ViewTypes
+): string | undefined => {
+    const currentSort = Array.isArray(sort) ? sort[0] : sort
+    if (!currentSort || currentType === nextType) return currentSort
+    if (currentSort === PAYMENTS_EMPTY_SORT_QUERY_VALUE) return PAYMENTS_EMPTY_SORT_QUERY_VALUE
+
+    const separatorIndex = currentSort.lastIndexOf('_')
+    if (separatorIndex < 1) return undefined
+
+    const currentKey = currentSort.slice(0, separatorIndex)
+    const direction = currentSort.slice(separatorIndex + 1)
+    if (direction !== 'ASC' && direction !== 'DESC') return undefined
+
+    const field = COMMON_PAYMENT_FIELDS.find(({ sortable, ...keys }) => (
+        sortable && keys[currentType] === currentKey
+    ))
+
+    return field ? `${field[nextType]}_${direction}` : PAYMENTS_EMPTY_SORT_QUERY_VALUE
 }
