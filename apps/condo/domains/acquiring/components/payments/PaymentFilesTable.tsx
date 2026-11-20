@@ -34,6 +34,7 @@ import {
 import { getInitialSelectedRegistryKeys } from '@condo/domains/acquiring/utils/helpers'
 import {
     mergePaymentColumnFilters,
+    PAYMENTS_EMPTY_SORT_QUERY_VALUE,
 } from '@condo/domains/acquiring/utils/paymentFilters'
 import { useBillingAndAcquiringContexts } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
 import { DEFAULT_PAGE_SIZE } from '@condo/domains/common/components/Table/Index'
@@ -45,7 +46,6 @@ import { FiltersFromQueryType } from '@condo/domains/common/utils/tables.utils'
 
 const SORTABLE_PROPERTIES = ['amount', 'loadedAt', 'number', 'paymentPeriodStartDate', 'paymentsCount']
 const SORTABLE_COLUMN_IDS = new Set(['amount', 'loadedAt', 'number', 'paymentPeriod', 'paymentsCount'])
-const PAYMENTS_DEFAULT_SORT_BY = ['paymentPeriodStartDate_DESC']
 const PAYMENTS_DEFAULT_SORT_STATE: FullTableState['sortState'] = [{ id: 'paymentPeriod', desc: true }]
 
 const ROW_GUTTER: [Gutter, Gutter] = [0, 24]
@@ -68,7 +68,7 @@ type PaymentsFileTableRequest = {
 }
 
 const getSortQueryValue = (sortState: FullTableState['sortState']): string | undefined => {
-    if (!sortState?.length) return undefined
+    if (!sortState?.length) return PAYMENTS_EMPTY_SORT_QUERY_VALUE
 
     const firstSort = sortState[0]
     return `${firstSort.id}_${firstSort.desc ? DESC : ASC}`
@@ -175,7 +175,7 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
                     const querySortState = sortState.map(sort => (
                         sort.id === 'paymentPeriod' ? { ...sort, id: 'paymentPeriodStartDate' } : sort
                     ))
-                    const sortBy = sortersToSortBy(querySortState, PAYMENTS_DEFAULT_SORT_BY) as SortPaymentsFilesBy[]
+                    const sortBy = sortersToSortBy(querySortState) as SortPaymentsFilesBy[]
                     const { data } = await fetchPaymentsFiles({
                         variables: {
                             where: searchPaymentsFilesQueryRef.current,

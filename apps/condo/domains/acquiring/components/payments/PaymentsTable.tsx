@@ -26,6 +26,7 @@ import { usePosIntegrationAlert } from '@condo/domains/acquiring/hooks/usePosInt
 import { usePosIntegrationLastTestingPosReceipt } from '@condo/domains/acquiring/hooks/usePosIntegrationLastTestingPosReceipt'
 import {
     mergePaymentColumnFilters,
+    PAYMENTS_EMPTY_SORT_QUERY_VALUE,
 } from '@condo/domains/acquiring/utils/paymentFilters'
 import { useBillingAndAcquiringContexts } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
 import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
@@ -42,7 +43,6 @@ const { publicRuntimeConfig: { defaultCurrencyCode } } = getConfig()
 
 const SORTABLE_PROPERTIES = ['advancedAt', 'depositedDate', 'transferDate', 'accountNumber', 'amount']
 const SORTABLE_COLUMN_IDS = new Set(SORTABLE_PROPERTIES)
-const PAYMENTS_DEFAULT_SORT_BY = ['depositedDate_DESC']
 const PAYMENTS_DEFAULT_SORT_STATE: FullTableState['sortState'] = [{ id: 'depositedDate', desc: true }]
 
 const ROW_GUTTER: [Gutter, Gutter] = [0, 24]
@@ -50,7 +50,7 @@ const ASC = 'ASC'
 const DESC = 'DESC'
 
 const getSortQueryValue = (sortState: FullTableState['sortState']): string | undefined => {
-    if (!sortState?.length) return undefined
+    if (!sortState?.length) return PAYMENTS_EMPTY_SORT_QUERY_VALUE
 
     const firstSort = sortState[0]
     return `${firstSort.id}_${firstSort.desc ? DESC : ASC}`
@@ -97,7 +97,7 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
     const DoneSumTitle = intl.formatMessage({ id: 'MultiPayment.status.DONE' })
     const WithdrawnSumTitle = intl.formatMessage({ id: 'MultiPayment.status.PROCESSING' })
     const PaymentsCountTitle = intl.formatMessage({ id: 'pages.condo.payments.summary.count' })
-    const ExportPaymentsTitle = intl.formatMessage({ id: 'Download' })
+    const ExportPaymentsTitle = intl.formatMessage({ id: 'ExportAsExcel' })
 
     const { billingContexts, acquiringContexts } = useBillingAndAcquiringContexts()
     const billingContext = billingContexts[0]
@@ -140,6 +140,7 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
         columnFilterState,
         filtersFromUrl,
         initialTableState,
+        normalizedSortState,
         parsedUrlState,
     } = usePaymentsTableState({
         defaultSortState: PAYMENTS_DEFAULT_SORT_STATE,
@@ -186,7 +187,7 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
         const request: PaymentsTableRequest = {
             promise: (async () => {
                 try {
-                    const sortBy = sortersToSortBy(sortState, PAYMENTS_DEFAULT_SORT_BY) as SortPaymentsBy[]
+                    const sortBy = sortersToSortBy(sortState) as SortPaymentsBy[]
                     const { data } = await fetchPayments({
                         variables: {
                             where: searchPaymentsQueryRef.current,
@@ -262,7 +263,7 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
         }
     }, [clearDateFilter, currentTab, isLastTestingPosReceiptLoading, lastTestingPosReceipt])
 
-    const currentSortBy = sortersToSortBy(parsedUrlState.sortState, PAYMENTS_DEFAULT_SORT_BY)
+    const currentSortBy = sortersToSortBy(normalizedSortState)
     const donePaymentsWhere = useMemo<PaymentWhereInput>(
         () => ({ ...searchPaymentsQuery, status: PaymentStatusType.Done }),
         [searchPaymentsQuery]

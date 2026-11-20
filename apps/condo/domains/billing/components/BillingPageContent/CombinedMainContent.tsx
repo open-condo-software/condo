@@ -13,7 +13,10 @@ import type { TabItem } from '@open-condo/ui'
 
 import { usePaymentsDateFilterInitialization } from '@condo/domains/acquiring/hooks/usePaymentsDateFilterInitialization'
 import { VIEW_TYPES, ViewTypes } from '@condo/domains/acquiring/utils/clientSchema'
-import { getTransferredPaymentFilters } from '@condo/domains/acquiring/utils/paymentFilters'
+import {
+    getTransferredPaymentFilters,
+    getTransferredPaymentSort,
+} from '@condo/domains/acquiring/utils/paymentFilters'
 import { AccrualsTab } from '@condo/domains/billing/components/BillingPageContent/AccrualsTab'
 import { B2BAppBillingTab } from '@condo/domains/billing/components/BillingPageContent/B2BAppBillingTab'
 import { useBillingAndAcquiringContexts } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
@@ -90,9 +93,17 @@ export const CombinedViewSwitch: React.FC<{ activeTab: string, availableTypes: V
     const handleRadioChange = useCallback(async (event) => {
         const nextType = event.target.value as ViewTypes
         const transferredFilters = getTransferredPaymentFilters(filters, activeType as ViewTypes, nextType)
+        const transferredSort = getTransferredPaymentSort(router.query.sort, activeType as ViewTypes, nextType)
         await updateQuery(
             router,
-            { newParameters: { ...getFiltersQueryData(transferredFilters), type: nextType, tab: activeTab } },
+            {
+                newParameters: {
+                    ...getFiltersQueryData(transferredFilters),
+                    sort: transferredSort,
+                    type: nextType,
+                    tab: activeTab,
+                },
+            },
             { resetOldParameters: true, routerAction: 'replace', shallow: true }
         )
     }, [activeTab, activeType, filters, router])

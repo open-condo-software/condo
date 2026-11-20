@@ -8,6 +8,7 @@ import { ViewTypes } from '@condo/domains/acquiring/utils/clientSchema'
 import {
     getPaymentColumnFilterState,
     mergePaymentColumnFilters,
+    PAYMENTS_EMPTY_SORT_QUERY_VALUE,
 } from '@condo/domains/acquiring/utils/paymentFilters'
 import { DEFAULT_PAGE_SIZE } from '@condo/domains/common/components/Table/Index'
 import { FiltersFromQueryType } from '@condo/domains/common/utils/tables.utils'
@@ -52,7 +53,14 @@ export const usePaymentsTableState = ({
         () => parsedUrlState.sortState.filter(({ id }) => sortableColumnIds.has(id)),
         [parsedUrlState.sortState, sortableColumnIds]
     )
-    const normalizedSortState = sortStateFromUrl.length ? sortStateFromUrl : defaultSortState
+    const sort = Array.isArray(router.query.sort) ? router.query.sort[0] : router.query.sort
+    const hasExplicitlyClearedSort = sort === PAYMENTS_EMPTY_SORT_QUERY_VALUE
+    let normalizedSortState = defaultSortState
+    if (hasExplicitlyClearedSort) {
+        normalizedSortState = []
+    } else if (sortStateFromUrl.length) {
+        normalizedSortState = sortStateFromUrl
+    }
     const initialTableState = useMemo<FullTableState>(() => ({
         ...parsedUrlState,
         filterState: columnFilterState,
@@ -93,6 +101,7 @@ export const usePaymentsTableState = ({
         columnFilterState,
         filtersFromUrl,
         initialTableState,
+        normalizedSortState,
         parsedUrlState,
     }
 }
