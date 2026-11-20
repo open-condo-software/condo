@@ -138,7 +138,6 @@ async function getComplexityRateLimits ({ userId, ip }) {
     const window = rateLimitConfig.window || DEFAULT_QUOTA_WINDOW
 
     try {
-        // Dedicated diagnostic client: do not alter the shared enforcement client options.
         const redisClient = getKVClient(WHOAMI_KV_CLIENT_NAME)
         const [usedRaw, ttlValueInSec] = await withTimeout(
             Promise.all([
