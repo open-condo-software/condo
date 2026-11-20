@@ -1,3 +1,6 @@
+const dayjs = require('dayjs')
+const groupBy = require('lodash/groupBy')
+
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { find } = require('@open-condo/keystone/schema')
 
@@ -131,6 +134,10 @@ async function findOrganizationByAddressKeyTinAccountNumber (organization, { add
     }
 }
 
+function getLastValidPeriodForTargetPeriod (targetPeriod) {
+    return dayjs(targetPeriod).subtract(2, 'month').format('YYYY-MM-01')
+}
+
 async function getOrganizationReceipts (billingContexts, addressKey, query = {}) {
     const billingContextsWithLastReportPeriod = (billingContexts ?? []).filter(billingContext => billingContext?.lastReport?.period)
     if (!billingContextsWithLastReportPeriod.length) return []
@@ -144,7 +151,7 @@ async function getOrganizationReceipts (billingContexts, addressKey, query = {})
 
     if (!billingAccounts.length) return []
 
-    const receipts = await find('BillingReceipt', {
+    const receiptsInValidPeriodRange = await find('BillingReceipt', {
         AND: [
             {
                 property: { addressKey, deletedAt: null },
@@ -156,7 +163,7 @@ async function getOrganizationReceipts (billingContexts, addressKey, query = {})
                     AND: [
                         {
                             context: { id: billingContext.id },
-                            period: billingContext.lastReport.period,
+                            period_gte: getLastValidPeriodForTargetPeriod(billingContext.lastReport.period),
                         },
                     ],
                 })),
@@ -164,10 +171,28 @@ async function getOrganizationReceipts (billingContexts, addressKey, query = {})
         ],
     })
 
+    // NOTE(YEgorLu): to fully check payable receipts we would need to query BillingCategory.receiptValidityMonths for every category here.
+    // but this query is used to show some info before actual serviceConsumer creation, so it should be okay to show some receipt which is 2 months old but already not payable by category
+    const potentiallyPayableReceipts = Object.values(groupBy(receiptsInValidPeriodRange, receipt => `${receipt.context}:${receipt.account}`))
+        .flatMap(receiptsGroup => {
+            const payableReceipts = []
+            for (const receipt of receiptsGroup) {
+                const hasNewerReceipt = receiptsGroup.some(r => 
+                    r.id !== receipt.id 
+                    && r.period > receipt.period 
+                    && ((r.category && r.category === receipt.category) || (r.receiver && r.receiver === receipt.receiver))
+                )
+                if (!hasNewerReceipt) {
+                    payableReceipts.push(receipt)
+                }
+            }
+            return payableReceipts
+        })
+
     const billingAccountsNumbersIndex = Object.fromEntries(
         billingAccounts.map(account => [account.id, account.number])
     )
-    return receipts.map(receipt => ({
+    return potentiallyPayableReceipts.map(receipt => ({
         category: receipt.category,
         balance: receipt.toPay,
         accountNumber: billingAccountsNumbersIndex[receipt.account],
