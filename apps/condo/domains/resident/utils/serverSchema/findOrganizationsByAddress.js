@@ -177,12 +177,12 @@ async function getOrganizationReceipts (billingContexts, addressKey, query = {})
         .flatMap(receiptsGroup => {
             const payableReceipts = []
             for (const receipt of receiptsGroup) {
-                const newerReceipt = receiptsGroup.find(r => 
+                const hasNewerReceipt = receiptsGroup.some(r => 
                     r.id !== receipt.id 
                     && r.period > receipt.period 
                     && ((r.category && r.category === receipt.category) || (r.receiver && r.receiver === receipt.receiver))
                 )
-                if (!newerReceipt) {
+                if (!hasNewerReceipt) {
                     payableReceipts.push(receipt)
                 }
             }
