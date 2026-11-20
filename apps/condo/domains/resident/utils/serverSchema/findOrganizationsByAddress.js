@@ -180,7 +180,8 @@ async function getOrganizationReceipts (billingContexts, addressKey, query = {})
                 const newerReceipt = receiptsGroup.find(r => 
                     r.id !== receipt.id 
                     && r.period > receipt.period 
-                    && (r.category === receipt.category || r.receiver === receipt.receiver))
+                    && ((r.category && r.category === receipt.category) || (r.receiver && r.receiver === receipt.receiver))
+                )
                 if (!newerReceipt) {
                     payableReceipts.push(receipt)
                 }
