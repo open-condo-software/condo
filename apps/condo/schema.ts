@@ -74093,6 +74093,8 @@ export type Payment = {
   _label_?: Maybe<Scalars['String']['output']>;
   /**  Payer's account number  */
   accountNumber?: Maybe<Scalars['String']['output']>;
+  /**  Address key that identifies which resident made the payment. Used for anonymous invoice payments via mobile app  */
+  addressKey?: Maybe<Scalars['String']['output']>;
   /**  Time at which money was advanced to recipient's account  */
   advancedAt?: Maybe<Scalars['String']['output']>;
   /**  Amount of money from MultiPayment.amountWithOutExplicitFee to pay for billing receipt  */
@@ -74159,6 +74161,10 @@ export type Payment = {
   status?: Maybe<PaymentStatusType>;
   /**  Time at which money was transfered to recipient's account  */
   transferDate?: Maybe<Scalars['String']['output']>;
+  /**  Property unit name. Used together with unitType to identify which resident made the payment for anonymous invoice payments via mobile app  */
+  unitName?: Maybe<Scalars['String']['output']>;
+  /**  Type of unit, such as parking lot or flat. Used together with unitName to identify which resident made the payment  */
+  unitType?: Maybe<PaymentUnitTypeType>;
   updatedAt?: Maybe<Scalars['String']['output']>;
   /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
@@ -74175,6 +74181,7 @@ export type PaymentCategory = {
 
 export type PaymentCreateInput = {
   accountNumber?: InputMaybe<Scalars['String']['input']>;
+  addressKey?: InputMaybe<Scalars['String']['input']>;
   advancedAt?: InputMaybe<Scalars['String']['input']>;
   amount?: InputMaybe<Scalars['String']['input']>;
   context?: InputMaybe<AcquiringIntegrationContextRelateToOneInput>;
@@ -74209,6 +74216,8 @@ export type PaymentCreateInput = {
   serviceFee?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<PaymentStatusType>;
   transferDate?: InputMaybe<Scalars['String']['input']>;
+  unitName?: InputMaybe<Scalars['String']['input']>;
+  unitType?: InputMaybe<PaymentUnitTypeType>;
   updatedAt?: InputMaybe<Scalars['String']['input']>;
   updatedBy?: InputMaybe<UserRelateToOneInput>;
   v?: InputMaybe<Scalars['Int']['input']>;
@@ -74415,6 +74424,7 @@ export type PaymentHistoryRecord = {
    */
   _label_?: Maybe<Scalars['String']['output']>;
   accountNumber?: Maybe<Scalars['String']['output']>;
+  addressKey?: Maybe<Scalars['String']['output']>;
   advancedAt?: Maybe<Scalars['String']['output']>;
   amount?: Maybe<Scalars['String']['output']>;
   context?: Maybe<Scalars['String']['output']>;
@@ -74453,6 +74463,8 @@ export type PaymentHistoryRecord = {
   serviceFee?: Maybe<Scalars['String']['output']>;
   status?: Maybe<Scalars['String']['output']>;
   transferDate?: Maybe<Scalars['String']['output']>;
+  unitName?: Maybe<Scalars['String']['output']>;
+  unitType?: Maybe<Scalars['String']['output']>;
   updatedAt?: Maybe<Scalars['String']['output']>;
   updatedBy?: Maybe<Scalars['String']['output']>;
   v?: Maybe<Scalars['Int']['output']>;
@@ -74460,6 +74472,7 @@ export type PaymentHistoryRecord = {
 
 export type PaymentHistoryRecordCreateInput = {
   accountNumber?: InputMaybe<Scalars['String']['input']>;
+  addressKey?: InputMaybe<Scalars['String']['input']>;
   advancedAt?: InputMaybe<Scalars['String']['input']>;
   amount?: InputMaybe<Scalars['String']['input']>;
   context?: InputMaybe<Scalars['String']['input']>;
@@ -74497,6 +74510,8 @@ export type PaymentHistoryRecordCreateInput = {
   serviceFee?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<Scalars['String']['input']>;
   transferDate?: InputMaybe<Scalars['String']['input']>;
+  unitName?: InputMaybe<Scalars['String']['input']>;
+  unitType?: InputMaybe<Scalars['String']['input']>;
   updatedAt?: InputMaybe<Scalars['String']['input']>;
   updatedBy?: InputMaybe<Scalars['String']['input']>;
   v?: InputMaybe<Scalars['Int']['input']>;
@@ -74510,6 +74525,7 @@ export enum PaymentHistoryRecordHistoryActionType {
 
 export type PaymentHistoryRecordUpdateInput = {
   accountNumber?: InputMaybe<Scalars['String']['input']>;
+  addressKey?: InputMaybe<Scalars['String']['input']>;
   advancedAt?: InputMaybe<Scalars['String']['input']>;
   amount?: InputMaybe<Scalars['String']['input']>;
   context?: InputMaybe<Scalars['String']['input']>;
@@ -74547,6 +74563,8 @@ export type PaymentHistoryRecordUpdateInput = {
   serviceFee?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<Scalars['String']['input']>;
   transferDate?: InputMaybe<Scalars['String']['input']>;
+  unitName?: InputMaybe<Scalars['String']['input']>;
+  unitType?: InputMaybe<Scalars['String']['input']>;
   updatedAt?: InputMaybe<Scalars['String']['input']>;
   updatedBy?: InputMaybe<Scalars['String']['input']>;
   v?: InputMaybe<Scalars['Int']['input']>;
@@ -74573,6 +74591,24 @@ export type PaymentHistoryRecordWhereInput = {
   accountNumber_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   accountNumber_starts_with?: InputMaybe<Scalars['String']['input']>;
   accountNumber_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  addressKey?: InputMaybe<Scalars['String']['input']>;
+  addressKey_contains?: InputMaybe<Scalars['String']['input']>;
+  addressKey_contains_i?: InputMaybe<Scalars['String']['input']>;
+  addressKey_ends_with?: InputMaybe<Scalars['String']['input']>;
+  addressKey_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  addressKey_i?: InputMaybe<Scalars['String']['input']>;
+  addressKey_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  addressKey_not?: InputMaybe<Scalars['String']['input']>;
+  addressKey_not_contains?: InputMaybe<Scalars['String']['input']>;
+  addressKey_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  addressKey_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  addressKey_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  addressKey_not_i?: InputMaybe<Scalars['String']['input']>;
+  addressKey_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  addressKey_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  addressKey_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  addressKey_starts_with?: InputMaybe<Scalars['String']['input']>;
+  addressKey_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   advancedAt?: InputMaybe<Scalars['String']['input']>;
   advancedAt_gt?: InputMaybe<Scalars['String']['input']>;
   advancedAt_gte?: InputMaybe<Scalars['String']['input']>;
@@ -74903,6 +74939,42 @@ export type PaymentHistoryRecordWhereInput = {
   transferDate_lte?: InputMaybe<Scalars['String']['input']>;
   transferDate_not?: InputMaybe<Scalars['String']['input']>;
   transferDate_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  unitName?: InputMaybe<Scalars['String']['input']>;
+  unitName_contains?: InputMaybe<Scalars['String']['input']>;
+  unitName_contains_i?: InputMaybe<Scalars['String']['input']>;
+  unitName_ends_with?: InputMaybe<Scalars['String']['input']>;
+  unitName_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  unitName_i?: InputMaybe<Scalars['String']['input']>;
+  unitName_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  unitName_not?: InputMaybe<Scalars['String']['input']>;
+  unitName_not_contains?: InputMaybe<Scalars['String']['input']>;
+  unitName_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  unitName_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  unitName_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  unitName_not_i?: InputMaybe<Scalars['String']['input']>;
+  unitName_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  unitName_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  unitName_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  unitName_starts_with?: InputMaybe<Scalars['String']['input']>;
+  unitName_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  unitType?: InputMaybe<Scalars['String']['input']>;
+  unitType_contains?: InputMaybe<Scalars['String']['input']>;
+  unitType_contains_i?: InputMaybe<Scalars['String']['input']>;
+  unitType_ends_with?: InputMaybe<Scalars['String']['input']>;
+  unitType_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  unitType_i?: InputMaybe<Scalars['String']['input']>;
+  unitType_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  unitType_not?: InputMaybe<Scalars['String']['input']>;
+  unitType_not_contains?: InputMaybe<Scalars['String']['input']>;
+  unitType_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  unitType_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  unitType_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  unitType_not_i?: InputMaybe<Scalars['String']['input']>;
+  unitType_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  unitType_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  unitType_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  unitType_starts_with?: InputMaybe<Scalars['String']['input']>;
+  unitType_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   updatedAt?: InputMaybe<Scalars['String']['input']>;
   updatedAt_gt?: InputMaybe<Scalars['String']['input']>;
   updatedAt_gte?: InputMaybe<Scalars['String']['input']>;
@@ -75403,8 +75475,17 @@ export enum PaymentStatusType {
   Withdrawn = 'WITHDRAWN'
 }
 
+export enum PaymentUnitTypeType {
+  Apartment = 'apartment',
+  Commercial = 'commercial',
+  Flat = 'flat',
+  Parking = 'parking',
+  Warehouse = 'warehouse'
+}
+
 export type PaymentUpdateInput = {
   accountNumber?: InputMaybe<Scalars['String']['input']>;
+  addressKey?: InputMaybe<Scalars['String']['input']>;
   advancedAt?: InputMaybe<Scalars['String']['input']>;
   amount?: InputMaybe<Scalars['String']['input']>;
   context?: InputMaybe<AcquiringIntegrationContextRelateToOneInput>;
@@ -75439,6 +75520,8 @@ export type PaymentUpdateInput = {
   serviceFee?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<PaymentStatusType>;
   transferDate?: InputMaybe<Scalars['String']['input']>;
+  unitName?: InputMaybe<Scalars['String']['input']>;
+  unitType?: InputMaybe<PaymentUnitTypeType>;
   updatedAt?: InputMaybe<Scalars['String']['input']>;
   updatedBy?: InputMaybe<UserRelateToOneInput>;
   v?: InputMaybe<Scalars['Int']['input']>;
@@ -75465,6 +75548,24 @@ export type PaymentWhereInput = {
   accountNumber_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   accountNumber_starts_with?: InputMaybe<Scalars['String']['input']>;
   accountNumber_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  addressKey?: InputMaybe<Scalars['String']['input']>;
+  addressKey_contains?: InputMaybe<Scalars['String']['input']>;
+  addressKey_contains_i?: InputMaybe<Scalars['String']['input']>;
+  addressKey_ends_with?: InputMaybe<Scalars['String']['input']>;
+  addressKey_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  addressKey_i?: InputMaybe<Scalars['String']['input']>;
+  addressKey_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  addressKey_not?: InputMaybe<Scalars['String']['input']>;
+  addressKey_not_contains?: InputMaybe<Scalars['String']['input']>;
+  addressKey_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  addressKey_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  addressKey_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  addressKey_not_i?: InputMaybe<Scalars['String']['input']>;
+  addressKey_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  addressKey_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  addressKey_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  addressKey_starts_with?: InputMaybe<Scalars['String']['input']>;
+  addressKey_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   advancedAt?: InputMaybe<Scalars['String']['input']>;
   advancedAt_gt?: InputMaybe<Scalars['String']['input']>;
   advancedAt_gte?: InputMaybe<Scalars['String']['input']>;
@@ -75739,6 +75840,28 @@ export type PaymentWhereInput = {
   transferDate_lte?: InputMaybe<Scalars['String']['input']>;
   transferDate_not?: InputMaybe<Scalars['String']['input']>;
   transferDate_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  unitName?: InputMaybe<Scalars['String']['input']>;
+  unitName_contains?: InputMaybe<Scalars['String']['input']>;
+  unitName_contains_i?: InputMaybe<Scalars['String']['input']>;
+  unitName_ends_with?: InputMaybe<Scalars['String']['input']>;
+  unitName_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  unitName_i?: InputMaybe<Scalars['String']['input']>;
+  unitName_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  unitName_not?: InputMaybe<Scalars['String']['input']>;
+  unitName_not_contains?: InputMaybe<Scalars['String']['input']>;
+  unitName_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  unitName_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  unitName_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  unitName_not_i?: InputMaybe<Scalars['String']['input']>;
+  unitName_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  unitName_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  unitName_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  unitName_starts_with?: InputMaybe<Scalars['String']['input']>;
+  unitName_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  unitType?: InputMaybe<PaymentUnitTypeType>;
+  unitType_in?: InputMaybe<Array<InputMaybe<PaymentUnitTypeType>>>;
+  unitType_not?: InputMaybe<PaymentUnitTypeType>;
+  unitType_not_in?: InputMaybe<Array<InputMaybe<PaymentUnitTypeType>>>;
   updatedAt?: InputMaybe<Scalars['String']['input']>;
   updatedAt_gt?: InputMaybe<Scalars['String']['input']>;
   updatedAt_gte?: InputMaybe<Scalars['String']['input']>;
@@ -91486,9 +91609,16 @@ export type RegisterMultiPaymentForVirtualReceiptOutput = {
 export type RegisterMultiPaymentInput = {
   dv: Scalars['Int']['input'];
   groupedReceipts?: InputMaybe<Array<RegisterMultiPaymentServiceConsumerInput>>;
-  invoices?: InputMaybe<Array<InvoiceWhereUniqueInput>>;
+  invoices?: InputMaybe<Array<RegisterMultiPaymentInvoiceInput>>;
   recurrentPaymentContext?: InputMaybe<RecurrentPaymentContextWhereUniqueInput>;
   sender: SenderFieldInput;
+};
+
+export type RegisterMultiPaymentInvoiceInput = {
+  addressKey?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
+  unitName?: InputMaybe<Scalars['String']['input']>;
+  unitType?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type RegisterMultiPaymentOutput = {
@@ -101843,6 +101973,8 @@ export enum SortOrganizationsBy {
 export enum SortPaymentHistoryRecordsBy {
   AccountNumberAsc = 'accountNumber_ASC',
   AccountNumberDesc = 'accountNumber_DESC',
+  AddressKeyAsc = 'addressKey_ASC',
+  AddressKeyDesc = 'addressKey_DESC',
   AdvancedAtAsc = 'advancedAt_ASC',
   AdvancedAtDesc = 'advancedAt_DESC',
   AmountAsc = 'amount_ASC',
@@ -101891,6 +102023,10 @@ export enum SortPaymentHistoryRecordsBy {
   StatusDesc = 'status_DESC',
   TransferDateAsc = 'transferDate_ASC',
   TransferDateDesc = 'transferDate_DESC',
+  UnitNameAsc = 'unitName_ASC',
+  UnitNameDesc = 'unitName_DESC',
+  UnitTypeAsc = 'unitType_ASC',
+  UnitTypeDesc = 'unitType_DESC',
   UpdatedAtAsc = 'updatedAt_ASC',
   UpdatedAtDesc = 'updatedAt_DESC',
   VAsc = 'v_ASC',
@@ -101956,6 +102092,8 @@ export enum SortPaymentStatusChangeWebhookUrlsBy {
 export enum SortPaymentsBy {
   AccountNumberAsc = 'accountNumber_ASC',
   AccountNumberDesc = 'accountNumber_DESC',
+  AddressKeyAsc = 'addressKey_ASC',
+  AddressKeyDesc = 'addressKey_DESC',
   AdvancedAtAsc = 'advancedAt_ASC',
   AdvancedAtDesc = 'advancedAt_DESC',
   AmountAsc = 'amount_ASC',
@@ -102012,6 +102150,10 @@ export enum SortPaymentsBy {
   StatusDesc = 'status_DESC',
   TransferDateAsc = 'transferDate_ASC',
   TransferDateDesc = 'transferDate_DESC',
+  UnitNameAsc = 'unitName_ASC',
+  UnitNameDesc = 'unitName_DESC',
+  UnitTypeAsc = 'unitType_ASC',
+  UnitTypeDesc = 'unitType_DESC',
   UpdatedAtAsc = 'updatedAt_ASC',
   UpdatedAtDesc = 'updatedAt_DESC',
   UpdatedByAsc = 'updatedBy_ASC',

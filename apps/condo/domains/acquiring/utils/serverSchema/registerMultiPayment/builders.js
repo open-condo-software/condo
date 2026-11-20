@@ -43,10 +43,29 @@ async function resolveReceiptAmount ({
     return String(Big(receipt.toPay).minus(Big(paidAmount)))
 }
 
+/**
+ * Builds payment input objects for a multi-payment request grouped by receipts.
+ *
+ * Each receipt from `groupedReceipts` gets its own Payment record with address
+ * information resolved from the corresponding resident of the owning serviceConsumer.
+ *
+ * @param {Object} params
+ * @param {Array<Object>} params.groupedReceipts - Receipts grouped by serviceConsumer.
+ *   Each element: { serviceConsumer: { id: string }, receipts: Array<{ id: string }>, amountDistribution?: Array<{ receipt: { id: string }, amount: string }> }
+ * @param {Record<string, Object>} params.consumersByIds - Map of serviceConsumer objects by ID.
+ * @param {Record<string, Object>} params.receiptsByIds - Map of receipt objects by ID.
+ * @param {Record<string, Object>} params.residentsById - Map of resident objects by ID.
+ * @param {Record<string, Object>} params.acquiringContextsByConsumerId - Map of acquiringContext by consumer ID.
+ * @param {string} params.billingIntegrationCurrencyCode - Currency code for payments.
+ * @param {Object} params.sender - Sender field for dv/double-version validation.
+ * @param {Object} params.context - Keystone context.
+ * @returns {Promise<Array<Object>>} Array of payment input objects ready for `Payment.create()`.
+ */
 async function buildReceiptPaymentInputs ({
     groupedReceipts,
     consumersByIds,
     receiptsByIds,
+    residentsById,
     acquiringContextsByConsumerId,
     billingIntegrationCurrencyCode,
     sender,
@@ -56,6 +75,7 @@ async function buildReceiptPaymentInputs ({
 
     for (const group of groupedReceipts) {
         const serviceConsumer = consumersByIds[group.serviceConsumer.id]
+        const resident = residentsById[serviceConsumer?.resident]
         const acquiringContext = acquiringContextsByConsumerId[serviceConsumer.id]
         const amountDistributions = group.amountDistribution || []
         const formula = await getAcquiringIntegrationContextFormula(context, acquiringContext.id)
@@ -81,6 +101,10 @@ async function buildReceiptPaymentInputs ({
             const { type, explicitFee = '0', implicitFee = '0', fromReceiptAmountFee = '0' } = feeCalculator.calculate(amount)
             const paymentCommissionFields = buildCommissionFields({ type, explicitFee, implicitFee, fromReceiptAmountFee })
 
+            const addressKey = resident?.addressKey ?? null
+            const unitType = resident?.unitType ?? null
+            const unitName = resident?.unitName ?? null
+
             paymentCreateInputs.push({
                 dv: 1,
                 sender,
@@ -94,6 +118,9 @@ async function buildReceiptPaymentInputs ({
                 organization: { connect: { id: acquiringContext.organization } },
                 recipientBic: receipt.recipient.bic,
                 recipientBankAccount: receipt.recipient.bankAccount,
+                addressKey,
+                unitType,
+                unitName,
                 ...paymentCommissionFields,
             })
         }
@@ -102,14 +129,39 @@ async function buildReceiptPaymentInputs ({
     return paymentCreateInputs
 }
 
+/**
+ * Builds payment input objects for a multi-payment request grouped by invoices.
+ *
+ * Each invoice gets its own Payment record with address information taken directly
+ * from the corresponding invoice input (invoicesWithAddress).
+ *
+ * @param {Object} params
+ * @param {Array<Object>} params.foundInvoices - Invoice objects to create payments for.
+ * @param {Array<Object>} params.invoicesWithAddress - Invoice input objects with address fields: [{ id, addressKey, unitType, unitName }].
+ * @param {Object} params.acquiringContext - The acquiring context associated with these invoices.
+ * @param {Object} params.acquiringIntegration - The acquiring integration configuration (fee schemas, supported billing integrations, hostUrl).
+ * @param {Object} params.sender - Sender field for dv/double-version validation.
+ * @param {Object} params.context - Keystone context.
+ * @returns {Promise<Array<Object>>} Array of payment input objects ready for `Payment.create()`.
+ */
 async function buildInvoicePaymentInputs ({
     foundInvoices,
+    invoicesWithAddress,
     acquiringContext,
     acquiringIntegration,
     sender,
     context,
 }) {
     const paymentCreateInputs = []
+
+    // Build a map from invoice id → address fields for quick lookup
+    const explicitAddressMap = Object.fromEntries(
+        invoicesWithAddress.map(inv => [inv.id, {
+            addressKey: inv.addressKey ?? null,
+            unitType: inv.unitType ?? null,
+            unitName: inv.unitName ?? null,
+        }]),
+    )
 
     for (const invoice of foundInvoices) {
         const frozenInvoice = await freezeInvoice(invoice)
@@ -125,6 +177,16 @@ async function buildInvoicePaymentInputs ({
         const { type, explicitFee = '0', implicitFee = '0', fromReceiptAmountFee = '0' } = feeCalculator.calculate(amount)
         const paymentCommissionFields = buildCommissionFields({ type, explicitFee, implicitFee, fromReceiptAmountFee })
 
+        const explicitAddressData = explicitAddressMap[invoice.id] ?? {}
+        const property = frozenInvoice?.data?.property
+
+        // All-or-nothing: either use all address fields from input, or fallback to invoice/property
+        const hasExplicitAddressFields = !!(explicitAddressData.addressKey || explicitAddressData.unitType || explicitAddressData.unitName)
+
+        const addressKey = hasExplicitAddressFields ? (explicitAddressData.addressKey ?? null) : (property?.addressKey ?? null)
+        const unitType = hasExplicitAddressFields ? (explicitAddressData.unitType ?? null) : (invoice.unitType ?? null)
+        const unitName = hasExplicitAddressFields ? (explicitAddressData.unitName ?? null) : (invoice.unitName ?? null)
+
         paymentCreateInputs.push({
             dv: 1,
             sender,
@@ -137,6 +199,9 @@ async function buildInvoicePaymentInputs ({
             organization: { connect: { id: organizationId } },
             recipientBic: routingNumber,
             recipientBankAccount: bankAccount,
+            addressKey,
+            unitType,
+            unitName,
             ...paymentCommissionFields,
         })
     }
