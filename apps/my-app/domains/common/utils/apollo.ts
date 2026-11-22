@@ -4,10 +4,8 @@ import { ApolloHelper } from '@open-condo/apollo'
 import type { InitCacheConfig, UseApollo } from '@open-condo/apollo'
 import { getTracingMiddleware } from '@open-condo/miniapp-utils/helpers/apollo'
 
-
-import { AUTH_TOKEN_KEY } from '@/domains/user/constants/auth'
-
-import type { ApolloClient, NormalizedCacheObject, DefaultContext, RequestHandler } from '@apollo/client'
+import type { TRPCContext } from '@/domains/common/utils/trpc.server'
+import type { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 
 const { publicRuntimeConfig: { condoDomain, revision } } = getConfig()
 
@@ -24,27 +22,6 @@ const cacheConfig: InitCacheConfig = (_cacheOptions) => {
     }
 }
 
-function getAuthMiddleware (): RequestHandler {
-    return function (operation, forward) {
-        operation.setContext((previousContext: DefaultContext) => {
-            const { headers: previousHeaders } = previousContext
-
-            const authToken = typeof window !== 'undefined' ? window.localStorage.getItem(AUTH_TOKEN_KEY) : null
-            const authHeaders = authToken ? { Authorization: `Bearer ${authToken}` } : {}
-
-            return {
-                ...previousContext,
-                headers: {
-                    ...previousHeaders,
-                    ...authHeaders,
-                },
-            }
-        })
-
-        return forward(operation)
-    }
-}
-
 const apolloHelper = new ApolloHelper({
     uri: `${condoDomain}/admin/api`,
     cacheConfig,
@@ -54,9 +31,19 @@ const apolloHelper = new ApolloHelper({
             codeVersion: revision ?? '',
             target: 'miniapps',
         }),
-        getAuthMiddleware(),
     ],
 })
 
+export function initializeServerApolloClient (ctx: TRPCContext) {
+    const headers: Record<string, string> = {}
+    if (ctx.condoAccessToken) {
+        headers['authorization'] = `Bearer ${ctx.condoAccessToken}`
+    }
+    if (ctx.req.headers['accept-language']) {
+        headers['accept-language'] = ctx.req.headers['accept-language']
+    }
+
+    return apolloHelper.initializeApollo({ headers })
+}
 export const useApollo = apolloHelper.generateUseApolloHook() as unknown as UseApollo<ApolloClient<NormalizedCacheObject>>
 

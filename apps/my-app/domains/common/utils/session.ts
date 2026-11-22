@@ -15,14 +15,9 @@ if (!cookieSecret && (process.env.NODE_ENV === 'production' && cookieSecret.leng
     throw new Error('SESSION_SECRET_KEY must be set and at least 32 characters long!')
 }
 
-type UserShape = {
-    id: string
-    type: UserTypeType
-}
-
 type SessionShape = {
-    oidcAccessToken: string
-    user: UserShape
+    oidcAccessToken?: string
+    oidcIdToken?: string
 }
 
 const SESSION_SECRET_KEY = cookieSecret

@@ -9,7 +9,7 @@ import { nonNull } from '@open-condo/miniapp-utils/helpers/collections'
 
 
 const CONDO_DOMAIN = conf['CONDO_DOMAIN'] || 'https://condo.app.localhost:8009'
-const APP_DOMAIN = conf['MY_APP_DOMAIN'] || 'http://localhost:3000'
+const APP_DOMAIN = conf['NEXT_PUBLIC_SERVER_URL'] || 'http://localhost:3000'
 const OIDC_CALLBACK_ENDPOINT = '/api/auth/condo/callback'
 const ALLOWED_ORIGINS = [CONDO_DOMAIN, APP_DOMAIN].filter(nonNull)
 

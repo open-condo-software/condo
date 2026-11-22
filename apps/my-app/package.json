@@ -17,12 +17,16 @@
     "@open-condo/icons": "workspace:^",
     "@open-condo/miniapp-utils": "workspace:^",
     "@open-condo/ui": "workspace:^",
+    "@tanstack/react-query": "^5.107.1",
+    "@trpc/client": "^11.28.2",
+    "@trpc/server": "^11.28.2",
+    "@trpc/tanstack-react-query": "^11.28.2",
     "iron-session": "^8.0.4",
     "next": "catalog:",
-    "oidc-client-ts": "^3.5.0",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "react-intl": "catalog:"
+    "react-intl": "catalog:",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "catalog:",

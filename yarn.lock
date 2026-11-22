@@ -1354,6 +1354,10 @@ __metadata:
     "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/tsconfig": "workspace:^"
     "@open-condo/ui": "workspace:^"
+    "@tanstack/react-query": "npm:^5.107.1"
+    "@trpc/client": "npm:^11.28.2"
+    "@trpc/server": "npm:^11.28.2"
+    "@trpc/tanstack-react-query": "npm:^11.28.2"
     "@types/node": "catalog:"
     "@types/react": "catalog:"
     "@types/react-dom": "catalog:"
@@ -1364,6 +1368,7 @@ __metadata:
     react-dom: "catalog:"
     react-intl: "catalog:"
     typescript: "catalog:"
+    zod: "npm:^4.6.7"
   languageName: unknown
   linkType: soft
 
@@ -12613,6 +12618,28 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tanstack/query-core@npm:5.107.1":
+  version: 5.107.1
+  resolution: "@tanstack/query-core@npm:5.107.1"
+  checksum: 10/a0346fb46f2d2326409d15c7b82e818c2c85770e3624989e9f4a8ca2bd631d31fa051d176c31ef1f98487487313a5d352bf10cab1d123d5ead5461f52748cc4a
+  languageName: node
+  linkType: hard
+
+"@tanstack/react-query@npm:^5.107.1":
+  version: 5.107.1
+  resolution: "@tanstack/react-query@npm:5.107.1"
+  dependencies:
+    "@tanstack/query-core": "npm:5.107.1"
+  peerDependencies:
+    "@types/react": ^18 || ^19
+    react: ^18 || ^19
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+  checksum: 10/04fc353d85fee5108ea7aec2fad558dc30429c5730ba59b8c22dd4556bafdcf9ae9fd6f22840f2ff378ec969db4d196d066592d2f98fd3eaf24c9067c1f2857f
+  languageName: node
+  linkType: hard
+
 "@tanstack/react-table@npm:^8.1.6":
   version: 8.21.3
   resolution: "@tanstack/react-table@npm:8.21.3"
@@ -13124,6 +13151,54 @@ __metadata:
   version: 2.0.1
   resolution: "@tootallnate/once@npm:2.0.1"
   checksum: 10/487b59b5adb8458dc13394a5aae997bf9705c51fa1e2396c50cd967019d06b273faba3c4d9e7895a996b9e9b055f1c55e53d822e54b3e9c298bcb4f6967cd0d5
+  languageName: node
+  linkType: hard
+
+"@trpc/client@npm:^11.28.2":
+  version: 11.28.2
+  resolution: "@trpc/client@npm:11.28.2"
+  peerDependencies:
+    "@trpc/server": 11.28.2
+    typescript: ">=5.7.2"
+  checksum: 10/92156cf02f1ac29acf8a6237862c1eda66eac0f7dd66386d15abbcae834dd0b08a762ad9827fe474a08c25354f143e1d87425406b6e55af93e28d6095c98a66b
+  languageName: node
+  linkType: hard
+
+"@trpc/server@npm:^11.28.2":
+  version: 11.28.2
+  resolution: "@trpc/server@npm:11.28.2"
+  peerDependencies:
+    "@types/aws-lambda": "*"
+    "@types/express": "*"
+    "@types/ws": "*"
+    fastify: "*"
+    next: "*"
+    typescript: ">=5.7.2"
+  peerDependenciesMeta:
+    "@types/aws-lambda":
+      optional: true
+    "@types/express":
+      optional: true
+    "@types/ws":
+      optional: true
+    fastify:
+      optional: true
+    next:
+      optional: true
+  checksum: 10/e4bd7b7d391b0466e662344ff9d542427da7215cf663020cc1982e70b7f869283b80fc698185200bef90d81a38faf7c53ee85d6bf5dadb26f17d89bce9e62627
+  languageName: node
+  linkType: hard
+
+"@trpc/tanstack-react-query@npm:^11.28.2":
+  version: 11.28.2
+  resolution: "@trpc/tanstack-react-query@npm:11.28.2"
+  peerDependencies:
+    "@tanstack/react-query": ^5.106.0
+    "@trpc/client": 11.28.2
+    "@trpc/server": 11.28.2
+    react: ">=18.2.0"
+    typescript: ">=5.7.2"
+  checksum: 10/3e7b0d12f8cc9be1c1228ae676a6634bc6402d29ca6bb0e7e6babba11cda3284b8ae21a072a26f9f59097a724e0de8484ef362de98f6736f8f4e9fef13ea324e
   languageName: node
   linkType: hard
 

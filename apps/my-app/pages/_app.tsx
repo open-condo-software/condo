@@ -4,8 +4,9 @@ import Head from 'next/head'
 import { DynamicAppResizer } from '@/domains/common/components/DynamicAppResizer'
 import { IntlProvider } from '@/domains/common/components/IntlProvider'
 import { LaunchParamsProvider } from '@/domains/common/components/LaunchParamsContext'
+import { TRPCProvider } from '@/domains/common/components/TRPCProvider'
 import { withTranslations } from '@/domains/common/utils/i18n'
-// import { AuthProvider } from '@/domains/user/components/AuthContext'
+import { AuthProvider } from '@/domains/user/components/AuthContext'
 
 import type { AppType, AppContext } from 'next/app'
 
@@ -26,11 +27,13 @@ const App: AppType<PageProps> =  ({ Component, pageProps }) => {
             </Head>
             <LaunchParamsProvider>
                 <IntlProvider>
-                    {/*<AuthProvider>*/}
-                    <DynamicAppResizer>
-                        <Component {...pageProps} />
-                    </DynamicAppResizer>
-                    {/*</AuthProvider>*/}
+                    <TRPCProvider pageProps={pageProps}>
+                        <AuthProvider>
+                            <DynamicAppResizer>
+                                <Component {...pageProps} />
+                            </DynamicAppResizer>
+                        </AuthProvider>
+                    </TRPCProvider>
                 </IntlProvider>
             </LaunchParamsProvider>
         </>
