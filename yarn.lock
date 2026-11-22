@@ -1337,6 +1337,36 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@app/my-app@workspace:apps/my-app":
+  version: 0.0.0-use.local
+  resolution: "@app/my-app@workspace:apps/my-app"
+  dependencies:
+    "@apollo/client": "catalog:"
+    "@graphql-codegen/cli": "catalog:"
+    "@graphql-codegen/typescript": "npm:^5.0.9"
+    "@graphql-codegen/typescript-operations": "npm:^5.0.9"
+    "@graphql-codegen/typescript-react-apollo": "npm:^4.4.1"
+    "@open-condo/apollo": "workspace:^"
+    "@open-condo/bridge": "workspace:^"
+    "@open-condo/cli": "workspace:^"
+    "@open-condo/config": "workspace:^"
+    "@open-condo/icons": "workspace:^"
+    "@open-condo/miniapp-utils": "workspace:^"
+    "@open-condo/tsconfig": "workspace:^"
+    "@open-condo/ui": "workspace:^"
+    "@types/node": "catalog:"
+    "@types/react": "catalog:"
+    "@types/react-dom": "catalog:"
+    iron-session: "npm:^8.0.4"
+    next: "catalog:"
+    oidc-client-ts: "npm:^3.5.0"
+    react: "catalog:"
+    react-dom: "catalog:"
+    react-intl: "catalog:"
+    typescript: "catalog:"
+  languageName: unknown
+  linkType: soft
+
 "@app/news-greenhouse@workspace:apps/news-greenhouse":
   version: 0.0.0-use.local
   resolution: "@app/news-greenhouse@workspace:apps/news-greenhouse"
@@ -27243,6 +27273,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jwt-decode@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "jwt-decode@npm:4.0.0"
+  checksum: 10/87b569e4a9a0067fb0d592bcf3b2ac3e638e49beee28620eeb07bef1b4470f4077dea68c15d191dd68e076846c3af8394be3bcaecffedc6e97433b221fdbbcf3
+  languageName: node
+  linkType: hard
+
 "kareem@npm:2.6.3":
   version: 2.6.3
   resolution: "kareem@npm:2.6.3"
@@ -31719,6 +31756,15 @@ __metadata:
   version: 2.0.11
   resolution: "ohash@npm:2.0.11"
   checksum: 10/6b0423f42cc95c3d643f390a88364aac824178b7788dccb4e8c64e2124463d0069e60d4d90bad88ed9823808368d051e088aa27058ca4722b1397a201ffbfa4b
+  languageName: node
+  linkType: hard
+
+"oidc-client-ts@npm:^3.5.0":
+  version: 3.5.0
+  resolution: "oidc-client-ts@npm:3.5.0"
+  dependencies:
+    jwt-decode: "npm:^4.0.0"
+  checksum: 10/8ffe30c5b73bbde33b7a2f6a4c97a9fb26e33aec0e6643be79bfda8e6e2b39a256d8ef4434f06c3a8687cdbac8895e3b6f09ae443f48d10d80145555effcdcaf
   languageName: node
   linkType: hard
 

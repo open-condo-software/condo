@@ -3,7 +3,7 @@ import getConfig from 'next/config'
 
 import type { UserTypeType } from '@/gql'
 import type { IncomingMessage, ServerResponse } from 'http'
-import type { SessionOptions, IronSession } from 'iron-session'
+import type { SessionOptions } from 'iron-session'
 
 const {
     serverRuntimeConfig: {
@@ -34,7 +34,7 @@ export const SESSION_OPTIONS: SessionOptions = {
     cookieOptions: {
         httpOnly: true,
         secure: true,
-        sameSite: 'lax',
+        sameSite: 'none',
         path: '/',
         maxAge: SESSION_TTL_IN_SECONDS,
     },
