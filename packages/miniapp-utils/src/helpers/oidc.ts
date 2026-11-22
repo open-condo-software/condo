@@ -274,7 +274,9 @@ export class OIDCMiddleware<UserInfo extends Record<string, unknown> = Record<st
                 if (!redirectFromCallback) {
                     res.writeHead(200)
                     res.end()
+                    return
                 }
+
                 const location = (typeof nextUrl === 'string' && isSafeUrl(nextUrl))
                     ? nextUrl
                     : (typeof redirectFromCallback === 'string' ? redirectFromCallback : '/')
