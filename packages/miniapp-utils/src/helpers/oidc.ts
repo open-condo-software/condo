@@ -63,6 +63,7 @@ type OIDCMiddlewareOptions<UserInfo extends Record<string, unknown> = Record<str
     redirectUri: string | Array<string>
     onAuthSuccess?: OnAuthSuccessHandler<UserInfo>
     middlewareOptions?: MiddlewareOptions
+    redirectFromCallback?: boolean | string
     onError?: ErrorHandler
     logger?: LoggerType
 }
@@ -84,6 +85,7 @@ export class OIDCMiddleware<UserInfo extends Record<string, unknown> = Record<st
     private readonly client: Client
     private readonly logger: LoggerType
     private readonly redirectUris: Array<string>
+    private readonly redirectFromCallback: string | boolean
     private readonly onAuthSuccess?: OnAuthSuccessHandler<UserInfo>
     private readonly onError?: ErrorHandler
     private readonly middlewareOptions: MiddlewareOptions | undefined
@@ -101,8 +103,11 @@ export class OIDCMiddleware<UserInfo extends Record<string, unknown> = Record<st
         onAuthSuccess,
         onError,
         middlewareOptions,
+        redirectFromCallback,
     }: OIDCMiddlewareOptions<UserInfo>) {
         this.getSession = getSession
+        this.redirectFromCallback = redirectFromCallback ?? false
+
         const { serverUrl, clientId, clientSecret, clientOptions, issuerOptions, scope } = oidcConfig
 
         const issuer = new Issuer({
@@ -221,6 +226,7 @@ export class OIDCMiddleware<UserInfo extends Record<string, unknown> = Record<st
         const client = this.client
         const onAuthSuccess = this.onAuthSuccess
         const redirectUris = this.redirectUris
+        const redirectFromCallback = this.redirectFromCallback
 
         return async function callbackHandler (req, res, next) {
             let session = await sessionGetter(req, res)
@@ -265,7 +271,14 @@ export class OIDCMiddleware<UserInfo extends Record<string, unknown> = Record<st
 
                 await session.save()
 
-                const location = typeof nextUrl === 'string' && isSafeUrl(nextUrl) ? nextUrl : '/'
+                if (!redirectFromCallback) {
+                    res.writeHead(200)
+                    res.end()
+                }
+                const location = (typeof nextUrl === 'string' && isSafeUrl(nextUrl))
+                    ? nextUrl
+                    : (typeof redirectFromCallback === 'string' ? redirectFromCallback : '/')
+
                 res.writeHead(302, { Location: location })
                 res.end()
             } catch (err) {
