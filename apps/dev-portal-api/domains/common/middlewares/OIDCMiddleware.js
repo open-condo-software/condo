@@ -24,6 +24,7 @@ function makeOIDCMiddleware () {
             `${conf['DEV_PORTAL_WEB_DOMAIN']}/api/oidc/callback`,
             conf['ENABLE_DIRECT_OIDC'] === 'true' ? `${conf['DEV_PORTAL_API_DOMAIN']}/api/oidc/callback` : null,
         ].filter(nonNull),
+        redirectFromCallback: '/',
         middlewareOptions: {
             app: express(),
         },
