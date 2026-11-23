@@ -2,5 +2,5 @@
   "extends": "base",
   "name": "Backend OIDC app",
   "description": "Extended version of base template with condo auth via OIDC code flow on top",
-  "hidden": false
+  "hidden": true
 }

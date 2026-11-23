@@ -1,9 +1,4 @@
 {
-  "global.common.errors.serverError.message": "Oops, something went wrong",
-
-  "components.user.authContext.errors.authError.description": "An authorization error occurred. Please try again",
-  "components.user.authContext.actions.retry.label": "Retry",
-
   "global.common.answers.yes": "yes",
   "global.common.answers.no": "no",
 
