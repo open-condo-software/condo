@@ -1,1 +1,0 @@
-export const AUTH_TOKEN_EXPIRATION_MARGIN_MS = 1000 * 60 * 60 // 1 hour
