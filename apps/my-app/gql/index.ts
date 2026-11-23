@@ -80657,12 +80657,144 @@ export type _KsListsMetaInput = {
   key?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type OrganizationInfoFragment = { __typename?: 'Organization', id: string, tin?: string | null, name?: string | null, country?: OrganizationCountryType | null };
+
+export type GetEmployeeByUserAndOrganizationQueryVariables = Exact<{
+  userId: Scalars['ID']['input'];
+  organizationId: Scalars['ID']['input'];
+}>;
+
+
+export type GetEmployeeByUserAndOrganizationQuery = { __typename?: 'Query', employees?: Array<{ __typename?: 'OrganizationEmployee', id: string, organization?: { __typename?: 'Organization', id: string, tin?: string | null, name?: string | null, country?: OrganizationCountryType | null } | null, role?: { __typename?: 'OrganizationEmployeeRole', id: string, name?: string | null } | null } | null> | null };
+
+export type ResidentInfoFragment = { __typename?: 'Resident', id: string, address?: string | null, unitName?: string | null, unitType?: ResidentUnitTypeType | null, isVerifiedByManagingCompany?: boolean | null };
+
+export type GetResidentByIdQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetResidentByIdQuery = { __typename?: 'Query', resident?: { __typename?: 'Resident', id: string, address?: string | null, unitName?: string | null, unitType?: ResidentUnitTypeType | null, isVerifiedByManagingCompany?: boolean | null } | null };
+
 export type AuthenticatedUserQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type AuthenticatedUserQuery = { __typename?: 'Query', authenticatedUser?: { __typename?: 'User', id: string, name?: string | null, type?: UserTypeType | null, phone?: string | null } | null };
 
+export const OrganizationInfoFragmentDoc = gql`
+    fragment OrganizationInfo on Organization {
+  id
+  tin
+  name
+  country
+}
+    `;
+export const ResidentInfoFragmentDoc = gql`
+    fragment ResidentInfo on Resident {
+  id
+  address
+  unitName
+  unitType
+  isVerifiedByManagingCompany
+}
+    `;
+export const GetEmployeeByUserAndOrganizationDocument = gql`
+    query getEmployeeByUserAndOrganization($userId: ID!, $organizationId: ID!) {
+  employees: allOrganizationEmployees(
+    first: 1
+    where: {user: {id: $userId}, organization: {id: $organizationId}}
+  ) {
+    id
+    organization {
+      ...OrganizationInfo
+    }
+    role {
+      id
+      name
+    }
+  }
+}
+    ${OrganizationInfoFragmentDoc}`;
 
+/**
+ * __useGetEmployeeByUserAndOrganizationQuery__
+ *
+ * To run a query within a React component, call `useGetEmployeeByUserAndOrganizationQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetEmployeeByUserAndOrganizationQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetEmployeeByUserAndOrganizationQuery({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *      organizationId: // value for 'organizationId'
+ *   },
+ * });
+ */
+export function useGetEmployeeByUserAndOrganizationQuery(baseOptions: Apollo.QueryHookOptions<GetEmployeeByUserAndOrganizationQuery, GetEmployeeByUserAndOrganizationQueryVariables> & ({ variables: GetEmployeeByUserAndOrganizationQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetEmployeeByUserAndOrganizationQuery, GetEmployeeByUserAndOrganizationQueryVariables>(GetEmployeeByUserAndOrganizationDocument, options);
+      }
+export function useGetEmployeeByUserAndOrganizationLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetEmployeeByUserAndOrganizationQuery, GetEmployeeByUserAndOrganizationQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetEmployeeByUserAndOrganizationQuery, GetEmployeeByUserAndOrganizationQueryVariables>(GetEmployeeByUserAndOrganizationDocument, options);
+        }
+// @ts-ignore
+export function useGetEmployeeByUserAndOrganizationSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetEmployeeByUserAndOrganizationQuery, GetEmployeeByUserAndOrganizationQueryVariables>): Apollo.UseSuspenseQueryResult<GetEmployeeByUserAndOrganizationQuery, GetEmployeeByUserAndOrganizationQueryVariables>;
+export function useGetEmployeeByUserAndOrganizationSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetEmployeeByUserAndOrganizationQuery, GetEmployeeByUserAndOrganizationQueryVariables>): Apollo.UseSuspenseQueryResult<GetEmployeeByUserAndOrganizationQuery | undefined, GetEmployeeByUserAndOrganizationQueryVariables>;
+export function useGetEmployeeByUserAndOrganizationSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetEmployeeByUserAndOrganizationQuery, GetEmployeeByUserAndOrganizationQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetEmployeeByUserAndOrganizationQuery, GetEmployeeByUserAndOrganizationQueryVariables>(GetEmployeeByUserAndOrganizationDocument, options);
+        }
+export type GetEmployeeByUserAndOrganizationQueryHookResult = ReturnType<typeof useGetEmployeeByUserAndOrganizationQuery>;
+export type GetEmployeeByUserAndOrganizationLazyQueryHookResult = ReturnType<typeof useGetEmployeeByUserAndOrganizationLazyQuery>;
+export type GetEmployeeByUserAndOrganizationSuspenseQueryHookResult = ReturnType<typeof useGetEmployeeByUserAndOrganizationSuspenseQuery>;
+export type GetEmployeeByUserAndOrganizationQueryResult = Apollo.QueryResult<GetEmployeeByUserAndOrganizationQuery, GetEmployeeByUserAndOrganizationQueryVariables>;
+export const GetResidentByIdDocument = gql`
+    query getResidentById($id: ID!) {
+  resident: Resident(where: {id: $id}) {
+    ...ResidentInfo
+  }
+}
+    ${ResidentInfoFragmentDoc}`;
+
+/**
+ * __useGetResidentByIdQuery__
+ *
+ * To run a query within a React component, call `useGetResidentByIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetResidentByIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetResidentByIdQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetResidentByIdQuery(baseOptions: Apollo.QueryHookOptions<GetResidentByIdQuery, GetResidentByIdQueryVariables> & ({ variables: GetResidentByIdQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetResidentByIdQuery, GetResidentByIdQueryVariables>(GetResidentByIdDocument, options);
+      }
+export function useGetResidentByIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetResidentByIdQuery, GetResidentByIdQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetResidentByIdQuery, GetResidentByIdQueryVariables>(GetResidentByIdDocument, options);
+        }
+// @ts-ignore
+export function useGetResidentByIdSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetResidentByIdQuery, GetResidentByIdQueryVariables>): Apollo.UseSuspenseQueryResult<GetResidentByIdQuery, GetResidentByIdQueryVariables>;
+export function useGetResidentByIdSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetResidentByIdQuery, GetResidentByIdQueryVariables>): Apollo.UseSuspenseQueryResult<GetResidentByIdQuery | undefined, GetResidentByIdQueryVariables>;
+export function useGetResidentByIdSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetResidentByIdQuery, GetResidentByIdQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetResidentByIdQuery, GetResidentByIdQueryVariables>(GetResidentByIdDocument, options);
+        }
+export type GetResidentByIdQueryHookResult = ReturnType<typeof useGetResidentByIdQuery>;
+export type GetResidentByIdLazyQueryHookResult = ReturnType<typeof useGetResidentByIdLazyQuery>;
+export type GetResidentByIdSuspenseQueryHookResult = ReturnType<typeof useGetResidentByIdSuspenseQuery>;
+export type GetResidentByIdQueryResult = Apollo.QueryResult<GetResidentByIdQuery, GetResidentByIdQueryVariables>;
 export const AuthenticatedUserDocument = gql`
     query authenticatedUser {
   authenticatedUser {
