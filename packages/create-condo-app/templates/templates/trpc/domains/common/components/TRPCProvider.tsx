@@ -3,8 +3,7 @@ import { createTRPCClient, httpBatchLink } from '@trpc/client'
 import React, { useState } from 'react'
 
 
-import { makeQueryClient } from '@/domains/common/utils/trpc.client'
-import { TRPCProvider as DefaultTRPCProvider } from '@/domains/common/utils/trpc.client'
+import { makeQueryClient, TRPCProvider as DefaultTRPCProvider } from '@/domains/common/utils/trpc.client'
 
 import type { AppRouter } from '@/domains/common/routers/_app'
 import type { DehydratedState } from '@tanstack/react-query'

@@ -1,7 +1,6 @@
 import { getIronSession } from 'iron-session'
 import getConfig from 'next/config'
 
-import type { UserTypeType } from '@/gql'
 import type { IncomingMessage, ServerResponse } from 'http'
 import type { SessionOptions } from 'iron-session'
 

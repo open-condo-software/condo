@@ -177,7 +177,7 @@ async function run () {
             type: 'select',
             name: 'selectedTemplate',
             message: 'Which template would you like to use?',
-            initial: initialIndex >= 0 ? initialIndex : 0,
+            initial: Math.max(initialIndex, 0),
             choices: availableTemplates.map(t => ({
                 title: t.name,
                 value: t.id,
@@ -191,7 +191,7 @@ async function run () {
     }
 
     const selectedTemplate = availableTemplates.find(t => t.id === preferences.template)
-    const templateHasExamples = (selectedTemplate?.examples?.length ?? 0 > 0)
+    const templateHasExamples = ((selectedTemplate?.examples?.length ?? 0) > 0)
 
     if (typeof opts.empty === 'boolean') {
         preferences.examples = !opts.empty

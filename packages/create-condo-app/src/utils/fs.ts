@@ -72,8 +72,7 @@ function sortTemplates (templates: Array<TemplateInfo>, rootTemplate?: string) {
         .toSorted((a, b) => a.name.localeCompare(b.name))
 
     return currentLevelTemplates.reduce((acc, cur) => {
-        acc.push(cur)
-        acc.push(...sortTemplates(templates, cur.id))
+        acc.push(cur, ...sortTemplates(templates, cur.id))
         return acc
     }, [] as Array<TemplateInfo>)
 }

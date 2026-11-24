@@ -10,7 +10,7 @@ import { nonNull } from '@open-condo/miniapp-utils/helpers/collections'
 const CONDO_DOMAIN = process.env.NEXT_PUBLIC_CONDO_DOMAIN || 'https://condo.app.localhost:8009'
 const APP_DOMAIN = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
 const OIDC_CALLBACK_ENDPOINT = '/api/auth/condo/callback'
-const ALLOWED_ORIGINS = [CONDO_DOMAIN, APP_DOMAIN].filter(nonNull)
+const ALLOWED_ORIGINS = new Set([CONDO_DOMAIN, APP_DOMAIN].filter(nonNull))
 
 
 const CORS_HEADERS: Record<string, string> = {
@@ -23,7 +23,7 @@ function getACAOHeader (req: NextRequest) {
     if (!origin) return null
 
     // NOTE: Basic scenario
-    if (ALLOWED_ORIGINS.includes(origin)) return origin
+    if (ALLOWED_ORIGINS.has(origin)) return origin
 
     // NOTE: Background OIDC callback endpoint
     if (origin !== 'null') return null

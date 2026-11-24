@@ -49,7 +49,7 @@ export async function createTRPCContext (opts: CreateNextContextOptions) {
 
 const t = initTRPC.context<typeof createTRPCContext>().create()
 
-const enforceAuth = t.middleware(async ({ ctx, next }) => {
+const enforceAuth = t.middleware(({ ctx, next }) => {
     if (!ctx.condoUser || !ctx.condoAccessToken || !ctx.constAccessTokenExpiresAt) {
         throw new TRPCError({ code: 'UNAUTHORIZED' })
     }
