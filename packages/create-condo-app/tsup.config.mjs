@@ -8,5 +8,8 @@ export default defineConfig({
     format: ['cjs', 'esm'],
     target: 'node16',
     minify: true,
+    banner: {
+        js: '#!/usr/bin/env node',
+    },
     publicDir: 'templates',
 })
