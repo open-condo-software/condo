@@ -16,4 +16,4 @@ export function makeQueryClient () {
 }
 
 export const { useTRPC, TRPCProvider } = createTRPCContext<AppRouter>()
-export { useQuery } from '@tanstack/react-query'
+export { useQuery, useMutation } from '@tanstack/react-query'

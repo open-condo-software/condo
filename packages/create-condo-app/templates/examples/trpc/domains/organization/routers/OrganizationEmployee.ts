@@ -1,3 +1,4 @@
+import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
 
 import { initializeServerApolloClient } from '@/domains/common/utils/apollo'
@@ -25,7 +26,7 @@ export const organizationEmployeeRouter = createTRPCRouter({
             })
             return data
         } catch {
-            return null
+            throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' })
         }
     }),
 })

@@ -1,3 +1,5 @@
+import { TRPCError } from '@trpc/server'
+
 import { initializeServerApolloClient } from '@/domains/common/utils/apollo'
 import { createTRPCRouter, publicProcedure } from '@/domains/common/utils/trpc.server'
 import { AUTH_TOKEN_EXPIRATION_MARGIN_MS } from '@/domains/user/constants/auth'
@@ -15,7 +17,7 @@ export const userRouter = createTRPCRouter({
             const { data } = await client.query<AuthenticatedUserQuery>({ query: AuthenticatedUserDocument })
             return data
         } catch {
-            return null
+            throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' })
         }
     }),
 })

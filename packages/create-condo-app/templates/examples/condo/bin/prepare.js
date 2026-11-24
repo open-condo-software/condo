@@ -20,7 +20,7 @@ async function prepare () {
     await updateAppEnvFile(appName, 'OIDC_CLIENT_SECRET', clientSecret)
 
     if (hasApiRoutes) {
-        await updateAppEnvFile(appName, 'COOKIE_SECRET', _getRandomString(32))
+        await updateAppEnvFile(appName, 'COOKIE_SECRET', (prev) => prev || _getRandomString(32))
     }
 }
 
