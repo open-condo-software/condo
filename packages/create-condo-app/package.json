@@ -45,5 +45,8 @@
     "tsup": "^8.3.6",
     "typescript": "^5.8.3",
     "yaml": "2.9.1"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
