@@ -438,6 +438,10 @@ async function registerMiniapp ({
     }
     if (oidcFlow === 'pkce') {
         oidcPayload.token_endpoint_auth_method = 'none'
+        // NOTE: Does not realy matter for pkce
+        oidcPayload.redirect_uris = ['http://localhost:3000']
+    } else {
+        oidcPayload.redirect_uris = ['http://localhost:3000/api/auth/condo/callback']
     }
 
     let command = `yarn workspace @app/condo node ./bin/create-miniapp.js -a '${JSON.stringify(appPayload)}' -o '${JSON.stringify(oidcPayload)}'`

@@ -1,0 +1,22 @@
+fragment OrganizationInfo on Organization {
+    id
+    tin
+    name
+    country
+}
+
+query getEmployeeByUserAndOrganization($userId: ID!, $organizationId: ID!) {
+    employees: allOrganizationEmployees(
+        first: 1
+        where: { user: {id: $userId}, organization: { id: $organizationId }}
+    ) {
+        id
+        organization {
+            ...OrganizationInfo
+        }
+        role {
+            id
+            name
+        }
+    }
+}

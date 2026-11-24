@@ -6,10 +6,17 @@ type PackagePathResult = {
     absolutePath: string
 }
 
+type GetAvailableTemplatesOptions = {
+    showHidden?: boolean
+}
+
 type TemplateInfo = {
     id: string
     name: string
     description?: string
+    extends?: string
+    hidden?: boolean
+    examples?: Array<string>
 }
 
 /**
@@ -59,28 +66,42 @@ export function resolveTemplatesDir () {
     return __dirname
 }
 
-export function getAvailableTemplates (): Array<TemplateInfo> {
+function sortTemplates (templates: Array<TemplateInfo>, rootTemplate?: string) {
+    const currentLevelTemplates = templates
+        .filter(t => rootTemplate ? t.extends === rootTemplate : !t.extends)
+        .toSorted((a, b) => a.name.localeCompare(b.name))
+
+    return currentLevelTemplates.reduce((acc, cur) => {
+        acc.push(cur, ...sortTemplates(templates, cur.id))
+        return acc
+    }, [] as Array<TemplateInfo>)
+}
+
+export function getAvailableTemplates (opts?: GetAvailableTemplatesOptions): Array<TemplateInfo> {
+    const { showHidden } = opts ?? {}
     const templatesDir = join(resolveTemplatesDir(), 'templates')
     const appTemplates = readdirSync(templatesDir, { withFileTypes: true })
         .filter(d => d.isDirectory())
         .map(dirent => dirent.name)
 
-    const result: Array<TemplateInfo> = []
+    const allTemplates: Array<TemplateInfo> = []
 
     for (const templateName of appTemplates) {
         const metaPath = join(templatesDir, templateName, '_meta.json')
         if (!existsSync(metaPath)) continue
         const meta = JSON.parse(readFileSync(metaPath, 'utf-8'))
-        if (meta.hidden) continue
 
-        result.push({
+        allTemplates.push({
             id: templateName,
             name: meta.name ?? templateName,
             description: meta.description ?? null,
+            extends: meta.extends ?? null,
+            hidden: meta.hidden ?? false,
+            examples: meta.examples ?? null,
         })
     }
 
-    return result
+    return sortTemplates(allTemplates).filter(t => !t.hidden || showHidden)
 }
 
 export function isEmptyDir (dirPath: string): boolean {

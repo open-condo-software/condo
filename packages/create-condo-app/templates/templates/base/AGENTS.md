@@ -13,6 +13,8 @@
 - [i18n](#i18n)
 - [Bridge](#bridge)
 - [Authorization](#authorization)
+- [Backend / API architecture](#backend--api-architecture)
+- [Security notes](#security-notes)
 - [Condo API](#condo-api)
 - [App Architecture](#app-architecture)
 
@@ -235,6 +237,14 @@ Bridge is primarily used to get launch params (locale / user id / organization o
 ## Authorization
 
 [//]: # (section:authorization)
+
+## Backend / API architecture
+
+[//]: # (section:backend--api-architecture)
+
+## Security notes
+
+[//]: # (section:security-notes)
 
 ## Condo API
 

@@ -171,12 +171,13 @@ async function run () {
     const availableTemplates = getAvailableTemplates()
 
     if (availableTemplates.length > 1) {
+        const initialIndex = availableTemplates.findIndex(t => t.id === preferences.template)
         const { selectedTemplate } = await prompts({
             onState: onPromptState,
             type: 'select',
             name: 'selectedTemplate',
             message: 'Which template would you like to use?',
-            initial: preferences.template,
+            initial: Math.max(initialIndex, 0),
             choices: availableTemplates.map(t => ({
                 title: t.name,
                 value: t.id,
@@ -189,9 +190,12 @@ async function run () {
         preferences.template = availableTemplates[0].id
     }
 
+    const selectedTemplate = availableTemplates.find(t => t.id === preferences.template)
+    const templateHasExamples = ((selectedTemplate?.examples?.length ?? 0) > 0)
+
     if (typeof opts.empty === 'boolean') {
         preferences.examples = !opts.empty
-    } else {
+    } else if (templateHasExamples) {
         const { examples } = await prompts({
             type: 'toggle',
             name: 'examples',
@@ -201,6 +205,8 @@ async function run () {
             inactive: 'No',
         }, { onCancel })
         preferences.examples = examples
+    } else {
+        preferences.examples ??= true
     }
 
     if (typeof opts.agentsMd === 'boolean') {

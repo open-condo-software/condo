@@ -8,8 +8,8 @@ import type { IncomingMessage, ServerResponse } from 'http'
 import type { Client, UserinfoResponse } from 'openid-client'
 
 type Session = Record<string, unknown> & {
-    save: () => Promise<void>
-    destroy: () => Promise<void>
+    save: () => void | Promise<void>
+    destroy: () => void | Promise<void>
 }
 
 type SessionGetter = (req: IncomingMessage, res: ServerResponse) => Promise<Session>
@@ -51,10 +51,13 @@ type OnAuthSuccessHandler<UserInfo extends Record<string, unknown> = Record<stri
     data: OIDCCallbackData<UserInfo>
 ) => void | Promise<void>
 
-type OIDCTokens = {
-    accessToken?: string
-    refreshToken?: string
+type OIDCSessionInfo = {
     idToken?: string
+
+    accessToken?: string
+    accessTokenExpiresAt?: number
+
+    refreshToken?: string
 }
 
 type OIDCMiddlewareOptions<UserInfo extends Record<string, unknown> = Record<string, never>> = {
@@ -63,6 +66,7 @@ type OIDCMiddlewareOptions<UserInfo extends Record<string, unknown> = Record<str
     redirectUri: string | Array<string>
     onAuthSuccess?: OnAuthSuccessHandler<UserInfo>
     middlewareOptions?: MiddlewareOptions
+    redirectFromCallback?: boolean | string
     onError?: ErrorHandler
     logger?: LoggerType
 }
@@ -73,6 +77,7 @@ type RequestHandler = (req: IncomingMessage, res: ServerResponse, next?: NextFun
 
 export class OIDCMiddleware<UserInfo extends Record<string, unknown> = Record<string, never>> {
     private static OIDC_ID_TOKEN_KEY = 'oidcIdToken' as const
+    private static OIDC_ACCESS_TOKEN_EXPIRES_AT_KEY = 'oidcAccessTokenExpiresAt'
     private static OIDC_ACCESS_TOKEN_KEY = 'oidcAccessToken' as const
     private static OIDC_REFRESH_TOKEN_KEY = 'oidcRefreshToken' as const
     private static OIDC_NEXT_URL_KEY = 'oidcNextUrl' as const
@@ -84,6 +89,7 @@ export class OIDCMiddleware<UserInfo extends Record<string, unknown> = Record<st
     private readonly client: Client
     private readonly logger: LoggerType
     private readonly redirectUris: Array<string>
+    private readonly redirectFromCallback: string | boolean
     private readonly onAuthSuccess?: OnAuthSuccessHandler<UserInfo>
     private readonly onError?: ErrorHandler
     private readonly middlewareOptions: MiddlewareOptions | undefined
@@ -101,8 +107,11 @@ export class OIDCMiddleware<UserInfo extends Record<string, unknown> = Record<st
         onAuthSuccess,
         onError,
         middlewareOptions,
+        redirectFromCallback,
     }: OIDCMiddlewareOptions<UserInfo>) {
         this.getSession = getSession
+        this.redirectFromCallback = redirectFromCallback ?? false
+
         const { serverUrl, clientId, clientSecret, clientOptions, issuerOptions, scope } = oidcConfig
 
         const issuer = new Issuer({
@@ -157,16 +166,20 @@ export class OIDCMiddleware<UserInfo extends Record<string, unknown> = Record<st
         res.end(`OIDC auth error: ${errId}`)
     }
 
-    async extractOIDCTokensFromRequest (req: IncomingMessage, res: ServerResponse): Promise<OIDCTokens> {
+    async extractOIDCTokensFromRequest (req: IncomingMessage, res: ServerResponse): Promise<OIDCSessionInfo> {
         const session = await this.getSession(req, res)
         const rawAccessToken = session[OIDCMiddleware.OIDC_ACCESS_TOKEN_KEY]
         const rawRefreshToken = session[OIDCMiddleware.OIDC_REFRESH_TOKEN_KEY]
         const rawIdToken = session[OIDCMiddleware.OIDC_ID_TOKEN_KEY]
+        const rawExpiresAt = session[OIDCMiddleware.OIDC_ACCESS_TOKEN_EXPIRES_AT_KEY]
 
         return {
-            accessToken: typeof rawAccessToken === 'string' ? rawAccessToken : undefined,
-            refreshToken: typeof rawRefreshToken === 'string' ? rawRefreshToken : undefined,
             idToken: typeof rawIdToken === 'string' ? rawIdToken : undefined,
+
+            accessToken: typeof rawAccessToken === 'string' ? rawAccessToken : undefined,
+            accessTokenExpiresAt: typeof rawExpiresAt === 'number' ? rawExpiresAt : undefined,
+
+            refreshToken: typeof rawRefreshToken === 'string' ? rawRefreshToken : undefined,
         }
     }
 
@@ -221,6 +234,7 @@ export class OIDCMiddleware<UserInfo extends Record<string, unknown> = Record<st
         const client = this.client
         const onAuthSuccess = this.onAuthSuccess
         const redirectUris = this.redirectUris
+        const redirectFromCallback = this.redirectFromCallback
 
         return async function callbackHandler (req, res, next) {
             let session = await sessionGetter(req, res)
@@ -239,7 +253,12 @@ export class OIDCMiddleware<UserInfo extends Record<string, unknown> = Record<st
                 }
 
                 const params = client.callbackParams(req)
-                const { access_token: accessToken, refresh_token: refreshToken, id_token: idToken } = await client.callback(redirectUri, params, checks)
+                const {
+                    access_token: accessToken,
+                    refresh_token: refreshToken,
+                    id_token: idToken,
+                    expires_at: accessTokenExpiresAt,
+                } = await client.callback(redirectUri, params, checks)
 
                 let userInfo: UserinfoResponse<UserInfo> | undefined
                 if (accessToken) {
@@ -262,10 +281,23 @@ export class OIDCMiddleware<UserInfo extends Record<string, unknown> = Record<st
                 session[OIDCMiddleware.OIDC_ID_TOKEN_KEY] = idToken
                 session[OIDCMiddleware.OIDC_ACCESS_TOKEN_KEY] = accessToken
                 session[OIDCMiddleware.OIDC_REFRESH_TOKEN_KEY] = refreshToken
+                session[OIDCMiddleware.OIDC_ACCESS_TOKEN_EXPIRES_AT_KEY] = accessTokenExpiresAt
 
                 await session.save()
 
-                const location = typeof nextUrl === 'string' && isSafeUrl(nextUrl) ? nextUrl : '/'
+                if (!redirectFromCallback) {
+                    res.writeHead(200)
+                    res.end()
+                    return
+                }
+
+                let location = '/'
+                if (typeof nextUrl === 'string' && isSafeUrl(nextUrl)) {
+                    location = nextUrl
+                } else if (typeof redirectFromCallback === 'string') {
+                    location = redirectFromCallback
+                }
+
                 res.writeHead(302, { Location: location })
                 res.end()
             } catch (err) {
