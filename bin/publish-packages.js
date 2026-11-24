@@ -27,6 +27,7 @@ const BREAKING_KEYWORDS = ['BREAKING CHANGE', 'BREAKING CHANGES', 'BREAKING-CHAN
 const RELEASE_LIST = [
     'packages/apollo',
     'packages/bridge',
+    'packages/create-condo-app',
     'packages/icons',
     'packages/migrator',
     'packages/miniapp-utils',
