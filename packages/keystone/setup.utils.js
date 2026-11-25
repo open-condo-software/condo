@@ -71,9 +71,11 @@ function getAdapter (databaseUrl) {
     }
 }
 
-function getCookieOptions (conf) {
+function getAuthCookieOptions (conf) {
+    const sameSitePolicy = conf.COOKIE_SAME_SITE ?? 'None'
+
     return {
-        sameSite: HTTPS_REGEXP.test(conf.SERVER_URL) && conf.NODE_ENV === 'production' ? 'None' : 'Lax',
+        sameSite: HTTPS_REGEXP.test(conf.SERVER_URL) && conf.NODE_ENV === 'production' ? sameSitePolicy : 'Lax',
         // NOTE(pahaz): Apollo server client doesn't work with secure=true! Need to research why
         secure: HTTPS_REGEXP.test(conf.SERVER_URL) && conf.NODE_ENV === 'production',
         httpOnly: conf.DISABLE_HTTP_ONLY_COOKIE !== 'true',
@@ -86,7 +88,7 @@ function getCookieOptions (conf) {
 function prepareDefaultKeystoneConfig (conf) {
     const config = {
         cookieSecret: getCookieSecret(conf.COOKIE_SECRET),
-        cookie: getCookieOptions(conf),
+        cookie: getAuthCookieOptions(conf),
         name: conf.PROJECT_NAME,
         defaultAccess: { list: false, field: true, custom: false },
         queryLimits: { maxTotalResults: 1000 },
@@ -113,5 +115,5 @@ module.exports = {
     getCookieSecret,
     getAdapter,
     prepareDefaultKeystoneConfig,
-    getCookieOptions,
+    getAuthCookieOptions,
 }

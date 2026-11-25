@@ -84,6 +84,7 @@ async function prepareSubscriptionPaymentRecipient (appName) {
 async function main () {
     // 1) add local admin users!
     const appName = 'condo'
+    await updateAppEnvFile(appName, 'COOKIE_SAME_SITE', 'Lax')
     await updateAppEnvAddressSuggestionConfig(appName)
     await updateAppEnvFileClients(appName)
     await prepareSubscriptionPaymentRecipient(appName)
