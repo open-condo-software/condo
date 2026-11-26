@@ -903,6 +903,26 @@ describe('BillingReceipt', () => {
                     }])
                 })
 
+                test('Should keep services distribution after partial and full payment updates', async () => {
+                    const [receipt] = await createTestBillingReceipt(admin, context, property, account, {
+                        services: [{ name: 'Unmatched service', toPay: '100.00' }],
+                        toPay: '100.00',
+                    })
+                    expect(receipt.servicesDistribution).toEqual([
+                        expect.objectContaining({ amount: '100.00' }),
+                    ])
+
+                    for (const [toPay, paid] of [['80.00', '20.00'], ['0.00', '100.00']]) {
+                        const [updatedReceipt] = await updateTestBillingReceipt(admin, receipt.id, {
+                            toPay,
+                            toPayDetails: { paid },
+                        })
+                        expect(Big(updatedReceipt.paid).toFixed(2)).toBe(paid)
+                        expect(updatedReceipt.invalidServicesError).toBeNull()
+                        expect(updatedReceipt.servicesDistribution).toEqual(receipt.servicesDistribution)
+                    }
+                })
+
                 test('Should validate that services add up to the total sum (toPay)', async () => {
                     const [receipt] = await createTestBillingReceipt(admin, context, property, account, {
                         services: generateServicesData(1, '9000'), toPay: '9000.00',

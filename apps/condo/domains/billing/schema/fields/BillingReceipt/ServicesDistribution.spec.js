@@ -265,6 +265,18 @@ describe('BillingReceipt servicesDistribution', () => {
         ])
     })
 
+    test.each(['80.00', '0.00'])('keeps the full services distribution when the remaining amount is %s', async (toPay) => {
+        const result = await field.resolver({
+            services: [{ name: 'Hot water', toPay: '100.00' }],
+            toPay,
+            paid: Big(100).minus(toPay).toFixed(2),
+        }, {}, { req: { locale: 'ru' } })
+
+        expect(result).toEqual([
+            { categoryName: getLocalized('ru', 'billing.category.hot_water.name'), amount: '100.00', color: '#ff0000' },
+        ])
+    })
+
     test('does not load the flag when there are no services or their total differs from the receipt total', async () => {
         expect(await resolve([])).toEqual([])
         expect(await resolve(null)).toEqual([])

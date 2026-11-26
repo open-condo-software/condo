@@ -1,4 +1,5 @@
 const Big = require('big.js')
+const get = require('lodash/get')
 const { z } = require('zod')
 
 const conf = require('@open-condo/config')
@@ -120,6 +121,8 @@ function parseServiceCategoriesConfig (config) {
             }
 
             try {
+                // featureflags are controlled by admins, so we can trust in its regexps
+                // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
                 matchers.push(new RegExp(expression, flags))
             } catch (error) {
                 issues.push(`${patternPath.join('.')}: invalid regular expression: ${error.message}`)
@@ -194,16 +197,20 @@ function getServiceCategory (serviceName, patterns) {
     return matchedRule ? matchedRule.categoryName : BILLING_RECEIPT_SERVICE_DISTRIBUTION_FALLBACK_CATEGORY
 }
 
-function servicesMatchReceiptTotal (receipt) {
-    const { services, toPay: receiptToPay } = receipt || {}
-    if (!Array.isArray(services) || Big(receiptToPay || 0).eq(0)) return false
+function getInvalidServicesError (receipt) {
+    const toPayAmount = Big(get(receipt, 'toPay') || 0)
+    const paidAmount = Big(get(receipt, 'paid') || 0)
+    const services = get(receipt, 'services', [])
 
-    try {
-        const servicesTotal = services.reduce((sum, service) => sum.plus(service.toPay || 0), Big(0))
-        return servicesTotal.eq(Big(receiptToPay))
-    } catch (error) {
-        return false
-    }
+    const servicesTotal = services
+        ? services.reduce((total, { toPay = 0 }) => Big(total).add(Big(toPay)), Big(0))
+        : Big(0)
+
+    const servicesAreValid = servicesTotal.cmp(toPayAmount.add(paidAmount)) === 0
+
+    if (services && services.length > 0 && !servicesAreValid) return `Services sum (${servicesTotal}) does not add up to the toPay (${toPayAmount}) amount correctly`
+
+    return null
 }
 
 const SERVICES_DISTRIBUTION_FIELD = {
@@ -217,7 +224,11 @@ const SERVICES_DISTRIBUTION_FIELD = {
         const services = receipt.services
         if (!Array.isArray(services) || services.length === 0) return []
 
-        if (!servicesMatchReceiptTotal(receipt)) return []
+        try {
+            if (getInvalidServicesError(receipt)) return []
+        } catch {
+            return []
+        }
 
         const { colors, patterns, categoryOrder } = await getServiceCategoriesConfig(context)
         const sums = new Map()
@@ -243,5 +254,6 @@ const SERVICES_DISTRIBUTION_FIELD = {
 }
 
 module.exports = {
+    getInvalidServicesError,
     SERVICES_DISTRIBUTION_FIELD,
 }
