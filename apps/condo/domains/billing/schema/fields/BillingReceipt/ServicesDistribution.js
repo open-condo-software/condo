@@ -17,6 +17,7 @@ const { BILLING_RECEIPT_SERVICE_CATEGORIES } = require('@condo/domains/common/co
 
 const FALLBACK_COLOR = '#999999'
 const INITIAL_CONFIG_LOAD_TIMEOUT_MS = 5 * 1000
+const CONFIG_REFRESH_TIMEOUT_MS = 30 * 1000
 const CONFIG_REFRESH_INTERVAL_MS = 5 * 60 * 1000
 let serviceCategoriesConfig = { colors: {}, patterns: [], categoryOrder: new Map() }
 let initialConfigLoad
@@ -142,12 +143,22 @@ function parseServiceCategoriesConfig (config) {
 }
 
 async function refreshServiceCategoriesConfig (context) {
+    // The fetch timeout does not cover reading the response body. Bound the full refresh so a stalled read cannot block future attempts.
+    let timeout
+    const deadline = new Promise((resolve, reject) => {
+        timeout = setTimeout(() => reject(new Error(`Config refresh timed out after ${CONFIG_REFRESH_TIMEOUT_MS} ms`)), CONFIG_REFRESH_TIMEOUT_MS)
+    })
     try {
-        const config = await featureToggleManager.getFeatureValue(context, BILLING_RECEIPT_SERVICE_CATEGORIES, null)
+        const config = await Promise.race([
+            featureToggleManager.getFeatureValue(context, BILLING_RECEIPT_SERVICE_CATEGORIES, null),
+            deadline,
+        ])
         const parsedConfig = parseServiceCategoriesConfig(config)
         if (parsedConfig) serviceCategoriesConfig = parsedConfig
     } catch (err) {
         logger.warn({ msg: `Failed to load ${BILLING_RECEIPT_SERVICE_CATEGORIES} config`, err })
+    } finally {
+        clearTimeout(timeout)
     }
 }
 
@@ -176,13 +187,14 @@ async function getServiceCategoriesConfig (context) {
 function normalizeServiceName (value) {
     return String(value || '')
         .toLowerCase()
-        .replace(/\u00a0/g, ' ')
-        .replace(/ё/g, 'е')
+        .replaceAll('\u00a0', ' ')
+        .replaceAll('ё', 'е')
         .replace(/^[\s*_#-]*\d+[_-]+/g, ' ')
         .replace(/[«»"“”]/g, ' ')
         .replace(/[.,;:()[\]{}№*]+/g, ' ')
-        .replace(/\s*\/\s*/g, '/')
-        .replace(/\s*-\s*/g, ' ')
+        .replace(/\s+/g, ' ')
+        .replace(/ ?\/ ?/g, '/')
+        .replaceAll('-', ' ')
         .replace(/\s+/g, ' ')
         .trim()
 }
@@ -235,7 +247,7 @@ const SERVICES_DISTRIBUTION_FIELD = {
         services.forEach(({ name, toPay }) => {
             const categoryName = getServiceCategory(name, patterns)
             const amount = sums.get(categoryName) || Big(0)
-            sums.set(categoryName, amount.plus(toPay))
+            sums.set(categoryName, amount.plus(toPay || 0))
         })
 
         const locale = extractReqLocale(context?.req) || conf.DEFAULT_LOCALE
@@ -245,11 +257,16 @@ const SERVICES_DISTRIBUTION_FIELD = {
                 if (secondCategory === BILLING_RECEIPT_SERVICE_DISTRIBUTION_FALLBACK_CATEGORY) return -1
                 return (categoryOrder.get(firstCategory) ?? Number.MAX_SAFE_INTEGER) - (categoryOrder.get(secondCategory) ?? Number.MAX_SAFE_INTEGER)
             })
-            .map(([categoryKey, amount]) => ({
-                categoryName: getLocalized(locale, categoryKey),
-                amount: amount.toFixed(2),
-                color: colors[categoryKey] || colors[BILLING_RECEIPT_SERVICE_DISTRIBUTION_FALLBACK_CATEGORY] || FALLBACK_COLOR,
-            }))
+            .map(([categoryKey, amount]) => {
+                // Keep two decimals for cent-exact amounts and up to four for sub-cent amounts: 1 → 1.00, 1.2222 → 1.2222, 1.222256 → 1.2223.
+                const roundedAmount = amount.round(4)
+                const cents = roundedAmount.toFixed(2)
+                return {
+                    categoryName: getLocalized(locale, categoryKey),
+                    amount: roundedAmount.eq(cents) ? cents : roundedAmount.toFixed(),
+                    color: colors[categoryKey] || colors[BILLING_RECEIPT_SERVICE_DISTRIBUTION_FALLBACK_CATEGORY] || FALLBACK_COLOR,
+                }
+            })
     },
 }
 

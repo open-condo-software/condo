@@ -79,6 +79,16 @@ describe('BillingReceipt servicesDistribution', () => {
         ])
     })
 
+    test('normalizes whitespace around slashes and turns hyphens into spaces after that', async () => {
+        getFeatureValue.mockResolvedValueOnce({
+            patterns: [{ categoryName: 'billing.category.hot_water.name', patterns: ['^елка/ вода горячая$'] }],
+        })
+
+        expect(await resolve([{ name: 'Ёлка\u00a0\t/ -  Вода--горячая', toPay: '1' }])).toEqual([
+            { categoryName: getLocalized('ru', 'billing.category.hot_water.name'), amount: '1.00', color: '#999999' },
+        ])
+    })
+
     test('concurrent requests wait for the same initial config load', async () => {
         jest.useFakeTimers()
         const receipt = { services: [{ name: 'Hot water', toPay: '1.00' }], toPay: '1.00' }
@@ -179,6 +189,39 @@ describe('BillingReceipt servicesDistribution', () => {
         expect(getFeatureValue).toHaveBeenCalledTimes(1)
     })
 
+    test('retries after a refresh times out and ignores its late result', async () => {
+        jest.useFakeTimers()
+        const services = [{ name: 'Hot water', toPay: '1.00' }]
+        const hotWater = [{ categoryName: getLocalized('ru', 'billing.category.hot_water.name'), amount: '1.00', color: '#ff0000' }]
+        const other = [{ categoryName: getLocalized('ru', 'billing.servicesDistribution.other.name'), amount: '1.00', color: '#999999' }]
+        expect(await resolve(services)).toEqual(hotWater)
+        logger.warn.mockClear()
+
+        getFeatureValue.mockImplementationOnce(() => new Promise(resolve => {
+            setTimeout(() => resolve(mockBillingReceiptServiceCategories), 30_000 + REFRESH_INTERVAL_MS + 1_000)
+        })).mockResolvedValueOnce({ colors: {}, patterns: [] })
+
+        await jest.advanceTimersByTimeAsync(REFRESH_INTERVAL_MS)
+        expect(await resolve(services)).toEqual(hotWater)
+        expect(getFeatureValue).toHaveBeenCalledTimes(2)
+
+        await jest.advanceTimersByTimeAsync(30_000 + REFRESH_INTERVAL_MS - 1)
+        expect(await resolve(services)).toEqual(hotWater)
+        expect(getFeatureValue).toHaveBeenCalledTimes(2)
+        expect(logger.warn).toHaveBeenCalledWith(expect.objectContaining({
+            err: expect.objectContaining({ message: 'Config refresh timed out after 30000 ms' }),
+        }))
+
+        await jest.advanceTimersByTimeAsync(1)
+        expect(await resolve(services)).toEqual(hotWater)
+        expect(getFeatureValue).toHaveBeenCalledTimes(3)
+        expect(await resolve(services)).toEqual(other)
+
+        await jest.advanceTimersByTimeAsync(1_000)
+        expect(await resolve(services)).toEqual(other)
+        expect(getFeatureValue).toHaveBeenCalledTimes(3)
+    })
+
     test('keeps the previous config during refresh and after a failed or missing value until an explicit reset', async () => {
         jest.useFakeTimers()
         const services = [{ name: 'Hot water', toPay: '1.00' }]
@@ -233,6 +276,24 @@ describe('BillingReceipt servicesDistribution', () => {
         ], 'en')).toEqual([
             { categoryName: getLocalized('en', 'billing.category.water_removal.name'), amount: '0.20', color: '#0000ff' },
             { categoryName: getLocalized('en', 'billing.category.hot_water.name'), amount: '0.30', color: '#ff0000' },
+        ])
+    })
+
+    test('preserves sub-cent category amounts so the distribution still adds up to the receipt total', async () => {
+        const distribution = await resolve([
+            { name: 'Hot water', toPay: '0.005' },
+            { name: 'Water removal', toPay: '0.005' },
+        ], 'en', '0.01')
+
+        expect(distribution).toEqual([
+            { categoryName: getLocalized('en', 'billing.category.water_removal.name'), amount: '0.005', color: '#0000ff' },
+            { categoryName: getLocalized('en', 'billing.category.hot_water.name'), amount: '0.005', color: '#ff0000' },
+        ])
+    })
+
+    test('rounds category totals to at most four decimal places', async () => {
+        expect(await resolve([{ name: 'Hot water', toPay: '1.222256' }])).toEqual([
+            { categoryName: getLocalized('ru', 'billing.category.hot_water.name'), amount: '1.2223', color: '#ff0000' },
         ])
     })
 
