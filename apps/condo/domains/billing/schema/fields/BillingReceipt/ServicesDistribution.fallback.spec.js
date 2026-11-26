@@ -1,24 +1,32 @@
-require('@condo/domains/common/utils/testSchema/env').mockEnv({
-    BILLING_RECEIPT_SERVICE_CATEGORIES: () => undefined,
-})
+jest.mock('@open-condo/featureflags/featureToggleManager', () => ({
+    featureToggleManager: { getFeatureValue: jest.fn() },
+}))
 
 jest.mock('@open-condo/keystone/logging', () => ({
     getLogger: jest.fn().mockReturnValue({ warn: jest.fn() }),
 }))
 
-const { getLogger } = require('@open-condo/keystone/logging')
 const { getLocalized } = require('@open-condo/locales/loader')
 
 const {
     BILLING_RECEIPT_SERVICE_DISTRIBUTION_FALLBACK_CATEGORY,
 } = require('@condo/domains/billing/constants/constants')
 
-const { SERVICES_DISTRIBUTION_FIELD } = require('./ServicesDistribution')
-const logger = getLogger()
-
 describe('BillingReceipt servicesDistribution without config', () => {
-    test('groups every service into Other without logging a config warning', async () => {
-        const result = await SERVICES_DISTRIBUTION_FIELD.resolver(
+    test.each([false, true])('groups every service into Other (flag read failed: %s)', async (failed) => {
+        let field, logger
+        jest.isolateModules(() => {
+            const { getFeatureValue } = require('@open-condo/featureflags/featureToggleManager').featureToggleManager
+            if (failed) {
+                getFeatureValue.mockRejectedValueOnce(new Error('flag unavailable'))
+            } else {
+                getFeatureValue.mockResolvedValueOnce(null)
+            }
+            logger = require('@open-condo/keystone/logging').getLogger()
+            field = require('./ServicesDistribution').SERVICES_DISTRIBUTION_FIELD
+        })
+
+        const result = await field.resolver(
             { services: [{ name: 'Water removal', toPay: '1.25' }], toPay: '1.25' },
             {},
             { req: { locale: 'en' } },
@@ -29,6 +37,6 @@ describe('BillingReceipt servicesDistribution without config', () => {
             amount: '1.25',
             color: '#999999',
         }])
-        expect(logger.warn).not.toHaveBeenCalled()
+        expect(logger.warn).toHaveBeenCalledTimes(failed ? 1 : 0)
     })
 })

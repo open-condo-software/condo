@@ -2,6 +2,7 @@ const Big = require('big.js')
 const { z } = require('zod')
 
 const conf = require('@open-condo/config')
+const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { readOnlyFieldAccess } = require('@open-condo/keystone/access')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
@@ -11,9 +12,15 @@ const {
     BILLING_RECEIPT_SERVICE_DISTRIBUTION_FIELD_NAME,
     BILLING_RECEIPT_SERVICE_DISTRIBUTION_FALLBACK_CATEGORY,
 } = require('@condo/domains/billing/constants/constants')
+const { BILLING_RECEIPT_SERVICE_CATEGORIES } = require('@condo/domains/common/constants/featureflags')
 
-const CONFIG_NAME = 'BILLING_RECEIPT_SERVICE_CATEGORIES'
 const FALLBACK_COLOR = '#999999'
+const INITIAL_CONFIG_LOAD_TIMEOUT_MS = 5 * 1000
+const CONFIG_REFRESH_INTERVAL_MS = 5 * 60 * 1000
+let serviceCategoriesConfig = { colors: {}, patterns: [], categoryOrder: new Map() }
+let initialConfigLoad
+let configRefreshPromise
+let nextConfigRefreshAt = 0
 
 const logger = getLogger()
 const configSchema = z.object({
@@ -43,43 +50,33 @@ function collectZodIssues (issues, path, zodIssues) {
 function logConfigIssues (issues) {
     if (issues.length) {
         logger.warn({
-            msg: `Invalid ${CONFIG_NAME} config; invalid entries will be ignored`,
+            msg: `Invalid ${BILLING_RECEIPT_SERVICE_CATEGORIES} config; invalid entries will be ignored`,
             data: { issues },
         })
     }
 }
 
-function parseServiceCategoriesConfig () {
-    const emptyConfig = { colors: {}, patterns: [] }
-    const configValue = conf[CONFIG_NAME]
-    if (!configValue) return emptyConfig
-
-    let config
-    try {
-        config = typeof configValue === 'string' ? JSON.parse(configValue) : configValue
-    } catch (error) {
-        logConfigIssues([`${CONFIG_NAME}: must contain valid JSON: ${error.message}`])
-        return emptyConfig
-    }
+function parseServiceCategoriesConfig (config) {
+    if (config == null) return null
 
     const issues = []
     const configResult = configSchema.safeParse(config)
     if (!configResult.success) {
-        collectZodIssues(issues, [CONFIG_NAME], configResult.error.issues)
+        collectZodIssues(issues, [BILLING_RECEIPT_SERVICE_CATEGORIES], configResult.error.issues)
         logConfigIssues(issues)
-        return emptyConfig
+        return null
     }
 
     const { colors: rawColors = {}, patterns: rawPatterns = [] } = configResult.data
     const colorsResult = configObjectSchema.safeParse(rawColors)
     const colors = {}
     if (!colorsResult.success) {
-        collectZodIssues(issues, [CONFIG_NAME, 'colors'], colorsResult.error.issues)
+        collectZodIssues(issues, [BILLING_RECEIPT_SERVICE_CATEGORIES, 'colors'], colorsResult.error.issues)
     } else {
         Object.entries(colorsResult.data).forEach(([categoryName, color]) => {
             const colorResult = z.string().safeParse(color)
             if (!colorResult.success) {
-                collectZodIssues(issues, [CONFIG_NAME, 'colors', categoryName], colorResult.error.issues)
+                collectZodIssues(issues, [BILLING_RECEIPT_SERVICE_CATEGORIES, 'colors', categoryName], colorResult.error.issues)
             } else {
                 colors[categoryName] = colorResult.data
             }
@@ -88,14 +85,15 @@ function parseServiceCategoriesConfig () {
 
     const patternsResult = z.array(z.unknown()).safeParse(rawPatterns)
     if (!patternsResult.success) {
-        collectZodIssues(issues, [CONFIG_NAME, 'patterns'], patternsResult.error.issues)
+        collectZodIssues(issues, [BILLING_RECEIPT_SERVICE_CATEGORIES, 'patterns'], patternsResult.error.issues)
         logConfigIssues(issues)
-        return emptyConfig
+        return null
     }
 
-    const compiledPatterns = []
+    const patterns = []
+    const categoryOrder = new Map()
     patternsResult.data.forEach((rule, ruleIndex) => {
-        const rulePath = [CONFIG_NAME, 'patterns', ruleIndex]
+        const rulePath = [BILLING_RECEIPT_SERVICE_CATEGORIES, 'patterns', ruleIndex]
         const ruleResult = categoryRuleSchema.safeParse(rule)
         if (!ruleResult.success) {
             collectZodIssues(issues, rulePath, ruleResult.error.issues)
@@ -129,33 +127,47 @@ function parseServiceCategoriesConfig () {
         })
 
         if (matchers.length) {
-            compiledPatterns.push({ categoryName: ruleResult.data.categoryName, matchers })
+            const { categoryName } = ruleResult.data
+            patterns.push({ categoryName, matchers })
+            if (!categoryOrder.has(categoryName)) categoryOrder.set(categoryName, categoryOrder.size)
         }
     })
 
     logConfigIssues(issues)
 
-    return { colors, patterns: compiledPatterns }
+    return { colors, patterns, categoryOrder }
 }
 
+async function refreshServiceCategoriesConfig (context) {
+    try {
+        const config = await featureToggleManager.getFeatureValue(context, BILLING_RECEIPT_SERVICE_CATEGORIES, null)
+        const parsedConfig = parseServiceCategoriesConfig(config)
+        if (parsedConfig) serviceCategoriesConfig = parsedConfig
+    } catch (err) {
+        logger.warn({ msg: `Failed to load ${BILLING_RECEIPT_SERVICE_CATEGORIES} config`, err })
+    }
+}
 
-let colors = {}
-let patterns = []
-let categoryOrder = new Map()
+async function getServiceCategoriesConfig (context) {
+    if (conf.DISABLE_BILLING_RECEIPT_SERVICE_CATEGORIES_REFRESH === 'true') return serviceCategoriesConfig
 
-try {
-    const config = parseServiceCategoriesConfig()
-    colors = config.colors
-    patterns = config.patterns
-    categoryOrder = new Map()
-    patterns.forEach(({ categoryName }) => {
-        if (!categoryOrder.has(categoryName)) categoryOrder.set(categoryName, categoryOrder.size)
-    })
-} catch (err) {
-    logger.warn({
-        msg: `Failed to parse ${CONFIG_NAME} config`,
-        err,
-    })
+    if (!configRefreshPromise && Date.now() >= nextConfigRefreshAt) {
+        configRefreshPromise = refreshServiceCategoriesConfig(context).finally(() => {
+            nextConfigRefreshAt = Date.now() + CONFIG_REFRESH_INTERVAL_MS
+            configRefreshPromise = undefined
+        })
+
+        if (initialConfigLoad === undefined) {
+            let timeout
+            const deadline = new Promise(resolve => { timeout = setTimeout(resolve, INITIAL_CONFIG_LOAD_TIMEOUT_MS) })
+            initialConfigLoad = Promise.race([configRefreshPromise, deadline]).finally(() => {
+                clearTimeout(timeout)
+                initialConfigLoad = null
+            })
+        }
+    }
+    if (initialConfigLoad) await initialConfigLoad
+    return serviceCategoriesConfig
 }
 
 function normalizeServiceName (value) {
@@ -172,7 +184,7 @@ function normalizeServiceName (value) {
         .trim()
 }
 
-function getServiceCategory (serviceName) {
+function getServiceCategory (serviceName, patterns) {
     const normalized = normalizeServiceName(serviceName)
     const matchedRule = patterns.find(({ matchers }) => matchers.some(matcher => {
         matcher.lastIndex = 0
@@ -194,27 +206,6 @@ function servicesMatchReceiptTotal (receipt) {
     }
 }
 
-function getOtherServiceNames (receipt) {
-    if (!servicesMatchReceiptTotal(receipt)) return []
-
-    const { services } = receipt
-    const names = new Map()
-    services.forEach(({ name }) => {
-        const displayName = String(name || '').trim().replace(/\s+/g, ' ')
-        const normalizedName = normalizeServiceName(displayName)
-
-        if (
-            normalizedName &&
-            getServiceCategory(displayName) === BILLING_RECEIPT_SERVICE_DISTRIBUTION_FALLBACK_CATEGORY &&
-            !names.has(normalizedName)
-        ) {
-            names.set(normalizedName, displayName)
-        }
-    })
-
-    return [...names.values()]
-}
-
 const SERVICES_DISTRIBUTION_FIELD = {
     schemaDoc: 'Service charges grouped by configured category, with localized category names',
     type: 'Virtual',
@@ -228,9 +219,10 @@ const SERVICES_DISTRIBUTION_FIELD = {
 
         if (!servicesMatchReceiptTotal(receipt)) return []
 
+        const { colors, patterns, categoryOrder } = await getServiceCategoriesConfig(context)
         const sums = new Map()
         services.forEach(({ name, toPay }) => {
-            const categoryName = getServiceCategory(name)
+            const categoryName = getServiceCategory(name, patterns)
             const amount = sums.get(categoryName) || Big(0)
             sums.set(categoryName, amount.plus(toPay))
         })
@@ -251,6 +243,5 @@ const SERVICES_DISTRIBUTION_FIELD = {
 }
 
 module.exports = {
-    getOtherServiceNames,
     SERVICES_DISTRIBUTION_FIELD,
 }

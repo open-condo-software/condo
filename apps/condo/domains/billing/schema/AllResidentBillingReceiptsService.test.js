@@ -208,8 +208,9 @@ describe('AllResidentBillingReceiptsService', () => {
                 { id: faker.random.alphaNumeric(5), name: faker.random.alphaNumeric(12), toPay: String(utils.randomNumber(3)), toPayDetails: null },
                 { id: faker.random.alphaNumeric(5), name: faker.random.alphaNumeric(12), toPay: String(utils.randomNumber(3)), toPayDetails: null },
             ]
+            const toPay = services.reduce((total, service) => total.plus(service.toPay), Big(0)).toFixed(2)
             const [[{ id: newReceiptId }]] = await utils.createReceipts([
-                utils.createJSONReceipt({ accountNumber, services }),
+                utils.createJSONReceipt({ accountNumber, services, toPay }),
             ])
             const resident = await utils.createResident()
             await utils.createServiceConsumer(resident, accountNumber)
@@ -218,7 +219,7 @@ describe('AllResidentBillingReceiptsService', () => {
             expect(receipt.services).toEqual(services)
             expect(receipt.servicesDistribution).toEqual([{
                 categoryName: expect.any(String),
-                amount: services.reduce((total, service) => Big(total).plus(service.toPay), Big(0)).toFixed(2),
+                amount: toPay,
                 color: expect.any(String),
             }])
             expect(receipt.raw).toBeUndefined()
@@ -239,7 +240,7 @@ describe('AllResidentBillingReceiptsService', () => {
                 services: expect.any(Array),
                 servicesDistribution: [{
                     categoryName: expect.any(String),
-                    amount: services.reduce((total, service) => Big(total).plus(service.toPay), Big(0)).toFixed(2),
+                    amount: toPay,
                     color: expect.any(String),
                 }],
                 currencyCode: expect.any(String),
