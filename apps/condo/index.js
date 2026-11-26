@@ -31,6 +31,7 @@ const { ACCESS_TOKEN_SESSION_ID_PREFIX } = require('@condo/domains/miniapp/const
 const { VoIPMiddleware } = require('@condo/domains/miniapp/VoIPMiddleware')
 const { UnsubscribeMiddleware } = require('@condo/domains/notification/UnsubscribeMiddleware')
 const { UserExternalIdentityMiddleware } = require('@condo/domains/user/integration/UserExternalIdentityMiddleware')
+const { SessionTrackMiddleware } = require('@condo/domains/user/middlewares/SessionTrackMiddleware')
 const { OIDCMiddleware } = require('@condo/domains/user/oidc')
 
 dayjs.extend(duration)
@@ -119,6 +120,7 @@ const lastApp = conf.DISABLE_NEXT_APP ? undefined : new NextApp({ dir: '.' })
 
 const apps = () => {
     return [
+        new SessionTrackMiddleware(),
         new HealthCheck({ checks }),
         new RequestCache(conf.REQUEST_CACHE_CONFIG ? JSON.parse(conf.REQUEST_CACHE_CONFIG) : { enabled: false }),
         new AdapterCache(conf.ADAPTER_CACHE_CONFIG ? JSON.parse(conf.ADAPTER_CACHE_CONFIG) : { enabled: false }),
