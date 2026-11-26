@@ -5,7 +5,7 @@ const conf = require('@open-condo/config')
 const { getAuthCookieOptions } = require('@open-condo/keystone/setup.utils')
 
 class SessionTrackMiddleware {
-    static TARGET_COOKIE_OPTIONS = ['sameSite', 'https', 'secure']
+    static TARGET_COOKIE_OPTIONS = ['sameSite', 'httpOnly', 'secure']
 
     /**
      * Checks if session was acquired via auth token, you cannot check cookies,
@@ -39,9 +39,11 @@ class SessionTrackMiddleware {
 
         const existingSessionData = { ...req.session }
 
-        // NOTE: is cookie policies change -> regenerate session,
+        // NOTE 1: is cookie policies change -> regenerate session,
         // after regeneration fill missing (KS-related or custom) properties from old one
         // It's the only safe variant to ensure we actually change cookie
+        // NOTE 2: calling session.save after is not required.
+        // Because we modify session, and express-session will update / set new cookie later in request chain (on req.sendHeaders)
         req.session.regenerate((err) => {
             if (err) return next(err)
 
