@@ -4,11 +4,31 @@ function buildQuotaKey (identityPrefix, identity) {
     return [PLUGIN_KEY_PREFIX, identityPrefix, identity].join(':')
 }
 
+function resolveQuotaIdentity ({ isAuthed, userId, ip }) {
+    const identityPrefix = isAuthed ? 'user' : 'ip'
+    const identifier = isAuthed ? userId : ip
+
+    return {
+        isAuthed,
+        identityPrefix,
+        identifier,
+        key: buildQuotaKey(identityPrefix, identifier),
+    }
+}
+
+function resolveAllowedQuota ({ isAuthed, identifier, authedQuota, nonAuthedQuota, customQuotas = {} }) {
+    if (Object.prototype.hasOwnProperty.call(customQuotas, identifier)) {
+        return customQuotas[identifier]
+    }
+
+    return isAuthed ? authedQuota : nonAuthedQuota
+}
+
 function extractQuotaKeyFromRequest (requestContext) {
     const isAuthed = Boolean(requestContext.context.authedItem)
-    const identifier = isAuthed ? requestContext.context.authedItem.id : requestContext.context.req.ip
-    const identityPrefix = isAuthed ? 'user' : 'ip'
-    const key = buildQuotaKey(identityPrefix, identifier)
+    const userId = isAuthed ? requestContext.context.authedItem.id : null
+    const ip = requestContext.context.req.ip
+    const { key, identifier } = resolveQuotaIdentity({ isAuthed, userId, ip })
 
     return { isAuthed, key, identifier }
 }
@@ -32,6 +52,8 @@ function addComplexity (existingComplexity, newComplexity) {
 
 module.exports = {
     extractQuotaKeyFromRequest,
+    resolveQuotaIdentity,
+    resolveAllowedQuota,
     addComplexity,
     buildQuotaKey,
 }

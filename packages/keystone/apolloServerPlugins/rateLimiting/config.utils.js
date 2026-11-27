@@ -1,5 +1,11 @@
 const Ajv = require('ajv')
 
+const {
+    DEFAULT_AUTHED_QUOTA,
+    DEFAULT_NON_AUTHED_QUOTA,
+    DEFAULT_QUOTA_WINDOW,
+} = require('./constants')
+
 const ajv = new Ajv()
 
 const PLUGIN_OPTIONS_SCHEMA = {
@@ -27,6 +33,16 @@ function validatePluginOptions (options) {
     return options
 }
 
+function applyRateLimitDefaults (options = {}) {
+    return {
+        authedQuota: options.authedQuota || DEFAULT_AUTHED_QUOTA,
+        nonAuthedQuota: options.nonAuthedQuota || DEFAULT_NON_AUTHED_QUOTA,
+        window: options.window || DEFAULT_QUOTA_WINDOW,
+        customQuotas: options.customQuotas || {},
+    }
+}
+
 module.exports = {
     validatePluginOptions,
+    applyRateLimitDefaults,
 }
