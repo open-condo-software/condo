@@ -49,7 +49,7 @@ function createMockReqResNext (query = {}, user = null) {
     const req = {
         id: 'test_req_id',
         query: { botId: RESIDENT_BOT_ID, ...query },
-        session: { save: jest.fn(), regenerate: jest.fn(() => null) },
+        session: { save: jest.fn(done => done()), regenerate: jest.fn(() => null) },
         user,
         url: '/api/xma/auth?botId=123456',
     }
@@ -217,6 +217,26 @@ describe('XmaRoutes', () => {
             expect(syncUser).toHaveBeenCalled()
             expect(User.getOne).toHaveBeenCalled()
             expect(next).not.toHaveBeenCalled()
+        })
+
+        test('waits for session storage before returning to the web app', async () => {
+            const [redirectUrl] = ALLOWED_REDIRECT_URLS
+            const { req, res, next } = createMockReqResNext({ redirectUrl, userType: RESIDENT, xmaAuthData: MOCK_XMA_AUTH_DATA_QP })
+            const saving = new Promise(resolve => req.session.save.mockImplementationOnce(resolve))
+            const completion = routes.completeAuth(req, res, next)
+            const finishSave = await saving
+            expect(res.redirect).not.toHaveBeenCalled()
+            finishSave()
+            await completion
+            expect(res.redirect).toHaveBeenCalledWith(redirectUrl)
+        })
+
+        test('does not redirect if the session store rejects the write', async () => {
+            const { req, res, next } = createMockReqResNext({ redirectUrl: ALLOWED_REDIRECT_URLS[0], userType: RESIDENT, xmaAuthData: MOCK_XMA_AUTH_DATA_QP })
+            const error = new Error('session store unavailable')
+            req.session.save.mockImplementationOnce(done => done(error))
+            await expect(routes.completeAuth(req, res, next)).rejects.toBe(error)
+            expect(res.redirect).not.toHaveBeenCalled()
         })
 
         test('should decode percent-encoded redirect url from callback query', async () => {

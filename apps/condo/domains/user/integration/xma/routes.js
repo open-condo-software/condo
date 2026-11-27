@@ -141,7 +141,8 @@ class XmaRoutes {
                 clientID: botId,
             },
         })
-        await req.session.save()
+        // The dashboard reads this session on the next request. Wait for the store, not the Session object.
+        await new Promise((resolve, reject) => req.session.save(err => err ? reject(err) : resolve()))
     }
 
     async _logoutAndRedirectToAuth (req, res, userType) {

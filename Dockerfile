@@ -80,6 +80,7 @@ RUN --mount=type=secret,id=TURBO_TOKEN,required=false \
 	&& if [ -f /run/secrets/TURBO_TOKEN ]; then export TURBO_TOKEN="$(cat /run/secrets/TURBO_TOKEN)"; \
 	elif [ -n "${TURBO_TOKEN}" ]; then export TURBO_TOKEN="${TURBO_TOKEN}"; fi \
 	&& set -x \
+	&& mkdir -p /tmp/carbone_render \
 	&& yarn build \
 	&& rm -rf /app/out \
 	&& rm -rf /app/.env \
