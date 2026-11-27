@@ -3,7 +3,7 @@ const ms = require('ms')
 const { GQLError, GQLErrorCode: { TOO_MANY_REQUESTS } } = require('@open-condo/keystone/errors')
 const { getKVClient } = require('@open-condo/keystone/kv')
 
-const { validatePluginOptions } = require('./config.utils')
+const { applyRateLimitDefaults, validatePluginOptions } = require('./config.utils')
 const {
     DEFAULT_MAX_TOTAL_RESULTS,
     DEFAULT_MUTATION_WEIGHT,
@@ -16,7 +16,7 @@ const {
     ERROR_TYPE,
 } = require('./constants')
 const { extractWhereComplexityFactor, extractRelationsComplexityFactor } = require('./query.utils')
-const { extractQuotaKeyFromRequest, addComplexity, buildQuotaKey } = require('./request.utils')
+const { addComplexity, buildQuotaKey, extractQuotaKeyFromRequest, resolveAllowedQuota } = require('./request.utils')
 const { extractPossibleArgsFromSchemaQueries, extractKeystoneListsData } = require('./schema.utils')
 
 const { extractQueriesAndMutationsFromRequest } = require('../utils/requests')
@@ -76,23 +76,17 @@ class ApolloRateLimitingPlugin {
         if (keystone.queryLimits && keystone.queryLimits.maxTotalResults) {
             this.#maxTotalResults = keystone.queryLimits.maxTotalResults
         }
-        if (opts.window) {
-            this.#quotaWindowInMS = ms(opts.window)
-        }
-        if (opts.authedQuota) {
-            this.#authedQuota = opts.authedQuota
-        }
-        if (opts.nonAuthedQuota) {
-            this.#nonAuthedQuota = opts.nonAuthedQuota
-        }
+        const quotaOptions = applyRateLimitDefaults(opts)
+        this.#authedQuota = quotaOptions.authedQuota
+        this.#nonAuthedQuota = quotaOptions.nonAuthedQuota
+        this.#quotaWindowInMS = ms(quotaOptions.window)
+        this.#customQuotas = quotaOptions.customQuotas
+
         if (opts.whereScalingFactor) {
             this.#whereScalingFactor = opts.whereScalingFactor
         }
         if (opts.pageLimit) {
             this.#pageLimit = opts.pageLimit
-        }
-        if (opts.customQuotas) {
-            this.#customQuotas = opts.customQuotas
         }
     }
 
@@ -194,12 +188,13 @@ class ApolloRateLimitingPlugin {
                 })
 
                 const { isAuthed, key, identifier } = extractQuotaKeyFromRequest(requestContext)
-
-                let allowedQuota = isAuthed ? this.#authedQuota : this.#nonAuthedQuota
-
-                if (this.#customQuotas.hasOwnProperty(identifier)) {
-                    allowedQuota = this.#customQuotas[identifier]
-                }
+                const allowedQuota = resolveAllowedQuota({
+                    isAuthed,
+                    identifier,
+                    authedQuota: this.#authedQuota,
+                    nonAuthedQuota: this.#nonAuthedQuota,
+                    customQuotas: this.#customQuotas,
+                })
 
 
                 // NOTE: Request in batch are executed via Promise.all (probably),

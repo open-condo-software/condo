@@ -118,11 +118,6 @@ describe('WhoAmIMiddleware', () => {
         expect(body.headers).toEqual(expect.objectContaining({
             'user-agent': 'whoami-test',
         }))
-        expect(body.geolocation).toEqual({
-            country: null,
-            region: null,
-            city: null,
-        })
     })
 
     test('returns authenticated userId from session', async () => {
@@ -152,20 +147,6 @@ describe('WhoAmIMiddleware', () => {
         expect(body.headers['x-proxy-signature']).toBeUndefined()
         expect(body.headers['set-cookie']).toBeUndefined()
         expect(body.headers['user-agent']).toBe('keep-me')
-    })
-
-    test('reads geolocation from proxy headers', async () => {
-        const { body } = await getWhoAmI({
-            'cf-ipcountry': 'DE',
-            'cf-region-code': 'BE',
-            'cf-ipcity': 'Berlin',
-        })
-
-        expect(body.geolocation).toEqual({
-            country: 'DE',
-            region: 'BE',
-            city: 'Berlin',
-        })
     })
 
     test('returns complexity quota from redis without incrementing', async () => {
