@@ -5,7 +5,7 @@ const { AdminUIApp } = require('@open-keystone/app-admin-ui')
 const { GraphQLApp } = require('@open-keystone/app-graphql')
 const cuid = require('cuid')
 const { json, urlencoded } = require('express')
-const { get, identity } = require('lodash')
+const get = require('lodash/get')
 const nextCookie = require('next-cookies')
 const { v4 } = require('uuid')
 
@@ -26,7 +26,7 @@ const { registerSchemas } = require('@open-condo/keystone/KSv5v6/v5/registerSche
 const { getKVClient, checkMinimalKVDataVersion } = require('@open-condo/keystone/kv')
 const { getKeystonePinoOptions, GraphQLLoggerPlugin, getLogger } = require('@open-condo/keystone/logging')
 const metrics = require('@open-condo/keystone/metrics')
-const { WhoAmIMiddleware } = require('@open-condo/keystone/middlewares')
+const { SessionTrackMiddleware, WhoAmIMiddleware } = require('@open-condo/keystone/middlewares')
 const { composeNonResolveInputHook, composeResolveInputHook } = require('@open-condo/keystone/plugins/utils')
 const { schemaDocPreprocessor, adminDocPreprocessor, escapeSearchPreprocessor, customAccessPostProcessor } = require('@open-condo/keystone/preprocessors')
 const { RuntimeStatsMiddleware } = require('@open-condo/keystone/runtimeStats')
@@ -225,6 +225,7 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
         cors: (conf.CORS) ? parseCorsSettings(JSON.parse(conf.CORS)) : { origin: true, credentials: true },
         pinoOptions: getKeystonePinoOptions(),
         apps: [
+            new SessionTrackMiddleware(),
             new RuntimeStatsMiddleware(),
             new DataVersionChecker(),
             new IpBlackListMiddleware(),
@@ -255,7 +256,7 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
                 ...(ui || {}),
             }),
             lastApp,
-        ].filter(identity),
+        ].filter(Boolean),
 
         /** @type {(app: import('express').Application) => void} */
         configureExpress: (app) => {

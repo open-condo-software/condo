@@ -6,6 +6,7 @@ const { getAuthCookieOptions } = require('@open-condo/keystone/setup.utils')
 
 class SessionTrackMiddleware {
     static TARGET_COOKIE_OPTIONS = ['sameSite', 'httpOnly', 'secure']
+    static ACTIVITY_TRACK_WINDOW_MS = 60 * 1_000 // 1 minute
 
     /**
      * Checks if session was acquired via auth token, you cannot check cookies,
@@ -22,7 +23,7 @@ class SessionTrackMiddleware {
     }
 
 
-    static async adjustCookieOptionsMiddleware (req, res, next) {
+    static adjustCookieOptionsMiddleware (req, res, next) {
         if (SessionTrackMiddleware.isTokenBasedAuth(req)) {
             return next()
         }
@@ -57,12 +58,30 @@ class SessionTrackMiddleware {
         })
     }
 
+    static trackLastActivityMiddleware (req, res, next) {
+        const session = get(req, 'session')
+        if (!session) return next()
+
+        const lastActivityMs = session.lastActivityTimestamp ?? 0
+        const now = Date.now()
+
+        // NOTE: we don't want to spam KV-store on each request, so we have small rate-limit to update here
+        if (lastActivityMs + SessionTrackMiddleware.ACTIVITY_TRACK_WINDOW_MS < now) {
+            req.session.lastActivityTimestamp = now
+        }
+
+        return next()
+    }
+
     async prepareMiddleware () {
         // this route can not be used for csrf attack (because no cookies and tokens are used in a public route)
         // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const app = express()
 
-        app.use(SessionTrackMiddleware.adjustCookieOptionsMiddleware)
+        app.use(
+            SessionTrackMiddleware.adjustCookieOptionsMiddleware,
+            SessionTrackMiddleware.trackLastActivityMiddleware,
+        )
 
         return app
     }
