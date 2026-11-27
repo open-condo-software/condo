@@ -22,6 +22,10 @@ class SessionTrackMiddleware {
         return tokenType === 'Bearer'
     }
 
+    static isKSAuthedSession (session) {
+        return session && session.keystoneListKey && session.keystoneItemId
+    }
+
 
     static adjustCookieOptionsMiddleware (req, res, next) {
         if (SessionTrackMiddleware.isTokenBasedAuth(req)) {
@@ -60,7 +64,16 @@ class SessionTrackMiddleware {
 
     static trackLastActivityMiddleware (req, res, next) {
         const session = get(req, 'session')
-        if (!session) return next()
+
+        // NOTE: We don't want to track unauthed (or OIDC) requests, at least for now.
+        // It also includes auth mutations (since, request counts as unauthed)
+        // Because if we modify req.session.anything then express-session will store it session-store (KV),
+        // That means new session (KV entrance) for each anonymous request
+        // So, for now we'll only track KS-authed requests.
+        // TODO(SavelevMatthew): think about tracking oidc requests as well from non-emptiness,
+        //  but its catchy (session might be modified after middleware).
+        //  Maybe intercept sessionStore.set method, or regenerate / save session methods
+        if (!SessionTrackMiddleware.isKSAuthedSession(session)) return next()
 
         const lastActivityMs = session.lastActivityTimestamp ?? 0
         const now = Date.now()
