@@ -35,19 +35,18 @@ jest.mock('@open-condo/featureflags/featureToggleManager', () => ({
     featureToggleManager: { getFeatureValue: jest.fn() },
 }))
 
-let disableRefresh
+let disableDistribution
 require('@condo/domains/common/utils/testSchema/env').mockEnv({
-    DISABLE_BILLING_RECEIPT_SERVICE_CATEGORIES_REFRESH: () => disableRefresh,
+    DISABLE_BILLING_RECEIPT_SERVICES_DISTRIBUTION: () => disableDistribution,
 })
 
 const conf = require('@open-condo/config')
 const { getLocalized } = require('@open-condo/locales/loader')
 
-const REFRESH_INTERVAL_MS = 5 * 60 * 1000
-const CONCURRENT_REQUEST_COUNT = 10
-
 describe('BillingReceipt servicesDistribution', () => {
-    let field, getFeatureValue, logger
+    const { featureToggleManager: { getFeatureValue } } = require('@open-condo/featureflags/featureToggleManager')
+    const logger = require('@open-condo/keystone/logging').getLogger()
+    const { SERVICES_DISTRIBUTION_FIELD: field } = require('./ServicesDistribution')
     const resolve = (services, locale = 'ru', toPay = services?.reduce((sum, service) => sum.plus(service.toPay), Big(0)).toString()) => field.resolver(
         { services, toPay },
         {},
@@ -55,18 +54,10 @@ describe('BillingReceipt servicesDistribution', () => {
     )
 
     beforeEach(() => {
-        disableRefresh = false
-        jest.isolateModules(() => {
-            getFeatureValue = require('@open-condo/featureflags/featureToggleManager').featureToggleManager.getFeatureValue
-            logger = require('@open-condo/keystone/logging').getLogger()
-            field = require('./ServicesDistribution').SERVICES_DISTRIBUTION_FIELD
-        })
+        disableDistribution = undefined
+        getFeatureValue.mockReset()
+        logger.warn.mockClear()
         getFeatureValue.mockResolvedValue(mockBillingReceiptServiceCategories)
-    })
-
-    afterEach(() => {
-        jest.restoreAllMocks()
-        jest.useRealTimers()
     })
 
     test('uses first matching pattern, normalizes text, and returns translated category names', async () => {
@@ -89,42 +80,8 @@ describe('BillingReceipt servicesDistribution', () => {
         ])
     })
 
-    test('concurrent requests wait for the same initial config load', async () => {
-        jest.useFakeTimers()
-        const receipt = { services: [{ name: 'Hot water', toPay: '1.00' }], toPay: '1.00' }
-        getFeatureValue.mockImplementation(() => new Promise(resolve => {
-            setTimeout(() => resolve(mockBillingReceiptServiceCategories), 1000)
-        }))
-
-        const contexts = Array.from({ length: CONCURRENT_REQUEST_COUNT }, () => ({ req: { locale: 'ru' } }))
-        const onResponse = jest.fn()
-        const requests = contexts.map(async context => {
-            const distribution = await field.resolver(receipt, {}, context)
-            onResponse()
-            return distribution
-        })
-
-        await jest.advanceTimersByTimeAsync(999)
-        expect(onResponse).not.toHaveBeenCalled()
-        expect(getFeatureValue).toHaveBeenCalledTimes(1)
-        expect(getFeatureValue).toHaveBeenCalledWith(contexts[0], 'billing-receipt-service-categories', null)
-        expect(getFeatureValue.mock.calls[0][0]).toBe(contexts[0])
-
-        await jest.advanceTimersByTimeAsync(1)
-        expect(onResponse).toHaveBeenCalledTimes(CONCURRENT_REQUEST_COUNT)
-
-        const expectedDistribution = [
-            { categoryName: getLocalized('ru', 'billing.category.hot_water.name'), amount: '1.00', color: '#ff0000' },
-        ]
-        for (const distribution of await Promise.all(requests)) {
-            expect(distribution).toEqual(expectedDistribution)
-        }
-        expect(getFeatureValue).toHaveBeenCalledTimes(1)
-    })
-
-    test('reports invalid config entries only once when reusing the loaded rules', async () => {
+    test('reports invalid config entries', async () => {
         const services = [{ name: 'Hot water', toPay: '1.00' }]
-        await resolve(services)
         await resolve(services)
 
         expect(logger.warn).toHaveBeenCalledTimes(1)
@@ -139,133 +96,23 @@ describe('BillingReceipt servicesDistribution', () => {
         }))
     })
 
-    test('skips flag loading when disabled and serves the current config', async () => {
-        let now = Date.now()
-        jest.spyOn(Date, 'now').mockImplementation(() => now)
-        const services = [{ name: 'Hot water', toPay: '1.00' }]
-        disableRefresh = true
-        expect(await resolve(services)).toEqual([
-            { categoryName: getLocalized('ru', 'billing.servicesDistribution.other.name'), amount: '1.00', color: '#999999' },
-        ])
+    test('returns an empty distribution without reading the flag when disabled', async () => {
+        disableDistribution = true
+        expect(await resolve([{ name: 'Hot water', toPay: '1.00' }])).toEqual([])
         expect(getFeatureValue).not.toHaveBeenCalled()
-
-        disableRefresh = false
-        const hotWater = [{ categoryName: getLocalized('ru', 'billing.category.hot_water.name'), amount: '1.00', color: '#ff0000' }]
-        expect(await resolve(services)).toEqual(hotWater)
-
-        disableRefresh = true
-        now += REFRESH_INTERVAL_MS
-        expect(await resolve(services)).toEqual(hotWater)
-        expect(getFeatureValue).toHaveBeenCalledTimes(1)
     })
 
-    test('releases all initial requests at the same deadline and uses the config when it arrives later', async () => {
-        jest.useFakeTimers()
+    test('uses the current flag value for each calculation', async () => {
         const services = [{ name: 'Hot water', toPay: '1.00' }]
-        const other = [{ categoryName: getLocalized('ru', 'billing.servicesDistribution.other.name'), amount: '1.00', color: '#999999' }]
-        getFeatureValue.mockImplementationOnce(() => new Promise(resolve => {
-            // NOTE getFeatureValue resolves in 6 seconds, but code expects it to resolve in 5 seconds
-            setTimeout(() => resolve(mockBillingReceiptServiceCategories), 6000)
-        }))
-
-        const onResponse = jest.fn()
-        const firstBatch = Array.from({ length: CONCURRENT_REQUEST_COUNT / 2 }, () => resolve(services).then(onResponse))
-        await jest.advanceTimersByTimeAsync(4000)
-        const secondBatch = Array.from({ length: CONCURRENT_REQUEST_COUNT / 2 }, () => resolve(services).then(onResponse))
-        await jest.advanceTimersByTimeAsync(999)
-        expect(onResponse).not.toHaveBeenCalled()
-
-        await jest.advanceTimersByTimeAsync(1)
-        expect(onResponse).toHaveBeenCalledTimes(CONCURRENT_REQUEST_COUNT)
-        await Promise.all([...firstBatch, ...secondBatch])
-        for (const [distribution] of onResponse.mock.calls) {
-            expect(distribution).toEqual(other)
-        }
-        expect(await resolve(services)).toEqual(other)
-        expect(getFeatureValue).toHaveBeenCalledTimes(1)
-
-        await jest.advanceTimersByTimeAsync(1000)
-        expect(await resolve(services)).toEqual([{ categoryName: getLocalized('ru', 'billing.category.hot_water.name'), amount: '1.00', color: '#ff0000' }])
-        expect(getFeatureValue).toHaveBeenCalledTimes(1)
-    })
-
-    test('retries after a refresh times out and ignores its late result', async () => {
-        jest.useFakeTimers()
-        const services = [{ name: 'Hot water', toPay: '1.00' }]
-        const hotWater = [{ categoryName: getLocalized('ru', 'billing.category.hot_water.name'), amount: '1.00', color: '#ff0000' }]
-        const other = [{ categoryName: getLocalized('ru', 'billing.servicesDistribution.other.name'), amount: '1.00', color: '#999999' }]
-        expect(await resolve(services)).toEqual(hotWater)
-        logger.warn.mockClear()
-
-        getFeatureValue.mockImplementationOnce(() => new Promise(resolve => {
-            setTimeout(() => resolve(mockBillingReceiptServiceCategories), 30_000 + REFRESH_INTERVAL_MS + 1_000)
-        })).mockResolvedValueOnce({ colors: {}, patterns: [] })
-
-        await jest.advanceTimersByTimeAsync(REFRESH_INTERVAL_MS)
-        expect(await resolve(services)).toEqual(hotWater)
-        expect(getFeatureValue).toHaveBeenCalledTimes(2)
-
-        await jest.advanceTimersByTimeAsync(30_000 + REFRESH_INTERVAL_MS - 1)
-        expect(await resolve(services)).toEqual(hotWater)
-        expect(getFeatureValue).toHaveBeenCalledTimes(2)
-        expect(logger.warn).toHaveBeenCalledWith(expect.objectContaining({
-            err: expect.objectContaining({ message: 'Config refresh timed out after 30000 ms' }),
-        }))
-
-        await jest.advanceTimersByTimeAsync(1)
-        expect(await resolve(services)).toEqual(hotWater)
-        expect(getFeatureValue).toHaveBeenCalledTimes(3)
-        expect(await resolve(services)).toEqual(other)
-
-        await jest.advanceTimersByTimeAsync(1_000)
-        expect(await resolve(services)).toEqual(other)
-        expect(getFeatureValue).toHaveBeenCalledTimes(3)
-    })
-
-    test('keeps the previous config during refresh and after a failed or missing value until an explicit reset', async () => {
-        jest.useFakeTimers()
-        const services = [{ name: 'Hot water', toPay: '1.00' }]
-        const hotWater = [{ categoryName: getLocalized('ru', 'billing.category.hot_water.name'), amount: '1.00', color: '#ff0000' }]
-        expect(await resolve(services)).toEqual(hotWater)
-
-        getFeatureValue.mockRejectedValueOnce(new Error('flag unavailable')).mockResolvedValueOnce(null)
-
-        // check that we still use prev config
-        jest.advanceTimersByTime(REFRESH_INTERVAL_MS - 1)
-        expect(await resolve(services)).toEqual(hotWater)
-        expect(getFeatureValue).toHaveBeenCalledTimes(1)
-
-        jest.advanceTimersByTime(1)
-        // time to refresh, here we use prev config, new config is being loaded in background
-        expect(await resolve(services)).toEqual(hotWater)
-        // new config was rejected with error, so prev config is still used
-        expect(await resolve(services)).toEqual(hotWater)
-        expect(getFeatureValue).toHaveBeenCalledTimes(2)
-
-        jest.advanceTimersByTime(REFRESH_INTERVAL_MS)
-        // time to refresh, here we use prev config, new config is being loaded in background
-        expect(await resolve(services)).toEqual(hotWater)
-        // new config was resolved with null, so prev config is still used
-        expect(await resolve(services)).toEqual(hotWater)
-        expect(getFeatureValue).toHaveBeenCalledTimes(3)
-
-        getFeatureValue.mockImplementationOnce(() => new Promise(resolve => {
-            setTimeout(() => resolve({ colors: {}, patterns: [] }), 1000)
-        }))
-        jest.advanceTimersByTime(REFRESH_INTERVAL_MS)
-        // time to refresh, here we use prev config, new config is being loaded in background
-        const requests = Array.from({ length: CONCURRENT_REQUEST_COUNT }, () => resolve(services))
-        for (const distribution of await Promise.all(requests)) {
-            expect(distribution).toEqual(hotWater)
-        }
-        expect(getFeatureValue).toHaveBeenCalledTimes(4)
-
-        await jest.advanceTimersByTimeAsync(1000)
-        // new config was valid, so it is used
+        expect(await resolve(services)).toEqual([
+            { categoryName: getLocalized('ru', 'billing.category.hot_water.name'), amount: '1.00', color: '#ff0000' },
+        ])
+        getFeatureValue.mockResolvedValueOnce({ patterns: [] })
         expect(await resolve(services)).toEqual([
             { categoryName: getLocalized('ru', 'billing.servicesDistribution.other.name'), amount: '1.00', color: '#999999' },
         ])
-        expect(getFeatureValue).toHaveBeenCalledTimes(4)
+        expect(getFeatureValue).toHaveBeenCalledTimes(2)
+        expect(getFeatureValue).toHaveBeenLastCalledWith({ req: { locale: 'ru' } }, 'billing-receipt-service-categories', null)
     })
 
     test('aggregates by translation key, not by localized category name', async () => {

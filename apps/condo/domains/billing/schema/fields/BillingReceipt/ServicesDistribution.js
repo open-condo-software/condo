@@ -16,13 +16,6 @@ const {
 const { BILLING_RECEIPT_SERVICE_CATEGORIES } = require('@condo/domains/common/constants/featureflags')
 
 const FALLBACK_COLOR = '#999999'
-const INITIAL_CONFIG_LOAD_TIMEOUT_MS = 5 * 1000
-const CONFIG_REFRESH_TIMEOUT_MS = 30 * 1000
-const CONFIG_REFRESH_INTERVAL_MS = 5 * 60 * 1000
-let serviceCategoriesConfig = { colors: {}, patterns: [], categoryOrder: new Map() }
-let initialConfigLoad
-let configRefreshPromise
-let nextConfigRefreshAt = 0
 
 const logger = getLogger()
 const configSchema = z.object({
@@ -59,10 +52,8 @@ function logConfigIssues (issues) {
 }
 
 function parseServiceCategoriesConfig (config) {
-    if (config == null) return null
-
     const issues = []
-    const configResult = configSchema.safeParse(config)
+    const configResult = configSchema.safeParse(config ?? {})
     if (!configResult.success) {
         collectZodIssues(issues, [BILLING_RECEIPT_SERVICE_CATEGORIES], configResult.error.issues)
         logConfigIssues(issues)
@@ -142,48 +133,6 @@ function parseServiceCategoriesConfig (config) {
     return { colors, patterns, categoryOrder }
 }
 
-async function refreshServiceCategoriesConfig (context) {
-    // The fetch timeout does not cover reading the response body. Bound the full refresh so a stalled read cannot block future attempts.
-    let timeout
-    const deadline = new Promise((resolve, reject) => {
-        timeout = setTimeout(() => reject(new Error(`Config refresh timed out after ${CONFIG_REFRESH_TIMEOUT_MS} ms`)), CONFIG_REFRESH_TIMEOUT_MS)
-    })
-    try {
-        const config = await Promise.race([
-            featureToggleManager.getFeatureValue(context, BILLING_RECEIPT_SERVICE_CATEGORIES, null),
-            deadline,
-        ])
-        const parsedConfig = parseServiceCategoriesConfig(config)
-        if (parsedConfig) serviceCategoriesConfig = parsedConfig
-    } catch (err) {
-        logger.warn({ msg: `Failed to load ${BILLING_RECEIPT_SERVICE_CATEGORIES} config`, err })
-    } finally {
-        clearTimeout(timeout)
-    }
-}
-
-async function getServiceCategoriesConfig (context) {
-    if (conf.DISABLE_BILLING_RECEIPT_SERVICE_CATEGORIES_REFRESH === 'true') return serviceCategoriesConfig
-
-    if (!configRefreshPromise && Date.now() >= nextConfigRefreshAt) {
-        configRefreshPromise = refreshServiceCategoriesConfig(context).finally(() => {
-            nextConfigRefreshAt = Date.now() + CONFIG_REFRESH_INTERVAL_MS
-            configRefreshPromise = undefined
-        })
-
-        if (initialConfigLoad === undefined) {
-            let timeout
-            const deadline = new Promise(resolve => { timeout = setTimeout(resolve, INITIAL_CONFIG_LOAD_TIMEOUT_MS) })
-            initialConfigLoad = Promise.race([configRefreshPromise, deadline]).finally(() => {
-                clearTimeout(timeout)
-                initialConfigLoad = null
-            })
-        }
-    }
-    if (initialConfigLoad) await initialConfigLoad
-    return serviceCategoriesConfig
-}
-
 function normalizeServiceName (value) {
     return String(value || '')
         .toLowerCase()
@@ -230,9 +179,11 @@ const SERVICES_DISTRIBUTION_FIELD = {
     type: 'Virtual',
     access: readOnlyFieldAccess,
     extendGraphQLTypes: [`type ${BILLING_RECEIPT_SERVICE_DISTRIBUTION_FIELD_NAME} { categoryName: String!, amount: String!, color: String! }`],
-    graphQLReturnType: `[${BILLING_RECEIPT_SERVICE_DISTRIBUTION_FIELD_NAME}!]!`,
+    graphQLReturnType: `[${BILLING_RECEIPT_SERVICE_DISTRIBUTION_FIELD_NAME}!]`,
     graphQLReturnFragment: '{ categoryName amount color }',
     resolver: async (receipt, args, context) => {
+        if (conf.DISABLE_BILLING_RECEIPT_SERVICES_DISTRIBUTION === 'true') return []
+
         const services = receipt.services
         if (!Array.isArray(services) || services.length === 0) return []
 
@@ -242,7 +193,17 @@ const SERVICES_DISTRIBUTION_FIELD = {
             return []
         }
 
-        const { colors, patterns, categoryOrder } = await getServiceCategoriesConfig(context)
+        let config
+        try {
+            config = await featureToggleManager.getFeatureValue(context, BILLING_RECEIPT_SERVICE_CATEGORIES, null)
+        } catch (err) {
+            logger.warn({ msg: `Failed to load ${BILLING_RECEIPT_SERVICE_CATEGORIES} config`, err })
+            return []
+        }
+        const parsedConfig = parseServiceCategoriesConfig(config)
+        if (!parsedConfig) return []
+
+        const { colors, patterns, categoryOrder } = parsedConfig
         const sums = new Map()
         services.forEach(({ name, toPay }) => {
             const categoryName = getServiceCategory(name, patterns)

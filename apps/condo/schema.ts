@@ -23058,6 +23058,8 @@ export type BillingReceipt = {
   sender?: Maybe<SenderField>;
   /**  Services to pay for. Every service has id, name and toPay. Service may or may not have toPay detail. Detail level 3 and 4  */
   services?: Maybe<Array<BillingReceiptServiceField>>;
+  /**  Service charges grouped by configured category, with localized category names  */
+  servicesDistribution?: Maybe<Array<BillingReceiptServiceDistribution>>;
   /**  Total sum to pay. Usually counts as the sum of all services.  */
   toPay?: Maybe<Scalars['String']['output']>;
   /**  @deprecated Sum to pay details. Detail level 2. This field will be removed in the future. All data is saved in the corresponding fields of the BillingReceipt (charge formula balance recalculation privilege penalty paid). After toPayDetails field removal you should update it content explicitly  */
@@ -23965,6 +23967,13 @@ export type BillingReceiptRelateToOneInput = {
   create?: InputMaybe<BillingReceiptCreateInput>;
   disconnect?: InputMaybe<BillingReceiptWhereUniqueInput>;
   disconnectAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+export type BillingReceiptServiceDistribution = {
+  __typename?: 'BillingReceiptServiceDistribution';
+  amount: Scalars['String']['output'];
+  categoryName: Scalars['String']['output'];
+  color: Scalars['String']['output'];
 };
 
 export type BillingReceiptServiceField = {
@@ -93358,6 +93367,7 @@ export type ResidentBillingReceiptOutput = {
   recipient: BillingReceiptsRecipientField;
   serviceConsumer: ServiceConsumer;
   services?: Maybe<Array<BillingReceiptServiceField>>;
+  servicesDistribution?: Maybe<Array<BillingReceiptServiceDistribution>>;
   toPay: Scalars['String']['output'];
   toPayDetails?: Maybe<BillingReceiptToPayDetailsField>;
   updatedAt?: Maybe<Scalars['String']['output']>;
