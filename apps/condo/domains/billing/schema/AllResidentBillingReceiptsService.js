@@ -21,11 +21,13 @@ const {
     BILLING_RECEIPT_RECIPIENT_FIELD_NAME,
     BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME,
     BILLING_RECEIPT_SERVICES_FIELD,
+    BILLING_RECEIPT_SERVICE_DISTRIBUTION_FIELD_NAME,
 } = require('@condo/domains/billing/constants/constants')
 const { BILLING_RECEIPT_COMMON_FIELDS } = require('@condo/domains/billing/gql')
 const { removeKeysFromObjectDeep } = require('@condo/domains/billing/utils/gqlWhereInput.utils')
 const { BillingReceipt, getNewPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
 const { normalizeUnitName } = require('@condo/domains/billing/utils/unitName.utils')
+const { isFieldRequested } = require('@condo/domains/common/utils/gql')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 const { getOrganizationIdsWithoutPdfReceipts, buildPdfReceiptsRestrictionKey } = require('@condo/domains/subscription/utils/serverSchema/pdfReceiptsAvailability')
 
@@ -89,7 +91,7 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
         },
         {
             access: true,
-            type: `type ResidentBillingReceiptOutput { dv: String!, recipient: ${BILLING_RECEIPT_RECIPIENT_FIELD_NAME}!, id: ID!, period: String!, toPay: String!, paid: String!, explicitFee: String!, printableNumber: String, toPayDetails: ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME}, services: ${BILLING_RECEIPT_SERVICES_FIELD}, serviceConsumer: ServiceConsumer! currencyCode: String! category: BillingCategory! isPayable: Boolean! file: ResidentBillingReceiptFile updatedAt: String }`,
+            type: `type ResidentBillingReceiptOutput { dv: String!, recipient: ${BILLING_RECEIPT_RECIPIENT_FIELD_NAME}!, id: ID!, period: String!, toPay: String!, paid: String!, explicitFee: String!, printableNumber: String, toPayDetails: ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME}, services: ${BILLING_RECEIPT_SERVICES_FIELD}, servicesDistribution: [${BILLING_RECEIPT_SERVICE_DISTRIBUTION_FIELD_NAME}!], serviceConsumer: ServiceConsumer! currencyCode: String! category: BillingCategory! isPayable: Boolean! file: ResidentBillingReceiptFile updatedAt: String }`,
         },
     ],
 
@@ -97,7 +99,7 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
         {
             access: access.canGetAllResidentBillingReceipts,
             schema: 'allResidentBillingReceipts (where: ResidentBillingReceiptWhereInput, first: Int, skip: Int, sortBy: [SortResidentBillingReceiptsBy!]): [ResidentBillingReceiptOutput]',
-            resolver: async (parent, args, context = {}) => {
+            resolver: async (parent, args, context = {}, info) => {
                 const { where, first, skip, sortBy } = args
 
                 const serviceConsumerWhere = { ...get(where, 'serviceConsumer', {}), deletedAt: null }
@@ -142,12 +144,16 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                     'OR': receiptsQuery,
                 }
 
+                const receiptFields = isFieldRequested(info, 'servicesDistribution')
+                    ? `${BILLING_RECEIPT_FIELDS} servicesDistribution { categoryName amount color }`
+                    : BILLING_RECEIPT_FIELDS
+
                 // NOTE: we have an index for this query called "billingAccount_number_deletedAt"
                 // if you modify the query you should make sure that the index is still being used
                 const receiptsForConsumer = await BillingReceipt.getAll(
                     context,
                     joinedReceiptsQuery,
-                    BILLING_RECEIPT_FIELDS,
+                    receiptFields,
                     {
                         sortBy, first, skip,
                     }
@@ -191,6 +197,7 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                         toPay: receipt.toPay,
                         toPayDetails: receipt.toPayDetails,
                         services: receipt.services,
+                        servicesDistribution: receipt.servicesDistribution,
                         printableNumber: receipt.printableNumber,
                         serviceConsumer: serviceConsumers.find(({ accountNumber, organization }) =>
                             get(receipt, ['account', 'number']) === accountNumber &&

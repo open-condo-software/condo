@@ -16284,6 +16284,12 @@ input BillingReceiptServiceFieldInput {
   toPayDetails: BillingReceiptServiceToPayDetailsFieldInput
 }
 
+type BillingReceiptServiceDistribution {
+  categoryName: String!
+  amount: String!
+  color: String!
+}
+
 type BillingReceiptsRecipientField {
   name: String
   bankName: String
@@ -16416,6 +16422,10 @@ type BillingReceipt {
   """ Services to pay for. Every service has id, name and toPay. Service may or may not have toPay detail. Detail level 3 and 4 
   """
   services: [BillingReceiptServiceField!]
+
+  """ Service charges grouped by configured category, with localized category names
+  """
+  servicesDistribution: [BillingReceiptServiceDistribution!]
 
   """ Recipient. Should contain all meta information to identify the organization 
   """
@@ -96389,6 +96399,7 @@ type ResidentBillingReceiptOutput {
   printableNumber: String
   toPayDetails: BillingReceiptToPayDetailsField
   services: [BillingReceiptServiceField!]
+  servicesDistribution: [BillingReceiptServiceDistribution!]
   serviceConsumer: ServiceConsumer!
   currencyCode: String!
   category: BillingCategory!
